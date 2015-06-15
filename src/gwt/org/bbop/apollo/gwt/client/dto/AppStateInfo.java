@@ -14,7 +14,6 @@ public class AppStateInfo implements HasJSON{
     private OrganismInfo currentOrganism ;
     private List<OrganismInfo> organismList ;
     private SequenceInfo currentSequence ;
-//    private List<SequenceInfo> currentSequenceList ;
     private Integer currentStartBp;
     private Integer currentEndBp;
 
@@ -42,13 +41,6 @@ public class AppStateInfo implements HasJSON{
         this.currentSequence = currentSequence;
     }
 
-//    public List<SequenceInfo> getCurrentSequenceList() {
-//        return currentSequenceList;
-//    }
-//
-//    public void setCurrentSequenceList(List<SequenceInfo> currentSequenceList) {
-//        this.currentSequenceList = currentSequenceList;
-//    }
 
     @Override
     public JSONObject toJSON() {

@@ -9,8 +9,7 @@ require({
 
 define.amd.jQuery = true;
 
-define(
-       [
+define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/dom-construct',
@@ -37,6 +36,7 @@ define(
            'WebApollo/View/Dialog/Help',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'JBrowse/CodonTable',
+           'dojo/io-query',
            'lazyload/lazyload'
        ],
     function( declare,
@@ -65,6 +65,7 @@ define(
             HelpMixin,
             GFF3Driver,
             CodonTable,
+            ioQuery,
             LazyLoad ) {
 
 return declare( [JBPlugin, HelpMixin],
@@ -98,6 +99,11 @@ return declare( [JBPlugin, HelpMixin],
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
             this.setFavicon(browser.config.favicon);
+        }
+        queryParams=ioQuery.queryToObject( window.location.search.slice(1) );
+
+        if(queryParams.organism) {
+            this.organism=queryParams.organism;
         }
 
         args.cssLoaded.then( function() {

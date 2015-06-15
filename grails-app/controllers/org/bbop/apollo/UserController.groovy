@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.converters.JSON
@@ -22,12 +23,10 @@ class UserController {
         }
 
         def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
-        log.debug "allowable organisms ${allowableOrganisms.size()}"
 
         List<String> allUserGroups = UserGroup.all.name
         Map<String, List<UserOrganismPermission>> userOrganismPermissionMap = new HashMap<>()
         List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
-        log.debug "total permission list ${userOrganismPermissionList.size()}"
         for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList) {
             List<UserOrganismPermission> userOrganismPermissionListTemp = userOrganismPermissionMap.get(userOrganismPermission.user.username)
             if (userOrganismPermissionListTemp == null) {
@@ -36,7 +35,6 @@ class UserController {
             userOrganismPermissionListTemp.add(userOrganismPermission)
             userOrganismPermissionMap.put(userOrganismPermission.user.username, userOrganismPermissionListTemp)
         }
-        log.debug "org permission map ${userOrganismPermissionMap.size()}"
         for (v in userOrganismPermissionMap) {
             log.debug "${v.key} ${v.value}"
         }
@@ -78,7 +76,7 @@ class UserController {
             JSONArray organismPermissionsArray = new JSONArray()
             def userOrganismPermissionList3 = userOrganismPermissionMap.get(it.username)
             List<Long> organismsWithPermissions = new ArrayList<>()
-            log.debug "lsit retrieved? : ${userOrganismPermissionList3?.size()} for ${it.username}"
+            log.debug "list retrieved? : ${userOrganismPermissionList3?.size()} for ${it.username}"
             for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList3) {
                 if (userOrganismPermission.organism in allowableOrganisms) {
                     JSONObject organismJSON = new JSONObject()
@@ -95,8 +93,6 @@ class UserController {
             Set<Organism> organismList = allowableOrganisms.findAll() {
                 !organismsWithPermissions.contains(it.id)
             }
-            log.debug "organisms with permissions ${organismsWithPermissions.size()}"
-            log.debug "organisms list ${organismList.size()}"
 
             for (Organism organism in organismList) {
                 JSONObject organismJSON = new JSONObject()
@@ -164,19 +160,19 @@ class UserController {
     }
 
     //webservice
+    @Transactional
     def createUser() {
         try {
             log.debug "creating user ${request.JSON} -> ${params}"
-//            JSONObject dataObject = JSON.parse(params.data)
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-            if(!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+            if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
                 render status: HttpStatus.UNAUTHORIZED
+                return
             }
             if (User.findByUsername(dataObject.email) != null) {
                 JSONObject error = new JSONObject()
-                error.put("error", "User already exists. Please enter a new username")
+                error.put(FeatureStringEnum.ERROR.value, "User already exists. Please enter a new username")
                 render error.toString()
-
                 return
             }
 
@@ -184,7 +180,7 @@ class UserController {
                     firstName: dataObject.firstName
                     , lastName: dataObject.lastName
                     , username: dataObject.email
-                    , passwordHash: new Sha256Hash(dataObject.password).toHex()
+                    , passwordHash: new Sha256Hash(dataObject.newPassword?:dataObject.password).toHex()
             )
             user.save(insert: true)
 
@@ -206,10 +202,10 @@ class UserController {
     }
 
     //webservice
+    @Transactional
     def deleteUser() {
         try {
             log.debug "deleting user ${request.JSON} -> ${params}"
-//            JSONObject dataObject = JSON.parse(params.data)
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
             if(!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
                 render status: HttpStatus.UNAUTHORIZED

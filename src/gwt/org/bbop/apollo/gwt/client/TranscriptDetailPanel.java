@@ -38,11 +38,11 @@ public class TranscriptDetailPanel extends Composite {
     @UiField
     TextBox descriptionField;
     @UiField
-    InputGroupAddon locationField;
+    TextBox locationField;
     @UiField
-    InputGroupAddon userField;
+    TextBox userField;
     @UiField
-    InputGroupAddon sequenceField;
+    TextBox sequenceField;
 
     private Boolean editable = false ;
 

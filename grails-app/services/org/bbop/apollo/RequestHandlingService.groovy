@@ -1680,8 +1680,7 @@ class RequestHandlingService {
     }
 
     /**
-     * TODO
-     *  From AnnotationEditorService .. . deleteFeature 1 and 2
+     *  From AnnotationEditorService
      */
 //    { "track": "Annotations-Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:
     def deleteFeature(JSONObject inputObject) {
@@ -1699,7 +1698,7 @@ class RequestHandlingService {
         boolean isUpdateOperation = false
 
         JSONArray oldJsonObjectsArray = new JSONArray()
-        // we have to hold transcripts if feature is an exon, etc. or a feature itself if not a transcfript
+        // we have to hold transcripts if feature is an exon, etc. or a feature itself if not a transcript
         Map<String, JSONObject> oldFeatureMap = new HashMap<>()
         log.debug "features to delete: ${featuresArray.size()}"
 
@@ -1729,7 +1728,7 @@ class RequestHandlingService {
                         oldFeatureMap.put(feature.uniqueName, featureService.convertFeatureToJSON(feature))
                     }
                 }
-//                oldJsonObjectsArray.add(featureService.convertFeatureToJSON(feature))
+                //oldJsonObjectsArray.add(featureService.convertFeatureToJSON(feature))
                 // is this a bug?
                 isUpdateOperation = featureService.deleteFeature(feature, modifiedFeaturesUniqueNames) || isUpdateOperation;
                 List<Feature> modifiedFeaturesList = modifiedFeaturesUniqueNames.get(uniqueName)
@@ -1741,7 +1740,7 @@ class RequestHandlingService {
             }
         }
         for (String key : oldFeatureMap.keySet()) {
-            log.debug " seeting keys ?"
+            log.debug "setting keys"
             oldJsonObjectsArray.add(oldFeatureMap.get(key))
         }
 
@@ -1756,7 +1755,6 @@ class RequestHandlingService {
             if (!isUpdateOperation) {
                 log.debug "is not update operation "
                 featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(new JSONObject().put(FeatureStringEnum.UNIQUENAME.value, uniqueName));
-//
                 if (feature instanceof Transcript) {
                     Transcript transcript = (Transcript) feature;
                     Gene gene = transcriptService.getGene(transcript)
@@ -1765,7 +1763,6 @@ class RequestHandlingService {
                     }
                     int numberTranscripts = transcriptService.getTranscripts(gene).size()
                     if (numberTranscripts == 1) {
-                        // wouldn't this be a gene?
                         Feature topLevelFeature = featureService.getTopLevelFeature(gene)
                         featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
 

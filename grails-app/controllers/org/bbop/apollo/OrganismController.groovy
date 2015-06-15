@@ -23,6 +23,10 @@ class OrganismController {
     def preferenceService
 
 
+    def chooseOrganismForJbrowse(){
+        [organisms:Organism.listOrderByCommonName(),urlString:params.urlString]
+    }
+
     @Transactional
     def deleteOrganism() {
         log.debug "DELETING ORGANISM params: ${params.data}"
@@ -71,7 +75,6 @@ class OrganismController {
                 }
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
                 sequenceService.loadRefSeqs(organism)
-                println "trying to find all organisms"
                 render findAllOrganisms()
             }
             else {

@@ -22,6 +22,7 @@ public class SequenceRestService {
         RestService.sendRequest(requestCallback, "sequence/setCurrentSequence/" + sequenceInfo.getId());
     }
 
+
     public static void generateLink(final ExportPanel exportPanel) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("type", new JSONString(exportPanel.getType()));
@@ -44,7 +45,6 @@ public class SequenceRestService {
                 String sequenceType = responseObject.get("sequenceType").isString().stringValue();
                 String exportUrl = Annotator.getRootUrl() + "sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType;
                 exportPanel.setExportUrl(exportUrl);
-//                Window.open(rootUrl + "/sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType, "_blank", "");
             }
 
             @Override

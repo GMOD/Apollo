@@ -14,7 +14,7 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.*;
-
+import org.gwtbootstrap3.client.ui.TextBox;
 /**
  * Created by ndunn on 1/9/15.
  */
@@ -28,17 +28,17 @@ public class GeneDetailPanel extends Composite {
 
     private static AnnotationDetailPanelUiBinder ourUiBinder = GWT.create(AnnotationDetailPanelUiBinder.class);
     @UiField
-    org.gwtbootstrap3.client.ui.TextBox nameField;
+    TextBox nameField;
     @UiField
-    org.gwtbootstrap3.client.ui.TextBox symbolField;
+    TextBox symbolField;
     @UiField
-    org.gwtbootstrap3.client.ui.TextBox descriptionField;
+    TextBox descriptionField;
     @UiField
-    InputGroupAddon locationField;
+    TextBox locationField;
     @UiField
-    InputGroupAddon sequenceField;
+    TextBox sequenceField;
     @UiField
-    InputGroupAddon userField;
+    TextBox userField;
 
 //    private SharedStuff sharedStuff = new SharedStuff();
 //    private JSONObject internalData ;

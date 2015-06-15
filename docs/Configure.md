@@ -146,52 +146,37 @@ supports the following "higher level" types (from the Sequence Ontology):
 
 ### Apache / Nginx Configuration
 
-Often time admins will put Apache or Nginx in front of a servlet container (e.g., Tomcat, Jetty) and proxy calls.  
-This is not necessary, but it is a very standard configuration.  
+Often time admins will put Apache or Nginx in front of a servlet container (e.g., Tomcat, Jetty).  This is not necessary, but it is a very standard configuration.  
 
-One change (from previous verions) is support for web sockets.  We use the SockJS library, which will downgrade to 
-long-polling if web sockets are not available. 
+One thing to consider with this proxy setup is the websocket calls. We use the SockJS library, which will downgrade to long-polling if web sockets are not available, but since websockets are preferable, it helps to take some extra steps to ensure that the websocket calls are proxied or forwarded in some way too.
 
-To avoid this (performance may be affected and firewalls perfer web sockets):
-- every modern web browsers support web sockets  (http://caniuse.com/#feat=websockets)
-- Jetty, and Tomcat (7 and 8) both support web sockets unless VERY old so everytyhing should just work.
-
-Assuming that Tomcat / Jetty is serving from the same host on the standard port 8080.
 
 #### Apache Proxy 
 
-There are many ways to do proxy apache to tomcat.   Using proxy-html.conf (make sure its activated and installed) add lines similar to these.
-To proxy websockets explicity you need mod_proxy_wstunnel (typically built in):  http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html
-
-First uncomment it (on a mac) or use a2enmod enable it (on ubuntu / debian):
-
-    LoadModule proxy_wstunnel_module libexec/apache2/mod_proxy_wstunnel.so
-
-
-In http.conf or proxy-html.conf add the lines:
-
-    ProxyRequests     off
-    ProxyPreserveHost on
-    
-    ProxyPass "/apollo/stomp"  "ws://localhost:8080/apollo/stomp"
-    ProxyPassReverse "/apollo/stomp" "ws://localhost:8080/apollo/stomp"
-    
-    <Proxy *>
-         Order deny,allow
-         Allow from all
-    </Proxy>
-    
-    
+The most simple setup on apache is a reverse proxy. Note that a reverse proxy _does not_ use `ProxyRequests On` (i.e. if you want you can set `ProxyRequests Off`, it is not relevant to reverse proxies). Here is the most basic configuration:
     
     ProxyPass  /apollo http://localhost:8080/apollo
     ProxyPassReverse  /apollo http://localhost:8080/apollo
     ProxyPassReverseCookiePath  / http://localhost:8080/apollo
     
+This setup will use AJAX long-polling unless websockets are also configured to be proxied. To setup the proxy for websockets, you can use mod_proxy_wstunnel (available for httpd 2.4):  http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html
 
+First load the module or use a2enmod enable it (on ubuntu / debian):
+
+    LoadModule proxy_wstunnel_module libexec/apache2/mod_proxy_wstunnel.so
+
+
+Then in your server config, i.e. httpd.conf, add extra ProxyPass calls for the websocket "endpoint" called /apollo/stomp
+
+    
+    ProxyPass /apollo/stomp  ws://localhost:8080/apollo/stomp
+    ProxyPassReverse /apollo/stomp ws://localhost:8080/apollo/stomp
+
+    
 
 #### Nginx Proxy (from version 1.4 on)
 
-Your setup may vary, but setting the upgrade headers is the key part and .
+Your setup may vary, but setting the upgrade headers can be used for the websocket configuration http://nginx.org/en/docs/http/websocket.html
 
     map $http_upgrade $connection_upgrade {
             default upgrade;
@@ -200,13 +185,12 @@ Your setup may vary, but setting the upgrade headers is the key part and .
     
     
     server {
-        ## Main
+        # Main
         listen   80;
         server_name  myserver;
         
-        # . . . other settings
+        # http://nginx.org/en/docs/http/websocket.html
         location /ApolloSever {
-            # . . . other settings
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection $connection_upgrade;
@@ -222,6 +206,7 @@ Your setup may vary, but setting the upgrade headers is the key part and .
 Todo
 
 #### FASTA
+
 Todo
 
 ### Upgrading existing instances
@@ -231,9 +216,6 @@ Todo
 
 #### Upgrading existing JBrowse data stores
 
-It is not necessary to upgrade the JBrowse data tracks to use Web Apollo 2.0, you can just point to the data directory
-from your previous instances from the Organism panel.
+It is not necessary to upgrade the JBrowse data tracks to use Web Apollo 2.0, you can just point to existing data directories from your previous instances from the Organism panel.
 
-##### Sequence alterations updating
 
-Todo

@@ -134,7 +134,7 @@ class FeatureService {
     }
 
     def setOwner(Feature feature, User owner) {
-        println "setting owner for feature ${feature} to ${owner}"
+        log.debug "setting owner for feature ${feature} to ${owner}"
         feature.addToOwners(owner)
     }
 
@@ -242,7 +242,13 @@ class FeatureService {
 //            String cvTermString = isPseudogene ? FeatureStringEnum.PSEUDOGENE.value : FeatureStringEnum.GENE.value
             String cvTermString = FeatureStringEnum.GENE.value
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
-            String geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
+            String geneName
+            if(jsonTranscript.has(FeatureStringEnum.NAME.value)){
+                geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
+            }
+            else{
+                geneName = nameService.makeUniqueFeatureName(sequence.organism, sequence.name, new LetterPaddingStrategy(), false)
+            }
             if (!suppressHistory) {
                 geneName = nameService.makeUniqueFeatureName(sequence.organism, geneName, new LetterPaddingStrategy(), true)
             }
@@ -1163,7 +1169,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             gsolFeature = generateFeatureForType(ontologyId)
-            println "gsolFeature ${gsolFeature} for ${ontologyId}"
+            log.debug "gsolFeature ${gsolFeature} for ${ontologyId}"
 
             if (jsonFeature.has(FeatureStringEnum.ID.value)) {
                 gsolFeature.setId(jsonFeature.getLong(FeatureStringEnum.ID.value));

@@ -6,6 +6,7 @@ import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.codehaus.groovy.grails.web.json.JSONArray
 
 import javax.servlet.http.HttpServletResponse
 import java.text.DateFormat
@@ -20,6 +21,50 @@ class JbrowseController {
     def sequenceService
     def permissionService
     def preferenceService
+    def servletContext
+
+    def indexRouter(){
+        log.debug "routing the index: ${params}"
+
+        List<String> paramList = new ArrayList<>()
+        params.eachWithIndex{ entry, int i ->
+            if(entry.key!="action" && entry.key!="controller"){
+                paramList.add(entry.key+"="+entry.value)
+            }
+        }
+        String urlString = "/jbrowse/index.html?${paramList.join("&")}"
+        // case 3 - validated login (just read from preferences, then
+        if(permissionService.currentUser&&params.organism){
+            Organism organism = Organism.findById(params.organism)
+            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
+        }
+
+        if(permissionService.currentUser) {
+            File file = new File(servletContext.getRealPath("jbrowse/index.html"))
+            render file.text
+            return
+        }
+
+        log.debug "anonymous user"
+
+        // case 1 - anonymous login with organism ID, show organism
+        if(params.organism){
+            log.debug "organism ID specified: ${params.organism}"
+
+            // set the organism
+            Organism organism = Organism.findById(params.organism)
+            def session = request.getSession(true)
+            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+
+            // create an anonymous login
+            File file = new File(servletContext.getRealPath("jbrowse/index.html"))
+            render file.text
+            return
+        }
+
+        // case 2 - anonymous login with-OUT organism ID, show organism list
+        forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
+    }
 
 
     // is typically checking for trackData.json
@@ -37,6 +82,9 @@ class JbrowseController {
     }
 
     private String getJBrowseDirectoryForSession() {
+        if(!permissionService.getCurrentUser()){
+            return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
+        }
 
         long startTime = System.currentTimeMillis()
         String organismJBrowseDirectory = preferenceService.currentOrganismForCurrentUser.directory
@@ -52,12 +100,10 @@ class JbrowseController {
                 }
 
                 if (organism.sequences) {
-
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user,organism)
                     Sequence sequence = organism?.sequences?.first()
                     if(userOrganismPreference ==null){
-                        log.debug "creating a new one!"
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
                                 ,organism: organism
@@ -66,7 +112,6 @@ class JbrowseController {
                         ).save(insert:true,flush:true)
                     }
                     else{
-                        log.debug "updating an old one!!"
                         userOrganismPreference.sequence = sequence
                         userOrganismPreference.currentOrganism = true
                         userOrganismPreference.save()
@@ -81,7 +126,6 @@ class JbrowseController {
                 }
             }
         }
-
         return organismJBrowseDirectory
     }
 
@@ -89,7 +133,7 @@ class JbrowseController {
     def namesFiles(String directory, String jsonFile) {
         String dataDirectory = getJBrowseDirectoryForSession()
         String absoluteFilePath = dataDirectory + "/names/${directory}/${jsonFile}.json"
-        log.debug "names Files ${directory} ${jsonFile}  ${absoluteFilePath}"
+        log.debug "names Files ${absoluteFilePath}"
         File file = new File(absoluteFilePath);
         if (!file.exists()) {
             log.warn("Could not get for name and path: ${absoluteFilePath}");
@@ -164,10 +208,7 @@ class JbrowseController {
      * Has to handle a number of routes for the data directory.
      *
      * e.g. --
-     * trackList.json
      * tracks.conf
-     * names/meta.json
-     * refSeq.json
      * data/tracks/<track>/<annotation>/trackData.json
      * data/tracks/Amel_4.5_brain_ovary.gff/Group1.1/lf-1.json
      * data/bigwig/<fileName>.bw
@@ -175,8 +216,6 @@ class JbrowseController {
     def data(String fileName) {
         String dataDirectory = getJBrowseDirectoryForSession()
         log.debug "dataDir: ${dataDirectory}"
-
-        //log.debug  "fileName ${fileName}"
         log.debug "URI: " + request.getRequestURI()
         log.debug "URL: " + request.getRequestURL()
         log.debug "pathInfo: " + request.getPathInfo()
@@ -200,37 +239,6 @@ class JbrowseController {
             if (fileName.endsWith(".json") || params.format == "json") {
                 mimeType = "application/json";
                 response.setContentType(mimeType);
-
-//                if (fileName == "trackList.json") {
-//
-//                    JSONObject jsonObject = JSON.parse(file.text) as JSONObject
-//                    Organism organism = preferenceService.currentOrganismForCurrentUser
-//                    JSONObject organismObject = new JSONObject()
-//                    organismObject.put(FeatureStringEnum.NAME.value,organism.commonName )
-//                    organismObject.put(FeatureStringEnum.ID.value,organism.id)
-//                    organismObject.put("genus",organism.genus)
-//                    organismObject.put("species",organism.species)
-//                    jsonObject.put(FeatureStringEnum.ORGANISM.value, organismObject.toString())
-////                    OutputStream out = response.getOutputStream();
-//                    response.outputStream << jsonObject.toString()
-//                }
-//
-//                else{
-                    // Open the file and output streams
-                    FileInputStream fis = new FileInputStream(file);
-                    OutputStream out = response.getOutputStream();
-
-                    // Copy the contents of the file to the output stream
-                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-                    int count = 0;
-                    while ((count = fis.read(buf)) >= 0) {
-                        out.write(buf, 0, count);
-                    }
-                    fis.close();
-                    out.close();
-//                }
-
-                return
             } else if (fileName.endsWith(".bam")
                     || fileName.endsWith(".bw")
                     || fileName.endsWith(".bai")
@@ -334,6 +342,47 @@ class JbrowseController {
 
     }
 
+    def trackList() {
+        String dataDirectory = getJBrowseDirectoryForSession()
+        String absoluteFilePath = dataDirectory + "/trackList.json"
+        log.debug "trackList ${absoluteFilePath}"
+        File file = new File(absoluteFilePath);
+        def mimeType = "application/json";
+        response.setContentType(mimeType);
+
+        if (!file.exists()) {
+            log.warn("Could not get for name and path: ${absoluteFilePath}");
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            render status: NOT_FOUND
+            return;
+        }
+
+        // add datasets to the configuration
+        JSONObject jsonObject = JSON.parse(file.text) as JSONObject
+        Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
+        if(currentOrganism!=null) {
+            jsonObject.put("dataset_id",currentOrganism.id)
+        }
+        List<Organism> list=Organism.getAll()
+        JSONObject organismObjectContainer = new JSONObject()
+        for(organism in list) {
+            JSONObject organismObject = new JSONObject()
+            organismObject.put("name",organism.commonName)
+            String url = "javascript:window.top.location.href = '../annotator/loadLink?"
+            url += "organism=" + organism.getId();
+            url += "&highlight=0";
+            url += "&tracks='";
+            organismObject.put("url",url)
+            organismObjectContainer.put(organism.id, organismObject)
+        }
+        jsonObject.put("datasets",organismObjectContainer)
+
+        if(jsonObject.include==null) jsonObject.put("include",new JSONArray())
+        jsonObject.include.add("../plugins/WebApollo/json/annot.json")
+
+        response.outputStream << jsonObject.toString()
+        response.outputStream.close()
+    }
 
     private static boolean isCacheableFile(String fileName) {
         if (fileName.endsWith(".txt")) return true;

@@ -18,7 +18,6 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.SuggestBox;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
@@ -29,12 +28,11 @@ import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
-
+import org.gwtbootstrap3.client.ui.SuggestBox;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 /**
  * Created by ndunn on 12/18/14.
  */
@@ -102,7 +100,7 @@ public class MainPanel extends Composite {
     @UiField
     ListBox organismListBox;
     @UiField(provided = true)
-    static org.gwtbootstrap3.client.ui.SuggestBox sequenceSuggestBox;
+    static SuggestBox sequenceSuggestBox;
     @UiField
     HTML linkUrl;
     @UiField
@@ -121,7 +119,7 @@ public class MainPanel extends Composite {
 
     MainPanel() {
         instance = this;
-        sequenceSuggestBox = new org.gwtbootstrap3.client.ui.SuggestBox(sequenceOracle);
+        sequenceSuggestBox = new SuggestBox(sequenceOracle);
         exportStaticMethod();
 
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -281,15 +279,12 @@ public class MainPanel extends Composite {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
-//                        Window.alert(returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue());
                         new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, false);
                     } else {
                         getAppState();
                         logoutButton.setVisible(true);
                         currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
-
                         String displayName = currentUser.getEmail();
-
                         userName.setHTML(displayName.length() > maxUsernameLength ?
                                 displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
                     }
@@ -320,7 +315,6 @@ public class MainPanel extends Composite {
             builder.setCallback(requestCallback);
             builder.send();
         } catch (RequestException e) {
-            // Couldn't connect to server
             Window.alert(e.getMessage());
         }
 
@@ -350,7 +344,7 @@ public class MainPanel extends Composite {
         currentEndBp = maxRegion;
 
 
-        String trackListString = Annotator.getRootUrl() + "jbrowse/?loc=";
+        String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
         trackListString += selectedSequence;
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
         trackListString += "&highlight=&tracklist=0";
@@ -522,7 +516,6 @@ public class MainPanel extends Composite {
     }
 
     public void closeLink() {
-//        linkUrl.setHTML("");
         linkPanel.setVisible(false);
         mainSplitPanel.setWidgetSize(linkPanel, 0);
         mainSplitPanel.animate(100);
@@ -546,8 +539,6 @@ public class MainPanel extends Composite {
             url += "?loc=" + currentSequence.getName() + ":" + currentSequence.getStart() + ".." + currentSequence.getEnd();
         }
         url += "&organism=" + currentOrganism.getId();
-        url += "&highlight=0";
-        url += "&tracklist=0";
         url += "&tracks=";
 
         List<String> trackList = trackPanel.getTrackList();
@@ -557,7 +548,24 @@ public class MainPanel extends Composite {
                 url += ",";
             }
         }
-        linkUrl.setText(url);
+        String url2 = Annotator.getRootUrl();
+        url2 += "jbrowse/index.html";
+        if (currentStartBp != null) {
+            url2 += "?loc=" + currentSequence.getName() + ":" + currentStartBp + ".." + currentEndBp;
+        } else {
+            url2 += "?loc=" + currentSequence.getName() + ":" + currentSequence.getStart() + ".." + currentSequence.getEnd();
+        }
+        url2 += "&organism=" + currentOrganism.getId();
+        url2 += "&tracks=";
+
+        trackList = trackPanel.getTrackList();
+        for (int i = 0; i < trackList.size(); i++) {
+            url2 += trackList.get(i);
+            if (i < trackList.size() - 1) {
+                url2 += ",";
+            }
+        }
+        linkUrl.setHTML("Annotator link: "+url+"<br />Public link: "+url2);
         linkPanel.setVisible(true);
         mainSplitPanel.setWidgetSize(linkPanel, 50);
         mainSplitPanel.animate(100);
@@ -588,7 +596,7 @@ public class MainPanel extends Composite {
 
 
     public static void reloadAnnotator() {
-        GWT.log("!!! MainPanel::calling annotator relaod ");
+        GWT.log("MainPanel reloadAnnotator");
         annotatorPanel.reload();
     }
 
@@ -644,7 +652,6 @@ public class MainPanel extends Composite {
      * @param payload
      */
     public static void handleFeatureAdded(String payload) {
-//        if (handlingNavEvent) return;
         if (detailTabs.getSelectedIndex() == 0) {
             annotatorPanel.reload();
         }
@@ -656,8 +663,6 @@ public class MainPanel extends Composite {
      * @param payload
      */
     public static void handleFeatureDeleted(String payload) {
-//        if (handlingNavEvent) return;
-
         if (detailTabs.getSelectedIndex() == 0) {
             Scheduler.get().scheduleDeferred(new Command() {
                 @Override
@@ -675,7 +680,6 @@ public class MainPanel extends Composite {
      * @param payload
      */
     public static void handleFeatureUpdated(String payload) {
-//        if (handlingNavEvent) return;
         if (detailTabs.getSelectedIndex() == 0) {
             annotatorPanel.reload();
         }
@@ -710,7 +714,7 @@ public class MainPanel extends Composite {
         $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
         $wnd.getEmbeddedVersion = $entry(
             function apolloEmbeddedVersion() {
-                return 'ApolloGwt-1.0';
+                return 'ApolloGwt-2.0';
             }
         );
     }-*/;
@@ -751,14 +755,6 @@ public class MainPanel extends Composite {
     public void setCurrentOrganism(OrganismInfo currentOrganism) {
         this.currentOrganism = currentOrganism;
     }
-
-//    public SequenceInfo getCurrentSequence() {
-//        return currentSequence;
-//    }
-
-//    public void setCurrentSequence(SequenceInfo currentSequence) {
-//        this.currentSequence = currentSequence;
-//    }
 
     public List<OrganismInfo> getOrganismInfoList() {
         return organismInfoList;

@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.TextBox;
 /**
  * Created by Deepak on 4/28/15.
  */
@@ -27,15 +28,16 @@ public class RepeatRegionDetailPanel extends Composite {
     private static AnnotationDetailPanelUiBinder ourUiBinder = GWT.create(AnnotationDetailPanelUiBinder.class);
 
     @UiField
-    org.gwtbootstrap3.client.ui.TextBox nameField;
+    TextBox nameField;
     @UiField
-    org.gwtbootstrap3.client.ui.TextBox descriptionField;
+    TextBox descriptionField;
     @UiField
-    InputGroupAddon locationField;
+    TextBox locationField;
     @UiField
-    InputGroupAddon sequenceField;
+    TextBox sequenceField;
     @UiField
-    InputGroupAddon userField;
+    TextBox userField;
+
     public RepeatRegionDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
     }

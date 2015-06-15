@@ -12,10 +12,6 @@ class UserService {
     static String USER = "USER"
     static String ADMIN = "ADMIN"
 
-//    def addOwner(Feature feature,) {
-//
-//    }
-   
     // return admin role or user role
     Role getHighestRole(User user){
         for(Role role in user.roles.sort(){ a,b -> b.name<=>a.name }){
@@ -44,8 +40,6 @@ class UserService {
 
             organismMap.put(userOrganismPermission.organism.commonName, organismJSON)
         }
-
-        // TODO: not sure if these are automatically integrated or not
         for (GroupOrganismPermission groupOrganismPermission in GroupOrganismPermission.findAllByGroupInList(currentUser.userGroups as List)) {
 
             JSONObject organismJSON = organismMap.get(groupOrganismPermission.organism.commonName)
@@ -59,7 +53,6 @@ class UserService {
                 organismJSON.put("permissions", permissions)
             }
             organismJSON.put("groupId", groupOrganismPermission.groupId)
-
 
             organismMap.put(groupOrganismPermission.organism.commonName, organismJSON)
         }
