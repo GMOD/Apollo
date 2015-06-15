@@ -1124,18 +1124,18 @@ class RequestHandlingService {
     JSONObject deleteSequenceAlteration(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONObject deleteFeatureContainer = createJSONFeatureContainer();
-
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = SequenceAlteration.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
-//            SequenceAlteration sequenceAlteration = (SequenceAlteration) getFeature(editor, features.getJSONObject(i));
-
-//            editor.deleteSequenceAlteration(sequenceAlteration);
-            for (Feature feature : featureService.getOverlappingFeatures(sequenceAlteration.getFeatureLocation(), false)) {
+            FeatureLocation sequenceAlterationFeatureLocation = sequenceAlteration.getFeatureLocation()
+            deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
+            FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
+            sequenceAlteration.delete()
+            
+            for (Feature feature : featureService.getOverlappingFeatures(sequenceAlterationFeatureLocation, false)) {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                         featureService.setLongestORF(transcript)
@@ -1145,10 +1145,8 @@ class RequestHandlingService {
                     feature.save()
                 }
             }
-            FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
-            sequenceAlteration.delete()
-            deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
         }
+        
         AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
                 features: deleteFeatureContainer
                 , sequence: sequence
@@ -1159,7 +1157,6 @@ class RequestHandlingService {
                 features: updateFeatureContainer
                 , sequence: sequence
                 , operation: AnnotationEvent.Operation.UPDATE
-                , sequenceAlterationEvent: true
         )
         fireAnnotationEvent(deleteAnnotationEvent)
         fireAnnotationEvent(updateAnnotationEvent)
@@ -1181,7 +1178,6 @@ class RequestHandlingService {
 //            Feature gsolFeature = JSONUtil.convertJSONToFeature(features.getJSONObject(i), bioObjectConfiguration, trackToSourceFeature.get(track), new HttpSessionTimeStampNameAdapter(session, editor.getSession()));
 //            updateNewGsolFeatureAttributes(gsolFeature, trackToSourceFeature.get(track));
             SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
-
             if (grails.util.Environment.current != grails.util.Environment.TEST) {
 //                log.debug "setting owner for gene and transcript per: ${permissionService.findUser(activeUser)}"
                 if (activeUser) {
@@ -1191,7 +1187,6 @@ class RequestHandlingService {
                 }
             }
             sequenceAlteration.save()
-
 
             featureService.updateNewGsolFeatureAttributes(sequenceAlteration, sequence)
 
@@ -1228,16 +1223,20 @@ class RequestHandlingService {
             addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
         }
 
-
-        AnnotationEvent annotationEvent = new AnnotationEvent(
+        AnnotationEvent addAnnotationEvent = new AnnotationEvent(
                 features: addFeatureContainer
                 , sequence: sequence
                 , operation: AnnotationEvent.Operation.ADD
                 , sequenceAlterationEvent: true
         )
-
-        fireAnnotationEvent(annotationEvent)
-
+        AnnotationEvent updateAnnotationEvent = new AnnotationEvent(
+                features: updateFeatureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+        )
+        fireAnnotationEvent(addAnnotationEvent)
+        fireAnnotationEvent(updateAnnotationEvent)
+        
         return addFeatureContainer
 
     }
@@ -1686,7 +1685,6 @@ class RequestHandlingService {
      */
 //    { "track": "Annotations-Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:
     def deleteFeature(JSONObject inputObject) {
-        println "in delete feature ${inputObject as JSON}"
         log.debug "in delete feature ${inputObject as JSON}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         boolean suppressEvents = false
