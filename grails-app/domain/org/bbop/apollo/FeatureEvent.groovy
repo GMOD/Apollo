@@ -19,11 +19,11 @@ class FeatureEvent {
     String oldFeaturesJsonArray
 
 
-    String parentUniqueName // will be the same, unless split, then parent name may be different
-    String parentMergeUniqueName // the name of the parent merged from
+    Long parentId // will be the same, unless split, then parent name may be different
+    Long parentMergeId // the name of the parent merged from
     String uniqueName // from original top-level feature
-    String childUniqueName // will be the same, unless merged, then name will change
-    String childSplitUniqueName // on a split, then the name will change
+    Long childId // will be the same, unless merged, then name will change
+    Long childSplitId // on a split, then the name will change
 
     static constraints = {
         editor nullable: true
@@ -33,10 +33,10 @@ class FeatureEvent {
         name nullable: false, blank: false
 
         uniqueName nullable: false, blank: false
-        parentUniqueName nullable: true, blank: false
-        parentMergeUniqueName nullable: true, blank: false
-        childUniqueName nullable: true, blank: false
-        childSplitUniqueName  nullable: true, blank: false
+        parentId nullable: true, blank: false
+        parentMergeId nullable: true, blank: false
+        childId nullable: true, blank: false
+        childSplitId  nullable: true, blank: false
     }
 
     static mapping = {

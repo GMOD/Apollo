@@ -19,13 +19,25 @@ class FeatureEventServiceSpec extends Specification {
 
     // create 5 FeatureEvents
     def setup() {
-        new FeatureEvent ( operation: FeatureOperation.ADD_FEATURE ,childUniqueName: classUniqueName, name:"Gene123",uniqueName: classUniqueName ,dateCreated: today-7 ,current: false ).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.SPLIT_TRANSCRIPT,childUniqueName: classUniqueName,parentUniqueName: classUniqueName, name:"Gene123",uniqueName: classUniqueName  ,dateCreated: today-6 ,current: false ).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.SET_TRANSLATION_END,childUniqueName: classUniqueName,parentUniqueName: classUniqueName,name:"Gene123",uniqueName: classUniqueName  ,dateCreated: today-5 ,current: false ).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.SET_READTHROUGH_STOP_CODON,childUniqueName: classUniqueName,parentUniqueName: classUniqueName,name:"Gene123",uniqueName: classUniqueName  ,dateCreated: today-4 ,current: false ).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.SET_BOUNDARIES,childUniqueName: classUniqueName,parentUniqueName: classUniqueName,name:"Gene123",uniqueName: classUniqueName ,dateCreated: today-3 ,current: true).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.ADD_EXON,childUniqueName: classUniqueName,parentUniqueName: classUniqueName,name:"Gene123",uniqueName: classUniqueName  ,dateCreated: today-2 ,current: false).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.MERGE_TRANSCRIPTS,parentUniqueName: classUniqueName,name:"Gene123",uniqueName: classUniqueName  ,dateCreated: today-1 ,current: false).save(failOnError:true)
+        FeatureEvent f1 = new FeatureEvent ( operation: FeatureOperation.ADD_FEATURE , name:"Gene123",uniqueName: classUniqueName ,dateCreated: today-7 ,current: false ).save(failOnError:true)
+        FeatureEvent f2 = new FeatureEvent ( operation: FeatureOperation.SPLIT_TRANSCRIPT,  parentId: f1.id , name:"Gene123",uniqueName: classUniqueName  ,dateCreated: today-6 ,current: false ).save(failOnError:true)
+        f1.childId=f2.id
+        FeatureEvent f3 = new FeatureEvent ( operation: FeatureOperation.SET_TRANSLATION_END,  parentId: f2.id,name:"Gene123",uniqueName: classUniqueName  ,dateCreated: today-5 ,current: false ).save(failOnError:true)
+        f2.childId=f3.id
+        FeatureEvent f4 = new FeatureEvent ( operation: FeatureOperation.SET_READTHROUGH_STOP_CODON,  parentId: f3.id ,name:"Gene123",uniqueName: classUniqueName  ,dateCreated: today-4 ,current: false ).save(failOnError:true)
+        f3.childId=f4.id
+        FeatureEvent f5 = new FeatureEvent ( operation: FeatureOperation.SET_BOUNDARIES,  parentId: f4.id,name:"Gene123",uniqueName: classUniqueName ,dateCreated: today-3 ,current: true).save(failOnError:true)
+        f4.childId=f5.id
+        FeatureEvent f6 = new FeatureEvent ( operation: FeatureOperation.ADD_EXON,  parentId: f5.id,name:"Gene123",uniqueName: classUniqueName  ,dateCreated: today-2 ,current: false).save(failOnError:true)
+        f5.childId=f6.id
+        FeatureEvent f7 = new FeatureEvent ( operation: FeatureOperation.MERGE_TRANSCRIPTS, parentId: f6.id,name:"Gene123",uniqueName: classUniqueName  ,dateCreated: today-1 ,current: false).save(failOnError:true)
+        f1.save()
+        f2.save()
+        f3.save()
+        f4.save()
+        f5.save()
+        f6.save()
+        f7.save()
     }
 
     def cleanup() {
@@ -58,40 +70,45 @@ class FeatureEventServiceSpec extends Specification {
 
     void "lets get the current index"(){
         when: "we have multiple feature events"
-        new FeatureEvent(
+        FeatureEvent f4 = new FeatureEvent(
                 operation: FeatureOperation.ADD_FEATURE
                 ,name: "Gene123"
                 ,uniqueName: "AAAA"
                 ,current: false
                 ,dateCreated: new Date()-1
-                ,parentUniqueName: "AAAA"
         ).save()
-        new FeatureEvent(
+        FeatureEvent f3 = new FeatureEvent(
                 operation: FeatureOperation.ADD_TRANSCRIPT
                 ,name: "Gene123"
                 ,uniqueName: "AAAA"
-                ,childUniqueName: "AAAA"
-                ,parentUniqueName: "AAAA"
+                , childId: f4.id
                 ,current: false
                 ,dateCreated: new Date()-2
         ).save()
-        new FeatureEvent(
+        FeatureEvent f2 = new FeatureEvent(
                 operation: FeatureOperation.SPLIT_TRANSCRIPT
                 ,name: "Gene123"
                 ,uniqueName: "AAAA"
-                ,childUniqueName: "AAAA"
-                ,parentUniqueName: "AAAA"
+                , childId: f3.id
                 ,current: true
                 ,dateCreated: new Date()-3
         ).save()
-        new FeatureEvent(
+        // this is the first one!
+        FeatureEvent f1 = new FeatureEvent(
                 operation: FeatureOperation.MERGE_TRANSCRIPTS
                 ,name: "Gene123"
-                ,childUniqueName: "AAAA"
+                , childId: f2.id
                 ,uniqueName: "AAAA"
                 ,current: false
                 ,dateCreated: new Date()-4
         ).save()
+        f4.parentId = f3.id
+        f4.save()
+        f3.parentId = f2.id
+        f3.save()
+        f2.parentId = f1.id
+        f2.save()
+
         List<FeatureEvent> mostRecentFeatureEventList = FeatureEvent.findAllByUniqueName("AAAA",[sort:"dateCreated",order:"asc"])
         List<FeatureEvent> currentFeatureEventList = FeatureEvent.findAllByUniqueNameAndCurrent("AAAA",true,[sort:"dateCreated",order:"asc"])
 
@@ -272,6 +289,7 @@ class FeatureEventServiceSpec extends Specification {
         when: "we add another event to 2"
         service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND,name2,uniqueName2,new JSONObject(),new JSONObject(),new JSONObject(),null)
         currentFeature = service.findCurrentFeatureEvent(uniqueName2)
+        featureEventList1 = service.getHistory(uniqueName1)
         featureEventList2 = service.getHistory(uniqueName2)
 
 
@@ -292,25 +310,36 @@ class FeatureEventServiceSpec extends Specification {
         assert !featureEventList2.get(0).current
         assert featureEventList2.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
 
+        assert featureEventList1.get(2).current
+        assert featureEventList1.get(2).operation==FeatureOperation.SPLIT_TRANSCRIPT
+        assert !featureEventList1.get(1).current
+        assert featureEventList1.get(1).operation==FeatureOperation.SET_TRANSLATION_ENDS
+        assert !featureEventList1.get(0).current
+        assert featureEventList1.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+
 
         // note: if we revert to 0 . . it disappears!
-        when: "when we revert 2, it should reflect that"
-        FeatureEvent newActiveFeatureEvent = service.setTransactionForFeature(uniqueName2,2)
+        when: "when we revert 2 back on transcript 2"
+        FeatureEvent newActiveFeatureEvent = service.setTransactionForFeature(uniqueName2,1)
         println "new active feature event ${newActiveFeatureEvent}"
         featureEventList2 = service.getHistory(uniqueName2)
+        featureEventList1 = service.getHistory(uniqueName1)
 
-        then: "if we go forward on 2 in another direction, it should reflect the forward removal"
-        assert !featureEventList2.get(3).current
-        assert featureEventList2.get(3).operation==FeatureOperation.FLIP_STRAND
-        assert featureEventList2.get(2).current
-        assert featureEventList2.get(2).operation==FeatureOperation.SPLIT_TRANSCRIPT
-        assert !featureEventList2.get(1).current
-        assert featureEventList2.get(1).operation==FeatureOperation.SET_TRANSLATION_ENDS
-        assert !featureEventList2.get(0).current
-        assert featureEventList2.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+        then: "it should be active on the split transcript event for both"
+        assert 3==featureEventList1.size()
+        assert 0==featureEventList2.size()
+
+//        assert !featureEventList1.get(2).current
+//        assert featureEventList1.get(2).operation==FeatureOperation.SPLIT_TRANSCRIPT
+//        assert featureEventList1.get(1).current
+//        assert featureEventList1.get(1).operation==FeatureOperation.SET_TRANSLATION_ENDS
+//        assert !featureEventList1.get(0).current
+//        assert featureEventList1.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+
 
 
         when: "we revert 2 back to setting exon boundaries"
+
 
         then: "it should reflect that, deleting 2 from history"
 
