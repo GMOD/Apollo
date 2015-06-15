@@ -153,7 +153,7 @@ One thing to consider with this proxy setup is the websocket calls. We use the S
 
 #### Apache Proxy 
 
-The most simple setup on apache is a reverse proxy. Note that a reverse proxy _does not_ use ProxyPass On. Here is the most basic configuration:
+The most simple setup on apache is a reverse proxy. Note that a reverse proxy _does not_ use `ProxyRequests On` (i.e. if you want you can set `ProxyRequests Off`, it is not relevant to reverse proxies). Here is the most basic configuration:
     
     ProxyPass  /apollo http://localhost:8080/apollo
     ProxyPassReverse  /apollo http://localhost:8080/apollo

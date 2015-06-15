@@ -9,8 +9,7 @@ require({
 
 define.amd.jQuery = true;
 
-define(
-       [
+define([
            'dojo/_base/declare',
            'dojo/_base/lang',
            'dojo/dom-construct',
@@ -104,8 +103,9 @@ return declare( [JBPlugin, HelpMixin],
         queryParams=ioQuery.queryToObject( window.location.search.slice(1) );
 
         if(queryParams.organism) {
-            browser.config.dataset_id=queryParams.organism;
+            this.organism=queryParams.organism;
         }
+
         args.cssLoaded.then( function() {
             if (! browser.config.view) { browser.config.view = {}; }
             browser.config.view.maxPxPerBp = thisB.getSequenceCharacterSize().width;
