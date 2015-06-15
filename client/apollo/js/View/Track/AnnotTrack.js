@@ -357,15 +357,15 @@ define([
                             data: JSON.stringify(request),
                             handleAs: "json"
                         }).then(function (response) {
-                                if (response.error) {
-                                    alert("Failed to subscribe to websocket, no seq/org id available");
-                                    return;
-                                }
-                                client.subscribe("/topic/AnnotationNotification/" + track.webapollo.organism + "/" + response[0].id, dojo.hitch(track, 'annotationNotification'));
-                            },
-                            function () {
-                                console.log("Received error in organism lookup, anonymous mode jbrowse");
-                            });
+                            if (response.error) {
+                                alert("Failed to subscribe to websocket, no seq/org id available");
+                                return;
+                            }
+                            client.subscribe("/topic/AnnotationNotification/" + track.webapollo.organism + "/" + response[0].id, dojo.hitch(track, 'annotationNotification'));
+                        },
+                        function () {
+                            console.log("Received error in organism lookup, anonymous mode jbrowse");
+                        });
                     });
                 }
             },
