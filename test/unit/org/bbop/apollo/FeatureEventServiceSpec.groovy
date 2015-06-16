@@ -287,6 +287,8 @@ class FeatureEventServiceSpec extends Specification {
         then: "we have 3 on 1 and 2 on 2"
         assert 0==service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
         assert 2==service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
+        assert 0==service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()
+        assert 3==service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()
         assert 3==featureEventList1.size()
 
         assert 0==service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()

@@ -138,7 +138,7 @@ class FeatureEventService {
                 , uniqueName: uniqueName
                 , operation: featureOperation.name()
                 , current: true
-                , parentId: lastFeatureEvent.id
+                , parentId: lastFeatureEvent?.id
 //                , parentMergeId: lastFeatureEventList && lastFeatureEventList.size() > 1 ? lastFeatureEventList[1].id : null
                 , originalJsonCommand: inputCommand.toString()
                 , newFeaturesJsonArray: newFeatureArray.toString()
@@ -521,7 +521,9 @@ class FeatureEventService {
         }
         featureEvents.add(currentFeatureEvent)
         for (FeatureEvent featureEvent in currentFeatureEvent) {
-            featureEvents.addAll(findAllFutureFeatureEvents(featureEvent))
+            if(featureEvent.uniqueName==uniqueName){
+                featureEvents.addAll(findAllFutureFeatureEvents(featureEvent))
+            }
         }
 
         // if we have a split, it will pick up the same values twice
