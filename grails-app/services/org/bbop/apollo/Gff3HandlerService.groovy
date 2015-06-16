@@ -72,7 +72,6 @@ public class Gff3HandlerService {
     public void writeFeatures(WriteObject writeObject, Collection<? extends Feature> features, String source) throws IOException {
         Map<Sequence, Collection<Feature>> featuresBySource = new HashMap<Sequence, Collection<Feature>>();
         for (Feature feature : features) {
-            println "writing features ${feature.name}"
             Sequence sourceFeature = feature.getFeatureLocation().sequence
             Collection<Feature> featureList = featuresBySource.get(sourceFeature);
             if (!featureList) {
@@ -83,10 +82,8 @@ public class Gff3HandlerService {
         }
         featuresBySource.sort{ it.key }
         for (Map.Entry<Sequence, Collection<Feature>> entry : featuresBySource.entrySet()) {
-            println "writing group directives ${entry.key}"
             writeGroupDirectives(writeObject, entry.getKey());
             for (Feature feature : entry.getValue()) {
-                println "writing group directive feature ${feature.name}"
                 writeFeature(writeObject, feature, source);
                 writeFeatureGroupEnd(writeObject.out);
             }

@@ -10,11 +10,6 @@
             width: 100%;
         }
 
-        .widgetPanel {
-            padding-left: 20px;
-            margin-left: 20px;
-        }
-
         .statusPanel table {
             border-top: 1px solid #DFDFDF;
             border-collapse: collapse;
@@ -33,9 +28,6 @@
             border: 0 ;
         }
 
-        .statusPanel {
-            margin-left: 20px;
-        }
     </ui:style>
     <b:Container fluid="true" styleName="{style.preferenceContainer}">
         <gwt:HTML ui:field="adminPanel">

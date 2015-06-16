@@ -20,26 +20,16 @@
             vertical-align: middle;
         }
 
-        /*.trackTable tr:hover{*/
-        /*background-color: #d3d3d3;*/
-        /*}*/
 
         .tableKeyName {
             font-weight: bolder;
         }
 
-        .tableValue {
-            /*font-weight: bolder;*/
-        }
 
         .details-list {
             font-size: smaller;
-
         }
 
-        /*.rowStyle {*/
-        /*padding-bottom: 10px;*/
-        /*}*/
 
         .center-table {
             margin: 10px;
@@ -50,20 +40,13 @@
             padding-top: 5px;
         }
 
-        .divider {
-            padding-bottom: 10px;
-        }
 
         .pager {
             width: 100%;
-            /*display: inline;*/
-            /*border-right: solid;*/
-            /*border-width: medium;*/
-            /*border-color: #000000;*/
             margin-left: auto;
             margin-right: auto;
-
-        }</ui:style>
+        }
+    </ui:style>
     <gwt:SplitLayoutPanel>
         <gwt:north size="80">
             <b:Container fluid="true" styleName="{style.northPanel}">
@@ -94,13 +77,13 @@
                                 <gwt:HTML styleName="{style.tableKeyName}" text="First Name"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:TextBox ui:field="firstName" styleName="{style.tableValue}"/>
+                                <gwt:TextBox ui:field="firstName"/>
                             </b:Column>
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Last Name"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:TextBox ui:field="lastName" styleName="{style.tableValue}"/>
+                                <gwt:TextBox ui:field="lastName"/>
                             </b:Column>
                         </b:Row>
                         <b:Row ui:field="userRow2" visible="false">
@@ -108,7 +91,7 @@
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Email"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:TextBox ui:field="email" styleName="{style.tableValue}"/>
+                                <gwt:TextBox ui:field="email"/>
                             </b:Column>
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Role"/>
@@ -122,7 +105,7 @@
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Password"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:PasswordTextBox ui:field="passwordTextBox" styleName="{style.tableValue}"/>
+                                <gwt:PasswordTextBox ui:field="passwordTextBox"/>
                             </b:Column>
                         </b:Row>
                         <b:Row>
@@ -137,23 +120,14 @@
                 </gwt:tab>
                 <gwt:tab>
                     <gwt:header>Groups</gwt:header>
-                    <!--<gwt:HTML text="add / remove from all visible groups as admin"/>-->
                     <b:Container>
                         <b:Row>
                             <b:Column size="MD_2">
                                 <b:ListBox ui:field="availableGroupList"/>
-                                <!--</b:Column>-->
-                                <!--<b:Column size="MD_2">-->
                             </b:Column>
                             <b:Column size="MD_1">
                                 <b:Button ui:field="addGroupButton" icon="PLUS" color="blue"/>
                             </b:Column>
-                            <!--</b:Row>-->
-                            <!--<b:Row>-->
-                            <!--<b:Column size="MD_6" styleName="{style.divider}">-->
-                            <!--</b:Column>-->
-                            <!--</b:Row>-->
-                            <!--<b:Row>-->
                             <b:Column size="MD_3">
                                 <gwt:FlexTable ui:field="groupTable" styleName="{style.groupList}"/>
                             </b:Column>

@@ -335,7 +335,6 @@ public class MainPanel extends Composite {
             double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
             double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) oldLength;
             if (diff1 < UPDATE_DIFFERENCE_BUFFER && diff2 < UPDATE_DIFFERENCE_BUFFER) {
-//                GWT.log("Not updating sequence position");
                 return;
             }
         }
