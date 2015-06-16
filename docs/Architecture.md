@@ -141,12 +141,12 @@ TODO
 
 ### Main Configuration
 
-The central configuration files are defined in grails-app/conf/ folder, however the user normally only edits their personal config in apollo-config.groovy. That is because the user config file will override those in the central configuration. See [Configuration.md](Configure.md) for details.
+The central configuration files are defined in grails-app/conf/ folder, however the user normally only edits their personal config in apollo-config.groovy. That is because the user config file will override those in the central configuration. See [Configuration.md](Configuration.md) for details.
 
 #### Database configuration
 
 
-grails-app/conf/DataSource.groovy
+#####grails-app/conf/DataSource.groovy
 
 
 The database configuration is normally specified by the user in apollo-config.groovy. It is recommended to take sample-postgres-apollo-config.groovy or sample-mysql-apollo-config.groovy and copy it to apollo-config.groovy
@@ -156,13 +156,13 @@ The database configuration is normally specified by the user in apollo-config.gr
 The default database driver is the h2 database, which is an "embedded" database that doesn't require installing postgres or mysql. It is not generally seen as performant as postgres or mysql though. 
 
 
-Also note, there are three environments that can be setup: a development environment, a test environment, and a production environment.
+Note: there are three environments that can be setup: a development environment, a test environment, and a production environment, and these are basically assigned automatically depending on how you deploy the app.
 
-The development environment will be used when using commands like "apollo run-local"
+* Development environment - "apollo run-local" or "apollo debug"
 
-The test environment will be used when using commands like "apollo test"
+* Test environment - "apollo test"
 
-The production environment will be used when you use commands like "apollo deploy" or "apollo release"
+* Production environment - "apollo deploy" or "apollo release"
 
 
 Note: If there are no users and no annotations, a bootstrap procedure can also automatically create some annotations and users to start up the app so there is something in there to begin with.
@@ -170,7 +170,7 @@ Note: If there are no users and no annotations, a bootstrap procedure can also a
 
 #### UrlMapping configuration:
 
-grails-app/conf/UrlMappings.groovy
+#####grails-app/conf/UrlMappings.groovy
 
 The UrlMappings sets up a mapping from routes to controllers
 
@@ -179,7 +179,7 @@ Standard and customized mappings go in here. The way we route jbrowse to organis
 
 #### Build configuration
 
-grails-app/conf/BuildConfig.groovy
+#####grails-app/conf/BuildConfig.groovy
 
 If there are libraries that are missing are are to be added, you can add them here.
 
@@ -188,7 +188,7 @@ Additionally, the build system uses the "apollo" script and the "build.xml" to c
 
 #### Central config
 
-grails-app/conf/Config.groovy
+#####grails-app/conf/Config.groovy
 
 
 The central Grails config contains logging, app config, and also can reference external configs. The external config can override settings without even touching the application code using this method
@@ -203,7 +203,7 @@ There is also some WebApollo configuration here, and it is mostly covered by the
 
 ### GWT web-app
 
-When GWT compiles, it loads files into the web-app directory. When it loads up annotator, it goes to annotator index (the way things get loaded) it does an include annotator.nocache.js file, and with that, it includes all GWT stuff for the /annotator/index route.
+When GWT compiles, it loads files into the web-app directory. When it loads up annotator, it goes to annotator index (the way things get loaded) it does an include annotator.nocache.js file, and with that, it includes all GWT stuff for the /annotator/index route. The src/gwt/org/bbop/apollo/gwt/ contains much code and the src/gwt/org/bbop/apollo/gwt/Annotator.gwt.xml is a central config file for the GWT web-app.
 
 
 
