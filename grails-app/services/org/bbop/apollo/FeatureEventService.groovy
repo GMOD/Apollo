@@ -17,6 +17,7 @@ class FeatureEventService {
     def permissionService
     def featureService
     def requestHandlingService
+    def nameService
 
     FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, Feature feature, JSONObject inputCommand, User user) {
         if (Environment.current == Environment.TEST) {
