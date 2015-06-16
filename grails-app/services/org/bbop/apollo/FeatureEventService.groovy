@@ -284,13 +284,23 @@ class FeatureEventService {
         for (int i = 0; i < featureEventList.size(); i++) {
             List<FeatureEvent> featureEventArray = featureEventList.get(i)
             for (FeatureEvent featureEvent in featureEventArray) {
-                if (i == currentIndex && !featureEvent.current) {
+                if (i <= currentIndex) {
                     featureEvent.current = true
                     featureEvent.save()
                     currentFeatureEvent = featureEvent
-                } else if (i != currentIndex && featureEvent.current) {
-                    featureEvent.current = false
-                    featureEvent.save()
+                    if (i > 0) {
+                        if (featureEventList.get(i).size() < featureEventList.get(i - 1).size()) {
+                            featureEventList.get(i - 1).find() { it.uniqueName == uniqueName }.each() {
+                                it.current = false
+                                it.save()
+                            }
+                        } else {
+                            featureEventList.get(i - 1).each() {
+                                it.current = false
+                                it.save()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -299,7 +309,6 @@ class FeatureEventService {
             log.warn "Did we forget to change the feature event?"
             findCurrentFeatureEvent(uniqueName)
         }
-
         setNotCurrentFutureHistoryEvents(currentFeatureEvent)
 
 //        log.debug "updated is ${updated}"
@@ -488,7 +497,9 @@ class FeatureEventService {
             return [currentFeatureEvent]
         }
 
-        FeatureEvent firstFeatureEvent = previousFeatureEvents[0][0]
+        FeatureEvent firstFeatureEvent = previousFeatureEvents[0].find() {
+            it.uniqueName = uniqueName
+        }
 
         // or index== 0
         if (currentFeatureEvent.id == firstFeatureEvent.id) {
@@ -522,7 +533,7 @@ class FeatureEventService {
         featureEvents.add(currentFeatureEvent)
         // finding future events handles splits correctly, so we only need to manage this branch
         for (FeatureEvent featureEvent in currentFeatureEvent) {
-            if(featureEvent.uniqueName==uniqueName){
+            if (featureEvent.uniqueName == uniqueName) {
                 featureEvents.addAll(findAllFutureFeatureEvents(featureEvent))
             }
         }
