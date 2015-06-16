@@ -319,15 +319,15 @@ class FeatureEventServiceSpec extends Specification {
         featureEventList1 = service.getHistory(uniqueName1)
 
         then: "it should be active on the split transcript event for both"
-//        assert 3==featureEventList1.size()
-//        assert 0==featureEventList2.size()
+        assert 4==featureEventList1.size()  // we can fast-forward all the way up through 2 and the split
+        assert 0==featureEventList2.size()
 
-//        assert !featureEventList1.get(2).current
-//        assert featureEventList1.get(2).operation==FeatureOperation.SPLIT_TRANSCRIPT
-//        assert featureEventList1.get(1).current
-//        assert featureEventList1.get(1).operation==FeatureOperation.SET_TRANSLATION_ENDS
-//        assert !featureEventList1.get(0).current
-//        assert featureEventList1.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+        assert !featureEventList1[2][0].current
+        assert featureEventList1[2][0].operation==FeatureOperation.SPLIT_TRANSCRIPT
+        assert featureEventList1[1][0].current
+        assert featureEventList1[1][0].operation==FeatureOperation.SET_TRANSLATION_ENDS
+        assert !featureEventList1[0][0].current
+        assert featureEventList1[0][0].operation==FeatureOperation.ADD_TRANSCRIPT
 
 
 

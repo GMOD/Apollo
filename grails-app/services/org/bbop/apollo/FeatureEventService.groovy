@@ -512,7 +512,7 @@ class FeatureEventService {
         List<FeatureEvent> currentFeatureEvent = findCurrentFeatureEvent(uniqueName)
 
         // if we revert a split or do a merge
-        if (!currentFeatureEvent) return [[]]
+        if (!currentFeatureEvent) return []
 
         List<List<FeatureEvent>> featureEvents = new ArrayList<>()
 
@@ -520,6 +520,7 @@ class FeatureEventService {
             featureEvents.addAll(findAllPreviousFeatureEvents(featureEvent))
         }
         featureEvents.add(currentFeatureEvent)
+        // finding future events handles splits correctly, so we only need to manage this branch
         for (FeatureEvent featureEvent in currentFeatureEvent) {
             if(featureEvent.uniqueName==uniqueName){
                 featureEvents.addAll(findAllFutureFeatureEvents(featureEvent))
