@@ -124,7 +124,7 @@ class FeatureEventServiceSpec extends Specification {
         int currentIndex = service.getCurrentFeatureEventIndex("AAAA")
 
         then: "it should match the current index"
-        assert currentIndex==2
+        assert currentIndex==1
 
     }
 
@@ -254,6 +254,7 @@ class FeatureEventServiceSpec extends Specification {
         assert 3==FeatureEvent.countByUniqueName(uniqueName1)
         assert 1==FeatureEvent.countByUniqueName(uniqueName2)
         assert featureEventList1.size()==3
+        assert featureEventList2.size()==3
 
         assert 0==service.findAllFutureFeatureEvents(currentFeature).size()
         assert 2==service.findAllPreviousFeatureEvents(currentFeature).size()
@@ -277,18 +278,8 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList2[0][0].operation==FeatureOperation.ADD_TRANSCRIPT
 
 
-//        when: "we add another event to 1"
-//        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES,name1,uniqueName1,new JSONObject(),new JSONObject(),new JSONObject(),null)
-//
-//
-//        then: "we have 3 on 1 and 1 on 2, but 2 will have show the common add_transcript hsitory"
-//        assert 4==service.getHistory(uniqueName1).size()
-//        assert 3==service.getHistory(uniqueName2).size()
-
-
         when: "we add another event to 2"
         service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND,name2,uniqueName2,new JSONObject(),new JSONObject(),new JSONObject(),null)
-        currentFeature = service.findCurrentFeatureEvent(uniqueName2)
         featureEventList1 = service.getHistory(uniqueName1)
         featureEventList2 = service.getHistory(uniqueName2)
 
@@ -296,11 +287,11 @@ class FeatureEventServiceSpec extends Specification {
         then: "we have 3 on 1 and 2 on 2"
         assert 0==service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
         assert 2==service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
-        assert 3==service.getHistory(uniqueName1).size()
+        assert 3==featureEventList1.size()
 
         assert 0==service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()
         assert 3==service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()
-        assert 4==service.getHistory(uniqueName2).size()
+        assert 4==featureEventList2.size()
         assert featureEventList2[3][0].current
         assert featureEventList2[3][0].operation==FeatureOperation.FLIP_STRAND
         assert !featureEventList2[2][0].current
