@@ -150,9 +150,6 @@ class OrganismController {
         } else if (!refSeqFile.exists()) {
             organism.valid = false
             throw new Exception("Reference sequence file does not exists: " + refSeqFile.absolutePath)
-        } else if (!trackListFile.text.contains("WebApollo")) {
-            organism.valid = false
-            throw new Exception("The WA plugin is not enabled: " + trackListFile.absolutePath)
         } else {
             organism.valid = true
         }
