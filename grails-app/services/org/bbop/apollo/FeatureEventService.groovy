@@ -17,21 +17,22 @@ class FeatureEventService {
     def permissionService
     def featureService
     def requestHandlingService
-    def nameService
 
-    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, Feature feature, JSONObject inputCommand, User user) {
+    /**
+     *
+     * @param featureOperation
+     * @param geneName
+     * @param transcriptUniqueName
+     * @param commandObject
+     * @param jsonObject
+     * @param user
+     * @return
+     */
+    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String geneName, String transcriptUniqueName, JSONObject commandObject, JSONObject jsonObject, User user) {
         if (Environment.current == Environment.TEST) {
-            return addNewFeatureEventWithUser(featureOperation, feature, inputCommand, null)
+            return addNewFeatureEventWithUser(featureOperation, geneName, transcriptUniqueName, commandObject, jsonObject, (User) null)
         }
-        addNewFeatureEventWithUser(featureOperation, feature, inputCommand, user)
-    }
-
-
-    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputCommand, JSONObject jsonObject, User user) {
-        if (Environment.current == Environment.TEST) {
-            return addNewFeatureEventWithUser(featureOperation, name, uniqueName, inputCommand, jsonObject, (User) null)
-        }
-        addNewFeatureEventWithUser(featureOperation, name, uniqueName, inputCommand, jsonObject, user)
+        addNewFeatureEventWithUser(featureOperation, geneName, transcriptUniqueName, commandObject, jsonObject, user)
     }
 
     FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, String name, String uniqueName, JSONObject commandObject, JSONObject jsonObject, User user) {
@@ -253,6 +254,9 @@ class FeatureEventService {
         return addNewFeatureEvent(featureOperation, name, uniqueName, inputCommand, oldFeatureArray, newFeatureArray, user)
     }
 
+    /**
+     * @deprecated
+     */
     FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, Feature feature, JSONObject inputCommand, User user) {
         return addNewFeatureEventWithUser(featureOperation, feature.name, feature.uniqueName, inputCommand, featureService.convertFeatureToJSON(feature), user)
     }
@@ -333,7 +337,13 @@ class FeatureEventService {
 
         Sequence sequence = Feature.findByUniqueName(uniqueName).featureLocation.sequence
         println "sequence: ${sequence}"
-        deleteCurrentState(inputObject, uniqueName, sequence)
+
+
+        def newUniqueNames = getHistory(uniqueName)[count].collect(){
+            it.uniqueName
+        }
+
+        deleteCurrentState(inputObject, uniqueName, newUniqueNames,sequence)
 
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 //        log.debug "final feature event: ${featureEvent} ->${featureEvent.operation}"
@@ -393,7 +403,7 @@ class FeatureEventService {
 
     }
 
-    def deleteCurrentState(JSONObject inputObject, String uniqueName, Sequence sequence) {
+    def deleteCurrentState(JSONObject inputObject, String uniqueName,List<String> newUniqueNames, Sequence sequence) {
 
         // need to get uniqueNames for EACH current featureEvent
         for (FeatureEvent deleteFeatureEvent in findCurrentFeatureEvent(uniqueName)) {
@@ -419,9 +429,8 @@ class FeatureEventService {
 
             println " final delete JSON ${deleteCommandObject as JSON}"
             FeatureEvent.withNewTransaction {
-                if(uniqueName==deleteFeatureEvent.uniqueName){
-                    deleteCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
-                }
+                // suppress any events that are not part of the new state
+                println "newUniqueNames ${newUniqueNames} vs uniqueName ${uniqueName} vs df-uniqueName ${deleteFeatureEvent.uniqueName}"
                 requestHandlingService.deleteFeature(deleteCommandObject)
             }
             println "deletion sucess . .  "

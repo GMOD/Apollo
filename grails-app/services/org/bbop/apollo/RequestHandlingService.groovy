@@ -685,7 +685,8 @@ class RequestHandlingService {
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
 
             if (!suppressHistory) {
-                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, transcript, inputObject, permissionService.getActiveUser(inputObject))
+//                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, transcript, inputObject, permissionService.getActiveUser(inputObject))
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.ADD_TRANSCRIPT, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, featureService.convertFeatureToJSON(transcript),permissionService.getActiveUser(inputObject))
             }
         }
 
@@ -1459,10 +1460,13 @@ class RequestHandlingService {
 
             if (feature instanceof Transcript) {
                 feature = transcriptService.flipTranscriptStrand((Transcript) feature);
+//                featureEventService.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, feature, inputObject, permissionService.getActiveUser(inputObject))
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name,feature.uniqueName, inputObject,featureService.convertFeatureToJSON((Transcript) feature), permissionService.getActiveUser(inputObject))
             } else {
                 feature = featureService.flipStrand(feature)
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, feature.name,feature.uniqueName, inputObject,featureService.convertFeatureToJSON(feature), permissionService.getActiveUser(inputObject))
             }
-            featureEventService.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, feature, inputObject, permissionService.getActiveUser(inputObject))
+//            featureEventService.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, feature, inputObject, permissionService.getActiveUser(inputObject))
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
         }
 
@@ -1941,6 +1945,9 @@ class RequestHandlingService {
 
         String transcript2UniqueName = transcript2.uniqueName
         String transcript2Name = transcript2.name
+
+        String gene2UniqueName = transcriptService.getGene(transcript2).uniqueName
+        String gene2Name = transcriptService.getGene(transcript2).name
 //
         if (gene1) {
             Set<Transcript> gene1Transcripts = new HashSet<Transcript>();
@@ -2043,8 +2050,8 @@ class RequestHandlingService {
         // now we add history for each of the transcripts . . . it is history of 1 + 2
         Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)  ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value): false
         if (!suppressHistory) {
-            featureEventService.addSplitFeatureEvent(transcript1.name,transcript1.uniqueName
-                    ,transcript2Name ,transcript2UniqueName
+            featureEventService.addSplitFeatureEvent(transcriptService.getGene(transcript1).name,transcript1.uniqueName
+                    ,gene2Name,transcript2UniqueName
                     ,inputObject
                     ,featureService.convertFeatureToJSON(transcript1)
                     ,updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
