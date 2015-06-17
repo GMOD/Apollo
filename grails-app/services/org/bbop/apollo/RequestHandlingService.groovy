@@ -1936,6 +1936,9 @@ class RequestHandlingService {
 
 
         Gene gene1 = transcriptService.getGene(transcript1)
+
+        String transcript2UniqueName = transcript2.uniqueName
+        String transcript2Name = transcript2.name
 //
         if (gene1) {
             Set<Transcript> gene1Transcripts = new HashSet<Transcript>();
@@ -2006,10 +2009,15 @@ class RequestHandlingService {
             }
 
             addSplitTranscriptJSONObject = permissionService.copyUserName(inputObject, addSplitTranscriptJSONObject)
-            addSplitTranscriptJSONObject.put(FeatureStringEnum.SUPPRESS_HISTORY.value, true)
 
-            addTranscript(addSplitTranscriptJSONObject)
+            // has to be added separately, which is what we wan to see
+            JSONObject returnAddTranscriptObject = addTranscript(addSplitTranscriptJSONObject).getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
 
+            // we could suppress the history, but that screws up the naming . . . .
+            // so we'll just delete the other feature even t
+            transcript2Name = returnAddTranscriptObject.getString(FeatureStringEnum.NAME.value)
+            transcript2UniqueName = returnAddTranscriptObject.getString(FeatureStringEnum.UNIQUENAME.value)
+            featureEventService.deleteHistory(transcript2UniqueName)
 
         }
 
@@ -2034,7 +2042,7 @@ class RequestHandlingService {
         Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)  ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value): false
         if (!suppressHistory) {
             featureEventService.addSplitFeatureEvent(transcript1.name,transcript1.uniqueName
-                    ,transcript2.name ,transcript2.uniqueName
+                    ,transcript2Name ,transcript2UniqueName
                     ,inputObject
                     ,featureService.convertFeatureToJSON(transcript1)
                     ,updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
