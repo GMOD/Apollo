@@ -19,14 +19,24 @@ cli.directory('jbrowse data directory', required: true, args: 1)
 cli.blatdb('blatdb directory', args: 1)
 cli.genus('genus', args: 1)
 cli.species('species', args: 1)
-cli.username('username', required: true, args: 1)
-cli.password('password', required: true, args: 1)
+cli.username('username', required: false, args: 1)
+cli.password('password', required: false, args: 1)
 OptionAccessor options
+def admin_username
+def admin_password 
 try {
     options = cli.parse(args)
 
-    if (!(options?.url && options?.name && options?.directory && options?.username && options?.password)) {
+    if (!(options?.url && options?.name && options?.directory)) {
         return
+    }
+
+    def cons = System.console()
+    if (!(admin_username=options?.username)) {
+        admin_username = new String(cons.readPassword('Enter admin username: ') )
+    }
+    if (!(admin_password=options?.password)) {
+        admin_password = new String(cons.readPassword('Enter admin password: ') )
     }
 
 } catch (e) {
@@ -40,8 +50,8 @@ URL url = new URL(options.url)
 def argumentsArray = [
         commonName: options.name,
         directory : options.directory,
-        username  : options.username,
-        password  : options.password,
+        username  : admin_username,
+        password  : admin_password,
         blatdb    : options.blatdb ?: null,
         genus     : options.genus ?: null,
         species   : options.species ?: null
