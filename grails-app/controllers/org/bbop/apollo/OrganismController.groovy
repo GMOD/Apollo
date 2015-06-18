@@ -169,14 +169,12 @@ class OrganismController {
                 organism.blatdb = organismJson.blatdb
                 organism.species = organismJson.species
                 organism.genus = organismJson.genus
-                String oldOrganismDirectory = organism.directory
                 organism.directory = organismJson.directory
 
                 if (checkOrganism(organism)) {
                     organism.save(flush: true, insert: false, failOnError: true)
                 }
                 else{
-                    organism.directory = oldOrganismDirectory
                     throw new Exception("Bad organism directory: "+organism.directory)
                 }
             } else {

@@ -134,7 +134,7 @@ class LoginController extends AbstractApolloController {
             Session session = subject.getSession(true);
             subject.login(authToken)
             log.debug "IS AUTHENTICATED: " + subject.isAuthenticated()
-            log.debug "has a session ${session}"
+            log.debug "SESSION ${session}"
             log.debug "LOGIN SESSION ${SecurityUtils.subject.getSession(false).id}"
 
             session.setAttribute("username", username);
@@ -143,8 +143,6 @@ class LoginController extends AbstractApolloController {
             User user = User.findByUsername(username)
 
 
-            //int permission = 0
-            // TODO: should be per organism
             Map<String, Integer> permissions = permissionService.getPermissionsForUser(user)
             if(permissions){
                 session.setAttribute("permissions", permissions);
