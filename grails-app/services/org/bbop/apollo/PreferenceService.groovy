@@ -99,7 +99,6 @@ class PreferenceService {
             userOrganismPreference.save(flush: true)
             setOtherCurrentOrganismsFalse(userOrganismPreference, user)
         }
-//        userOrganismPreference.save(flush: true)
     }
 
     protected def setOtherCurrentOrganismsFalse(UserOrganismPreference userOrganismPreference, User user) {
