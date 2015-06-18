@@ -519,8 +519,13 @@ class FeatureEventService {
             return [currentFeatureEvent]
         }
 
+        // its possible that neither one has a matchine uniqueName .
         FeatureEvent firstFeatureEvent = previousFeatureEvents[0].find() {
-            it.uniqueName = uniqueName
+            it.uniqueName == uniqueName
+        }
+        // example we reverting backwards
+        if(!firstFeatureEvent){
+            firstFeatureEvent = previousFeatureEvents[0][0]
         }
 
         // or index== 0

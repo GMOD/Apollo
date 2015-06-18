@@ -328,8 +328,10 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList1[2][0].operation==FeatureOperation.SPLIT_TRANSCRIPT
         assert featureEventList1[1][0].current
         assert featureEventList1[1][0].operation==FeatureOperation.SET_TRANSLATION_ENDS
+        assert featureEventList1[1][0].uniqueName == uniqueName1
         assert !featureEventList1[0][0].current
         assert featureEventList1[0][0].operation==FeatureOperation.ADD_TRANSCRIPT
+        assert featureEventList1[0][0].uniqueName == uniqueName1
 
 
 
