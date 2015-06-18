@@ -17,6 +17,7 @@ define([
            'dojo/query',
            'dojo/_base/window',
            'dojo/_base/array',
+           'dijit/registry',
            'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
@@ -46,6 +47,7 @@ define([
             query,
             win,
             array,
+            dijitRegistry,
             dijitMenu,
             dijitMenuItem,
             dijitMenuSeparator,
@@ -390,7 +392,9 @@ return declare( [JBPlugin, HelpMixin],
                                                         webapollo.getAnnotTrack().searchSequence();
                                                     }
                                                 }) );
-            this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
+            if(!dijitRegistry.byId("dropdownmenu_tools")){
+                this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
+            }
 
         }
 
