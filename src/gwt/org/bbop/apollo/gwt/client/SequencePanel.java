@@ -187,17 +187,13 @@ public class SequencePanel extends Composite {
                 Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
                 if (sequenceInfoSet.size() == 1) {
                     final SequenceInfo sequenceInfo = sequenceInfoSet.iterator().next();
-//                    final OrganismInfo organismInfo = organismInfoMap.get(organismList.getSelectedValue());
 
-                    // TODO: set the default here!
                     RequestCallback requestCallback = new RequestCallback() {
                         @Override
                         public void onResponseReceived(Request request, Response response) {
                             if (sequenceInfo != null) {
                                 OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
                             }
-//                            ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(), organismInfo);
-//                            Annotator.eventBus.fireEvent(contextSwitchEvent);
                         }
 
                         @Override
@@ -288,8 +284,6 @@ public class SequencePanel extends Composite {
     @UiHandler(value = {"nameSearchBox", "minFeatureLength", "maxFeatureLength"})
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
-
-//        filterSequences();
     }
 
     @UiHandler(value = {"exportGff3Button", "exportFastaButton"})
@@ -324,7 +318,7 @@ public class SequencePanel extends Composite {
 
     @UiHandler("selectSelectedButton")
     public void handleSetSelections(ClickEvent clickEvent) {
-        GWT.log("selecting selected?");
+        GWT.log("handleSetSelection");
 
         boolean allSelectionsSelected = findAllSelectionsSelected();
 
@@ -353,12 +347,7 @@ public class SequencePanel extends Composite {
     }
 
     private void exportValues(List<SequenceInfo> sequenceInfoList ) {
-//        GWT.log(organismList.getSelectedValue());
-//        Integer organismId = Integer.parseInt(organismList.getSelectedValue());
         OrganismInfo organismInfo = MainPanel.getInstance().getCurrentOrganism();
-//        organismInfo.setId(organismId.toString());
-//        organismInfo.setName(organismList.getSelectedItemText());
-
         // get the type based on the active button
         String type = null;
         if (exportGff3Button.getType().equals(ButtonType.DANGER.PRIMARY)) {
@@ -366,10 +355,10 @@ public class SequencePanel extends Composite {
         } else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportFastaButton.getText();
         }
-        GWT.log("Type selected is " + type);
 //        else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
 //            type = exportChadoButton.getText();
 //        }
+        GWT.log("Type selected is " + type);
 
         ExportPanel exportPanel = new ExportPanel();
         exportPanel.setOrganismInfo(organismInfo);

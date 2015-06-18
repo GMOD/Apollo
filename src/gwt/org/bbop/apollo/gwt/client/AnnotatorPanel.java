@@ -442,12 +442,10 @@ public class AnnotatorPanel extends Composite {
         lengthColumn.setCellStyleNames("dataGridLastColumn");
 
 
-//        dataGrid.addColumn(nameColumn, SafeHtmlUtils.fromSafeConstant("<br/>"));
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(sequenceColumn, "Seq");
         dataGrid.addColumn(typeColumn, "Type");
         dataGrid.addColumn(lengthColumn, "Length");
-//        dataGrid.addColumn(filterColumn, "Warnings");
 
         dataGrid.setColumnWidth(0, "55%");
         dataGrid.setColumnWidth(1, "15%");
@@ -457,9 +455,6 @@ public class AnnotatorPanel extends Composite {
 
         ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(filteredAnnotationList);
         dataGrid.addColumnSortHandler(sortHandler);
-
-        // Specify a custom table.
-//        dataGrid.setTableBuilder(new AnnotationInfoTableBuilder(dataGrid,sortHandler,showingTranscripts));
 
         sortHandler.setComparator(nameColumn, new Comparator<AnnotationInfo>() {
             @Override
@@ -511,10 +506,8 @@ public class AnnotatorPanel extends Composite {
 
                     Window.Location.reload();
                     GWT.log(e.getMessage());
-//                    Window.alert(response.getText());
                 }
                 long localRequestValue = (long) returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue()).isNumber().doubleValue();
-                // returns
                 if (localRequestValue <= requestIndex) {
                     return;
                 } else {
@@ -721,12 +714,10 @@ public class AnnotatorPanel extends Composite {
 
             // Sequence column.
             td = row.startTD();
-//            td.className(cellStyles);
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
             if (showTranscripts) {
                 DivBuilder div = td.startDiv();
                 div.style().trustedColor("green").endStyle();
-//                div.text(rowValue.getSequence());
                 td.endDiv();
             } else {
                 renderCell(td, createContext(1), sequenceColumn, rowValue);
@@ -735,7 +726,6 @@ public class AnnotatorPanel extends Composite {
 
             // Type column.
             td = row.startTD();
-//            td.className(cellStyles);
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
             if (showTranscripts) {
                 DivBuilder div = td.startDiv();
@@ -765,8 +755,6 @@ public class AnnotatorPanel extends Composite {
             td = row.startTD();
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
 
-            // TODO: is it necessary to have two separte ones?
-//            if(showTranscripts){
             DivBuilder div = td.startDiv();
             SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
 
