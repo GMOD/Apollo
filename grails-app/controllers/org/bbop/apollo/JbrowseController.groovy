@@ -40,7 +40,7 @@ class JbrowseController {
         }
 
         if(permissionService.currentUser) {
-            File file = new File(servletContext.getRealPath("jbrowse/index.html"))
+            File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
             render file.text
             return
         }
@@ -57,7 +57,7 @@ class JbrowseController {
             session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
 
             // create an anonymous login
-            File file = new File(servletContext.getRealPath("jbrowse/index.html"))
+            File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
             render file.text
             return
         }
