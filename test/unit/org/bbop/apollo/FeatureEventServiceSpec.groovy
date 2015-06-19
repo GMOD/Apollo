@@ -336,6 +336,10 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "we go forward on 1 (2 does not exist anymore unless we go forward)"
+        List<FeatureEvent> currentFeatureEvents = service.setTransactionForFeature(uniqueName1,2)
+        assert currentFeatureEvents.size()==2
+        assert currentFeatureEvents[0].current
+        assert currentFeatureEvents[1].current
         newActiveFeatureEvent = service.setTransactionForFeature(uniqueName1,2)[0]
         println "new active feature event ${newActiveFeatureEvent}"
         featureEventList2 = service.getHistory(uniqueName2)

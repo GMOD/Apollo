@@ -1941,6 +1941,7 @@ class RequestHandlingService {
         transcript1.owners.each { transcript2.addToOwners(it) }
 
 
+        // we get the original gene off of the transcript
         Gene gene1 = transcriptService.getGene(transcript1)
 
         String transcript2UniqueName = transcript2.uniqueName
@@ -2023,10 +2024,12 @@ class RequestHandlingService {
             JSONObject returnAddTranscriptObject = addTranscript(addSplitTranscriptJSONObject).getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
 
             // we could suppress the history, but that screws up the naming . . . .
-            // so we'll just delete the other feature even t
+            // so we'll just delete the other feature event
+            // so we just delete it (it tries to do an "add transcript")
             transcript2Name = returnAddTranscriptObject.getString(FeatureStringEnum.NAME.value)
             transcript2UniqueName = returnAddTranscriptObject.getString(FeatureStringEnum.UNIQUENAME.value)
             featureEventService.deleteHistory(transcript2UniqueName)
+            gene2Name = transcriptService.getGene(Transcript.findByUniqueName(transcript2UniqueName))?.name
 
         }
 

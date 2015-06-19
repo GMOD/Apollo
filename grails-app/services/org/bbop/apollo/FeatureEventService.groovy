@@ -317,7 +317,8 @@ class FeatureEventService {
         setNotCurrentFutureHistoryEvents(currentFeatureEvent)
 
 //        log.debug "updated is ${updated}"
-        findCurrentFeatureEvent(currentFeatureEvent.uniqueName)
+        def returnEvent = findCurrentFeatureEvent(currentFeatureEvent.uniqueName)
+        return returnEvent
     }
 
     def setHistoryState(JSONObject inputObject, int count, boolean confirm) {
@@ -401,6 +402,8 @@ class FeatureEventService {
             }
         }
 
+        return featureEventArray
+
     }
 
     def deleteCurrentState(JSONObject inputObject, String uniqueName,List<String> newUniqueNames, Sequence sequence) {
@@ -428,11 +431,11 @@ class FeatureEventService {
             deleteCommandObject = permissionService.copyUserName(inputObject, deleteCommandObject)
 
             println " final delete JSON ${deleteCommandObject as JSON}"
-            FeatureEvent.withNewTransaction {
+//            FeatureEvent.withNewTransaction {
                 // suppress any events that are not part of the new state
                 println "newUniqueNames ${newUniqueNames} vs uniqueName ${uniqueName} vs df-uniqueName ${deleteFeatureEvent.uniqueName}"
                 requestHandlingService.deleteFeature(deleteCommandObject)
-            }
+//            }
             println "deletion sucess . .  "
         }
 
@@ -535,7 +538,8 @@ class FeatureEventService {
 
         // an index of 1 is 1 in the future.  This returns exclusive future, so we need to
         // substract 1 from the index
-        return findAllFutureFeatureEvents(firstFeatureEvent)[index - 1]
+        def futureEvents = findAllFutureFeatureEvents(firstFeatureEvent)[index - 1]
+        return futureEvents
     }
 
 /**
