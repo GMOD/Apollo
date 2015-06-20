@@ -38,7 +38,6 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         String undoString1 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_1@\" } ], \"operation\": \"undo\", \"count\": 1}"
         String undoString2 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_2@\" } ], \"operation\": \"undo\", \"count\": 1}"
         String redoString1 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_1@\" } ], \"operation\": \"redo\", \"count\": 1}"
-        String redoString2 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_2@\" } ], \"operation\": \"redo\", \"count\": 1}"
 
         when: "we insert a transcript"
         JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(jsonString) as JSONObject)
@@ -70,7 +69,6 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         undoString1 = undoString1.replace("@TRANSCRIPT_1@",transcript1UniqueName)
         undoString2 = undoString2.replace("@TRANSCRIPT_2@",transcript2UniqueName)
         redoString1 = redoString1.replace("@TRANSCRIPT_1@",transcript1UniqueName)
-        redoString2 = redoString2.replace("@TRANSCRIPT_2@",transcript2UniqueName)
         requestHandlingService.undo(JSON.parse(undoString1))
 
         then: "we should have the original transcript"
@@ -93,6 +91,8 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
         when: "when we undo transcript B"
         requestHandlingService.undo(JSON.parse(undoString2))
+        allFeatures = Feature.all
+        def allFeatureEvents = FeatureEvent.all
 
         then: "we should have the original transcript"
         assert Exon.count == 2
@@ -101,7 +101,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert Gene.count == 1
 
         when: "when we redo transcript"
-        requestHandlingService.redo(JSON.parse(redoString2))
+        requestHandlingService.redo(JSON.parse(redoString1))
 
         then: "we should have two transcripts"
         assert Exon.count == 2
