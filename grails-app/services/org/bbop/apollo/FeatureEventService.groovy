@@ -44,6 +44,7 @@ class FeatureEventService {
 
 /**
  * Convention is that 1 is the parent and is returned first in the array.
+ * Because we are tracking the split in the actual object blocks, the newJSONArray is also split
  * @param name1
  * @param uniqueName1
  * @param name2
@@ -74,6 +75,12 @@ class FeatureEventService {
 
         Date addDate = new Date()
 
+        JSONArray newFeatureArray1 = new JSONArray()
+        JSONArray newFeatureArray2 = new JSONArray()
+
+        newFeatureArray1.add(newFeatureArray.getJSONObject(0))
+        newFeatureArray2.add(newFeatureArray.getJSONObject(1))
+
         FeatureEvent featureEvent1 = new FeatureEvent(
                 editor: user
                 , name: name1
@@ -81,7 +88,7 @@ class FeatureEventService {
                 , operation: FeatureOperation.SPLIT_TRANSCRIPT
                 , current: true
                 , originalJsonCommand: commandObject.toString()
-                , newFeaturesJsonArray: newFeatureArray.toString()
+                , newFeaturesJsonArray: newFeatureArray1.toString()
                 , oldFeaturesJsonArray: oldFeatureArray.toString()
                 , dateCreated: addDate
                 , lastUpdated: addDate
@@ -94,7 +101,7 @@ class FeatureEventService {
                 , operation: FeatureOperation.SPLIT_TRANSCRIPT
                 , current: true
                 , originalJsonCommand: commandObject.toString()
-                , newFeaturesJsonArray: newFeatureArray.toString()
+                , newFeaturesJsonArray: newFeatureArray2.toString()
                 , oldFeaturesJsonArray: oldFeatureArray.toString()
                 , dateCreated: addDate
                 , lastUpdated: addDate
@@ -365,7 +372,7 @@ class FeatureEventService {
 
                 // we have to explicitly set the track (if we have features ... which we should)
                 if (!addCommandObject.containsKey(FeatureStringEnum.TRACK.value) && featuresToAddArray.size() > 0) {
-                    addCommandObject.put(FeatureStringEnum.TRACK.value, featuresToAddArray.getJSONObject(i).getString(FeatureStringEnum.SEQUENCE.value))
+                    addCommandObject.put(FeatureStringEnum.TRACK.value, featuresToAddArray.getJSONObject(0).getString(FeatureStringEnum.SEQUENCE.value))
                 }
 
                 addCommandObject = permissionService.copyUserName(inputObject, addCommandObject)

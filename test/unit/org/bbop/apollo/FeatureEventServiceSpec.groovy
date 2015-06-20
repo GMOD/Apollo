@@ -247,7 +247,10 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList1[1][0].current
 
         when: "let's split this feature event!"
-        service.addSplitFeatureEvent(name1,uniqueName1,name2,uniqueName2,new JSONObject(),new JSONObject(),new JSONArray(),null)
+        JSONArray newJsonArray = new JSONArray()
+        newJsonArray.add(new JSONObject())
+        newJsonArray.add(new JSONObject())
+        service.addSplitFeatureEvent(name1,uniqueName1,name2,uniqueName2,new JSONObject(),new JSONObject(),newJsonArray,null)
         featureEventList1 = service.getHistory(uniqueName1)
         List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2)
         FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName2)[0]

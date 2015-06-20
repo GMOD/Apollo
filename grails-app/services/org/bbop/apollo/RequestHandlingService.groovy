@@ -2045,10 +2045,25 @@ class RequestHandlingService {
         Feature topLevelExonFeature = featureService.getTopLevelFeature(transcript1)
         JSONObject returnContainer = createJSONFeatureContainerFromFeatures(topLevelExonFeature)
 
+        // we return all of the transcripts off of the gene for transcript 1
         List<Transcript> exon1Transcripts = transcriptService.getTranscripts(transcriptService.getGene(transcript1))
         for (Transcript t : exon1Transcripts) {
             updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
         }
+
+        Transcript tmpTranscript2 = Transcript.findByUniqueName(transcript2UniqueName)
+        if(tmpTranscript2){
+            Gene tmpGene2 = transcriptService.getGene(tmpTranscript2)
+            if(tmpGene2.id!=gene1.id){
+                List<Transcript> exon2Transcripts = transcriptService.getTranscripts(tmpGene2)
+                for (Transcript t : exon2Transcripts) {
+                    updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
+                }
+
+            }
+        }
+
+
 
         // now we add history for each of the transcripts . . . it is history of 1 + 2
         Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)  ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value): false

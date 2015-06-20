@@ -67,7 +67,6 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         when: "when we undo transcript A"
         String transcript1UniqueName = MRNA.findByName("GB40736-RA-00001").uniqueName
         String transcript2UniqueName = MRNA.findByName("GB40736-RAa-00001").uniqueName
-        def allFeatures = Feature.all
         undoString1 = undoString1.replace("@TRANSCRIPT_1@",transcript1UniqueName)
         undoString2 = undoString2.replace("@TRANSCRIPT_2@",transcript2UniqueName)
         redoString1 = redoString1.replace("@TRANSCRIPT_1@",transcript1UniqueName)
@@ -81,7 +80,9 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert Gene.count == 1
 
         when: "when we redo transcript"
+        def allFeatures = Feature.all
         requestHandlingService.redo(JSON.parse(redoString1))
+        allFeatures = Feature.all
 
         then: "we should have two transcripts"
         assert Exon.count == 2
