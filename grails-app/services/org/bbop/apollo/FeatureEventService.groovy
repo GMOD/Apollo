@@ -438,7 +438,8 @@ class FeatureEventService {
             return
         }
 
-        int total = FeatureEvent.countByUniqueName(uniqueName)
+//        int total = FeatureEvent.countByUniqueName(uniqueName)
+        int total = getHistory(uniqueName).size()
         if (count >= total) {
             log.warn("Can not redo any further")
             return
