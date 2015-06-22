@@ -95,9 +95,8 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         def allFeatures = Feature.all
 
         // this is the new part
-//        assert FlankingRegion.count == 10
-        assert FeatureLocation.count == 18
-        assert Feature.count == 18
+        assert FeatureLocation.count == 8
+        assert Feature.count == 8
 
 
         JSONArray returnedCodingArray = getCodingArray(returnObject)
@@ -424,7 +423,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
         then: "we should have no splice sites"
         log.debug Feature.count
-        assert Feature.count > 5
+        assert Feature.count == 5
         assert returnFeaturesArray.size() == 1
         assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
         assert Gene.count == 1
@@ -482,8 +481,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         then: "we should see that it is removed"
         def allFeatures = Feature.all
         assert returnedAfterExonObject != null
-        // there are just the flanng regions
-        assert Feature.count == 4
+        assert Feature.count == 0
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert returnFeaturesArray.size() == 0
     }
