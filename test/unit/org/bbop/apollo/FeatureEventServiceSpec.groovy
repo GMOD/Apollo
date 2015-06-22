@@ -222,13 +222,13 @@ class FeatureEventServiceSpec extends Specification {
 
     void "feature events with splits can be undone"(){
 
-        given:"add 2 transcripts"
+        given:"add 1 transcripts"
         String name1 = "sox9a-0001"
         String name2 = "sox9b-0001"
         String uniqueName1 = "aaaaaa"
         String uniqueName2 = "bbbbbb"
 
-        when: "we add 2 a feature events"
+        when: "we add a feature event"
         service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT,name1,uniqueName1,new JSONObject(),new JSONObject(),new JSONObject(),null)
         List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1)
 
@@ -420,9 +420,173 @@ class FeatureEventServiceSpec extends Specification {
 
     void "feature events with merges can be undone"(){
 
-        when: "we add two transcripts"
+        given:"add 2 transcripts"
+        String name1 = "sox9a-0001"
+        String name2 = "sox9b-0001"
+        String uniqueName1 = "aaaaaa"
+        String uniqueName2 = "bbbbbb"
 
-        then: "and we merge them"
+        when: "we add 2 feature events"
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT,name1,uniqueName1,new JSONObject(),new JSONObject(),new JSONObject(),null)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT,name2,uniqueName2,new JSONObject(),new JSONObject(),new JSONObject(),null)
+        List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1)
+        List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2)
+
+        then: "we should see a feature event"
+        assert 1==FeatureEvent.countByUniqueName(uniqueName1)
+        assert featureEventList1.size()==1
+        assert 1==FeatureEvent.countByUniqueName(uniqueName2)
+        assert featureEventList2.size()==1
+
+        when: "we do an operation"
+        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_ENDS,name1,uniqueName1,new JSONObject(),new JSONObject(),new JSONObject(),null)
+        featureEventList1 = service.getHistory(uniqueName1)
+
+        then: "we should see an extra operation"
+        assert 2==FeatureEvent.countByUniqueName(uniqueName1)
+        assert featureEventList1.size()==2
+        assert !featureEventList1[0][0].current
+        assert featureEventList1[1][0].current
+
+        when: "let's merge feature events"
+        JSONArray oldJsonArray = new JSONArray()
+//        newJsonArray.add(new JSONObject())
+        oldJsonArray.add(new JSONObject())
+        service.addMergeFeatureEvent(name1,uniqueName1,name2,uniqueName2,new JSONObject(),oldJsonArray,new JSONObject(),null)
+        featureEventList1 = service.getHistory(uniqueName1)
+        featureEventList2 = service.getHistory(uniqueName2)
+        // TODO: not sure if this is accurate, or possible
+//        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName2)[0]
+        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName1)[0]
+
+        then: "we should see one feature events, with the second one current and the prior one before"
+        assert 3==FeatureEvent.countByUniqueName(uniqueName1)
+        assert 1==FeatureEvent.countByUniqueName(uniqueName2)
+        assert featureEventList1.size()==3
+        assert featureEventList2.size()==1
+
+        assert 0==service.findAllFutureFeatureEvents(currentFeature).size()
+        assert 2==service.findAllPreviousFeatureEvents(currentFeature).size()
+
+
+       // TODO: not sure if this is accurate, or possible
+        assert 3==service.getHistory(uniqueName1).size()
+        assert featureEventList1[2][0].current
+        assert featureEventList1[2][0].operation==FeatureOperation.MERGE_TRANSCRIPTS
+        assert !featureEventList1[1][0].current
+        assert featureEventList1[1][0].operation==FeatureOperation.SET_TRANSLATION_ENDS
+        assert !featureEventList1[0][0].current
+        assert featureEventList1[0][0].operation==FeatureOperation.ADD_TRANSCRIPT
+
+        assert 2==service.getHistory(uniqueName2).size()
+        assert featureEventList2[1][0].current
+        assert featureEventList2[1][0].operation==FeatureOperation.MERGE_TRANSCRIPTS
+        assert !featureEventList2[0][0].current
+        assert featureEventList2[0][0].operation==FeatureOperation.ADD_TRANSCRIPT
+
+
+        when: "we add another event to 1 (2 no longer is accessible)"
+        service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND,name1,uniqueName1,new JSONObject(),new JSONObject(),new JSONObject(),null)
+        featureEventList1 = service.getHistory(uniqueName1)
+
+        then: "we have 3 on 1 and 2 on 2"
+        assert 0==service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
+        assert 2==service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
+        assert 4==featureEventList1.size()
+
+        assert featureEventList1[3][0].current
+        assert featureEventList1[3][0].operation==FeatureOperation.FLIP_STRAND
+        assert !featureEventList1[2][0].current
+        assert featureEventList1[2][0].operation==FeatureOperation.MERGE_TRANSCRIPTS
+        assert !featureEventList1[1][0].current
+        assert featureEventList1[1][0].operation==FeatureOperation.SET_TRANSLATION_ENDS
+        assert !featureEventList1[0][0].current
+        assert featureEventList1[0][0].operation==FeatureOperation.ADD_TRANSCRIPT
+
+        // note: if we revert to 0 . . it disappears!
+        when: "when we revert 2 back on transcript 2 to setting exon boundaries"
+        FeatureEvent newActiveFeatureEvent = service.setTransactionForFeature(uniqueName1,1)[0]
+        println "new active feature event ${newActiveFeatureEvent}"
+        featureEventList2 = service.getHistory(uniqueName2)
+        featureEventList1 = service.getHistory(uniqueName1)
+
+        then: "it should be active on the split transcript event for both"
+        assert 4==featureEventList1.size()  // we can fast-forward all the way up through 2 and the split
+        assert 2==featureEventList2.size()
+
+        assert !featureEventList1[3][0].current
+        assert featureEventList1[3][0].operation==FeatureOperation.FLIP_STRAND
+        assert !featureEventList1[2][0].current
+        assert featureEventList1[2][0].operation==FeatureOperation.MERGE_TRANSCRIPTS
+        assert featureEventList1[1][0].current
+        assert featureEventList1[1][0].operation==FeatureOperation.SET_TRANSLATION_ENDS
+        assert featureEventList1[1][0].uniqueName == uniqueName1
+        assert !featureEventList1[0][0].current
+        assert featureEventList1[0][0].operation==FeatureOperation.ADD_TRANSCRIPT
+        assert featureEventList1[0][0].uniqueName == uniqueName1
+
+        assert !featureEventList2[1][0].current
+        assert featureEventList2[1][0].operation==FeatureOperation.MERGE_TRANSCRIPTS
+        assert featureEventList2[0][0].current
+        assert featureEventList2[0][0].operation==FeatureOperation.ADD_TRANSCRIPT
+
+
+        when: "we go forward on 1 we should re-merge, goes beyond 2, so just stops at end"
+        List<FeatureEvent> currentFeatureEvents = service.setTransactionForFeature(uniqueName1,2)
+        println "new active feature event ${newActiveFeatureEvent}"
+        // TODO: should not blow up
+        featureEventList2 = service.getHistory(uniqueName2)
+        featureEventList1 = service.getHistory(uniqueName1)
+
+
+        then: "since 2 is further then 1, it should stop on the most recent for both, but one disappears"
+        assert featureEventList1.size()==4
+        assert featureEventList2.size()==0
+        assert currentFeatureEvents.size()==1
+        assert currentFeatureEvents[0].current
+        assert 1==service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
+        assert 2==service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
+        assert 4==featureEventList1.size()
+
+
+        assert !featureEventList1[3][0].current
+        assert featureEventList1[3][0].operation==FeatureOperation.FLIP_STRAND
+        assert featureEventList1[2][0].current
+        assert featureEventList1[2][0].operation==FeatureOperation.MERGE_TRANSCRIPTS
+        assert !featureEventList1[1][0].current
+        assert featureEventList1[1][0].operation==FeatureOperation.SET_TRANSLATION_ENDS
+        assert !featureEventList1[0][0].current
+        assert featureEventList1[0][0].operation==FeatureOperation.ADD_TRANSCRIPT
+
+
+
+        when: "we go all the way forward on 2"
+        newActiveFeatureEvent = service.setTransactionForFeature(uniqueName2,3)[0]
+        println "new active feature event ${newActiveFeatureEvent}"
+        featureEventList1 = service.getHistory(uniqueName1)
+
+
+        then: "no change on 1, 2 goes to flip strand"
+        assert featureEventList1.size()==4
+        assert featureEventList2.size()==0
+        assert currentFeatureEvents.size()==1
+        assert currentFeatureEvents[0].current
+        assert 0==service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
+        assert 3==service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
+        assert 4==featureEventList1.size()
+
+
+        assert featureEventList1[3][0].current
+        assert featureEventList1[3][0].operation==FeatureOperation.FLIP_STRAND
+        assert !featureEventList1[2][0].current
+        assert featureEventList1[2][0].operation==FeatureOperation.MERGE_TRANSCRIPTS
+        assert !featureEventList1[1][0].current
+        assert featureEventList1[1][0].operation==FeatureOperation.SET_TRANSLATION_ENDS
+        assert !featureEventList1[0][0].current
+        assert featureEventList1[0][0].operation==FeatureOperation.ADD_TRANSCRIPT
+
+
     }
+
 
 }

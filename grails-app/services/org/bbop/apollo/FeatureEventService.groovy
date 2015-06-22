@@ -55,8 +55,10 @@ class FeatureEventService {
  * @param user
  * @return
  */
-    List<FeatureEvent> addSplitFeatureEvent(String name1, String uniqueName1, String name2, String uniqueName2, JSONObject commandObject, JSONObject oldFeatureObject, JSONArray newFeatureArray,
-                                            User user) {
+    List<FeatureEvent> addSplitFeatureEvent(String name1, String uniqueName1, String name2, String uniqueName2
+                                            ,JSONObject commandObject, JSONObject oldFeatureObject
+                                            , JSONArray newFeatureArray
+                                            , User user) {
         List<FeatureEvent> featureEventList = new ArrayList<>()
         JSONArray oldFeatureArray = new JSONArray()
         oldFeatureArray.add(oldFeatureObject)
@@ -118,6 +120,84 @@ class FeatureEventService {
 
         featureEventList.add(featureEvent1)
         featureEventList.add(featureEvent2)
+
+
+        return featureEventList
+    }
+
+
+/**
+ * Convention is that 1 becomes the child and is returned.
+ * Because we are tracking the merge in the actual object blocks, the newJSONArray is also split
+ * @param geneName1
+ * @param uniqueName1
+ * @param geneName2
+ * @param uniqueName2
+ * @param commandObject
+ * @param oldFeatureArray
+ * @param newFeatureObject
+ * @param user
+ * @return
+ */
+    List<FeatureEvent> addMergeFeatureEvent(String geneName1, String uniqueName1, String geneName2, String uniqueName2, JSONObject commandObject, JSONArray oldFeatureArray, JSONObject newFeatureObject,
+                                            User user) {
+        List<FeatureEvent> featureEventList = new ArrayList<>()
+
+        List<FeatureEvent> lastFeatureEventLeftList = findCurrentFeatureEvent(uniqueName1)
+        if (lastFeatureEventLeftList.size() != 1) {
+            throw new AnnotationException("Not one current feature event being merged for: " + uniqueName1)
+        }
+        if (!lastFeatureEventLeftList) {
+            throw new AnnotationException("Can not find original feature event to split for " + uniqueName1)
+        }
+        List<FeatureEvent> lastFeatureEventRightList = findCurrentFeatureEvent(uniqueName1)
+        if (lastFeatureEventRightList.size() != 1) {
+            throw new AnnotationException("Not one current feature event being merged for: " + uniqueName1)
+        }
+        if (!lastFeatureEventRightList) {
+            throw new AnnotationException("Can not find original feature event to split for " + uniqueName1)
+        }
+
+
+        FeatureEvent lastFeatureEventLeft = lastFeatureEventLeftList[0]
+        FeatureEvent lastFeatureEventRight  = lastFeatureEventRightList[0]
+        lastFeatureEventLeft.current = false;
+        lastFeatureEventRight.current = false;
+        lastFeatureEventLeft.save()
+        lastFeatureEventRight.save()
+        deleteFutureHistoryEvents(lastFeatureEventLeft)
+        deleteFutureHistoryEvents(lastFeatureEventRight)
+
+        Date addDate = new Date()
+
+        JSONArray newFeatureArray1 = new JSONArray()
+
+        newFeatureArray1.add(newFeatureObject)
+
+        FeatureEvent featureEvent1 = new FeatureEvent(
+                editor: user
+                , name: geneName1
+                , uniqueName: uniqueName1
+                , operation: FeatureOperation.MERGE_TRANSCRIPTS
+                , current: true
+                , originalJsonCommand: commandObject.toString()
+                , newFeaturesJsonArray: newFeatureArray1.toString()
+                , oldFeaturesJsonArray: oldFeatureArray.toString()
+                , dateCreated: addDate
+                , lastUpdated: addDate
+        ).save()
+
+
+        lastFeatureEventLeft.childId = featureEvent1.id
+        lastFeatureEventRight.childId = featureEvent1.id
+        featureEvent1.parentId = lastFeatureEventLeft.id
+        featureEvent1.parentMergeId = lastFeatureEventRight.id
+
+        featureEvent1.save()
+        lastFeatureEventLeft.save()
+        lastFeatureEventRight.save()
+
+        featureEventList.add(featureEvent1)
 
 
         return featureEventList
