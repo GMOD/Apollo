@@ -30,20 +30,25 @@ class SequenceController {
     @Transactional
     def setCurrentSequenceLocation() {
 
-        Integer start, end
         try {
+            Integer start, end
             start = params.startbp as Integer
             end = params.endbp as Integer
-        } catch (NumberFormatException e) {
-            //  we can ignore this specific excpetion as null is an acceptable value for start / end
-        }
 
-        UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(params.name, start, end)
-        if(params.suppressOutput){
-            render new JSONObject() as JSON
+            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(params.name, start, end)
+            if(params.suppressOutput){
+                render new JSONObject() as JSON
+            }
+            else{
+                render userOrganismPreference.sequence as JSON
+            }
+        } catch (NumberFormatException e) {
+            //  we can ignore this specific exception as null is an acceptable value for start / end
         }
-        else{
-            render userOrganismPreference.sequence as JSON
+        catch (Exception e) {
+            def error=[error: e.message]
+            log.error e.message
+            render error as JSON
         }
     }
 
