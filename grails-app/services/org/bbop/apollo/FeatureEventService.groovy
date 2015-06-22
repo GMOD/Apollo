@@ -150,12 +150,12 @@ class FeatureEventService {
         if (!lastFeatureEventLeftList) {
             throw new AnnotationException("Can not find original feature event to split for " + uniqueName1)
         }
-        List<FeatureEvent> lastFeatureEventRightList = findCurrentFeatureEvent(uniqueName1)
+        List<FeatureEvent> lastFeatureEventRightList = findCurrentFeatureEvent(uniqueName2)
         if (lastFeatureEventRightList.size() != 1) {
-            throw new AnnotationException("Not one current feature event being merged for: " + uniqueName1)
+            throw new AnnotationException("Not one current feature event being merged for: " + uniqueName2)
         }
         if (!lastFeatureEventRightList) {
-            throw new AnnotationException("Can not find original feature event to split for " + uniqueName1)
+            throw new AnnotationException("Can not find original feature event to split for " + uniqueName2)
         }
 
 
@@ -245,6 +245,18 @@ class FeatureEventService {
         return featureEvent
     }
 
+    def setNotPreviousFutureHistoryEvents(FeatureEvent featureEvent) {
+        List<List<FeatureEvent>> featureEventList = findAllPreviousFeatureEvents(featureEvent)
+        featureEventList.each { array ->
+            array.each {
+                if (it.current) {
+                    it.current = false
+                    it.save()
+                }
+            }
+        }
+    }
+
     def setNotCurrentFutureHistoryEvents(FeatureEvent featureEvent) {
         List<List<FeatureEvent>> featureEventList = findAllFutureFeatureEvents(featureEvent)
         featureEventList.each { array ->
@@ -317,6 +329,14 @@ class FeatureEventService {
                 featureArrayList.add(childSplitFeatureEvent)
                 featureEventList.addAll(findAllFutureFeatureEvents(childSplitFeatureEvent))
             }
+
+            // if there is a parent merge . .  we just include that parent in the history (not everything)
+            // we have to assume that there is a previous feature event (a merge can never be first)
+            FeatureEvent parentMergeFeatureEvent = featureEvent.parentMergeId ? FeatureEvent.findById(featureEvent.parentMergeId) : null
+            if(parentMergeFeatureEvent && featureEventList){
+                featureEventList.get(featureEventList.size()-1).add(parentMergeFeatureEvent)
+            }
+
             featureEventList.addAll(findAllFutureFeatureEvents(childFeatureEvent))
             featureEventList.add(featureArrayList)
 
@@ -401,6 +421,7 @@ class FeatureEventService {
             log.warn "Did we forget to change the feature event?"
             findCurrentFeatureEvent(uniqueName)
         }
+        setNotPreviousFutureHistoryEvents(currentFeatureEvent)
         setNotCurrentFutureHistoryEvents(currentFeatureEvent)
 
 //        log.debug "updated is ${updated}"
