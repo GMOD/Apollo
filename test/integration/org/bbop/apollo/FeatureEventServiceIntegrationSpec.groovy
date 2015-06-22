@@ -110,4 +110,90 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert Gene.count == 2
 
     }
+
+
+    void "we can undo and redo a merge transcript"() {
+
+        given: "transcript data"
+        String addTranscriptString1 = "{\"track\":\"Annotations-Group1.10\",\"features\":[{\"location\":{\"fmin\":938708,\"fmax\":938770,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40736-RA\",\"children\":[{\"location\":{\"fmin\":938708,\"fmax\":938770,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String addTranscriptString2 = "{\"track\":\"Annotations-Group1.10\",\"features\":[{\"location\":{\"fmin\":939570,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40736-RA\",\"children\":[{\"location\":{\"fmin\":939570,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String mergeString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_1@\" }, { \"uniquename\": \"@EXON_2@\" } ], \"operation\": \"merge_transcripts\" }"
+        String undoString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_1@\" } ], \"operation\": \"undo\", \"count\": 1}"
+        String redoString1 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_1@\" } ], \"operation\": \"redo\", \"count\": 1}"
+        String redoString2 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_2@\" } ], \"operation\": \"redo\", \"count\": 1}"
+
+        when: "we insert two transcripts"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString1))
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString2))
+
+        then: "we have a transcript"
+        assert Exon.count == 2
+        assert CDS.count == 2
+        assert MRNA.count == 2
+        assert Gene.count == 2
+        assert MRNA.all[0].name == "GB40736-RA-00001"
+        assert MRNA.all[1].name == "GB40736-RAa-00001"
+
+
+        when: "we merge the transcript"
+        def allFeatures = Feature.all
+        String exon1UniqueName = Exon.all[0].uniqueName
+        String exon2UniqueName = Exon.all[1].uniqueName
+        mergeString = mergeString.replaceAll("@EXON_1@",exon1UniqueName)
+        mergeString = mergeString.replaceAll("@EXON_2@",exon2UniqueName)
+        undoString = undoString.replaceAll("@EXON_1@",exon1UniqueName)
+        redoString1 = redoString1.replaceAll("@EXON_1@",exon1UniqueName)
+        redoString2 = redoString2.replaceAll("@EXON_2@",exon2UniqueName)
+        JSONObject mergeJsonObject = requestHandlingService.mergeExons(JSON.parse(mergeString))
+        allFeatures = Feature.all
+
+        then: "we should have two of everything now"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+
+
+        when: "when we undo transcript A"
+        requestHandlingService.undo(JSON.parse(undoString))
+
+        then: "we should have the original transcript"
+        assert Exon.count == 2
+        assert CDS.count == 2
+        assert MRNA.count == 2
+        assert Gene.count == 2
+
+        when: "when we redo transcript on 1"
+        requestHandlingService.redo(JSON.parse(redoString1))
+        allFeatures = Feature.all
+
+        then: "we should have two transcripts"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+
+
+        when: "when we undo transcript B"
+        requestHandlingService.undo(JSON.parse(undoString))
+        allFeatures = Feature.all
+        def allFeatureEvents = FeatureEvent.all
+
+        then: "we should have the original transcript"
+        assert Exon.count == 2
+        assert CDS.count == 2
+        assert MRNA.count == 2
+        assert Gene.count == 2
+
+        when: "when we redo transcript on 2"
+        requestHandlingService.redo(JSON.parse(redoString2))
+
+        then: "we should have two transcripts"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+
+    }
+
 }
