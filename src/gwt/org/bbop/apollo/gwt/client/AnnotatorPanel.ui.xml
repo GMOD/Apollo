@@ -28,6 +28,11 @@
             margin-bottom: 40px;
         }
 
+
+        .dataGrid td  {
+            word-wrap: break-word;
+        }
+
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="splitPanel">
         <gwt:north size="100">
@@ -81,7 +86,7 @@
                     </gwt:HTMLPanel>
                 </gwt:north>
                 <gwt:center>
-                    <cellview:DataGrid ui:field="dataGrid"/>
+                    <cellview:DataGrid ui:field="dataGrid" styleName="{style.dataGrid}" />
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:center>
