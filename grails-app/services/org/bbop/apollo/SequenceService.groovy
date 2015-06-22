@@ -52,7 +52,12 @@ class SequenceService {
     }
 
     String getResidueFromFeatureLocation(FeatureLocation featureLocation) {
-        return getResiduesFromSequence(featureLocation.sequence,featureLocation.fmin,featureLocation.fmax)
+        return getRawResiduesFromSequence(featureLocation.sequence,featureLocation.fmin,featureLocation.fmax)
+    }
+
+
+    String getGenomicResiduesFromSequenceWithAlterations(FlankingRegion flankingRegion) {
+        return getGenomicResiduesFromSequenceWithAlterations(flankingRegion.sequence,flankingRegion.fmin,flankingRegion.fmax,flankingRegion.strand)
     }
 
     /**
@@ -63,19 +68,20 @@ class SequenceService {
      * @param strand
      * @return
      */
-    String getResiduesFromSequence(Sequence sequence, int fmin, int fmax,Strand strand) {
-        String residueString = getResiduesFromSequence(sequence,fmin,fmax)
+    String getGenomicResiduesFromSequenceWithAlterations(Sequence sequence, int fmin, int fmax,Strand strand) {
+        String residueString = getRawResiduesFromSequence(sequence,fmin,fmax)
         if(strand==Strand.NEGATIVE){
             residueString = SequenceTranslationHandler.reverseComplementSequence(residueString)
         }
 
         StringBuilder residues = new StringBuilder(residueString);
-        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocation fl join fl.sequence seq where seq.id = :seqId order by fl.fmin asc ",[seqId:sequence.id])
+        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId ",[seqId:sequence.id])
         int currentOffset = 0;
+        // TODO: refactor with getResidues in FeatureService so we are calling a similar method
         for(SequenceAlteration sequenceAlteration in sequenceAlterationList){
             int localCoordinate = featureService.convertSourceCoordinateToLocalCoordinate(fmin,fmax,strand, sequenceAlteration.featureLocation.fmin);
 
-            // TODO: is this correct?
+            // TODO: is this correyyct?
             String sequenceAlterationResidues = sequenceAlteration.alterationResidue
             if (strand == Strand.NEGATIVE) {
                 sequenceAlterationResidues = SequenceTranslationHandler.reverseComplementSequence(sequenceAlterationResidues);
@@ -112,7 +118,7 @@ class SequenceService {
         return residues.toString()
     }
 
-    String getResiduesFromSequence(Sequence sequence, int fmin, int fmax) {
+    String getRawResiduesFromSequence(Sequence sequence, int fmin, int fmax) {
         StringBuilder sequenceString = new StringBuilder()
 
         int startChunkNumber = fmin / sequence.seqChunkSize;
@@ -338,7 +344,7 @@ class SequenceService {
 //            gbolFeature = genomicRegion
             //sequence = getResiduesFromFeature(gbolFeature)
 //            featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
-            featureResidues = getResiduesFromSequence(gbolFeature.featureLocation.sequence,fmin,fmax,Strand.getStrandForValue(gbolFeature.strand))
+            featureResidues = getGenomicResiduesFromSequenceWithAlterations(gbolFeature.featureLocation.sequence,fmin,fmax,Strand.getStrandForValue(gbolFeature.strand))
         }
         return featureResidues
     }

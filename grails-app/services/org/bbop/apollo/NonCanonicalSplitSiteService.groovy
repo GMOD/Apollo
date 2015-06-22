@@ -1,9 +1,6 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import grails.transaction.Transactional
-import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 
@@ -15,7 +12,8 @@ class NonCanonicalSplitSiteService {
     def featureRelationshipService
     def exonService
     def featureService
-    def nameService
+    def sequenceService
+//    def nameService
 
     /** Delete an non canonical 5' splice site.  Deletes both the transcript -> non canonical 5' splice site and
      *  non canonical 5' splice site -> transcript relationships.
@@ -136,6 +134,7 @@ class NonCanonicalSplitSiteService {
         deleteAllNonCanonicalThreePrimeSpliceSites(transcript)
 
         List<Exon> exons = exonService.getSortedExons(transcript)
+        Sequence sequence = transcript.featureLocation.sequence
         int exonNum = 0;
 //        int sourceFeatureLength = transcript.getFeatureLocation().getSourceFeature().getSequenceLength();
         int sequenceLength = transcript.getFeatureLocation().getSequence().getLength()
@@ -148,8 +147,8 @@ class NonCanonicalSplitSiteService {
 
             for (String donor : SequenceTranslationHandler.getSpliceDonorSites()) {
                 for (String acceptor : SequenceTranslationHandler.getSpliceAcceptorSites()) {
-                    FlankingRegion spliceAcceptorSiteFlankingRegion = createFlankingRegion(exon, exon.getFmin() - donor.length(), exon.getFmin());
-                    FlankingRegion spliceDonorSiteFlankingRegion = createFlankingRegion(exon, exon.getFmax(), exon.getFmax() + donor.length());
+                    FlankingRegion spliceAcceptorSiteFlankingRegion = createFlankingRegion(sequence, exon.getFmin() - donor.length(), exon.getFmin(),Strand.getStrandForValue(exon.strand));
+                    FlankingRegion spliceDonorSiteFlankingRegion = createFlankingRegion(sequence, exon.getFmax(), exon.getFmax() + donor.length(),Strand.getStrandForValue(exon.strand));
                     if (exon.featureLocation.getStrand() == -1) {
                         FlankingRegion tmp = spliceAcceptorSiteFlankingRegion;
                         spliceAcceptorSiteFlankingRegion = spliceDonorSiteFlankingRegion;
@@ -159,10 +158,14 @@ class NonCanonicalSplitSiteService {
                     String donorSpliceSiteSequence = session.getResiduesWithAlterations(spliceDonorSiteFlankingRegion);
                     String acceptorSpliceSiteSequence = session.getResiduesWithAlterations(spliceAcceptorSiteFlankingRegion);
                     */
+//                    String donorSpliceSiteSequence = spliceDonorSiteFlankingRegion.getFmin() >= 0 && spliceDonorSiteFlankingRegion.getFmax() <= sequenceLength ?
+//                            featureService.getResiduesWithAlterations(spliceDonorSiteFlankingRegion) : null;
+//                    String acceptorSpliceSiteSequence = spliceAcceptorSiteFlankingRegion.getFmin() >= 0 && spliceAcceptorSiteFlankingRegion.getFmax() <= sequenceLength ?
+//                            featureService.getResiduesWithAlterations(spliceAcceptorSiteFlankingRegion) : null;
                     String donorSpliceSiteSequence = spliceDonorSiteFlankingRegion.getFmin() >= 0 && spliceDonorSiteFlankingRegion.getFmax() <= sequenceLength ?
-                            featureService.getResiduesWithAlterations(spliceDonorSiteFlankingRegion) : null;
+                            sequenceService.getGenomicResiduesFromSequenceWithAlterations(spliceDonorSiteFlankingRegion) : null;
                     String acceptorSpliceSiteSequence = spliceAcceptorSiteFlankingRegion.getFmin() >= 0 && spliceAcceptorSiteFlankingRegion.getFmax() <= sequenceLength ?
-                            featureService.getResiduesWithAlterations(spliceAcceptorSiteFlankingRegion) : null;
+                            sequenceService.getGenomicResiduesFromSequenceWithAlterations(spliceAcceptorSiteFlankingRegion) : null;
                     if (exonNum < exons.size()) {
                         if (!validFivePrimeSplice) {
                             if (donorSpliceSiteSequence!=donor) {
@@ -309,26 +312,35 @@ class NonCanonicalSplitSiteService {
         return spliceSite;
     }
 
-    private FlankingRegion createFlankingRegion(Feature feature, int fmin, int fmax) {
-        FlankingRegion flankingRegion = new FlankingRegion();
-        flankingRegion.setIsAnalysis(false)
-        flankingRegion.setIsObsolete(false)
-        flankingRegion.setName(nameService.generateUniqueName())
-        flankingRegion.setUniqueName(flankingRegion.name)
-        flankingRegion.save()
+    private static FlankingRegion createFlankingRegion(Sequence sequence, int fmin, int fmax,Strand strand) {
+//        FlankingRegion flankingRegion = new FlankingRegion();
+//        flankingRegion.setIsAnalysis(false)
+//        flankingRegion.setIsObsolete(false)
+//        flankingRegion.setName(nameService.generateUniqueName())
+//        flankingRegion.setUniqueName(flankingRegion.name)
+//        flankingRegion.save()
 
-        flankingRegion.addToFeatureLocations(new FeatureLocation(
-                strand: feature.strand
-                ,sequence: feature.featureLocation.sequence
-                ,fmin: fmin
-                ,fmax: fmax
-                ,feature: flankingRegion
-        ).save());
+//        flankingRegion.addToFeatureLocations(new FeatureLocation(
+//                strand: feature.strand
+//                ,sequence: feature.featureLocation.sequence
+//                ,fmin: fmin
+//                ,fmax: fmax
+//                ,feature: flankingRegion
+//        ).save());
+
 //        flankingRegion.add(new FeatureLocation());
 //        flankingRegion.getFeatureLocation().setSourceFeature(feature.getFeatureLocation().getSourceFeature());
 //        flankingRegion.featureLocation.setStrand(feature.getStrand());
 //        flankingRegion.featureLocation.setFmin(fmin);
 //        flankingRegion.featureLocation.setFmax(fmax);
+        FlankingRegion flankingRegion = new FlankingRegion(
+                sequence: sequence
+                ,fmin: fmin
+                ,fmax: fmax
+                ,strand: strand
+        )
+
+
         return flankingRegion;
     }
 }

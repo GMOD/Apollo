@@ -1041,7 +1041,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //                        frameshift.getCoordinate() + frameshift.getFrameshiftValue(),
 //                        cds.getFeatureLocation().getStrand(), sourceFeature);
 
-                String alterationResidues = sequenceService.getResiduesFromSequence(sequence, frameshift.getCoordinate() + frameshift.getFrameshiftValue(), frameshift.getCoordinate())
+                String alterationResidues = sequenceService.getRawResiduesFromSequence(sequence, frameshift.getCoordinate() + frameshift.getFrameshiftValue(), frameshift.getCoordinate())
                 insertion.alterationResidue = alterationResidues
                 // TODO: correct?
 //                insertion.setResidues(sequence.getResidues().substring(

@@ -450,7 +450,7 @@ class ExonService {
 //        flankingRegion.addToFeatureLocations(flankingRegionLocation)
 //        flankingRegion.save()
 //        String residues = featureService.getResiduesWithAlterationsAndFrameshifts(flankingRegion)
-        String residues = getResiduesFromSequence(exon.featureLocation.sequence
+        String residues = getGenomicResiduesFromSequenceWithAlterations(exon.featureLocation.sequence
                 ,exon.fmin < cds.fmin ? cds.fmin : exon.fmin
                 ,fmax : exon.fmax > cds.fmax ? cds.fmax : exon.fmax
                 ,Strand.getStrandForValue(exon.featureLocation.strand))
