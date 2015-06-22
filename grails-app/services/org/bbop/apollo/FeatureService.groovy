@@ -188,14 +188,12 @@ class FeatureService {
             for (Feature feature : overlappingFeatures) {
                 if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
                     Gene tmpGene = (Gene) feature;
-                    log.debug "found an overlpaping gene ${tmpGene}"
+                    log.debug "found an overlapping gene ${tmpGene}"
                     Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
                     updateNewGsolFeatureAttributes(tmpTranscript, sequence);
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
-                    //wasn't working --colin
-                    //setOwner(tmpTranscript, permissionService.findUser(jsonTranscript));
 
                     //this one is working, but was marked as needing improvement
                     if (grails.util.Environment.current != grails.util.Environment.TEST) {
@@ -456,6 +454,7 @@ class FeatureService {
 
     def calculateCDS(Transcript transcript, boolean readThroughStopCodon) {
         CDS cds = transcriptService.getCDS(transcript);
+        log.info "calculateCDS"
         if (cds == null) {
             setLongestORF(transcript, readThroughStopCodon);
             return;
@@ -482,10 +481,12 @@ class FeatureService {
  * @param transcript - Transcript to set the longest ORF to
  */
     public void setLongestORF(Transcript transcript, boolean readThroughStopCodon) {
+        log.debug "setLongestORF(transcript,readThroughStopCodon) ${transcript} ${readThroughStopCodon}"
         setLongestORF(transcript, configWrapperService.getTranslationTable(), false, readThroughStopCodon);
     }
 
     public void setLongestORF(Transcript transcript) {
+        log.debug "setLongestORF(transcript) ${transcript}"
         setLongestORF(transcript, false);
     }
 
@@ -497,6 +498,7 @@ class FeatureService {
  * @param translationStart - Coordinate of the start of translation
  */
     public void setTranslationStart(Transcript transcript, int translationStart) {
+        log.debug "setTranslationStart"
         setTranslationStart(transcript, translationStart, false);
     }
 
@@ -509,6 +511,7 @@ class FeatureService {
  * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
  */
     public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd) {
+        log.debug "setTranslationStart(transcript,translationStart,translationEnd)"
         setTranslationStart(transcript, translationStart, setTranslationEnd, false);
     }
 
@@ -522,6 +525,7 @@ class FeatureService {
  * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
  */
     public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, boolean readThroughStopCodon) {
+        log.debug "setTranslationStart(transcript,translationStart,translationEnd,readThroughStopCodon)"
         setTranslationStart(transcript, translationStart, setTranslationEnd, setTranslationEnd ? configWrapperService.getTranslationTable() : null, readThroughStopCodon);
     }
 
@@ -531,6 +535,7 @@ class FeatureService {
  * @return Source feature coordinate, -1 if local coordinate is longer than feature's length or negative
  */
     public int convertLocalCoordinateToSourceCoordinate(Feature feature, int localCoordinate) {
+        log.debug "convertLocalCoordinateToSourceCoordinate"
 
         if (localCoordinate < 0 || localCoordinate > feature.getLength()) {
             return -1;
@@ -934,6 +939,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 
     public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension) {
+        log.debug "setLongestORF(transcript,translationTable,allowPartialExtension)"
         setLongestORF(transcript, translationTable, allowPartialExtension, false);
     }
 
@@ -1066,6 +1072,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * @param allowPartialExtension - Where partial ORFs should be used for possible extension
  */
     public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon) {
+        log.debug "setLongestORF(transcript,translationTable,allowPartialExtension,readThroughStopCodon)"
         String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
         if (mrna == null || mrna.equals("null")) {
             return;
@@ -1160,9 +1167,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     public Feature convertJSONToFeature(JSONObject jsonFeature, Sequence sequence) {
         Feature gsolFeature
         try {
-//            gsolFeature.setOrganism(organism);
-
-            // TODO: JSON type feature not set
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
             String ontologyId = convertJSONToOntologyId(type)
             if (!ontologyId) {
@@ -1171,8 +1175,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             gsolFeature = generateFeatureForType(ontologyId)
-            log.debug "gsolFeature ${gsolFeature} for ${ontologyId}"
-
             if (jsonFeature.has(FeatureStringEnum.ID.value)) {
                 gsolFeature.setId(jsonFeature.getLong(FeatureStringEnum.ID.value));
             }
@@ -1185,7 +1187,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
             } else {
-                log.debug "NO name using unique name"
                 gsolFeature.name = gsolFeature.uniqueName + "-${type.get('name')}"
             }
             if (gsolFeature instanceof Deletion) {
@@ -1210,8 +1211,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             } else if (jsonFeature.has(FeatureStringEnum.RESIDUES.value) && gsolFeature instanceof SequenceAlteration) {
                 sequenceService.setResiduesForFeature(gsolFeature, jsonFeature.getString(FeatureStringEnum.RESIDUES.value))
             }
-
-//            gsolFeature.save(failOnError: true)
 
             if (jsonFeature.has(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray children = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value);
@@ -1253,7 +1252,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     if (propertyType.has(FeatureStringEnum.NAME.value)) {
                         CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
                         CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
-//                    gsolProperty.setType(new CVTerm(propertyType.getString("name"), new CV(propertyType.getJSONObject("cv").getString("name"))));
                         gsolProperty.setType(cvTerm);
                     } else {
                         log.warn "No proper type for the CV is set ${propertyType as JSON}"
@@ -1288,8 +1286,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
                     DB newDB = DB.findOrSaveByName(db.getString(FeatureStringEnum.NAME.value))
                     DBXref newDBXref = DBXref.findOrSaveByDbAndAccession(
-                            newDB
-                            , dbxref.getString(FeatureStringEnum.ACCESSION.value)
+                            newDB,
+                            dbxref.getString(FeatureStringEnum.ACCESSION.value)
                     ).save()
                     gsolFeature.addToFeatureDBXrefs(dbxref)
                     gsolFeature.save()
@@ -1321,6 +1319,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     FeatureProperty generateFeaturePropertyForType(String ontologyId) {
+        log.debug "generateFeaturePropertyForType ${ontologyId}"
         switch (ontologyId) {
             case Comment.ontologyId: return new Comment()
             case FeatureAttribute.ontologyId: return new FeatureAttribute()
@@ -1339,9 +1338,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     List<String> cvTermTranscriptList = [
-            MRNA.cvTerm, MRNA.alternateCvTerm, MiRNA.cvTerm, MiRNA.alternateCvTerm, NcRNA.cvTerm, NcRNA.alternateCvTerm
-            , SnoRNA.cvTerm, SnoRNA.alternateCvTerm, SnRNA.cvTerm, SnRNA.alternateCvTerm
-            , RRNA.cvTerm, RRNA.alternateCvTerm, TRNA.cvTerm, TRNA.alternateCvTerm,
+            MRNA.cvTerm,
+            MRNA.alternateCvTerm,
+            MiRNA.cvTerm,
+            MiRNA.alternateCvTerm,
+            NcRNA.cvTerm,
+            NcRNA.alternateCvTerm,
+            SnoRNA.cvTerm,
+            SnoRNA.alternateCvTerm,
+            SnRNA.cvTerm,
+            SnRNA.alternateCvTerm,
+            RRNA.cvTerm,
+            RRNA.alternateCvTerm,
+            TRNA.cvTerm,
+            TRNA.alternateCvTerm,
             Transcript.cvTerm
     ]
 
@@ -1351,7 +1361,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return cvTermTranscriptList.contains(typeString)
     }
 
-// TODO: hopefully change in the client and get rid of this ugly code
+    // TODO: (perform on client side, slightly ugly)
     Feature generateFeatureForType(String ontologyId) {
         switch (ontologyId) {
             case MRNA.ontologyId: return new MRNA()
@@ -1382,11 +1392,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
     }
-// TODO: hopefully change in the client and get rid of this ugly code
+    // TODO: (perform on client side, slightly ugly)
     String convertJSONToOntologyId(JSONObject jsonCVTerm) {
         String cvString = jsonCVTerm.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value)
-//        CV cv = CV.findOrSaveByName(jsonCVTerm.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
-//        CVTerm cvTerm = CVTerm.findOrSaveByNameAndCv(jsonCVTerm.getString(FeatureStringEnum.NAME.value),cv)
         String cvTermString = jsonCVTerm.getString(FeatureStringEnum.NAME.value)
 
         if (cvString.equalsIgnoreCase(FeatureStringEnum.CV.value) || cvString.equalsIgnoreCase(FeatureStringEnum.SEQUENCE.value)) {
@@ -1423,11 +1431,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return null
 
     }
-//    public CVTerm convertJSONToCVTerm(JSONObject jsonCVTerm) throws JSONException {
-//        return new CVTerm(jsonCVTerm.getString("name"), new CV(jsonCVTerm.getJSONObject("cv").getString("name")));
-//    }
 
     void updateGeneBoundaries(Gene gene) {
+        log.debug "updateGeneBoundaries"
         if (gene == null) {
             return;
         }
@@ -1961,9 +1967,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 finalOwnerString = "None"
             }
             jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
-//            gsolFeature.featureLocations.each {
-//                it.attach()
-//            }
             if (gsolFeature.featureLocation) {
                 Sequence sequence = gsolFeature.featureLocation.sequence
                 jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
@@ -1991,13 +1994,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     children.put(convertFeatureToJSON(childFeature, includeSequence));
                 }
             }
-//            Collection<FeatureRelationship> parentRelationships = gsolFeature.getParentFeatureRelationships();
             // get parents
             Collection<FeatureRelationship> childFeatureRelationships = gsolFeature.childFeatureRelationships
             if (childFeatureRelationships?.size() == 1) {
                 Feature parent = childFeatureRelationships.iterator().next().getParentFeature();
                 jsonFeature.put(FeatureStringEnum.PARENT_ID.value, parent.getUniqueName());
-//                jsonFeature.put("parent_type", JSONUtil.convertCVTermToJSON(parent.getType()));
                 jsonFeature.put(FeatureStringEnum.PARENT_TYPE.value, generateJSONFeatureStringForType(parent.ontologyId));
             }
             Collection<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations();
@@ -2014,16 +2015,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     jsonFeature.put(FeatureStringEnum.RESIDUES.value, sequenceAlteration.alterationResidue);
                 }
             } else if (includeSequence) {
-                // don't think we handle this case
-//                else{
                 String residues = sequenceService.getResiduesFromFeature(gsolFeature)
                 if (residues) {
                     jsonFeature.put(FeatureStringEnum.RESIDUES.value, residues);
                 }
-//                }
             }
+
+
+            //e.g. properties: [{value: "demo", type: {name: "owner", cv: {name: "feature_property"}}}]
             Collection<FeatureProperty> gsolFeatureProperties = gsolFeature.getFeatureProperties();
-//            properties: [{value: "demo", type: {name: "owner", cv: {name: "feature_property"}}}]
 
             JSONArray properties = new JSONArray();
             jsonFeature.put(FeatureStringEnum.PROPERTIES.value, properties);
@@ -2071,7 +2071,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     dbxrefs.put(dbxref);
                 }
             }
-//            Date timeLastModified = gsolFeature.getTimeLastModified() != null ? gsolFeature.getTimeLastModified() : gsolFeature.getTimeAccessioned();
             jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time);
             jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time);
         }

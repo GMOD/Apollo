@@ -24,7 +24,7 @@ class JbrowseController {
     def servletContext
 
     def indexRouter(){
-        log.debug "routing the index: ${params}"
+        log.debug "indexRouter ${params}"
 
         List<String> paramList = new ArrayList<>()
         params.eachWithIndex{ entry, int i ->
@@ -45,7 +45,6 @@ class JbrowseController {
             return
         }
 
-        log.debug "anonymous user"
 
         // case 1 - anonymous login with organism ID, show organism
         if(params.organism){
@@ -86,12 +85,7 @@ class JbrowseController {
             return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         }
 
-        long startTime = System.currentTimeMillis()
         String organismJBrowseDirectory = preferenceService.currentOrganismForCurrentUser.directory
-        long stopTime = System.currentTimeMillis()
-        // this is about 0.004 ms per request .. .
-        log.debug "total time to grab preference ${(stopTime-startTime)/1000f}"
-
         if (!organismJBrowseDirectory) {
             for (Organism organism in Organism.all) {
                 // load if not
@@ -133,7 +127,6 @@ class JbrowseController {
     def namesFiles(String directory, String jsonFile) {
         String dataDirectory = getJBrowseDirectoryForSession()
         String absoluteFilePath = dataDirectory + "/names/${directory}/${jsonFile}.json"
-        log.debug "names Files ${absoluteFilePath}"
         File file = new File(absoluteFilePath);
         if (!file.exists()) {
             log.warn("Could not get for name and path: ${absoluteFilePath}");
@@ -148,7 +141,6 @@ class JbrowseController {
      * For returning seq/refSeqs.json
      */
     def names(String fileName) {
-        log.debug "names"
         String dataDirectory = getJBrowseDirectoryForSession()
         String absoluteFilePath = dataDirectory + "/names/${fileName}.json"
         File file = new File(absoluteFilePath);
@@ -165,7 +157,6 @@ class JbrowseController {
      * For returning seq/refSeqs.json
      */
     def seq() {
-        log.debug "seq"
         String fileName = getJBrowseDirectoryForSession()
         File file = new File(fileName + "/seq/refSeqs.json");
         if (!file.exists()) {
@@ -215,13 +206,6 @@ class JbrowseController {
      */
     def data(String fileName) {
         String dataDirectory = getJBrowseDirectoryForSession()
-        log.debug "dataDir: ${dataDirectory}"
-        log.debug "URI: " + request.getRequestURI()
-        log.debug "URL: " + request.getRequestURL()
-        log.debug "pathInfo: " + request.getPathInfo()
-        log.debug "pathTranslated: " + request.getPathTranslated()
-        log.debug "params: " + params
-
         String dataFileName = dataDirectory + "/" + fileName
         File file = new File(dataFileName);
 
@@ -345,7 +329,6 @@ class JbrowseController {
     def trackList() {
         String dataDirectory = getJBrowseDirectoryForSession()
         String absoluteFilePath = dataDirectory + "/trackList.json"
-        log.debug "trackList ${absoluteFilePath}"
         File file = new File(absoluteFilePath);
         def mimeType = "application/json";
         response.setContentType(mimeType);
