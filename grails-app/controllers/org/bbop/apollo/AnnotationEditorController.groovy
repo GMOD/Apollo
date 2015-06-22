@@ -66,8 +66,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject postObject = findPost()
         operation = postObject.get(REST_OPERATION)
         def mappedAction = underscoreToCamelCase(operation)
-        log.debug "${operation} -> ${mappedAction}"
-        log.debug "Controller: " + params.controller
+        log.debug "handleOperation ${params.controller} ${operation} -> ${mappedAction}"
         forward action: "${mappedAction}", params: [data: postObject]
     }
 
@@ -75,18 +74,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
      * @return
      */
     def getUserPermission() {
-        log.debug "getting user permission !! ${params.data}"
+        log.debug "getUserPermission ${params.data}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
-        log.debug "principal: " + SecurityUtils.subject.principal
         String username = SecurityUtils.subject.principal
         int permission = PermissionEnum.NONE.value
         if (username) {
 
-            log.debug "input username ${username}"
             User user = User.findByUsername(username)
-            log.debug "found a user ${user} for username: ${username}"
-
             Organism organism = preferenceService.getCurrentOrganism(user)
             if (!organism) {
                 log.error "somehow no organism shown, getting for all"
@@ -119,6 +114,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getDataAdapters() {
         // temporary workaround
+        log.debug "getDataAdapters"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         /*json [{
              "permission": 1,
@@ -159,7 +155,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
         dataAdaptersArray = JSON.parse(jsonString) as JSONArray
         returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
-        log.debug "return object from getDataAdapters: ${returnObject.toString()}"
         render returnObject
     }
 
@@ -222,7 +217,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
 
     def getTranslationTable() {
-        log.debug "getTranslationTable ${params}"
+        log.debug "getTranslationTable"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         TranslationTable translationTable = SequenceTranslationHandler.getDefaultTranslationTable()
         JSONObject ttable = new JSONObject();

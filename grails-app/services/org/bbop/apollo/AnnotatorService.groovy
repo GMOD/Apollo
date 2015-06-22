@@ -20,9 +20,6 @@ class AnnotatorService {
             Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
 
 
-            log.debug "organism list: ${organismList}"
-            log.debug "finding all organisms: ${Organism.count}"
-
             JSONArray organismArray = new JSONArray()
             for (Organism organism in organismList) {
                 Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])[0] as Integer
@@ -48,8 +45,6 @@ class AnnotatorService {
                 appStateObject.put("currentOrganism", currentOrganism )
 
 
-                if(currentUserOrganismPreference)
-                    log.info "current sequence ${currentUserOrganismPreference?.sequence}"
                 if (!currentUserOrganismPreference.sequence) {
                     Sequence sequence = Sequence.findByOrganism(currentUserOrganismPreference.organism)
                     currentUserOrganismPreference.sequence = sequence
@@ -63,24 +58,6 @@ class AnnotatorService {
                     appStateObject.put("currentEndBp", currentUserOrganismPreference.endbp)
                 }
             }
-
-
-//            JSONArray userList = new JSONArray()
-//            if(permissionService.isAdmin()){
-//                for(User user in User.all){
-//                    JSONObject jsonObject = [
-//                            userId: user.id
-//                            ,firstName: user.firstName
-//                            ,lastName: user.lastName
-//                            ,username: user.username
-//                            ,role: user.roles.first()
-//                    ]
-//                    userList.add(jsonObject)
-//                }
-//            }
-//            appStateObject.put("userList",userList)
-
-
         }
         catch(PermissionException e) {
             def error=[error: "Error: "+e]

@@ -49,8 +49,6 @@ class UserController {
             Role role = userService.getHighestRole(it)
             userObject.role = role?.name
 
-            log.debug "groups ${it.userGroups} for ${it.username}"
-
 
             JSONArray groupsArray = new JSONArray()
             List<String> groupsForUser = new ArrayList<>()
@@ -76,7 +74,7 @@ class UserController {
             JSONArray organismPermissionsArray = new JSONArray()
             def userOrganismPermissionList3 = userOrganismPermissionMap.get(it.username)
             List<Long> organismsWithPermissions = new ArrayList<>()
-            log.debug "list retrieved? : ${userOrganismPermissionList3?.size()} for ${it.username}"
+            log.debug "number of groups for user: ${userOrganismPermissionList3?.size()} for ${it.username}"
             for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList3) {
                 if (userOrganismPermission.organism in allowableOrganisms) {
                     JSONObject organismJSON = new JSONObject()
