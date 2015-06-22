@@ -583,7 +583,7 @@ class PermissionService {
             String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
             organism = Organism.findByCommonName(organismString)
             if(!organism)
-                organism=Organism.findById(organismString);
+                organism=Organism.findById(organismString as Long);
             if(!organism)
                 log.info "organism not found ${organismString}"
             else if(user!=null) {
@@ -614,7 +614,6 @@ class PermissionService {
             }
 
             organism = userOrganismPreference.organism
-
 
         }
 

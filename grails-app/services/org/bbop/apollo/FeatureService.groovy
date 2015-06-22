@@ -1967,7 +1967,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             // get children
             gsolFeature.attach()
-            Collection<FeatureRelationship> parentRelationships = gsolFeature.parentFeatureRelationships;
+//            Collection<FeatureRelationship> parentRelationships = gsolFeature.parentFeatureRelationships;
+            Collection<FeatureRelationship> parentRelationships = FeatureRelationship.findAllByParentFeature(gsolFeature)
             if (parentRelationships) {
                 JSONArray children = new JSONArray();
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);

@@ -12,7 +12,8 @@ environments {
         dataSource.username = "<CHANGEME>"
         dataSource.password = "<CHANGEME>"
         dataSource.driverClassName = "org.postgresql.Driver"
-        dataSource.dialect = org.hibernate.dialect.PostgresPlusDialect
+//        dataSource.dialect = org.hibernate.dialect.PostgresPlusDialect
+        dataSource.dialect = "org.bbop.apollo.ImprovedPostgresDialect"
         dataSource.url = "jdbc:postgresql://localhost/apollo-test"
     }
     production {

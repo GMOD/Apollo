@@ -685,7 +685,8 @@ class RequestHandlingService {
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
 
             if (!suppressHistory) {
-                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, transcript, inputObject, permissionService.getActiveUser(inputObject))
+//                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, transcript, inputObject, permissionService.getActiveUser(inputObject))
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.ADD_TRANSCRIPT, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, featureService.convertFeatureToJSON(transcript),permissionService.getActiveUser(inputObject))
             }
         }
 
@@ -1134,7 +1135,7 @@ class RequestHandlingService {
             deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
             FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
             sequenceAlteration.delete()
-            
+
             for (Feature feature : featureService.getOverlappingFeatures(sequenceAlterationFeatureLocation, false)) {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
@@ -1146,7 +1147,7 @@ class RequestHandlingService {
                 }
             }
         }
-        
+
         AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
                 features: deleteFeatureContainer
                 , sequence: sequence
@@ -1181,7 +1182,7 @@ class RequestHandlingService {
             if (grails.util.Environment.current != grails.util.Environment.TEST) {
 //                log.debug "setting owner for gene and transcript per: ${permissionService.findUser(activeUser)}"
                 if (activeUser) {
-                    featureService.setOwner(sequenceAlteration,activeUser)
+                    featureService.setOwner(sequenceAlteration, activeUser)
                 } else {
                     log.error("Unable to find valid user to set on transcript!" + inputObject)
                 }
@@ -1236,7 +1237,7 @@ class RequestHandlingService {
         )
         fireAnnotationEvent(addAnnotationEvent)
         fireAnnotationEvent(updateAnnotationEvent)
-        
+
         return addFeatureContainer
 
     }
@@ -1459,10 +1460,13 @@ class RequestHandlingService {
 
             if (feature instanceof Transcript) {
                 feature = transcriptService.flipTranscriptStrand((Transcript) feature);
+//                featureEventService.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, feature, inputObject, permissionService.getActiveUser(inputObject))
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name,feature.uniqueName, inputObject,featureService.convertFeatureToJSON((Transcript) feature), permissionService.getActiveUser(inputObject))
             } else {
                 feature = featureService.flipStrand(feature)
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, feature.name,feature.uniqueName, inputObject,featureService.convertFeatureToJSON(feature), permissionService.getActiveUser(inputObject))
             }
-            featureEventService.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, feature, inputObject, permissionService.getActiveUser(inputObject))
+//            featureEventService.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, feature, inputObject, permissionService.getActiveUser(inputObject))
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
         }
 
@@ -1706,11 +1710,10 @@ class RequestHandlingService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             Feature feature
             String uniqueName
-            if(jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)){
+            if (jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)) {
                 uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
                 feature = Feature.findByUniqueName(uniqueName)
-            }
-            else{
+            } else {
                 feature = Feature.findByName(jsonFeature.getString(FeatureStringEnum.NAME.value))
                 uniqueName = feature.uniqueName
             }
@@ -1842,7 +1845,9 @@ class RequestHandlingService {
                 featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
 
 
-                featureEventService.addNewFeatureEvent(featureOperation, featureName, feature.uniqueName, inputObject, new JSONObject().put(FeatureStringEnum.FEATURES.value, oldJsonObjectsArray), newJsonObject, permissionService.getActiveUser(inputObject))
+                if (!suppressEvents) {
+                    featureEventService.addNewFeatureEvent(featureOperation, featureName, feature.uniqueName, inputObject, new JSONObject().put(FeatureStringEnum.FEATURES.value, oldJsonObjectsArray), newJsonObject, permissionService.getActiveUser(inputObject))
+                }
             }
         }
 
@@ -1936,7 +1941,14 @@ class RequestHandlingService {
         transcript1.owners.each { transcript2.addToOwners(it) }
 
 
+        // we get the original gene off of the transcript
         Gene gene1 = transcriptService.getGene(transcript1)
+
+        String transcript2UniqueName = transcript2.uniqueName
+        String transcript2Name = transcript2.name
+
+        String gene2UniqueName = transcriptService.getGene(transcript2).uniqueName
+        String gene2Name = transcriptService.getGene(transcript2).name
 //
         if (gene1) {
             Set<Transcript> gene1Transcripts = new HashSet<Transcript>();
@@ -2007,7 +2019,18 @@ class RequestHandlingService {
             }
 
             addSplitTranscriptJSONObject = permissionService.copyUserName(inputObject, addSplitTranscriptJSONObject)
-            addTranscript(addSplitTranscriptJSONObject)
+
+            // has to be added separately, which is what we wan to see
+            JSONObject returnAddTranscriptObject = addTranscript(addSplitTranscriptJSONObject).getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
+
+            // we could suppress the history, but that screws up the naming . . . .
+            // so we'll just delete the other feature event
+            // so we just delete it (it tries to do an "add transcript")
+            transcript2Name = returnAddTranscriptObject.getString(FeatureStringEnum.NAME.value)
+            transcript2UniqueName = returnAddTranscriptObject.getString(FeatureStringEnum.UNIQUENAME.value)
+            featureEventService.deleteHistory(transcript2UniqueName)
+            gene2Name = transcriptService.getGene(Transcript.findByUniqueName(transcript2UniqueName))?.name
+
         }
 
         JSONObject updateContainer = createJSONFeatureContainer();
@@ -2022,9 +2045,36 @@ class RequestHandlingService {
         Feature topLevelExonFeature = featureService.getTopLevelFeature(transcript1)
         JSONObject returnContainer = createJSONFeatureContainerFromFeatures(topLevelExonFeature)
 
+        // we return all of the transcripts off of the gene for transcript 1
         List<Transcript> exon1Transcripts = transcriptService.getTranscripts(transcriptService.getGene(transcript1))
         for (Transcript t : exon1Transcripts) {
             updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
+        }
+
+        Transcript tmpTranscript2 = Transcript.findByUniqueName(transcript2UniqueName)
+        if(tmpTranscript2){
+            Gene tmpGene2 = transcriptService.getGene(tmpTranscript2)
+            if(tmpGene2.id!=gene1.id){
+                List<Transcript> exon2Transcripts = transcriptService.getTranscripts(tmpGene2)
+                for (Transcript t : exon2Transcripts) {
+                    updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
+                }
+
+            }
+        }
+
+
+
+        // now we add history for each of the transcripts . . . it is history of 1 + 2
+        Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)  ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value): false
+        if (!suppressHistory) {
+            featureEventService.addSplitFeatureEvent(transcriptService.getGene(transcript1).name,transcript1.uniqueName
+                    ,gene2Name,transcript2UniqueName
+                    ,inputObject
+                    ,featureService.convertFeatureToJSON(transcript1)
+                    ,updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
+                    ,permissionService.getActiveUser(inputObject)
+            )
         }
 
         AnnotationEvent updateAnnotationEvent = new AnnotationEvent(
@@ -2047,6 +2097,13 @@ class RequestHandlingService {
         JSONObject jsonTranscript2 = featuresArray.getJSONObject(1)
         Transcript transcript1 = Transcript.findByUniqueName(jsonTranscript1.getString(FeatureStringEnum.UNIQUENAME.value))
         Transcript transcript2 = Transcript.findByUniqueName(jsonTranscript2.getString(FeatureStringEnum.UNIQUENAME.value))
+
+        String gene1Name = transcriptService.getGene(transcript1)
+        String transcript1UniqueName = transcript1.uniqueName
+
+        String gene2Name = transcriptService.getGene(transcript2)
+        String transcript2UniqueName = transcript2.uniqueName
+
         JSONObject transcript2JSONObject = featureService.convertFeatureToJSON(transcript2)
 //        // cannot merge transcripts from different strands
         if (!transcript1.getStrand().equals(transcript2.getStrand())) {
@@ -2072,6 +2129,21 @@ class RequestHandlingService {
         for (Transcript transcript : gene1Transcripts) {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
         }
+
+
+        Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)  ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value): false
+        if (!suppressHistory) {
+            JSONArray oldJsonArray = new JSONArray()
+            oldJsonArray.add(jsonTranscript1)
+            oldJsonArray.add(jsonTranscript2)
+            featureEventService.addMergeFeatureEvent(gene1Name,transcript1UniqueName
+                    ,gene2Name,transcript2UniqueName
+                    ,inputObject ,oldJsonArray
+                    ,updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
+                    ,permissionService.getActiveUser(inputObject)
+            )
+        }
+
         deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(transcript2JSONObject);
 
         AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(

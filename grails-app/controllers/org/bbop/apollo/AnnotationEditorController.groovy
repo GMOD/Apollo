@@ -39,7 +39,7 @@ import org.springframework.messaging.handler.annotation.SendTo
  * From the AnnotationEditorService
  */
 //@GrailsCompileStatic
-class AnnotationEditorController extends AbstractApolloController implements AnnotationListener{
+class AnnotationEditorController extends AbstractApolloController implements AnnotationListener {
 
 
     def featureService
@@ -54,6 +54,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def preferenceService
     def sequenceSearchService
     def featureEventService
+    def overlapperService
 
 
     def index() {
@@ -179,9 +180,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             JSONArray history = new JSONArray();
             jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
 //            List<FeatureEvent> transactionList = FeatureEvent.findAllByUniqueName(feature.uniqueName, [sort: "dateCreated", order: "asc"])
-            List<FeatureEvent> transactionList = featureEventService.getHistory(feature.uniqueName)
+            List<List<FeatureEvent>> transactionList = featureEventService.getHistory(feature.uniqueName)
             for (int j = 0; j < transactionList.size(); ++j) {
-                FeatureEvent transaction = transactionList.get(j);
+                FeatureEvent transaction = transactionList[j][0];
                 JSONObject historyItem = new JSONObject();
                 historyItem.put(REST_OPERATION, transaction.operation.name());
                 historyItem.put(FeatureStringEnum.EDITOR.value, transaction.getEditor().username);
@@ -199,17 +200,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     for (int featureIndex = 0; featureIndex < newFeaturesJsonArray.size(); featureIndex++) {
                         JSONObject featureJsonObject = newFeaturesJsonArray.getJSONObject(featureIndex)
                         // TODO: this needs to be functional
-                        if (false && transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT)) {
-//                        if (gbolFeature.overlaps(f)) {
-//                            if (overlapperService.overlaps(feature.featureLocation,f.featureLocation,true)) {
-//                                if (f.getUniqueName().equals(jsonFeature.getString("uniquename"))) {
-//                            historyFeatures.put(featureService.convertFeatureToJSON(f));
-                            throw new RuntimeException("split transcript operations not supported yet")
-                        }
-//                    } else {
-//                        historyFeatures.put(featureService.convertFeatureToJSON(f));
+//                        if (transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT)) {
+//                            Feature newFeature = Feature.findByUniqueName(featureJsonObject.getString(FeatureStringEnum.UNIQUENAME.value))
+//                            if (overlapperService.overlaps(feature.featureLocation, newFeature.featureLocation, true)) {
+//                                historyFeatures.put(featureJsonObject);
+//                            }
+//                        }
+//                        else{
+//                            historyFeatures.put(featureJsonObject);
+//                        }
                         historyFeatures.put(featureJsonObject);
-//                    }
                     }
                     history.put(historyItem);
                 }
@@ -308,24 +308,24 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
      * "name":"geneid_mRNA_CM000054.5_150","children":
      * [{"location":{"fmin":305327,"strand":1,"fmax":305356},
      * "type":{"name":"exon","cv":{"name":"sequence"}}},
-     * {"location":{"fmin":258308,"strand":1,"fmax":258471},
+     *{"location":{"fmin":258308,"strand":1,"fmax":258471},
      * "type":{"name":"exon","cv":{"name":"sequence"}}},
-     * {"location":{"fmin":247892,"strand":1,"fmax":247976},
+     *{"location":{"fmin":247892,"strand":1,"fmax":247976},
      * "type":{"name":"exon","cv":{"name":"sequence"}}},
-     * {"location":{"fmin":247892,"strand":1,"fmax":305356},
+     *{"location":{"fmin":247892,"strand":1,"fmax":305356},
      * "type":{"name":"CDS","cv":{"name":"sequence"}}}],
      * "type":{"name":"mRNA","cv":{"name":"sequence"}}},
-     * {"location":{"fmin":247892,"strand":1,"fmax":305356},
+     *{"location":{"fmin":247892,"strand":1,"fmax":305356},
      * "name":"5e5c32e6-ca4a-4b53-85c8-b0f70c76acbd",
      * "children":[{"location":{"fmin":247892,"strand":1,"fmax":247976},
      * "name":"00540e13-de64-4fa2-868a-e168e584f55d",
      * "uniquename":"00540e13-de64-4fa2-868a-e168e584f55d","type":"exon","date_last_modified":new Date(1415391635593)},
-     * {"location":{"fmin":258308,"strand":1,"fmax":258471},
+     *{"location":{"fmin":258308,"strand":1,"fmax":258471},
      * "name":"de44177e-ce76-4a9a-8313-1c654d1174aa",
      * "uniquename":"de44177e-ce76-4a9a-8313-1c654d1174aa","type":"exon","date_last_modified":new Date(1415391635586)},
-     * {"location":{"fmin":305327,"strand":1,"fmax":305356},"name":"fa49095f-cdb9-4734-8659-3286a7c727d5",
+     *{"location":{"fmin":305327,"strand":1,"fmax":305356},"name":"fa49095f-cdb9-4734-8659-3286a7c727d5",
      * "uniquename":"fa49095f-cdb9-4734-8659-3286a7c727d5","type":"exon","date_last_modified":new Date(1415391635578)},
-     * {"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"29b83822-d5a0-4795-b0a9-71b1651ff915",
+     *{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"29b83822-d5a0-4795-b0a9-71b1651ff915",
      * "uniquename":"29b83822-d5a0-4795-b0a9-71b1651ff915","type":"cds","date_last_modified":new Date(1415391635600)}],
      * "uniquename":"df08b046-ed1b-4feb-93fc-53adea139df8","type":"mrna","date_last_modified":new Date(1415391635771)}]}*
      * // returned from method
@@ -335,11 +335,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
      * "parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner",
      * "cv":{"name":"feature_property"}}}],"uniquename":"60072F8198F38EB896FB218D2862FFE4","type":{"name":"exon",
      * "cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},
-     * {"location":{"fmin":690970,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},
+     *{"location":{"fmin":690970,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},
      * "properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],
      * "uniquename":"CC6058CFA17BD6DB8861CC3B6FA1E4B1","type":{"name":"exon","cv":{"name":"sequence"}},
      * "date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},
-     * {"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},
+     *{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},
      * "properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],
      * "uniquename":"6D85D94970DE82168B499C75D886FB89","type":{"name":"CDS","cv":{"name":"sequence"}},
      * "date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"}],"properties":[{"value":"demo",
@@ -419,7 +419,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             render requestHandlingService.getFeatures(returnObject)
         } catch (e) {
-            def error= [error: 'problem getting features: '+e.fillInStackTrace()]
+            def error = [error: 'problem getting features: ' + e.fillInStackTrace()]
             render error as JSON
             log.error(error.error)
         }
@@ -459,9 +459,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render featureContainer
     }
 
-
     // TODO: implement
-    def getResiduesWithAlterations(){
+    def getResiduesWithAlterations() {
         throw new RuntimeException("Not yet implemented")
 //        JSONObject featureContainer = createJSONFeatureContainer();
 //        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -488,17 +487,17 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     // TODO: implement
-    def addFrameshift(){
+    def addFrameshift() {
         throw new RuntimeException("Not yet implemented")
     }
 
     // TODO: implement
-    def getResiduesWithFrameShifts(){
+    def getResiduesWithFrameShifts() {
         throw new RuntimeException("Not yet implemented")
     }
 
     // TODO: implement
-    def getResiduesWithAlternationsAndFrameshifts(){
+    def getResiduesWithAlternationsAndFrameshifts() {
         throw new RuntimeException("Not yet implemented")
     }
 
@@ -511,7 +510,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         if (jsonObject.containsKey(FeatureStringEnum.USERNAME.value)) return
 
         String username = SecurityUtils.subject.principal
-        if(username==null)
+        if (username == null)
             jsonObject.put(FeatureStringEnum.USERNAME.value, "Guest")
         else
             jsonObject.put(FeatureStringEnum.USERNAME.value, username)
@@ -784,7 +783,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, feature.dateCreated.time);
             jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
 
-            if (AvailableStatus.count>0 && feature.status) {
+            if (AvailableStatus.count > 0 && feature.status) {
                 newFeature.put(FeatureStringEnum.STATUS.value, feature.status.value)
             }
             // TODO: add the rest of the attributes
