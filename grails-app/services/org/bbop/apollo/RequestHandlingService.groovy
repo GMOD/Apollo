@@ -2097,6 +2097,13 @@ class RequestHandlingService {
         JSONObject jsonTranscript2 = featuresArray.getJSONObject(1)
         Transcript transcript1 = Transcript.findByUniqueName(jsonTranscript1.getString(FeatureStringEnum.UNIQUENAME.value))
         Transcript transcript2 = Transcript.findByUniqueName(jsonTranscript2.getString(FeatureStringEnum.UNIQUENAME.value))
+
+        String gene1Name = transcriptService.getGene(transcript1)
+        String transcript1UniqueName = transcript1.uniqueName
+
+        String gene2Name = transcriptService.getGene(transcript2)
+        String transcript2UniqueName = transcript2.uniqueName
+
         JSONObject transcript2JSONObject = featureService.convertFeatureToJSON(transcript2)
 //        // cannot merge transcripts from different strands
         if (!transcript1.getStrand().equals(transcript2.getStrand())) {
@@ -2122,6 +2129,21 @@ class RequestHandlingService {
         for (Transcript transcript : gene1Transcripts) {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
         }
+
+
+        Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)  ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value): false
+        if (!suppressHistory) {
+            JSONArray oldJsonArray = new JSONArray()
+            oldJsonArray.add(jsonTranscript1)
+            oldJsonArray.add(jsonTranscript2)
+            featureEventService.addMergeFeatureEvent(gene1Name,transcript1UniqueName
+                    ,gene2Name,transcript2UniqueName
+                    ,inputObject ,oldJsonArray
+                    ,updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
+                    ,permissionService.getActiveUser(inputObject)
+            )
+        }
+
         deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(transcript2JSONObject);
 
         AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
