@@ -95,7 +95,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         def allFeatures = Feature.all
 
         // this is the new part
-        assert FlankingRegion.count == 10
+//        assert FlankingRegion.count == 10
         assert FeatureLocation.count == 18
         assert Feature.count == 18
 
@@ -144,7 +144,8 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert MRNA.count == 1
         assert Gene.count == 1
         assert Exon.count == 1
-        int flankingCount = FlankingRegion.count
+//        int flankingCount = FlankingRegion.count
+        int flankingCount = 0
         assert Feature.count == 4 + flankingCount
         assert FeatureLocation.count == 4 + flankingCount
         assert FeatureRelationship.count == 3
