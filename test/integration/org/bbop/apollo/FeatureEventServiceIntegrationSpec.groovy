@@ -117,10 +117,10 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         given: "transcript data"
         String addTranscriptString1 = "{\"track\":\"Annotations-Group1.10\",\"features\":[{\"location\":{\"fmin\":938708,\"fmax\":938770,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40736-RA\",\"children\":[{\"location\":{\"fmin\":938708,\"fmax\":938770,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
         String addTranscriptString2 = "{\"track\":\"Annotations-Group1.10\",\"features\":[{\"location\":{\"fmin\":939570,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40736-RA\",\"children\":[{\"location\":{\"fmin\":939570,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
-        String mergeString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_1@\" }, { \"uniquename\": \"@EXON_2@\" } ], \"operation\": \"merge_transcripts\" }"
-        String undoString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_1@\" } ], \"operation\": \"undo\", \"count\": 1}"
-        String redoString1 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_1@\" } ], \"operation\": \"redo\", \"count\": 1}"
-        String redoString2 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_2@\" } ], \"operation\": \"redo\", \"count\": 1}"
+        String mergeString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_1@\" }, { \"uniquename\": \"@TRANSCRIPT_2@\" } ], \"operation\": \"merge_transcripts\" }"
+        String undoString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_1@\" } ], \"operation\": \"undo\", \"count\": 1}"
+        String redoString1 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_1@\" } ], \"operation\": \"redo\", \"count\": 1}"
+        String redoString2 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_2@\" } ], \"operation\": \"redo\", \"count\": 1}"
 
         when: "we insert two transcripts"
         requestHandlingService.addTranscript(JSON.parse(addTranscriptString1))
@@ -137,14 +137,14 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
         when: "we merge the transcript"
         def allFeatures = Feature.all
-        String exon1UniqueName = Exon.all[0].uniqueName
-        String exon2UniqueName = Exon.all[1].uniqueName
-        mergeString = mergeString.replaceAll("@EXON_1@",exon1UniqueName)
-        mergeString = mergeString.replaceAll("@EXON_2@",exon2UniqueName)
-        undoString = undoString.replaceAll("@EXON_1@",exon1UniqueName)
-        redoString1 = redoString1.replaceAll("@EXON_1@",exon1UniqueName)
-        redoString2 = redoString2.replaceAll("@EXON_2@",exon2UniqueName)
-        JSONObject mergeJsonObject = requestHandlingService.mergeExons(JSON.parse(mergeString))
+        String transcript1UniqueName = MRNA.all[0].uniqueName
+        String transcript2UniqueName = MRNA.all[1].uniqueName
+        mergeString = mergeString.replaceAll("@TRANSCRIPT_1@",transcript1UniqueName)
+        mergeString = mergeString.replaceAll("@TRANSCRIPT_2@",transcript2UniqueName)
+        undoString = undoString.replaceAll("@TRANSCRIPT_1@",transcript1UniqueName)
+        redoString1 = redoString1.replaceAll("@TRANSCRIPT_1@",transcript1UniqueName)
+        redoString2 = redoString2.replaceAll("@TRANSCRIPT_2@",transcript2UniqueName)
+        JSONObject mergeJsonObject = requestHandlingService.mergeTranscripts(JSON.parse(mergeString))
         allFeatures = Feature.all
 
         then: "we should have two of everything now"
