@@ -627,10 +627,22 @@ class FeatureEventService {
         // just arbitrarily get the first one
         List<List<FeatureEvent>> previousFeatureEvents = findAllPreviousFeatureEvents(currentFeatureEvent)
         if (!previousFeatureEvents) {
-            return [currentFeatureEvent]
+            def futureEvents = findAllFutureFeatureEvents(featureEventList[0])
+            // if we have a future event and it is a merge, then we have multiple "current"
+            if(futureEvents && futureEvents.get(0).get(0).parentMergeId){
+                if(futureEvents.get(0).get(0).parentMergeId != currentFeatureEvent.id){
+                    return [currentFeatureEvent,FeatureEvent.findById(futureEvents.get(0).get(0).parentMergeId)]
+                }
+                else{
+                    return [currentFeatureEvent,FeatureEvent.findById(futureEvents.get(0).get(0).parentId)]
+                }
+            }
+            else{
+                return [currentFeatureEvent]
+            }
         }
 
-        // its possible that neither one has a matchine uniqueName .
+        // its possible that neither one has a matching uniqueName .
         FeatureEvent firstFeatureEvent = previousFeatureEvents[0].find() {
             it.uniqueName == uniqueName
         }
