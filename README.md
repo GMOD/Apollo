@@ -31,7 +31,7 @@ See [the Apollo2 build guide](docs/Apollo2Build.md) to get the proper build guid
 
 ## Migrating data from &lt;2.0:
 
-We are working towards providing data migration scripts that pull data from Apollo 1 to Apollo 2.  
+You should be able to migrate most of your annotation data from Apollo 1 to Apollo 2 using our [migration guide](docs/Migration.md) built upon our web services.  
 
 ### Remove any symlinks in your deploy directory if updating from &lt;1.0 version
 In your deployment / webapp directory, remove your symlinks.  Tomcat will remove data through the symlinks.  You won't need symlinks or to deploy the war file. 
