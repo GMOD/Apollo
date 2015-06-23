@@ -9,3 +9,4 @@ pages:
 - ['Troubleshooting.md', 'Troubleshooting']
 - ['Testing_notes.md', 'Testing notes']
 - ['Architecture.md', 'Architecture']
+- ['Migration.md', 'Migration Guide']
