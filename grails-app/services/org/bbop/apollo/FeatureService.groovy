@@ -653,18 +653,20 @@ class FeatureService {
                 // calling convertSourceCoordinateToLocalCoordinate
                 coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.featureLocation.fmin)
             }
-
             if (feature.strand == Strand.NEGATIVE.value) {
                 if (coordinateInContext <= localCoordinate && alteration instanceof Deletion) {
                     deletionOffset += alteration.getOffset()
+                }
+                if ((coordinateInContext - alteration.getOffset() - 1) <= localCoordinate && alteration instanceof Insertion) {
+                    insertionOffset += alteration.getOffset()
                 }
             } else {
                 if (coordinateInContext < localCoordinate && alteration instanceof Deletion) {
                     deletionOffset += alteration.getOffset()
                 }
-            }
-            if (coordinateInContext < localCoordinate && alteration instanceof Insertion) {
-                insertionOffset += alteration.getOffset()
+                if ((coordinateInContext + alteration.getOffset()) <= localCoordinate && alteration instanceof Insertion) {
+                    insertionOffset += alteration.getOffset()
+                }
             }
         }
         localCoordinate = localCoordinate - insertionOffset
