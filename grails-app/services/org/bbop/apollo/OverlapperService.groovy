@@ -110,11 +110,17 @@ class OverlapperService implements Overlapper{
         int otherStrand = rightFeatureLocation.getStrand();
         boolean strandsOverlap = compareStrands ? thisStrand == otherStrand : true;
         if (strandsOverlap &&
-                (thisFmin <= otherFmin && thisFmax > otherFmin ||
-                        thisFmin >= otherFmin && thisFmin < otherFmax)) {
+                overlaps(thisFmin,thisFmax,otherFmin,otherFmax)
+                ) {
             return true;
         }
         return false;
     }
+
+    boolean overlaps(int leftFmin, int leftFmax,int rightFmin,int rightFmax) {
+        return (leftFmin <= rightFmin && leftFmax > rightFmin ||
+                        leftFmin >= rightFmin && leftFmin < rightFmax)
+    }
+
 
 }

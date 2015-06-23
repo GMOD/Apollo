@@ -23,6 +23,7 @@ class SequenceService {
     def exonService
     def cdsService
     def gff3HandlerService
+    def overlapperService
 
     List<FeatureLocation> getFeatureLocations(Sequence sequence){
         FeatureLocation.findAllBySequence(sequence)
@@ -80,6 +81,9 @@ class SequenceService {
         // TODO: refactor with getResidues in FeatureService so we are calling a similar method
         for(SequenceAlteration sequenceAlteration in sequenceAlterationList){
             int localCoordinate = featureService.convertSourceCoordinateToLocalCoordinate(fmin,fmax,strand, sequenceAlteration.featureLocation.fmin);
+            if(!overlapperService.overlaps(fmin,fmax,sequenceAlteration.featureLocation.fmin,sequenceAlteration.featureLocation.fmax)){
+                continue
+            }
 
             // TODO: is this correyyct?
             String sequenceAlterationResidues = sequenceAlteration.alterationResidue
