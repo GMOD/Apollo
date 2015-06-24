@@ -12,7 +12,7 @@ import net.sf.json.JSONObject
 
 String usageString = "stress_test.groovy <options>" +
         "Example: \n" +
-        "./stress_test.groovy -iter 100 -concurrency 3 -username ndunn@me.com -password demo  -organism Honey2 -destinationurl http://localhost:8080/WebApollo2/ -load 10"
+        "./stress_test.groovy -iter 100 -concurrency 3 -username ndunn@me.com -password demo  -organism Honey2 -destinationurl http://localhost:8080/WebApollo2/ -load 10 -showHeader"
 
 def cli = new CliBuilder(usage: 'stress_test.groovy <options>')
 cli.setStopAtNonOption(true)
@@ -23,6 +23,7 @@ cli.password('password', required: true, args: 1)
 cli.concurrency('concurrent transaction', required: false, args: 1)
 cli.iter('iter', required: false, args: 1)
 cli.load('load level (0-10)', required: false, args: 1)
+cli.showHeader('Show the output header file', required: false, args: 0)
 
 OptionAccessor options
 
@@ -42,12 +43,10 @@ String sequenceName = "Annotations-Group1.10"
 int concurrency = options.concurrency ? Integer.parseInt(options.concurrency) : 1
 int iter = options.iter ? Integer.parseInt(options.iter) : 1
 int load = options.load ? Integer.parseInt(options.load) : 1
+Boolean showHeader = options.showHeader ? true : false
 load = load < 1 ? 1 : load
 load = load > 10 ? 10 : load
 
-println "concurrency: ${concurrency}"
-println "iter: ${iter}"
-println "load: ${load}"
 
 
 JSONArray inputArray = SampleFeatures.getSampleFeatures()
@@ -57,9 +56,11 @@ for(int i = 0 ; i < load ; i++){
 }
 int sampleFeaturesSize = sampleFeaturesArray.size()
 
-long startTime = System.currentTimeMillis()
+List<Long> timingsArray = new ArrayList<>()
+
 
 for (int i = 0; i < (int) iter; i++) {
+    long startTime = System.currentTimeMillis()
 
     def threads = []
     for (int j = 0; j < (int) concurrency; j++) {
@@ -67,7 +68,7 @@ for (int i = 0; i < (int) iter; i++) {
         def thread = new Thread({
             JSONArray deleteArray = new JSONArray()
             def response = Apollo2Operations.triggerAddTranscript(options.destinationurl, options.username, options.password, options.organism, sequenceName, sampleFeaturesArray)
-            println "response ${response.features.collect { it.uniquename }}"
+//            println "response ${response.features.collect { it.uniquename }}"
             response.features.collect { it.uniquename }.each() { uniquename ->
                 JSONObject jsonObject = new JSONObject()
                 jsonObject.put("uniquename", uniquename)
@@ -89,59 +90,33 @@ for (int i = 0; i < (int) iter; i++) {
         }
         sleep(50l)
     }
+    long iterTime = System.currentTimeMillis() - startTime
+//    System.out.println("i: "+i+ " time: "+iterTime)
+    timingsArray.add(iterTime)
 }
 
-long totalTime = System.currentTimeMillis() - startTime
+long totalTime = (long) timingsArray.sum()
+float meanIterTime = totalTime / (float) iter
+float variance = timingsArray.sum(){
+    Math.pow((it - meanIterTime),2)
+}
 int totalFeatures = iter * concurrency * load
 int totalTransactions = iter * concurrency
 
-System.out.println("total: "+totalTime/1000f)
-System.out.println("per iteration : "+totalTime/(iter*1000f))
-System.out.println("per transaction: "+totalTime/(totalTransactions*1000f))
-System.out.println("per feature: "+totalTime/(totalFeatures*1000f))
+//println "concurrency: ${concurrency}"
+//println "iter: ${iter}"
+//println "load: ${load}"
+if(showHeader){
+    println "concurrency,iter,load,total,mean-iter,stdv,per_iter,per_trans,per_feature"
+}
+println "${concurrency},${iter},${load},${totalTime/1000f},${meanIterTime/1000f},${Math.sqrt(variance)/1000f},${totalTime/(iter*1000f)},${totalTime/(totalTransactions*1000f)},${totalTime/(totalFeatures*1000f)}"
 
-
-
-
-
-//sequenceArray = options.sequence_names.tokenize(',')
-//for (String sequence in sequenceArray) {
-//    String sequenceName = sequencePrefix + sequence
-//    def featuresFromSource  = featuresResponse.features // contains list of mRNAs; Size == number of annotations on chromosome
-//
-//    for (def entity : featuresFromSource) {
-//        JSONObject entityJSONObject = entity as JSONObject
-//        newArray.location = entityJSONObject.location
-//        newArray.type = entityJSONObject.type
-//        newArray.name = entityJSONObject.name
-//        //tmp.name = entityJSONObject.name.tokenize('-')[0]
-//        newArray.children = Apollo2Operations.assignNewUniqueName(entityJSONObject.children,uniqueNamesMap)
-//        if (entityJSONObject.type.name == 'repeat_region' || entityJSONObject.type.name == 'transposable_element') {
-//            addFeaturesArray.add(0, newArray)
-//        }
-//        else {
-//            addTranscriptArray.add(0, newArray)
-//        }
-//    }
-//
-//    if (addFeaturesArray.size() > 0) {
-//        def response = Apollo2Operations.triggerAddFeature(options.destinationurl, options.username, options.password, options.organism, sequenceName, addFeaturesArray)
-//        if (response == null) { return }
-//        println "Migrate ${response.size()} features for ${sequence}"
-//    }
-//    if (addTranscriptArray.size() > 0) {
-//        //println "ADDTRANSCRIPTARRAY: ${addTranscriptArray.toString()}"
-//        def response = Apollo2Operations.triggerAddTranscript(options.destinationurl, options.username, options.password, options.organism, sequenceName, addTranscriptArray)
-//        if (response == null) { return }
-//        println "Migrate ${response.size()} transcripts for ${sequence}"
-//    }
-//
-//    // keep stats
-//    featuresMap.put(sequenceName, (addFeaturesArray.size() + addTranscriptArray.size()))
-//    addFeaturesArray.clear()
-//    addTranscriptArray.clear()
-//}
-
+//println("total: "+totalTime/1000f)
+//println("mean per iteration : "+meanIterTime / 1000f)
+//println("stdev: "+Math.sqrt(variance)/1000f)
+//println("per iteration : "+totalTime/(iter*1000f))
+//println("per transaction: "+totalTime/(totalTransactions*1000f))
+//println("per feature: "+totalTime/(totalFeatures*1000f))
 
 
 
