@@ -64,6 +64,27 @@ static JSONObject triggerAddTranscript(String destinationurl, String username, S
     }
 }
 
+static JSONObject triggerRemoveTranscript(String destinationurl, String username, String password, String organism, String sequenceName, JSONArray featuresArray) {
+    URL url = new URL(destinationurl)
+    String fullPath = "${url.path}/annotationEditor/deleteFeature"
+    fullPath = fullPath.replaceAll("//","/")
+    def removeTranscriptClient = new RESTClient(url)
+    def removeTranscriptResponse = removeTranscriptClient.post(
+            contentType: 'text/javascript',
+            path: fullPath,
+            body: [  'username' : username, 'password' : password, 'track' : sequenceName, 'organism' : organism, 'features' : featuresArray ]
+    )
+
+    assert removeTranscriptResponse.status == 200
+    if (removeTranscriptResponse.getData().size() == 0) {
+        println "Error: Server did not respond properly while trying to call /addTranscript"
+        return
+    }
+    else {
+        return removeTranscriptResponse.getData()
+    }
+}
+
 static String generateUniqueName() {
     return UUID.randomUUID().toString()
 
