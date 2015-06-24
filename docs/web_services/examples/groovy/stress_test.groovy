@@ -41,11 +41,22 @@ String sequenceName = "Annotations-Group1.10"
 int concurrency = options.concurrency ? Integer.parseInt(options.concurrency)  : 1
 int iter = options.iter ? Integer.parseInt(options.iter)  : 1
 
+JSONArray sampleFeaturesArray = SampleFeatures.getSampleFeatures()
+int sampleFeaturesSize = sampleFeaturesArray.size()
 
 for(int i = 0 ; i < (int) iter ; i++){
     for(int j = 0 ; j < (int) concurrency ; j++){
-        def response = Apollo2Operations.triggerAddTranscript(options.destinationurl, options.username, options.password, options.organism, sequenceName, SampleFeatures.getSampleFeatures())
-        println "response ${response}"
+        JSONArray deleteArray = new JSONArray()
+        def response = Apollo2Operations.triggerAddTranscript(options.destinationurl, options.username, options.password, options.organism, sequenceName, sampleFeaturesArray)
+//        println "response ${response.features.uniqueName}"
+//        println "response ${response.features.collect{it.keySet().join(",")}}"
+        println "response ${response.features.collect{it.uniquename}}"
+        response.features.collect{it.uniquename}.each(){ uniquename ->
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put("uniquename",uniquename)
+            deleteArray.add(jsonObject)
+        }
+        Apollo2Operations.triggerRemoveTranscript(options.destinationurl, options.username, options.password, options.organism, sequenceName, deleteArray)
     }
 }
 
@@ -87,9 +98,6 @@ for(int i = 0 ; i < (int) iter ; i++){
 //    addTranscriptArray.clear()
 //}
 
-for(f in featuresMap){
-    println f.value + " found in " + f.key
-}
 
 
 

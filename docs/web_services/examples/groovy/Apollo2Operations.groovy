@@ -77,7 +77,7 @@ static JSONObject triggerRemoveTranscript(String destinationurl, String username
 
     assert removeTranscriptResponse.status == 200
     if (removeTranscriptResponse.getData().size() == 0) {
-        println "Error: Server did not respond properly while trying to call /addTranscript"
+        println "Error: Server did not respond properly while trying to call /deleteTranscript"
         return
     }
     else {
