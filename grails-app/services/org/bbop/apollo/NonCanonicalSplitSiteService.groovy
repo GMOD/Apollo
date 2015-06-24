@@ -146,6 +146,10 @@ class NonCanonicalSplitSiteService {
 
         log.debug "${residues} ${length} ${sequenceLength}"
         for (Exon exon : exons) {
+            int fivePrimeSpliceSitePosition = -1;
+            int threePrimeSpliceSitePosition = -1;
+            boolean validFivePrimeSplice = false;
+            boolean validThreePrimeSplice = false;
             for (String donor : SequenceTranslationHandler.getSpliceDonorSites()){
                 for (String acceptor : SequenceTranslationHandler.getSpliceAcceptorSites()){
                     log.debug "${exon.fmin} ${exon.fmax}"
@@ -175,21 +179,31 @@ class NonCanonicalSplitSiteService {
                         log.debug "${local1} ${local2} ${residues.length()}"
                         String donorSpliceSiteSequence = residues.substring(local1,local2)
                         log.debug "donor ${donorSpliceSiteSequence}"
+                        if(donorSpliceSiteSequence==donor)
+                            validFivePrimeSplice=true
+                        else
+                            fivePrimeSpliceSitePosition = exon.getStrand() == -1 ? local1 : local2;
                     }
 
                     if(local4<length) {
                         log.debug "${local3} ${local3} ${residues.length()}"
                         String acceptorSpliceSiteSequence = residues.substring(local3,local4)
                         log.debug "acceptor ${acceptorSpliceSiteSequence}"
+                        if(acceptorSpliceSiteSequence==acceptor)
+                            validThreePrimeSplice=true
+                        else
+                            threePrimeSpliceSitePosition = exon.getStrand() == -1 ? local3 : local4;
                     }
                 }
             }
-            //if (!validFivePrimeSplice && fivePrimeSpliceSitePosition != -1) {
-            //    addNonCanonicalFivePrimeSpliceSite(transcript,createNonCanonicalFivePrimeSpliceSite(transcript, fivePrimeSpliceSitePosition));
-            //}
-            //if (!validThreePrimeSplice && threePrimeSpliceSitePosition != -1) {
-            //    addNonCanonicalThreePrimeSpliceSite(transcript,createNonCanonicalThreePrimeSpliceSite(transcript, threePrimeSpliceSitePosition));
-            //}
+            if (!validFivePrimeSplice && fivePrimeSpliceSitePosition != -1) {
+                log.debug "adding a noncanonical five prime splice site at ${fivePrimeSpliceSitePosition}"
+                addNonCanonicalFivePrimeSpliceSite(transcript,createNonCanonicalFivePrimeSpliceSite(transcript, fivePrimeSpliceSitePosition));
+            }
+            if (!validThreePrimeSplice && threePrimeSpliceSitePosition != -1) {
+                log.debug "adding a noncanonical three prime splice site at ${threePrimeSpliceSitePosition}"
+                addNonCanonicalThreePrimeSpliceSite(transcript,createNonCanonicalThreePrimeSpliceSite(transcript, threePrimeSpliceSitePosition));
+            }
         }
 
         for (NonCanonicalFivePrimeSpliceSite spliceSite : getNonCanonicalFivePrimeSpliceSites(transcript)) {
