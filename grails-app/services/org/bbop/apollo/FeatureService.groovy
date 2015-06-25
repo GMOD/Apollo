@@ -1717,28 +1717,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         int currentOffset = 0
         for (SequenceAlteration sequenceAlteration : orderedSequenceAlterationList) {
             int localCoordinate
-            if(feature instanceof Transcript) {
-                localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(feature, sequenceAlteration.featureLocation.fmin);
-                log.debug "localCoord transcript ${localCoordinate} ${sequenceAlteration.featureLocation.fmin}"
-            } else if (feature instanceof CDS){
-                if (! overlapperService.overlaps(feature, sequenceAlteration, false)) {
-                    log.debug "continue CDS"
-                    continue
-                }
-                localCoordinate = convertSourceCoordinateToLocalCoordinateForCDS(transcriptService.getTranscript(feature), sequenceAlteration.featureLocation.fmin)
-                log.debug "localCoord CDS ${localCoordinate}  ${sequenceAlteration.featureLocation.fmin}"
-            }
-            else {
-                localCoordinate = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlteration.featureLocation.fmin);
-                log.debug "localCoord other ${localCoordinate}"
-            }
+            int localCoordinateMax
+            localCoordinate = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlteration.fmin);
+            localCoordinateMax = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlteration.fmax);
 
             // Insertions
             if (sequenceAlteration instanceof Insertion) {
-                log.debug "sequenceAlt ins ${sequenceAlteration.getFmin()} ${inputCoord}"
-                if(sequenceAlteration.getFmin()<inputCoord) {
-                    currentOffset += localCoordinate+sequenceAlteration.length
-                    log.debug "checking -1 coordinate ${feature.strand}"
+                log.debug "sequenceAlt ins ${localCoordinate}<${inputCoord}"
+                if(localCoordinate<inputCoord) {
+                    currentOffset += sequenceAlteration.length
                     if(feature.strand==-1) {
                         log.debug "Adding to offset"
                         currentOffset += 1
@@ -1747,23 +1734,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 else {
                     break
                 }
-
             }
             // Deletions
             else if (sequenceAlteration instanceof Deletion) {
-                log.debug "sequenceAlt del ${sequenceAlteration.getFmin()} ${inputCoord}"
-                if(sequenceAlteration.getFmin()<inputCoord) {
-                    if(sequenceAlteration.getFmax>=inputCoord) {
-                        currentOffset+=localCoordinate-sequenceAlteration.length
-                        log.debug "checking -1 coordinate ${feature.strand}"
+                log.debug "sequenceAlt del ${localCoordinate}<${inputCoord}"
+                if(localCoordinate<inputCoord) {
+                    if(localCoordinateMax>=inputCoord) {
+                        currentOffset-=sequenceAlteration.length
                         if(feature.strand==-1) {
                             log.debug "Adding to offset"
                             currentOffset += 1
                         }
                     }
                     else {
-                        currentOffset-=localCoordinate-(inputCoord-sequenceAlteration.getFmin())
-                        log.debug "checking -1 coordinate ${feature.strand}"
+                        currentOffset-=localCoordinate-localCoordinateMax-inputCoord
                         if(feature.strand==-1) {
                             log.debug "Adding to offset"
                             currentOffset += 1
@@ -1775,7 +1759,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
         }
-        return currentOffset;
+        return inputCoord+currentOffset;
 
     }
 
