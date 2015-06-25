@@ -154,11 +154,12 @@ class NonCanonicalSplitSiteService {
                     int local22=exon.fmin-transcript.fmin
                     int local33=exon.fmax-transcript.fmin
                     int local44=exon.fmax+donor.length()-transcript.fmin
+                    List<SequenceAlteration> alts=featureService.getAllSequenceAlterationsForFeature(transcript)
 
-                    int local1=featureService.getFeatureModifiedCoord(transcript,local11)
-                    int local2=featureService.getFeatureModifiedCoord(transcript,local22)
-                    int local3=featureService.getFeatureModifiedCoord(transcript,local33)
-                    int local4=featureService.getFeatureModifiedCoord(transcript,local44)
+                    int local1=featureService.getFeatureModifiedCoord(transcript,local11,alts)
+                    int local2=featureService.getFeatureModifiedCoord(transcript,local22,alts)
+                    int local3=featureService.getFeatureModifiedCoord(transcript,local33,alts)
+                    int local4=featureService.getFeatureModifiedCoord(transcript,local44,alts)
                     log.debug "${local1} ${local2} ${local3} ${local4}"
                     log.debug "${local11} ${local22} ${local33} ${local44}"
 

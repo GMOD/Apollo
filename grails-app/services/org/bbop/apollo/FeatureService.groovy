@@ -1680,6 +1680,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return sequenceAlterationsInContext
     }
 
+
     def isSequenceAlterationInContext(Feature feature, SequenceAlteration sequenceAlteration) {
         List<Exon> exonList = exonService.getSortedExons(feature, true)
         for (Exon exon : exonList) {
@@ -1690,22 +1691,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         return false
     }
+
+    /* convert an input local coordinate to a local coordinate that incorporates sequence alterations */
     Integer getFeatureModifiedCoord(Feature feature, Integer inputCoord, Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
 
         List<SequenceAlteration> sequenceAlterationsInContext = new ArrayList<>()
+        log.debug "getFeatureModifiedCoord ${inputCoord}"
 
-        if (feature instanceof Transcript) {
-            // sequence from exons, with UTRs too
-            sequenceAlterationsInContext = getSequenceAlterationsInContext(feature, sequenceAlterations)
-        } else if (feature instanceof CDS) {
-            // sequence from exons without UTRs
-            sequenceAlterationsInContext = getSequenceAlterationsInContext(transcriptService.getTranscript(feature), sequenceAlterations)
-        } else {
-            // sequence from feature, as is
-            for (SequenceAlteration eachSequenceAlteration : sequenceAlterations) {
-                if (overlapperService.overlaps(eachSequenceAlteration, feature, false)) {
-                    sequenceAlterationsInContext.add(eachSequenceAlteration)
-                }
+        // sequence from feature, as is
+        for (SequenceAlteration eachSequenceAlteration : sequenceAlterations) {
+            if (overlapperService.overlaps(eachSequenceAlteration, feature, false)) {
+                sequenceAlterationsInContext.add(eachSequenceAlteration)
             }
         }
         if (sequenceAlterations.size() == 0 || sequenceAlterationsInContext.size() == 0) {
@@ -1723,36 +1719,55 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             int localCoordinate
             if(feature instanceof Transcript) {
                 localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(feature, sequenceAlteration.featureLocation.fmin);
+                log.debug "localCoord transcript ${localCoordinate} ${sequenceAlteration.featureLocation.fmin}"
             } else if (feature instanceof CDS){
                 if (! overlapperService.overlaps(feature, sequenceAlteration, false)) {
-                    // a check to verify if alteration is part of the CDS
+                    log.debug "continue CDS"
                     continue
                 }
-                //localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(transcriptService.getTranscript(feature), sequenceAlteration.featureLocation.fmin);
                 localCoordinate = convertSourceCoordinateToLocalCoordinateForCDS(transcriptService.getTranscript(feature), sequenceAlteration.featureLocation.fmin)
+                log.debug "localCoord CDS ${localCoordinate}  ${sequenceAlteration.featureLocation.fmin}"
             }
             else {
-                //localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(transcriptService.getTranscript(feature), sequenceAlterationLoc.getFmin());
                 localCoordinate = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlteration.featureLocation.fmin);
+                log.debug "localCoord other ${localCoordinate}"
             }
 
             // Insertions
             if (sequenceAlteration instanceof Insertion) {
+                log.debug "sequenceAlt ins ${sequenceAlteration.getFmin()} ${inputCoord}"
                 if(sequenceAlteration.getFmin()<inputCoord) {
                     currentOffset += localCoordinate+sequenceAlteration.length
+                    log.debug "checking -1 coordinate ${feature.strand}"
+                    if(feature.strand==-1) {
+                        log.debug "Adding to offset"
+                        currentOffset += 1
+                    }
                 }
                 else {
                     break
                 }
+
             }
             // Deletions
             else if (sequenceAlteration instanceof Deletion) {
+                log.debug "sequenceAlt del ${sequenceAlteration.getFmin()} ${inputCoord}"
                 if(sequenceAlteration.getFmin()<inputCoord) {
                     if(sequenceAlteration.getFmax>=inputCoord) {
                         currentOffset+=localCoordinate-sequenceAlteration.length
+                        log.debug "checking -1 coordinate ${feature.strand}"
+                        if(feature.strand==-1) {
+                            log.debug "Adding to offset"
+                            currentOffset += 1
+                        }
                     }
                     else {
-                        currentOffset-=localCoordinate-(inputCoord-sequenceAlternation.getFmin())
+                        currentOffset-=localCoordinate-(inputCoord-sequenceAlteration.getFmin())
+                        log.debug "checking -1 coordinate ${feature.strand}"
+                        if(feature.strand==-1) {
+                            log.debug "Adding to offset"
+                            currentOffset += 1
+                        }
                     }
                 }
                 else {
@@ -1763,6 +1778,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return currentOffset;
 
     }
+
     String getResiduesWithAlterationsNew (Feature feature, Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
         String residueString = null
         List<SequenceAlteration> sequenceAlterationsInContext = new ArrayList<>()
@@ -1808,11 +1824,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 localCoordinate = convertSourceCoordinateToLocalCoordinateForCDS(transcriptService.getTranscript(feature), sequenceAlteration.featureLocation.fmin)
             }
             else {
-                //localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(transcriptService.getTranscript(feature), sequenceAlterationLoc.getFmin());
                 localCoordinate = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlteration.featureLocation.fmin);
             }
-//
-            // TODO: is this correct?
             String sequenceAlterationResidues = sequenceAlteration.alterationResidue
             if (feature.getFeatureLocation().getStrand() == -1) {
                 sequenceAlterationResidues = SequenceTranslationHandler.reverseComplementSequence(sequenceAlterationResidues);
