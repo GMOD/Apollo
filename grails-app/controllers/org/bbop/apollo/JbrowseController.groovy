@@ -313,14 +313,38 @@ class JbrowseController {
             response.setHeader("Content-Length", String.valueOf(r.length));
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
 
-            RandomAccessFile input = new RandomAccessFile(file, "r");
+            BufferedInputStream bis= new BufferedInputStream(new FileInputStream(file));
+
             OutputStream output = response.getOutputStream();
+            byte[] buf = new byte[1024];
+            long count=r.start;
+            try {
 
-            // Copy single part range.
-            copy(input, output, r.start, r.length);
+                // Copy single part range.
+                long ret=bis.skip(r.start);
+                if(ret != r.start) {
+                    log.error("Failed to read range request!");
+                    bis.close();
+                    output.close();
+                    return;
+                }
 
-            input.close();
+                while (count<r.end) {
+                    int bret=bis.read(buf,0,1024);
+                    if(bret!=-1) {
+                        output.write(buf, 0, bret);
+                        count+=bret;
+                    }
+                    else break;
+                }
+
+            } catch(Exception e) {
+                log.error(e.message);
+                e.printStackTrace();
+            }
+
             output.close();
+            bis.close();
 
         }
 
