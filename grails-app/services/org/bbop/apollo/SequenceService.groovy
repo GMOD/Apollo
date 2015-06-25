@@ -23,6 +23,7 @@ class SequenceService {
     def exonService
     def cdsService
     def gff3HandlerService
+    def overlapperService
 
     List<FeatureLocation> getFeatureLocations(Sequence sequence){
         FeatureLocation.findAllBySequence(sequence)
@@ -52,10 +53,76 @@ class SequenceService {
     }
 
     String getResidueFromFeatureLocation(FeatureLocation featureLocation) {
-        return getResiduesFromSequence(featureLocation.sequence,featureLocation.fmin,featureLocation.fmax)
+        return getRawResiduesFromSequence(featureLocation.sequence,featureLocation.fmin,featureLocation.fmax)
     }
 
-    String getResiduesFromSequence(Sequence sequence, int fmin, int fmax) {
+
+    String getGenomicResiduesFromSequenceWithAlterations(FlankingRegion flankingRegion) {
+        return getGenomicResiduesFromSequenceWithAlterations(flankingRegion.sequence,flankingRegion.fmin,flankingRegion.fmax,flankingRegion.strand)
+    }
+
+    /**
+     * Just meant for non-transcript genomic sequence
+     * @param sequence
+     * @param fmin
+     * @param fmax
+     * @param strand
+     * @return
+     */
+    String getGenomicResiduesFromSequenceWithAlterations(Sequence sequence, int fmin, int fmax,Strand strand) {
+        String residueString = getRawResiduesFromSequence(sequence,fmin,fmax)
+        if(strand==Strand.NEGATIVE){
+            residueString = SequenceTranslationHandler.reverseComplementSequence(residueString)
+        }
+
+        StringBuilder residues = new StringBuilder(residueString);
+        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId ",[seqId:sequence.id])
+        int currentOffset = 0;
+        // TODO: refactor with getResidues in FeatureService so we are calling a similar method
+        for(SequenceAlteration sequenceAlteration in sequenceAlterationList){
+            int localCoordinate = featureService.convertSourceCoordinateToLocalCoordinate(fmin,fmax,strand, sequenceAlteration.featureLocation.fmin);
+            if(!overlapperService.overlaps(fmin,fmax,sequenceAlteration.featureLocation.fmin,sequenceAlteration.featureLocation.fmax)){
+                continue
+            }
+
+            // TODO: is this correyyct?
+            String sequenceAlterationResidues = sequenceAlteration.alterationResidue
+            if (strand == Strand.NEGATIVE) {
+                sequenceAlterationResidues = SequenceTranslationHandler.reverseComplementSequence(sequenceAlterationResidues);
+            }
+            // Insertions
+            if (sequenceAlteration instanceof Insertion) {
+                if (strand==Strand.NEGATIVE) {
+                    ++localCoordinate;
+                }
+                residues.insert(localCoordinate + currentOffset, sequenceAlterationResidues);
+                currentOffset += sequenceAlterationResidues.length();
+            }
+            // Deletions
+            else if (sequenceAlteration instanceof Deletion) {
+                if (strand == Strand.NEGATIVE) {
+                    residues.delete(localCoordinate + currentOffset - sequenceAlteration.getLength() + 1,
+                            localCoordinate + currentOffset + 1);
+                } else {
+                    residues.delete(localCoordinate + currentOffset,
+                            localCoordinate + currentOffset + sequenceAlteration.getLength());
+                }
+                currentOffset -= sequenceAlterationResidues.length();
+            }
+            // Substitions
+            else if (sequenceAlteration instanceof Substitution) {
+                int start = strand == Strand.NEGATIVE ? localCoordinate - (sequenceAlteration.getLength() - 1) : localCoordinate;
+                residues.replace(start + currentOffset,
+                        start + currentOffset + sequenceAlteration.getLength(),
+                        sequenceAlterationResidues);
+            }
+        }
+
+
+        return residues.toString()
+    }
+
+    String getRawResiduesFromSequence(Sequence sequence, int fmin, int fmax) {
         StringBuilder sequenceString = new StringBuilder()
 
         int startChunkNumber = fmin / sequence.seqChunkSize;
@@ -192,58 +259,58 @@ class SequenceService {
     def getSequenceForFeature(Feature gbolFeature, String type, int flank = 0) {
         // Method returns the sequence for a single feature
         // Directly called for FASTA Export
-        String sequence = null
+        String featureResidues = null
         StandardTranslationTable standardTranslationTable = new StandardTranslationTable()
         
         if (type.equals(FeatureStringEnum.TYPE_PEPTIDE.value)) {
             if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
                 CDS cds = transcriptService.getCDS((Transcript) gbolFeature)
                 String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds)
-                sequence = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(cds) != null)
-                if (sequence.charAt(sequence.size() - 1) == StandardTranslationTable.STOP.charAt(0)) {
-                    sequence = sequence.substring(0, sequence.size() - 1)
+                featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(cds) != null)
+                if (featureResidues.charAt(featureResidues.size() - 1) == StandardTranslationTable.STOP.charAt(0)) {
+                    featureResidues = featureResidues.substring(0, featureResidues.size() - 1)
                 }
                 int idx;
-                if ((idx = sequence.indexOf(StandardTranslationTable.STOP)) != -1) {
+                if ((idx = featureResidues.indexOf(StandardTranslationTable.STOP)) != -1) {
                     String codon = rawSequence.substring(idx * 3, idx * 3 + 3)
                     String aa = configWrapperService.getTranslationTable().getAlternateTranslationTable().get(codon)
                     if (aa != null) {
-                        sequence = sequence.replace(StandardTranslationTable.STOP, aa)
+                        featureResidues = featureResidues.replace(StandardTranslationTable.STOP, aa)
                     }
                 }
             } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
                 log.debug "Fetching peptide sequence for selected exon: ${gbolFeature}"
                 String rawSequence = exonService.getCodingSequenceInPhase((Exon) gbolFeature, true)
-                sequence = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(transcriptService.getCDS(exonService.getTranscript((Exon) gbolFeature))) != null)
-                if (sequence.length()>0 && sequence.charAt(sequence.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
-                    sequence = sequence.substring(0, sequence.length() - 1)
+                featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(transcriptService.getCDS(exonService.getTranscript((Exon) gbolFeature))) != null)
+                if (featureResidues.length()>0 && featureResidues.charAt(featureResidues.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
+                    featureResidues = featureResidues.substring(0, featureResidues.length() - 1)
                 }
                 int idx
-                if ((idx = sequence.indexOf(StandardTranslationTable.STOP)) != -1) {
+                if ((idx = featureResidues.indexOf(StandardTranslationTable.STOP)) != -1) {
                     String codon = rawSequence.substring(idx * 3, idx * 3 + 3)
                     String aa = configWrapperService.getTranslationTable().getAlternateTranslationTable().get(codon)
                     if (aa != null) {
-                        sequence = sequence.replace(StandardTranslationTable.STOP, aa)
+                        featureResidues = featureResidues.replace(StandardTranslationTable.STOP, aa)
                     }
                 }
             } else {
-                sequence = ""
+                featureResidues = ""
             }
         } else if (type.equals(FeatureStringEnum.TYPE_CDS.value)) {
             if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
-                sequence = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
+                featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
             } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
                 log.debug "Fetching CDS sequence for selected exon: ${gbolFeature}"
-                sequence = exonService.getCodingSequenceInPhase((Exon) gbolFeature, false)
+                featureResidues = exonService.getCodingSequenceInPhase((Exon) gbolFeature, false)
             } else {
-                sequence = ""
+                featureResidues = ""
             }
 
         } else if (type.equals(FeatureStringEnum.TYPE_CDNA.value)) {
             if (gbolFeature instanceof Transcript || gbolFeature instanceof Exon) {
-                sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
+                featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
             } else {
-                sequence = ""
+                featureResidues = ""
             }
         } else if (type.equals(FeatureStringEnum.TYPE_GENOMIC.value)) {
 
@@ -265,24 +332,25 @@ class SequenceService {
                 }
 
             }
-            FlankingRegion genomicRegion = new FlankingRegion(
-                    name: gbolFeature.name
-                    , uniqueName: gbolFeature.uniqueName + "_flank"
-            ).save()
-            FeatureLocation genomicRegionLocation = new FeatureLocation(
-                    feature: genomicRegion
-                    , fmin: fmin
-                    , fmax: fmax
-                    , strand: gbolFeature.strand
-                    , sequence: gbolFeature.getFeatureLocation().sequence
-            ).save()
-            genomicRegion.addToFeatureLocations(genomicRegionLocation)
+//            FlankingRegion genomicRegion = new FlankingRegion(
+//                    name: gbolFeature.name
+//                    , uniqueName: gbolFeature.uniqueName + "_flank"
+//            ).save()
+//            FeatureLocation genomicRegionLocation = new FeatureLocation(
+//                    feature: genomicRegion
+//                    , fmin: fmin
+//                    , fmax: fmax
+//                    , strand: gbolFeature.strand
+//                    , sequence: gbolFeature.getFeatureLocation().sequence
+//            ).save()
+//            genomicRegion.addToFeatureLocations(genomicRegionLocation)
             // since we are saving the genomicFeature object, the backend database will have these entities
-            gbolFeature = genomicRegion
+//            gbolFeature = genomicRegion
             //sequence = getResiduesFromFeature(gbolFeature)
-            sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
+//            featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
+            featureResidues = getGenomicResiduesFromSequenceWithAlterations(gbolFeature.featureLocation.sequence,fmin,fmax,Strand.getStrandForValue(gbolFeature.strand))
         }
-        return sequence
+        return featureResidues
     }
     
     def getSequenceForFeatures(JSONObject inputObject, File outputFile=null) {

@@ -417,10 +417,6 @@ class ExonService {
             return ""
         }
         int length = 0
-        FlankingRegion flankingRegion = new FlankingRegion(
-                name: cds.name
-                ,uniqueName: cds.uniqueName + "_tmpFlankRegion"
-        ).save()
 
         List <Exon> exons = transcriptService.getSortedExons(transcript)
         if (exon.strand == Strand.NEGATIVE.value) {
@@ -439,17 +435,27 @@ class ExonService {
             int fmax = e.fmax > cds.fmax ? cds.fmax : e.fmax
             length += fmin < fmax ? fmax - fmin : fmin - fmax
         }
-        
-        FeatureLocation flankingRegionLocation = new FeatureLocation(
-                feature : flankingRegion
-                ,fmin : exon.fmin < cds.fmin ? cds.fmin : exon.fmin
-                ,fmax : exon.fmax > cds.fmax ? cds.fmax : exon.fmax
-                ,strand : exon.getFeatureLocation().strand
-                ,sequence : exon.getFeatureLocation().sequence
-        ).save()
-        flankingRegion.addToFeatureLocations(flankingRegionLocation)
-        flankingRegion.save()
-        String residues = featureService.getResiduesWithAlterationsAndFrameshifts(flankingRegion)
+
+//        FlankingRegion flankingRegion = new FlankingRegion(
+//                name: cds.name
+//                ,uniqueName: cds.uniqueName + "_tmpFlankRegion"
+//        ).save()
+//        FeatureLocation flankingRegionLocation = new FeatureLocation(
+//                feature : flankingRegion
+//                ,fmin : exon.fmin < cds.fmin ? cds.fmin : exon.fmin
+//                ,fmax : exon.fmax > cds.fmax ? cds.fmax : exon.fmax
+//                ,strand : exon.getFeatureLocation().strand
+//                ,sequence : exon.getFeatureLocation().sequence
+//        ).save()
+//        flankingRegion.addToFeatureLocations(flankingRegionLocation)
+//        flankingRegion.save()
+//        String residues = featureService.getResiduesWithAlterationsAndFrameshifts(flankingRegion)
+        String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(
+                exon.featureLocation.sequence
+                ,exon.fmin < cds.fmin ? cds.fmin : exon.fmin
+                ,exon.fmax > cds.fmax ? cds.fmax : exon.fmax
+                ,Strand.getStrandForValue(exon.featureLocation.strand)
+        )
         if (removePartialCodons) {
             int phase = length % 3 == 0 ? 0 : 3 - (length % 3)
             residues = residues.substring(phase)

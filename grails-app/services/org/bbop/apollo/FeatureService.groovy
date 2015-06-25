@@ -658,18 +658,20 @@ class FeatureService {
                 // calling convertSourceCoordinateToLocalCoordinate
                 coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.featureLocation.fmin)
             }
-
             if (feature.strand == Strand.NEGATIVE.value) {
                 if (coordinateInContext <= localCoordinate && alteration instanceof Deletion) {
                     deletionOffset += alteration.getOffset()
+                }
+                if ((coordinateInContext - alteration.getOffset() - 1) <= localCoordinate && alteration instanceof Insertion) {
+                    insertionOffset += alteration.getOffset()
                 }
             } else {
                 if (coordinateInContext < localCoordinate && alteration instanceof Deletion) {
                     deletionOffset += alteration.getOffset()
                 }
-            }
-            if (coordinateInContext < localCoordinate && alteration instanceof Insertion) {
-                insertionOffset += alteration.getOffset()
+                if ((coordinateInContext + alteration.getOffset()) <= localCoordinate && alteration instanceof Insertion) {
+                    insertionOffset += alteration.getOffset()
+                }
             }
         }
         localCoordinate = localCoordinate - insertionOffset
@@ -1047,7 +1049,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //                        frameshift.getCoordinate() + frameshift.getFrameshiftValue(),
 //                        cds.getFeatureLocation().getStrand(), sourceFeature);
 
-                String alterationResidues = sequenceService.getResiduesFromSequence(sequence, frameshift.getCoordinate() + frameshift.getFrameshiftValue(), frameshift.getCoordinate())
+                String alterationResidues = sequenceService.getRawResiduesFromSequence(sequence, frameshift.getCoordinate() + frameshift.getFrameshiftValue(), frameshift.getCoordinate())
                 insertion.alterationResidue = alterationResidues
                 // TODO: correct?
 //                insertion.setResidues(sequence.getResidues().substring(
@@ -1377,7 +1379,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case Transcript.ontologyId: return new Transcript()
             case TransposableElement.ontologyId: return new TransposableElement()
             case RepeatRegion.ontologyId: return new RepeatRegion()
-            case FlankingRegion.ontologyId: return new FlankingRegion()
+//            case FlankingRegion.ontologyId: return new FlankingRegion()
             case Insertion.ontologyId: return new Insertion()
             case Deletion.ontologyId: return new Deletion()
             case Substitution.ontologyId: return new Substitution()
@@ -1414,7 +1416,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 case TransposableElement.cvTerm.toUpperCase(): return TransposableElement.ontologyId
                 case RepeatRegion.alternateCvTerm.toUpperCase():
                 case RepeatRegion.cvTerm.toUpperCase(): return RepeatRegion.ontologyId
-                case FlankingRegion.cvTerm.toUpperCase(): return FlankingRegion.ontologyId
+//                case FlankingRegion.cvTerm.toUpperCase(): return FlankingRegion.ontologyId
                 case Insertion.cvTerm.toUpperCase(): return Insertion.ontologyId
                 case Deletion.cvTerm.toUpperCase(): return Deletion.ontologyId
                 case Substitution.cvTerm.toUpperCase(): return Substitution.ontologyId
@@ -1465,13 +1467,25 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  */
     public int convertSourceCoordinateToLocalCoordinate(Feature feature, int sourceCoordinate) {
         FeatureLocation featureLocation = FeatureLocation.findByFeature(feature)
-        if (sourceCoordinate < featureLocation.getFmin() || sourceCoordinate > featureLocation.getFmax()) {
+        return convertSourceCoordinateToLocalCoordinate(featureLocation.fmin,featureLocation.fmax,Strand.getStrandForValue(featureLocation.strand),sourceCoordinate)
+//        if (sourceCoordinate < featureLocation.getFmin() || sourceCoordinate > featureLocation.getFmax()) {
+//            return -1;
+//        }
+//        if (featureLocation.getStrand() == -1) {
+//            return featureLocation.getFmax() - 1 - sourceCoordinate;
+//        } else {
+//            return sourceCoordinate - featureLocation.getFmin();
+//        }
+    }
+
+    public int convertSourceCoordinateToLocalCoordinate(int fmin, int fmax, Strand strand, int sourceCoordinate) {
+        if (sourceCoordinate < fmin || sourceCoordinate > fmax) {
             return -1;
         }
-        if (featureLocation.getStrand() == -1) {
-            return featureLocation.getFmax() - 1 - sourceCoordinate;
+        if (strand == Strand.NEGATIVE) {
+            return fmax - 1 - sourceCoordinate;
         } else {
-            return sourceCoordinate - featureLocation.getFmin();
+            return sourceCoordinate - fmin;
         }
     }
 

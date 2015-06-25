@@ -9,10 +9,7 @@ import org.bbop.apollo.sequence.Strand;
 //import *;
 
 import java.io.*;
-import java.util.*;
-import java.util.zip.GZIPOutputStream;
-
-import grails.compiler.GrailsCompileStatic
+import java.util.*
 
 //import groovy.transform.CompileStatic
 //
@@ -171,7 +168,7 @@ public class Gff3HandlerService {
         String residues = null
         def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
         writeEmptyFastaDirective(writeObject.out);
-        residues = sequenceService.getResiduesFromSequence(sequence, 0, sequence.length)
+        residues = sequenceService.getRawResiduesFromSequence(sequence, 0, sequence.length)
         if (residues != null) {
             writeObject.out.println(">" + sequence.name);
             int idx = 0;

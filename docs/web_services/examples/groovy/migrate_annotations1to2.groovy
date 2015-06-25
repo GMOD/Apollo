@@ -15,7 +15,7 @@ String usageString = "migrate_annotations1to2.groovy <options>" +
         "Example: \n" +
         "./migrate_annotations1to2.groovy -username1 demo -password1 demo -username2 ndunn@me.com -password2 demo  -sourceurl http://localhost:8080/WebApollo1Instance/ -organism Honey2 -destinationurl http://localhost:8080/WebApollo2/ -sequence_names Group1.26,Group1.3"
 
-def cli = new CliBuilder(usage: 'migrate_annotations.groovyy <options>')
+def cli = new CliBuilder(usage: 'migrate_annotations.groovy <options>')
 cli.setStopAtNonOption(true)
 cli.sourceurl('URL of WebApollo 1.0.x instance from which annotations are fetched', required: true, args: 1)
 cli.destinationurl('URL of WebApollo 2.0.x instance to which annotations are to be loaded', required: true, args: 1)

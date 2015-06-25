@@ -1,9 +1,6 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import grails.transaction.Transactional
-import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 
@@ -15,7 +12,8 @@ class NonCanonicalSplitSiteService {
     def featureRelationshipService
     def exonService
     def featureService
-    def nameService
+    def sequenceService
+//    def nameService
 
     /** Delete an non canonical 5' splice site.  Deletes both the transcript -> non canonical 5' splice site and
      *  non canonical 5' splice site -> transcript relationships.
@@ -302,26 +300,35 @@ class NonCanonicalSplitSiteService {
         return spliceSite;
     }
 
-    private FlankingRegion createFlankingRegion(Feature feature, int fmin, int fmax) {
-        FlankingRegion flankingRegion = new FlankingRegion();
-        flankingRegion.setIsAnalysis(false)
-        flankingRegion.setIsObsolete(false)
-        flankingRegion.setName(nameService.generateUniqueName())
-        flankingRegion.setUniqueName(flankingRegion.name)
-        flankingRegion.save()
+    private static FlankingRegion createFlankingRegion(Sequence sequence, int fmin, int fmax,Strand strand) {
+//        FlankingRegion flankingRegion = new FlankingRegion();
+//        flankingRegion.setIsAnalysis(false)
+//        flankingRegion.setIsObsolete(false)
+//        flankingRegion.setName(nameService.generateUniqueName())
+//        flankingRegion.setUniqueName(flankingRegion.name)
+//        flankingRegion.save()
 
-        flankingRegion.addToFeatureLocations(new FeatureLocation(
-                strand: feature.strand
-                ,sequence: feature.featureLocation.sequence
-                ,fmin: fmin
-                ,fmax: fmax
-                ,feature: flankingRegion
-        ).save());
+//        flankingRegion.addToFeatureLocations(new FeatureLocation(
+//                strand: feature.strand
+//                ,sequence: feature.featureLocation.sequence
+//                ,fmin: fmin
+//                ,fmax: fmax
+//                ,feature: flankingRegion
+//        ).save());
+
 //        flankingRegion.add(new FeatureLocation());
 //        flankingRegion.getFeatureLocation().setSourceFeature(feature.getFeatureLocation().getSourceFeature());
 //        flankingRegion.featureLocation.setStrand(feature.getStrand());
 //        flankingRegion.featureLocation.setFmin(fmin);
 //        flankingRegion.featureLocation.setFmax(fmax);
+        FlankingRegion flankingRegion = new FlankingRegion(
+                sequence: sequence
+                ,fmin: fmin
+                ,fmax: fmax
+                ,strand: strand
+        )
+
+
         return flankingRegion;
     }
 }
