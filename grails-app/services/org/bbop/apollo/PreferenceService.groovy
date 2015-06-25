@@ -129,6 +129,7 @@ class PreferenceService {
     }
 
     UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp) {
+        log.debug "setCurrentSequenceLocation"
         User currentUser = permissionService.currentUser
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser, true)
         if (!userOrganismPreference) {

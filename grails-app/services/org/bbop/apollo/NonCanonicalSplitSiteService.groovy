@@ -134,97 +134,91 @@ class NonCanonicalSplitSiteService {
         deleteAllNonCanonicalThreePrimeSpliceSites(transcript)
 
         List<Exon> exons = exonService.getSortedExons(transcript)
-        Sequence sequence = transcript.featureLocation.sequence
-        int exonNum = 0;
-//        int sourceFeatureLength = transcript.getFeatureLocation().getSourceFeature().getSequenceLength();
-        int sequenceLength = transcript.getFeatureLocation().getSequence().getLength()
+        int fmin=transcript.getFeatureLocation().fmin
+        int fmax=transcript.getFeatureLocation().fmax
+        Sequence sequence=transcript.getFeatureLocation().sequence
+        Strand strand=transcript.getFeatureLocation().strand==-1?Strand.NEGATIVE:Strand.POSITIVE
+
+        String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,fmin,fmax,strand);
+        if(transcript.getStrand()==-1)residues=residues.reverse()
+        log.debug "${residues}"
+
         for (Exon exon : exons) {
-            ++exonNum;
             int fivePrimeSpliceSitePosition = -1;
             int threePrimeSpliceSitePosition = -1;
             boolean validFivePrimeSplice = false;
             boolean validThreePrimeSplice = false;
+            for (String donor : SequenceTranslationHandler.getSpliceDonorSites()){
+                for (String acceptor : SequenceTranslationHandler.getSpliceAcceptorSites()){
+                    int local11=exon.fmin-donor.length()-transcript.fmin
+                    int local22=exon.fmin-transcript.fmin
+                    int local33=exon.fmax-transcript.fmin
+                    int local44=exon.fmax+donor.length()-transcript.fmin
+                    List<SequenceAlteration> alts=featureService.getAllSequenceAlterationsForFeature(transcript)
 
-            for (String donor : SequenceTranslationHandler.getSpliceDonorSites()) {
-                for (String acceptor : SequenceTranslationHandler.getSpliceAcceptorSites()) {
-                    FlankingRegion spliceAcceptorSiteFlankingRegion = createFlankingRegion(sequence, exon.getFmin() - donor.length(), exon.getFmin(),Strand.getStrandForValue(exon.strand));
-                    FlankingRegion spliceDonorSiteFlankingRegion = createFlankingRegion(sequence, exon.getFmax(), exon.getFmax() + donor.length(),Strand.getStrandForValue(exon.strand));
+                    int local1=featureService.getFeatureModifiedCoord(transcript,local11,alts)
+                    int local2=featureService.getFeatureModifiedCoord(transcript,local22,alts)
+                    int local3=featureService.getFeatureModifiedCoord(transcript,local33,alts)
+                    int local4=featureService.getFeatureModifiedCoord(transcript,local44,alts)
+                    log.debug "${local1} ${local2} ${local3} ${local4}"
+                    log.debug "${local11} ${local22} ${local33} ${local44}"
+
+
                     if (exon.featureLocation.getStrand() == -1) {
-                        FlankingRegion tmp = spliceAcceptorSiteFlankingRegion;
-                        spliceAcceptorSiteFlankingRegion = spliceDonorSiteFlankingRegion;
-                        spliceDonorSiteFlankingRegion = tmp;
+                        int tmp1=local1
+                        int tmp2=local2
+                        local1=local3
+                        local2=local4
+                        local3=tmp1
+                        local4=tmp2
                     }
-                    /*
-                    String donorSpliceSiteSequence = session.getResiduesWithAlterations(spliceDonorSiteFlankingRegion);
-                    String acceptorSpliceSiteSequence = session.getResiduesWithAlterations(spliceAcceptorSiteFlankingRegion);
-                    */
-//                    String donorSpliceSiteSequence = spliceDonorSiteFlankingRegion.getFmin() >= 0 && spliceDonorSiteFlankingRegion.getFmax() <= sequenceLength ?
-//                            featureService.getResiduesWithAlterations(spliceDonorSiteFlankingRegion) : null;
-//                    String acceptorSpliceSiteSequence = spliceAcceptorSiteFlankingRegion.getFmin() >= 0 && spliceAcceptorSiteFlankingRegion.getFmax() <= sequenceLength ?
-//                            featureService.getResiduesWithAlterations(spliceAcceptorSiteFlankingRegion) : null;
-                    String donorSpliceSiteSequence = spliceDonorSiteFlankingRegion.getFmin() >= 0 && spliceDonorSiteFlankingRegion.getFmax() <= sequenceLength ?
-                            sequenceService.getGenomicResiduesFromSequenceWithAlterations(spliceDonorSiteFlankingRegion) : null;
-                    String acceptorSpliceSiteSequence = spliceAcceptorSiteFlankingRegion.getFmin() >= 0 && spliceAcceptorSiteFlankingRegion.getFmax() <= sequenceLength ?
-                            sequenceService.getGenomicResiduesFromSequenceWithAlterations(spliceAcceptorSiteFlankingRegion) : null;
-                    if (exonNum < exons.size()) {
-                        if (!validFivePrimeSplice) {
-                            if (donorSpliceSiteSequence!=donor) {
-                                fivePrimeSpliceSitePosition = exon.getStrand() == -1 ? spliceDonorSiteFlankingRegion.getFmax() : spliceDonorSiteFlankingRegion.getFmin();
+                    if(local1>=0&&local2 < residues.length()) {
+                        log.debug "blah1 ${local1} ${local2} ${residues.length()}"
+                        String acceptorSpliceSiteSequence = residues.substring(local1,local2)
+                        acceptorSpliceSiteSequence=transcript.getStrand()==-1?acceptorSpliceSiteSequence.reverse():acceptorSpliceSiteSequence
+                        log.debug "acceptor ${acceptorSpliceSiteSequence} ${acceptor}"
+                        if(acceptorSpliceSiteSequence==acceptor)
+                            validThreePrimeSplice=true
+                        else
+                            threePrimeSpliceSitePosition = exon.getStrand() == -1 ? local1 : local2;
+                    }
 
-                                // TODO: is this correct?
-//                                if(exon.strand == -1 && fivePrimeSpliceSitePosition==transcript.featureLocation.fmin) validFivePrimeSplice = true
-//                                if(exon.strand == 1 && fivePrimeSpliceSitePosition==transcript.featureLocation.fmax) validFivePrimeSplice = true
-                            } else {
-                                validFivePrimeSplice = true;
-                            }
-                        }
-                    }
-                    if (exonNum > 1) {
-                        if (!validThreePrimeSplice) {
-                            if (acceptorSpliceSiteSequence!=acceptor) {
-                                threePrimeSpliceSitePosition = exon.getStrand() == -1 ? spliceAcceptorSiteFlankingRegion.getFmin() : spliceAcceptorSiteFlankingRegion.getFmax();
-                                
-                                // TODO: is this correct?
-//                                if(exon.strand == -1 && threePrimeSpliceSitePosition==transcript.featureLocation.fmin) validThreePrimeSplice = true
-//                                if(exon.strand == 1 && threePrimeSpliceSitePosition==transcript.featureLocation.fmax) validThreePrimeSplice = true
-                            } else {
-                                validThreePrimeSplice = true;
-                            }
-                        }
+                    if(local3>=0&&local4<residues.length()) {
+                        log.debug "blah2 ${local3} ${local4} ${residues.length()}"
+                        String donorSpliceSiteSequence = residues.substring(local3,local4)
+                        donorSpliceSiteSequence=transcript.getStrand()==-1?donorSpliceSiteSequence.reverse():donorSpliceSiteSequence
+                        log.debug "donor ${donorSpliceSiteSequence} ${donor}"
+                        if(donorSpliceSiteSequence==donor)
+                            validFivePrimeSplice=true
+                        else
+                            fivePrimeSpliceSitePosition = exon.getStrand() == -1 ? local3 : local4;
                     }
                 }
             }
             if (!validFivePrimeSplice && fivePrimeSpliceSitePosition != -1) {
-                addNonCanonicalFivePrimeSpliceSite(transcript,createNonCanonicalFivePrimeSpliceSite(transcript, fivePrimeSpliceSitePosition));
+                def loc=fivePrimeSpliceSitePosition+transcript.fmin
+                log.debug "adding a noncanonical five prime splice site at ${fivePrimeSpliceSitePosition} ${loc}"
+                addNonCanonicalFivePrimeSpliceSite(transcript,createNonCanonicalFivePrimeSpliceSite(transcript, loc));
             }
             if (!validThreePrimeSplice && threePrimeSpliceSitePosition != -1) {
-                addNonCanonicalThreePrimeSpliceSite(transcript,createNonCanonicalThreePrimeSpliceSite(transcript, threePrimeSpliceSitePosition));
+                def loc=threePrimeSpliceSitePosition+transcript.fmin
+                log.debug "adding a noncanonical three prime splice site at ${threePrimeSpliceSitePosition} ${loc}"
+                addNonCanonicalThreePrimeSpliceSite(transcript,createNonCanonicalThreePrimeSpliceSite(transcript, loc));
             }
         }
 
-//        transcript.setLastUpdated(new Date());
-
-
-//        editor.findNonCanonicalAcceptorDonorSpliceSites(transcript);
         for (NonCanonicalFivePrimeSpliceSite spliceSite : getNonCanonicalFivePrimeSpliceSites(transcript)) {
             if (spliceSite.getDateCreated() == null) {
                 spliceSite.setDateCreated(new Date());
             }
             spliceSite.setLastUpdated(new Date());
-//            spliceSite.setOwner(transcript.getOwner());
         }
         for (NonCanonicalThreePrimeSpliceSite spliceSite : getNonCanonicalThreePrimeSpliceSites(transcript)) {
             if (spliceSite.getDateCreated() == null) {
                 spliceSite.setDateCreated(new Date());
             }
             spliceSite.setLastUpdated(new Date());
-//            spliceSite.setOwner(transcript.getOwner());
         }
-
-
-        // event fire
-//        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-
     }
 
     /** Add a non canonical 5' splice site.  Sets the splice site's transcript to this transcript object.
@@ -269,7 +263,6 @@ class NonCanonicalSplitSiteService {
                 ,isAnalysis: transcript.isAnalysis
                 ,isObsolete: transcript.isObsolete
                 ,name: uniqueName
-//                ,timeAccessioned: new Date()
                 ).save()
         spliceSite.addToFeatureLocations(new FeatureLocation(
                 strand: transcript.strand
@@ -278,11 +271,6 @@ class NonCanonicalSplitSiteService {
                 ,fmax: position
                 ,feature: spliceSite
         ).save());
-//        spliceSite.featureLocation.setStrand(transcript.getStrand());
-//        spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
-//        spliceSite.featureLocation.setFmin(position);
-//        spliceSite.featureLocation.setFmax(position);
-//        spliceSite.setLastUpdated(new Date());
         return spliceSite;
     }
 

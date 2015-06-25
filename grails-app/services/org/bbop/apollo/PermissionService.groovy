@@ -618,7 +618,7 @@ class PermissionService {
         }
 
         Sequence sequence = Sequence.findByNameAndOrganism(trackName,organism)
-        log.debug "found a sequence ${sequence} for track ${trackName} from ${organism} ${inputObject.track}"
+        log.debug "checkPermissions ${sequence} - ${trackName} - ${organism}"
         if(userOrganismPreference!=null&&userOrganismPreference.sequence?.name!=trackName){
             userOrganismPreference.sequence = sequence
             userOrganismPreference.save()

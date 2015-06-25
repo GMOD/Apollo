@@ -406,7 +406,7 @@ class RequestHandlingService {
      * being invoked the RHS
      */
     def deleteStatus(JSONObject inputObject) {
-        log.debug "status being set ${inputObject as JSON}"
+        log.debug "deleteStatus ${inputObject as JSON}"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
@@ -434,6 +434,7 @@ class RequestHandlingService {
 
 
     def getComments(JSONObject inputObject) {
+        log.debug "getComments"
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
@@ -455,6 +456,7 @@ class RequestHandlingService {
     }
 
     def addNonPrimaryDbxrefs(JSONObject inputObject) {
+        log.debug "addNonPrimaryDbxrefs"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
@@ -545,26 +547,21 @@ class RequestHandlingService {
             preferenceService.setCurrentSequence(permissionService.getActiveUser(inputObject), sequence)
         }
 
-//        if(permissionService.fixTrackHeader(inputObject.))
         log.debug "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
 
         Set<Feature> featureSet = new HashSet<>()
 
 
         List<Feature> topLevelTranscripts = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationList])
-        log.debug "# of top level features ${topLevelTranscripts.size()}"
         for (Feature feature in topLevelTranscripts) {
             if (feature instanceof Gene) {
                 for (Transcript transcript : transcriptService.getTranscripts(feature)) {
-//                    log.debug "Getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
                     featureSet.add(transcript)
                 }
             } else {
                 featureSet.add(feature)
             }
         }
-
-        log.debug "feature set size: ${featureSet.size()}"
 
         JSONArray jsonFeatures = new JSONArray()
         featureSet.each { feature ->
@@ -653,14 +650,11 @@ class RequestHandlingService {
 
         JSONObject returnObject = createJSONFeatureContainer()
 
-        log.info "RHS::adding transcript return object ${inputObject?.size()}"
+        log.info "addTranscript ${inputObject?.size()}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-        log.debug "do we have a sequence . . probably not ${sequence}"
-        log.debug "writing feature for org ${sequence.organism}"
-
-        log.info "sequences avaialble ${Sequence.count} -> ${Sequence.first()?.name}"
-        log.info "sequence ${sequence}"
-        log.info "RHS::PRE featuresArray ${featuresArray?.size()}"
+        log.debug "sequence: ${sequence}"
+        log.debug "organism: ${sequence.organism}"
+        log.info "number of features: ${featuresArray?.size()}"
         boolean suppressHistory = false
         boolean suppressEvents = false
         if (inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
@@ -674,7 +668,6 @@ class RequestHandlingService {
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
             jsonTranscript = permissionService.copyUserName(inputObject, jsonTranscript)
-            log.debug "copied jsonTranscript ${jsonTranscript}"
             Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence, suppressHistory)
 
             // should automatically write to history
@@ -695,8 +688,6 @@ class RequestHandlingService {
             }
         }
 
-//        sequence.save(flush: true)
-        // do I need to put it back in?
         transcriptList.each { transcript ->
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
         }
@@ -739,7 +730,6 @@ class RequestHandlingService {
         transcript.save()
         Gene gene = transcriptService.getGene(transcript)
 
-//        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
         JSONObject newJSONObject = featureService.convertFeatureToJSON(transcript, false)
 
         featureEventService.addNewFeatureEvent(setStart ? FeatureOperation.SET_TRANSLATION_START : FeatureOperation.UNSET_TRANSLATION_START, gene.name, transcript.uniqueName, inputObject, transcriptJSONObject, newJSONObject, permissionService.getActiveUser(inputObject))
@@ -1071,13 +1061,10 @@ class RequestHandlingService {
     }
 
     public void sendAnnotationEvent(String returnString, Sequence sequence) {
-        log.debug "RHS::return operations sent . . ${returnString?.size()}"
-//        log.debug "returnString ${returnString}"
         if (returnString.startsWith("[")) {
             returnString = returnString.substring(1, returnString.length() - 1)
         }
         try {
-            log.debug "sending the Annotation event DIRECTLY IN RHS"
             brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + sequence.organismId + "/" + sequence.id, returnString
         } catch (e) {
             log.error("problem sending message: ${e}")
