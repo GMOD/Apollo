@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.async.Promise
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.converters.JSON
@@ -1686,6 +1687,10 @@ class RequestHandlingService {
         if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {
             suppressEvents = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_EVENTS.value)
         }
+        boolean suppressHistory = false
+        if (inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
+            suppressHistory = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value)
+        }
 
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -1733,6 +1738,12 @@ class RequestHandlingService {
                 modifiedFeaturesList.add(feature)
                 modifiedFeaturesUniqueNames.put(uniqueName, modifiedFeaturesList)
             }
+
+//            if(!suppressHistory){
+//                Promise promise = task {
+//                    featureEventService.deleteHistory(uniqueName)
+//                }
+//            }
         }
         for (String key : oldFeatureMap.keySet()) {
             log.debug "setting keys"

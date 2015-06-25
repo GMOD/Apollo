@@ -7,6 +7,7 @@ class SequenceChunk {
 
     static mapping = {
         residue type: "text"
+        cache usage: 'read-only'
     }
 
     Sequence sequence

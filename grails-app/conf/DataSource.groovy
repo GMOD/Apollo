@@ -65,4 +65,6 @@ hibernate {
     cache.use_second_level_cache=true
     cache.use_query_cache=true
     cache.provider_class='org.hibernate.cache.EhCacheProvider'
+    cache.region.factory_class = 'grails.plugin.cache.ehcache.hibernate.BeanEhcacheRegionFactory4' // For Hibernate 4.0 and higher
+
 }
