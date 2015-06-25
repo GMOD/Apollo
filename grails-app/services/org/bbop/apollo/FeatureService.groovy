@@ -1690,7 +1690,79 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         return false
     }
+    Integer getFeatureModifiedCoord(Feature feature, Integer inputCoord, Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
 
+        List<SequenceAlteration> sequenceAlterationsInContext = new ArrayList<>()
+
+        if (feature instanceof Transcript) {
+            // sequence from exons, with UTRs too
+            sequenceAlterationsInContext = getSequenceAlterationsInContext(feature, sequenceAlterations)
+        } else if (feature instanceof CDS) {
+            // sequence from exons without UTRs
+            sequenceAlterationsInContext = getSequenceAlterationsInContext(transcriptService.getTranscript(feature), sequenceAlterations)
+        } else {
+            // sequence from feature, as is
+            for (SequenceAlteration eachSequenceAlteration : sequenceAlterations) {
+                if (overlapperService.overlaps(eachSequenceAlteration, feature, false)) {
+                    sequenceAlterationsInContext.add(eachSequenceAlteration)
+                }
+            }
+        }
+        if (sequenceAlterations.size() == 0 || sequenceAlterationsInContext.size() == 0) {
+            log.debug "no alterations"
+            return inputCoord
+        }
+        List<SequenceAlteration> orderedSequenceAlterationList = new ArrayList<>(sequenceAlterationsInContext)
+        Collections.sort(orderedSequenceAlterationList, new FeaturePositionComparator<SequenceAlteration>());
+        if (!feature.getFeatureLocation().getStrand().equals(orderedSequenceAlterationList.get(0).getFeatureLocation().getStrand())) {
+            Collections.reverse(orderedSequenceAlterationList);
+        }
+
+        int currentOffset = 0
+        for (SequenceAlteration sequenceAlteration : orderedSequenceAlterationList) {
+            int localCoordinate
+            if(feature instanceof Transcript) {
+                localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(feature, sequenceAlteration.featureLocation.fmin);
+            } else if (feature instanceof CDS){
+                if (! overlapperService.overlaps(feature, sequenceAlteration, false)) {
+                    // a check to verify if alteration is part of the CDS
+                    continue
+                }
+                //localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(transcriptService.getTranscript(feature), sequenceAlteration.featureLocation.fmin);
+                localCoordinate = convertSourceCoordinateToLocalCoordinateForCDS(transcriptService.getTranscript(feature), sequenceAlteration.featureLocation.fmin)
+            }
+            else {
+                //localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(transcriptService.getTranscript(feature), sequenceAlterationLoc.getFmin());
+                localCoordinate = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlteration.featureLocation.fmin);
+            }
+
+            // Insertions
+            if (sequenceAlteration instanceof Insertion) {
+                if(sequenceAlteration.getFmin()<inputCoord) {
+                    currentOffset += localCoordinate+sequenceAlteration.length
+                }
+                else {
+                    break
+                }
+            }
+            // Deletions
+            else if (sequenceAlteration instanceof Deletion) {
+                if(sequenceAlteration.getFmin()<inputCoord) {
+                    if(sequenceAlteration.getFmax>=inputCoord) {
+                        currentOffset+=localCoordinate-sequenceAlteration.length
+                    }
+                    else {
+                        currentOffset-=localCoordinate-(inputCoord-sequenceAlternation.getFmin())
+                    }
+                }
+                else {
+                    break
+                }
+            }
+        }
+        return currentOffset;
+
+    }
     String getResiduesWithAlterationsNew (Feature feature, Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
         String residueString = null
         List<SequenceAlteration> sequenceAlterationsInContext = new ArrayList<>()

@@ -136,10 +136,10 @@ class NonCanonicalSplitSiteService {
         List<Exon> exons = exonService.getSortedExons(transcript)
         int fmin=transcript.getFeatureLocation().fmin
         int fmax=transcript.getFeatureLocation().fmax
+        Sequence sequence=transcript.getFeatureLocation().sequence
+        Strand strand=transcript.getFeatureLocation().strand==-1?Strand.NEGATIVE:Strand.POSITIVE
 
-        int exonNum = 0;
-        int sequenceLength = transcript.getFeatureLocation().getSequence().getLength()
-        String residues = featureService.getResiduesWithAlterations(createFlankingRegion(transcript, transcript.fmin, transcript.fmax));
+        String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,fmin,fmax,strand);
         if(transcript.getStrand()==-1)residues=residues.reverse()
         log.debug "${residues}"
 
@@ -150,17 +150,20 @@ class NonCanonicalSplitSiteService {
             boolean validThreePrimeSplice = false;
             for (String donor : SequenceTranslationHandler.getSpliceDonorSites()){
                 for (String acceptor : SequenceTranslationHandler.getSpliceAcceptorSites()){
-                    log.debug "${exon.fmin} ${exon.fmax}"
+                    int local11=exon.fmin-donor.length()-transcript.fmin
+                    int local22=exon.fmin-transcript.fmin
+                    int local33=exon.fmax-transcript.fmin
+                    int local44=exon.fmax+donor.length()-transcript.fmin
 
-                    int local1=exon.fmin-donor.length()-transcript.fmin
-                    int local2=exon.fmin-transcript.fmin
-                    int local3=exon.fmax-transcript.fmin
-                    int local4=exon.fmax+donor.length()-transcript.fmin
-
+                    int local1=featureService.getFeatureModifiedCoord(transcript,local11)
+                    int local2=featureService.getFeatureModifiedCoord(transcript,local22)
+                    int local3=featureService.getFeatureModifiedCoord(transcript,local33)
+                    int local4=featureService.getFeatureModifiedCoord(transcript,local44)
                     log.debug "${local1} ${local2} ${local3} ${local4}"
+                    log.debug "${local11} ${local22} ${local33} ${local44}"
+
 
                     if (exon.featureLocation.getStrand() == -1) {
-
                         int tmp1=local1
                         int tmp2=local2
                         local1=local3
@@ -192,12 +195,14 @@ class NonCanonicalSplitSiteService {
                 }
             }
             if (!validFivePrimeSplice && fivePrimeSpliceSitePosition != -1) {
-                log.debug "adding a noncanonical five prime splice site at ${fivePrimeSpliceSitePosition}"
-                addNonCanonicalFivePrimeSpliceSite(transcript,createNonCanonicalFivePrimeSpliceSite(transcript, fivePrimeSpliceSitePosition));
+                def loc=fivePrimeSpliceSitePosition+transcript.fmin
+                log.debug "adding a noncanonical five prime splice site at ${fivePrimeSpliceSitePosition} ${loc}"
+                addNonCanonicalFivePrimeSpliceSite(transcript,createNonCanonicalFivePrimeSpliceSite(transcript, loc));
             }
             if (!validThreePrimeSplice && threePrimeSpliceSitePosition != -1) {
-                log.debug "adding a noncanonical three prime splice site at ${threePrimeSpliceSitePosition}"
-                addNonCanonicalThreePrimeSpliceSite(transcript,createNonCanonicalThreePrimeSpliceSite(transcript, threePrimeSpliceSitePosition));
+                def loc=threePrimeSpliceSitePosition+transcript.fmin
+                log.debug "adding a noncanonical three prime splice site at ${threePrimeSpliceSitePosition} ${loc}"
+                addNonCanonicalThreePrimeSpliceSite(transcript,createNonCanonicalThreePrimeSpliceSite(transcript, loc));
             }
         }
 
@@ -257,7 +262,6 @@ class NonCanonicalSplitSiteService {
                 ,isAnalysis: transcript.isAnalysis
                 ,isObsolete: transcript.isObsolete
                 ,name: uniqueName
-//                ,timeAccessioned: new Date()
                 ).save()
         spliceSite.addToFeatureLocations(new FeatureLocation(
                 strand: transcript.strand
@@ -266,11 +270,6 @@ class NonCanonicalSplitSiteService {
                 ,fmax: position
                 ,feature: spliceSite
         ).save());
-//        spliceSite.featureLocation.setStrand(transcript.getStrand());
-//        spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
-//        spliceSite.featureLocation.setFmin(position);
-//        spliceSite.featureLocation.setFmax(position);
-//        spliceSite.setLastUpdated(new Date());
         return spliceSite;
     }
 

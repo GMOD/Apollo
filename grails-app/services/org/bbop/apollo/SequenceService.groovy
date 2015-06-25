@@ -85,7 +85,7 @@ class SequenceService {
                 continue
             }
 
-            // TODO: is this correyyct?
+            // TODO: is this correct?
             String sequenceAlterationResidues = sequenceAlteration.alterationResidue
             if (strand == Strand.NEGATIVE) {
                 sequenceAlterationResidues = SequenceTranslationHandler.reverseComplementSequence(sequenceAlterationResidues);
