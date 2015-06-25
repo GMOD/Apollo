@@ -142,9 +142,7 @@ class NonCanonicalSplitSiteService {
         int exonNum = 0;
         int sequenceLength = transcript.getFeatureLocation().getSequence().getLength()
         String residues = featureService.getResiduesWithAlterations(createFlankingRegion(transcript, transcript.fmin, transcript.fmax));
-        int length=residues.length()
 
-        log.debug "${residues} ${length} ${sequenceLength}"
         for (Exon exon : exons) {
             int fivePrimeSpliceSitePosition = -1;
             int threePrimeSpliceSitePosition = -1;
@@ -161,13 +159,8 @@ class NonCanonicalSplitSiteService {
 
                     log.debug "${local1} ${local2} ${local3} ${local4}"
 
-                   // FlankingRegion spliceAcceptorSiteFlankingRegion = createFlankingRegion(exon, exon.getFmin() - donor.length(), exon.getFmin());
-                   // FlankingRegion spliceDonorSiteFlankingRegion = createFlankingRegion(exon, exon.getFmax(), exon.getFmax() + donor.length());
                     if (exon.featureLocation.getStrand() == -1) {
 
-                       // FlankingRegion tmp = spliceAcceptorSiteFlankingRegion;
-                       // spliceAcceptorSiteFlankingRegion = spliceDonorSiteFlankingRegion;
-                       // spliceDonorSiteFlankingRegion = tmp;
                         int tmp1=local1
                         int tmp2=local2
                         local1=local3
@@ -175,21 +168,21 @@ class NonCanonicalSplitSiteService {
                         local3=tmp1
                         local4=tmp2
                     }
-                    if(local1>=0) {
-                        log.debug "${local1} ${local2} ${residues.length()}"
-                        String donorSpliceSiteSequence = residues.substring(local1,local2)
-                        log.debug "donor ${donorSpliceSiteSequence}"
-                        if(donorSpliceSiteSequence==donor)
+                    if(local1>=0&&local2 < residues.length()) {
+                        log.debug "blah1 ${local1} ${local2} ${residues.length()}"
+                        String acceptorSpliceSiteSequence = residues.substring(local1,local2)
+                        log.debug "donor ${acceptorSpliceSiteSequence} ${acceptor}"
+                        if(acceptorSpliceSiteSequence==acceptor)
                             validFivePrimeSplice=true
                         else
                             fivePrimeSpliceSitePosition = exon.getStrand() == -1 ? local1 : local2;
                     }
 
-                    if(local4<length) {
-                        log.debug "${local3} ${local3} ${residues.length()}"
-                        String acceptorSpliceSiteSequence = residues.substring(local3,local4)
-                        log.debug "acceptor ${acceptorSpliceSiteSequence}"
-                        if(acceptorSpliceSiteSequence==acceptor)
+                    if(local3>=0&&local4<residues.length()) {
+                        log.debug "blah2 ${local3} ${local4} ${residues.length()}"
+                        String donorSpliceSiteSequence = residues.substring(local3,local4)
+                        log.debug "acceptor ${donorSpliceSiteSequence} ${donor}"
+                        if(donorSpliceSiteSequence==donor)
                             validThreePrimeSplice=true
                         else
                             threePrimeSpliceSitePosition = exon.getStrand() == -1 ? local3 : local4;
