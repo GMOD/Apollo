@@ -142,6 +142,8 @@ class NonCanonicalSplitSiteService {
         int exonNum = 0;
         int sequenceLength = transcript.getFeatureLocation().getSequence().getLength()
         String residues = featureService.getResiduesWithAlterations(createFlankingRegion(transcript, transcript.fmin, transcript.fmax));
+        if(transcript.getStrand()==-1)residues=residues.reverse()
+        log.debug "${residues}"
 
         for (Exon exon : exons) {
             int fivePrimeSpliceSitePosition = -1;
@@ -171,21 +173,23 @@ class NonCanonicalSplitSiteService {
                     if(local1>=0&&local2 < residues.length()) {
                         log.debug "blah1 ${local1} ${local2} ${residues.length()}"
                         String acceptorSpliceSiteSequence = residues.substring(local1,local2)
-                        log.debug "donor ${acceptorSpliceSiteSequence} ${acceptor}"
+                        acceptorSpliceSiteSequence=transcript.getStrand()==-1?acceptorSpliceSiteSequence.reverse():acceptorSpliceSiteSequence
+                        log.debug "acceptor ${acceptorSpliceSiteSequence} ${acceptor}"
                         if(acceptorSpliceSiteSequence==acceptor)
-                            validFivePrimeSplice=true
+                            validThreePrimeSplice=true
                         else
-                            fivePrimeSpliceSitePosition = exon.getStrand() == -1 ? local1 : local2;
+                            threePrimeSpliceSitePosition = exon.getStrand() == -1 ? local1 : local2;
                     }
 
                     if(local3>=0&&local4<residues.length()) {
                         log.debug "blah2 ${local3} ${local4} ${residues.length()}"
                         String donorSpliceSiteSequence = residues.substring(local3,local4)
-                        log.debug "acceptor ${donorSpliceSiteSequence} ${donor}"
+                        donorSpliceSiteSequence=transcript.getStrand()==-1?donorSpliceSiteSequence.reverse():donorSpliceSiteSequence
+                        log.debug "donor ${donorSpliceSiteSequence} ${donor}"
                         if(donorSpliceSiteSequence==donor)
-                            validThreePrimeSplice=true
+                            validFivePrimeSplice=true
                         else
-                            threePrimeSpliceSitePosition = exon.getStrand() == -1 ? local3 : local4;
+                            fivePrimeSpliceSitePosition = exon.getStrand() == -1 ? local3 : local4;
                     }
                 }
             }
