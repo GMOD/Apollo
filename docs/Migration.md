@@ -2,7 +2,7 @@
 
 View <a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHub</a>
 
-This guide explains how to prepare your 2.0 instance as well as migrate data from previous instances.
+This guide explains how to prepare your 2.0 instance as well as migrating data from previous instances.
 
 In all cases you will need to follow the [guide for setting up your 2.0 instance](Apollo2Build.md).   
 
@@ -25,7 +25,7 @@ In each case you will need to use [Apollo 2 web services](web_services_link.png)
 To use the newer examples written in ```groovy```, you'll need to install it in a similar manner as you did grails:  ```gvm install groovy```.   If you have not installed [gvm](http://gvmtool.net/) (or grails) you should be able to run '''curl -s get.gvmtool.net | bash
 '''.
 
-We've written new examples using the groovy language, but most any language will work (Perl, shell/curl, Python, etc.).
+We have written new examples using the groovy language, but most any language will work (Perl, shell/curl, Python, etc.).
 
 
 ### Migrate Annotations
