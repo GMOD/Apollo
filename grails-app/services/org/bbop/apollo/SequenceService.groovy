@@ -391,12 +391,15 @@ class SequenceService {
             gbolFeature = featureService.getTopLevelFeature(gbolFeature)
             featuresToWrite.add(gbolFeature);
 
-            Sequence sequence = gbolFeature.featureLocation.sequence
-            def listOfSequenceAlterations = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes", [sequence: sequence, sequenceTypes: sequenceAlterationTypes])
+            int fmin = gbolFeature.fmin
+            int fmax = gbolFeature.fmax
 
+            Sequence sequence = gbolFeature.featureLocation.sequence
+
+            // TODO: does strand and alteration length matter here?
+            List<Feature> listOfSequenceAlterations = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes and fl.fmin >= :fmin and fl.fmax <= :fmax ", [sequence: sequence, sequenceTypes: sequenceAlterationTypes,fmin:fmin,fmax:fmax])
+            featuresToWrite += listOfSequenceAlterations
         }
-//        def featuresToExport = listOfFeatures + listOfSequenceAlterations
-        def allFeature = featuresToWrite
         gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
     }
 }
