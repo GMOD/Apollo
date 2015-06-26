@@ -1714,6 +1714,11 @@ class RequestHandlingService {
                 feature = Feature.findByName(jsonFeature.getString(FeatureStringEnum.NAME.value))
                 uniqueName = feature.uniqueName
             }
+            // TODO: can not do this as it will aggressively delete history
+            // that other objects might need
+//            if (!suppressHistory) {
+//                featureEventService.deleteHistory(uniqueName)
+//            }
 
             log.debug "feature found to delete ${feature.name}"
             if (feature) {
@@ -1726,9 +1731,6 @@ class RequestHandlingService {
                 } else {
                     if (!oldFeatureMap.containsKey(feature.uniqueName)) {
                         oldFeatureMap.put(feature.uniqueName, featureService.convertFeatureToJSON(feature))
-                    }
-                    if (!suppressHistory) {
-                        featureEventService.deleteHistory(uniqueName)
                     }
                 }
                 //oldJsonObjectsArray.add(featureService.convertFeatureToJSON(feature))

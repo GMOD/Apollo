@@ -542,6 +542,7 @@ class FeatureEventService {
                 deleteCommandObject.put(FeatureStringEnum.TRACK.value, sequence.name)
 //            }
             }
+            deleteCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY,true)
             println "final deleteCommandObject ${deleteCommandObject as JSON}"
 
             deleteCommandObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
