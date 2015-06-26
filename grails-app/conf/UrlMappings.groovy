@@ -15,6 +15,7 @@ class UrlMappings {
 
         // set this routing here
         "/jbrowse/index.html"(controller: "jbrowse", action: "indexRouter", params:params)
+        "/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
 
