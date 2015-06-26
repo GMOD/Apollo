@@ -383,13 +383,20 @@ class SequenceService {
     def getGff3ForFeature(JSONObject inputObject, File outputFile) {
         List<Feature> featuresToWrite = new ArrayList<>();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        def sequenceAlterationTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
             Feature gbolFeature = Feature.findByUniqueName(uniqueName)
             gbolFeature = featureService.getTopLevelFeature(gbolFeature)
             featuresToWrite.add(gbolFeature);
+
+            Sequence sequence = gbolFeature.featureLocation.sequence
+            def listOfSequenceAlterations = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes", [sequence: sequence, sequenceTypes: sequenceAlterationTypes])
+
         }
+//        def featuresToExport = listOfFeatures + listOfSequenceAlterations
+        def allFeature = featuresToWrite
         gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
     }
 }

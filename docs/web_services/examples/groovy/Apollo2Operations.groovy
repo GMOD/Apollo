@@ -72,7 +72,7 @@ static JSONObject triggerRemoveTranscript(String destinationurl, String username
     def removeTranscriptResponse = removeTranscriptClient.post(
             contentType: 'text/javascript',
             path: fullPath,
-            body: [  'username' : username, 'password' : password, 'track' : sequenceName, 'organism' : organism, 'features' : featuresArray ]
+            body: [  'username' : username, 'password' : password, 'track' : sequenceName, 'organism' : organism, 'features' : featuresArray]
     )
 
     assert removeTranscriptResponse.status == 200

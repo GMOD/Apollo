@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.async.Promise
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
@@ -8,6 +9,8 @@ import org.bbop.apollo.history.FeatureOperation
 import grails.util.Environment
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import static grails.async.Promises.*
+
 
 /**
  */
@@ -56,7 +59,7 @@ class FeatureEventService {
  * @return
  */
     List<FeatureEvent> addSplitFeatureEvent(String name1, String uniqueName1, String name2, String uniqueName2
-                                            ,JSONObject commandObject, JSONObject oldFeatureObject
+                                            , JSONObject commandObject, JSONObject oldFeatureObject
                                             , JSONArray newFeatureArray
                                             , User user) {
         List<FeatureEvent> featureEventList = new ArrayList<>()
@@ -125,7 +128,6 @@ class FeatureEventService {
         return featureEventList
     }
 
-
 /**
  * Convention is that 1 becomes the child and is returned.
  * Because we are tracking the merge in the actual object blocks, the newJSONArray is also split
@@ -160,7 +162,7 @@ class FeatureEventService {
 
 
         FeatureEvent lastFeatureEventLeft = lastFeatureEventLeftList[0]
-        FeatureEvent lastFeatureEventRight  = lastFeatureEventRightList[0]
+        FeatureEvent lastFeatureEventRight = lastFeatureEventRightList[0]
         lastFeatureEventLeft.current = false;
         lastFeatureEventRight.current = false;
         lastFeatureEventLeft.save()
@@ -333,8 +335,8 @@ class FeatureEventService {
             // if there is a parent merge . .  we just include that parent in the history (not everything)
             // we have to assume that there is a previous feature event (a merge can never be first)
             FeatureEvent parentMergeFeatureEvent = featureEvent.parentMergeId ? FeatureEvent.findById(featureEvent.parentMergeId) : null
-            if(parentMergeFeatureEvent && featureEventList){
-                featureEventList.get(featureEventList.size()-1).add(parentMergeFeatureEvent)
+            if (parentMergeFeatureEvent && featureEventList) {
+                featureEventList.get(featureEventList.size() - 1).add(parentMergeFeatureEvent)
             }
 
             featureEventList.addAll(findAllFutureFeatureEvents(childFeatureEvent))
@@ -367,6 +369,12 @@ class FeatureEventService {
     FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, Feature feature, JSONObject inputCommand, User user) {
         return addNewFeatureEventWithUser(featureOperation, feature.name, feature.uniqueName, inputCommand, featureService.convertFeatureToJSON(feature), user)
     }
+
+//    def deleteHistoryAsync(String uniqueName) {
+//        Promise memberDeleteDeltas = task {
+//            deleteHistory(uniqueName)
+//        }
+//    }
 
 
     def deleteHistory(String uniqueName) {
@@ -449,11 +457,11 @@ class FeatureEventService {
         println "sequence: ${sequence}"
 
 
-        def newUniqueNames = getHistory(uniqueName)[count].collect(){
+        def newUniqueNames = getHistory(uniqueName)[count].collect() {
             it.uniqueName
         }
 
-        deleteCurrentState(inputObject, uniqueName, newUniqueNames,sequence)
+        deleteCurrentState(inputObject, uniqueName, newUniqueNames, sequence)
 
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 //        log.debug "final feature event: ${featureEvent} ->${featureEvent.operation}"
@@ -515,7 +523,7 @@ class FeatureEventService {
 
     }
 
-    def deleteCurrentState(JSONObject inputObject, String uniqueName,List<String> newUniqueNames, Sequence sequence) {
+    def deleteCurrentState(JSONObject inputObject, String uniqueName, List<String> newUniqueNames, Sequence sequence) {
 
         // need to get uniqueNames for EACH current featureEvent
         for (FeatureEvent deleteFeatureEvent in findCurrentFeatureEvent(uniqueName)) {
@@ -541,9 +549,9 @@ class FeatureEventService {
 
             println " final delete JSON ${deleteCommandObject as JSON}"
 //            FeatureEvent.withNewTransaction {
-                // suppress any events that are not part of the new state
-                println "newUniqueNames ${newUniqueNames} vs uniqueName ${uniqueName} vs df-uniqueName ${deleteFeatureEvent.uniqueName}"
-                requestHandlingService.deleteFeature(deleteCommandObject)
+            // suppress any events that are not part of the new state
+            println "newUniqueNames ${newUniqueNames} vs uniqueName ${uniqueName} vs df-uniqueName ${deleteFeatureEvent.uniqueName}"
+            requestHandlingService.deleteFeature(deleteCommandObject)
 //            }
             println "deletion sucess . .  "
         }
@@ -630,15 +638,13 @@ class FeatureEventService {
         if (!previousFeatureEvents) {
             def futureEvents = findAllFutureFeatureEvents(featureEventList[0])
             // if we have a future event and it is a merge, then we have multiple "current"
-            if(futureEvents && futureEvents.get(0).get(0).parentMergeId){
-                if(futureEvents.get(0).get(0).parentMergeId != currentFeatureEvent.id){
-                    return [currentFeatureEvent,FeatureEvent.findById(futureEvents.get(0).get(0).parentMergeId)]
+            if (futureEvents && futureEvents.get(0).get(0).parentMergeId) {
+                if (futureEvents.get(0).get(0).parentMergeId != currentFeatureEvent.id) {
+                    return [currentFeatureEvent, FeatureEvent.findById(futureEvents.get(0).get(0).parentMergeId)]
+                } else {
+                    return [currentFeatureEvent, FeatureEvent.findById(futureEvents.get(0).get(0).parentId)]
                 }
-                else{
-                    return [currentFeatureEvent,FeatureEvent.findById(futureEvents.get(0).get(0).parentId)]
-                }
-            }
-            else{
+            } else {
                 return [currentFeatureEvent]
             }
         }
@@ -648,7 +654,7 @@ class FeatureEventService {
             it.uniqueName == uniqueName
         }
         // example we reverting backwards
-        if(!firstFeatureEvent){
+        if (!firstFeatureEvent) {
             firstFeatureEvent = previousFeatureEvents[0][0]
         }
 

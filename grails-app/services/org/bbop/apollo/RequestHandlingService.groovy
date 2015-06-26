@@ -676,7 +676,7 @@ class RequestHandlingService {
             transcriptList.add(transcript)
 
             // checking for overlapping Sequence Alterations
-            List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin > :fmin and fl.fmax < :fmax and fl.sequence = :seqId", [seqId:transcript.featureLocation.sequence, fmin: transcript.featureLocation.fmin, fmax: transcript.featureLocation.fmax])
+            List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin > :fmin and fl.fmax < :fmax and fl.sequence = :seqId", [seqId: transcript.featureLocation.sequence, fmin: transcript.featureLocation.fmin, fmax: transcript.featureLocation.fmax])
             if (sequenceAlterationList.size() > 0) {
                 featureService.setLongestORF(transcript)
             }
@@ -685,7 +685,7 @@ class RequestHandlingService {
 
             if (!suppressHistory) {
 //                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, transcript, inputObject, permissionService.getActiveUser(inputObject))
-                featureEventService.addNewFeatureEventWithUser(FeatureOperation.ADD_TRANSCRIPT, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, featureService.convertFeatureToJSON(transcript),permissionService.getActiveUser(inputObject))
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.ADD_TRANSCRIPT, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, featureService.convertFeatureToJSON(transcript), permissionService.getActiveUser(inputObject))
             }
         }
 
@@ -1454,10 +1454,10 @@ class RequestHandlingService {
             if (feature instanceof Transcript) {
                 feature = transcriptService.flipTranscriptStrand((Transcript) feature);
 //                featureEventService.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, feature, inputObject, permissionService.getActiveUser(inputObject))
-                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name,feature.uniqueName, inputObject,featureService.convertFeatureToJSON((Transcript) feature), permissionService.getActiveUser(inputObject))
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON((Transcript) feature), permissionService.getActiveUser(inputObject))
             } else {
                 feature = featureService.flipStrand(feature)
-                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, feature.name,feature.uniqueName, inputObject,featureService.convertFeatureToJSON(feature), permissionService.getActiveUser(inputObject))
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, feature.name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON(feature), permissionService.getActiveUser(inputObject))
             }
 //            featureEventService.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, feature, inputObject, permissionService.getActiveUser(inputObject))
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
@@ -1727,6 +1727,9 @@ class RequestHandlingService {
                     if (!oldFeatureMap.containsKey(feature.uniqueName)) {
                         oldFeatureMap.put(feature.uniqueName, featureService.convertFeatureToJSON(feature))
                     }
+                    if (!suppressHistory) {
+                        featureEventService.deleteHistory(uniqueName)
+                    }
                 }
                 //oldJsonObjectsArray.add(featureService.convertFeatureToJSON(feature))
                 // is this a bug?
@@ -1739,11 +1742,6 @@ class RequestHandlingService {
                 modifiedFeaturesUniqueNames.put(uniqueName, modifiedFeaturesList)
             }
 
-//            if(!suppressHistory){
-//                Promise promise = task {
-//                    featureEventService.deleteHistory(uniqueName)
-//                }
-//            }
         }
         for (String key : oldFeatureMap.keySet()) {
             log.debug "setting keys"
@@ -1943,7 +1941,6 @@ class RequestHandlingService {
 
         transcript1.owners.each { transcript2.addToOwners(it) }
 
-
         // we get the original gene off of the transcript
         Gene gene1 = transcriptService.getGene(transcript1)
 
@@ -2055,9 +2052,9 @@ class RequestHandlingService {
         }
 
         Transcript tmpTranscript2 = Transcript.findByUniqueName(transcript2UniqueName)
-        if(tmpTranscript2){
+        if (tmpTranscript2) {
             Gene tmpGene2 = transcriptService.getGene(tmpTranscript2)
-            if(tmpGene2.id!=gene1.id){
+            if (tmpGene2.id != gene1.id) {
                 List<Transcript> exon2Transcripts = transcriptService.getTranscripts(tmpGene2)
                 for (Transcript t : exon2Transcripts) {
                     updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
@@ -2066,17 +2063,15 @@ class RequestHandlingService {
             }
         }
 
-
-
         // now we add history for each of the transcripts . . . it is history of 1 + 2
-        Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)  ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value): false
+        Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value) ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value) : false
         if (!suppressHistory) {
-            featureEventService.addSplitFeatureEvent(transcriptService.getGene(transcript1).name,transcript1.uniqueName
-                    ,gene2Name,transcript2UniqueName
-                    ,inputObject
-                    ,featureService.convertFeatureToJSON(transcript1)
-                    ,updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
-                    ,permissionService.getActiveUser(inputObject)
+            featureEventService.addSplitFeatureEvent(transcriptService.getGene(transcript1).name, transcript1.uniqueName
+                    , gene2Name, transcript2UniqueName
+                    , inputObject
+                    , featureService.convertFeatureToJSON(transcript1)
+                    , updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
+                    , permissionService.getActiveUser(inputObject)
             )
         }
 
@@ -2134,16 +2129,16 @@ class RequestHandlingService {
         }
 
 
-        Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)  ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value): false
+        Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value) ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value) : false
         if (!suppressHistory) {
             JSONArray oldJsonArray = new JSONArray()
             oldJsonArray.add(jsonTranscript1)
             oldJsonArray.add(jsonTranscript2)
-            featureEventService.addMergeFeatureEvent(gene1Name,transcript1UniqueName
-                    ,gene2Name,transcript2UniqueName
-                    ,inputObject ,oldJsonArray
-                    ,updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
-                    ,permissionService.getActiveUser(inputObject)
+            featureEventService.addMergeFeatureEvent(gene1Name, transcript1UniqueName
+                    , gene2Name, transcript2UniqueName
+                    , inputObject, oldJsonArray
+                    , updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
+                    , permissionService.getActiveUser(inputObject)
             )
         }
 
