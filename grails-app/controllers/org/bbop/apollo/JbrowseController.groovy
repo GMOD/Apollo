@@ -284,7 +284,7 @@ class JbrowseController {
         if(currentOrganism!=null) {
             jsonObject.put("dataset_id",currentOrganism.id)
         }
-        List<Organism> list=Organism.getAll()
+        List<Organism> list=permissionService.getOrganismsForCurrentUser()
         JSONObject organismObjectContainer = new JSONObject()
         for(organism in list) {
             JSONObject organismObject = new JSONObject()
