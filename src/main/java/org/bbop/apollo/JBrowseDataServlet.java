@@ -183,15 +183,37 @@ public class JBrowseDataServlet extends HttpServlet {
             response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
             response.setHeader("Content-Length", String.valueOf(r.length));
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
-
-            RandomAccessFile input = new RandomAccessFile(file, "r");
+            BufferedInputStream bis= new BufferedInputStream(new FileInputStream(file));
+           
             OutputStream output = response.getOutputStream();
+            byte[] buf = new byte[1024];
+            long count=r.start;
+            try {
 
-            // Copy single part range.
-            copy(input, output, r.start, r.length);
+                // Copy single part range.
+                long ret=bis.skip(r.start);
+                if(ret != r.start) {
+                    logger.error("Failed to read BAM!");
+                    bis.close();
+                    output.close();
+                    return;
+                }    
+                
+                while (count<r.end) {
+                    int bret=bis.read(buf,0,1024);
+                    if(bret!=-1) {
+                        output.write(buf, 0, bret);
+                        count+=bret;
+                    }
+                    else break;
+                }
 
-            input.close();
-            output.close();
+                bis.close();
+                output.close();
+            } catch(Exception e) {
+                logger.error(e.getMessage());
+                e.printStackTrace();
+            }
 
         }
 
