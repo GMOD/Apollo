@@ -25,7 +25,7 @@ In each case you will need to use [Apollo 2 web services](web_services_link.png)
 To use the newer examples written in ```groovy```, you'll need to install it in a similar manner as you did grails:  ```gvm install groovy```.   If you have not installed [gvm](http://gvmtool.net/) (or grails) you should be able to run '''curl -s get.gvmtool.net | bash
 '''.
 
-We have written new examples using the groovy language, but most any language will work (Perl, shell/curl, Python, etc.).
+We have written new examples using the groovy language, but mostly any language will work (Perl, shell/curl, Python, etc.).
 
 
 ### Migrate Annotations
