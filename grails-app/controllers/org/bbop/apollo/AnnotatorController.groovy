@@ -167,48 +167,56 @@ class AnnotatorController {
     }
 
     def findAnnotationsForSequence(String sequenceName, String request) {
-        JSONObject returnObject = createJSONFeatureContainer()
-        if (sequenceName && !Sequence.countByName(sequenceName)) return
+        try {
+            JSONObject returnObject = createJSONFeatureContainer()
+            if (sequenceName && !Sequence.countByName(sequenceName)) return
 
-        if (sequenceName) {
-            returnObject.track = sequenceName
-        }
+            if (sequenceName) {
+                returnObject.track = sequenceName
+            }
 
-        Sequence sequence
-        Organism organism
-        if (returnObject.has("track")) {
-            sequence = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
-            organism = sequence.organism
-        } else {
-            organism = permissionService.checkPermissionsForOrganism(returnObject, PermissionEnum.READ)
-        }
-        // find all features for current organism
-
-        Integer index = Integer.parseInt(request)
-
-        // TODO: should only be returning the top-level features
-        List<Feature> allFeatures
-        if(organism){
-            if (!sequence) {
-                try {
-                    allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
-                } catch (e) {
-                    allFeatures = new ArrayList<>()
-                    log.error(e)
-                }
+            Sequence sequence
+            Organism organism
+            if (returnObject.has("track")) {
+                sequence = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+                organism = sequence.organism
             } else {
-                allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
+                organism = permissionService.checkPermissionsForOrganism(returnObject, PermissionEnum.READ)
+            }
+            // find all features for current organism
+
+            Integer index = Integer.parseInt(request)
+
+            // TODO: should only be returning the top-level features
+            List<Feature> allFeatures
+            if (organism) {
+                if (!sequence) {
+                    try {
+                        allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
+                    } catch (e) {
+                        allFeatures = new ArrayList<>()
+                        log.error(e)
+                    }
+                } else {
+                    allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
+                }
+
+                for (Feature feature in allFeatures) {
+                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
+                }
             }
 
-            for (Feature feature in allFeatures) {
-                returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
-            }
+            returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(), index + 1)
+
+            // TODO: do checks here
+            render returnObject
         }
-
-        returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(), index + 1)
-
-        // TODO: do checks here
-        render returnObject
+        catch(Exception e) {
+            def error=[error: e.message]
+            log.error e.message
+            e.printStackTrace()
+            render e as JSON
+        }
 
     }
 
