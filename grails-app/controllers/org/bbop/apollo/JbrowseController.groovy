@@ -116,10 +116,9 @@ class JbrowseController {
      * Handles data directory serving for jbrowse
      */
     def data() {
-        log.debug "params ${params} ${params.path}"
         String dataDirectory = getJBrowseDirectoryForSession()
         String dataFileName = dataDirectory + "/" + params.path
-        String fileName = FilenameUtils.getBaseName(params.path)
+        String fileName = FilenameUtils.getName(params.path)
         File file = new File(dataFileName);
 
         if (!file.exists()) {
@@ -132,7 +131,7 @@ class JbrowseController {
 
         String mimeType = getServletContext().getMimeType(fileName);
         if (!mimeType) {
-            log.info("No input MIME type of " + fileName);
+            log.debug("No input MIME type of " + fileName);
             if (fileName.endsWith(".json") || params.format == "json") {
                 mimeType = "application/json";
                 response.setContentType(mimeType);
@@ -226,7 +225,6 @@ class JbrowseController {
             response.setHeader("Content-Length", String.valueOf(r.length));
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
 
-            log.debug "${file}"
             BufferedInputStream bis= new BufferedInputStream(new FileInputStream(file));
 
             OutputStream output = response.getOutputStream();
