@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import liquibase.util.file.FilenameUtils
 import org.apache.shiro.session.Session
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -66,20 +67,6 @@ class JbrowseController {
     }
 
 
-    // is typically checking for trackData.json
-    def tracks(String jsonFile, String trackName, String groupName) {
-        String fileName = getJBrowseDirectoryForSession()
-        fileName += "/tracks/${trackName}/${groupName}/${jsonFile}.json"
-        File file = new File(fileName);
-        if (!file.exists()) {
-            log.error("Could not get tracks file " + fileName);
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            render status: NOT_FOUND
-            return;
-        }
-        render file.text
-    }
-
     private String getJBrowseDirectoryForSession() {
         if(!permissionService.getCurrentUser()){
             return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
@@ -124,89 +111,15 @@ class JbrowseController {
     }
 
 
-    def namesFiles(String directory, String jsonFile) {
-        String dataDirectory = getJBrowseDirectoryForSession()
-        String absoluteFilePath = dataDirectory + "/names/${directory}/${jsonFile}.json"
-        File file = new File(absoluteFilePath);
-        if (!file.exists()) {
-            log.warn("Could not get for name and path: ${absoluteFilePath}");
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            render status: NOT_FOUND
-            return;
-        }
-        render file.text
-    }
 
     /**
-     * For returning seq/refSeqs.json
+     * Handles data directory serving for jbrowse
      */
-    def names(String fileName) {
+    def data() {
+        log.debug "params ${params} ${params.path}"
         String dataDirectory = getJBrowseDirectoryForSession()
-        String absoluteFilePath = dataDirectory + "/names/${fileName}.json"
-        File file = new File(absoluteFilePath);
-        if (!file.exists()) {
-            log.warn("Could not get ${absoluteFilePath}");
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            render status: NOT_FOUND
-            return;
-        }
-        render file.text
-    }
-
-    /**
-     * For returning seq/refSeqs.json
-     */
-    def seq() {
-        String fileName = getJBrowseDirectoryForSession()
-        File file = new File(fileName + "/seq/refSeqs.json");
-        if (!file.exists()) {
-            log.error("Could not get seq file " + fileName);
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-        render file.text
-    }
-
-    def seqMapper() {
-        String fileName = getJBrowseDirectoryForSession()
-        File file = new File(fileName + "/seq/${params.a}/${params.b}/${params.c}/${params.group}");
-        if (!file.exists()) {
-            log.error("Could not get seq file " + file.absolutePath);
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            render status: NOT_FOUND
-            return;
-        }
-
-        String eTag = createHashFromFile(file);
-        String dateString = formatLastModifiedDate(file);
-        response.setHeader("ETag", eTag);
-        response.setHeader("Last-Modified", dateString);
-        response.setContentType("application/json");
-
-
-        render file.text
-    }
-
-    def bigwig(String fileName) {
-        return data("bigwig/" + fileName)
-    }
-
-    def bam(String fileName) {
-        return data("bam/" + fileName)
-    }
-
-    /**
-     * Has to handle a number of routes for the data directory.
-     *
-     * e.g. --
-     * tracks.conf
-     * data/tracks/<track>/<annotation>/trackData.json
-     * data/tracks/Amel_4.5_brain_ovary.gff/Group1.1/lf-1.json
-     * data/bigwig/<fileName>.bw
-     */
-    def data(String fileName) {
-        String dataDirectory = getJBrowseDirectoryForSession()
-        String dataFileName = dataDirectory + "/" + fileName
+        String dataFileName = dataDirectory + "/" + params.path
+        String fileName = FilenameUtils.getBaseName(params.path)
         File file = new File(dataFileName);
 
         if (!file.exists()) {
@@ -299,7 +212,7 @@ class JbrowseController {
             OutputStream out = response.getOutputStream();
 
             // Copy the contents of the file to the output stream
-            byte[] buf = new byte[1024];
+            byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
             int count = 0;
             while ((count = inputStream.read(buf)) >= 0) {
                 out.write(buf, 0, count);
@@ -313,10 +226,11 @@ class JbrowseController {
             response.setHeader("Content-Length", String.valueOf(r.length));
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
 
+            log.debug "${file}"
             BufferedInputStream bis= new BufferedInputStream(new FileInputStream(file));
 
             OutputStream output = response.getOutputStream();
-            byte[] buf = new byte[1024];
+            byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
             long count=r.start;
             try {
 
@@ -330,7 +244,7 @@ class JbrowseController {
                 }
 
                 while (count<r.end) {
-                    int bret=bis.read(buf,0,1024);
+                    int bret=bis.read(buf,0,DEFAULT_BUFFER_SIZE);
                     if(bret!=-1) {
                         output.write(buf, 0, bret);
                         count+=bret;
@@ -412,41 +326,6 @@ class JbrowseController {
         long length = file.length();
         long lastModified = file.lastModified();
         return fileName + "_" + length + "_" + lastModified;
-    }
-
-    /**
-     * Copy the given byte range of the given input to the given output.
-     *
-     * @param input The input to copy the given range to the given output for.
-     * @param output The output to copy the given range from the given input for.
-     * @param start Start of the byte range.
-     * @param length Length of the byte range.
-     * @throws IOException If something fails at I/O level.
-     */
-    private static void copy(RandomAccessFile input, OutputStream output, long start, long length)
-            throws IOException {
-        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-        int read;
-
-        if (input.length() == length) {
-            // Write full range.
-            while ((read = input.read(buffer)) > 0) {
-                output.write(buffer, 0, read);
-            }
-        } else {
-            // Write partial range.
-            input.seek(start);
-            long toRead = length;
-
-            while ((read = input.read(buffer)) > 0) {
-                if ((toRead -= read) > 0) {
-                    output.write(buffer, 0, read);
-                } else {
-                    output.write(buffer, 0, (int) toRead + read);
-                    break;
-                }
-            }
-        }
     }
 
     /**
