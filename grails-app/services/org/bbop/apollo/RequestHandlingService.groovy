@@ -552,8 +552,13 @@ class RequestHandlingService {
 
         Set<Feature> featureSet = new HashSet<>()
 
+        long start = System.currentTimeMillis();
 
         List<Feature> topLevelTranscripts = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationList])
+        long durationInMilliseconds = System.currentTimeMillis()-start;
+
+        log.debug "selecting top-level features ${durationInMilliseconds}"
+        start = System.currentTimeMillis();
         for (Feature feature in topLevelTranscripts) {
             if (feature instanceof Gene) {
                 for (Transcript transcript : transcriptService.getTranscripts(feature)) {
@@ -563,12 +568,17 @@ class RequestHandlingService {
                 featureSet.add(feature)
             }
         }
+        durationInMilliseconds = System.currentTimeMillis()-start;
+        log.debug "selecting transcripts ${durationInMilliseconds}"
+        start = System.currentTimeMillis();
 
         JSONArray jsonFeatures = new JSONArray()
         featureSet.each { feature ->
-            JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
+            JSONObject jsonObject = featureService.fastConvertFeatureToJSON(feature, false)
             jsonFeatures.put(jsonObject)
         }
+        durationInMilliseconds = System.currentTimeMillis()-start;
+        log.debug "convert to json ${durationInMilliseconds}"
 
         inputObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
 
