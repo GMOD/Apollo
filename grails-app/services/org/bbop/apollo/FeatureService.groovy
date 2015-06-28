@@ -1727,8 +1727,9 @@ class FeatureService {
      * @param includeSequence
      * @return
      */
-    JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
+    JSONObject fullConvertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
         JSONObject jsonFeature = new JSONObject();
+        log.debug "fullConvertFeatureToJSON"
         try {
 
             if (gsolFeature.id) {
@@ -1745,8 +1746,6 @@ class FeatureService {
             if (gsolFeature.description) {
                 jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
             }
-
-            gsolFeature.attach()
 
             String finalOwnerString = ""
             if (gsolFeature.owners) {
@@ -1777,7 +1776,6 @@ class FeatureService {
             jsonFeature.put(FeatureStringEnum.NOTES.value, notesArray)
 
             // get children
-            gsolFeature.attach()
             Collection<FeatureRelationship> parentRelationships = FeatureRelationship.findAllByParentFeature(gsolFeature)
             if (parentRelationships) {
                 JSONArray children = new JSONArray();
@@ -1875,7 +1873,8 @@ class FeatureService {
      * @param includeSequence
      * @return
      */
-    JSONObject fastConvertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
+    JSONObject convertFeatureWithoutChildrenJSON(Feature gsolFeature, boolean includeSequence = false) {
+        log.debug "convertFeatureToJSON"
         JSONObject jsonFeature = new JSONObject();
         try {
 
@@ -1916,9 +1915,117 @@ class FeatureService {
             // get children
             Collection<FeatureRelationship> parentRelationships = FeatureRelationship.findAllByParentFeature(gsolFeature)
             if (parentRelationships) {
+
                 JSONArray children = new JSONArray();
-                jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
                 for (FeatureRelationship fr : parentRelationships) {
+                    jsonFeature.put(FeatureStringEnum.CHILDREN.value, children)
+                    Feature childFeature = fr.childFeature
+                    children.put(superFastConvertFeatureWithoutChildrenToJSON(childFeature, includeSequence));
+                }
+            }
+
+            durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "selecting children ${durationInMilliseconds}"
+
+
+            start = System.currentTimeMillis();
+            Collection<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations();
+            if (featureLocations) {
+                FeatureLocation gsolFeatureLocation = featureLocations.iterator().next();
+                if (gsolFeatureLocation != null) {
+                    jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(gsolFeatureLocation));
+                }
+            }
+
+            durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "selecting feature locations ${durationInMilliseconds}"
+
+
+            //e.g. properties: [{value: "demo", type: {name: "owner", cv: {name: "feature_property"}}}]
+            start = System.currentTimeMillis();
+            Collection<FeatureProperty> gsolFeatureProperties = gsolFeature.getFeatureProperties();
+
+            JSONArray properties = new JSONArray();
+            jsonFeature.put(FeatureStringEnum.PROPERTIES.value, properties);
+            if (gsolFeatureProperties) {
+                for (FeatureProperty property : gsolFeatureProperties) {
+                    JSONObject jsonProperty = new JSONObject();
+                    JSONObject jsonPropertyType = new JSONObject()
+
+                    jsonPropertyType.put(FeatureStringEnum.NAME.value, property.type)
+                    JSONObject jsonPropertyTypeCv = new JSONObject()
+                    jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
+                    jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
+
+                    jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
+                    jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
+                    properties.put(jsonProperty);
+                }
+            }
+
+            durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "selecting feature properties ${durationInMilliseconds}"
+
+
+        }
+        catch (JSONException e) {
+            return null;
+        }
+        return jsonFeature;
+    }
+
+    /**
+     * @param gsolFeature
+     * @param includeSequence
+     * @return
+     */
+    JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
+        log.debug "convertFeatureToJSON"
+        JSONObject jsonFeature = new JSONObject();
+        try {
+
+            if (gsolFeature.id) {
+                jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
+            }
+            jsonFeature.put(FeatureStringEnum.TYPE.value, generateJSONFeatureStringForType(gsolFeature.ontologyId));
+            jsonFeature.put(FeatureStringEnum.UNIQUENAME.value, gsolFeature.getUniqueName());
+            if (gsolFeature.getName() != null) {
+                jsonFeature.put(FeatureStringEnum.NAME.value, gsolFeature.getName());
+            }
+            if (gsolFeature.symbol) {
+                jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol);
+            }
+            if (gsolFeature.description) {
+                jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
+            }
+
+            long start = System.currentTimeMillis();
+            // get parents
+            Collection<FeatureRelationship> childFeatureRelationships = gsolFeature.childFeatureRelationships
+            if (childFeatureRelationships?.size() == 1) {
+                Feature parent = childFeatureRelationships.iterator().next().getParentFeature();
+                jsonFeature.put(FeatureStringEnum.PARENT_ID.value, parent.getUniqueName());
+                jsonFeature.put(FeatureStringEnum.PARENT_TYPE.value, generateJSONFeatureStringForType(parent.ontologyId));
+            }
+            long durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "selecting parents ${durationInMilliseconds}"
+
+
+            if (gsolFeature.featureLocation) {
+                Sequence sequence = gsolFeature.featureLocation.sequence
+                jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
+            }
+
+
+            start = System.currentTimeMillis();
+            // get children
+
+            Collection<FeatureRelationship> parentRelationships = FeatureRelationship.findAllByParentFeature(gsolFeature)
+            if (parentRelationships) {
+
+                JSONArray children = new JSONArray();
+                for (FeatureRelationship fr : parentRelationships) {
+                    jsonFeature.put(FeatureStringEnum.CHILDREN.value, children)
                     Feature childFeature = fr.childFeature
                     children.put(superFastConvertFeatureToJSON(childFeature, includeSequence));
                 }
@@ -1976,13 +2083,23 @@ class FeatureService {
 
 
     JSONObject superFastConvertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
+        log.debug "superFastConvertFeatureToJSON"
         JSONObject jsonFeature = new JSONObject();
         try {
-
             if (gsolFeature.id) {
                 jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
             }
             jsonFeature.put(FeatureStringEnum.TYPE.value, generateJSONFeatureStringForType(gsolFeature.ontologyId));
+            jsonFeature.put(FeatureStringEnum.UNIQUENAME.value, gsolFeature.getUniqueName());
+            if (gsolFeature.getName() != null) {
+                jsonFeature.put(FeatureStringEnum.NAME.value, gsolFeature.getName());
+            }
+            if (gsolFeature.symbol) {
+                jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol);
+            }
+            if (gsolFeature.description) {
+                jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
+            }
 
             if (gsolFeature.featureLocation) {
                 Sequence sequence = gsolFeature.featureLocation.sequence
@@ -2003,6 +2120,37 @@ class FeatureService {
         return jsonFeature;
     }
 
+
+
+    JSONObject superFastConvertFeatureWithoutChildrenToJSON(Feature gsolFeature, boolean includeSequence = false) {
+        log.debug "superFastConvertFeatureToJSON"
+        JSONObject jsonFeature = new JSONObject();
+        try {
+            if (gsolFeature.id) {
+                jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
+            }
+            jsonFeature.put(FeatureStringEnum.TYPE.value, generateJSONFeatureStringForType(gsolFeature.ontologyId));
+            jsonFeature.put(FeatureStringEnum.UNIQUENAME.value, gsolFeature.getUniqueName());
+            if (gsolFeature.getName() != null) {
+                jsonFeature.put(FeatureStringEnum.NAME.value, gsolFeature.getName());
+            }
+            if (gsolFeature.symbol) {
+                jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol);
+            }
+            if (gsolFeature.description) {
+                jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
+            }
+
+            if (gsolFeature.featureLocation) {
+                Sequence sequence = gsolFeature.featureLocation.sequence
+                jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
+            }
+        }
+        catch (JSONException e) {
+            return null;
+        }
+        return jsonFeature;
+    }
 
 
     JSONObject generateJSONFeatureStringForType(String ontologyId) {
@@ -2200,12 +2348,6 @@ class FeatureService {
         return hasChildren
     }
 
-//    def convertJSONToFeatureInferSequence(JSONObject jsonObject) {
-//        String uniqueName = jsonObject.getString(FeatureStringEnum.UNIQUENAME.value)
-//        Feature feature = Feature.findByUniqueName(uniqueName)
-//        Sequence sequence = feature.featureLocation.sequence
-//        return convertJSONToFeature(jsonObject,sequence)
-//    }
 
     /**
      * If genes is empty, create a new gene.
@@ -2248,25 +2390,21 @@ class FeatureService {
 
         transcriptService.deleteTranscript(oldGene, transcript)
         addTranscriptToGene(gene, transcript)
-//        featureRelationshipService.removeFeatureRelationship(oldGene, transcript)
 
         // if this is empty then delete the gene
         if (!featureRelationshipService.getChildren(oldGene)) {
             deleteFeature(oldGene)
         }
-
-//        addTranscriptToGene(gene, transcript)
-
     }
 
-/**
- * From https://github.com/GMOD/Apollo/issues/73
- * Need to add another call after other calculations are done to verify that we verify that we have not left our current isoform siblings or that we have just joined some and we should merge genes (always taking the one on the left).
- 1 - using OrfOverlapper, find other isoforms
- 2 - for each isoform, confirm that they belong to the same gene (if not, we merge genes)
- 3 - confirm that no other non-overlapping isoforms have the same gene (if not, we create a new gene)
- * @param transcript
- */
+    /**
+     * From https://github.com/GMOD/Apollo/issues/73
+     * Need to add another call after other calculations are done to verify that we verify that we have not left our current isoform siblings or that we have just joined some and we should merge genes (always taking the one on the left).
+     1 - using OrfOverlapper, find other isoforms
+     2 - for each isoform, confirm that they belong to the same gene (if not, we merge genes)
+     3 - confirm that no other non-overlapping isoforms have the same gene (if not, we create a new gene)
+     * @param transcript
+     */
     def handleIsoformOverlap(Transcript transcript) {
         Gene originalGene = transcriptService.getGene(transcript)
 

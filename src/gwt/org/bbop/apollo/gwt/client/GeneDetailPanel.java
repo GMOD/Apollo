@@ -40,12 +40,9 @@ public class GeneDetailPanel extends Composite {
     @UiField
     TextBox userField;
 
-//    private SharedStuff sharedStuff = new SharedStuff();
-//    private JSONObject internalData ;
 
     public GeneDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-//        Window.alert(sharedStuff.getSomthing());
     }
 
     @UiHandler("nameField")
@@ -57,19 +54,15 @@ public class GeneDetailPanel extends Composite {
 
     @UiHandler("symbolField")
     void handleSymbolChange(ChangeEvent e) {
-//        Window.alert("symbol field changed: "+e);
         String updatedName = symbolField.getText();
         internalAnnotationInfo.setSymbol(updatedName);
-//        internalData.put("symbol", new JSONString(updatedName));
         updateGene();
     }
 
     @UiHandler("descriptionField")
     void handleDescriptionChange(ChangeEvent e) {
-//        Window.alert("symbol field changed: "+e);
         String updatedName = descriptionField.getText();
         internalAnnotationInfo.setDescription(updatedName);
-//        internalData.put("description", new JSONString(updatedName));
         updateGene();
     }
 
@@ -92,9 +85,7 @@ public class GeneDetailPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                GWT.log("f");
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                GWT.log("successful update: " + returnValue);
                 enableFields(true);
                 Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
             }
@@ -117,32 +108,17 @@ public class GeneDetailPanel extends Composite {
     }
 
     /**
-     * {"date_creation":1420750302883, "symbol":"sdf", "location":{"fmin":14836, "strand":-1, "fmax":15043}, "description":"adsf", "name":"GB50347-RAaa", "children":[{"date_creation":1420750302872, "symbol":"sdf", "location":{"fmin":14836, "strand":-1, "fmax":15043}, "description":"sdf", "parent_type":{"name":"gene", "cv":{"name":"sequence"}}, "name":"GB50347-RA-00001asdf", "children":[{"date_creation":1420750302852, "location":{"fmin":14836, "strand":-1, "fmax":15043}, "parent_type":{"name":"mRNA", "cv":{"name":"sequence"}}, "name":"ac106657-8872-4c16-85f6-db0da33b4248", "uniquename":"ac106657-8872-4c16-85f6-db0da33b4248", "type":{"name":"exon", "cv":{"name":"sequence"}}, "date_last_modified":1420750302957, "parent_id":"8a6c6037-9878-4b2e-9bb7-fe090e24c24b"}], "properties":[{"value":"sdf", "type":{"cv":{"name":"feature_property"}}},{"value":"sdf", "type":{"cv":{"name":"feature_property"}}}], "uniquename":"8a6c6037-9878-4b2e-9bb7-fe090e24c24b", "type":{"name":"mRNA", "cv":{"name":"sequence"}}, "date_last_modified":1420754201629, "parent_id":"c8288815-c476-41da-a4d0-f13f940acff5"}], "properties":[{"value":"sdf", "type":{"cv":{"name":"feature_property"}}},{"value":"adsf", "type":{"cv":{"name":"feature_property"}}}], "uniquename":"c8288815-c476-41da-a4d0-f13f940acff5", "type":{"name":"gene", "cv":{"name":"sequence"}}, "date_last_modified":1420750327299}
+     * updateData
      */
     public void updateData(AnnotationInfo annotationInfo) {
-        GWT.log("upodating gene pagen");
         this.internalAnnotationInfo = annotationInfo;
-        GWT.log("A");
         nameField.setText(internalAnnotationInfo.getName());
-        GWT.log("B");
         symbolField.setText(internalAnnotationInfo.getSymbol());
         descriptionField.setText(internalAnnotationInfo.getDescription());
         sequenceField.setText(internalAnnotationInfo.getSequence());
         userField.setText(internalAnnotationInfo.getOwner());
 
-//        if(this.internalData.get("name") instanceof JSONString){
-//            nameField.setText(internalData.get("name").isString().stringValue());
-//        }
-//        if(this.internalData.get("symbol") !=null ) {
-//            symbolField.setText(internalData.get("symbol").isString().stringValue());
-//        }
-//        if(this.internalData.get("description") != null ) {
-//            descriptionField.setText(internalData.get("description").isString().stringValue());
-//        }
-
-//        JSONObject locationObject = internalData.get("location").isObject();
         if (internalAnnotationInfo.getMin() != null) {
-            GWT.log("C");
             String locationText = internalAnnotationInfo.getMin().toString();
             locationText += " - ";
             locationText += internalAnnotationInfo.getMax().toString();

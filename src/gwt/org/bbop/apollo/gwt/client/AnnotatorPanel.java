@@ -577,8 +577,6 @@ public class AnnotatorPanel extends Composite {
                 (annotationInfo.getName().toLowerCase().contains(nameText.toLowerCase()))
                         &&
                         annotationInfo.getType().toLowerCase().contains(typeText.toLowerCase())
-                        &&
-                        annotationInfo.getOwner().toLowerCase().contains(userText)
         );
 
     }
@@ -589,17 +587,26 @@ public class AnnotatorPanel extends Composite {
 
     private AnnotationInfo generateAnnotationInfo(JSONObject object, boolean processChildren) {
         AnnotationInfo annotationInfo = new AnnotationInfo();
-        annotationInfo.setName(object.get("name").isString().stringValue());
-        annotationInfo.setType(object.get("type").isObject().get("name").isString().stringValue());
+        if(object.get("name")!=null) {
+            annotationInfo.setName(object.get("name").isString().stringValue());
+        }
+        else {
+            return annotationInfo;
+        }
+        if(object.get("type")!=null) {
+            annotationInfo.setType(object.get("type").isObject().get("name").isString().stringValue());
+        }
         if (object.get("symbol") != null) {
             annotationInfo.setSymbol(object.get("symbol").isString().stringValue());
         }
         if (object.get("description") != null) {
             annotationInfo.setDescription(object.get("description").isString().stringValue());
         }
-        annotationInfo.setMin((int) object.get("location").isObject().get("fmin").isNumber().doubleValue());
-        annotationInfo.setMax((int) object.get("location").isObject().get("fmax").isNumber().doubleValue());
-        annotationInfo.setStrand((int) object.get("location").isObject().get("strand").isNumber().doubleValue());
+        if(object.get("location")!=null) {
+            annotationInfo.setMin((int) object.get("location").isObject().get("fmin").isNumber().doubleValue());
+            annotationInfo.setMax((int) object.get("location").isObject().get("fmax").isNumber().doubleValue());
+            annotationInfo.setStrand((int) object.get("location").isObject().get("strand").isNumber().doubleValue());
+        }
         annotationInfo.setUniqueName(object.get("uniquename").isString().stringValue());
         annotationInfo.setSequence(object.get("sequence").isString().stringValue());
         if (object.get("owner") != null) {

@@ -548,7 +548,7 @@ class RequestHandlingService {
             preferenceService.setCurrentSequence(permissionService.getActiveUser(inputObject), sequence)
         }
 
-        log.debug "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
+        log.debug "getFeatures ${sequence.organism.commonName}: ${sequence.name}"
 
         Set<Feature> featureSet = new HashSet<>()
 
@@ -574,7 +574,7 @@ class RequestHandlingService {
 
         JSONArray jsonFeatures = new JSONArray()
         featureSet.each { feature ->
-            JSONObject jsonObject = featureService.fastConvertFeatureToJSON(feature, false)
+            JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
             jsonFeatures.put(jsonObject)
         }
         durationInMilliseconds = System.currentTimeMillis()-start;

@@ -85,20 +85,15 @@ class AnnotatorController {
      */
     @Transactional
     def updateFeature() {
-        log.info "updating feature ${params.data}"
+        log.debug "updateFeature ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
-        log.info "uqnieuname 2: ${data.uniquename}"
-        log.info "rendered data ${data as JSON}"
         Feature feature = Feature.findByUniqueName(data.uniquename)
-        log.info "foiund feature: " + feature
 
         feature.name = data.name
         feature.symbol = data.symbol
         feature.description = data.description
 
         feature.save(flush: true, failOnError: true)
-
-        log.info "saved!! "
 
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         if (feature instanceof Gene) {
@@ -127,10 +122,8 @@ class AnnotatorController {
 
 
     def updateFeatureLocation() {
-        log.info "updating exon ${params.data}"
+        log.info "updateFeatureLocation ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
-        log.info "uqnieuname 2: ${data.uniquename}"
-        log.info "rendered data ${data as JSON}"
         Feature exon = Feature.findByUniqueName(data.uniquename)
         exon.featureLocation.fmin = data.fmin
         exon.featureLocation.fmax = data.fmax
@@ -187,22 +180,31 @@ class AnnotatorController {
 
             Integer index = Integer.parseInt(request)
 
-            // TODO: should only be returning the top-level features
             List<Feature> allFeatures
             if (organism) {
                 if (!sequence) {
                     try {
+                        final long start = System.currentTimeMillis();
+
                         allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
+                        final long durationInMilliseconds = System.currentTimeMillis()-start;
+
+                        log.debug "selecting features all ${durationInMilliseconds}"
                     } catch (e) {
                         allFeatures = new ArrayList<>()
                         log.error(e)
                     }
                 } else {
+                    final long start = System.currentTimeMillis();
+
                     allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
+                    final long durationInMilliseconds = System.currentTimeMillis()-start;
+
+                    log.debug "selecting features ${durationInMilliseconds}"
                 }
 
                 for (Feature feature in allFeatures) {
-                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
+                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureWithoutChildrenJSON(feature, false));
                 }
             }
 
