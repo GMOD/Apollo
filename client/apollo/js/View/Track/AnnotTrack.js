@@ -229,24 +229,14 @@ define([
                             console.log(response);
                             return;
                         }
-                        var i = 0;
 
-                        var func = function () {
-                            while (i < responseFeatures.length) {
-                                var jfeat = JSONUtils.createJBrowseFeature(responseFeatures[i]);
-                                track.store.insert(jfeat);
-                                track.processParent(responseFeatures[i], "ADD");
-                                if ((i++ % 100) == 0) {
-                                    window.setTimeout(func, 1);
-                                    return;
-                                }
-                            }
-                            if (i == responseFeatures.length) {
-                                track.changed();
-                                standby.hide();
-                            }
-                        };
-                        func();
+                        for (var i=0; i < responseFeatures.length; i++) {
+                            var jfeat = JSONUtils.createJBrowseFeature(responseFeatures[i]);
+                            track.store.insert(jfeat);
+                            track.processParent(responseFeatures[i], "ADD");
+                        }
+                        track.changed();
+                        standby.hide();
 
                     }, function (response, ioArgs) {
                         console.log("Annotation server error--maybe you forgot to login to the server?");

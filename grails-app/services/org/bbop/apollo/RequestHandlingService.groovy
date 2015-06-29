@@ -50,7 +50,7 @@ class RequestHandlingService {
 
     public RequestHandlingService() {
         viewableAnnotationList.clear()
-        viewableAnnotationList.add(Gene.class.canonicalName)
+        viewableAnnotationList.add(MRNA.class.canonicalName)
         viewableAnnotationList.add(Pseudogene.class.canonicalName)
         viewableAnnotationList.add(RepeatRegion.class.canonicalName)
         viewableAnnotationList.add(TransposableElement.class.canonicalName)
@@ -526,44 +526,31 @@ class RequestHandlingService {
         log.debug "getFeatures ${sequence.organism.commonName}: ${sequence.name}"
 
         long start = System.currentTimeMillis();
-        List queryResults = Feature.executeQuery("select distinct f,fr.childFeature from Feature f join f.featureLocations fl join f.parentFeatureRelationships fr where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationList])
+        List queryResults = Feature.executeQuery("select f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationList])
         long durationInMilliseconds = System.currentTimeMillis()-start;
         log.debug "selecting top-level features ${durationInMilliseconds}"
-
+        start = System.currentTimeMillis();
         def output=queryResults.collect { result ->
             [
-                    "id": result[0].id,
-                    "type": result[0].ontologyId,
-                    "uniqueName": result[0].uniqueName,
-                    "name": result[0].name,
-                    "symbol": result[0].symbol,
-                    "description": result[0].description,
-                    "location": result[0].featureLocation
+                    "id": result.id,
+                    "type": featureService.generateJSONFeatureStringForType(result.ontologyId),
+                    "uniquename": result.uniqueName,
+                    "name": result.name,
+                    "symbol": result.symbol,
+                    "description": result.description,
+                    "location": result.featureLocation,
+                    "parent_id": result.childFeatureRelationships[0].getParentFeature().uniqueName,
+                    "parent_type": featureService.generateJSONFeatureStringForType(result.childFeatureRelationships[0].getParentFeature().ontologyId)
             ]
         }
+        durationInMilliseconds = System.currentTimeMillis()-start;
+        log.debug "convert to json ${durationInMilliseconds}"
 
-//
-//        JSONArray jsonFeatures = new JSONArray()
-//        for(feature in queryResults) {
-//            JSONObject jsonObject = featureService.convertFeatureToJSON2(feature, false)
-//            jsonFeatures.put(jsonObject)
-//        }
-//        durationInMilliseconds = System.currentTimeMillis()-start;
-//        log.debug "convert to json ${durationInMilliseconds}"
-//
-//        inputObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
-//
-//        fireAnnotationEvent(new AnnotationEvent(
-//                features: inputObject
-//                , operation: AnnotationEvent.Operation.ADD
-//                , sequence: sequence
-//        ))
-//
         return [features: output]
     }
 
     /**
-     * First feature is transcript . . . all the first must be exons to add
+     * First feature is transcript, and the rest must be exons to add
      * @param inputObject
      * @return
      * TODO: test in interface
@@ -579,10 +566,8 @@ class RequestHandlingService {
         for (int i = 1; i < features.length(); ++i) {
             JSONObject jsonExon = features.getJSONObject(i);
             // could be that this is null
-//            Feature gsolExon = featureService.convertJSONToFeature(jsonExon,transcript,sequence)
             Exon gsolExon = (Exon) featureService.convertJSONToFeature(jsonExon, sequence)
 
-//            featureService.updateNewGsolFeatureAttributes(gsolExon, transcript);
             featureService.updateNewGsolFeatureAttributes(gsolExon, sequence);
 
             if (gsolExon.getFmin() < 0 || gsolExon.getFmax() < 0) {
@@ -590,25 +575,20 @@ class RequestHandlingService {
             }
 
             transcriptService.addExon(transcript, gsolExon)
-
             featureService.calculateCDS(transcript)
-
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
             gsolExon.save()
         }
 
         transcript.save(flush: true)
-//        featureService.getTopLevelFeature(transcript)?.save(flush: true)
         transcript.attach()
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
         transcript.save(flush: true)
-//        transcript.attach()
 
         // TODO: one of these two versions . . .
         JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
         JSONObject returnObject = createJSONFeatureContainer(newJsonObject)
-//        JSONObject returnObject = featureService.convertFeatureToJSON(transcript,false)
 
         Gene gene = transcriptService.getGene(transcript)
 
@@ -628,14 +608,10 @@ class RequestHandlingService {
 
     JSONObject addTranscript(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
         JSONObject returnObject = createJSONFeatureContainer()
 
         log.info "addTranscript ${inputObject?.size()}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-        log.debug "sequence: ${sequence}"
-        log.debug "organism: ${sequence.organism}"
-        log.info "number of features: ${featuresArray?.size()}"
         boolean suppressHistory = false
         boolean suppressEvents = false
         if (inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
@@ -664,7 +640,6 @@ class RequestHandlingService {
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
 
             if (!suppressHistory) {
-//                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, transcript, inputObject, permissionService.getActiveUser(inputObject))
                 featureEventService.addNewFeatureEventWithUser(FeatureOperation.ADD_TRANSCRIPT, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, featureService.convertFeatureToJSON(transcript), permissionService.getActiveUser(inputObject))
             }
         }
@@ -756,9 +731,6 @@ class RequestHandlingService {
         featureEventService.addNewFeatureEvent(setEnd ? FeatureOperation.SET_TRANSLATION_END : FeatureOperation.UNSET_TRANSLATION_END, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, transcriptJSONObject, newJSONObject, permissionService.getActiveUser(inputObject))
         JSONObject featureContainer = createJSONFeatureContainer(newJSONObject);
 
-//        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
-//        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
-//        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
 
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
