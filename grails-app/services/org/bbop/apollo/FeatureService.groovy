@@ -1911,7 +1911,7 @@ class FeatureService {
 
             start = System.currentTimeMillis();
             // get children
-            List queryResults=Feature.executeQuery("select f, fr.childFeature,fr.parentFeature from Feature f join f.parentFeatureRelationships fr where f.id = :feature_id", [feature_id:gsolFeature.id])
+            List queryResults=Feature.executeQuery("select f, fr.childFeature from Feature f join f.parentFeatureRelationships fr where f.id = :feature_id", [feature_id:gsolFeature.id])
             log.debug "${queryResults}"
 
 
