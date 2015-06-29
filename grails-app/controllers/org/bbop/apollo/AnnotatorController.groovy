@@ -204,7 +204,7 @@ class AnnotatorController {
                 }
 
                 for (Feature feature in allFeatures) {
-                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureWithoutChildrenJSON(feature, false));
+                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
                 }
             }
 
