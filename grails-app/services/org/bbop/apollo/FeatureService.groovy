@@ -1725,7 +1725,7 @@ class FeatureService {
      */
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
         JSONObject jsonFeature = new JSONObject();
-        log.debug "fullConvertFeatureToJSON"
+        log.debug "convertFeatureToJSON"
         try {
 
             if (gsolFeature.id) {
