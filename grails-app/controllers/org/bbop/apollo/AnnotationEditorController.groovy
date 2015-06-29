@@ -768,7 +768,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             log.debug "input json feature ${jsonFeature}"
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            JSONObject newFeature = featureService.fullConvertFeatureToJSON(feature, false)
+            JSONObject newFeature = featureService.convertFeatureToJSON(feature, false)
 
             if (feature.symbol) newFeature.put(FeatureStringEnum.SYMBOL.value, feature.symbol)
             if (feature.description) newFeature.put(FeatureStringEnum.DESCRIPTION.value, feature.description)
