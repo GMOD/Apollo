@@ -534,11 +534,8 @@ class RequestHandlingService {
         def id
         def match
         queryResults.each { result ->
-
-            log.debug "${id}"
             if(id!=result[0].id){
                 if(id) {
-                    log.debug "outputting ${id}"
                     output.features << match
                 }
                 id=result[0].id
@@ -571,7 +568,6 @@ class RequestHandlingService {
 
 
 
-        log.debug "${output as JSON}"
         durationInMilliseconds = System.currentTimeMillis()-start;
         log.debug "convert to json ${durationInMilliseconds}"
 
