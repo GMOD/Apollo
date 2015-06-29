@@ -526,27 +526,56 @@ class RequestHandlingService {
         log.debug "getFeatures ${sequence.organism.commonName}: ${sequence.name}"
 
         long start = System.currentTimeMillis();
-        List queryResults = Feature.executeQuery("select f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationList])
+        List queryResults = Feature.executeQuery("select f,fr.childFeature from Feature f join f.featureLocations fl join f.parentFeatureRelationships fr where fl.sequence = :sequence and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationList])
         long durationInMilliseconds = System.currentTimeMillis()-start;
         log.debug "selecting top-level features ${durationInMilliseconds}"
         start = System.currentTimeMillis();
-        def output=queryResults.collect { result ->
-            [
-                    "id": result.id,
-                    "type": featureService.generateJSONFeatureStringForType(result.ontologyId),
-                    "uniquename": result.uniqueName,
-                    "name": result.name,
-                    "symbol": result.symbol,
-                    "description": result.description,
-                    "location": result.featureLocation,
-                    "parent_id": result.childFeatureRelationships[0].getParentFeature().uniqueName,
-                    "parent_type": featureService.generateJSONFeatureStringForType(result.childFeatureRelationships[0].getParentFeature().ontologyId)
+        def output = [features:[]]
+        def id
+        def match
+        queryResults.each { result ->
+
+            log.debug "${id}"
+            if(id!=result[0].id){
+                if(id) {
+                    log.debug "outputting ${id}"
+                    output.features << match
+                }
+                id=result[0].id
+                match = [
+                    "id": result[0].id,
+                    "type": featureService.generateJSONFeatureStringForType(result[0].ontologyId),
+                    "uniquename": result[0].uniqueName,
+                    "name": result[0].name,
+                    "symbol": result[0].symbol,
+                    "description": result[0].description,
+                    "location": result[0].featureLocation,
+                    "parent_id": result[0].childFeatureRelationships[0].getParentFeature().uniqueName,
+                    "parent_type": featureService.generateJSONFeatureStringForType(result[0].childFeatureRelationships[0].getParentFeature().ontologyId),
+                    "children":[]
+                ]
+            }
+
+            def child=[
+                    "id": result[1].id,
+                    "location": result[1].featureLocation,
+                    "uniquename": result[1].uniqueName,
+                    "name": result[1].name,
+                    "parent_id": result[0].uniqueName,
+                    "parent_type": featureService.generateJSONFeatureStringForType(result[0].ontologyId),
+                    "type": featureService.generateJSONFeatureStringForType(result[1].ontologyId)
             ]
+            match.children.push(child)
         }
+
+
+
+
+        log.debug "${output as JSON}"
         durationInMilliseconds = System.currentTimeMillis()-start;
         log.debug "convert to json ${durationInMilliseconds}"
 
-        return [features: output]
+        return output
     }
 
     /**
