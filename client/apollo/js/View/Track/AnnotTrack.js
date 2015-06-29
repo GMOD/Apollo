@@ -226,6 +226,7 @@ define([
                         var responseFeatures = response.features;
                         if (!responseFeatures) {
                             alert("Error: " + JSON.stringify(response));
+                            console.log(response);
                             return;
                         }
                         var i = 0;
@@ -383,6 +384,7 @@ define([
 
                     if (changeData.operation == "ERROR" && changeData.username == track.username) {
                         alert(changeData.error_message);
+                        console.log(changeData.error_message);
                         return;
                     }
 
@@ -4260,6 +4262,7 @@ define([
                 var error = response.responseText && response.responseText.match("^<") != "<" ? JSON.parse(response.responseText) : response.response.data;
                 if (error && error.error) {
                     alert(error.error);
+                    console.log(error.error);
                     return false;
                 }
             },
