@@ -279,7 +279,7 @@ class UserController {
      */
     def updateOrganismPermission() {
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-        if(!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+        if(!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
             render status: HttpStatus.UNAUTHORIZED
             return
         }
