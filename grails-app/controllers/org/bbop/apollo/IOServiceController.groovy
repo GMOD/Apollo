@@ -1,12 +1,6 @@
 package org.bbop.apollo
 
-import grails.web.JSONBuilder
-import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.codehaus.groovy.grails.core.io.ResourceLocator
-import org.springframework.core.io.Resource
-import grails.converters.JSON
-import org.json.JSONString
 
 class IOServiceController extends AbstractApolloController {
     
@@ -15,30 +9,30 @@ class IOServiceController extends AbstractApolloController {
     def gff3HandlerService
     def fastaHandlerService
     def preferenceService
-    def grailsResourceLocator
-    
+
     def index() { }
     
     def handleOperation(String track, String operation) {
-        log.debug "Requested parameterMap: ${request.parameterMap.keySet()}"
-        log.debug "upstream params: ${params}"
-        //JSONObject postObject = findPost()
-        //operation = postObject.get(REST_OPERATION)
-        //TODO: Currently not using the findPost()
+        JSONObject postObject = findPost()
+        log.info "handleOperation: ${request.parameterMap.keySet()}"
+        log.info "handleOperation request: ${request.parameterMap}"
+        log.info "handleOperation params: ${params}"
         def mappedAction = underscoreToCamelCase(operation)
-        forward action: "${mappedAction}", params: params
+        forward action: "${mappedAction}", params: [data: postObject]
     }
     
     def write() {
-        log.debug("params to IOService::write(): ${params}")
+        log.info("params to IOService::write(): ${params}")
+
         String typeOfExport = params.type
         String sequenceName = params.tracks.substring("Annotations-".size())
         
         String fileName
         String sequenceType
         List<String> ontologyIdList = [Gene.class.name,Pseudogene.class.name,RepeatRegion.class.name,TransposableElement.class.name]
-        Organism organism = preferenceService.currentOrganismForCurrentUser
-        def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s.organism = :organism and s.name in (:sequenceName) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceName: sequenceName, ontologyIdList: ontologyIdList,organism:organism])
+        Organism organism = params.organism?Organism.findByCommonName(params.organism):preferenceService.currentOrganismForCurrentUser
+        def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s.organism = :organism and s.name in (:sequenceName) and fl.feature.class in (:ontologyIdList)",
+                [sequenceName: sequenceName, ontologyIdList: ontologyIdList, organism:organism])
         Sequence sequence = Sequence.executeQuery("select distinct s from Sequence s where s.name = :sequenceName", [sequenceName: sequenceName])[0]
         def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
         def listOfSequenceAlterations = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes", [sequence: sequence, sequenceTypes: sequenceTypes])
