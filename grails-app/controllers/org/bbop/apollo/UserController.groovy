@@ -277,11 +277,11 @@ class UserController {
      * Only changing one of the boolean permissions
      * @return
      */
-    //webservice
     def updateOrganismPermission() {
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if(!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
             render status: HttpStatus.UNAUTHORIZED
+            return
         }
         log.debug "json data ${dataObject}"
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findById(dataObject.id)
@@ -325,7 +325,5 @@ class UserController {
         userOrganismPermission.save(flush: true)
 
         render userOrganismPermission as JSON
-
     }
-
 }
