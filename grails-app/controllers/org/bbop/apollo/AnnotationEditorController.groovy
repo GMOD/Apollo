@@ -174,7 +174,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
             JSONArray history = new JSONArray();
             jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
-//            List<FeatureEvent> transactionList = FeatureEvent.findAllByUniqueName(feature.uniqueName, [sort: "dateCreated", order: "asc"])
             List<List<FeatureEvent>> transactionList = featureEventService.getHistory(feature.uniqueName)
             for (int j = 0; j < transactionList.size(); ++j) {
                 FeatureEvent transaction = transactionList[j][0];
@@ -296,52 +295,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    /**
-     * // input
-     *{"operation":"add_transcript","track":"Annotations-Group1.2",
-     * "features":[{"location":{"fmin":247892,"strand":1,"fmax":305356},
-     * "name":"geneid_mRNA_CM000054.5_150","children":
-     * [{"location":{"fmin":305327,"strand":1,"fmax":305356},
-     * "type":{"name":"exon","cv":{"name":"sequence"}}},
-     *{"location":{"fmin":258308,"strand":1,"fmax":258471},
-     * "type":{"name":"exon","cv":{"name":"sequence"}}},
-     *{"location":{"fmin":247892,"strand":1,"fmax":247976},
-     * "type":{"name":"exon","cv":{"name":"sequence"}}},
-     *{"location":{"fmin":247892,"strand":1,"fmax":305356},
-     * "type":{"name":"CDS","cv":{"name":"sequence"}}}],
-     * "type":{"name":"mRNA","cv":{"name":"sequence"}}},
-     *{"location":{"fmin":247892,"strand":1,"fmax":305356},
-     * "name":"5e5c32e6-ca4a-4b53-85c8-b0f70c76acbd",
-     * "children":[{"location":{"fmin":247892,"strand":1,"fmax":247976},
-     * "name":"00540e13-de64-4fa2-868a-e168e584f55d",
-     * "uniquename":"00540e13-de64-4fa2-868a-e168e584f55d","type":"exon","date_last_modified":new Date(1415391635593)},
-     *{"location":{"fmin":258308,"strand":1,"fmax":258471},
-     * "name":"de44177e-ce76-4a9a-8313-1c654d1174aa",
-     * "uniquename":"de44177e-ce76-4a9a-8313-1c654d1174aa","type":"exon","date_last_modified":new Date(1415391635586)},
-     *{"location":{"fmin":305327,"strand":1,"fmax":305356},"name":"fa49095f-cdb9-4734-8659-3286a7c727d5",
-     * "uniquename":"fa49095f-cdb9-4734-8659-3286a7c727d5","type":"exon","date_last_modified":new Date(1415391635578)},
-     *{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"29b83822-d5a0-4795-b0a9-71b1651ff915",
-     * "uniquename":"29b83822-d5a0-4795-b0a9-71b1651ff915","type":"cds","date_last_modified":new Date(1415391635600)}],
-     * "uniquename":"df08b046-ed1b-4feb-93fc-53adea139df8","type":"mrna","date_last_modified":new Date(1415391635771)}]}*
-     * // returned from method
-     *{"operation":"ADD","sequenceAlterationEvent":false,"features":
-     * [{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"gene","cv":{"name":"sequence"}},
-     * "name":"geneid_mRNA_CM000054.5_38","children":[{"location":{"fmin":670576,"strand":1,"fmax":670658},
-     * "parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner",
-     * "cv":{"name":"feature_property"}}}],"uniquename":"60072F8198F38EB896FB218D2862FFE4","type":{"name":"exon",
-     * "cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},
-     *{"location":{"fmin":690970,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},
-     * "properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],
-     * "uniquename":"CC6058CFA17BD6DB8861CC3B6FA1E4B1","type":{"name":"exon","cv":{"name":"sequence"}},
-     * "date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},
-     *{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},
-     * "properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],
-     * "uniquename":"6D85D94970DE82168B499C75D886FB89","type":{"name":"CDS","cv":{"name":"sequence"}},
-     * "date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"}],"properties":[{"value":"demo",
-     * "type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D1D1E04521E6FFA95FD056D527A94730",
-     * "type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415391541169,
-     * "parent_id":"8E2895FDD74F4F9DF9F6785B72E04A50"}]}* @return
-     */
     def addTranscript() {
         log.debug "AEC::adding transcript ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -833,15 +786,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @MessageMapping("/AnnotationNotification")
     @SendTo("/topic/AnnotationNotification")
     protected String annotationEditor(String inputString, Principal principal) {
-        log.debug "Input String:  annotation editor service ${inputString}"
+        log.debug "annotationEditor: ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
-        log.debug "AEC::root element: ${rootElement as JSON}"
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
 
         String operationName = underscoreToCamelCase(operation)
-        log.debug "operationName: ${operationName}"
         def p = task {
             switch (operationName) {
                 case "setToDownstreamDonor": requestHandlingService.setDonor(rootElement, false)
@@ -884,12 +835,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     }
 
-// TODO: handle errors without broadcasting
+    // TODO: handle errors without broadcasting
     protected def sendError(AnnotationException exception, String username) {
-        log.debug "excrption ${exception}"
-        log.debug "excrption message ${exception.message}"
-        log.debug "username ${username}"
-
+        log.debug "sendError: ${exception}"
         JSONObject errorObject = new JSONObject()
         errorObject.put(REST_OPERATION, FeatureStringEnum.ERROR.name())
         errorObject.put(FeatureStringEnum.ERROR_MESSAGE.value, exception.message)
@@ -901,7 +849,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @SendTo("/topic/AnnotationNotification")
     protected String sendAnnotationEvent(String returnString) {
-        log.debug "AEC::return operations sent . . ${returnString?.size()}"
+        log.debug "sendAnnotationEvent: ${returnString?.size()}"
         return returnString
     }
 
@@ -910,9 +858,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         if (events.length == 0) {
             return;
         }
-//        sendAnnotationEvent(events)
-        // TODO: this is more than a bit of a hack
-//        String sequenceName = "Annotations-${events[0].sequence.name}"
         JSONArray operations = new JSONArray();
         for (AnnotationEvent event : events) {
             JSONObject features = event.getFeatures();

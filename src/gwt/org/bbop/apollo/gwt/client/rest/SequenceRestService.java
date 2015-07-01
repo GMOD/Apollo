@@ -34,11 +34,9 @@ public class SequenceRestService {
             jsonArray.set(jsonArray.size(), sequenceInfo.toJSON());
         }
         jsonObject.put("sequences", jsonArray);
-        GWT.log("GWTLAND: " + jsonObject.toString());
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                GWT.log("RESPONSE: " + response.getText());
                 JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
                 String filePath = responseObject.get("filePath").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();

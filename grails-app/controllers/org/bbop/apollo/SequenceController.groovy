@@ -253,7 +253,4 @@ class SequenceController {
             render error as JSON
         }
     }
-
-
-
 }
