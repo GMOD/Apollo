@@ -1,32 +1,19 @@
 package org.bbop.apollo
 
-import org.apache.shiro.authc.UsernamePasswordToken
-import org.apache.shiro.session.Session
-import org.apache.shiro.subject.Subject
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.PermissionEnum
-import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
-import org.codehaus.groovy.runtime.StackTraceUtils
 import org.springframework.http.HttpStatus
-import org.springframework.messaging.handler.annotation.DestinationVariable
-
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.Principal
 import java.text.DateFormat
-
 import static grails.async.Promises.*
-
-
 //import grails.compiler.GrailsCompileStatic
 import grails.converters.JSON
-
-//import org.bbop.apollo.editor.AnnotationEditor
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
 import org.codehaus.groovy.grails.web.json.JSONArray

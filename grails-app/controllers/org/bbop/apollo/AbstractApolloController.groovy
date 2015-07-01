@@ -1,13 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.authc.UsernamePasswordToken
-import org.apache.shiro.authz.AuthorizationException
-import org.apache.shiro.session.Session
-import org.apache.shiro.subject.Subject
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject

@@ -1,19 +1,12 @@
 package org.bbop.apollo
 
+
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import org.bbop.apollo.sequence.Strand;
-
-//import *;
-//import util.BioObjectUtil;
-//import *;
-
 import java.io.*;
 import java.util.*
 
 //import groovy.transform.CompileStatic
-//
-//
 //@CompileStatic
 //@GrailsCompileStatic
 public class Gff3HandlerService {
@@ -101,8 +94,6 @@ public class Gff3HandlerService {
 
     static private void writeGroupDirectives(WriteObject writeObject, Sequence sourceFeature) {
         if (sourceFeature.getFeatureLocations().size() == 0) return;
-        FeatureLocation loc = sourceFeature.getFeatureLocations().iterator().next();
-        //writeObject.out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, loc.getFmin() + 1, loc.getFmax()));
         writeObject.out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, sourceFeature.start + 1, sourceFeature.end));
     }
 
@@ -241,7 +232,7 @@ public class Gff3HandlerService {
 
     private void convertToEntry(WriteObject writeObject, CDS cds, String source, Collection<GFF3Entry> gffEntries) {
 
-        println "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
+        log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
 
         String seqId = cds.getFeatureLocation().sequence.name
         String type = cds.cvTerm
@@ -254,7 +245,6 @@ public class Gff3HandlerService {
         } else {
             strand = ".";
         }
-        //featureRelationshipService.getParentForFeature(cds,transcriptService.ontologyIds)
         Transcript transcript = transcriptService.getParentTranscriptForFeature(cds)
 
         List<Exon> exons = exonService.getSortedExons(transcript)
@@ -317,8 +307,6 @@ public class Gff3HandlerService {
             }
         }
 
-        //TODO: Target
-        //TODO: Gap
         if (writeObject.attributesToExport.contains(FeatureStringEnum.COMMENTS.value)) {
             Iterator<Comment> commentIter = featurePropertyService.getComments(feature).iterator()
             if (commentIter.hasNext()) {
@@ -355,8 +343,6 @@ public class Gff3HandlerService {
         if (feature.getSymbol() != null && !isBlank(feature.getSymbol()) && writeObject.attributesToExport.contains(FeatureStringEnum.SYMBOL.value)) {
             attributes.put(FeatureStringEnum.SYMBOL.value, encodeString(feature.getSymbol()));
         }
-        //TODO: Ontology_term
-        //TODO: Is_circular
         Iterator<FeatureProperty> propertyIter = feature.featureProperties.iterator();
         if (writeObject.attributesToExport.contains(FeatureStringEnum.ATTRIBUTES.value)) {
             if (propertyIter.hasNext()) {
@@ -399,7 +385,6 @@ public class Gff3HandlerService {
     }
 
     static private String encodeString(String str) {
-//        return str.replaceAll(",", "%2C").replaceAll("=", "%3D").replaceAll(";", "%3B").replaceAll("\t", "%09");
         return str ? str.replaceAll(",", "%2C").replaceAll("=", "%3D").replaceAll(";", "%3B").replaceAll("\t", "%09") : ""
     }
 

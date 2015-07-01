@@ -66,7 +66,6 @@ class LoginController extends AbstractApolloController {
             log.error "Can only register admins if no users ${User.count} or user is admin"
             throw new AnnotationException("Can only register admins if no users ${User.count} or user is admin")
         }
-        log.debug "doing the register ${params}"
         def jsonObj = request.JSON
         if(!jsonObj){
             jsonObj = JSON.parse(params.data)
@@ -94,7 +93,6 @@ class LoginController extends AbstractApolloController {
      * @return
      */
     def login(){
-        log.debug "doing the login ${params}"
         def jsonObj = request.JSON
         if(!jsonObj){
             jsonObj = JSON.parse(params.data)
