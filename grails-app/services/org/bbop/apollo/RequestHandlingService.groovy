@@ -534,33 +534,33 @@ class RequestHandlingService {
         def id
         def match
         queryResults.each { result ->
-            if(id!=result[0].id){
-                if(id) {
+            if (id != result[0].id) {
+                if (id) {
                     output.features << match
                 }
-                id=result[0].id
+                id = result[0].id
                 match = [
-                    "id": result[0].id,
-                    "type": featureService.generateJSONFeatureStringForType(result[0].ontologyId),
-                    "uniquename": result[0].uniqueName,
-                    "name": result[0].name,
-                    "symbol": result[0].symbol,
-                    "description": result[0].description,
-                    "location": result[0].featureLocation,
-                    "parent_id": result[0].childFeatureRelationships[0].getParentFeature().uniqueName,
-                    "parent_type": featureService.generateJSONFeatureStringForType(result[0].childFeatureRelationships[0].getParentFeature().ontologyId),
-                    "children":[]
+                        "id"         : result[0].id,
+                        "type"       : featureService.generateJSONFeatureStringForType(result[0].ontologyId),
+                        "uniquename" : result[0].uniqueName,
+                        "name"       : result[0].name,
+                        "symbol"     : result[0].symbol,
+                        "description": result[0].description,
+                        "location"   : result[0].featureLocation,
+                        "parent_id"  : result[0].childFeatureRelationships[0].getParentFeature().uniqueName,
+                        "parent_type": featureService.generateJSONFeatureStringForType(result[0].childFeatureRelationships[0].getParentFeature().ontologyId),
+                        "children"   : []
                 ]
             }
 
-            def child=[
-                    "id": result[1].id,
-                    "location": result[1].featureLocation,
+            def child = [
+                    "id"        : result[1].id,
+                    "location"  : result[1].featureLocation,
                     "uniquename": result[1].uniqueName,
-                    "name": result[1].name,
-                    "parent_id": result[0].uniqueName,
+                    "name"      : result[1].name,
+                    "parent_id" : result[0].uniqueName,
                     "parent_type": featureService.generateJSONFeatureStringForType(result[0].ontologyId),
-                    "type": featureService.generateJSONFeatureStringForType(result[1].ontologyId)
+                    "type"      : featureService.generateJSONFeatureStringForType(result[1].ontologyId)
             ]
             match.children.push(child)
         }
