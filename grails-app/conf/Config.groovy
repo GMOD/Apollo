@@ -101,6 +101,10 @@ grails.hibernate.pass.readonly = false
 grails.hibernate.osiv.readonly = false
 
 grails.cache.config = {
+    // avoid ehcache naming conflict to run multiple WA instances
+    provider {
+      name "ehcache-apollo-"+(new Date().format("yyyyMMddHHmmss"))
+    }
     cache {
         enabled = true
         name 'globalcache'
