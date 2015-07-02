@@ -3,9 +3,7 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import groovy.json.JsonBuilder
 import org.bbop.apollo.sequence.search.blast.TabDelimittedAlignment
-import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-//import org.bbop.apollo.tools.seq.search.blat.BlatCommandLine
 
 
 @Transactional
@@ -17,15 +15,6 @@ class SequenceSearchService {
     }
 
 
-    def getSequenceSearchTools() {
-        def set=configWrapperService.getSequenceSearchTools()
-        JsonBuilder json = new JsonBuilder ()
-        json.sequence_search_tools set.keySet(), { k ->
-            label k
-            name set[k].name
-        }
-        return json.toString()
-    }
 
     def searchSequence(JSONObject input, String database) {
 
@@ -36,7 +25,6 @@ class SequenceSearchService {
             searchUtils.put("database",database)
 
             // dynamically allocate a search_class
-//            def searcher=this.class.classLoader.loadClass( searchUtils.get('search_class'), true, false )?.newInstance()
             def searcher=this.class.classLoader.loadClass( searchUtils.get('search_class'))?.newInstance()
 
             // pass configuration

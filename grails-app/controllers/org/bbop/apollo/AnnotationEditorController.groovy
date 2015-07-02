@@ -32,6 +32,7 @@ import org.bbop.apollo.event.AnnotationListener
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
+import groovy.json.JsonBuilder
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 
@@ -113,49 +114,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
 
     def getDataAdapters() {
-        // temporary workaround
         log.debug "getDataAdapters"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-        /*json [{
-             "permission": 1,
-             "key": "GFF3",
-             "data_adapters": [{
-                                   "permission": 1,
-                                   "key": "Only GFF3",
-                                   "options": "output=file&format=gzip&type=GFF3&exportSequence=false"
-                               }, {
-                                   "permission": 1,
-                                   "key": "GFF3 with FASTA",
-                                   "options": "output=file&format=gzip&type=GFF3&exportSequence=true"
-                               }]
-         }, {
-             "permission": 1,
-             "key": "FASTA",
-             "data_adapters": [{
-                                   "permission": 1,
-                                   "key": "peptide",
-                                   "options": "output=file&format=gzip&type=FASTA&seqType=peptide"
-                               }, {
-                                   "permission": 1,
-                                   "key": "cDNA",
-                                   "options": "output=file&format=gzip&type=FASTA&seqType=cdna"
-                               }, {
-                                   "permission": 1,
-                                   "key": "CDS",
-                                   "options": "output=file&format=gzip&type=FASTA&seqType=cds"
-                               }]
-         }]*/
-        String jsonString = "[{\"permission\":1,\"key\":\"GFF3\",\"data_adapters\":[{\"permission\":1,\"key\":\"Only GFF3\",\"options\":\"output=file&format=gzip&type=GFF3&exportSequence=false\"},{\"permission\":1,\"key\":\"GFF3 with FASTA\",\"options\":\"output=file&format=gzip&type=GFF3&exportSequence=true\"}]},{\"permission\":1,\"key\":\"FASTA\",\"data_adapters\":[{\"permission\":1,\"key\":\"peptide\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=peptide\"},{\"permission\":1,\"key\":\"cDNA\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=cdna\"},{\"permission\":1,\"key\":\"CDS\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=cds\"}]}]"
-        JSONArray dataAdaptersArray = new JSONArray()
+        def set=configWrapperService.getDataAdapterTools()
 
-        if (!permissionService.checkPermissions(PermissionEnum.EXPORT)) {
-            returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
-            render returnObject
-            return
-        }
-        dataAdaptersArray = JSON.parse(jsonString) as JSONArray
-        returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
-        render returnObject
+        //TODO: parse permissions
+        def obj=new JsonBuilder( set )
+        def jre=["data_adapters": obj.content]
+        render jre as JSON
     }
 
     def getHistoryForFeatures() {
@@ -701,7 +667,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getSequenceSearchTools() {
         log.debug "getSequenceSearchTools ${params.data}"
-        render sequenceSearchService.getSequenceSearchTools()
+        def set=configWrapperService.getSequenceSearchTools()
+        def obj=new JsonBuilder( set )
+        def jre=["sequence_search_tools": obj.content]
+        render jre as JSON
     }
 
     def getCannedComments() {
@@ -722,7 +691,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             return
         }
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
-        println "Organism to string:  ${organism as JSON}"
+        log.debug "Organism to string:  ${organism as JSON}"
         render sequenceSearchService.searchSequence(inputObject, organism.getBlatdb())
     }
 
