@@ -61,8 +61,9 @@ class IOServiceController extends AbstractApolloController {
                             "${featureService.generateJSONFeatureStringForType(parent.ontologyId).name}\t"+
                             "${parent.featureLocation.fmin}\t"+
                             "${parent.featureLocation.fmax}\t"+
-                            "${parent.featureLocation.strand}\t"+
-                            ".\t.\t"+
+                            ".\t"+
+                            "${parent.featureLocation.strand==-1?'-':'+'}\t"+
+                            ".\t"+
                             "ID=${parent.uniqueName};Name=${parent.name};Symbol=${parent.symbol};date_created=${parent.dateCreated}"
                 }
                 if(transcript&&transcript.id != last_transcript_id) {
@@ -73,9 +74,10 @@ class IOServiceController extends AbstractApolloController {
                             "${featureService.generateJSONFeatureStringForType(transcript.ontologyId).name}\t"+
                             "${transcript.featureLocation.fmin}\t"+
                             "${transcript.featureLocation.fmax}\t"+
-                            "${transcript.featureLocation.strand}\t"+
-                            ".\t.\t"+
-                            "ID=${transcript.uniqueName};Name=${transcript.name};Symbol=${transcript.symbol};date_created=${transcript.dateCreated}"
+                            ".\t"+
+                            "${transcript.featureLocation.strand==-1?'-':'+'}\t"+
+                            ".\t"+
+                            "ID=${transcript.uniqueName};Parent=${parent.uniqueName};Name=${transcript.name};Symbol=${transcript.symbol};date_created=${transcript.dateCreated}"
                 }
                 log.debug "child ${child.id}"
                 out.println "${child.featureLocation.sequence.name}\t"+
@@ -83,9 +85,10 @@ class IOServiceController extends AbstractApolloController {
                         "${featureService.generateJSONFeatureStringForType(child.ontologyId).name}\t"+
                         "${child.featureLocation.fmin}\t"+
                         "${child.featureLocation.fmax}\t"+
-                        "${child.featureLocation.strand}\t"+
-                        ".\t.\t"+
-                        "ID=${child.uniqueName};Name=${child.name};Symbol=${child.symbol};date_created=${child.dateCreated}"
+                        ".\t"+
+                        "${child.featureLocation.strand==-1?'-':'+'}\t"+
+                        ".\t"+
+                        "ID=${child.uniqueName};Name=${child.name};Parent=${transcript.uniqueName};Symbol=${child.symbol};date_created=${child.dateCreated}"
 
             }
 
