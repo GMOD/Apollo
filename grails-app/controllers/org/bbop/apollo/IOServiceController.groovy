@@ -26,40 +26,79 @@ class IOServiceController extends AbstractApolloController {
 
         String typeOfExport = params.type
         String sequenceName = params.tracks.substring("Annotations-".size())
-        
-        String fileName
+
+        List<String> viewableAnnotationList = new ArrayList<>()
+        viewableAnnotationList.add(MRNA.class.canonicalName)
+        viewableAnnotationList.add(Pseudogene.class.canonicalName)
+        viewableAnnotationList.add(RepeatRegion.class.canonicalName)
+        viewableAnnotationList.add(TransposableElement.class.canonicalName)
+
+        String fileName="Annotations-" + sequenceName + "." + typeOfExport.toLowerCase()
         String sequenceType
-        List<String> ontologyIdList = [Gene.class.name,Pseudogene.class.name,RepeatRegion.class.name,TransposableElement.class.name]
         Organism organism = params.organism?Organism.findByCommonName(params.organism):preferenceService.currentOrganismForCurrentUser
-        def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s.organism = :organism and s.name in (:sequenceName) and fl.feature.class in (:ontologyIdList)",
-                [sequenceName: sequenceName, ontologyIdList: ontologyIdList, organism:organism])
-        Sequence sequence = Sequence.executeQuery("select distinct s from Sequence s where s.name = :sequenceName", [sequenceName: sequenceName])[0]
-        def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
-        def listOfSequenceAlterations = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes", [sequence: sequence, sequenceTypes: sequenceTypes])
-        def featuresToExport = listOfFeatures + listOfSequenceAlterations
         File outputFile = File.createTempFile ("Annotations-" + sequenceName + "-", "." + typeOfExport.toLowerCase())
+        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(outputFile, true)))
         if (typeOfExport == "GFF3") {
             // call gff3HandlerService
-            fileName = "Annotations-" + sequenceName + "." + typeOfExport.toLowerCase()
-            if (params.exportSequence == "true") {
-                gff3HandlerService.writeFeaturesToText(outputFile.path, featuresToExport, grailsApplication.config.apollo.gff3.source as String, true, [sequence])
+            long start = System.currentTimeMillis();
+            List queryResults = Feature.executeQuery("select f,fr.childFeature,cfr.parentFeature from Feature f join f.featureLocations fl join f.parentFeatureRelationships fr join f.childFeatureRelationships cfr where fl.sequence.name = :sequence and f.class in (:viewableAnnotationList)",
+                    [sequence: sequenceName, viewableAnnotationList: viewableAnnotationList])
+            long durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "selecting top-level features ${durationInMilliseconds}"
+            start = System.currentTimeMillis();
+            def last_parent_id
+            def last_transcript_id
+            queryResults.each { result ->
+                Feature transcript=result[0]
+                Feature parent=result[2]
+                Feature child=result[1]
+
+                if (parent && parent.id != last_parent_id) {
+                    last_parent_id = parent.id
+                    log.debug "parent ${parent.id}"
+                    out.println "${parent.featureLocation.sequence.name}\t"+
+                            "webapollo_annotation\t"+
+                            "${featureService.generateJSONFeatureStringForType(parent.ontologyId).name}\t"+
+                            "${parent.featureLocation.fmin}\t"+
+                            "${parent.featureLocation.fmax}\t"+
+                            "${parent.featureLocation.strand}\t"+
+                            ".\t.\t"+
+                            "ID=${parent.uniqueName};Name=${parent.name};Symbol=${parent.symbol};date_created=${parent.dateCreated}"
+                }
+                if(transcript&&transcript.id != last_transcript_id) {
+                    last_transcript_id = transcript.id
+                    log.debug "transcript ${transcript.id}"
+                    out.println "${transcript.featureLocation.sequence.name}\t"+
+                            "webapollo_annotation\t"+
+                            "${featureService.generateJSONFeatureStringForType(transcript.ontologyId).name}\t"+
+                            "${transcript.featureLocation.fmin}\t"+
+                            "${transcript.featureLocation.fmax}\t"+
+                            "${transcript.featureLocation.strand}\t"+
+                            ".\t.\t"+
+                            "ID=${transcript.uniqueName};Name=${transcript.name};Symbol=${transcript.symbol};date_created=${transcript.dateCreated}"
+                }
+                log.debug "child ${child.id}"
+                out.println "${child.featureLocation.sequence.name}\t"+
+                        "webapollo_annotation\t"+
+                        "${featureService.generateJSONFeatureStringForType(child.ontologyId).name}\t"+
+                        "${child.featureLocation.fmin}\t"+
+                        "${child.featureLocation.fmax}\t"+
+                        "${child.featureLocation.strand}\t"+
+                        ".\t.\t"+
+                        "ID=${child.uniqueName};Name=${child.name};Symbol=${child.symbol};date_created=${child.dateCreated}"
+
             }
-            else {
-                gff3HandlerService.writeFeaturesToText(outputFile.path, featuresToExport, grailsApplication.config.apollo.gff3.source as String)
-            }
-        } else if (typeOfExport == "FASTA") {
-            // call fastaHandlerService
-            sequenceType = params.seqType
-            fileName = "Annotations-" + sequenceName + "." + sequenceType + "." + typeOfExport.toLowerCase()
-            fastaHandlerService.writeFeatures(listOfFeatures, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
+
+            durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "selecting top-level features ${durationInMilliseconds}"
+            out.close()
+
         }
 
         //generating a html fragment with the link for download that can be rendered on client side
-        String htmlResponseString = "<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe><a href='@DOWNLOAD_LINK_URL@' target='hidden_iframe'>@DOWNLOAD_LINK@</a></body></html>"
-        String downloadLinkUrl = 'IOService/download/?filePath=' + URLEncoder.encode(outputFile.path) + "&fileType=" + typeOfExport + "&fileName=" + URLEncoder.encode(fileName)
-        htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK_URL@", downloadLinkUrl)
-        htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK@", fileName)
-        
+        String htmlResponseString = "<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe>"+
+           "<a href='IOService/download/?filePath=${outputFile.path}&fileType=${typeOfExport}&fileName=${fileName}' target='hidden_iframe'>${fileName}</a></body></html>"
+
         render text: htmlResponseString, contentType: "text/html", encoding: "UTF-8"
     }
     
