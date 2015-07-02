@@ -202,19 +202,20 @@ apollo {
     is_partial_translation_allowed = false // unused so far
     get_translation_code = 1
     sequence_search_tools = [
-    blat_nuc: [
-        search_exe: "/usr/local/bin/blat",
-        search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
-        name: "Blat nucleotide",
-        params: ""
-    ],
-    blat_prot: [
-        search_exe: "/usr/local/bin/blat",
-        search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
-        name: "Blat protein",
-        params: ""
-        //tmp_dir: "/opt/apollo/tmp" optional param
-    ]]
+        blat_nuc: [
+            search_exe: "/usr/local/bin/blat",
+            search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
+            name: "Blat nucleotide",
+            params: ""
+        ],
+        blat_prot: [
+            search_exe: "/usr/local/bin/blat",
+            search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
+            name: "Blat protein",
+            params: ""
+            //tmp_dir: "/opt/apollo/tmp" optional param
+        ]
+    ]
     data_adapters = [[
         permission: 1,
         key: "GFF3",
