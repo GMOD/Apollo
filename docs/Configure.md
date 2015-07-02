@@ -47,20 +47,22 @@ defined in the Config.groovy file:
         translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
         is_partial_translation_allowed = false // unused so far
         get_translation_code = 1
-        sequence_search_tools {
-            blat_nuc {
-                search_exe = "/usr/local/bin/blat"
-                search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide"
-                name = "Blat nucleotide"
-                params = ""
-            }
-            blat_prot {
-                search_exe = "/usr/local/bin/blat"
-                search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide"
-                name = "Blat protein"
-                params = ""
-            }
-        }
+        sequence_search_tools = [
+            blat_nuc: [
+                search_exe: "/usr/local/bin/blat",
+                search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
+                name: "Blat nucleotide",
+                params: ""
+            ],
+            blat_prot: [
+                search_exe: "/usr/local/bin/blat",
+                search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
+                name: "Blat protein",
+                params: ""
+                //tmp_dir: "/opt/apollo/tmp" optional param
+            ]
+        ]
+        
 
         // TODO: should come from config or via preferences database
         splice_donor_sites = [ "GT"]
@@ -95,35 +97,89 @@ apollo-config.groovy file, e.g. you can add override configuration any given par
 
 ### Canned comments
 
-Todo
+
+Canned comments are configured via the admin panel on the web interface.
 
 
 ### Search tools
 
-As shown in the Main configuration, Web Apollo allows the user to specify sequence search tools. The tool UCSC BLAT is
+Web Apollo can be configured to work with sequence search tools. The tool UCSC BLAT is
 commonly used and can be easily configured via the config file, with the general parameters given as follows:
 
-    sequence_search_tools {
-        blat_nuc {
-            search_exe = "/usr/local/bin/blat"
-            search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide"
-            name = "Blat nucleotide"
-            params = ""
-        }
-        blat_prot {
-            search_exe = "/usr/local/bin/blat"
-            search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide"
-            name = "Blat protein"
-            params = ""
-            // tmp_dir = /custom/tmp/dir
-        }
-    }
+
+    sequence_search_tools = [
+        blat_nuc: [
+            search_exe: "/usr/local/bin/blat",
+            search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
+            name: "Blat nucleotide",
+            params: ""
+        ],
+        blat_prot: [
+            search_exe: "/usr/local/bin/blat",
+            search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
+            name: "Blat protein",
+            params: ""
+            tmp_dir: "/opt/apollo/tmp" // this is an optional parameter, otherwise system tmp dir is used
+        ],
+        your_custom_search_tool: [
+            search_exe: "/usr/local/customtool"
+            search_class: "org.your.custom.Class",
+            name: "Custom search"
+        ]
+    ]
+
+You can see that the search options are extensible via the config, but that Blat is specified by default. If your blat
+installation binaries reside elsewhere, edit the search_exe location to point to the blat EXE.
+
+### Data adapters
 
 
-Note: Any arbitrary search tool can be specified using this syntax, i.e. the blat_nuc and blat_prot are just recommended
-defaults. You could have your own section with multiple different parameters, or even code your own search_class if it
-implements the SequenceSearchTool interface. Also note: the tmp_dir is normally a system predefined folder, so it is not
-normally necessary to define it.
+Data adapters are currently configured as follows
+
+
+    data_adapters = [[
+        permission: 1,
+        key: "GFF3",
+        data_adapters: [[
+            permission: 1,
+            key: "Only GFF3",
+            options: "output=file&format=gzip&type=GFF3&exportSequence=false"
+        ],
+        [
+            permission: 1,
+            key: "GFF3 with FASTA",
+            options: "output=file&format=gzip&type=GFF3&exportSequence=true"
+        ]]
+    ],
+    [
+        permission: 1,
+        key : "FASTA",
+        data_adapters :[[
+            permission : 1,
+            key : "peptide",
+            options : "output=file&format=gzip&type=FASTA&seqType=peptide"
+        ],
+        [
+            permission : 1,
+            key : "cDNA",
+            options : "output=file&format=gzip&type=FASTA&seqType=cdna"
+        ],
+        [
+            permission : 1,
+            key : "CDS",
+            options : "output=file&format=gzip&type=FASTA&seqType=cds"
+        ]]
+    ]]
+
+#### Data adapter options
+
+The data adapters are set up to take several configurable options
+
+- output: can be file or text
+- format: can by gzip on blank (not yet available)
+- type: GFF3 or FASTA
+- exportSequence: include the FASTA sequence for the reference at the bottom of the GFF3
+
 
 ### Supported annotation types
 
@@ -199,23 +255,16 @@ Your setup may vary, but setting the upgrade headers can be used for the websock
     }
 
 
-### Data adapters
-
-#### GFF3
-
-Todo
-
-#### FASTA
-
-Todo
 
 ### Upgrading existing instances
 
-Todo
+There are several scripts for migrating from older instances. See the [migration guide](Migration.md) for details. Particular notes:
 
+The new WebApollo does not require "add-webapollo-plugin.pl", the plugin is loaded implicitely by including the client/apollo/json/annot.json file dynamically.
 
 #### Upgrading existing JBrowse data stores
 
 It is not necessary to upgrade the JBrowse data tracks to use Web Apollo 2.0, you can just point to existing data directories from your previous instances from the Organism panel.
+
 
 

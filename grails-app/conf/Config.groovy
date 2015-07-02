@@ -103,7 +103,7 @@ grails.hibernate.osiv.readonly = false
 grails.cache.config = {
     // avoid ehcache naming conflict to run multiple WA instances
     provider {
-      name "ehcache-apollo-"+(new Date().format("yyyyMMddHHmmss"))
+        name "ehcache-apollo-"+(new Date().format("yyyyMMddHHmmss"))
     }
     cache {
         enabled = true
@@ -201,21 +201,55 @@ apollo {
     translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
     is_partial_translation_allowed = false // unused so far
     get_translation_code = 1
-    sequence_search_tools {
-        blat_nuc {
-            search_exe = "/usr/local/bin/blat"
-            search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide"
-            name = "Blat nucleotide"
-            params = ""
-        }
-        blat_prot {
-            search_exe = "/usr/local/bin/blat"
-            search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide"
-            name = "Blat protein"
-            params = ""
-            //tmp_dir = "/opt/apollo/tmp"
-        }
-    }
+    sequence_search_tools = [
+        blat_nuc: [
+            search_exe: "/usr/local/bin/blat",
+            search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
+            name: "Blat nucleotide",
+            params: ""
+        ],
+        blat_prot: [
+            search_exe: "/usr/local/bin/blat",
+            search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
+            name: "Blat protein",
+            params: ""
+            //tmp_dir: "/opt/apollo/tmp" optional param
+        ]
+    ]
+    data_adapters = [[
+        permission: 1,
+        key: "GFF3",
+        data_adapters: [[
+            permission: 1,
+            key: "Only GFF3",
+            options: "output=file&format=gzip&type=GFF3&exportSequence=false"
+        ],
+        [
+            permission: 1,
+            key: "GFF3 with FASTA",
+            options: "output=file&format=gzip&type=GFF3&exportSequence=true"
+        ]]
+    ],
+    [
+        permission: 1,
+        key : "FASTA",
+        data_adapters :[[
+            permission : 1,
+            key : "peptide",
+            options : "output=file&format=gzip&type=FASTA&seqType=peptide"
+        ],
+        [
+            permission : 1,
+            key : "cDNA",
+            options : "output=file&format=gzip&type=FASTA&seqType=cdna"
+        ],
+        [
+            permission : 1,
+            key : "CDS",
+            options : "output=file&format=gzip&type=FASTA&seqType=cds"
+        ]]
+    ]]
+    
 
     // TODO: should come from config or via preferences database
     splice_donor_sites = ["GT"]

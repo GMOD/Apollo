@@ -103,9 +103,11 @@ searchSequence: function(trackName, refSeqName, starts) {
                     return;
                 }
                 ok = true;
-                array.forEach(response.sequence_search_tools,function(tool) {
-                    dojo.create("option", { innerHTML: tool.name, id: tool.label }, sequenceToolsSelect);
-                });
+                for(key in response.sequence_search_tools) {
+                    if (response.sequence_search_tools.hasOwnProperty(key)) {
+                        dojo.create("option", { innerHTML: response.sequence_search_tools[key].name, id: key }, sequenceToolsSelect);
+                    }
+                }
             },
             error: function(response, ioArgs) {
                 errorCallback(response);

@@ -66,4 +66,8 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.sequence_search_tools
     }
 
+    def getDataAdapterTools() {
+        return grailsApplication.config.apollo.data_adapters
+    }
+
 }
