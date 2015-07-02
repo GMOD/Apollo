@@ -38,6 +38,10 @@ public class SequenceRestService {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
+                if(responseObject.get("error")!=null) {
+                    Window.alert(responseObject.get("error").isString().stringValue());
+                    return;
+                }
                 String filePath = responseObject.get("filePath").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();
                 String sequenceType = responseObject.get("sequenceType").isString().stringValue();
