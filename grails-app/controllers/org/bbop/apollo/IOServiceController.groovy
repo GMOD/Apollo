@@ -26,12 +26,12 @@ class IOServiceController extends AbstractApolloController {
 
         String typeOfExport = params.type
         String sequenceName = params.tracks.substring("Annotations-".size())
-
-        List<String> viewableAnnotationList = new ArrayList<>()
-        viewableAnnotationList.add(MRNA.class.canonicalName)
-        viewableAnnotationList.add(Pseudogene.class.canonicalName)
-        viewableAnnotationList.add(RepeatRegion.class.canonicalName)
-        viewableAnnotationList.add(TransposableElement.class.canonicalName)
+        List<String> viewableAnnotationList = [
+                MRNA.class.name,
+                Pseudogene.class.name,
+                RepeatRegion.class.name,
+                TransposableElement.class.name
+        ]
 
         String fileName="Annotations-" + sequenceName + "." + typeOfExport.toLowerCase()
         String sequenceType

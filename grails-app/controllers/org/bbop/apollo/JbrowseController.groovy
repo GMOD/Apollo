@@ -122,7 +122,7 @@ class JbrowseController {
         File file = new File(dataFileName);
 
         if (!file.exists()) {
-            log.error("Could not get data directory: " + dataFileName);
+            log.warn("File not found: " + dataFileName);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }

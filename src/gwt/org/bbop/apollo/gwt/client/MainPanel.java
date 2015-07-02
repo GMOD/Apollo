@@ -416,7 +416,6 @@ public class MainPanel extends Composite {
                     loadingDialog.hide();
                 } else {
                     loadingDialog.hide();
-                    loadingDialog.hide();
                     AppStateInfo appStateInfo = AppInfoConverter.convertFromJson(obj);
                     setAppState(appStateInfo);
                 }
