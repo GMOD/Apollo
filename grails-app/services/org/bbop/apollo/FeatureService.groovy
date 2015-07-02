@@ -1868,6 +1868,7 @@ class FeatureService {
 
 
     JSONObject generateJSONFeatureStringForType(String ontologyId) {
+        if(ontologyId==null) return null;
         JSONObject jSONObject = new JSONObject();
         def feature = generateFeatureForType(ontologyId)
         String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
