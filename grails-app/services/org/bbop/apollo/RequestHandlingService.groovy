@@ -553,7 +553,8 @@ class RequestHandlingService {
             }
 
         }
-        output.features << match
+        if(match != null)
+            output.features << match
 
 
 
