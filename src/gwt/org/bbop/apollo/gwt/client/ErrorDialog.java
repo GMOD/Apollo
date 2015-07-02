@@ -17,7 +17,13 @@ import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 //  TODO: this needs to be moved into UIBinder into its own class
 public class ErrorDialog extends Modal{
 
-    public ErrorDialog(String title,String message,Boolean showOnConstruct, boolean closeModal){
+    Button logoutButton;
+
+    public ErrorDialog(String title,String message,boolean showOnConstruct, boolean closeModal) {
+        this(title,message,showOnConstruct,closeModal,false);
+    }
+
+    public ErrorDialog(String title,String message,boolean showOnConstruct, boolean closeModal, boolean showLogoutButton){
         setTitle(title);
         setClosable(closeModal);
         setFade(true);
@@ -27,8 +33,20 @@ public class ErrorDialog extends Modal{
             HTML content = new HTML(message);
             ModalBody modalBody = new ModalBody();
             modalBody.add(content);
+
+            if(showLogoutButton) {
+
+                logoutButton=new Button("Logout", new ClickHandler() {
+                    public void onClick(ClickEvent event) {
+                        UserRestService.logout();
+                    }
+                });
+
+                modalBody.add(logoutButton);
+            }
             add( modalBody );
         }
+
 
 
         if(showOnConstruct){

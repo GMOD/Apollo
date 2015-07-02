@@ -199,7 +199,7 @@ class SequenceService {
         log.info " file exists ${refSeqsFile.exists()}"
         BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(refSeqsFile));
         JSONArray refSeqs = convertJBrowseJSON(bufferedInputStream);
-        log.debug "freseq length ${refSeqs.size()}"
+        log.debug "refseq length ${refSeqs.size()}"
         // delete all sequence for the organism
         Sequence.deleteAll(Sequence.findAllByOrganism(organism))
         for (int i = 0; i < refSeqs.length(); ++i) {

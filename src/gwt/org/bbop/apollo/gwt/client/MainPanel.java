@@ -279,7 +279,8 @@ public class MainPanel extends Composite {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
-                        new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, false);
+
+                        new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, false,true);
                     } else {
                         getAppState();
                         logoutButton.setVisible(true);

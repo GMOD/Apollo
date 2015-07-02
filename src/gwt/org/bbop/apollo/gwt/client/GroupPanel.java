@@ -51,8 +51,6 @@ public class GroupPanel extends Composite {
     Button deleteButton;
     @UiField
     Button createButton;
-    //    @UiField(provided = true)
-//    FlexTable userData = new DataGrid<UserInfo>(10,tablecss);
     @UiField
     TabLayoutPanel userDetailTab;
     @UiField
@@ -248,7 +246,7 @@ public class GroupPanel extends Composite {
             }
         });
 
-        organismPermissionsGrid.setEmptyTableWidget(new Label("Please select a user to view organism permissions"));
+        organismPermissionsGrid.setEmptyTableWidget(new Label("Please select a group to view the group's organism permissions"));
         organismPermissionsGrid.addColumnSortHandler(sortHandler);
         sortHandler.setComparator(organismNameColumn, new Comparator<GroupOrganismPermissionInfo>() {
             @Override

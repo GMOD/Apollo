@@ -260,6 +260,7 @@ public class TrackPanel extends Composite {
         filteredTrackInfoList.clear();
         for (TrackInfo trackInfo : trackInfoList) {
             if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) &&
+                    trackInfo.getName().toLowerCase().contains(text.toLowerCase()) &&
                     !isReferenceSequence(trackInfo) &&
                     !isAnnotationTrack(trackInfo)) {
                 filteredTrackInfoList.add(trackInfo);
@@ -310,19 +311,15 @@ public class TrackPanel extends Composite {
         for (int i = 0; i < array.size(); i++) {
             JSONObject object = array.get(i).isObject();
             TrackInfo trackInfo = new TrackInfo();
-            trackInfo.setName(object.get("key").isString().stringValue());
-            trackInfo.setLabel(object.get("label").isString().stringValue());
-            trackInfo.setType(object.get("type").isString().stringValue());
-            if (object.get("visible") != null) {
-                trackInfo.setVisible(object.get("visible").isBoolean().booleanValue());
-            } else {
-                trackInfo.setVisible(false);
-            }
-            // todo, don't need all of this really, for now . .
+            // track label can never be null, but key can be
+            trackInfo.setName(object.get("key")==null?object.get("label").isString().stringValue():object.get("key").isString().stringValue());
+            if(object.get("label")!=null) trackInfo.setLabel(object.get("label").isString().stringValue());
+            else Window.alert("Track label should not be null, please check your tracklist");
+            if(object.get("type")!=null) trackInfo.setType(object.get("type").isString().stringValue());
+            if(object.get("urlTemplate") != null) trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
+            if(object.get("visible") != null) trackInfo.setVisible(object.get("visible").isBoolean().booleanValue());
+            else trackInfo.setVisible(false);
             trackInfo.setPayload(object);
-            if (object.get("urlTemplate") != null) {
-                trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
-            }
             trackInfoList.add(trackInfo);
         }
         filterList();
