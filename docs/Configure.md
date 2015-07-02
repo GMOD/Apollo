@@ -131,6 +131,55 @@ commonly used and can be easily configured via the config file, with the general
 You can see that the search options are extensible via the config, but that Blat is specified by default. If your blat
 installation binaries reside elsewhere, edit the search_exe location to point to the blat EXE.
 
+### Data adapters
+
+
+Data adapters are currently configured as follows
+
+
+    data_adapters = [[
+        permission: 1,
+        key: "GFF3",
+        data_adapters: [[
+            permission: 1,
+            key: "Only GFF3",
+            options: "output=file&format=gzip&type=GFF3&exportSequence=false"
+        ],
+        [
+            permission: 1,
+            key: "GFF3 with FASTA",
+            options: "output=file&format=gzip&type=GFF3&exportSequence=true"
+        ]]
+    ],
+    [
+        permission: 1,
+        key : "FASTA",
+        data_adapters :[[
+            permission : 1,
+            key : "peptide",
+            options : "output=file&format=gzip&type=FASTA&seqType=peptide"
+        ],
+        [
+            permission : 1,
+            key : "cDNA",
+            options : "output=file&format=gzip&type=FASTA&seqType=cdna"
+        ],
+        [
+            permission : 1,
+            key : "CDS",
+            options : "output=file&format=gzip&type=FASTA&seqType=cds"
+        ]]
+    ]]
+
+#### Data adapter options
+
+The data adapters are set up to take several configurable options
+
+- output: can be file or text
+- format: can by gzip on blank (not yet available)
+- type: GFF3 or FASTA
+- exportSequence: include the FASTA sequence for the reference at the bottom of the GFF3
+
 
 ### Supported annotation types
 
@@ -205,55 +254,6 @@ Your setup may vary, but setting the upgrade headers can be used for the websock
         }
     }
 
-
-### Data adapters
-
-
-Data adapters are currently configured as follows
-
-
-    data_adapters = [[
-        permission: 1,
-        key: "GFF3",
-        data_adapters: [[
-            permission: 1,
-            key: "Only GFF3",
-            options: "output=file&format=gzip&type=GFF3&exportSequence=false"
-        ],
-        [
-            permission: 1,
-            key: "GFF3 with FASTA",
-            options: "output=file&format=gzip&type=GFF3&exportSequence=true"
-        ]]
-    ],
-    [
-        permission: 1,
-        key : "FASTA",
-        data_adapters :[[
-            permission : 1,
-            key : "peptide",
-            options : "output=file&format=gzip&type=FASTA&seqType=peptide"
-        ],
-        [
-            permission : 1,
-            key : "cDNA",
-            options : "output=file&format=gzip&type=FASTA&seqType=cdna"
-        ],
-        [
-            permission : 1,
-            key : "CDS",
-            options : "output=file&format=gzip&type=FASTA&seqType=cds"
-        ]]
-    ]]
-
-#### Data adapter options
-
-The GFF3 as can be seen in the config takes several options
-
-output: can be file or text
-format: can by gzip on blank
-type: GFF3 or FASTA
-exportSequence: include the FASTA sequence for the reference at the bottom of the GFF3
 
 
 ### Upgrading existing instances
