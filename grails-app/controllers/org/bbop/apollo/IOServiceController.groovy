@@ -59,7 +59,7 @@ class IOServiceController extends AbstractApolloController {
                 if (parent && parent.id != last_parent_id) {
                     last_parent_id = parent.id
                     log.debug "parent ${parent.id}"
-                    gff3HandlerService.convertToEntry(parent,source,entries)
+                    gff3HandlerService.convertToEntry(parent,null,source,entries)
                 }
                 if(transcript&&last_transcript_id==null) {
                     log.debug "first transcript ${transcript.id}"
@@ -68,12 +68,11 @@ class IOServiceController extends AbstractApolloController {
                 else if(transcript&&transcript.id != last_transcript_id) {
                     log.debug "transcript ${transcript.id}"
                     last_transcript_id = transcript.id
-                    gff3HandlerService.convertToEntry(transcript,exons,children,source,entries)
+                    gff3HandlerService.convertToEntry(transcript,exons,children,parent, source,entries)
                 }
 
 
-                log.debug "child ${child.id} ${featureService.getCvTermFromFeature(child)}"
-                if(featureService.getCvTermFromFeature(child)=="exon") {
+                if(child.cvTerm=="exon") {
                     exons.add(child)
                 }
                 else {

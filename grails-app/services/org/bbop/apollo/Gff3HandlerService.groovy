@@ -178,12 +178,12 @@ public class Gff3HandlerService {
         }
     }
 
-    public void convertToEntry(Feature feature, List<Feature> exons, List<Feature> children, String source, List<GFF3Entry> gffEntries) {
+    public void convertToEntry(Feature feature, List<Feature> exons, List<Feature> children, Feature parent, String source, List<GFF3Entry> gffEntries) {
 
         log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
 
         String seqId = feature.featureLocation.sequence.name
-        String type = featureService.getCvTermFromFeature(feature);
+        String type = feature.cvTerm;
         int start = feature.getFmin() + 1;
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
         String score = ".";
@@ -197,18 +197,22 @@ public class Gff3HandlerService {
         }
         String phase = ".";
         GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase);
+        entry.addAttribute("ID", feature.uniqueName)
+        entry.addAttribute("Name",feature.name)
+        entry.addAttribute("Parent", parent.uniqueName)
+
         //entry.setAttributes(extractAttributes(feature));
         gffEntries.add(entry);
         for(Feature child_feature : children) {
-            if(child_feature instanceof CDS) convertToEntry(child_feature,exons,source,gffEntries)
-            else convertToEntry(child_feature,source,gffEntries)
+            if(child_feature instanceof CDS) convertToEntry(child_feature,exons,feature,source,gffEntries)
+            else convertToEntry(child_feature,feature,source,gffEntries)
         }
         for(Feature exon : exons) {
-            convertToEntry(exon,source,gffEntries)
+            convertToEntry(exon,feature,source,gffEntries)
         }
     }
 
-    public void convertToEntry(CDS cds, List<Feature> exons, String source, List<GFF3Entry> gffEntries) {
+    public void convertToEntry(CDS cds, List<Feature> exons, Feature parent, String source, List<GFF3Entry> gffEntries) {
 
         log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
 
@@ -241,11 +245,14 @@ public class Gff3HandlerService {
             }
             length += fmax - fmin;
             GFF3Entry entry = new GFF3Entry(seqId, source, type, fmin + 1, fmax, score, strand, phase);
+            entry.addAttribute("ID",cds.uniqueName)
+            entry.addAttribute("Name",cds.name)
+            entry.addAttribute("Parent",parent.uniqueName)
             //entry.setAttributes(extractAttributes(cds));
             gffEntries.add(entry);
         }
     }
-    public void convertToEntry(Feature feature, String source, List<GFF3Entry> gffEntries) {
+    public void convertToEntry(Feature feature, Feature parent, String source, List<GFF3Entry> gffEntries) {
 
         log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
         String seqId = feature.getFeatureLocation().sequence.name
@@ -264,6 +271,11 @@ public class Gff3HandlerService {
         String phase="."
         GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase)
         //entry.setAttributes(extractAttributes(feature))
+        if(parent!=null) {
+            entry.addAttribute("ID",feature.uniqueName)
+            entry.addAttribute("Name",feature.name)
+            entry.addAttribute("Parent",parent.uniqueName)
+        }
         gffEntries.add(entry);
     }
     private Map<String, String> extractAttributes(Feature feature) {
