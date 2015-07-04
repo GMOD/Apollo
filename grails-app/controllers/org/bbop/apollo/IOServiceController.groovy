@@ -38,6 +38,10 @@ class IOServiceController extends AbstractApolloController {
         Organism organism = params.organism?Organism.findByCommonName(params.organism):preferenceService.currentOrganismForCurrentUser
         File outputFile = File.createTempFile ("Annotations-" + sequenceName + "-", "." + typeOfExport.toLowerCase())
         PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(outputFile, true)))
+        List<Feature> exons=new ArrayList<Feature>();
+        List<Feature> children=new ArrayList<Feature>();
+        List<GFF3Entry> entries=new ArrayList<GFF3Entry>();
+        String source="webapollo"
         if (typeOfExport == "GFF3") {
             // call gff3HandlerService
             long start = System.currentTimeMillis();
@@ -52,51 +56,40 @@ class IOServiceController extends AbstractApolloController {
                 Feature transcript=result[0]
                 Feature parent=result[2]
                 Feature child=result[1]
-
                 if (parent && parent.id != last_parent_id) {
                     last_parent_id = parent.id
                     log.debug "parent ${parent.id}"
-                    out.println "${parent.featureLocation.sequence.name}\t"+
-                            "webapollo_annotation\t"+
-                            "${featureService.generateJSONFeatureStringForType(parent.ontologyId).name}\t"+
-                            "${parent.featureLocation.fmin}\t"+
-                            "${parent.featureLocation.fmax}\t"+
-                            ".\t"+
-                            "${parent.featureLocation.strand==-1?'-':'+'}\t"+
-                            ".\t"+
-                            "ID=${parent.uniqueName};Name=${parent.name};Symbol=${parent.symbol};date_created=${parent.dateCreated}"
+                    gff3HandlerService.convertToEntry(parent,source,entries)
                 }
-                if(transcript&&transcript.id != last_transcript_id) {
-                    last_transcript_id = transcript.id
+                if(transcript&&last_transcript_id==null) {
+                    log.debug "first transcript ${transcript.id}"
+                    last_transcript_id=transcript.id
+                }
+                else if(transcript&&transcript.id != last_transcript_id) {
                     log.debug "transcript ${transcript.id}"
-                    out.println "${transcript.featureLocation.sequence.name}\t"+
-                            "webapollo_annotation\t"+
-                            "${featureService.generateJSONFeatureStringForType(transcript.ontologyId).name}\t"+
-                            "${transcript.featureLocation.fmin}\t"+
-                            "${transcript.featureLocation.fmax}\t"+
-                            ".\t"+
-                            "${transcript.featureLocation.strand==-1?'-':'+'}\t"+
-                            ".\t"+
-                            "ID=${transcript.uniqueName};Parent=${parent.uniqueName};Name=${transcript.name};Symbol=${transcript.symbol};date_created=${transcript.dateCreated}"
+                    last_transcript_id = transcript.id
+                    gff3HandlerService.convertToEntry(transcript,exons,children,source,entries)
                 }
+
+
                 log.debug "child ${child.id}"
-                out.println "${child.featureLocation.sequence.name}\t"+
-                        "webapollo_annotation\t"+
-                        "${featureService.generateJSONFeatureStringForType(child.ontologyId).name}\t"+
-                        "${child.featureLocation.fmin}\t"+
-                        "${child.featureLocation.fmax}\t"+
-                        ".\t"+
-                        "${child.featureLocation.strand==-1?'-':'+'}\t"+
-                        ".\t"+
-                        "ID=${child.uniqueName};Name=${child.name};Parent=${transcript.uniqueName};Symbol=${child.symbol};date_created=${child.dateCreated}"
-
+                if(featureService.generateJSONFeatureStringForType(child.ontologyId).name=="exon") {
+                    exons.add(child)
+                }
+                else {
+                    children.add(child)
+                }
             }
-
+            for(def entry : entries) {
+                out.println entry
+            }
             durationInMilliseconds = System.currentTimeMillis()-start;
-            log.debug "selecting top-level features ${durationInMilliseconds}"
+            log.debug "convert to gff3 ${durationInMilliseconds}"
             out.close()
 
         }
+
+
 
         //generating a html fragment with the link for download that can be rendered on client side
         String htmlResponseString = "<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe>"+
