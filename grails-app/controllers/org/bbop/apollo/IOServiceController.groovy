@@ -72,8 +72,8 @@ class IOServiceController extends AbstractApolloController {
                 }
 
 
-                log.debug "child ${child.id}"
-                if(featureService.generateJSONFeatureStringForType(child.ontologyId).name=="exon") {
+                log.debug "child ${child.id} ${featureService.getCvTermFromFeature(child)}"
+                if(featureService.getCvTermFromFeature(child)=="exon") {
                     exons.add(child)
                 }
                 else {

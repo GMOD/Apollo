@@ -197,11 +197,11 @@ public class Gff3HandlerService {
         }
         String phase = ".";
         GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase);
-        entry.setAttributes(extractAttributes(feature));
+        //entry.setAttributes(extractAttributes(feature));
         gffEntries.add(entry);
         for(Feature child_feature : children) {
             if(child_feature instanceof CDS) convertToEntry(child_feature,exons,source,gffEntries)
-            else convertToEntry(child_feature,exons,source,gffEntries)
+            else convertToEntry(child_feature,source,gffEntries)
         }
         for(Feature exon : exons) {
             convertToEntry(exon,source,gffEntries)
@@ -241,7 +241,7 @@ public class Gff3HandlerService {
             }
             length += fmax - fmin;
             GFF3Entry entry = new GFF3Entry(seqId, source, type, fmin + 1, fmax, score, strand, phase);
-            entry.setAttributes(extractAttributes(cds));
+            //entry.setAttributes(extractAttributes(cds));
             gffEntries.add(entry);
         }
     }
@@ -263,7 +263,7 @@ public class Gff3HandlerService {
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax()
         String phase="."
         GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase)
-        entry.setAttributes(extractAttributes(feature))
+        //entry.setAttributes(extractAttributes(feature))
         gffEntries.add(entry);
     }
     private Map<String, String> extractAttributes(Feature feature) {
