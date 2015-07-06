@@ -27,7 +27,7 @@ class IOServiceController extends AbstractApolloController {
         String typeOfExport = params.type
         String sequenceName = params.tracks.substring("Annotations-".size())
         List<String> viewableAnnotationList = [
-                MRNA.class.name,
+                Gene.class.name,
                 Pseudogene.class.name,
                 RepeatRegion.class.name,
                 TransposableElement.class.name
@@ -37,55 +37,23 @@ class IOServiceController extends AbstractApolloController {
         String sequenceType
         Organism organism = params.organism?Organism.findByCommonName(params.organism):preferenceService.currentOrganismForCurrentUser
         File outputFile = File.createTempFile ("Annotations-" + sequenceName + "-", "." + typeOfExport.toLowerCase())
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(outputFile, true)))
-        List<Feature> exons=new ArrayList<Feature>();
-        List<Feature> children=new ArrayList<Feature>();
-        List<GFF3Entry> entries=new ArrayList<GFF3Entry>();
-        String source="webapollo"
         if (typeOfExport == "GFF3") {
             // call gff3HandlerService
             long start = System.currentTimeMillis();
-            List queryResults = Feature.executeQuery("select f,fr.childFeature,cfr.parentFeature from Feature f join f.featureLocations fl join f.parentFeatureRelationships fr join f.childFeatureRelationships cfr where fl.sequence.name = :sequence and f.class in (:viewableAnnotationList)",
+            List queryResults = Feature.executeQuery("select f from Feature f join f.featureLocations fl where fl.sequence.name = :sequence and f.class in (:viewableAnnotationList)",
                     [sequence: sequenceName, viewableAnnotationList: viewableAnnotationList])
             long durationInMilliseconds = System.currentTimeMillis()-start;
             log.debug "selecting top-level features ${durationInMilliseconds}"
+
+
             start = System.currentTimeMillis();
-            def last_parent_id
-            def last_transcript_id
+            List<Feature> featuresToWrite = new ArrayList<>()
             queryResults.each { result ->
-                Feature transcript=result[0]
-                Feature parent=result[2]
-                Feature child=result[1]
-                if (parent && parent.id != last_parent_id) {
-                    last_parent_id = parent.id
-                    log.debug "parent ${parent.id}"
-                    gff3HandlerService.convertToEntry(parent,null,source,entries)
-                }
-                if(transcript&&last_transcript_id==null) {
-                    log.debug "first transcript ${transcript.id}"
-                    last_transcript_id=transcript.id
-                }
-                else if(transcript&&transcript.id != last_transcript_id) {
-                    log.debug "transcript ${transcript.id}"
-                    last_transcript_id = transcript.id
-                    gff3HandlerService.convertToEntry(transcript,exons,children,parent, source,entries)
-                }
-
-
-                if(child.cvTerm=="exon") {
-                    exons.add(child)
-                }
-                else {
-                    children.add(child)
-                }
+                featuresToWrite.add(result)
             }
-            for(def entry : entries) {
-                out.println entry
-            }
+            gff3HandlerService.writeFeaturesToText(outputFile.absolutePath,featuresToWrite,".")
             durationInMilliseconds = System.currentTimeMillis()-start;
             log.debug "convert to gff3 ${durationInMilliseconds}"
-            out.close()
-
         }
 
 

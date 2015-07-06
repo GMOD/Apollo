@@ -52,17 +52,28 @@ class Feature implements Ontological{
     ]
 
     static mappedBy = [
-            parentFeatureRelationships: 'parentFeature'
-            ,childFeatureRelationships: 'childFeature'
-            ,featureGenotypes: "feature"
-            ,featureLocations: "feature"
+            parentFeatureRelationships: "parentFeature",
+            childFeatureRelationships: "childFeature",
+            featureGenotypes: "feature",
+            featureLocations: "feature"
     ]
     
     static mapping = {
-        childFeatureRelationships cascade: 'all-delete-orphan'
-        parentFeatureRelationships cascade: 'all-delete-orphan'
-        featureLocations cascade: 'all-delete-orphan'
+            childFeatureRelationships cascade: 'all-delete-orphan'
+            parentFeatureRelationships cascade: 'all-delete-orphan'
+            featureLocations cascade: 'all-delete-orphan'
+            featureLocations lazy: false
+            featureProperties lazy: false
+            parentFeatureRelationships lazy: false
+            childFeatureRelationships lazy: false
     }
+
+    static fetchMode = [
+            childFeatureRelationships:"eager",
+            parentFeatureRelationships: "eager",
+            featureLocations: "eager",
+            featureProperties: "eager"
+    ]
 
     static belongsTo = [
             User
