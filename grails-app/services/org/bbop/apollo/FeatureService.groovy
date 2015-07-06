@@ -2575,7 +2575,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     public List<SequenceAlterationInContext> getSequenceAlterationsInContext(Feature feature, Collection<SequenceAlteration> sequenceAlterations) {
-        List<Exon> exonList = exonService.getSortedExons(feature, true)
+        List<Exon> exonList = feature instanceof CDS ? exonService.getSortedExons(transcriptService.getTranscript(feature)) : exonService.getSortedExons(feature, true)
         List<SequenceAlterationInContext> sequenceAlterationsInContext = new ArrayList<>()
         for (Exon exon : exonList) {
             int exonFmin = exon.fmin
