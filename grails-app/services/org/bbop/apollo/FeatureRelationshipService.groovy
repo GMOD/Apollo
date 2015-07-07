@@ -9,15 +9,18 @@ class FeatureRelationshipService {
     @NotTransactional
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
 
+        def list=new ArrayList<Feature>()
         if(feature?.parentFeatureRelationships!=null) {
-            def childRelations=feature.parentFeatureRelationships.findAll() {
-                it.childFeature.ontologyId in ontologyIds
-            }
-            return childRelations.collect { it ->
-                it.childFeature
+            feature.parentFeatureRelationships.each { it ->
+                if(ontologyIds.size()==0 || (it && ontologyIds.contains(it.childFeature.ontologyId))) {
+                    log.debug "match ${it.childFeature.ontologyId} ${ontologyIds} ${ontologyIds.empty} ${ontologyIds.size()} ${it} ${ontologyIds.contains(it.childFeature.ontologyId)}"
+                    list.push(it.childFeature)
+                }
+                else log.debug "nomatch ${it.childFeature.ontologyId} ${ontologyIds} ${ontologyIds.empty} ${ontologyIds.size()} ${it} ${ontologyIds.contains(it.childFeature.ontologyId)}"
             }
         }
-        else return new ArrayList<Feature>()
+
+        return list
     }
 
 
@@ -55,16 +58,18 @@ class FeatureRelationshipService {
     }
     @NotTransactional
     List<Feature> getParentsForFeature(Feature feature, String... ontologyIds) {
+        def list=new ArrayList<Feature>()
         if(feature?.childFeatureRelationships!=null) {
-            def parentRelations = feature.childFeatureRelationships.findAll() {
-                it.parentFeature.ontologyId in ontologyIds
-            }
-            return parentRelations.collect { it ->
-                it.parentFeature
+            feature.childFeatureRelationships.each { it ->
+                if(ontologyIds.size()==0 || (it && ontologyIds.contains(it.parentFeature.ontologyId))) {
+                    log.debug "match ${it.parentFeature.ontologyId} ${ontologyIds} ${ontologyIds.empty} ${ontologyIds.size()} ${it} ${ontologyIds.contains(it.parentFeature.ontologyId)}"
+                    list.push(it.parentFeature)
+                }
+                else log.debug "no match ${it.parentFeature.ontologyId} ${ontologyIds} ${ontologyIds.empty} ${ontologyIds.size()} ${it} ${ontologyIds.contains(it.parentFeature.ontologyId)}"
             }
         }
 
-        else return new ArrayList<Feature>()
+        return list
     }
 
     def deleteRelationships(Feature feature, String parentOntologyId, String childOntologyId) {
