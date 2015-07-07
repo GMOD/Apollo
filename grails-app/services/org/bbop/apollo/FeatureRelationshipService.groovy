@@ -9,16 +9,15 @@ class FeatureRelationshipService {
     @NotTransactional
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
 
-        def childRelations=feature.parentFeatureRelationships.findAll() {
-            it.childFeature.ontologyId in ontologyIds
+        if(feature?.parentFeatureRelationships!=null) {
+            def childRelations=feature.parentFeatureRelationships.findAll() {
+                it.childFeature.ontologyId in ontologyIds
+            }
+            return childRelations.collect { it ->
+                it.childFeature
+            }
         }
-        return childRelations.collect { it ->
-            it.childFeature
-        }
-
-        //incurs overhead query
-        //List<Feature> childFeatures = feature.parentFeatureRelationships*.childFeature
-        //List<Feature> childFeatures = FeatureRelationship.findAllByParentFeature(feature)*.childFeature
+        else return new ArrayList<Feature>()
     }
 
 
@@ -56,12 +55,16 @@ class FeatureRelationshipService {
     }
     @NotTransactional
     List<Feature> getParentsForFeature(Feature feature, String... ontologyIds) {
-        def parentRelations=feature.childFeatureRelationships.findAll() {
-            it.parentFeature.ontologyId in ontologyIds
+        if(feature?.childFeatureRelationships!=null) {
+            def parentRelations = feature.childFeatureRelationships.findAll() {
+                it.parentFeature.ontologyId in ontologyIds
+            }
+            return parentRelations.collect { it ->
+                it.parentFeature
+            }
         }
-        return parentRelations.collect { it ->
-            it.parentFeature
-        }
+
+        else return new ArrayList<Feature>()
     }
 
     def deleteRelationships(Feature feature, String parentOntologyId, String childOntologyId) {
