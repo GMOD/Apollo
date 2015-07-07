@@ -8,6 +8,7 @@ import org.bbop.apollo.filter.Cds3Filter
 import org.bbop.apollo.filter.StopCodonFilter
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
+import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
@@ -2444,19 +2445,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
             leftBehindTranscripts = leftBehindTranscripts - overlappingTranscripts
         }
-    }
-    
-    private class SequenceAlterationInContext {
-        // Added on July 5, 2015 to facilitate calculation of sequence alterations
-        int fmin
-        int fmax
-        int strand
-        String instanceOf
-        String type
-        String name
-        String originalAlterationUniqueName
-        int offset
-        String alterationResidue
     }
     
     private class SequenceAlterationInContextPositionComparator<SequenceAlterationInContext> implements Comparator<SequenceAlterationInContext> {
