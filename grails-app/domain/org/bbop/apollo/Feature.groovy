@@ -67,6 +67,12 @@ class Feature implements Ontological{
             parentFeatureRelationships lazy: false
             childFeatureRelationships lazy: false
             owners lazy: false
+            featureDBXRefs lazy: false
+            featureSynonyms lazy: false
+            featurePublications lazy: false
+            synonyms lazy: false
+            featureCVTerms lazy: false
+            featurePhenotypes lazy: false
     }
 
 

@@ -1,19 +1,11 @@
 package org.bbop.apollo
 
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import org.bbop.apollo.sequence.Strand;
-
-//import *;
-//import util.BioObjectUtil;
-//import *;
-
 import java.io.*;
 import java.util.*
 
 //import groovy.transform.CompileStatic
-//
-//
 //@CompileStatic
 //@GrailsCompileStatic
 public class Gff3HandlerService {
@@ -233,7 +225,10 @@ public class Gff3HandlerService {
         }
         String phase = ".";
         GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase);
+        timestart = System.currentTimeMillis();
         entry.setAttributes(extractAttributes(writeObject, feature));
+        durationInMilliseconds = System.currentTimeMillis()-timestart;
+        log.debug "extract attributes ${durationInMilliseconds}"
         gffEntries.add(entry);
         if(featureService.typeHasChildren(feature)){
             for (Feature child : featureRelationshipService.getChildren(feature)) {
@@ -277,9 +272,14 @@ public class Gff3HandlerService {
         log.debug "selecting sortedexons CDS ${durationInMilliseconds}"
         int length = 0;
         for (Exon exon : exons) {
+            timestart = System.currentTimeMillis();
             if (!overlapperService.overlaps(exon, cds)) {
+                durationInMilliseconds = System.currentTimeMillis()-timestart;
+                log.debug "overlapper ${durationInMilliseconds}"
                 continue;
             }
+            durationInMilliseconds = System.currentTimeMillis()-timestart;
+            log.debug "overlapper ${durationInMilliseconds}"
             int fmin = exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin();
             int fmax = exon.getFmax() > cds.getFmax() ? cds.getFmax() : exon.getFmax();
             String phase;
@@ -296,6 +296,7 @@ public class Gff3HandlerService {
             gffEntries.add(entry);
         }
         for (Feature child : featureRelationshipService.getChildren(cds)) {
+            log.debug "child of CDS? ${child.ontologyId}"
             convertToEntry(writeObject, child, source, gffEntries);
         }
     }
@@ -362,20 +363,20 @@ public class Gff3HandlerService {
                 attributes.put(FeatureStringEnum.EXPORT_DBXREF.value, dbxrefs.toString());
             }
         }
-        if (feature.getDescription() != null && !isBlank(feature.getDescription()) && writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value) && feature.getDescription() != null && !isBlank(feature.getDescription())) {
             
             attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
         }
-        if (feature.getStatus() != null && writeObject.attributesToExport.contains(FeatureStringEnum.STATUS.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.STATUS.value) && feature.getStatus() != null) {
             attributes.put(FeatureStringEnum.STATUS.value, encodeString(feature.getStatus().value));
         }
-        if (feature.getSymbol() != null && !isBlank(feature.getSymbol()) && writeObject.attributesToExport.contains(FeatureStringEnum.SYMBOL.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.SYMBOL.value) && feature.getSymbol() != null && !isBlank(feature.getSymbol())) {
             attributes.put(FeatureStringEnum.SYMBOL.value, encodeString(feature.getSymbol()));
         }
         //TODO: Ontology_term
         //TODO: Is_circular
-        Iterator<FeatureProperty> propertyIter = feature.featureProperties.iterator();
         if (writeObject.attributesToExport.contains(FeatureStringEnum.ATTRIBUTES.value)) {
+            Iterator<FeatureProperty> propertyIter = feature.featureProperties.iterator();
             if (propertyIter.hasNext()) {
                 Map<String, StringBuilder> properties = new HashMap<String, StringBuilder>();
                 while (propertyIter.hasNext()) {
@@ -399,7 +400,7 @@ public class Gff3HandlerService {
             }
         }
 
-        if (feature.getOwner() && writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value) && feature.getOwner()) {
             attributes.put(FeatureStringEnum.OWNER.value, encodeString(feature.getOwner().username));
         }
         if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_CREATION.value)) {
@@ -416,7 +417,6 @@ public class Gff3HandlerService {
     }
 
     static private String encodeString(String str) {
-//        return str.replaceAll(",", "%2C").replaceAll("=", "%3D").replaceAll(";", "%3B").replaceAll("\t", "%09");
         return str ? str.replaceAll(",", "%2C").replaceAll("=", "%3D").replaceAll(";", "%3B").replaceAll("\t", "%09") : ""
     }
 
