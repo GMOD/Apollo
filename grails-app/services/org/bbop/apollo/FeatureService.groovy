@@ -951,20 +951,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  */
     public String getResiduesWithAlterationsAndFrameshifts(Feature feature) {
         if (!(feature instanceof CDS)) {
-            return getResiduesWithAlterations(feature, SequenceAlteration.all)
+            return getResiduesWithAlterations(feature, getSequenceAlterationsForFeature(feature))
         }
-//        Transcript transcript = cdsService.getTranscript((CDS) feature)
         Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, Transcript.ontologyId)
         Collection<SequenceAlteration> alterations = getFrameshiftsAsAlterations(transcript);
-
-        List<SequenceAlteration> allSequenceAlterationList = getAllSequenceAlterationsForFeature(feature)
-
-//        List<SequenceAlteration> sequenceAlterationList = sequences.featureLocations.
-//        alterations.addAll(dataStore.getSequenceAlterations());
+        List<SequenceAlteration> allSequenceAlterationList = getSequenceAlterationsForFeature(feature)
         alterations.addAll(allSequenceAlterationList);
         return getResiduesWithAlterations(feature, alterations)
     }
-
+    
     /**
      * Only because we are limiting the sequences
      // TODO: should be a single query here
@@ -2574,6 +2569,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return residues.toString();
     }
 
+    List<SequenceAlteration> getSequenceAlterationsForFeature(Feature feature) {
+        int fmin = feature.fmin
+        int fmax = feature.fmax
+        Sequence sequence = feature.featureLocation.sequence
+        List<SequenceAlteration> sequenceAlterations = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId", [fmin: fmin, fmax: fmax, seqId: sequence])
+        return sequenceAlterations
+    }
+    
     public List<SequenceAlterationInContext> getSequenceAlterationsInContext(Feature feature, Collection<SequenceAlteration> sequenceAlterations) {
         List<Exon> exonList = feature instanceof CDS ? exonService.getSortedExons(transcriptService.getTranscript(feature)) : exonService.getSortedExons(feature, true)
         List<SequenceAlterationInContext> sequenceAlterationsInContext = new ArrayList<>()
