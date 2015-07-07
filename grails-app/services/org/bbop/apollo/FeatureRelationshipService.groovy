@@ -1,26 +1,29 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import grails.transaction.NotTransactional
 
 @Transactional
 class FeatureRelationshipService {
 
+    @NotTransactional
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
-        List<Feature> childFeatures = FeatureRelationship.findAllByParentFeature(feature)*.childFeature
-        List<Feature> returnFeatures = new ArrayList<>()
-        if (childFeatures) {
-            returnFeatures.addAll(
-                    childFeatures.findAll() {
-                        it?.ontologyId in ontologyIds
-                    }
-            )
+
+        def exonRelations=feature.parentFeatureRelationships.findAll() {
+            it.childFeature.ontologyId in Exon.ontologyId
+        }
+        return exonRelations.collect { it ->
+            it.childFeature
         }
 
-        return returnFeatures
+        //incurs overhead query
+        //List<Feature> childFeatures = feature.parentFeatureRelationships*.childFeature
+        //List<Feature> childFeatures = FeatureRelationship.findAllByParentFeature(feature)*.childFeature
     }
 
 
 
+    @NotTransactional
     Feature getChildForFeature(Feature feature, String ontologyId) {
         List<Feature> featureList = getChildrenForFeatureAndTypes(feature, ontologyId)
 
@@ -36,7 +39,7 @@ class FeatureRelationshipService {
         return featureList.get(0)
     }
 
-
+    @NotTransactional
     Feature getParentForFeature(Feature feature, String... ontologyId) {
         List<Feature> featureList = getParentsForFeature(feature, ontologyId)
 
@@ -51,7 +54,7 @@ class FeatureRelationshipService {
 
         return featureList.get(0)
     }
-
+    @NotTransactional
     List<Feature> getParentsForFeature(Feature feature, String... ontologyIds) {
         List<String> ontologyIdList = new ArrayList<>()
         ontologyIdList.addAll(ontologyIds)
@@ -167,10 +170,12 @@ class FeatureRelationshipService {
         }
     }
 
+    @NotTransactional
     List<Frameshift> getFeaturePropertyForTypes(Transcript transcript, List<String> strings) {
         return (List<Frameshift>) FeatureProperty.findAllByFeaturesInListAndOntologyIdsInList([transcript], strings)
     }
 
+    @NotTransactional
     List<Feature> getChildren(Feature feature) {
 //        List<Feature> childFeatures = (List<Feature>) Feature.executeQuery("select fr.childFeature from FeatureRelationship fr where fr.parentFeature = :parentFeature",["parentFeature":feature])
 //        return childFeatures
