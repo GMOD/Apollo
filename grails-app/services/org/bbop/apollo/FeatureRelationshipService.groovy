@@ -9,10 +9,10 @@ class FeatureRelationshipService {
     @NotTransactional
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
 
-        def exonRelations=feature.parentFeatureRelationships.findAll() {
-            it.childFeature.ontologyId in Exon.ontologyId
+        def childRelations=feature.parentFeatureRelationships.findAll() {
+            it.childFeature.ontologyId in ontologyIds
         }
-        return exonRelations.collect { it ->
+        return childRelations.collect { it ->
             it.childFeature
         }
 
@@ -56,11 +56,12 @@ class FeatureRelationshipService {
     }
     @NotTransactional
     List<Feature> getParentsForFeature(Feature feature, String... ontologyIds) {
-        List<String> ontologyIdList = new ArrayList<>()
-        ontologyIdList.addAll(ontologyIds)
-        return FeatureRelationship.findAllByChildFeature(feature)*.parentFeature.findAll() {
-            ontologyIdList.empty || (it && ontologyIdList.contains(it.ontologyId))
-        }.unique()
+        def parentRelations=feature.childFeatureRelationships.findAll() {
+            it.parentFeature.ontologyId in ontologyIds
+        }
+        return parentRelations.collect { it ->
+            it.parentFeature
+        }
     }
 
     def deleteRelationships(Feature feature, String parentOntologyId, String childOntologyId) {
