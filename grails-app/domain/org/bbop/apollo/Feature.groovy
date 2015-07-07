@@ -66,14 +66,9 @@ class Feature implements Ontological{
             featureProperties lazy: false
             parentFeatureRelationships lazy: false
             childFeatureRelationships lazy: false
+            owners lazy: false
     }
 
-    static fetchMode = [
-            childFeatureRelationships:"eager",
-            parentFeatureRelationships: "eager",
-            featureLocations: "eager",
-            featureProperties: "eager"
-    ]
 
     static belongsTo = [
             User
