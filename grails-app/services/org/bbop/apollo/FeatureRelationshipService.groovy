@@ -13,10 +13,8 @@ class FeatureRelationshipService {
         if(feature?.parentFeatureRelationships!=null) {
             feature.parentFeatureRelationships.each { it ->
                 if(ontologyIds.size()==0 || (it && ontologyIds.contains(it.childFeature.ontologyId))) {
-                    log.debug "match ${it.childFeature.ontologyId} ${ontologyIds} ${ontologyIds.empty} ${ontologyIds.size()} ${it} ${ontologyIds.contains(it.childFeature.ontologyId)}"
                     list.push(it.childFeature)
                 }
-                else log.debug "nomatch ${it.childFeature.ontologyId} ${ontologyIds} ${ontologyIds.empty} ${ontologyIds.size()} ${it} ${ontologyIds.contains(it.childFeature.ontologyId)}"
             }
         }
 
@@ -62,10 +60,8 @@ class FeatureRelationshipService {
         if(feature?.childFeatureRelationships!=null) {
             feature.childFeatureRelationships.each { it ->
                 if(ontologyIds.size()==0 || (it && ontologyIds.contains(it.parentFeature.ontologyId))) {
-                    log.debug "match ${it.parentFeature.ontologyId} ${ontologyIds} ${ontologyIds.empty} ${ontologyIds.size()} ${it} ${ontologyIds.contains(it.parentFeature.ontologyId)}"
                     list.push(it.parentFeature)
                 }
-                else log.debug "no match ${it.parentFeature.ontologyId} ${ontologyIds} ${ontologyIds.empty} ${ontologyIds.size()} ${it} ${ontologyIds.contains(it.parentFeature.ontologyId)}"
             }
         }
 

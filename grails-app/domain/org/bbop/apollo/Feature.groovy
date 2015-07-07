@@ -59,13 +59,10 @@ class Feature implements Ontological{
     ]
     
     static mapping = {
-            childFeatureRelationships cascade: 'all-delete-orphan'
-            parentFeatureRelationships cascade: 'all-delete-orphan'
-            featureLocations cascade: 'all-delete-orphan'
-            featureLocations lazy: false
+            childFeatureRelationships cascade: 'all-delete-orphan', lazy: false
+            parentFeatureRelationships cascade: 'all-delete-orphan', lazy: false
+            featureLocations cascade: 'all-delete-orphan', lazy: false
             featureProperties lazy: false
-            parentFeatureRelationships lazy: false
-            childFeatureRelationships lazy: false
             owners lazy: false
             featureDBXRefs lazy: false
             featureSynonyms lazy: false
