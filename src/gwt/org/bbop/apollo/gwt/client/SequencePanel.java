@@ -101,6 +101,7 @@ public class SequencePanel extends Composite {
                 return object.getLength();
             }
         };
+        lengthColumn.setDefaultSortAscending(false);
         lengthColumn.setSortable(true);
 
 
@@ -161,12 +162,6 @@ public class SequencePanel extends Composite {
                     Boolean sortNameAscending = nameSortInfo.isAscending();
                     SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, searchColumnString, sortNameAscending, minFeatureLength.getText(), maxFeatureLength.getText());
                 }
-//                nameSortInfo = sortList.get(1)
-//                if (nameSortInfo.getColumn().isSortable()) {
-//                    Boolean sortLengthAscending = nameSortInfo.isAscending();
-//                    SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, "length", sortLengthAscending, minFeatureLength.getText(), maxFeatureLength.getText());
-//                }
-
             }
         };
 
