@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.async.Promise
+import grails.transaction.NotTransactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.converters.JSON
@@ -45,7 +46,7 @@ class RequestHandlingService {
 
     def brokerMessagingTemplate
     public static List<String> viewableAnnotationList = [
-            MRNA.class.name,
+            Gene.class.name,
             Pseudogene.class.name,
             RepeatRegion.class.name,
             TransposableElement.class.name
@@ -491,7 +492,8 @@ class RequestHandlingService {
     }
 
 
-    def getFeatures(JSONObject inputObject) {
+    @NotTransactional
+    JSONObject getFeatures(JSONObject inputObject) {
 
 
         String sequenceName = permissionService.getSequenceNameFromInput(inputObject)
@@ -502,67 +504,39 @@ class RequestHandlingService {
         }
 
         log.debug "getFeatures ${sequence.organism.commonName}: ${sequence.name}"
+        Set<Feature> featureSet = new HashSet<>()
+
 
         long start = System.currentTimeMillis();
-
-        List queryResults = Feature.executeQuery("select f,fr.childFeature from Feature f join f.featureLocations fl full join f.parentFeatureRelationships fr where fl.sequence = :sequence and f.class in (:viewableAnnotationList)",
+        List<Feature> topLevelTranscripts = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)",
                 [sequence: sequence, viewableAnnotationList: viewableAnnotationList])
-        long durationInMilliseconds = System.currentTimeMillis()-start;
-        log.debug "selecting top-level features ${durationInMilliseconds}"
-        start = System.currentTimeMillis();
-        def output = [features:[]]
-        def id
-        def match
-        queryResults.each { result ->
-            Feature transcript=result[0]
-            Feature child_feature=result[1]
-
-            log.debug "${transcript.name} ${child_feature.name}"
-            if (id != transcript.id) {
-                if (id) {
-                    output.features << match
+        for (Feature feature in topLevelTranscripts) {
+            if (feature instanceof Gene) {
+                for (Transcript transcript : transcriptService.getTranscripts(feature)) {
+                    featureSet.add(transcript)
                 }
-                id = transcript.id
-                match = [
-                        "id"         : transcript.id,
-                        "type"       : featureService.generateJSONFeatureStringForType(transcript.ontologyId),
-                        "uniquename" : transcript.uniqueName,
-                        "name"       : transcript.name,
-                        "symbol"     : transcript.symbol,
-                        "description": transcript.description,
-                        "location"   : transcript.featureLocation,
-                        "parent_id"  : transcript.childFeatureRelationships[0]?.getParentFeature().uniqueName,
-                        "parent_type": featureService.generateJSONFeatureStringForType(transcript.childFeatureRelationships[0]?.getParentFeature().ontologyId),
-                        "children"   : []
-                ]
+            } else {
+                featureSet.add(feature)
             }
-            if(child_feature) {
-
-                match.children.push([
-                        "id"        : child_feature.id,
-                        "location"  : child_feature.featureLocation,
-                        "uniquename": child_feature.uniqueName,
-                        "name"      : child_feature.name,
-                        "parent_id" : transcript.uniqueName,
-                        "parent_type": featureService.generateJSONFeatureStringForType(transcript.ontologyId),
-                        "type"      : featureService.generateJSONFeatureStringForType(child_feature.ontologyId)
-                ])
-            }
-            else {
-                log.debug "no child feature"
-            }
-
         }
-        if(match != null)
-            output.features << match
 
 
+
+        JSONArray jsonFeatures = new JSONArray()
+        featureSet.each { feature ->
+                JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
+                jsonFeatures.put(jsonObject)
+        }
 
 
         durationInMilliseconds = System.currentTimeMillis()-start;
         log.debug "convert to json ${durationInMilliseconds}"
 
-        return output
+
+        inputObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
+        return inputObject
+
+
     }
 
     /**

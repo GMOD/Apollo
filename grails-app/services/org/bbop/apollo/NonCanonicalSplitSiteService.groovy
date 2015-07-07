@@ -173,10 +173,9 @@ class NonCanonicalSplitSiteService {
                         local4=tmp2
                     }
                     if(local1>=0&&local2 < residues.length()) {
-                        log.debug "blah1 ${local1} ${local2} ${residues.length()}"
                         String acceptorSpliceSiteSequence = residues.substring(local1,local2)
                         acceptorSpliceSiteSequence=transcript.getStrand()==-1?acceptorSpliceSiteSequence.reverse():acceptorSpliceSiteSequence
-                        log.debug "acceptor ${acceptorSpliceSiteSequence} ${acceptor}"
+                        log.debug "acceptor ${acceptorSpliceSiteSequence} ${acceptor} at position ${local1} ${local2}"
                         if(acceptorSpliceSiteSequence==acceptor)
                             validThreePrimeSplice=true
                         else
@@ -184,10 +183,9 @@ class NonCanonicalSplitSiteService {
                     }
 
                     if(local3>=0&&local4<residues.length()) {
-                        log.debug "blah2 ${local3} ${local4} ${residues.length()}"
                         String donorSpliceSiteSequence = residues.substring(local3,local4)
                         donorSpliceSiteSequence=transcript.getStrand()==-1?donorSpliceSiteSequence.reverse():donorSpliceSiteSequence
-                        log.debug "donor ${donorSpliceSiteSequence} ${donor}"
+                        log.debug "donor ${donorSpliceSiteSequence} ${donor} at position ${local3} ${local4}"
                         if(donorSpliceSiteSequence==donor)
                             validFivePrimeSplice=true
                         else

@@ -1585,7 +1585,6 @@ class FeatureService {
             }
         }
         if (sequenceAlterations.size() == 0 || sequenceAlterationsInContext.size() == 0) {
-            log.debug "no alterations"
             return inputCoord
         }
         List<SequenceAlteration> orderedSequenceAlterationList = new ArrayList<>(sequenceAlterationsInContext)
@@ -1738,6 +1737,7 @@ class FeatureService {
      * @param includeSequence
      * @return
      */
+    @NotTransactional
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
         JSONObject jsonFeature = new JSONObject();
         log.debug "convertFeatureToJSON"
@@ -1787,19 +1787,19 @@ class FeatureService {
             jsonFeature.put(FeatureStringEnum.NOTES.value, notesArray)
 
             // get children
-            Collection<FeatureRelationship> parentRelationships = FeatureRelationship.findAllByParentFeature(gsolFeature)
-            if (parentRelationships) {
+            Collection<Feature> childFeatures = featureRelationshipService.getChildren(gsolFeature)
+            if (childFeatures) {
                 JSONArray children = new JSONArray();
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
-                for (FeatureRelationship fr : parentRelationships) {
-                    Feature childFeature = fr.childFeature
+                for (Feature f : childFeatures) {
+                    Feature childFeature = f
                     children.put(convertFeatureToJSON(childFeature, includeSequence));
                 }
             }
             // get parents
-            Collection<FeatureRelationship> childFeatureRelationships = gsolFeature.childFeatureRelationships
-            if (childFeatureRelationships?.size() == 1) {
-                Feature parent = childFeatureRelationships.iterator().next().getParentFeature();
+            Collection<Feature> parentFeatures = featureRelationshipService.getParentsForFeature(gsolFeature)
+            if (parentFeatures?.size() == 1) {
+                Feature parent = parentFeatures.iterator().next();
                 jsonFeature.put(FeatureStringEnum.PARENT_ID.value, parent.getUniqueName());
                 jsonFeature.put(FeatureStringEnum.PARENT_TYPE.value, generateJSONFeatureStringForType(parent.ontologyId));
             }
