@@ -245,8 +245,15 @@ class SequenceController {
             minFeatureLength = minFeatureLength ?: 0
             maxFeatureLength = maxFeatureLength ?: Integer.MAX_VALUE
             List<Sequence> sequences
+            def sequenceCount = Sequence.countByOrganismAndNameIlikeAndLengthGreaterThanEqualsAndLengthLessThanEquals(organism, "%${name}%", minFeatureLength, maxFeatureLength )
             sequences = Sequence.findAllByOrganismAndNameIlikeAndLengthGreaterThanEqualsAndLengthLessThanEquals(organism, "%${name}%", minFeatureLength, maxFeatureLength, [offset: start, max: length, sort: sort, order: asc ? "asc" : "desc"])
-            render sequences as JSON
+            JSONArray returnSequences = JSON.parse( (sequences as JSON).toString()) as JSONArray
+
+            for(int i = 0 ; i < returnSequences.size() ; i++){
+                returnSequences.getJSONObject(i).put("sequenceCount",sequenceCount)
+            }
+
+            render returnSequences as JSON
         }
         catch(PermissionException e) {
             def error=[error: "Error: "+e]
