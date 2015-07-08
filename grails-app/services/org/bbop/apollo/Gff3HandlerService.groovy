@@ -241,7 +241,7 @@ public class Gff3HandlerService {
 
     private void convertToEntry(WriteObject writeObject, CDS cds, String source, Collection<GFF3Entry> gffEntries) {
 
-        println "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
+        log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
 
         String seqId = cds.getFeatureLocation().sequence.name
         String type = cds.cvTerm
@@ -345,14 +345,14 @@ public class Gff3HandlerService {
                 attributes.put(FeatureStringEnum.EXPORT_DBXREF.value, dbxrefs.toString());
             }
         }
-        if (feature.getDescription() != null && !isBlank(feature.getDescription()) && writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value)) {
-            
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value) && feature.getDescription() != null && !isBlank(feature.getDescription())) {
+
             attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
         }
-        if (feature.getStatus() != null && writeObject.attributesToExport.contains(FeatureStringEnum.STATUS.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.STATUS.value) && feature.getStatus() != null) {
             attributes.put(FeatureStringEnum.STATUS.value, encodeString(feature.getStatus().value));
         }
-        if (feature.getSymbol() != null && !isBlank(feature.getSymbol()) && writeObject.attributesToExport.contains(FeatureStringEnum.SYMBOL.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.SYMBOL.value) && feature.getSymbol() != null && !isBlank(feature.getSymbol())) {
             attributes.put(FeatureStringEnum.SYMBOL.value, encodeString(feature.getSymbol()));
         }
         //TODO: Ontology_term
@@ -381,8 +381,7 @@ public class Gff3HandlerService {
                 }
             }
         }
-
-        if (feature.getOwner() && writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value) && feature.getOwner()) {
             attributes.put(FeatureStringEnum.OWNER.value, encodeString(feature.getOwner().username));
         }
         if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_CREATION.value)) {

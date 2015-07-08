@@ -4,6 +4,7 @@ import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.transaction.Transactional
+import grails.transaction.NotTransactional
 import org.bbop.apollo.filter.Cds3Filter
 import org.bbop.apollo.filter.StopCodonFilter
 import org.bbop.apollo.sequence.SequenceTranslationHandler
@@ -37,8 +38,8 @@ class FeatureService {
     def overlapperService
 
 
-    public
-    static FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence) throws JSONException {
+    @NotTransactional
+    public static FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence) throws JSONException {
         FeatureLocation gsolLocation = new FeatureLocation();
         if (jsonLocation.has(FeatureStringEnum.ID.value)) {
             gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
@@ -66,6 +67,7 @@ class FeatureService {
      * @param compareStrands - Whether to compare strands in overlap
      * @return Collection of Feature objects that overlap the FeatureLocation
      */
+    @NotTransactional
     public Collection<Transcript> getOverlappingTranscripts(FeatureLocation location, boolean compareStrands = true) {
         List<Transcript> transcriptList = new ArrayList<>()
 
@@ -84,6 +86,7 @@ class FeatureService {
      * @param compareStrands - Whether to compare strands in overlap
      * @return Collection of Feature objects that overlap the FeatureLocation
      */
+    @NotTransactional
     public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands = true) {
 //        LinkedList<Feature> overlappingFeatures = new LinkedList<Feature>();
 
@@ -301,6 +304,7 @@ class FeatureService {
     }
 
 // TODO: this is kind of a hack for now
+    @NotTransactional
     JSONObject convertCVTermToJSON(String cv, String cvTerm) {
         JSONObject jsonCVTerm = new JSONObject();
         JSONObject jsonCV = new JSONObject();
@@ -317,6 +321,7 @@ class FeatureService {
      * @param feature
      * @return
      */
+    @NotTransactional
     Feature getTopLevelFeature(Feature feature) {
         Collection<Feature> parents = feature?.childFeatureRelationships*.parentFeature
         if (parents) {
@@ -418,10 +423,11 @@ class FeatureService {
  * @param location - FeatureLocation to check adjacency against
  * @return true if there is adjacency
  */
+    @NotTransactional
     public boolean isAdjacentTo(FeatureLocation leftLocation, FeatureLocation location) {
         return isAdjacentTo(leftLocation, location, true);
     }
-
+    @NotTransactional
     public boolean isAdjacentTo(FeatureLocation leftFeatureLocation, FeatureLocation rightFeatureLocation, boolean compareStrands) {
         if (leftFeatureLocation.sequence != rightFeatureLocation.sequence) {
             return false;
@@ -1300,20 +1306,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         return gsolFeature;
     }
-
+    @NotTransactional
     Organism getOrganism(Feature feature) {
         feature?.featureLocation?.sequence?.organism
     }
-
+    @NotTransactional
     String generateFeatureStringForType(String ontologyId) {
         return generateFeatureForType(ontologyId).cvTerm.toLowerCase()
     }
-
+    @NotTransactional
     String getCvTermFromFeature(Feature feature) {
         String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
         return cvTerm
     }
-
+    @NotTransactional
     String generateFeaturePropertyStringForType(String ontologyId) {
         return generateFeaturePropertyForType(ontologyId)?.cvTerm?.toLowerCase() ?: ontologyId
     }
@@ -1354,7 +1360,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             TRNA.alternateCvTerm,
             Transcript.cvTerm
     ]
-
+    @NotTransactional
     boolean isJsonTranscript(JSONObject jsonObject) {
         JSONObject typeObject = jsonObject.getJSONObject(FeatureStringEnum.TYPE.value)
         String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
@@ -1362,6 +1368,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     // TODO: (perform on client side, slightly ugly)
+    @NotTransactional
     Feature generateFeatureForType(String ontologyId) {
         switch (ontologyId) {
             case MRNA.ontologyId: return new MRNA()
@@ -1393,6 +1400,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     }
     // TODO: (perform on client side, slightly ugly)
+    @NotTransactional
     String convertJSONToOntologyId(JSONObject jsonCVTerm) {
         String cvString = jsonCVTerm.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value)
         String cvTermString = jsonCVTerm.getString(FeatureStringEnum.NAME.value)
@@ -2002,6 +2010,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @param includeSequence
      * @return
      */
+    @NotTransactional
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
         JSONObject jsonFeature = new JSONObject();
         try {
@@ -2021,7 +2030,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
             }
 
-            gsolFeature.attach()
 
             String finalOwnerString = ""
             if (gsolFeature.owners) {
@@ -2052,21 +2060,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put(FeatureStringEnum.NOTES.value, notesArray)
 
             // get children
-            gsolFeature.attach()
 //            Collection<FeatureRelationship> parentRelationships = gsolFeature.parentFeatureRelationships;
-            Collection<FeatureRelationship> parentRelationships = FeatureRelationship.findAllByParentFeature(gsolFeature)
-            if (parentRelationships) {
+            List<Feature> childFeatures = featureRelationshipService.getChildrenForFeatureAndTypes(gsolFeature)
+            if (childFeatures) {
                 JSONArray children = new JSONArray();
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
-                for (FeatureRelationship fr : parentRelationships) {
-                    Feature childFeature = fr.childFeature
+                for (Feature f : childFeatures) {
+                    Feature childFeature = f
                     children.put(convertFeatureToJSON(childFeature, includeSequence));
                 }
             }
             // get parents
-            Collection<FeatureRelationship> childFeatureRelationships = gsolFeature.childFeatureRelationships
-            if (childFeatureRelationships?.size() == 1) {
-                Feature parent = childFeatureRelationships.iterator().next().getParentFeature();
+            List<Feature> parentFeatures = featureRelationshipService.getParentsForFeature(gsolFeature)
+            if (parentFeatures?.size() == 1) {
+                Feature parent = parentFeatures.iterator().next();
                 jsonFeature.put(FeatureStringEnum.PARENT_ID.value, parent.getUniqueName());
                 jsonFeature.put(FeatureStringEnum.PARENT_TYPE.value, generateJSONFeatureStringForType(parent.ontologyId));
             }
@@ -2148,7 +2155,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         return jsonFeature;
     }
-
+    @NotTransactional
     JSONObject generateJSONFeatureStringForType(String ontologyId) {
         JSONObject jSONObject = new JSONObject();
         def feature = generateFeatureForType(ontologyId)
@@ -2162,7 +2169,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         return jSONObject
     }
-
+    @NotTransactional
     JSONObject convertFeatureLocationToJSON(FeatureLocation gsolFeatureLocation) throws JSONException {
         JSONObject jsonFeatureLocation = new JSONObject();
         if (gsolFeatureLocation.id) {
@@ -2336,7 +2343,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return feature
 
     }
-
+    @NotTransactional
     boolean typeHasChildren(Feature feature) {
         def f = Feature.get(feature.id)
         boolean hasChildren = !(f instanceof Exon) && !(f instanceof CDS) && !(f instanceof SpliceSite)

@@ -26,7 +26,7 @@ class IOServiceController extends AbstractApolloController {
         //operation = postObject.get(REST_OPERATION)
         //TODO: Currently not using the findPost()
         def mappedAction = underscoreToCamelCase(operation)
-        forward action: "${mappedAction}", params: params
+        forward action: "${mappedAction}", params: [data: postObject]
     }
     
     def write() {
@@ -44,6 +44,7 @@ class IOServiceController extends AbstractApolloController {
         def listOfSequenceAlterations = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes", [sequence: sequence, sequenceTypes: sequenceTypes])
         def featuresToExport = listOfFeatures + listOfSequenceAlterations
         File outputFile = File.createTempFile ("Annotations-" + sequenceName + "-", "." + typeOfExport.toLowerCase())
+        //Organism organism = params.organism?Organism.findByCommonName(params.organism):preferenceService.currentOrganismForCurrentUser
         if (typeOfExport == "GFF3") {
             // call gff3HandlerService
             fileName = "Annotations-" + sequenceName + "." + typeOfExport.toLowerCase()
@@ -61,11 +62,8 @@ class IOServiceController extends AbstractApolloController {
         }
 
         //generating a html fragment with the link for download that can be rendered on client side
-        String htmlResponseString = "<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe><a href='@DOWNLOAD_LINK_URL@' target='hidden_iframe'>@DOWNLOAD_LINK@</a></body></html>"
-        String downloadLinkUrl = 'IOService/download/?filePath=' + URLEncoder.encode(outputFile.path) + "&fileType=" + typeOfExport + "&fileName=" + URLEncoder.encode(fileName)
-        htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK_URL@", downloadLinkUrl)
-        htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK@", fileName)
-        
+        String htmlResponseString = "<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe>"+
+                "<a href='IOService/download/?filePath=${outputFile.path}&fileType=${typeOfExport}&fileName=${fileName}' target='hidden_iframe'>${fileName}</a></body></html>"
         render text: htmlResponseString, contentType: "text/html", encoding: "UTF-8"
     }
     

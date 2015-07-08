@@ -192,18 +192,30 @@ class AnnotatorController {
             if (organism) {
                 if (!sequence) {
                     try {
+                        final long start = System.currentTimeMillis();
+
                         allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
+                        final long durationInMilliseconds = System.currentTimeMillis()-start;
+
+                        log.debug "selecting features all ${durationInMilliseconds}"
                     } catch (e) {
                         allFeatures = new ArrayList<>()
                         log.error(e)
                     }
                 } else {
+                    final long start = System.currentTimeMillis();
                     allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
-                }
+                    final long durationInMilliseconds = System.currentTimeMillis()-start;
 
+                    log.debug "selecting features ${durationInMilliseconds}"
+                }
+                final long start = System.currentTimeMillis();
                 for (Feature feature in allFeatures) {
                     returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
                 }
+                final long durationInMilliseconds = System.currentTimeMillis()-start;
+
+                log.debug "convert to json ${durationInMilliseconds}"
             }
 
             returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(), index + 1)

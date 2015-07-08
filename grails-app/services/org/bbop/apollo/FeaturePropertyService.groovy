@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-
+import grails.transaction.NotTransactional
 @Transactional
 class FeaturePropertyService {
 
@@ -13,6 +13,7 @@ class FeaturePropertyService {
  *
  * @return Comments for this feature
  */
+    @NotTransactional
     public Collection<Comment> getComments(Feature feature) {
 //        CVTerm commentCvTerm = cvTermService.getTerm(FeatureStringEnum.COMMENT)
 //        Collection<CVTerm> commentCvterms = conf.getCVTermsForClass("Comment");
@@ -180,6 +181,7 @@ class FeaturePropertyService {
 //    }
 
 
+    @NotTransactional
     def getNonReservedProperties(Feature feature) {
         return FeatureProperty.findAllByFeature(feature).find(){
             return !nonReservedClasses.contains(it.cvTerm)
