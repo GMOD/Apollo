@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.sequence.DownloadFile
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -23,6 +24,10 @@ class SequenceController {
     def gff3HandlerService
     def permissionService
     def preferenceService
+
+
+    // see #464
+    private Map<String,DownloadFile> fileMap = new HashMap<>()
 
     def permissions() {  }
 
@@ -189,8 +194,14 @@ class SequenceController {
             // call fastaHandlerService
             fastaHandlerService.writeFeatures(listOfFeatures, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
         }
+        String uuidString = UUID.randomUUID().toString()
+        DownloadFile downloadFile = new DownloadFile(
+                uuid: uuidString
+                ,path: outputFile.path
+        )
+        fileMap.put(uuidString,downloadFile)
         JSONObject jsonObject = new JSONObject()
-        jsonObject.put("filePath", outputFile.path)
+        jsonObject.put("uuid", uuidString)
         jsonObject.put("exportType", typeOfExport)
         jsonObject.put("sequenceType", sequenceType)
         render jsonObject as JSON
@@ -198,8 +209,9 @@ class SequenceController {
 
     def exportHandler() {
         log.debug "params to exportHandler: ${params}"
-        String pathToFile = params.filePath
-        def file = new File(pathToFile)
+        String uuid = params.uuid
+        DownloadFile downloadFile = fileMap.remove(uuid)
+        def file = new File(downloadFile.path)
         response.contentType = "txt"
         if (params.exportType == "GFF3") {
             response.setHeader("Content-disposition", "attachment; filename=Annotations.gff3")

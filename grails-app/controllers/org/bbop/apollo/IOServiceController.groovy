@@ -76,7 +76,7 @@ class IOServiceController extends AbstractApolloController {
     
     def download() {
         String uuid = params.uuid
-        DownloadFile downloadFile = fileMap.get(uuid)
+        DownloadFile downloadFile = fileMap.remove(uuid)
         def file = new File(downloadFile.path)
         if (!file.exists())
             return
@@ -88,6 +88,5 @@ class IOServiceController extends AbstractApolloController {
         outputStream.flush()
         outputStream.close()
         file.delete()
-        fileMap.remove(uuid)
     }
 }
