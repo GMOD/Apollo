@@ -31,7 +31,8 @@ class FeatureRelationshipServiceSpec extends Specification {
                 parentFeature: gene
                 , childFeature: mrna
         ).save(failOnError: true)
-
+        mrna.addToChildFeatureRelationships(fr)
+        gene.addToParentFeatureRelationships(fr)
         then: "it should have parents"
         assert FeatureRelationship.count==1
         List<Feature> parents = service.getParentsForFeature(mrna,Gene.ontologyId)

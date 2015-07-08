@@ -3,6 +3,8 @@ package org.bbop.apollo
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.transaction.Transactional
+import grails.transaction.NotTransactional
+
 //import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
@@ -25,6 +27,7 @@ class ExonService {
      *
      * @return Transcript that this Exon is associated with
      */
+    @NotTransactional
     public Transcript getTranscript(Exon exon) {
 
         // this could be for any transcript, though
@@ -205,6 +208,7 @@ class ExonService {
     }
 //
 
+    @NotTransactional
     List<Exon> getSortedExons(Transcript transcript,boolean sortByStrand = true ) {
         List<Exon> sortedExons= new LinkedList<Exon>(transcriptService.getExons(transcript));
         Collections.sort(sortedExons,new FeaturePositionComparator<Exon>(sortByStrand))
@@ -410,6 +414,7 @@ class ExonService {
     }
     
     //added while working on getSequence() on 03.19.15 by D.U.
+    @NotTransactional
     String getCodingSequenceInPhase(Exon exon, boolean removePartialCodons) {
         Transcript transcript = getTranscript(exon)
         CDS cds = transcriptService.getCDS(transcript)

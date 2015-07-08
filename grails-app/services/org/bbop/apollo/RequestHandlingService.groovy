@@ -7,6 +7,7 @@ import grails.converters.JSON
 
 //import grails.compiler.GrailsCompileStatic
 import grails.transaction.Transactional
+import grails.transaction.NotTransactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -537,7 +538,7 @@ class RequestHandlingService {
         return updateFeatureContainer
     }
 
-
+    @NotTransactional
     JSONObject getFeatures(JSONObject inputObject) {
 
 
@@ -572,11 +573,6 @@ class RequestHandlingService {
 
         inputObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
 
-        fireAnnotationEvent(new AnnotationEvent(
-                features: inputObject
-                , operation: AnnotationEvent.Operation.ADD
-                , sequence: sequence
-        ))
 
         return inputObject
 
