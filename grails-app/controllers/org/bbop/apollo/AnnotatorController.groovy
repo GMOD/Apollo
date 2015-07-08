@@ -203,9 +203,13 @@ class AnnotatorController {
                     log.debug "selecting features ${durationInMilliseconds}"
                 }
 
+                final long start = System.currentTimeMillis();
                 for (Feature feature in allFeatures) {
                     returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
                 }
+                final long durationInMilliseconds = System.currentTimeMillis()-start;
+
+                log.debug "convert to json ${durationInMilliseconds}"
             }
 
             returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(), index + 1)
