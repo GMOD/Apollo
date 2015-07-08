@@ -7,16 +7,17 @@ class FeatureRelationshipService {
 
     @NotTransactional
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
-        def list=new ArrayList<Feature>()
-        if(feature?.parentFeatureRelationships!=null) {
-            feature.parentFeatureRelationships.each { it ->
-                if(ontologyIds.size()==0 || (it && ontologyIds.contains(it.childFeature.ontologyId))) {
-                    list.push(it.childFeature)
-                }
-            }
+        List<Feature> childFeatures = FeatureRelationship.findAllByParentFeature(feature)*.childFeature
+        List<Feature> returnFeatures = new ArrayList<>()
+        if (childFeatures) {
+            returnFeatures.addAll(
+                    childFeatures.findAll() {
+                        it?.ontologyId in ontologyIds
+                    }
+            )
         }
 
-        return list
+        return returnFeatures
     }
 
 
@@ -38,6 +39,7 @@ class FeatureRelationshipService {
 
     @NotTransactional
     Feature getParentForFeature(Feature feature, String... ontologyId) {
+
         List<Feature> featureList = getParentsForFeature(feature, ontologyId)
 
         if (featureList.size() == 0) {
@@ -53,16 +55,11 @@ class FeatureRelationshipService {
     }
     @NotTransactional
     List<Feature> getParentsForFeature(Feature feature, String... ontologyIds) {
-        def list=new ArrayList<Feature>()
-        if(feature?.childFeatureRelationships!=null) {
-            feature.childFeatureRelationships.each { it ->
-                if(ontologyIds.size()==0 || (it && ontologyIds.contains(it.parentFeature.ontologyId))) {
-                    list.push(it.parentFeature)
-                }
-            }
-        }
-
-        return list
+        List<String> ontologyIdList = new ArrayList<>()
+        ontologyIdList.addAll(ontologyIds)
+        return FeatureRelationship.findAllByChildFeature(feature)*.parentFeature.findAll() {
+            ontologyIdList.empty || (it && ontologyIdList.contains(it.ontologyId))
+        }.unique()
     }
 
     def deleteRelationships(Feature feature, String parentOntologyId, String childOntologyId) {
@@ -180,11 +177,7 @@ class FeatureRelationshipService {
 //        List<Feature> childFeatures = (List<Feature>) Feature.executeQuery("select fr.childFeature from FeatureRelationship fr where fr.parentFeature = :parentFeature",["parentFeature":feature])
 //        return childFeatures
         // HQL commented out due to issue with exporting GFF3 (inability of calculating CDS segments)
-        //return FeatureRelationship.findAllByParentFeature(feature)*.childFeature
-        def exonRelations=feature.parentFeatureRelationships.findAll()
-        return exonRelations.collect { it ->
-            it.childFeature
-        }
+        return FeatureRelationship.findAllByParentFeature(feature)*.childFeature
     }
 
     /**
