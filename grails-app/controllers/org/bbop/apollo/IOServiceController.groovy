@@ -20,11 +20,11 @@ class IOServiceController extends AbstractApolloController {
     def handleOperation(String track, String operation) {
         log.debug "Requested parameterMap: ${request.parameterMap.keySet()}"
         log.debug "upstream params: ${params}"
-//        JSONObject postObject = findPost()
+        //JSONObject postObject = findPost()
         //operation = postObject.get(REST_OPERATION)
         //TODO: Currently not using the findPost()
         def mappedAction = underscoreToCamelCase(operation)
-        forward action: "${mappedAction}", params: [data: postObject]
+        forward action: "${mappedAction}", params: params
     }
     
     def write() {
@@ -34,6 +34,8 @@ class IOServiceController extends AbstractApolloController {
         
         String fileName = null
         String sequenceType
+
+        long start = System.currentTimeMillis();
         List<String> ontologyIdList = [Gene.class.name,Pseudogene.class.name,RepeatRegion.class.name,TransposableElement.class.name]
         Organism organism = preferenceService.currentOrganismForCurrentUser
         def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s.organism = :organism and s.name in (:sequenceName) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceName: sequenceName, ontologyIdList: ontologyIdList,organism:organism])
@@ -43,8 +45,15 @@ class IOServiceController extends AbstractApolloController {
         def featuresToExport = listOfFeatures + listOfSequenceAlterations
         File outputFile = File.createTempFile ("Annotations-" + sequenceName + "-", "." + typeOfExport.toLowerCase())
         //Organism organism = params.organism?Organism.findByCommonName(params.organism):preferenceService.currentOrganismForCurrentUser
+
+
+
+        long durationInMilliseconds = System.currentTimeMillis()-start;
+
+        log.debug "selecting features all ${durationInMilliseconds}"
         if (typeOfExport == "GFF3") {
             // call gff3HandlerService
+            start = System.currentTimeMillis();
             fileName = "Annotations-" + sequenceName + "." + typeOfExport.toLowerCase()
             if (params.exportSequence == "true") {
                 gff3HandlerService.writeFeaturesToText(outputFile.path, featuresToExport, grailsApplication.config.apollo.gff3.source as String, true, [sequence])
@@ -52,6 +61,8 @@ class IOServiceController extends AbstractApolloController {
             else {
                 gff3HandlerService.writeFeaturesToText(outputFile.path, featuresToExport, grailsApplication.config.apollo.gff3.source as String)
             }
+            durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "get gff3 ${durationInMilliseconds}"
         } else if (typeOfExport == "FASTA") {
             // call fastaHandlerService
             sequenceType = params.seqType
