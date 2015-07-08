@@ -1757,7 +1757,7 @@ class FeatureService {
             if (gsolFeature.description) {
                 jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
             }
-
+            long start = System.currentTimeMillis();
             String finalOwnerString = ""
             if (gsolFeature.owners) {
                 String ownerString = ""
@@ -1771,10 +1771,21 @@ class FeatureService {
                 finalOwnerString = "None"
             }
             jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
+
+            long durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "owner ${durationInMilliseconds}"
+
+            start = System.currentTimeMillis();
             if (gsolFeature.featureLocation) {
                 Sequence sequence = gsolFeature.featureLocation.sequence
                 jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
             }
+
+            durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "sequencename ${durationInMilliseconds}"
+
+
+            start = System.currentTimeMillis();
 
             // TODO: move this to a configurable place or in another method to process afterwards
             List<String> errorList = new ArrayList<>()
@@ -1786,8 +1797,18 @@ class FeatureService {
             }
             jsonFeature.put(FeatureStringEnum.NOTES.value, notesArray)
 
+            durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "notes ${durationInMilliseconds}"
+
+
+
+            start = System.currentTimeMillis();
             // get children
-            Collection<Feature> childFeatures = featureRelationshipService.getChildren(gsolFeature)
+            List<Feature> childFeatures = featureRelationshipService.getChildrenForFeatureAndTypes(gsolFeature)
+
+
+            durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "childfeat ${durationInMilliseconds}"
             if (childFeatures) {
                 JSONArray children = new JSONArray();
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
@@ -1796,13 +1817,25 @@ class FeatureService {
                     children.put(convertFeatureToJSON(childFeature, includeSequence));
                 }
             }
+
+
+
+
+            start = System.currentTimeMillis()
             // get parents
-            Collection<Feature> parentFeatures = featureRelationshipService.getParentsForFeature(gsolFeature)
+            List<Feature> parentFeatures = featureRelationshipService.getParentsForFeature(gsolFeature)
+
+            durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "parents ${durationInMilliseconds}"
             if (parentFeatures?.size() == 1) {
                 Feature parent = parentFeatures.iterator().next();
                 jsonFeature.put(FeatureStringEnum.PARENT_ID.value, parent.getUniqueName());
                 jsonFeature.put(FeatureStringEnum.PARENT_TYPE.value, generateJSONFeatureStringForType(parent.ontologyId));
             }
+
+
+            start = System.currentTimeMillis()
+
             Collection<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations();
             if (featureLocations) {
                 FeatureLocation gsolFeatureLocation = featureLocations.iterator().next();
@@ -1810,6 +1843,10 @@ class FeatureService {
                     jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(gsolFeatureLocation));
                 }
             }
+
+            durationInMilliseconds = System.currentTimeMillis()-start;
+            log.debug "featloc ${durationInMilliseconds}"
+
 
             if (gsolFeature instanceof SequenceAlteration) {
                 SequenceAlteration sequenceAlteration = (SequenceAlteration) gsolFeature
@@ -1882,21 +1919,23 @@ class FeatureService {
 
 
 
+    @NotTransactional
     JSONObject generateJSONFeatureStringForType(String ontologyId) {
         if(ontologyId==null) return null;
-        JSONObject jSONObject = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
         def feature = generateFeatureForType(ontologyId)
         String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
 
-        jSONObject.put(FeatureStringEnum.NAME.value, cvTerm)
+        jsonObject.put(FeatureStringEnum.NAME.value, cvTerm)
 
         JSONObject cvObject = new JSONObject()
         cvObject.put(FeatureStringEnum.NAME.value, FeatureStringEnum.SEQUENCE.value)
-        jSONObject.put(FeatureStringEnum.CV.value, cvObject)
+        jsonObject.put(FeatureStringEnum.CV.value, cvObject)
 
-        return jSONObject
+        return jsonObject
     }
 
+    @NotTransactional
     JSONObject convertFeatureLocationToJSON(FeatureLocation gsolFeatureLocation) throws JSONException {
         JSONObject jsonFeatureLocation = new JSONObject();
         if (gsolFeatureLocation.id) {

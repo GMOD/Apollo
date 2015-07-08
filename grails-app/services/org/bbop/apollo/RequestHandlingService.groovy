@@ -510,6 +510,11 @@ class RequestHandlingService {
         long start = System.currentTimeMillis();
         List<Feature> topLevelTranscripts = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)",
                 [sequence: sequence, viewableAnnotationList: viewableAnnotationList])
+
+        long durationInMilliseconds = System.currentTimeMillis()-start;
+        log.debug "top level query ${durationInMilliseconds}"
+
+
         for (Feature feature in topLevelTranscripts) {
             if (feature instanceof Gene) {
                 for (Transcript transcript : transcriptService.getTranscripts(feature)) {
