@@ -2704,19 +2704,28 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 // calling convertSourceCoordinateToLocalCoordinate
                 coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.fmin)
             }
+
             if (feature.strand == Strand.NEGATIVE.value) {
                 if (coordinateInContext <= localCoordinate && alteration.instanceOf == Deletion.canonicalName) {
                     deletionOffset += alterationResidueLength
                 }
-                if ((coordinateInContext - alterationResidueLength - 1) <= localCoordinate && alteration.instanceOf == Insertion.canonicalName) {
+                if ((coordinateInContext - alterationResidueLength) - 1 <= localCoordinate && alteration.instanceOf == Insertion.canonicalName) {
                     insertionOffset += alterationResidueLength
                 }
+                if ((localCoordinate - coordinateInContext) - 1 < alterationResidueLength && (localCoordinate - coordinateInContext) >= 0 && alteration.instanceOf == Insertion.canonicalName) {
+                    insertionOffset -= (alterationResidueLength - (localCoordinate - coordinateInContext - 1))
+                    
+                }
+                
             } else {
                 if (coordinateInContext < localCoordinate && alteration.instanceOf == Deletion.canonicalName) {
                     deletionOffset += alterationResidueLength
                 }
                 if ((coordinateInContext + alterationResidueLength) <= localCoordinate && alteration.instanceOf == Insertion.canonicalName) {
                     insertionOffset += alterationResidueLength
+                }
+                if ((localCoordinate - coordinateInContext) < alterationResidueLength && (localCoordinate - coordinateInContext) >= 0 && alteration.instanceOf == Insertion.canonicalName) {
+                    insertionOffset += localCoordinate - coordinateInContext
                 }
             }
         }
