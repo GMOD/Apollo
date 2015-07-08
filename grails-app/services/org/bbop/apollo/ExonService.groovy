@@ -3,12 +3,14 @@ package org.bbop.apollo
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.transaction.Transactional
+import grails.transaction.NotTransactional
+
 //import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 
 //@GrailsCompileStatic
-@Transactional
+@Transactional(readOnly = true)
 class ExonService {
 
 //    CvTermService cvTermService
@@ -38,6 +40,7 @@ class ExonService {
      * @param exon2 - Exon to be merged with
      * @throws AnnotationException - If exons don't belong to the same transcript or are in separate strands
      */
+    @Transactional
     public void mergeExons(Exon exon1, Exon exon2) throws AnnotationException {
 //        // both exons must be part of the same transcript
 //        if (!getTranscript(exon1).equals(getTranscript(exon2))) {
@@ -81,6 +84,7 @@ class ExonService {
      * @param transcript - Transcript to have the exon deleted from
      * @param exon - Exon to be deleted from the transcript
      */
+    @Transactional
     public void deleteExon(Transcript transcript, Exon exon) {
         featureRelationshipService.removeFeatureRelationship(transcript,exon)
 
@@ -141,6 +145,7 @@ class ExonService {
     }
 
 
+    @Transactional
     public void setFmin(Exon exon, Integer fmin) {
         exon.getFeatureLocation().setFmin(fmin);
         Transcript transcript = getTranscript(exon)
@@ -149,6 +154,7 @@ class ExonService {
         }
     }
 
+    @Transactional
     public void setFmax(Exon exon, Integer fmax) {
         exon.getFeatureLocation().setFmax(fmax);
         Transcript transcript = getTranscript(exon)
@@ -158,7 +164,7 @@ class ExonService {
     }
 
 
-//    , String splitExonUniqueName
+    @Transactional
     public Exon makeIntron(Exon exon, int genomicPosition, int minimumIntronSize) {
         String sequence = sequenceService.getResiduesFromFeature(exon)
         int exonPosition = featureService.convertSourceCoordinateToLocalCoordinate(exon,genomicPosition);
@@ -218,6 +224,7 @@ class ExonService {
      * @param fmin - New fmin to be set
      * @param fmax - New fmax to be set
      */
+    @Transactional
     public void setExonBoundaries(Exon exon, int fmin, int fmax) {
 
         Transcript transcript = getTranscript(exon)
@@ -229,6 +236,7 @@ class ExonService {
         featureService.updateGeneBoundaries(transcriptService.getGene(transcript));
     }
 
+    @Transactional
     def setToDownstreamDonor(Exon exon) {
         Transcript transcript = getTranscript(exon)
         Gene gene = transcriptService.getGene(transcript)
@@ -270,6 +278,7 @@ class ExonService {
         }
     }
 
+    @Transactional
     def setToUpstreamDonor(Exon exon) {
         Transcript transcript = getTranscript(exon)
         Gene gene = transcriptService.getGene(transcript)
@@ -298,6 +307,7 @@ class ExonService {
         }
     }
 
+    @Transactional
     def setToUpstreamAcceptor(Exon exon) {
         Transcript transcript = getTranscript(exon);
         Gene gene = transcriptService.getGene(transcript);
@@ -340,6 +350,7 @@ class ExonService {
 
     }
 
+    @Transactional
     def setToDownstreamAcceptor(Exon exon) {
         println "setting downstream acceptor: ${exon}"
         Transcript transcript = getTranscript(exon);
@@ -365,6 +376,7 @@ class ExonService {
 
     }
 
+    @Transactional
     Exon splitExon(Exon exon, int newLeftMax, int newRightMin) {
         Exon leftExon = exon;
         FeatureLocation leftFeatureLocation = leftExon.getFeatureLocation()

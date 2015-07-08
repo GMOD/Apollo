@@ -20,11 +20,11 @@ class IOServiceController extends AbstractApolloController {
     def handleOperation(String track, String operation) {
         log.debug "Requested parameterMap: ${request.parameterMap.keySet()}"
         log.debug "upstream params: ${params}"
-        //JSONObject postObject = findPost()
+        JSONObject postObject = findPost()
         //operation = postObject.get(REST_OPERATION)
         //TODO: Currently not using the findPost()
         def mappedAction = underscoreToCamelCase(operation)
-        forward action: "${mappedAction}", params: params
+        forward action: "${mappedAction}", params: [data: postObject]
     }
     
     def write() {
@@ -42,6 +42,7 @@ class IOServiceController extends AbstractApolloController {
         def listOfSequenceAlterations = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes", [sequence: sequence, sequenceTypes: sequenceTypes])
         def featuresToExport = listOfFeatures + listOfSequenceAlterations
         File outputFile = File.createTempFile ("Annotations-" + sequenceName + "-", "." + typeOfExport.toLowerCase())
+        //Organism organism = params.organism?Organism.findByCommonName(params.organism):preferenceService.currentOrganismForCurrentUser
         if (typeOfExport == "GFF3") {
             // call gff3HandlerService
             fileName = "Annotations-" + sequenceName + "." + typeOfExport.toLowerCase()
@@ -70,7 +71,7 @@ class IOServiceController extends AbstractApolloController {
         String downloadLinkUrl = 'IOService/download/?uuid=' + uuidString + "&fileType=" + typeOfExport
         htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK_URL@", downloadLinkUrl)
         htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK@", fileName)
-        
+
         render text: htmlResponseString, contentType: "text/html", encoding: "UTF-8"
     }
     

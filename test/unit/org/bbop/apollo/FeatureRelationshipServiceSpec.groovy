@@ -27,11 +27,12 @@ class FeatureRelationshipServiceSpec extends Specification {
                 name: "MRNA"
                 ,uniqueName: "MRNA"
         ).save(failOnError: true)
-        new FeatureRelationship(
+        FeatureRelationship fr=new FeatureRelationship(
                 parentFeature: gene
                 , childFeature: mrna
         ).save(failOnError: true)
-
+        mrna.addToChildFeatureRelationships(fr)
+        gene.addToParentFeatureRelationships(fr)
         then: "it should have parents"
         assert FeatureRelationship.count==1
         List<Feature> parents = service.getParentsForFeature(mrna,Gene.ontologyId)

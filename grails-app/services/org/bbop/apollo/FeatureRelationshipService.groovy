@@ -1,8 +1,8 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-
-@Transactional
+import grails.transaction.NotTransactional
+@Transactional(readOnly = true)
 class FeatureRelationshipService {
 
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
@@ -20,7 +20,6 @@ class FeatureRelationshipService {
     }
 
 
-
     Feature getChildForFeature(Feature feature, String ontologyId) {
         List<Feature> featureList = getChildrenForFeatureAndTypes(feature, ontologyId)
 
@@ -36,8 +35,8 @@ class FeatureRelationshipService {
         return featureList.get(0)
     }
 
-
     Feature getParentForFeature(Feature feature, String... ontologyId) {
+
         List<Feature> featureList = getParentsForFeature(feature, ontologyId)
 
         if (featureList.size() == 0) {
@@ -60,11 +59,13 @@ class FeatureRelationshipService {
         }.unique()
     }
 
+    @Transactional
     def deleteRelationships(Feature feature, String parentOntologyId, String childOntologyId) {
         deleteChildrenForTypes(feature, childOntologyId)
         deleteParentForTypes(feature, parentOntologyId)
     }
 
+    @Transactional
     def setChildForType(Feature parentFeature, Feature childFeature) {
         List<FeatureRelationship> results = FeatureRelationship.findAllByParentFeature(parentFeature).findAll() {
             it.childFeature.ontologyId == childFeature.ontologyId
@@ -86,6 +87,7 @@ class FeatureRelationshipService {
 
     }
 
+    @Transactional
     def deleteChildrenForTypes(Feature feature, String... ontologyIds) {
         def criteria = FeatureRelationship.createCriteria()
 
@@ -103,6 +105,7 @@ class FeatureRelationshipService {
         }
     }
 
+    @Transactional
     def deleteParentForTypes(Feature feature, String... ontologyIds) {
         // delete transcript -> non canonical 3' splice site child relationship
         def criteria = FeatureRelationship.createCriteria()
@@ -118,6 +121,7 @@ class FeatureRelationshipService {
     }
 
     // based on Transcript.setCDS
+    @Transactional
     def addChildFeature(Feature parent, Feature child, boolean replace = true) {
         
         // replace if of the same type
@@ -156,6 +160,7 @@ class FeatureRelationshipService {
         parent.save(flush: true )
     }
 
+    @Transactional
     public void removeFeatureRelationship(Feature parentFeature, Feature childFeature) {
 
         FeatureRelationship featureRelationship = FeatureRelationship.findByParentFeatureAndChildFeature(parentFeature, childFeature)
@@ -183,6 +188,7 @@ class FeatureRelationshipService {
      * @param feature
      * @return
      */
+    @Transactional
     def deleteFeatureAndChildren(Feature feature) {
 
 //        Feature.withNewTransaction {

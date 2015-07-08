@@ -7,6 +7,7 @@ import grails.converters.JSON
 
 //import grails.compiler.GrailsCompileStatic
 import grails.transaction.Transactional
+import grails.transaction.NotTransactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -537,8 +538,9 @@ class RequestHandlingService {
         return updateFeatureContainer
     }
 
-
+    @Transactional(readOnly = true)
     JSONObject getFeatures(JSONObject inputObject) {
+
 
 
         String sequenceName = permissionService.getSequenceNameFromInput(inputObject)
@@ -553,7 +555,14 @@ class RequestHandlingService {
         Set<Feature> featureSet = new HashSet<>()
 
 
+        long start = System.currentTimeMillis();
         List<Feature> topLevelTranscripts = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationList])
+
+        long durationInMilliseconds = System.currentTimeMillis()-start;
+
+        log.debug "selecting features all ${durationInMilliseconds}"
+
+        start = System.currentTimeMillis();
         for (Feature feature in topLevelTranscripts) {
             if (feature instanceof Gene) {
                 for (Transcript transcript : transcriptService.getTranscripts(feature)) {
@@ -572,12 +581,9 @@ class RequestHandlingService {
 
         inputObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
 
-        fireAnnotationEvent(new AnnotationEvent(
-                features: inputObject
-                , operation: AnnotationEvent.Operation.ADD
-                , sequence: sequence
-        ))
+        durationInMilliseconds = System.currentTimeMillis()-start;
 
+        log.debug "convert to json ${durationInMilliseconds}"
         return inputObject
 
     }
