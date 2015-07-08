@@ -1,13 +1,6 @@
 package org.bbop.apollo
 
-import grails.web.JSONBuilder
 import org.bbop.apollo.sequence.DownloadFile
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.codehaus.groovy.grails.core.io.ResourceLocator
-import org.springframework.core.io.Resource
-import grails.converters.JSON
-import org.json.JSONString
 
 class IOServiceController extends AbstractApolloController {
     
