@@ -62,8 +62,11 @@ class IOServiceController extends AbstractApolloController {
         }
 
         //generating a html fragment with the link for download that can be rendered on client side
-        String htmlResponseString = "<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe>"+
-                "<a href='IOService/download/?filePath=${outputFile.path}&fileType=${typeOfExport}&fileName=${fileName}' target='hidden_iframe'>${fileName}</a></body></html>"
+        String htmlResponseString = "<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe><a href='@DOWNLOAD_LINK_URL@' target='hidden_iframe'>@DOWNLOAD_LINK@</a></body></html>"
+        String downloadLinkUrl = 'IOService/download/?filePath=' + URLEncoder.encode(outputFile.path) + "&fileType=" + typeOfExport + "&fileName=" + URLEncoder.encode(fileName)
+        htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK_URL@", downloadLinkUrl)
+        htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK@", fileName)
+
         render text: htmlResponseString, contentType: "text/html", encoding: "UTF-8"
     }
     
