@@ -20,7 +20,7 @@ class IOServiceController extends AbstractApolloController {
     def handleOperation(String track, String operation) {
         log.debug "Requested parameterMap: ${request.parameterMap.keySet()}"
         log.debug "upstream params: ${params}"
-        JSONObject postObject = findPost()
+//        JSONObject postObject = findPost()
         //operation = postObject.get(REST_OPERATION)
         //TODO: Currently not using the findPost()
         def mappedAction = underscoreToCamelCase(operation)
