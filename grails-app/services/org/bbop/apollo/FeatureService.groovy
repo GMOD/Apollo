@@ -2060,20 +2060,19 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put(FeatureStringEnum.NOTES.value, notesArray)
 
             // get children
-//            Collection<FeatureRelationship> parentRelationships = gsolFeature.parentFeatureRelationships;
-            List<Feature> childFeatures = featureRelationshipService.getChildrenForFeatureAndTypes(gsolFeature)
-            if (childFeatures) {
+            Collection<FeatureRelationship> parentRelationships = gsolFeature.parentFeatureRelationships;
+            if (parentRelationships) {
                 JSONArray children = new JSONArray();
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
-                for (Feature f : childFeatures) {
-                    Feature childFeature = f
+                for (FeatureRelationship fr : parentRelationships) {
+                    Feature childFeature = fr.childFeature
                     children.put(convertFeatureToJSON(childFeature, includeSequence));
                 }
             }
             // get parents
-            List<Feature> parentFeatures = featureRelationshipService.getParentsForFeature(gsolFeature)
-            if (parentFeatures?.size() == 1) {
-                Feature parent = parentFeatures.iterator().next();
+            Collection<FeatureRelationship> childFeatureRelationships = gsolFeature.childFeatureRelationships
+            if (childFeatureRelationships?.size() == 1) {
+                Feature parent = childFeatureRelationships.iterator().next().getParentFeature();
                 jsonFeature.put(FeatureStringEnum.PARENT_ID.value, parent.getUniqueName());
                 jsonFeature.put(FeatureStringEnum.PARENT_TYPE.value, generateJSONFeatureStringForType(parent.ontologyId));
             }
