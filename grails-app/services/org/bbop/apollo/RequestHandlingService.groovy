@@ -538,7 +538,7 @@ class RequestHandlingService {
         return updateFeatureContainer
     }
 
-    @NotTransactional
+    @Transactional(readOnly = true)
     JSONObject getFeatures(JSONObject inputObject) {
 
 
