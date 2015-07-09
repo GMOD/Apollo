@@ -92,6 +92,67 @@ The solution is to copy over one of the ``sample-XXX-config.groovy`` files to ``
 <a href="https://github.com/GMOD/Apollo/blob/master/docs/Configure.md">More detail on configuration</a> of the ``apollo-config.groovy`` file.
 
 
+### Cache Error
 
+In some instances you can't write to the default cache location on disk.  Part of an example config log:
+
+```
+2015-07-03 14:37:39,675 [main] ERROR context.GrailsContextLoaderListener  - Error initializing the application: null
+    java.lang.NullPointerException
+            at grails.plugin.cache.ehcache.GrailsEhCacheManagerFactoryBean$ReloadableCacheManager.rebuild(GrailsEhCacheManagerFactoryBean.java:171)
+            at grails.plugin.cache.ehcache.EhcacheConfigLoader.reload(EhcacheConfigLoader.groovy:63)
+            at grails.plugin.cache.ConfigLoader.reload(ConfigLoader.groovy:42)
+```
+
+There are several solutions to this, but all involve updating the ```apollo-config.groovy``` file to override the caching defined in the [Config.groovy](https://github.com/GMOD/Apollo/blob/master/grails-app/conf/Config.groovy#L103).
+
+1) Disabling the cache:
+```
+grails.cache.config = {
+    cache {
+        enabled = false
+        name 'globalcache'
+    }
+}
+```
+
+2) Disallow writing overflow to disk (best solution for small installations):
+
+```
+grails.cache.config = {
+    // avoid ehcache naming conflict to run multiple WA instances
+    provider {
+        name "ehcache-apollo-"+(new Date().format("yyyyMMddHHmmss"))
+    }
+    cache {
+        enabled = true
+        name 'globalcache'
+        eternal false
+        overflowToDisk false   // THIS IT THE IMPORTANT LINE!
+        maxElementsInMemory 100000
+    }
+}
+```
+
+3) Specify the overflow directory (best for high load servers, which will need the cache).  Make sure your tomcat / web-server user can write to that directory:
+```
+// copy from Config.groovy except where noted
+grails.cache.config = {
+... 
+    cache {
+    ...  
+        maxElementsOnDisk 10000000
+        // this is the important part, below!
+        diskStore{
+            path '/opt/apollo/cache-directory'
+        }
+    }
+    ...
+}
+```
+
+
+Information on the [grails ehcache plugin](http://grails-plugins.github.io/grails-cache-ehcache/guide/usage.html) (see "Overriding values") and
+[ehcache itself](http://ehcache.org/documentation/2.8/integrations/grails).
  
 
