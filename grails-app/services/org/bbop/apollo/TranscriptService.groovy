@@ -231,8 +231,8 @@ class TranscriptService {
     @Transactional
     def addExon(Transcript transcript, Exon exon) {
 
-        log.debug "exon feature lcoations ${exon.featureLocation}"
-        log.debug "transcript feature lcoations ${transcript.featureLocation}"
+        log.debug "exon feature locations ${exon.featureLocation}"
+        log.debug "transcript feature locations ${transcript.featureLocation}"
         if (exon.getFeatureLocation().getFmin() < transcript.getFeatureLocation().getFmin()) {
             transcript.getFeatureLocation().setFmin(exon.getFeatureLocation().getFmin());
         }
