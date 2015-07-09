@@ -43,7 +43,7 @@ public class SequenceRestService {
                 String filePath = responseObject.get("filePath").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();
                 String sequenceType = responseObject.get("sequenceType").isString().stringValue();
-                String exportUrl = Annotator.getRootUrl() + "sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType;
+                String exportUrl = Annotator.getRootUrl() + "IOService/download?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType;
                 exportPanel.setExportUrl(exportUrl);
             }
 
@@ -53,7 +53,7 @@ public class SequenceRestService {
             }
         };
 
-        RestService.sendRequest(requestCallback, "sequence/exportSequences/", "data=" + jsonObject.toString());
+        RestService.sendRequest(requestCallback, "IOService/write", "data=" + jsonObject.toString());
     }
 
     public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Integer start, Integer end) {
