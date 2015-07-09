@@ -4,6 +4,7 @@ import org.bbop.apollo.sequence.DownloadFile
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import java.util.zip.GZIPOutputStream
 
 class IOServiceController extends AbstractApolloController {
     
@@ -42,7 +43,8 @@ class IOServiceController extends AbstractApolloController {
         String exportGff3Fasta = dataObject.exportGff3Fasta
         String output = dataObject.output
         String sequences = dataObject.sequences
-        Organism organism = Organism.findByCommonName(dataObject.organism)?:preferenceService.getCurrentOrganismForCurrentUser()
+        String format = dataObject.format
+        Organism organism = dataObject.organism?Organism.findByCommonName(dataObject.organism):preferenceService.getCurrentOrganismForCurrentUser()
         log.debug "JERE ${typeOfExport} ${output} ${sequences}"
 
         def sequenceList
@@ -73,12 +75,11 @@ class IOServiceController extends AbstractApolloController {
             // adding sequence alterations to list of features to export
             listOfSequenceAlterations = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in :sequenceList and f.class in :alterationTypes", [sequenceList: sequenceList, alterationTypes: alterationTypes])
             listOfFeatures.addAll(listOfSequenceAlterations)
-            log.debug "TESTING ${exportAllSequences}"
             if(exportAllSequences!="true"&&sequenceList.size()==1) {
-                fileName = "Annotations-" + sequences + "." + typeOfExport.toLowerCase()
+                fileName = "Annotations-" + sequences + "." + typeOfExport.toLowerCase() + (format=="gzip"?".gz":"")
             }
             else {
-                fileName = "Annotations" + "." + typeOfExport.toLowerCase()
+                fileName = "Annotations" + "." + typeOfExport.toLowerCase() + (format=="gzip"?".gz":"")
             }
             // call gff3HandlerService
             if (exportGff3Fasta == "true") {
@@ -88,10 +89,10 @@ class IOServiceController extends AbstractApolloController {
             }
         } else if (typeOfExport == "FASTA") {
             if(exportAllSequences!="true"&&sequenceList.size()==1) {
-                fileName = "Annotations-" + sequences + "." + sequenceType + "." + typeOfExport.toLowerCase()
+                fileName = "Annotations-" + sequences + "." + sequenceType + "." + typeOfExport.toLowerCase() + (format=="gzip"?".gz":"")
             }
             else {
-                fileName = "Annotations" + "." + sequenceType + "." + typeOfExport.toLowerCase()
+                fileName = "Annotations" + "." + sequenceType + "." + typeOfExport.toLowerCase() + (format=="gzip"?".gz":"")
             }
 
             // call fastaHandlerService
@@ -113,7 +114,8 @@ class IOServiceController extends AbstractApolloController {
             def jsonObject = [
                 "uuid":uuidString,
                 "exportType": typeOfExport,
-                "sequenceType": sequenceType
+                "sequenceType": sequenceType,
+                "format": format
             ]
             render jsonObject as JSON
         }
@@ -121,7 +123,7 @@ class IOServiceController extends AbstractApolloController {
 
             //generating a html fragment with the link for download that can be rendered on client side
             String htmlResponseString = "<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe><a href='@DOWNLOAD_LINK_URL@' target='hidden_iframe'>@DOWNLOAD_LINK@</a></body></html>"
-            String downloadLinkUrl = 'IOService/download/?uuid=' + uuidString + "&fileType=" + typeOfExport
+            String downloadLinkUrl = 'IOService/download/?uuid=' + uuidString + "&fileType=" + typeOfExport + "&format=" + format
             htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK_URL@", downloadLinkUrl)
             htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK@", fileName)
             render text: htmlResponseString, contentType: "text/html", encoding: "UTF-8"
@@ -134,16 +136,25 @@ class IOServiceController extends AbstractApolloController {
     def download() {
         String uuid = params.uuid
         DownloadFile downloadFile = fileMap.remove(uuid)
-        def file = new File(downloadFile.path)
-        if (!file.exists())
-            return
-        response.contentType = "txt"
-        //TODO: Support for gzipped output
+        def file
+        if(downloadFile) {
+            file = new File(downloadFile.path)
+            if (!file.exists())
+                return
+        }
+        else return
+
         response.setHeader("Content-disposition", "attachment; filename=${downloadFile.fileName}")
-        def outputStream = response.outputStream
-        outputStream << file.text
-        outputStream.flush()
-        outputStream.close()
+        if(params.format=="gzip") {
+            new GZIPOutputStream(response.outputStream).withWriter{ it << file.text }
+        }
+        else {
+            def outputStream = response.outputStream
+            outputStream << file.text
+            outputStream.flush()
+            outputStream.close()
+        }
+
         file.delete()
     }
 }
