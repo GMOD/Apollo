@@ -265,8 +265,12 @@ class SequenceService {
         if (type.equals(FeatureStringEnum.TYPE_PEPTIDE.value)) {
             if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
                 CDS cds = transcriptService.getCDS((Transcript) gbolFeature)
+                Boolean readThroughStop = false
+                if (cdsService.getStopCodonReadThrough(cds).size() > 0) {
+                    readThroughStop = true
+                }
                 String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds)
-                featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(cds) != null)
+                featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, readThroughStop)
                 if (featureResidues.charAt(featureResidues.size() - 1) == StandardTranslationTable.STOP.charAt(0)) {
                     featureResidues = featureResidues.substring(0, featureResidues.size() - 1)
                 }
@@ -281,7 +285,11 @@ class SequenceService {
             } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
                 log.debug "Fetching peptide sequence for selected exon: ${gbolFeature}"
                 String rawSequence = exonService.getCodingSequenceInPhase((Exon) gbolFeature, true)
-                featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(transcriptService.getCDS(exonService.getTranscript((Exon) gbolFeature))) != null)
+                Boolean readThroughStop = false
+                if (cdsService.getStopCodonReadThrough(transcriptService.getCDS(exonService.getTranscript((Exon) gbolFeature))).size() > 0) {
+                    readThroughStop = true
+                }
+                featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, readThroughStop)
                 if (featureResidues.length()>0 && featureResidues.charAt(featureResidues.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
                     featureResidues = featureResidues.substring(0, featureResidues.length() - 1)
                 }
