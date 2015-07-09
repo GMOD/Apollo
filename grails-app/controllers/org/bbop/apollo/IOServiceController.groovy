@@ -42,8 +42,9 @@ class IOServiceController extends AbstractApolloController {
         String exportAllSequences = dataObject.exportAllSequences
         String exportGff3Fasta = dataObject.exportGff3Fasta
         String output = dataObject.output
-        String sequences = dataObject.sequences
         String format = dataObject.format
+        log.debug "${dataObject.sequences}"
+        def sequences = dataObject.sequences // can be array or string
         Organism organism = dataObject.organism?Organism.findByCommonName(dataObject.organism):preferenceService.getCurrentOrganismForCurrentUser()
         log.debug "JERE ${typeOfExport} ${output} ${sequences}"
 
