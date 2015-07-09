@@ -1,12 +1,6 @@
 package org.bbop.apollo
 
-import grails.web.JSONBuilder
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.codehaus.groovy.grails.core.io.ResourceLocator
-import org.springframework.core.io.Resource
-import grails.converters.JSON
-import org.json.JSONString
+import org.bbop.apollo.sequence.DownloadFile
 
 class IOServiceController extends AbstractApolloController {
     
@@ -15,8 +9,12 @@ class IOServiceController extends AbstractApolloController {
     def gff3HandlerService
     def fastaHandlerService
     def preferenceService
-    def grailsResourceLocator
-    
+
+    //
+    // this is a map of uuid / filename
+    // see #464
+    private Map<String,DownloadFile> fileMap = new HashMap<>()
+
     def index() { }
     
     def handleOperation(String track, String operation) {
@@ -79,6 +77,18 @@ class IOServiceController extends AbstractApolloController {
             fastaHandlerService.writeFeatures(listOfFeatures, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
         }
 
+        //generating a html fragment with the link for download that can be rendered on client side
+        String htmlResponseString = "<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe><a href='@DOWNLOAD_LINK_URL@' target='hidden_iframe'>@DOWNLOAD_LINK@</a></body></html>"
+        String uuidString = UUID.randomUUID().toString()
+        DownloadFile downloadFile = new DownloadFile(
+                uuid: uuidString
+                ,path: outputFile.path
+                ,fileName: fileName
+        )
+        fileMap.put(uuidString,downloadFile)
+        String downloadLinkUrl = 'IOService/download/?uuid=' + uuidString + "&fileType=" + typeOfExport
+        htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK_URL@", downloadLinkUrl)
+        htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK@", fileName)
 
         if(output=="json") {
             JSONObject jsonObject = new JSONObject()
@@ -101,13 +111,14 @@ class IOServiceController extends AbstractApolloController {
     }
     
     def download() {
-        def file = new File(params.filePath)
+        String uuid = params.uuid
+        DownloadFile downloadFile = fileMap.remove(uuid)
+        def file = new File(downloadFile.path)
         if (!file.exists())
             return
         response.contentType = "txt"
         //TODO: Support for gzipped output
-        String fileName = params.fileName
-        response.setHeader("Content-disposition", "attachment; filename=${fileName}")
+        response.setHeader("Content-disposition", "attachment; filename=${downloadFile.fileName}")
         def outputStream = response.outputStream
         outputStream << file.text
         outputStream.flush()

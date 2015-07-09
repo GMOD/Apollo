@@ -8,6 +8,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -53,7 +54,8 @@ public class SequencePanel extends Composite {
     DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>(20, tablecss);
     @UiField(provided = true)
     SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);
-    ;
+//    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER, (SimplePager.Resources) GWT.create(SimplePager.Resources.class), false, 0, true);
+
 
     @UiField
     HTML sequenceName;
@@ -101,6 +103,7 @@ public class SequencePanel extends Composite {
                 return object.getLength();
             }
         };
+        lengthColumn.setDefaultSortAscending(false);
         lengthColumn.setSortable(true);
 
 
@@ -119,10 +122,9 @@ public class SequencePanel extends Composite {
                 } else {
                     setSequenceInfo(null);
                 }
-                if(selectedSequenceInfo.size()>0){
-                    exportSelectedButton.setText("Selected ("+selectedSequenceInfo.size()+")");
-                }
-                else{
+                if (selectedSequenceInfo.size() > 0) {
+                    exportSelectedButton.setText("Selected (" + selectedSequenceInfo.size() + ")");
+                } else {
                     exportSelectedButton.setText("Selected");
                 }
                 exportSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
@@ -142,7 +144,14 @@ public class SequencePanel extends Composite {
                 RequestCallback requestCallback = new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
+//                        Window.alert(response.getText());
                         JSONArray jsonArray = JSONParser.parseLenient(response.getText()).isArray();
+                        Integer sequenceCount = 0;
+                        if (jsonArray.size() > 0) {
+                            JSONObject jsonObject = jsonArray.get(0).isObject();
+                            sequenceCount = (int) jsonObject.get("sequenceCount").isNumber().doubleValue();
+                        }
+                        dataGrid.setRowCount(sequenceCount, true);
                         dataGrid.setRowData(start, SequenceInfoConverter.convertFromJsonArray(jsonArray));
                     }
 
@@ -161,12 +170,6 @@ public class SequencePanel extends Composite {
                     Boolean sortNameAscending = nameSortInfo.isAscending();
                     SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, searchColumnString, sortNameAscending, minFeatureLength.getText(), maxFeatureLength.getText());
                 }
-//                nameSortInfo = sortList.get(1)
-//                if (nameSortInfo.getColumn().isSortable()) {
-//                    Boolean sortLengthAscending = nameSortInfo.isAscending();
-//                    SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, "length", sortLengthAscending, minFeatureLength.getText(), maxFeatureLength.getText());
-//                }
-
             }
         };
 
@@ -214,7 +217,7 @@ public class SequencePanel extends Composite {
                     Scheduler.get().scheduleDeferred(new Command() {
                         @Override
                         public void execute() {
-                            selectedCount = 0 ;
+                            selectedCount = 0;
                             multiSelectionModel.clear();
                             updatedExportSelectedButton();
                             reload();
@@ -259,7 +262,7 @@ public class SequencePanel extends Composite {
     private void updatedExportSelectedButton() {
         if (selectedCount > 0) {
             exportSelectedButton.setEnabled(true);
-            exportSelectedButton.setText("Selected (" + multiSelectionModel.getSelectedSet().size()+ ")");
+            exportSelectedButton.setText("Selected (" + multiSelectionModel.getSelectedSet().size() + ")");
         } else {
             exportSelectedButton.setEnabled(false);
             exportSelectedButton.setText("None Selected");
@@ -346,7 +349,7 @@ public class SequencePanel extends Composite {
         return true;
     }
 
-    private void exportValues(List<SequenceInfo> sequenceInfoList ) {
+    private void exportValues(List<SequenceInfo> sequenceInfoList) {
         OrganismInfo organismInfo = MainPanel.getInstance().getCurrentOrganism();
         // get the type based on the active button
         String type = null;

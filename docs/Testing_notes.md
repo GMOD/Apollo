@@ -1,21 +1,24 @@
 
 ## Testing Notes:
-The unit testing framework is defined in better detail than I will describe here: http://grails.github.io/grails-doc/2.4.3/guide/testing.html
-Spock (what grails uses) is defined here: https://code.google.com/p/spock/wiki/SpockBasics
+The unit testing framework is defined in better detail than what we here describe at: http://grails.github.io/grails-doc/2.4.3/guide/testing.html
+
+Spock (used by Grails) is defined here: https://code.google.com/p/spock/wiki/SpockBasics
 
 
-My basic methodology is to enter the prompt by typing “grails” and then type
+Our basic methodology is to enter the prompt by typing “grails” and then type:
 
     test-app :unit-test
 
-This runs ALL of the tests in “test/unit” If you want to test a specific function then write it something like this:
+This runs ALL of the tests in “test/unit”. If you want to test a specific function then write it something like this:
 
     test-app org.bbop.apollo.FeatureService :unit 
 
-This runs the tests in FeatureServiceSpec . . some of which is below.  Some important points:
+This runs the tests in FeatureServiceSpec . . some of which is below.  
+
+Some important points:
 
 1. @Mock includes any domain objects you’ll use.  Unit tests don’t use the database.
-2. setup() is run for each test I believe 
+2. setup() is run for each test (*we believe*) 
 3. when: “” then: “”   You have to have both or it is not a test. 
 4. Notice the valid groovy notation  .name == “Chr3”, it implies the Java .equals() function . . everywhere . . . . groovy rox
 

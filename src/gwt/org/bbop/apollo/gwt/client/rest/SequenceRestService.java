@@ -40,10 +40,10 @@ public class SequenceRestService {
             public void onResponseReceived(Request request, Response response) {
                 GWT.log("RESPONSE: " + response.getText());
                 JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
-                String filePath = responseObject.get("filePath").isString().stringValue();
+                String uuid = responseObject.get("uuid").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();
                 String sequenceType = responseObject.get("sequenceType").isString().stringValue();
-                String exportUrl = Annotator.getRootUrl() + "IOService/download?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType;
+                String exportUrl = Annotator.getRootUrl() + "sequence/exportHandler/?uuid=" + uuid + "&exportType=" + exportType + "&sequenceType=" + sequenceType;
                 exportPanel.setExportUrl(exportUrl);
             }
 

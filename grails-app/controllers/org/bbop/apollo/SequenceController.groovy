@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.sequence.DownloadFile
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -23,6 +24,10 @@ class SequenceController {
     def gff3HandlerService
     def permissionService
     def preferenceService
+
+
+    // see #464
+    private Map<String,DownloadFile> fileMap = new HashMap<>()
 
     def permissions() {  }
 
@@ -189,8 +194,14 @@ class SequenceController {
             // call fastaHandlerService
             fastaHandlerService.writeFeatures(listOfFeatures, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
         }
+        String uuidString = UUID.randomUUID().toString()
+        DownloadFile downloadFile = new DownloadFile(
+                uuid: uuidString
+                ,path: outputFile.path
+        )
+        fileMap.put(uuidString,downloadFile)
         JSONObject jsonObject = new JSONObject()
-        jsonObject.put("filePath", outputFile.path)
+        jsonObject.put("uuid", uuidString)
         jsonObject.put("exportType", typeOfExport)
         jsonObject.put("sequenceType", sequenceType)
         render jsonObject as JSON
@@ -198,8 +209,9 @@ class SequenceController {
 
     def exportHandler() {
         log.debug "params to exportHandler: ${params}"
-        String pathToFile = params.filePath
-        def file = new File(pathToFile)
+        String uuid = params.uuid
+        DownloadFile downloadFile = fileMap.remove(uuid)
+        def file = new File(downloadFile.path)
         response.contentType = "txt"
         if (params.exportType == "GFF3") {
             response.setHeader("Content-disposition", "attachment; filename=Annotations.gff3")
@@ -245,8 +257,15 @@ class SequenceController {
             minFeatureLength = minFeatureLength ?: 0
             maxFeatureLength = maxFeatureLength ?: Integer.MAX_VALUE
             List<Sequence> sequences
+            def sequenceCount = Sequence.countByOrganismAndNameIlikeAndLengthGreaterThanEqualsAndLengthLessThanEquals(organism, "%${name}%", minFeatureLength, maxFeatureLength )
             sequences = Sequence.findAllByOrganismAndNameIlikeAndLengthGreaterThanEqualsAndLengthLessThanEquals(organism, "%${name}%", minFeatureLength, maxFeatureLength, [offset: start, max: length, sort: sort, order: asc ? "asc" : "desc"])
-            render sequences as JSON
+            JSONArray returnSequences = JSON.parse( (sequences as JSON).toString()) as JSONArray
+
+            for(int i = 0 ; i < returnSequences.size() ; i++){
+                returnSequences.getJSONObject(i).put("sequenceCount",sequenceCount)
+            }
+
+            render returnSequences as JSON
         }
         catch(PermissionException e) {
             def error=[error: "Error: "+e]

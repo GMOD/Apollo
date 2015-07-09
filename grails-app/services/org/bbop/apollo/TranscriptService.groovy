@@ -1,16 +1,12 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import grails.transaction.Transactional
-import grails.transaction.NotTransactional
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 //import grails.compiler.GrailsCompileStatic
 
 //@GrailsCompileStatic
-@Transactional
+@Transactional(readOnly = true)
 class TranscriptService {
 
     List<String> ontologyIds = [Transcript.ontologyId, SnRNA.ontologyId, MRNA.ontologyId, SnoRNA.ontologyId, MiRNA.ontologyId, TRNA.ontologyId, NcRNA.ontologyId, RRNA.ontologyId]
@@ -30,7 +26,6 @@ class TranscriptService {
      *
      * @return CDS associated with this transcript
      */
-    @NotTransactional
     public CDS getCDS(Transcript transcript) {
         return (CDS) featureRelationshipService.getChildForFeature(transcript, CDS.ontologyId)
 
@@ -42,11 +37,10 @@ class TranscriptService {
      *
      * @return Collection of exons associated with this transcript
      */
-    @NotTransactional
     public Collection<Exon> getExons(Transcript transcript) {
         return (Collection<Exon>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript, Exon.ontologyId)
     }
-    @NotTransactional
+
     public Collection<Exon> getSortedExons(Transcript transcript) {
         Collection<Exon> exons = getExons(transcript)
         List<Exon> sortedExons = new LinkedList<Exon>(exons);
@@ -60,16 +54,14 @@ class TranscriptService {
      *
      * @return Gene that this Transcript is associated with
      */
-    @NotTransactional
     public Gene getGene(Transcript transcript) {
-        return (Gene) featureRelationshipService.getParentForFeature(transcript, Gene.ontologyId,Pseudogene.ontologyId)
+        return (Gene) featureRelationshipService.getParentForFeature(transcript, Gene.ontologyId, Pseudogene.ontologyId)
     }
-    @NotTransactional
+
     public Pseudogene getPseudogene(Transcript transcript) {
         return (Pseudogene) featureRelationshipService.getParentForFeature(transcript, Pseudogene.ontologyId)
     }
 
-    @NotTransactional
     public boolean isProteinCoding(Transcript transcript) {
         return transcript instanceof MRNA
 //        if (getGene(transcript) != null && getGene(transcript) instanceof Pseudogene) {
@@ -78,6 +70,7 @@ class TranscriptService {
 //        return true;
     }
 
+    @Transactional
     CDS createCDS(Transcript transcript) {
         String uniqueName = transcript.getUniqueName() + FeatureStringEnum.CDS_SUFFIX.value;
 
@@ -107,6 +100,7 @@ class TranscriptService {
      *
      * @param transcript - Transcript to be deleted
      */
+    @Transactional
     public void deleteTranscript(Gene gene, Transcript transcript) {
         featureRelationshipService.removeFeatureRelationship(gene, transcript)
 
@@ -136,16 +130,15 @@ class TranscriptService {
      *
      * @return Collection of transcripts associated with this gene
      */
-    @NotTransactional
     public Collection<Transcript> getTranscripts(Gene gene) {
         return (Collection<Transcript>) featureRelationshipService.getChildrenForFeatureAndTypes(gene, ontologyIds as String[])
     }
 
-    @NotTransactional
     List<Transcript> getTranscriptsSortedByFeatureLocation(Gene gene, boolean sortByStrand) {
         return getTranscripts(gene).sort(true, new FeaturePositionComparator<Transcript>(sortByStrand))
     }
 
+    @Transactional
     public void setFmin(Transcript transcript, Integer fmin) {
         transcript.getFeatureLocation().setFmin(fmin);
         Gene gene = getGene(transcript)
@@ -154,6 +147,7 @@ class TranscriptService {
         }
     }
 
+    @Transactional
     public void setFmax(Transcript transcript, Integer fmax) {
         transcript.getFeatureLocation().setFmax(fmax);
         Gene gene = getGene(transcript)
@@ -162,6 +156,7 @@ class TranscriptService {
         }
     }
 
+    @Transactional
     def updateGeneBoundaries(Transcript transcript) {
         Gene gene = getGene(transcript)
         if (gene == null) {
@@ -183,7 +178,7 @@ class TranscriptService {
         // not sure if we want this if not actually saved
 //        gene.setLastUpdated(new Date());
     }
-    @NotTransactional
+
     List<String> getFrameShiftOntologyIds() {
         List<String> intFrameshiftOntologyIds = new ArrayList<>()
 
@@ -195,7 +190,7 @@ class TranscriptService {
 
         return intFrameshiftOntologyIds
     }
-    @NotTransactional
+
     List<Frameshift> getFrameshifts(Transcript transcript) {
         return featureRelationshipService.getFeaturePropertyForTypes(transcript, frameShiftOntologyIds)
     }
@@ -205,6 +200,7 @@ class TranscriptService {
      *
      * @param cds - CDS to be set to this transcript
      */
+    @Transactional
     public void setCDS(Feature feature, CDS cds, boolean replace = true) {
         if (replace) {
             log.debug "replacing CDS on feature"
@@ -232,6 +228,7 @@ class TranscriptService {
         feature.save(flush: true)
     }
 
+    @Transactional
     def addExon(Transcript transcript, Exon exon) {
 
         log.debug "exon feature lcoations ${exon.featureLocation}"
@@ -270,11 +267,12 @@ class TranscriptService {
         updateGeneBoundaries(transcript);  // 6, moved transcript fmin, fmax
         log.debug "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
     }
-    @NotTransactional
+
     Transcript getParentTranscriptForFeature(Feature feature) {
         return (Transcript) featureRelationshipService.getParentForFeature(feature, ontologyIds as String[])
     }
 
+    @Transactional
     Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon) {
         List<Exon> exons = exonService.getSortedExons(transcript)
         Transcript splitTranscript = (Transcript) transcript.getClass().newInstance()
@@ -337,6 +335,7 @@ class TranscriptService {
      *
      * @param transcript - Transcript to be duplicated
      */
+    @Transactional
     public Transcript duplicateTranscript(Transcript transcript) {
         Transcript duplicate = (Transcript) transcript.generateClone();
         duplicate.name = transcript.name + "-copy"
@@ -369,6 +368,7 @@ class TranscriptService {
         return duplicate
     }
 
+    @Transactional
     def mergeTranscripts(Transcript transcript1, Transcript transcript2) {
         // Merging transcripts basically boils down to moving all exons from one transcript to the other
 
@@ -409,6 +409,7 @@ class TranscriptService {
         featureService.removeExonOverlapsAndAdjacencies(transcript1);
     }
 
+    @Transactional
     Transcript flipTranscriptStrand(Transcript oldTranscript) {
         Gene oldGene = getGene(oldTranscript)
         boolean isPseudogene = oldGene instanceof Pseudogene
@@ -453,7 +454,7 @@ class TranscriptService {
 
         return oldTranscript;
     }
-    @NotTransactional
+
     String getResiduesFromTranscript(Transcript transcript) {
         def exons = exonService.getSortedExons(transcript)
         if (!exons) {
@@ -466,7 +467,7 @@ class TranscriptService {
         }
         return residues.size() > 0 ? residues.toString() : null
     }
-    @NotTransactional
+
     Transcript getTranscript(CDS cds) {
         return (Transcript) featureRelationshipService.getParentForFeature(cds, ontologyIds as String[])
     }
