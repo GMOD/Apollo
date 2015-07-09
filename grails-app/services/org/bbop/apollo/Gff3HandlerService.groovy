@@ -4,16 +4,9 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import org.bbop.apollo.sequence.Strand;
 
-//import *;
-//import util.BioObjectUtil;
-//import *;
-
 import java.io.*;
 import java.util.*
-
 //import groovy.transform.CompileStatic
-//
-//
 //@CompileStatic
 //@GrailsCompileStatic
 public class Gff3HandlerService {

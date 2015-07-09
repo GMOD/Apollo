@@ -29,12 +29,12 @@ public class SequenceRestService {
         jsonObject.put("sequenceType", new JSONString(exportPanel.getSequenceType()));
         jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
         jsonObject.put("exportGff3Fasta", new JSONString(exportPanel.getExportGff3Fasta().toString()));
+        jsonObject.put("output", new JSONString("json"));
         JSONArray jsonArray = new JSONArray();
         for (SequenceInfo sequenceInfo : exportPanel.getSequenceList()) {
             jsonArray.set(jsonArray.size(), sequenceInfo.toJSON());
         }
         jsonObject.put("sequences", jsonArray);
-        GWT.log("GWTLAND: " + jsonObject.toString());
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -43,13 +43,13 @@ public class SequenceRestService {
                 String uuid = responseObject.get("uuid").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();
                 String sequenceType = responseObject.get("sequenceType").isString().stringValue();
-                String exportUrl = Annotator.getRootUrl() + "sequence/exportHandler/?uuid=" + uuid + "&exportType=" + exportType + "&sequenceType=" + sequenceType;
+                String exportUrl = Annotator.getRootUrl() + "IOService/download?uuid=" + uuid + "&exportType=" + exportType + "&sequenceType=" + sequenceType;
                 exportPanel.setExportUrl(exportUrl);
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("boo: " + exception);
+                Window.alert("Error: " + exception);
             }
         };
 

@@ -4005,9 +4005,8 @@ define([
                 // }, responseDiv);
 
                 dojo.xhrGet({
-                    url: context_path + "/IOService?operation=write&adapter=" + adapter + "&tracks=" + track.getUniqueTrackName() + "&" + options,
+                    url: context_path + "/IOService?operation=write&adapter=" + adapter + "&sequences=" + track.getUniqueTrackName() + "&" + options,
                     handleAs: "text",
-//		timeout: 5000 * 1000, // Time in milliseconds
                     load: function (response, ioArgs) {
                         console.log("/IOService returned, called load()");
                         dojo.style(waitingDiv, {display: "none"});
@@ -4799,7 +4798,7 @@ define([
             },
 
             getUniqueTrackName: function () {
-                return this.name + "-" + this.refSeq.name;
+                return this.refSeq.name;
             },
 
             openDialog: function (title, data, width, height) {
