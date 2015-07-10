@@ -39,7 +39,6 @@ public class SequenceRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                GWT.log("RESPONSE: " + response.getText());
                 JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
                 String uuid = responseObject.get("uuid").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();
