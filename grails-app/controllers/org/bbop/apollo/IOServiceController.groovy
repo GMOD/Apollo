@@ -39,7 +39,7 @@ class IOServiceController extends AbstractApolloController {
             if(params.data) dataObject=JSON.parse(params.data)
             log.debug "data ${dataObject}"
             String typeOfExport = dataObject.type
-            String sequenceType = dataObject.sequenceType
+            String sequenceType = dataObject.seqType
             String exportAllSequences = dataObject.exportAllSequences
             String exportGff3Fasta = dataObject.exportGff3Fasta
             String output = dataObject.output
@@ -117,7 +117,7 @@ class IOServiceController extends AbstractApolloController {
                 def jsonObject = [
                     "uuid":uuidString,
                     "exportType": typeOfExport,
-                    "sequenceType": sequenceType,
+                    "seqType": sequenceType,
                     "format": format
                 ]
                 render jsonObject as JSON
@@ -137,7 +137,7 @@ class IOServiceController extends AbstractApolloController {
         }
         catch(Exception e) {
             def error=[error: e.message]
-            log.error e.message
+            e.printStackTrace()
             render error as JSON
         }
 

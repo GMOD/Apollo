@@ -26,7 +26,7 @@ public class SequenceRestService {
     public static void generateLink(final ExportPanel exportPanel) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("type", new JSONString(exportPanel.getType()));
-        jsonObject.put("sequenceType", new JSONString(exportPanel.getSequenceType()));
+        jsonObject.put("seqType", new JSONString(exportPanel.getSequenceType()));
         jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
         jsonObject.put("exportGff3Fasta", new JSONString(exportPanel.getExportGff3Fasta().toString()));
         jsonObject.put("output", new JSONString("json"));
@@ -40,10 +40,11 @@ public class SequenceRestService {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
+                GWT.log("Received response: "+responseObject.toString());
                 String uuid = responseObject.get("uuid").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();
-                String sequenceType = responseObject.get("sequenceType").isString().stringValue();
-                String exportUrl = Annotator.getRootUrl() + "IOService/download?uuid=" + uuid + "&exportType=" + exportType + "&sequenceType=" + sequenceType;
+                String sequenceType = responseObject.get("seqType").isString().stringValue();
+                String exportUrl = Annotator.getRootUrl() + "IOService/download?uuid=" + uuid + "&exportType=" + exportType + "&seqType=" + sequenceType;
                 exportPanel.setExportUrl(exportUrl);
             }
 
