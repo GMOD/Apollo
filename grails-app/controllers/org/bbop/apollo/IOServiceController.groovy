@@ -112,24 +112,16 @@ class IOServiceController extends AbstractApolloController {
             log.debug "${uuidString}"
             fileMap.put(uuidString,downloadFile)
 
-            if(output=="json") {
+            if(output=="file") {
 
                 def jsonObject = [
                     "uuid":uuidString,
                     "exportType": typeOfExport,
                     "seqType": sequenceType,
-                    "format": format
+                    "format": format,
+                    "filename": fileName
                 ]
                 render jsonObject as JSON
-            }
-            else if(output=="file") {
-
-                //generating a html fragment with the link for download that can be rendered on client side
-                String htmlResponseString = "<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe><a href='@DOWNLOAD_LINK_URL@' target='hidden_iframe'>@DOWNLOAD_LINK@</a></body></html>"
-                String downloadLinkUrl = 'IOService/download/?uuid=' + uuidString + "&fileType=" + typeOfExport + "&format=" + format
-                htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK_URL@", downloadLinkUrl)
-                htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK@", fileName)
-                render text: htmlResponseString, contentType: "text/html", encoding: "UTF-8"
             }
             else {
                 render text: outputFile.text
@@ -140,9 +132,6 @@ class IOServiceController extends AbstractApolloController {
             e.printStackTrace()
             render error as JSON
         }
-
-
-
     }
     
     def download() {

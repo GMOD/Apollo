@@ -29,7 +29,7 @@ public class SequenceRestService {
         jsonObject.put("seqType", new JSONString(exportPanel.getSequenceType()));
         jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
         jsonObject.put("exportGff3Fasta", new JSONString(exportPanel.getExportGff3Fasta().toString()));
-        jsonObject.put("output", new JSONString("json"));
+        jsonObject.put("output", new JSONString("file"));
         JSONArray jsonArray = new JSONArray();
         int i=0;
         for (SequenceInfo sequenceInfo : exportPanel.getSequenceList()) {
