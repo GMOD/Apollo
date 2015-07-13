@@ -40,7 +40,7 @@ class PermissionService {
         return false
     }
 
-    Set<Organism> getOrganisms(User user) {
+    List<Organism> getOrganisms(User user) {
         if (isAdmin()) {
             return Organism.listOrderByCommonName()
         }
@@ -84,7 +84,7 @@ class PermissionService {
     }
 
 
-    public List<PermissionEnum> getOrganismPermissionsForUser(Organism organism, User user) {
+    List<PermissionEnum> getOrganismPermissionsForUser(Organism organism, User user) {
         Set<PermissionEnum> permissions = new HashSet<>()
         if(isUserAdmin(user)){
             permissions.addAll(PermissionEnum.ADMINISTRATE as List)
@@ -113,7 +113,7 @@ class PermissionService {
 
     }
 
-    public List<PermissionEnum> getOrganismPermissionsForUserGroup(Organism organism, UserGroup userGroup) {
+    List<PermissionEnum> getOrganismPermissionsForUserGroup(Organism organism, UserGroup userGroup) {
         Set<PermissionEnum> permissions = new HashSet<>()
 
         List<GroupOrganismPermission> groupPermissionList = GroupOrganismPermission.findAllByOrganismAndGroup(organism, userGroup)
@@ -129,7 +129,7 @@ class PermissionService {
     }
 
 
-    public void setOrganismPermissionsForUser(List<PermissionEnum> permissions, Organism organism, User user) {
+    void setOrganismPermissionsForUser(List<PermissionEnum> permissions, Organism organism, User user) {
 
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByOrganismAndUser(organism, user)
         if (!userOrganismPermission) {
@@ -145,7 +145,7 @@ class PermissionService {
 
     }
 
-    public void setOrganismPermissionsForUserGroup(List<PermissionEnum> permissions, Organism organism, UserGroup group) {
+    void setOrganismPermissionsForUserGroup(List<PermissionEnum> permissions, Organism organism, UserGroup group) {
 
         GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findByOrganismAndGroup(organism, group)
         if (!groupOrganismPermission) {
@@ -170,7 +170,7 @@ class PermissionService {
 
 
     /**
-     * Get all of the highest permissions for a user
+     * Get all of the highest organism permissions for a user
      * @param user
      * @return
      */
@@ -333,28 +333,9 @@ class PermissionService {
     }
 
 
-    /**
-     * This method finds the proper username with their proper organism for the current organism.
-     *
-     * @param inputObject
-     * @param requiredPermissionEnum
-     * @return
-     */
-    Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
+    Organism getOrganismFromInput(JSONObject inputObject) {
+
         Organism organism
-        String trackName = null
-        if (inputObject.has("track")) {
-            trackName = inputObject.track
-        }
-
-        // this is for testing only
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            Sequence sequence = trackName ? Sequence.findByName(trackName) : null
-            return sequence
-        }
-
-        User user = getCurrentUser(inputObject)
-
         if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
             String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
             organism = Organism.findByCommonName(organismString)
@@ -362,11 +343,13 @@ class PermissionService {
                 organism=Organism.findById(organismString as Long);
             if(!organism)
                 log.info "organism not found ${organismString}"
-            else if(user!=null) {
-                log.info "switching organism to ${organism.commonName}"
-                preferenceService.setCurrentOrganism(user, organism)
-            }
         }
+
+        return organism
+    }
+
+    Organism getOrganismFromPreferences(User user, String trackName) {
+        Organism organism
 
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
         if(user!=null) {
@@ -392,13 +375,34 @@ class PermissionService {
             organism = userOrganismPreference.organism
 
         }
+        return organism
+
+    }
+    /**
+     * This method finds the proper username with their proper organism for the current organism.
+     *
+     * @param inputObject
+     * @param requiredPermissionEnum
+     * @return
+     */
+    Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
+        Organism organism
+        String trackName = getSequenceNameFromInput(inputObject)
+
+        // this is for testing only
+        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
+            Sequence sequence = trackName ? Sequence.findByName(trackName) : null
+            return sequence
+        }
+
+        User user = getCurrentUser(inputObject)
+        organism = getOrganismFromInput(inputObject)
+        if(!organism) organism = getOrganismFromPreferences(user,trackName)
+
 
         Sequence sequence = Sequence.findByNameAndOrganism(trackName,organism)
         log.debug "checkPermissions ${sequence} - ${trackName} - ${organism}"
-        if(userOrganismPreference!=null&&userOrganismPreference.sequence?.name!=trackName){
-            userOrganismPreference.sequence = sequence
-            userOrganismPreference.save()
-        }
+
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
@@ -409,8 +413,6 @@ class PermissionService {
             log.debug "permission display ${requiredPermissionEnum.display}"
             throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
-        if(userOrganismPreference!=null)
-            return userOrganismPreference.sequence
         return sequence
     }
 
