@@ -161,4 +161,11 @@ class TrackService {
 
 
 
+    private String convertHashMapToJsonString(Map map) {
+        JSONObject jsonObject = new JSONObject()
+        map.keySet().each {
+            jsonObject.put(it, map.get(it))
+        }
+        return jsonObject.toString()
+    }
 }

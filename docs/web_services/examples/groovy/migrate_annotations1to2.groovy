@@ -47,7 +47,6 @@ if (responseArray == null) {
     return
 }
 
-final String sequencePrefix = "Annotations-"
 uniqueNamesMap = [:]
 featuresMap = [:]
 
@@ -58,7 +57,7 @@ JSONArray addTranscriptArray = new JSONArray()
 
 sequenceArray = options.sequence_names.tokenize(',')
 for (String sequence in sequenceArray) {
-    String sequenceName = sequencePrefix + sequence
+    String sequenceName = sequence
     def featuresResponse = Apollo1Operations.getFeature(options.sourceurl,sequenceName,cookieFile)
     def featuresFromSource  = featuresResponse.features // contains list of mRNAs; Size == number of annotations on chromosome
 

@@ -168,17 +168,9 @@ class PermissionService {
         return jsonArray.toString()
     }
 
-    private String convertHashMapToJsonString(Map map) {
-        JSONObject jsonObject = new JSONObject()
-        map.keySet().each {
-            jsonObject.put(it, map.get(it))
-        }
-        return jsonObject.toString()
-    }
 
     /**
-     * This maps between the two permission schemas.
-     * Here we get all of the highest permissions
+     * Get all of the highest permissions for a user
      * @param user
      * @return
      */
@@ -196,19 +188,6 @@ class PermissionService {
         return returnMap
     }
 
-    User getCurrentUser() {
-        String currentUserName = SecurityUtils.subject.principal
-//        def subject = SecurityUtils.subject
-        if (currentUserName) {
-            User user = User.findByUsername(currentUserName)
-            if (user) {
-                return user
-            }
-
-            Session session = SecurityUtils.subject.session(false)
-        }
-        return null
-    }
 
     PermissionEnum findHighestEnum(List<PermissionEnum> permissionEnums) {
         PermissionEnum highestValue = PermissionEnum.NONE
@@ -228,42 +207,8 @@ class PermissionService {
         return highestValue
     }
 
-    int findHighestEnumRank(List<PermissionEnum> permissionEnums) {
-        int highestValue = -1
-        permissionEnums.each { it ->
-            highestValue = it.rank > highestValue ? it.rank : highestValue
-        }
 
-        return highestValue
-    }
 
-    /**
-     * If it comes through a WebSocket, the USERNAME will be set explcitly
-     * @param jsonTranscript
-     * @return
-     */
-    User findUser(JSONObject jsonTranscript) {
-        String userName = findUserName(jsonTranscript)
-        return userName ? User.findByUsername(userName) : null
-    }
-
-    /**
-     * If it comes through a WebSocket, the USERNAME will be set explcitly
-     * @param jsonTranscript
-     * @return
-     */
-    String findUserName(JSONObject jsonTranscript) {
-        if (jsonTranscript.containsKey(FeatureStringEnum.USERNAME.value)) {
-            return jsonTranscript.getString(FeatureStringEnum.USERNAME.value)
-        } else {
-            try {
-                return SecurityUtils.subject.principal?.toString()
-            } catch (e) {
-                log.info "unable to find user for session ${e}"
-                return null
-            }
-        }
-    }
 
     JSONObject copyUserName(JSONObject fromJSON, JSONObject toJSON) {
         if (fromJSON.containsKey(FeatureStringEnum.USERNAME.value)) {
@@ -285,24 +230,40 @@ class PermissionService {
     public static String getSequenceNameFromInput(JSONObject inputObject) {
         String trackName = null
         if (inputObject.has("sequence")) {
-            trackName = fixTrackHeader(inputObject.sequence)
+            trackName = inputObject.sequence
         }
         if (inputObject.has("track")) {
-            trackName = fixTrackHeader(inputObject.track)
+            trackName = inputObject.track
         }
         return trackName
     }
 
-    private static String fixTrackHeader(String trackInput) {
-        return !trackInput.startsWith("Annotations-") ? trackInput : trackInput.substring("Annotations-".size())
+
+    // get current user from session or input object
+    User getCurrentUser(JSONObject inputObject = new JSONObject()) {
+        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
+            return null
+        }
+
+        String username
+        if (inputObject.has(FeatureStringEnum.USERNAME.value)) {
+            username = inputObject.getString(FeatureStringEnum.USERNAME.value)
+        }
+        if (!username) {
+            username = SecurityUtils.subject.principal
+        }
+        if(!username) {
+            return null;
+        }
+
+        User user = User.findByUsername(username)
+        return user
+
     }
+
 
     /**
      * This method finds the proper username with their proper organism for the current organism.
-     *
-     * If there are no preferences, that is okay, we'll create one from the permissions.
-     *
-     * If there are no permissions then the result is the same . . we throw an exception.
      *
      * @param inputObject
      * @param requiredPermissionEnum
@@ -317,19 +278,9 @@ class PermissionService {
         }
 
         //def session = RequestContextHolder.currentRequestAttributes().getSession()
-        String username
-        if (inputObject.has(FeatureStringEnum.USERNAME.value)) {
-            username = inputObject.getString(FeatureStringEnum.USERNAME.value)
-        }
-        if (!username) {
-            username = SecurityUtils.subject.principal
-        }
-        if (!username) {
-            throw new PermissionException("Unable to find a username to check")
-        }
+        User user = getCurrentUser(inputObject)
 
 
-        User user = User.findByUsername(username)
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
 
         if (!userOrganismPreference) {
@@ -382,36 +333,8 @@ class PermissionService {
     }
 
 
-    User getActiveUser(JSONObject inputObject){
-
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            return null
-        }
-
-        //def session = RequestContextHolder.currentRequestAttributes().getSession()
-        String username
-        if (inputObject.has(FeatureStringEnum.USERNAME.value)) {
-            username = inputObject.getString(FeatureStringEnum.USERNAME.value)
-        }
-        if (!username) {
-            username = SecurityUtils.subject.principal
-        }
-        if(!username) {
-            return null;
-        }
-
-        User user = User.findByUsername(username)
-        return user
-
-    }
-
-
     /**
      * This method finds the proper username with their proper organism for the current organism.
-     *
-     * If there are no preferences, that is okay, we'll create one from the permissions.
-     *
-     * If there are no permissions then the result is the same . . we throw an exception.
      *
      * @param inputObject
      * @param requiredPermissionEnum
@@ -421,7 +344,7 @@ class PermissionService {
         Organism organism
         String trackName = null
         if (inputObject.has("track")) {
-            trackName = fixTrackHeader(inputObject.track)
+            trackName = inputObject.track
         }
 
         // this is for testing only
@@ -430,7 +353,7 @@ class PermissionService {
             return sequence
         }
 
-        User user = getActiveUser(inputObject)
+        User user = getCurrentUser(inputObject)
 
         if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
             String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
@@ -528,11 +451,7 @@ class PermissionService {
 
     }
 
-    def checkPermissions(JSONObject jsonObject, Organism organism, PermissionEnum requiredPermissionEnum) {
-
-        if (Environment.current == Environment.TEST && !jsonObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            return true
-        }
+    PermissionEnum checkPermissions(JSONObject jsonObject, Organism organism, PermissionEnum requiredPermissionEnum) {
 
         //def session = RequestContextHolder.currentRequestAttributes().getSession()
         String username = jsonObject.getString(FeatureStringEnum.USERNAME.value)

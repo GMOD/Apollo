@@ -47,19 +47,9 @@ class FeatureService {
         gsolLocation.setFmin(jsonLocation.getInt(FeatureStringEnum.FMIN.value));
         gsolLocation.setFmax(jsonLocation.getInt(FeatureStringEnum.FMAX.value));
         gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
-//        gsolLocation.setSourceFeature(sourceFeature);
         gsolLocation.setSequence(sequence)
         return gsolLocation;
     }
-
-    /** Get features that overlap a given location.  Compares strand as well as coordinates.
-     *
-     * @param location - FeatureLocation that the features overlap
-     * @return Collection of Feature objects that overlap the FeatureLocation
-     */
-//    public Collection<Feature> getOverlappingFeatures(FeatureLocation location) {
-//        return getOverlappingFeatures(location, true);
-//    }
 
     /** Get features that overlap a given location.
      *
@@ -86,15 +76,8 @@ class FeatureService {
      * @return Collection of Feature objects that overlap the FeatureLocation
      */
     public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands = true) {
-//        LinkedList<Feature> overlappingFeatures = new LinkedList<Feature>();
-
-
         FeatureLocation.findAllBySequenceAndStrandAndFminLessThanEquals(location.sequence, location.strand, location.fmin)
-//            if (compareStrands) {
-//                eq("strand", location.strand)
-//            }
         def results = FeatureLocation.withCriteria {
-//            eq("sourceFeature", location.sourceFeature)
             or {
                 and {
                     le("fmin", location.fmin)
@@ -121,8 +104,6 @@ class FeatureService {
 
         gsolFeature.setIsAnalysis(false);
         gsolFeature.setIsObsolete(false);
-//        gsolFeature.setDateCreated(new Date()); //new Timestamp(new Date().getTime()));
-//        gsolFeature.setLastUpdated(new Date()); //new Timestamp(new Date().getTime()));
         if (sequence) {
             gsolFeature.getFeatureLocations().iterator().next().sequence = sequence;
         }
@@ -156,7 +137,7 @@ class FeatureService {
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
 
-        User owner = permissionService.findUser(jsonTranscript)
+        User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
             log.debug "has gene: ${gene}"
@@ -167,7 +148,7 @@ class FeatureService {
 
             //this one is working, but was marked as needing improvement
             if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                log.debug "setting owner for gene and transcript per: ${permissionService.findUser(jsonTranscript)}"
+                log.debug "setting owner for gene and transcript per: ${permissionService.getCurrentUser(jsonTranscript)}"
                 if (owner) {
                     setOwner(transcript, owner);
                 } else {
@@ -201,7 +182,7 @@ class FeatureService {
 
                     //this one is working, but was marked as needing improvement
                     if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                        log.debug "setting owner for gene and transcript per: ${permissionService.findUser(jsonTranscript)}"
+                        log.debug "setting owner for gene and transcript per: ${permissionService.getCurrentUser(jsonTranscript)}"
                         if (owner) {
                             setOwner(tmpTranscript, owner);
                         } else {
@@ -280,7 +261,7 @@ class FeatureService {
 
             // doesn't work well for testing
             if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                log.debug "setting owner for gene and transcript per: ${permissionService.findUser(jsonTranscript)}"
+                log.debug "setting owner for gene and transcript per: ${permissionService.getCurrentUser(jsonTranscript)}"
                 if (owner) {
                     setOwner(gene, owner);
                     setOwner(transcript, owner);

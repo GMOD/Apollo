@@ -68,7 +68,7 @@ class JbrowseController {
 
 
     private String getJBrowseDirectoryForSession() {
-        if(!permissionService.getCurrentUser()){
+        if(!permissionService.currentUser){
             return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         }
 
