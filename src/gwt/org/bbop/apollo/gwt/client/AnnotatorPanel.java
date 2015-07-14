@@ -35,7 +35,6 @@ import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-//import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
@@ -67,10 +66,10 @@ public class AnnotatorPanel extends Composite {
     @UiField(provided = true)
     SuggestBox sequenceList;
 
-    DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
+    static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
 
     @UiField(provided = true)
-    DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(20, tablecss);
+    static DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(20, tablecss);
     @UiField(provided = true)
     SimplePager pager = null;
 
@@ -98,7 +97,7 @@ public class AnnotatorPanel extends Composite {
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private static AsyncDataProvider<AnnotationInfo> dataProvider;
-    private static List<AnnotationInfo> annotationInfoList = new ArrayList<>();
+//    private static List<AnnotationInfo> annotationInfoList = new ArrayList<>();
     //    private static List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     private final Set<String> showingTranscripts = new HashSet<String>();
 
@@ -573,7 +572,7 @@ public class AnnotatorPanel extends Composite {
     // TODO: need to cache these or retrieve from the backend
     public static void displayTranscript(int geneIndex, String uniqueName) {
         // 1 - get the correct gene
-        AnnotationInfo annotationInfo = annotationInfoList.get(geneIndex);
+        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(geneIndex);;
         AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
 
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
