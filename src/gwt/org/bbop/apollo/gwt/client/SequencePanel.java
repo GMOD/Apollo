@@ -365,9 +365,9 @@ public class SequencePanel extends Composite {
 
         ExportPanel exportPanel = new ExportPanel();
         exportPanel.setOrganismInfo(organismInfo);
-        exportPanel.setSequenceList(sequenceInfoList);
         exportPanel.setType(type);
         exportPanel.setExportAll(exportAll);
+        exportPanel.setSequenceList(sequenceInfoList);
         if (type.equals("FASTA")) {
             exportPanel.renderFastaSelection();
         } else if (type.equals("GFF3")) {
