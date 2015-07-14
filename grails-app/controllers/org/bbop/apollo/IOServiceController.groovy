@@ -5,6 +5,8 @@ import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import java.util.zip.GZIPOutputStream
+import org.springframework.http.HttpStatus
+import org.bbop.apollo.gwt.shared.PermissionEnum
 
 class IOServiceController extends AbstractApolloController {
     
@@ -13,6 +15,7 @@ class IOServiceController extends AbstractApolloController {
     def gff3HandlerService
     def fastaHandlerService
     def preferenceService
+    def permissionService
 
     //
     // this is a map of uuid / filename
@@ -38,6 +41,10 @@ class IOServiceController extends AbstractApolloController {
             JSONObject dataObject = (request.JSON ?: params) as JSONObject
             if(params.data) dataObject=JSON.parse(params.data)
             log.debug "data ${dataObject}"
+            if(!permissionService.hasPermissions(dataObject, PermissionEnum.READ)){
+                render status: HttpStatus.UNAUTHORIZED
+                return
+            }
             String typeOfExport = dataObject.type
             String sequenceType = dataObject.seqType
             String exportAllSequences = dataObject.exportAllSequences
