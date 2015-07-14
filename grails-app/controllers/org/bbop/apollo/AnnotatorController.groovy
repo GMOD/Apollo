@@ -189,13 +189,37 @@ class AnnotatorController {
             // TODO: should only be returning the top-level features
             List<Feature> allFeatures
             Integer annotationCount = 0
+
+            List<String> viewableTypes
+
+            if (type) {
+                viewableTypes = new ArrayList<>()
+                switch (type) {
+                    case "Gene": viewableTypes.add(Gene.class.canonicalName)
+                        break
+                    case "Pseudogene": viewableTypes.add(Pseudogene.class.canonicalName)
+                        break
+                    case "repeat_region": viewableTypes.add(RepeatRegion.class.canonicalName)
+                        break
+                    case "transposable_element": viewableTypes.add(TransposableElement.class.canonicalName)
+                        break
+                    default:
+                        log.warn "Type not found for annotation filter '${type}'"
+                        viewableTypes = requestHandlingService.viewableAnnotationList
+                        break
+                }
+            } else {
+                viewableTypes = requestHandlingService.viewableAnnotationList
+            }
+
+
             if (organism) {
                 if (!sequence) {
                     try {
                         final long start = System.currentTimeMillis();
 
-                        allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes) and f.name like :annotationName", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList, offset: offset, max: max,annotationName: '%'+annotationName+"%"])
-                        annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)  and f.name like :annotationName", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList,annotationName: '%'+annotationName+'%']).iterator().next()
+                        allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes) and f.name like :annotationName", [organism: organism, viewableTypes: viewableTypes, offset: offset, max: max, annotationName: '%' + annotationName + "%"])
+                        annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)  and f.name like :annotationName", [organism: organism, viewableTypes: viewableTypes, annotationName: '%' + annotationName + '%']).iterator().next()
                         final long durationInMilliseconds = System.currentTimeMillis() - start;
 
                         log.debug "selecting features all ${durationInMilliseconds}"
@@ -205,8 +229,8 @@ class AnnotatorController {
                     }
                 } else {
                     final long start = System.currentTimeMillis();
-                    allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and f.name like :annotationName and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList, offset: offset, max: max,annotationName: '%'+annotationName+"%"])
-                    annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and f.name like :annotationName and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList,annotationName: '%'+annotationName+"%"]).iterator().next()
+                    allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and f.name like :annotationName and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: viewableTypes, offset: offset, max: max, annotationName: '%' + annotationName + "%"])
+                    annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and f.name like :annotationName and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: viewableTypes, annotationName: '%' + annotationName + "%"]).iterator().next()
                     final long durationInMilliseconds = System.currentTimeMillis() - start;
 
                     log.debug "selecting features ${durationInMilliseconds}"

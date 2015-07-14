@@ -347,12 +347,12 @@ public class AnnotatorPanel extends Composite {
         typeList.addItem("All Types", "");
         typeList.addItem("Gene");
         typeList.addItem("Pseudogene");
-        typeList.addItem("tRNA");
-        typeList.addItem("snRNA");
-        typeList.addItem("snoRNA");
-        typeList.addItem("ncRNA");
-        typeList.addItem("rRNA");
-        typeList.addItem("miRNA");
+//        typeList.addItem("tRNA");
+//        typeList.addItem("snRNA");
+//        typeList.addItem("snoRNA");
+//        typeList.addItem("ncRNA");
+//        typeList.addItem("rRNA");
+//        typeList.addItem("miRNA");
         typeList.addItem("Transposable Element", "transposable_element");
         typeList.addItem("Repeat Region", "repeat_region");
         // TODO: add rest
