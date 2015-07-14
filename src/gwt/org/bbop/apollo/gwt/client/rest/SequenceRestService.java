@@ -30,6 +30,7 @@ public class SequenceRestService {
         jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
         jsonObject.put("exportGff3Fasta", new JSONString(exportPanel.getExportGff3Fasta().toString()));
         jsonObject.put("output", new JSONString("file"));
+        jsonObject.put("format", new JSONString("gzip"));
         JSONArray jsonArray = new JSONArray();
         for (SequenceInfo sequenceInfo : exportPanel.getSequenceList()) {
             jsonArray.set(jsonArray.size(), new JSONString(sequenceInfo.getName()));
@@ -43,7 +44,7 @@ public class SequenceRestService {
                 String uuid = responseObject.get("uuid").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();
                 String sequenceType = responseObject.get("seqType").isString().stringValue();
-                String exportUrl = Annotator.getRootUrl() + "IOService/download?uuid=" + uuid + "&exportType=" + exportType + "&seqType=" + sequenceType;
+                String exportUrl = Annotator.getRootUrl() + "IOService/download?uuid=" + uuid + "&exportType=" + exportType + "&seqType=" + sequenceType+"&format=gzip";
                 exportPanel.setExportUrl(exportUrl);
             }
 
