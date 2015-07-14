@@ -79,7 +79,9 @@ class SequenceService {
         List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId ",[seqId:sequence.id])
         int currentOffset = 0;
         // TODO: refactor with getResidues in FeatureService so we are calling a similar method
-        for(SequenceAlteration sequenceAlteration in sequenceAlterationList){
+        for(SequenceAlteration sequenceAlteration in sequenceAlterationList.sort(){ a,b ->
+                 a.featureLocation.fmin <=> b.featureLocation.fmin
+        }){
             int localCoordinate = featureService.convertSourceCoordinateToLocalCoordinate(fmin,fmax,strand, sequenceAlteration.featureLocation.fmin);
             if(!overlapperService.overlaps(fmin,fmax,sequenceAlteration.featureLocation.fmin,sequenceAlteration.featureLocation.fmax)){
                 continue
