@@ -46,7 +46,7 @@ try {
 // just get data
 println "fetching url: "+options.url
 def client = new RESTClient(options.url,'text/plain')
-def response = client.post(path:options.url+'/IOService/write',body: [format: 'plain', type: 'GFF3',exportSequence: false,exportAllSequences: true,organism: options.organism, output:'text'])
+def response = client.post(path:options.url+'/IOService/write',body: [username: admin_username, password: admin_password, format: 'plain', type: 'GFF3',exportSequence: false,exportAllSequences: true,organism: options.organism, output:'text'])
 
 assert response.status == 200
 StringBuilder builder = new StringBuilder();
