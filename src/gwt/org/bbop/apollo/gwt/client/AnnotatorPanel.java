@@ -97,9 +97,9 @@ public class AnnotatorPanel extends Composite {
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
-    private static AsyncDataProvider<AnnotationInfo> dataProvider ;
+    private static AsyncDataProvider<AnnotationInfo> dataProvider;
     private static List<AnnotationInfo> annotationInfoList = new ArrayList<>();
-//    private static List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
+    //    private static List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     private final Set<String> showingTranscripts = new HashSet<String>();
 
 
@@ -146,7 +146,10 @@ public class AnnotatorPanel extends Composite {
                 String sequenceName = sequenceList.getText().trim();
 
 
-                String url = Annotator.getRootUrl() + "annotator/findAnnotationsForSequence/?sequenceName=" + sequenceName + "&request=" + requestIndex+"&offset="+start+"&max="+length;
+                String url = Annotator.getRootUrl() + "annotator/findAnnotationsForSequence/?sequenceName=" + sequenceName + "&request=" + requestIndex ;
+                url += "&offset=" + start + "&max=" + length ;
+                url += "&annotationName=" + nameSearchBox.getText() + "&type=" + typeList.getSelectedValue() ;
+                url += "&user=" + userField.getSelectedValue();
                 RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
                 builder.setHeader("Content-type", "application/x-www-form-urlencoded");
                 RequestCallback requestCallback = new RequestCallback() {
@@ -532,28 +535,28 @@ public class AnnotatorPanel extends Composite {
     }
 
 
-    private boolean searchMatches(Set<AnnotationInfo> annotationInfoSet) {
-        for (AnnotationInfo annotationInfo : annotationInfoSet) {
-            if (searchMatches(annotationInfo)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean searchMatches(AnnotationInfo annotationInfo) {
-        String nameText = nameSearchBox.getText();
-        String typeText = typeList.getSelectedValue();
-        String userText = userField.getSelectedValue();
-        return (
-                (annotationInfo.getName().toLowerCase().contains(nameText.toLowerCase()))
-                        &&
-                        annotationInfo.getType().toLowerCase().contains(typeText.toLowerCase())
-                        &&
-                        annotationInfo.getOwner().toLowerCase().contains(userText)
-        );
-
-    }
+//    private boolean searchMatches(Set<AnnotationInfo> annotationInfoSet) {
+//        for (AnnotationInfo annotationInfo : annotationInfoSet) {
+//            if (searchMatches(annotationInfo)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+//
+//    private boolean searchMatches(AnnotationInfo annotationInfo) {
+//        String nameText = nameSearchBox.getText();
+//        String typeText = typeList.getSelectedValue();
+//        String userText = userField.getSelectedValue();
+//        return (
+//                (annotationInfo.getName().toLowerCase().contains(nameText.toLowerCase()))
+//                        &&
+//                        annotationInfo.getType().toLowerCase().contains(typeText.toLowerCase())
+//                        &&
+//                        annotationInfo.getOwner().toLowerCase().contains(userText)
+//        );
+//
+//    }
 
 
     @UiHandler(value = {"typeList", "userField"})
@@ -565,8 +568,6 @@ public class AnnotatorPanel extends Composite {
     public void searchName(KeyUpEvent keyUpEvent) {
         reload();
     }
-
-
 
 
     // TODO: need to cache these or retrieve from the backend
