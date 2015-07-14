@@ -165,7 +165,7 @@ class AnnotatorController {
         return jsonFeatureContainer;
     }
 
-    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max) {
+    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String order, String sort) {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
             if (sequenceName && !Sequence.countByName(sequenceName)) return
@@ -212,13 +212,32 @@ class AnnotatorController {
                 viewableTypes = requestHandlingService.viewableAnnotationList
             }
 
+            String sortString
+
+            if (sort) {
+                sortString = " order by "
+                switch (sort) {
+                    case "name": sortString += " f.name "
+                        break
+                    case "sequence":
+                            sortString += " s.name "
+                        break
+                    case "length": sortString += " abs(fl.fmax-fl.fmin) "
+                        break
+                }
+                sortString += " ${order} "
+
+
+            }
 
             if (organism) {
                 if (!sequence) {
                     try {
                         final long start = System.currentTimeMillis();
-                        allFeatures = Feature.executeQuery("select distinct f from Feature f join f.owners own left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes) and f.name like :annotationName and own.username like :username ", [organism: organism, viewableTypes: viewableTypes, offset: offset, max: max, annotationName: '%' + annotationName + "%",username:'%'+user+'%'])
-                        annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f join f.owners own left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)  and f.name like :annotationName and own.username like :username ", [organism: organism, viewableTypes: viewableTypes, annotationName: '%' + annotationName + '%',username:'%'+user+'%']).iterator().next()
+                        allFeatures = Feature.executeQuery("select distinct f, abs(fl.fmax-fl.fmin) as seqLength, s from Feature f join f.owners own left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes) and f.name like :annotationName and own.username like :username " + sortString, [organism: organism, viewableTypes: viewableTypes, offset: offset, max: max, annotationName: '%' + annotationName + "%", username: '%' + user + '%']).collect {
+                            it[0]
+                        }
+                        annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f join f.owners own left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)  and f.name like :annotationName and own.username like :username ", [organism: organism, viewableTypes: viewableTypes, annotationName: '%' + annotationName + '%', username: '%' + user + '%']).iterator().next()
                         final long durationInMilliseconds = System.currentTimeMillis() - start;
 
                         log.debug "selecting features all ${durationInMilliseconds}"
@@ -228,8 +247,8 @@ class AnnotatorController {
                     }
                 } else {
                     final long start = System.currentTimeMillis();
-                    allFeatures = Feature.executeQuery("select distinct f from Feature f  join f.owners own left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and f.name like :annotationName and o = :organism  and f.class in (:viewableTypes)  and own.username like :username ", [sequenceName: sequenceName, organism: organism, viewableTypes: viewableTypes, offset: offset, max: max, annotationName: '%' + annotationName + "%",username:'%'+user+'%'])
-                    annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f  join f.owners own left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and f.name like :annotationName and o = :organism  and f.class in (:viewableTypes)  and own.username like :username ", [sequenceName: sequenceName, organism: organism, viewableTypes: viewableTypes, annotationName: '%' + annotationName + "%",username:'%'+user+'%']).iterator().next()
+                    allFeatures = Feature.executeQuery("select distinct f, abs(fl.fmax-fl.fmin) as seqLength, s from Feature f join f.owners own left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and f.name like :annotationName and o = :organism  and f.class in (:viewableTypes)  and own.username like :username " + sortString, [sequenceName: sequenceName, organism: organism, viewableTypes: viewableTypes, offset: offset, max: max, annotationName: '%' + annotationName + "%", username: '%' + user + '%']).collect { it[0]}
+                    annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f  join f.owners own left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and f.name like :annotationName and o = :organism  and f.class in (:viewableTypes)  and own.username like :username ", [sequenceName: sequenceName, organism: organism, viewableTypes: viewableTypes, annotationName: '%' + annotationName + "%", username: '%' + user + '%']).iterator().next()
                     final long durationInMilliseconds = System.currentTimeMillis() - start;
 
                     log.debug "selecting features ${durationInMilliseconds}"
