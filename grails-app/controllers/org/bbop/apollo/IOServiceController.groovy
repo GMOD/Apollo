@@ -146,7 +146,7 @@ class IOServiceController extends AbstractApolloController {
             }
         }
         else {
-            render text: "Error: uuid did not map to file"
+            render text: "Error: uuid did not map to file. Please try to re-download"
             return
         }
 

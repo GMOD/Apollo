@@ -31,11 +31,10 @@ public class SequenceRestService {
         jsonObject.put("exportGff3Fasta", new JSONString(exportPanel.getExportGff3Fasta().toString()));
         jsonObject.put("output", new JSONString("file"));
         JSONArray jsonArray = new JSONArray();
-        int i=0;
         for (SequenceInfo sequenceInfo : exportPanel.getSequenceList()) {
-            jsonArray.set(i++, new JSONString(sequenceInfo.getName()));
+            jsonArray.set(jsonArray.size(), new JSONString(sequenceInfo.getName()));
         }
-        jsonObject.put("sequences",jsonArray);
+        jsonObject.put("sequences", jsonArray);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
