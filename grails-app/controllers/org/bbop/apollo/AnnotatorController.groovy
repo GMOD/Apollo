@@ -24,12 +24,12 @@ class AnnotatorController {
      * http://localhost:8080/apollo/annotator/loadLink?loc=chrII:302089..337445&organism=23357&highlight=0&tracklist=0&tracks=Reference%20sequence,User-created%20Annotations
      * @return
      */
-    def loadLink(){
+    def loadLink() {
         try {
             Organism organism = Organism.findById(params.organism as Long)
             log.debug "loading organism: ${organism}"
-            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
-            if(params.loc) {
+            preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
+            if (params.loc) {
                 String location = params.loc
                 String[] splitString = location.split(":")
                 log.debug "splitString : ${splitString}"
@@ -49,7 +49,7 @@ class AnnotatorController {
                 }
                 log.debug "fmin ${fmin} . . fmax ${fmax} . . ${sequence}"
 
-                preferenceService.setCurrentSequenceLocation(sequence.name,fmin,fmax)
+                preferenceService.setCurrentSequenceLocation(sequence.name, fmin, fmax)
             }
 
         } catch (e) {
@@ -69,13 +69,12 @@ class AnnotatorController {
     }
 
 
-    def adminPanel(){
-        if(permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
+    def adminPanel() {
+        if (permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
             def administativePanel = grailsApplication.config.apollo.administrativePanel
-            [links:administativePanel]
-        }
-        else{
-            render text:"Unauthorized"
+            [links: administativePanel]
+        } else {
+            render text: "Unauthorized"
         }
     }
 
@@ -166,7 +165,7 @@ class AnnotatorController {
         return jsonFeatureContainer;
     }
 
-    def findAnnotationsForSequence(String sequenceName, String request) {
+    def findAnnotationsForSequence(String sequenceName, String request, Integer offset , Integer max ) {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
             if (sequenceName && !Sequence.countByName(sequenceName)) return
@@ -189,13 +188,15 @@ class AnnotatorController {
 
             // TODO: should only be returning the top-level features
             List<Feature> allFeatures
+            Integer annotationCount  = 0
             if (organism) {
                 if (!sequence) {
                     try {
                         final long start = System.currentTimeMillis();
 
-                        allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
-                        final long durationInMilliseconds = System.currentTimeMillis()-start;
+                        allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList,offset:offset,max:max])
+                        annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList]).iterator().next()
+                        final long durationInMilliseconds = System.currentTimeMillis() - start;
 
                         log.debug "selecting features all ${durationInMilliseconds}"
                     } catch (e) {
@@ -204,27 +205,30 @@ class AnnotatorController {
                     }
                 } else {
                     final long start = System.currentTimeMillis();
-                    allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
-                    final long durationInMilliseconds = System.currentTimeMillis()-start;
+                    allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList,offset: offset,max:max])
+                    annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList]).iterator().next()
+                    final long durationInMilliseconds = System.currentTimeMillis() - start;
 
                     log.debug "selecting features ${durationInMilliseconds}"
                 }
                 final long start = System.currentTimeMillis();
                 for (Feature feature in allFeatures) {
-                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
+                    JSONObject featureObject = featureService.convertFeatureToJSON(feature, false)
+                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureObject)
                 }
-                final long durationInMilliseconds = System.currentTimeMillis()-start;
+                final long durationInMilliseconds = System.currentTimeMillis() - start;
 
                 log.debug "convert to json ${durationInMilliseconds}"
             }
 
             returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(), index + 1)
+            returnObject.put(FeatureStringEnum.ANNOTATION_COUNT.value,annotationCount)
 
             // TODO: do checks here
             render returnObject
         }
-        catch(Exception e) {
-            def error=[error: e.message]
+        catch (Exception e) {
+            def error = [error: e.message]
             log.error e.message
             e.printStackTrace()
             render e as JSON
@@ -265,7 +269,7 @@ class AnnotatorController {
         render annotatorService.getAppState() as JSON
     }
 
-    def notAuthorized(){
+    def notAuthorized() {
         log.error "not authorized"
     }
 
