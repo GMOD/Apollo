@@ -16,18 +16,27 @@ String usageString = "get_gff3.groovy <options>" +
 def cli = new CliBuilder(usage: 'get_gff3.groovy <options>')
 cli.setStopAtNonOption(true)
 cli.url('URL of WebApollo 2.0 from which gff3 is to be fetched', required: true, args: 1)
-cli.username('username', required: true, args: 1)
+cli.username('username', required: false, args: 1)
 cli.password('password', required: false, args: 1)
 cli.password('url', required: false, args: 1)
 cli.organism('organism', required: false, args: 1)
 OptionAccessor options
-
+def admin_username
+def admin_password
 try {
     options = cli.parse(args)
 
-    if (!(options?.url && options?.username && options?.organism)) {
-        println "\n" + usageString
+    if (!(options?.url)) {
+        println "Requires destination URL\n" + usageString
         return
+    }
+
+    def cons = System.console()
+    if (!(admin_username=options?.username)) {
+        admin_username = new String(cons.readPassword('Enter admin username: ') )
+    }
+    if (!(admin_password=options?.password)) {
+        admin_password = new String(cons.readPassword('Enter admin password: ') )
     }
 } catch (e) {
     println(e)
@@ -37,7 +46,7 @@ try {
 // just get data
 println "fetching url: "+options.url
 def client = new RESTClient(options.url,'text/plain')
-def response = client.post(path:options.url+'/IOService/write',body: [format: 'plain',type: 'GFF3',exportSequence: false,exportAllSequences: true,organism: options.organism, output:'text'])
+def response = client.post(path:options.url+'/IOService/write',body: [format: 'plain', type: 'GFF3',exportSequence: false,exportAllSequences: true,organism: options.organism, output:'text'])
 
 assert response.status == 200
 StringBuilder builder = new StringBuilder();
