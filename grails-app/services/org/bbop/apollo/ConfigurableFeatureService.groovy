@@ -11,7 +11,7 @@ class ConfigurableFeatureService {
      */
     List<String> getTranscriptCvTerms() {
         List<String> returnList = new ArrayList<>()
-        GenericTranscript.all.each {
+        CustomTranscript.all.each {
             returnList.add(it.getCvTerm())
             if(it.getAlternateCvTerm()){
                 returnList.add(it.getAlternateCvTerm())
@@ -42,7 +42,7 @@ class ConfigurableFeatureService {
         CustomDomainMapping customDomainMapping = CustomDomainMapping.findByOntologyId(ontologyId)
 
         if(customDomainMapping.isTranscript){
-            GenericTranscript genericTranscript = new GenericTranscript()
+            CustomTranscript genericTranscript = new CustomTranscript()
             genericTranscript.setCvTerm(customDomainMapping.cvTerm)
             genericTranscript.setAlternateCvTerm(customDomainMapping.alternateCvTerm)
             genericTranscript.setOntologyId(customDomainMapping.ontologyId)
@@ -50,7 +50,7 @@ class ConfigurableFeatureService {
             return genericTranscript
         }
         else{
-            GenericFeature genericFeature = new GenericFeature()
+            CustomFeature genericFeature = new CustomFeature()
             genericFeature.setCvTerm(customDomainMapping.cvTerm)
             genericFeature.setAlternateCvTerm(customDomainMapping.alternateCvTerm)
             genericFeature.setOntologyId(customDomainMapping.ontologyId)

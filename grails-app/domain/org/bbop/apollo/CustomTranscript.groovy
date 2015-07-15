@@ -1,9 +1,10 @@
 package org.bbop.apollo
 
 /**
- * Used to over-ride custom features
+ * Transcript type meant to be extensible
+ *
  */
-class GenericFeature extends Feature implements ConfigurableFeature{
+class CustomTranscript extends Transcript implements ConfigurableFeature{
 
     String metaData // JSON MetaData .. or whaever
 
