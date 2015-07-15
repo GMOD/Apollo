@@ -21,10 +21,20 @@ Note: This documentation covers release versions 2.x of Web Apollo. For the 1.x 
 
 
 
-Markdown files:
+Contents:
 
 .. toctree::
-    :maxdepth: 2
-    :glob:
-    *
+   :maxdepth: 2
+   :glob:
 
+   Quick-start guide <Apollo2Build>
+   Prerequisites
+   Configure
+   Data_loading
+   Build
+   Troubleshooting
+   Migration
+   Permissions
+   Testing_notes
+   Architecture
+   Command_line
