@@ -1,6 +1,8 @@
 Apollo
 ======
 
+[![Join the chat at https://gitter.im/GMOD/Apollo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 <a href="https://github.com/GMOD/Apollo/blob/master/README.md">On GitHub</a>
 
 An instantaneous, collaborative, genome annotation editor.  The stack is a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin.  
