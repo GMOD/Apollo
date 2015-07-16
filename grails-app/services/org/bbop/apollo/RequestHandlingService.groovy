@@ -1169,11 +1169,8 @@ class RequestHandlingService {
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
-//            Feature gsolFeature = JSONUtil.convertJSONToFeature(features.getJSONObject(i), bioObjectConfiguration, trackToSourceFeature.get(track), new HttpSessionTimeStampNameAdapter(session, editor.getSession()));
-//            updateNewGsolFeatureAttributes(gsolFeature, trackToSourceFeature.get(track));
             SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
             if (grails.util.Environment.current != grails.util.Environment.TEST) {
-//                log.debug "setting owner for gene and transcript per: ${permissionService.findUser(activeUser)}"
                 if (activeUser) {
                     featureService.setOwner(sequenceAlteration, activeUser)
                 } else {
@@ -1184,36 +1181,20 @@ class RequestHandlingService {
 
             featureService.updateNewGsolFeatureAttributes(sequenceAlteration, sequence)
 
-//            SequenceAlteration sequenceAlteration = (SequenceAlteration) BioObjectUtil.createBioObject(gsolFeature, bioObjectConfiguration);
             if (sequenceAlteration.getFmin() < 0 || sequenceAlteration.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
 
-//            setOwner(sequenceAlteration, (String) session.getAttribute("username"));
-//            editor.addSequenceAlteration(sequenceAlteration);
-
             sequenceAlteration.save(flush: true)
-//
-//            if (dataStore != null) {
-//                writeFeatureToStore(editor, dataStore, sequenceAlteration, track);
-//            }
-//            for (AbstractSingleLocationBioFeature feature : editor.getSession().getOverlappingFeatures(sequenceAlteration.getFeatureLocation(), false)) {
             for (Feature feature : featureService.getOverlappingFeatures(sequenceAlteration.getFeatureLocation(), false)) {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                         featureService.setLongestORF(transcript)
-//                        editor.setLongestORF(transcript);
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
-//                        findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
-//                        updateFeatureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
                         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
                     }
-//                    if (dataStore != null) {
-//                        writeFeatureToStore(editor, dataStore, feature, track);
-//                    }
                 }
             }
-//            addFeatureContainer.getJSONArray("features").put(JSONUtil.convertFeatureToJSON(gsolFeature));
             addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
         }
 
@@ -1241,10 +1222,8 @@ class RequestHandlingService {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < features.length(); ++i) {
-//            JSONObject jsonFeature = features.getJSONObject(i);
             JSONObject jsonFeature = features.getJSONObject(i);
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
-//            AbstractSingleLocationBioFeature feature = (AbstractSingleLocationBioFeature) getFeature(editor, jsonFeature);
             JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.NON_RESERVED_PROPERTIES.value);
             for (int j = 0; j < properties.length(); ++j) {
                 JSONObject property = properties.getJSONObject(i);
@@ -1261,13 +1240,6 @@ class RequestHandlingService {
                 feature.save()
             }
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
-//            if (dataStore != null) {
-//                if (feature instanceof Transcript) {
-//                    writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript((Transcript) feature), track);
-//                } else {
-//                    writeFeatureToStore(editor, dataStore, feature, track);
-//                }
-//            }
         }
 
 //        AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -1288,7 +1260,6 @@ class RequestHandlingService {
 
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         for (int i = 0; i < features.length(); ++i) {
-//            JSONObject jsonFeature = features.getJSONObject(i);
             JSONObject jsonFeature = features.getJSONObject(i);
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
             JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.NON_RESERVED_PROPERTIES.value);
@@ -1302,7 +1273,6 @@ class RequestHandlingService {
                 FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(tagString, valueString, feature)
                 if (featureProperty) {
                     log.info "found the feature property . . . now we remvoe it!"
-//                    featurePropertyService.deleteProperty(feature,featureProperty)
                     feature.removeFromFeatureProperties(featureProperty)
                     feature.save()
                     featureProperty.delete(flush: true)
@@ -1310,21 +1280,10 @@ class RequestHandlingService {
                     log.error "Could not find feature property to delete ${property as JSON}"
                 }
             }
-//            updateFeatureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(feature));
-//            if (dataStore != null) {
-//                if (feature instanceof Transcript) {
-//                    writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript((Transcript) feature), track);
-//                } else {
-//                    writeFeatureToStore(editor, dataStore, feature, track);
-//                }
-//            }
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
 
         return updateFeatureContainer
-//        if (out != null) {
-//            out.write(updateFeatureContainer.toString());
-//        }
     }
 
     def updateNonReservedProperties(JSONObject inputObject) {
@@ -1333,7 +1292,6 @@ class RequestHandlingService {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < features.length(); ++i) {
-//            JSONObject jsonFeature = features.getJSONObject(i);
             JSONObject jsonFeature = features.getJSONObject(i);
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
             JSONArray oldProperties = jsonFeature.getJSONArray(FeatureStringEnum.OLD_NON_RESERVED_PROPERTIES.value);
@@ -1357,18 +1315,8 @@ class RequestHandlingService {
 //                editor.updateNonReservedProperty(feature, oldProperty.getString("tag"), oldProperty.getString("value"), newProperty.getString("tag"), newProperty.getString("value"));
             }
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
-//            if (dataStore != null) {
-//                if (feature instanceof Transcript) {
-//                    writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript((Transcript) feature), track);
-//                } else {
-//                    writeFeatureToStore(editor, dataStore, feature, track);
-//                }
-//            }
-//        }
+
         }
-//        if (out != null) {
-//            out.write(updateFeatureContainer.toString());
-//        }
 //        fireDataStoreChange(updateFeatureContainer, track, Operation.UPDATE);
     }
 
@@ -1564,12 +1512,6 @@ class RequestHandlingService {
             Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
 
             exonService.deleteExon(transcript, exon);
-
-//            exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
-//            if(exon){
-//                exon.delete(flush:true)
-//            }
-//            Exon.deleteAll(exon,flush: true)
         }
 
         Feature topLevelFeature = featureService.getTopLevelFeature(transcript)
@@ -1584,12 +1526,6 @@ class RequestHandlingService {
         fireAnnotationEvent(annotationEvent)
 
         return featureContainer
-
-//        if (dataStore != null) {
-//            writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
-//        }
-//        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
-
     }
 
     def addFeature(JSONObject inputObject) {
@@ -1627,7 +1563,6 @@ class RequestHandlingService {
             featureService.updateNewGsolFeatureAttributes(newFeature, sequence)
             featureService.addFeature(newFeature)
             newFeature.addToOwners(user)
-//            featurePropertyService.setOwner(newFeature, user);
             newFeature.save(insert: true, flush: true)
 
             if (newFeature instanceof Gene) {
@@ -1647,7 +1582,6 @@ class RequestHandlingService {
                         transcript.uniqueName = nameService.generateUniqueName()
                     }
                     transcript.addToOwners(user)
-//                    featurePropertyService.setOwner(transcript, user)
 
                     JSONObject jsonObject = featureService.convertFeatureToJSON(transcript)
                     if (!suppressHistory) {
@@ -1874,15 +1808,11 @@ class RequestHandlingService {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-//        Exon exon = (Exon) getFeature(editor, jsonExon);
         JSONObject jsonExon = featuresArray.getJSONObject(0)
         Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value))
         Transcript transcript = exonService.getTranscript(exon)
         JSONObject oldJsonTranscript = featureService.convertFeatureToJSON(transcript)
-//        Transcript oldTranscript = cloneTranscript(exon.getTranscript());
-//        JSONObject exonLocation = jsonExon.getJSONObject("location");
         JSONObject exonLocation = jsonExon.getJSONObject(FeatureStringEnum.LOCATION.value)
-//        Exon splitExon = editor.makeIntron(exon, exonLocation.getInt("fmin"), defaultMinimumIntronSize, nameAdapter.generateUniqueName());
 
         Exon splitExon = exonService.makeIntron(
                 exon
@@ -2110,7 +2040,6 @@ class RequestHandlingService {
         if (!transcript1.getStrand().equals(transcript2.getStrand())) {
             throw new AnnotationException("You cannot merge transcripts on opposite strands");
         }
-//        Gene gene2 = transcriptService.getGene(transcript2)
         transcriptService.mergeTranscripts(transcript1, transcript2)
         featureService.calculateCDS(transcript1)
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1)
