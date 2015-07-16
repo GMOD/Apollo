@@ -8,7 +8,8 @@ define( [ 'dojo/_base/declare' ],
 return declare( null, {
 
 constructor: function()  {
-    
+   
+    var browser=args.browser;
     this["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures"; 
         // console.log("in TrackConfigTransformer: track " + trackConfig.label + ", changing type to: " + trackConfig.type);
@@ -28,7 +29,7 @@ constructor: function()  {
         trackConfig.type = "WebApollo/View/Track/DraggableAlignments";
     };
 
-    this["JBrowse/View/Track/Alignments2"] = this["JBrowse/View/Track/Alignments"];
+    if(!trackConfig.disableDraggable || browser.config.disableDraggable) this["JBrowse/View/Track/Alignments2"] = this["JBrowse/View/Track/Alignments"];
 
 },
 
