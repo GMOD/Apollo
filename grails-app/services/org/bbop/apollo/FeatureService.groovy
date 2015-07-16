@@ -1140,7 +1140,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 log.debug "jsonFeature ${jsonFeature} has ${children?.size()} children"
                 for (int i = 0; i < children.length(); ++i) {
                     JSONObject childObject = children.getJSONObject(i)
-                    log.debug "child object ${childObject}"
                     Feature child = convertJSONToFeature(childObject, sequence);
                     // if it retuns null, we ignore it
                     if (child) {
@@ -1622,7 +1621,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     Integer getFeatureModifiedCoord(Feature feature, Integer inputCoord, Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
 
         List<SequenceAlteration> sequenceAlterationsInContext = new ArrayList<>()
-        log.debug "getFeatureModifiedCoord ${inputCoord}"
 
         // sequence from feature, as is
         for (SequenceAlteration eachSequenceAlteration : sequenceAlterations) {
@@ -1631,7 +1629,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
         if (sequenceAlterations.size() == 0 || sequenceAlterationsInContext.size() == 0) {
-            log.debug "no alterations"
             return inputCoord
         }
         List<SequenceAlteration> orderedSequenceAlterationList = new ArrayList<>(sequenceAlterationsInContext)
@@ -1649,11 +1646,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             // Insertions
             if (sequenceAlteration instanceof Insertion) {
-                log.debug "sequenceAlt ins ${localCoordinate}<${inputCoord}"
                 if (localCoordinate < inputCoord) {
                     currentOffset += sequenceAlteration.length
                     if(feature.strand==-1) {
-                        log.debug "Adding to offset"
                         currentOffset += 1
                     }
                 }
@@ -1663,19 +1658,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
             // Deletions
             else if (sequenceAlteration instanceof Deletion) {
-                log.debug "sequenceAlt del ${localCoordinate}<${inputCoord}"
                 if(localCoordinate<inputCoord) {
                     if(localCoordinateMax>=inputCoord) {
                         currentOffset-=sequenceAlteration.length
                         if(feature.strand==-1) {
-                            log.debug "Adding to offset"
                             currentOffset += 1
                         }
                     }
                     else {
                         currentOffset-=localCoordinate-localCoordinateMax-inputCoord
                         if(feature.strand==-1) {
-                            log.debug "Adding to offset"
                             currentOffset += 1
                         }
                     }
