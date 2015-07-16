@@ -37,7 +37,6 @@ try {
     return
 }
 
-final String sequencePrefix = "Annotations-"
 uniqueNamesMap = [:]
 featuresMap = [:]
 JSONObject newArray = new JSONObject()
@@ -59,7 +58,7 @@ else {
 
 // For each sequence, fetching annotations from sourceurl
 for (String sequence in sequenceArray) {
-    String sequenceName = sequencePrefix + sequence
+    String sequenceName = sequence
     URL url = new URL(options.sourceurl)
     String fullPath = "${url.path}/annotationEditor/getFeatures"
     def getFeaturesClient = new RESTClient(options.sourceurl)
