@@ -167,7 +167,8 @@ public class AnnotatorPanel extends Composite {
                         searchColumnString = "length";
                         break;
                     default:
-                        Window.alert("Not sure how to sort column: " + columnIndex);
+//                        Window.alert("Not sure how to sort column: " + columnIndex);
+                        break;
                 }
                 Boolean sortNameAscending = nameSortInfo.isAscending();
                 url += "&order=" + (sortNameAscending ? "asc" : "desc");
@@ -219,6 +220,7 @@ public class AnnotatorPanel extends Composite {
         ColumnSortEvent.AsyncHandler columnSortHandler = new ColumnSortEvent.AsyncHandler(dataGrid);
         dataGrid.addColumnSortHandler(columnSortHandler);
         dataGrid.getColumnSortList().push(nameColumn);
+        dataGrid.getColumnSortList().push(sequenceColumn);
         dataGrid.getColumnSortList().push(lengthColumn);
 
         dataProvider.addDataDisplay(dataGrid);
@@ -464,7 +466,7 @@ public class AnnotatorPanel extends Composite {
                 }
             }
         };
-        typeColumn.setSortable(true);
+        typeColumn.setSortable(false);
         typeColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
         lengthColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
