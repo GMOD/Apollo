@@ -40,7 +40,7 @@ class PermissionService {
         return false
     }
 
-    List<Organism> getOrganisms(User user) {
+    Set<Organism> getOrganisms(User user) {
         if (isAdmin()) {
             return Organism.listOrderByCommonName()
         }
