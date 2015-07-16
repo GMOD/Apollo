@@ -9,7 +9,7 @@ use LWP::UserAgent;
 use JSON;
 
 
-my $annotation_track_prefix = "Annotations-";
+my $annotation_track_prefix = "";
 my $username;
 my $password;
 my $url;
@@ -54,7 +54,7 @@ usage: $progname
     u: username to access WebApollo
     p: password to access WebApollo
     t: trackname to delete tracks on
-    P: annotation track prefix [default: Annotations-]
+    P: annotation track prefix [default: ]
     F: feature data
 END
 }
