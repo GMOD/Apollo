@@ -12,13 +12,11 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent;
-import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
@@ -118,7 +116,14 @@ public class OrganismPanel extends Composite {
         dataGrid.setLoadingIndicator(new HTML("Calculating Annotations ... "));
         dataGrid.addColumn(organismNameColumn, "Name");
         dataGrid.addColumn(annotationsNameColumn, "Annotations");
-        dataGrid.addColumn(sequenceColumn, "Ref Sequences");
+        SafeHtmlHeader safeHtmlHeader = new SafeHtmlHeader(new SafeHtml() {
+            @Override
+            public String asString() {
+                return "<div style=\"text-align: right;\">Ref Sequences</p>";
+            }
+        });
+        dataGrid.addColumn(sequenceColumn, safeHtmlHeader);
+//        dataGrid.addColumn(sequenceColumn, "Ref Sequences");
         dataGrid.setEmptyTableWidget(new Label("No organisms available. Add new organisms using the form field."));
 
 

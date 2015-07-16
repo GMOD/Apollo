@@ -39,7 +39,7 @@ try {
     return
 }
 
-String sequenceName = "Annotations-Group1.10"
+String sequenceName = "Group1.10"
 int concurrency = options.concurrency ? Integer.parseInt(options.concurrency) : 1
 int iter = options.iter ? Integer.parseInt(options.iter) : 1
 int load = options.load ? Integer.parseInt(options.load) : 1

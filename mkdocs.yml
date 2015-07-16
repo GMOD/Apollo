@@ -10,3 +10,4 @@ pages:
 - ['Testing_notes.md', 'Testing notes']
 - ['Architecture.md', 'Architecture']
 - ['Migration.md', 'Migration Guide']
+- ['Command_line.md', 'Command Line Scripts']

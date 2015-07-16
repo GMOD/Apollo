@@ -26,36 +26,35 @@ public class SequenceRestService {
     public static void generateLink(final ExportPanel exportPanel) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("type", new JSONString(exportPanel.getType()));
-        jsonObject.put("sequenceType", new JSONString(exportPanel.getSequenceType()));
+        jsonObject.put("seqType", new JSONString(exportPanel.getSequenceType()));
         jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
         jsonObject.put("exportGff3Fasta", new JSONString(exportPanel.getExportGff3Fasta().toString()));
+        jsonObject.put("output", new JSONString("file"));
+        jsonObject.put("format", new JSONString("gzip"));
         JSONArray jsonArray = new JSONArray();
         for (SequenceInfo sequenceInfo : exportPanel.getSequenceList()) {
-            jsonArray.set(jsonArray.size(), sequenceInfo.toJSON());
+            jsonArray.set(jsonArray.size(), new JSONString(sequenceInfo.getName()));
         }
         jsonObject.put("sequences", jsonArray);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
-                if(responseObject.get("error")!=null) {
-                    Window.alert(responseObject.get("error").isString().stringValue());
-                    return;
-                }
-                String filePath = responseObject.get("filePath").isString().stringValue();
+                GWT.log("Received response: "+responseObject.toString());
+                String uuid = responseObject.get("uuid").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();
-                String sequenceType = responseObject.get("sequenceType").isString().stringValue();
-                String exportUrl = Annotator.getRootUrl() + "sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType;
+                String sequenceType = responseObject.get("seqType").isString().stringValue();
+                String exportUrl = Annotator.getRootUrl() + "IOService/download?uuid=" + uuid + "&exportType=" + exportType + "&seqType=" + sequenceType+"&format=gzip";
                 exportPanel.setExportUrl(exportUrl);
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("boo: " + exception);
+                Window.alert("Error: " + exception);
             }
         };
 
-        RestService.sendRequest(requestCallback, "sequence/exportSequences/", "data=" + jsonObject.toString());
+        RestService.sendRequest(requestCallback, "IOService/write", "data=" + jsonObject.toString());
     }
 
     public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Integer start, Integer end) {

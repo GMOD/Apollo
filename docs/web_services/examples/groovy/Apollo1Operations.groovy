@@ -14,7 +14,6 @@ import groovy.sql.Sql
 
 static def getFeature(url,track,cookieFile){
 
-//    curl -b demo_cookies.txt -c demo_cookies.txt -e "http://icebox.lbl.gov/WebApolloDemo/" --data "{ 'operation': 'get_features', 'track': 'Annotations-Group1.10'}" http://icebox.lbl.gov/WebApolloDemo/AnnotationEditorService
     String json = "{ 'operation': 'get_features', 'track': '${track}'}"
     def process = ["curl","-b",cookieFile,"-c",cookieFile,"-e",url,"--data",json,"${url}/AnnotationEditorService"].execute()
     def response = process.text

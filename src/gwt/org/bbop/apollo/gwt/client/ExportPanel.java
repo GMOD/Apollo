@@ -85,6 +85,7 @@ public class ExportPanel extends DialogBox{
     
     public void setExportAll(Boolean exportAll) {
         this.exportAll = exportAll;
+        this.sequenceInfoLabel.setHTML("All exported ");
     }
 
     public Boolean getExportAll() {

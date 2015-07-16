@@ -27,11 +27,6 @@ abstract class AbstractApolloController {
     }
 
 
-    protected  String fixTrackHeader(String trackInput) {
-        return !trackInput.startsWith("Annotations-") ? trackInput : trackInput.substring("Annotations-".size())
-    }
-
-
     protected JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
         JSONObject jsonFeatureContainer = new JSONObject();
         JSONArray jsonFeatures = new JSONArray();

@@ -222,12 +222,12 @@ apollo {
         data_adapters: [[
             permission: 1,
             key: "Only GFF3",
-            options: "output=file&format=gzip&type=GFF3&exportSequence=false"
+            options: "output=file&format=gzip&type=GFF3&exportGff3Fasta=false"
         ],
         [
             permission: 1,
             key: "GFF3 with FASTA",
-            options: "output=file&format=gzip&type=GFF3&exportSequence=true"
+            options: "output=file&format=gzip&type=GFF3&exportGff3Fasta=true"
         ]]
     ],
     [

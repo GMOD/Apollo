@@ -180,6 +180,7 @@ class AnnotatorController {
 
             Integer index = Integer.parseInt(request)
 
+            // TODO: should only be returning the top-level features
             List<Feature> allFeatures
             if (organism) {
                 if (!sequence) {
@@ -196,13 +197,11 @@ class AnnotatorController {
                     }
                 } else {
                     final long start = System.currentTimeMillis();
-
                     allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
                     final long durationInMilliseconds = System.currentTimeMillis()-start;
 
                     log.debug "selecting features ${durationInMilliseconds}"
                 }
-
                 final long start = System.currentTimeMillis();
                 for (Feature feature in allFeatures) {
                     returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));

@@ -2,7 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import grails.transaction.NotTransactional
-@Transactional
+@Transactional(readOnly = true)
 class FeaturePropertyService {
 
 
@@ -13,7 +13,7 @@ class FeaturePropertyService {
  *
  * @return Comments for this feature
  */
-    @NotTransactional
+    @Transactional
     public Collection<Comment> getComments(Feature feature) {
         List<Comment> comments = new ArrayList<Comment>();
 
@@ -35,10 +35,12 @@ class FeaturePropertyService {
         return comments;
     }
 
+    @Transactional
     def addComment(Feature feature, Comment comment) {
         addProperty(feature, comment)
     }
 
+    @Transactional
     def addComment(Feature feature, String commentString) {
         Comment comment = new Comment(
                 feature: feature
@@ -48,6 +50,7 @@ class FeaturePropertyService {
         feature.save()
     }
 
+    @Transactional
     boolean deleteComment(Feature feature, String commentString) {
         Comment comment = Comment.findByFeatureAndValue(feature, commentString)
         if (comment) {
@@ -58,6 +61,7 @@ class FeaturePropertyService {
         return false
     }
 
+    @Transactional
     def setFeatureProperty(Feature feature,String type,String tag,String value){
 
         for(FeatureProperty featureProperty in feature.featureProperties){
@@ -75,6 +79,7 @@ class FeaturePropertyService {
 
     }
 
+    @Transactional
     def addProperty(Feature feature, FeatureProperty property) {
         int rank = 0;
         println "value of FP to add: ${property.value} ${property.tag}"
@@ -90,6 +95,7 @@ class FeaturePropertyService {
 
     }
 
+    @Transactional
     public boolean deleteProperty(Feature feature, FeatureProperty property) {
         for (FeatureProperty fp : feature.getFeatureProperties()) {
             if (fp.getType().equals(property.getType()) && fp.getValue().equals(property.getValue())) {

@@ -9,7 +9,6 @@ use LWP::UserAgent;
 use JSON;
 
 
-my $annotation_track_prefix = "Annotations-";
 my $username;
 my $password;
 my $url;
@@ -28,7 +27,6 @@ sub parse_options {
            "password|p=s"       => \$password,
            "url|U=s"            => \$url,
            "track|t=s"            => \$trackname,
-           "prefix|P=s"           => \$annotation_track_prefix,
            "help|h"             => \$help);
     print_usage() if $help;
     die "Missing required parameter: username\n" if !$username;
@@ -54,12 +52,11 @@ usage: $progname
     u: username to access WebApollo
     p: password to access WebApollo
     t: trackname to delete tracks on
-    P: annotation track prefix [default: Annotations-]
 END
 }
 
 print $trackname."\n";
-my $track=$annotation_track_prefix.$trackname;
+my $track=$trackname;
 
 print $track."\n";
 my $login_result=`curl -b cookies.txt -c cookies.txt -H "Content-Type:application/json" -d "{'username': '$username', 'password': '$password'}" "$url/Login?operation=login" 2> /dev/null`;

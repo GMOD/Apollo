@@ -2,9 +2,9 @@ package org.bbop.apollo
 
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand;
+
 import java.io.*;
 import java.util.*
-
 //import groovy.transform.CompileStatic
 //@CompileStatic
 //@GrailsCompileStatic
@@ -364,7 +364,7 @@ public class Gff3HandlerService {
             }
         }
         if (writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value) && feature.getDescription() != null && !isBlank(feature.getDescription())) {
-            
+
             attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
         }
         if (writeObject.attributesToExport.contains(FeatureStringEnum.STATUS.value) && feature.getStatus() != null) {
@@ -399,7 +399,6 @@ public class Gff3HandlerService {
                 }
             }
         }
-
         if (writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value) && feature.getOwner()) {
             attributes.put(FeatureStringEnum.OWNER.value, encodeString(feature.getOwner().username));
         }

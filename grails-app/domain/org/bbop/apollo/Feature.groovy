@@ -59,17 +59,17 @@ class Feature implements Ontological{
     ]
     
     static mapping = {
-            childFeatureRelationships cascade: 'all-delete-orphan', lazy: false
-            parentFeatureRelationships cascade: 'all-delete-orphan', lazy: false
-            featureLocations cascade: 'all-delete-orphan', lazy: false
-            featureProperties lazy: false
-            owners lazy: false
-            featureDBXRefs lazy: false
-            featureSynonyms lazy: false
-            featurePublications lazy: false
-            synonyms lazy: false
-            featureCVTerms lazy: false
-            featurePhenotypes lazy: false
+            childFeatureRelationships cascade: 'all-delete-orphan'
+            parentFeatureRelationships cascade: 'all-delete-orphan'
+            featureLocations cascade: 'all-delete-orphan'
+            featureProperties
+            owners
+            featureDBXrefs
+            featureSynonyms
+            featurePublications
+            synonyms
+            featureCVTerms
+            featurePhenotypes
     }
 
 
@@ -148,19 +148,6 @@ class Feature implements Ontological{
     }
 
 
-    /** Convenience method for setting the location.  Assumes that it only contains a single
-     *  location so the previous location will be removed.
-     *
-     *  @param featureLocation - new FeatureLocation to set this gene to
-     */
-    public void setOnlyFeatureLocation(FeatureLocation featureLocation) {
-        Collection<FeatureLocation> locs = getFeatureLocations();
-        if (locs != null) {
-            locs.clear();
-        }
-        featureLocations.add(featureLocation)
-//        feature.addFeatureLocation(featureLocation);
-    }
 
 
     /** Convenience method for retrieving the location.  Assumes that it only contains a single
