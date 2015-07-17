@@ -1,4 +1,4 @@
-<div class="row input-group col-md-offset-0 col-md-4">
+<div class="col-md-offset-0 col-md-4">
     <ul class="list-group">
         <li class="list-group-item list-group-item-info">
             ${organism ? organism.commonName : "ALL"}
