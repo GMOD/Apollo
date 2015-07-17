@@ -18,7 +18,7 @@
 </ul>
 </div>
 
-<div id="show-feature" class="content scaffold-show" role="main">
+<div id="show-feature" class="content scaffold-show col-lg-offset-1" role="main">
     <h3>Summary</h3>
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>

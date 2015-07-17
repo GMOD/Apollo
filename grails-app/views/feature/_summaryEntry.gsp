@@ -1,37 +1,22 @@
-
-
-
-
-<h5>${organism ? organism.commonName : "All" }</h5>
-<ol class="property-list feature">
-    <li class="fieldcontain">
-        <span class="property-label">Gene Count</span>
-        <span class="property-value" aria-labelledby="name-label">
-            ${summaryData.geneCount}
-        </span>
-    </li>
-    <li class="fieldcontain">
-        <span class="property-label">Transcript Count</span>
-        <span class="property-value" aria-labelledby="name-label">
-            ${summaryData.transcriptCount}
-        </span>
-    </li>
-    <li class="fieldcontain">
-        <span class="property-label">Transposable Element Count</span>
-        <span class="property-value" aria-labelledby="name-label">
-            ${summaryData.transposableElementCount}
-        </span>
-    </li>
-    <li class="fieldcontain">
-        <span class="property-label">Repeat Region Count</span>
-        <span class="property-value" aria-labelledby="name-label">
-            ${summaryData.repeatRegionCount}
-        </span>
-    </li>
-    <li class="fieldcontain">
-        <span class="property-label">Exon Count</span>
-        <span class="property-value" aria-labelledby="name-label">
-            ${summaryData.exonCount}
-        </span>
-    </li>
-</ol>
+<div class="row input-group col-md-offset-0 col-md-4">
+    <ul class="list-group">
+        <li class="list-group-item list-group-item-info">
+            ${organism ? organism.commonName : "ALL"}
+        </li>
+        <li class="list-group-item">
+            Genes <span class="badge">${summaryData.geneCount}</span>
+        </li>
+        <li class="list-group-item">
+            Transcripts <span class="badge">${summaryData.transcriptCount}</span>
+        </li>
+        <li class="list-group-item">
+            Transposable Elements <span class="badge">${summaryData.transposableElementCount}</span>
+        </li>
+        <li class="list-group-item">
+            Repeat Regions <span class="badge">${summaryData.repeatRegionCount}</span>
+        </li>
+        <li class="list-group-item">
+            Exons <span class="badge">${summaryData.exonCount}</span>
+        </li>
+    </ul>
+</div>
