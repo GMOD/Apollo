@@ -16,7 +16,7 @@
             Repeat Regions <span class="badge">${summaryData.repeatRegionCount}</span>
         </li>
         <li class="list-group-item">
-            Exons <span class="badge">${summaryData.exonCount}</span>
+            Exons (Exons/Transcript)<span class="badge">${summaryData.exonCount} ${summaryData.exonCount ? "(${summaryData.exonsPerTranscript})" : ''} </span>
         </li>
     </ul>
 </div>
