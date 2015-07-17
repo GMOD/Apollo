@@ -21,8 +21,9 @@ The basic idea is to setup a new apollo-config.groovy file from some existing sa
 
 
 #### Configure for H2:
-- To use H2 for your database, simply copy sample-h2-apollo-config.groovy to apollo-config.groovy` (i.e. this is a 'zero configuration' database)
-- Run `apollo deploy`
+- To use H2 for your database, simply copy sample-h2-apollo-config.groovy to apollo-config.groovy
+- That is it! H2 is a 'zero-configuration' or 'embedded' database, and it can be run as an 'in-memory' database, or it can write to a file
+- Note: it may be better to use other more developed databases like postgres in production, but H2 can be quickly tested since it requires no other external programs to configure it.
 
 #### Configure for PostgreSQL:
 - Create a new database (e.g. this can be as simple as `createdb "apollo-production"`)
@@ -31,18 +32,21 @@ The basic idea is to setup a new apollo-config.groovy file from some existing sa
 
 #### Configure for MySQL:
 - Create a new MySQL database (e.g. just use the name apollo-production by default)
-- Copy sample-mysql-apollo-config.groovy to apollo-config.groovy and re-run apollo deploy
+- Copy sample-mysql-apollo-config.groovy to apollo-config.groovy
 
 
 ## Deploy the code as a war file
-- ./apollo deploy
-- copy the war file at target/apollo-X.Y.war to your webapps folder as apollo.war or similar
 
-## Note about the test, development, and production environments
+After you have setup your apollo-config.groovy file, we will build a WAR file to deploy.
 
-The "production" settings in apollo-config are automatically used when you copy the war file to your tomcat server, and the schema will be initialized automatically.
+```
+    ./apollo deploy
+```
 
-If you are instead using the "apollo run-local" instead of copying the war file, the "development" environment is used. See Database.md for more details.
+After this completes, jbrowse and other prerequisites are automatically downloaded and packaged into a WAR file.
+
+You can then copy the war file at target/apollo-X.Y.war to your webapps folder as apollo.war or similar, and then the WAR file will be unpacked automatically and run. If you named your file apollo.war, hen you can access your app at "http://localhost:8080/apollo"
+
 
 ### Login to the web interface
 
@@ -63,3 +67,13 @@ scripts from the command line. See the [data loading](Data_loading.md) section f
 ![Open annotator](images/3.png)
 
 Figure 3. Open up the new organism from the drop down tab on the annotator panel.
+
+
+
+## Note about the test, development, and production environments
+
+The "production" settings in apollo-config are automatically used when you copy the war file to your tomcat server, and the schema will be initialized automatically.
+
+If you are instead using the "apollo run-local" instead of copying the war file, the "development" environment is used. More details are available in the [configuration section](Configure.md)!
+
+
