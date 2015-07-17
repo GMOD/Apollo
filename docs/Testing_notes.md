@@ -4,11 +4,11 @@
 The Web Apollo unit testing framework uses the grails testing guidelines extensively, which can be reviewed here: http://grails.github.io/grails-doc/2.4.3/guide/testing.html
 
 
-Our basic methodology is to enter the prompt by typing “grails” and then type:
+Our basic methodology is to run the full test suite with the apollo command:
 
 ```
     apollo test
-````
+```
 
 
 More specific tests can also be run for example by running specific commands for `grails test-app`
@@ -25,7 +25,7 @@ This runs ALL of the tests in “test/unit”. If you want to test a specific fu
 
 
 
-### Some important points:
+### Notes about the test suites:
 
 1. @Mock includes any domain objects you’ll use.  Unit tests don’t use the database.
 2. setup() is run for each test (*we believe*) 
