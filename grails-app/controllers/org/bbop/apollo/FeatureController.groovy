@@ -10,6 +10,8 @@ class FeatureController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
+    def reportService
+
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
         respond Feature.list(params), model:[featureInstanceCount: Feature.count()]
@@ -24,12 +26,25 @@ class FeatureController {
      * @param featureInstance
      * @return
      */
-    def summary(Organism organism) {
+    def summary() {
+        Map<Organism,FeatureSummary> featureSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
+            @Override
+            int compare(Organism o1, Organism o2) {
+                return o1.commonName <=> o2.commonName
+            }
+        })
 
-        FeatureSummary featureSummaryInstance = new FeatureSummary()
-        featureSummaryInstance.geneCount = Gene.count
-        featureSummaryInstance.transcriptCount = Transcript.count
-        respond featureSummaryInstance
+        // global version
+        FeatureSummary featureSummaryInstance = reportService.generateAllFeatureSummary()
+
+
+        Organism.listOrderByCommonName().each { organism ->
+            FeatureSummary thisFeatureSummaryInstance = reportService.generateFeatureSummary(organism)
+            featureSummaryListInstance.put(organism,thisFeatureSummaryInstance)
+        }
+
+
+        respond featureSummaryInstance, model: [featureSummaries:featureSummaryListInstance]
 //        respond featureInstance
     }
 

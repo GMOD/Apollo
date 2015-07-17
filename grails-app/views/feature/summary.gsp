@@ -15,30 +15,19 @@
     <li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
     %{--<li><g:link class="list" action="index"><g:message code="default.list.label" args="[entityName]" /></g:link></li>--}%
     %{--<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>--}%
-    <g:select name="organism" from="${org.bbop.apollo.Organism.listOrderByCommonName()}" optionValue="commonName" noSelection="['':'All']">
-    </g:select>
 </ul>
 </div>
 
 <div id="show-feature" class="content scaffold-show" role="main">
-    <h1><g:message code="default.show.label" args="[entityName]"/></h1>
+    <h3>Summary</h3>
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
     </g:if>
-    <ol class="property-list feature">
-        <li class="fieldcontain">
-            <span class="property-label">Gene Count</span>
-            <span class="property-value" aria-labelledby="name-label">
-                ${featureSummaryInstance.geneCount}
-            </span>
-        </li>
-        <li class="fieldcontain">
-            <span class="property-label">Transcript Count</span>
-            <span class="property-value" aria-labelledby="name-label">
-                ${featureSummaryInstance.transcriptCount}
-            </span>
-        </li>
-    </ol>
+    <g:render template="summaryEntry" model="[summaryData: featureSummaryInstance]"/>
+    <g:each in="${featureSummaries}" var="featureSummaryInstance">
+        <g:render template="summaryEntry"
+                  model="[organism: featureSummaryInstance.key, summaryData: featureSummaryInstance.value]"/>
+    </g:each>
 </div>
 </body>
 </html>

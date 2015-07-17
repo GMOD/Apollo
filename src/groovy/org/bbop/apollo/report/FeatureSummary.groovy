@@ -6,4 +6,7 @@ package org.bbop.apollo.report
 class FeatureSummary {
     int geneCount
     int transcriptCount
+    int transposableElementCount
+    int repeatRegionCount
+    int exonCount
 }
