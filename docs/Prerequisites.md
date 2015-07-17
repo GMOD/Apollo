@@ -43,10 +43,12 @@ quickest way to take care of pre-requisites.
 
 These commands can automate the setup of some of these important system packages with postgresql backend in mind.
 
+
+```
     # install system prerequisites (debian/ubuntu)
     sudo apt-get install openjdk-7-jdk curl libexpat1-dev postgresql postgresql-server-dev-all maven tomcat7 git
     # install system prerequisites (centOS/redhat)
     sudo yum install postgresql postgresql-server postgresql-devel maven expat-devel tomcat git curl
     # install system prerequisites (macOSX/homebrew), read the postgresql start guide
     brew install maven postgresql wget tomcat git
-
+```

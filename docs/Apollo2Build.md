@@ -1,6 +1,6 @@
-## Web Apollo 2.0 build instructions
+# Web Apollo 2.0 quick-start instructions
 
-View <a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHub</a>
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Apollo2Build.md">On GitHub</a>
 
 ## Install Grails:
 1. curl -s get.gvmtool.net | bash

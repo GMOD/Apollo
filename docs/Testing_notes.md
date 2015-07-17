@@ -1,21 +1,31 @@
 
-## Testing Notes:
-The unit testing framework is defined in better detail than what we here describe at: http://grails.github.io/grails-doc/2.4.3/guide/testing.html
+## Automated testing architecture
 
-Spock (used by Grails) is defined here: https://code.google.com/p/spock/wiki/SpockBasics
+The Web Apollo unit testing framework uses the grails testing guidelines extensively, which can be reviewed here: http://grails.github.io/grails-doc/2.4.3/guide/testing.html
 
 
 Our basic methodology is to enter the prompt by typing “grails” and then type:
 
-    test-app :unit-test
+```
+    apollo test
+````
+
+
+More specific tests can also be run for example by running specific commands for `grails test-app`
+
+```
+    grails test-app :unit-test
+```
 
 This runs ALL of the tests in “test/unit”. If you want to test a specific function then write it something like this:
 
-    test-app org.bbop.apollo.FeatureService :unit 
+```
+    grails test-app org.bbop.apollo.FeatureService :unit 
+```
 
-This runs the tests in FeatureServiceSpec . . some of which is below.  
 
-Some important points:
+
+### Some important points:
 
 1. @Mock includes any domain objects you’ll use.  Unit tests don’t use the database.
 2. setup() is run for each test (*we believe*) 

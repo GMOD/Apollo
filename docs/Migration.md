@@ -1,4 +1,4 @@
-## Web Apollo 2.0 Migration Guide
+# Web Apollo 2.0 Migration Guide
 
 View <a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHub</a>
 
