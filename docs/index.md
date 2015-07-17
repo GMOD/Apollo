@@ -23,7 +23,7 @@ Note: This documentation covers release versions 2.x of Web Apollo. For the 1.x 
 
 ## PDF version of documentation
 
-A PDF version of the documentation is available at https://www.dropbox.com/s/31er7sfidoq5whw/WebApollo.pdf?dl=1
+A PDF version of the documentation is available for download. Link: [https://www.dropbox.com/s/31er7sfidoq5whw/WebApollo.pdf](https://www.dropbox.com/s/31er7sfidoq5whw/WebApollo.pdf?dl=1)
 
 ## Table of contents
 
