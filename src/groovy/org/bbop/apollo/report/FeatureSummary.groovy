@@ -5,4 +5,5 @@ package org.bbop.apollo.report
  */
 class FeatureSummary {
     int geneCount
+    int transcriptCount
 }

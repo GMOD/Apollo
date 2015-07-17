@@ -33,9 +33,9 @@
             </span>
         </li>
         <li class="fieldcontain">
-            <span class="property-label">Gene Count</span>
+            <span class="property-label">Transcript Count</span>
             <span class="property-value" aria-labelledby="name-label">
-                ${featureSummaryInstance.geneCount}
+                ${featureSummaryInstance.transcriptCount}
             </span>
         </li>
     </ol>

@@ -27,7 +27,8 @@ class FeatureController {
     def summary(Organism organism) {
 
         FeatureSummary featureSummaryInstance = new FeatureSummary()
-        featureSummaryInstance.geneCount = 7
+        featureSummaryInstance.geneCount = Gene.count
+        featureSummaryInstance.transcriptCount = Transcript.count
         respond featureSummaryInstance
 //        respond featureInstance
     }

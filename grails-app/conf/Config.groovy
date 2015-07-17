@@ -271,6 +271,7 @@ apollo {
             ['label': "Canned Comments", 'link': "/cannedComment/"]
             ,['label': "Feature Types", 'link': "/featureType/"]
             ,['label': "Statuses", 'link': "/availableStatus/"]
+            ,['label': "Report Summary", 'link': "/feature/summary/"]
     ]
 
     // customize new tabs on the annotator panel with these links
