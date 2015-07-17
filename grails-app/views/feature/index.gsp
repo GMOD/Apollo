@@ -26,15 +26,15 @@
 					
 						<g:sortableColumn property="name" title="${message(code: 'feature.name.label', default: 'Name')}" />
 					
-						<g:sortableColumn property="uniqueName" title="${message(code: 'feature.uniqueName.label', default: 'Unique Name')}" />
-					
-						<th><g:message code="feature.dbxref.label" default="Dbxref" /></th>
+						%{--<g:sortableColumn property="uniqueName" title="${message(code: 'feature.uniqueName.label', default: 'Unique Name')}" />--}%
+					%{----}%
+						%{--<th><g:message code="feature.dbxref.label" default="Dbxref" /></th>--}%
 					
 						<g:sortableColumn property="sequenceLength" title="${message(code: 'feature.sequenceLength.label', default: 'Sequence Length')}" />
 					
-						<g:sortableColumn property="md5checksum" title="${message(code: 'feature.md5checksum.label', default: 'Md5checksum')}" />
+						%{--<g:sortableColumn property="md5checksum" title="${message(code: 'feature.md5checksum.label', default: 'Md5checksum')}" />--}%
 					
-						<g:sortableColumn property="isAnalysis" title="${message(code: 'feature.isAnalysis.label', default: 'Is Analysis')}" />
+						%{--<g:sortableColumn property="isAnalysis" title="${message(code: 'feature.isAnalysis.label', default: 'Is Analysis')}" />--}%
 					
 					</tr>
 				</thead>
@@ -44,15 +44,15 @@
 					
 						<td><g:link action="show" id="${featureInstance.id}">${fieldValue(bean: featureInstance, field: "name")}</g:link></td>
 					
-						<td>${fieldValue(bean: featureInstance, field: "uniqueName")}</td>
+						%{--<td>${fieldValue(bean: featureInstance, field: "uniqueName")}</td>--}%
 					
-						<td>${fieldValue(bean: featureInstance, field: "dbxref")}</td>
+						%{--<td>${fieldValue(bean: featureInstance, field: "dbxref")}</td>--}%
 					
 						<td>${fieldValue(bean: featureInstance, field: "sequenceLength")}</td>
 					
-						<td>${fieldValue(bean: featureInstance, field: "md5checksum")}</td>
+						%{--<td>${fieldValue(bean: featureInstance, field: "md5checksum")}</td>--}%
 					
-						<td><g:formatBoolean boolean="${featureInstance.isAnalysis}" /></td>
+						%{--<td><g:formatBoolean boolean="${featureInstance.isAnalysis}" /></td>--}%
 					
 					</tr>
 				</g:each>

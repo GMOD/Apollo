@@ -116,8 +116,8 @@ grails.project.dependency.resolution = {
         runtime ":jquery-ui:1.10.4"
         runtime ":jquery:1.11.1"
 
-        //runtime ':twitter-bootstrap:3.3.1'
-        
+        // https://github.com/groovydev/twitter-bootstrap-grails-plugin/blob/master/README.md
+        runtime ':twitter-bootstrap:3.3.1'
         //compile ":angularjs:1.0.0"
         //compile ":dojo:1.7.2.0"
         //compile ":platform-core:1.0.0"

@@ -19,6 +19,15 @@ class FeatureController {
         respond featureInstance
     }
 
+    /**
+     * TODO: perOrganism summary
+     * @param featureInstance
+     * @return
+     */
+    def summary(Organism organism) {
+//        respond featureInstance
+    }
+
     def create() {
         respond new Feature(params)
     }
