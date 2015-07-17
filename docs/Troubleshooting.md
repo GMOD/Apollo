@@ -63,7 +63,7 @@ http://tomcat.apache.org/tomcat-7.0-doc/security-howto.html#Non-Tomcat_settings
 
 ##### e.g. "Can't locate Hash/Merge.pm in @INC" or "Can't locate JBlibs.pm in @INC"
 
-If are trying to run the jbrowse binaries but get these sorts of errors, try `install_jbrowse.sh` which will initialize as many pre-requisites as possible including JBLibs and other JBrowse dependencies. 
+If you are trying to run the jbrowse binaries but get these sorts of errors, try running `install_jbrowse.sh` which will initialize as many pre-requisites as possible including JBLibs and other JBrowse dependencies. 
 
 ### Errors during apollo deploy or install_jbrowse.sh
 
@@ -143,7 +143,7 @@ There are several solutions to this, but all involve updating the ```apollo-conf
             enabled = true
             name 'globalcache'
             eternal false
-            overflowToDisk false   // THIS IT THE IMPORTANT LINE!
+            overflowToDisk false   // THIS IS THE IMPORTANT LINE
             maxElementsInMemory 100000
         }
     }

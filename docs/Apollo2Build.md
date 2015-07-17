@@ -6,7 +6,7 @@ View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Apollo2Build.md">O
 1. curl -s get.gvmtool.net | bash
 2. gvm install grails 2.4.4
 
-## Get The code
+## Get the code
 - git clone https://github.com/GMOD/Apollo.git Apollo
 - cd Apollo
 
@@ -15,19 +15,22 @@ View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Apollo2Build.md">O
 
 Web Apollo 2.0 simplifies and expands options for the database setup. This section will cover the basic options for this.
 
+The basic idea is to setup a new apollo-config.groovy file from some existing samples to initialize your database settings.
+
 ## Database options
 
 
 #### Configure for H2:
-- copy sample-h2-apollo-config.groovy to apollo-config.groovy and update the data directory
+- To use H2 for your database, simply copy sample-h2-apollo-config.groovy to apollo-config.groovy` (i.e. this is a 'zero configuration' database)
+- Run `apollo deploy`
 
 #### Configure for PostgreSQL:
-- Create a new database (e.g. default is just named `apollo`)
-- Copy sample-postgres-apollo-config.groovy to apollo-config.groovy and re-run apollo deploy
-- Note: There is no need to run the old add-tracks/add-users/set-track-permissions pipeline now.
+- Create a new database (e.g. this can be as simple as `createdb "apollo-production"`)
+- Copy sample-postgres-apollo-config.groovy to apollo-config.groovy and make sure to edit the database name appropriately
+- Note: the production environment in apollo-config is automatically used when you copy the war file to your tomcat server, and the schema will be initialized automatically.
 
 #### Configure for MySQL:
-- Create a new database (e.g. apollo by default)
+- Create a new MySQL database (e.g. just use the name apollo-production by default)
 - Copy sample-mysql-apollo-config.groovy to apollo-config.groovy and re-run apollo deploy
 
 
@@ -35,6 +38,11 @@ Web Apollo 2.0 simplifies and expands options for the database setup. This secti
 - ./apollo deploy
 - copy the war file at target/apollo-X.Y.war to your webapps folder as apollo.war or similar
 
+## Note about the test, development, and production environments
+
+The "production" settings in apollo-config are automatically used when you copy the war file to your tomcat server, and the schema will be initialized automatically.
+
+If you are instead using the "apollo run-local" instead of copying the war file, the "development" environment is used. See Database.md for more details.
 
 ### Login to the web interface
 
