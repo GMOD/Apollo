@@ -45,23 +45,23 @@ The main components of the Web Apollo application (the four most important are 1
 
 ### Schema/domain classes
 
-Domain classes: the most important domain class everywhere is the Feature; it is the key to everything that we do. The way a domain class is built (Nathan cleaning as he explains): 
-The main class represents a database table, the way it works with "Feature", which is inherited by many other classes. All features are stored in the same table, the differences in SQL, there is a class table and when it pulls these tables from the database --- it queries it and then pulls it (converts it) into the right class.
+Domain classes: the most important domain class everywhere is the Feature; it is the key to everything that we do. The way a domain class is built: 
+
+The domain classes represent a database table. The way it works with "Feature", which is inherited by many other classes, is that all features are stored in the same table, the difference is that in SQL, there is a class table and when it pulls these tables from the database --- it queries it and then converts it into the right class.
 There are a number of constrains you can set. 
 
 Very important: the hasMany maps the one-to-many relationship within the database. It can have many locations. the parentFeatureRelationships is where you map this one-to-many relationship. 
 You also have to have a single item relationship.
 
-You can add any methods you want to.  Nathan tried to not add any methods, except things for FeatureLocation. things that are obvious, but not of any sufficient calculation. 
+You can add extra methods to the domain objects, but this is generally not necessary. 
 
-The DataStore setting called "auditable = true" means that a new table, a feature auditing tool, is keeping track of history for the specified objects
+Note: In the DataStore configuration, setting called "auditable = true" means that a new table, a feature auditing tool, is keeping track of history for the specified objects
 
 #### Feature class
 
-all features inherit an ontologyId and specifies a cvTerm
-Nathan trying to use ontologyId everywhere he can, and also conserving cvTerm for those places where ontologyId is not present. 
+All features inherit an ontologyId and specify a cvTerm, although CvTerms are being phased out.
 
-"Feature" is too generic, for example, so it does not have an ontologyId
+Subclasses of "Feature" will specify the ontologyId, but "Feature" itself is too generic, for example, so it does not have an ontologyId.
 
 
 #### Sequence class
