@@ -1,6 +1,6 @@
 package org.bbop.apollo
 
-
+import org.bbop.apollo.report.FeatureSummary
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
@@ -25,6 +25,10 @@ class FeatureController {
      * @return
      */
     def summary(Organism organism) {
+
+        FeatureSummary featureSummaryInstance = new FeatureSummary()
+        featureSummaryInstance.geneCount = 7
+        respond featureSummaryInstance
 //        respond featureInstance
     }
 
