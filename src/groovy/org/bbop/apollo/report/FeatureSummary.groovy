@@ -10,10 +10,22 @@ class FeatureSummary {
     int repeatRegionCount
     int exonCount
 
-    Map<String,Integer> transcriptTypeCount
-    Map<String,Integer> geneTypeCount
+    Map<String, Integer> transcriptTypeCount
+    Map<String, Integer> geneTypeCount
 
-    float getExonsPerTranscript(){
+    int getTotalFeatureCount() {
+        transcriptCount + repeatRegionCount + transposableElementCount
+    }
+
+    float getProteinCodingFeaturePercent() {
+        totalFeatureCount && transcriptTypeCount ? ((float) transcriptTypeCount.get("MRNA") / (float) totalFeatureCount).round(2) : 0
+    }
+
+    float getProteinCodingTranscriptPercent() {
+        transcriptCount && transcriptTypeCount? ((float) transcriptTypeCount.get("MRNA") / (float) transcriptCount).round(2) : 0
+    }
+
+    float getExonsPerTranscript() {
         ((float) exonCount / (float) transcriptCount).round(2)
     }
 }

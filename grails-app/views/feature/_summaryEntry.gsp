@@ -8,7 +8,23 @@
         </li>
         <li class="list-group-item">
             Transcripts <span class="badge">${summaryData.transcriptCount}</span>
+            <g:if test="${summaryData.transcriptTypeCount}">
+                <ul class="list-group">
+                    <g:each in="${summaryData.transcriptTypeCount}" var="transcriptType">
+                        <li class="list-group-item">
+                            ${transcriptType.key}
+                            <span class="badge">
+                            ${transcriptType.value}
+                            </span>
+                        </li>
+                    </g:each>
+                </ul>
+            </g:if>
         </li>
+        <li class="list-group-item">
+            % Coding Transcripts (Features) <span class="badge">${(summaryData.proteinCodingTranscriptPercent* 100).round(2)} (${(summaryData.proteinCodingFeaturePercent * 100).round(2)})</span>
+        </li>
+
         <li class="list-group-item">
             Transposable Elements <span class="badge">${summaryData.transposableElementCount}</span>
         </li>
