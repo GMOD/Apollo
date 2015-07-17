@@ -29,6 +29,7 @@ class ReportService {
         thisFeatureSummaryInstance.transposableElementCount = TransposableElement.count
         thisFeatureSummaryInstance.repeatRegionCount = RepeatRegion.count
         thisFeatureSummaryInstance.exonCount = Exon.count
+        thisFeatureSummaryInstance.sequenceCount = Sequence.count
 
 
 
@@ -53,6 +54,7 @@ class ReportService {
         } else {
             thisFeatureSummaryInstance.transcriptCount = 0
         }
+        thisFeatureSummaryInstance.sequenceCount = Sequence.countByOrganism(organism)
 
         thisFeatureSummaryInstance.transposableElementCount = (int) TransposableElement.executeQuery("select count(distinct g) from TransposableElement g join g.featureLocations fl join fl.sequence s join s.organism o where o = :organism", [organism: organism]).iterator().next()
         thisFeatureSummaryInstance.repeatRegionCount = (int) RepeatRegion.executeQuery("select count(distinct g) from RepeatRegion g join g.featureLocations fl join fl.sequence s join s.organism o where o = :organism", [organism: organism]).iterator().next()

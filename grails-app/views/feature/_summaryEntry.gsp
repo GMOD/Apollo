@@ -4,6 +4,9 @@
             ${organism ? organism.commonName : "ALL"}
         </li>
         <li class="list-group-item">
+            Sequences <span class="badge">${summaryData.sequenceCount}</span>
+        </li>
+        <li class="list-group-item">
             Genes <span class="badge">${summaryData.geneCount}</span>
         </li>
         <li class="list-group-item">

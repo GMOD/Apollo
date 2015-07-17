@@ -271,7 +271,11 @@ apollo {
             ['label': "Canned Comments", 'link': "/cannedComment/"]
             ,['label': "Feature Types", 'link': "/featureType/"]
             ,['label': "Statuses", 'link': "/availableStatus/"]
-            ,['label': "Report Summary", 'link': "/feature/summary/"]
+            ,['label': "Report::Organism Annotations", 'link': "/feature/summary/"]
+//            ,['label': "System Info", 'link': "/feature/system/"]
+//            ,['label': "Report::Sequences", 'link': "/feature/sequences/"]
+//            ,['label': "Report::Annotator", 'link': "/feature/annotator/"]
+//            ,['label': "Report::Changes", 'link': "/feature/changes/"]
     ]
 
     // customize new tabs on the annotator panel with these links

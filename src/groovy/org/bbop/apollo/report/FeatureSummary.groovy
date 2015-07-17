@@ -9,6 +9,7 @@ class FeatureSummary {
     int transposableElementCount
     int repeatRegionCount
     int exonCount
+    int sequenceCount
 
     Map<String, Integer> transcriptTypeCount
     Map<String, Integer> geneTypeCount
