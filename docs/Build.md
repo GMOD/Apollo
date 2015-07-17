@@ -43,12 +43,12 @@ To perform active development of the codebase, use
     apollo debug
 ``` 
 
-This will launch a temporary instance Apollo using `ant devmode` so that any changes to the Java or Javascript files will be pick up any changes that you make to the Java files
-during the process.
+This will launch a temporary instance Apollo using `ant devmode` so that any changes to the Java or Javascript files will be picked up, allowing fast iteration!
 
 
-Alternatively, a basic temporary server without devmode can be initialized with
+## Launching a temporary instance
 
+A temporary tomcat server can be automatically launched without having you configure your own Tomcat server with the `apollo run-local` command:
 ```
     apollo run-local [8085]
 ```

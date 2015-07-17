@@ -35,7 +35,7 @@ The main configuration settings for Apollo are stored in Config.groovy, but you 
 `apollo-config.groovy` file (i.e. the same file that contains your database parameters). Here are the defaults that are
 defined in the Config.groovy file:
 
-
+```
     // default apollo settings
     apollo {
         default_minimum_intron_size = 1
@@ -79,11 +79,13 @@ defined in the Config.groovy file:
             comments = true
         }
     }
+```
 
 These settings are essentially the same familiar parameters from a config.xml file from previous Web Apollo versions.
 The defaults are generally sufficient, but as noted above, you can override any particular parameter in your
 apollo-config.groovy file, e.g. you can add override configuration any given parameter as follows:
 
+```
     grails {
         apollo.get_translation_code = 1 
         apollo {
@@ -92,8 +94,7 @@ apollo-config.groovy file, e.g. you can add override configuration any given par
              get_translation_code = 1  // identical to the dot notation
         }
     }
-
- 
+```
 
 ### Canned comments
 
@@ -106,7 +107,7 @@ Canned comments are configured via the admin panel on the web interface.
 Web Apollo can be configured to work with sequence search tools. The tool UCSC BLAT is
 commonly used and can be easily configured via the config file, with the general parameters given as follows:
 
-
+```
     sequence_search_tools = [
         blat_nuc: [
             search_exe: "/usr/local/bin/blat",
@@ -127,6 +128,7 @@ commonly used and can be easily configured via the config file, with the general
             name: "Custom search"
         ]
     ]
+```
 
 You can see that the search options are extensible via the config, but that Blat is specified by default. If your blat
 installation binaries reside elsewhere, edit the search_exe location to point to the blat EXE.
@@ -136,7 +138,7 @@ installation binaries reside elsewhere, edit the search_exe location to point to
 
 Data adapters are currently configured as follows
 
-
+```
     data_adapters = [[
         permission: 1,
         key: "GFF3",
@@ -170,6 +172,8 @@ Data adapters are currently configured as follows
             options : "output=file&format=gzip&type=FASTA&seqType=cds"
         ]]
     ]]
+
+```
 
 #### Data adapter options
 
@@ -210,30 +214,34 @@ One thing to consider with this proxy setup is the websocket calls. We use the S
 #### Apache Proxy 
 
 The most simple setup on apache is a reverse proxy. Note that a reverse proxy _does not_ use `ProxyRequests On` (i.e. if you want you can set `ProxyRequests Off`, it is not relevant to reverse proxies). Here is the most basic configuration:
-    
+
+```
     ProxyPass  /apollo http://localhost:8080/apollo
     ProxyPassReverse  /apollo http://localhost:8080/apollo
     ProxyPassReverseCookiePath  / http://localhost:8080/apollo
-    
+```
+
 This setup will use AJAX long-polling unless websockets are also configured to be proxied. To setup the proxy for websockets, you can use mod_proxy_wstunnel (available for httpd 2.4):  http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html
 
 First load the module or use a2enmod enable it (on ubuntu / debian):
 
+```
     LoadModule proxy_wstunnel_module libexec/apache2/mod_proxy_wstunnel.so
-
+```
 
 Then in your server config, i.e. httpd.conf, add extra ProxyPass calls for the websocket "endpoint" called /apollo/stomp
 
-    
+``` 
     ProxyPass /apollo/stomp  ws://localhost:8080/apollo/stomp
     ProxyPassReverse /apollo/stomp ws://localhost:8080/apollo/stomp
-
+```
     
 
 #### Nginx Proxy (from version 1.4 on)
 
 Your setup may vary, but setting the upgrade headers can be used for the websocket configuration http://nginx.org/en/docs/http/websocket.html
 
+```
     map $http_upgrade $connection_upgrade {
             default upgrade;
             ''      close;
@@ -253,18 +261,18 @@ Your setup may vary, but setting the upgrade headers can be used for the websock
             proxy_pass      http://127.0.0.1:8080;
         }
     }
-
+```
 
 
 ### Upgrading existing instances
 
 There are several scripts for migrating from older instances. See the [migration guide](Migration.md) for details. Particular notes:
 
-The new WebApollo does not require "add-webapollo-plugin.pl", the plugin is loaded implicitely by including the client/apollo/json/annot.json file dynamically.
+Note: WebApollo 2.0 does not require using the `add-webapollo-plugin.pl` because the plugin is loaded implicitely by including the client/apollo/json/annot.json file at run time.
 
 #### Upgrading existing JBrowse data stores
 
-It is not necessary to upgrade the JBrowse data tracks to use Web Apollo 2.0, you can just point to existing data directories from your previous instances from the Organism panel.
+It is not necessary to change your existing JBrowse data directories to use Web Apollo 2.0, you can just point to existing data directories from your previous instances.
 
 
 
