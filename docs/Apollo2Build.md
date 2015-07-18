@@ -21,9 +21,8 @@ The basic idea is to setup a new apollo-config.groovy file from some existing sa
 
 
 #### Configure for H2:
-- To use H2 for your database, simply copy sample-h2-apollo-config.groovy to apollo-config.groovy
-- That is it! H2 is a 'zero-configuration' or 'embedded' database, and it can be run as an 'in-memory' database, or it can write to a file
-- Note: it may be better to use other more developed databases like postgres in production, but H2 can be quickly tested since it requires no other external programs to configure it.
+- To use H2 for your database, simply copy sample-h2-apollo-config.groovy to apollo-config.groovy and continue with the deploy steps below
+- Note: H2 is a 'zero-configuration' or 'embedded' database, so it doesn't require any other programs to set it up like postgres, but often postgres/mysql are preferable for production.
 
 #### Configure for PostgreSQL:
 - Create a new database (e.g. this can be as simple as `createdb "apollo-production"`)
