@@ -3,16 +3,29 @@
 <html>
 <head>
     <meta name="layout" content="report">
-    <title>${organism.commonName} Sequences </title>
+    <title>${organism.commonName} Sequences</title>
+
+    <script>
+        function changeOrganism() {
+            var name = $("#organism option:selected").val();
+            window.location.href = "${createLink(action: 'report')}/" + name;
+        }
+    </script>
 </head>
 
 <body>
 
-
 <g:render template="../layouts/reportHeader"/>
 
-<div id="list-track" class="report-header content scaffold-list" role="main">
-    <h3>Sequences for ${organism.commonName}</h3>
+<div id="list-track" class="form-group report-header content scaffold-list" role="main">
+    <div class="row form-group">
+        <div class="col-lg-4 lead">${organism.commonName} Sequences</div>
+
+        <g:select id="organism" class="input-lg" name="organism"
+                  from="${org.bbop.apollo.Organism.listOrderByCommonName()}" optionValue="commonName" optionKey="id" value="${organism.id}"
+        onchange=" changeOrganism(); "
+        />
+    </div>
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
     </g:if>
@@ -32,7 +45,7 @@
                             id="${sequenceInstance.id}">${fieldValue(bean: sequenceInstance, field: "name")}</g:link></td>
                 <td>
                     ${sequenceInstance.length}
-                %{--<g:link uri="">Browse</g:link>--}%
+                    %{--<g:link uri="">Browse</g:link>--}%
                 </td>
 
             </tr>
