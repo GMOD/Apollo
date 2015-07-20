@@ -28,10 +28,10 @@
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
     </g:if>
-    <g:render template="summaryEntry" model="[summaryData: featureSummaryInstance]"/>
-    <g:each in="${featureSummaries}" var="featureSummaryInstance">
+    <g:render template="summaryEntry" model="[summaryData: organismSummaryInstance]"/>
+    <g:each in="${organismSummaries}" var="organismSummaryInstance">
         <g:render template="summaryEntry"
-                  model="[organism: featureSummaryInstance.key, summaryData: featureSummaryInstance.value]"/>
+                  model="[organism: organismSummaryInstance.key, summaryData: organismSummaryInstance.value]"/>
     </g:each>
 </div>
 

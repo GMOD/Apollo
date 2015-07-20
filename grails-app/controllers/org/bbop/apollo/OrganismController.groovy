@@ -226,7 +226,7 @@ class OrganismController {
      * @return
      */
     def report() {
-        Map<Organism,OrganismSummary> featureSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
+        Map<Organism,OrganismSummary> organismSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
             @Override
             int compare(Organism o1, Organism o2) {
                 return o1.commonName <=> o2.commonName
@@ -234,16 +234,16 @@ class OrganismController {
         })
 
         // global version
-        OrganismSummary featureSummaryInstance = reportService.generateAllFeatureSummary()
+        OrganismSummary organismSummaryInstance = reportService.generateAllFeatureSummary()
 
 
         Organism.listOrderByCommonName().each { organism ->
-            OrganismSummary thisFeatureSummaryInstance = reportService.generateFeatureSummary(organism)
-            featureSummaryListInstance.put(organism,thisFeatureSummaryInstance)
+            OrganismSummary thisOrganismSummaryInstance = reportService.generateFeatureSummary(organism)
+            organismSummaryListInstance.put(organism,thisOrganismSummaryInstance)
         }
 
 
-        respond featureSummaryInstance, model: [featureSummaries:featureSummaryListInstance]
+        respond organismSummaryInstance, model: [organismSummaries:organismSummaryListInstance]
 //        respond featureInstance
     }
 
