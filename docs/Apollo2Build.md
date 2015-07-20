@@ -78,6 +78,6 @@ Figure 3. Open up the new organism from the drop down tab on the annotator panel
 
 The "production" settings in apollo-config are automatically used when you copy the war file to your tomcat server, and the schema will be initialized automatically.
 
-If you are instead using the "apollo run-local" instead of copying the war file, the "development" environment is used. More details are available in the [configuration section](Configure.md)!
+If you are instead using the "apollo run-local" instead of copying the war file, the "development" environment is used. More details are available in the [configuration section](Configure.md).
 
 
