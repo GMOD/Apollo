@@ -317,7 +317,11 @@ class AnnotatorController {
         log.error "not authorized"
     }
 
+    /**
+     * Supply changes between a date range and paginate
+     */
     def changes() {
+
 //        respond []
     }
 
