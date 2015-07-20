@@ -5,6 +5,8 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.report.OrganismSummary
+import org.bbop.apollo.report.SequenceSummary
 import org.bbop.apollo.sequence.DownloadFile
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -196,6 +198,10 @@ class SequenceController {
     def report(Organism organism,Integer max) {
         organism = organism ?: Organism.first()
         params.max = Math.min(max ?: 20, 100)
+
+        List<SequenceSummary> sequenceSummaryList = new ArrayList<>()
+
+
         List<Sequence> sequenceListInstance = Sequence.findAllByOrganism(organism,params)
         int sequenceInstanceCount = Sequence.countByOrganism(organism)
         respond sequenceListInstance, model:[organism:organism,sequenceInstanceCount:sequenceInstanceCount]
