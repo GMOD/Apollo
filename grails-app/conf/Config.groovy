@@ -272,9 +272,9 @@ apollo {
             ,['label': "Feature Types", 'link': "/featureType/"]
             ,['label': "Statuses", 'link': "/availableStatus/"]
             ,['label': "Report::Organism Annotations", 'link': "/feature/summary/"]
-//            ,['label': "System Info", 'link': "/feature/system/"]
 //            ,['label': "Report::Sequences", 'link': "/feature/sequences/"]
 //            ,['label': "Report::Annotator", 'link': "/feature/annotator/"]
+//            ,['label': "System Info", 'link': "/feature/system/"]
 //            ,['label': "Report::Changes", 'link': "/feature/changes/"]
     ]
 
