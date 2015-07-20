@@ -1,12 +1,16 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.AnnotatorSummary
+import org.bbop.apollo.report.OrganismPermissionSummary
 import org.bbop.apollo.report.OrganismSummary
 import org.bbop.apollo.report.SequenceSummary
 
 @Transactional
 class ReportService {
+
+    def permissionService
 
     def generateAllFeatureSummary() {
         OrganismSummary thisFeatureSummaryInstance = new OrganismSummary()
@@ -97,6 +101,17 @@ class ReportService {
         return sequenceSummary
     }
 
+    def copyProperties(source, target) {
+        source.properties.each { key, value ->
+            if (target.hasProperty(key) && !(key in ['class', 'metaClass'])){
+                try{
+                    target[key] = value
+                }
+                catch(ReadOnlyPropertyException rpo){}
+            }
+        }
+    }
+
     AnnotatorSummary generateAnnotatorSummary(User owner) {
         AnnotatorSummary annotatorSummary = new AnnotatorSummary()
         annotatorSummary.annotator = owner
@@ -119,6 +134,33 @@ class ReportService {
         } else {
             annotatorSummary.transcriptCount = 0
         }
+
+        // TODO: add groups as well
+        List<OrganismPermissionSummary> userOrganismPermissionList = new ArrayList<>()
+        if(permissionService.isUserAdmin(owner)){
+            Organism.listOrderByCommonName().each {
+                OrganismPermissionSummary organismPermissionSummary = new OrganismPermissionSummary()
+                UserOrganismPermission userOrganismPermission = new UserOrganismPermission()
+                userOrganismPermission.permissions = [ PermissionEnum.ADMINISTRATE,PermissionEnum.EXPORT,PermissionEnum.READ,PermissionEnum.WRITE]
+                userOrganismPermission.organism = it
+                organismPermissionSummary.userOrganismPermission = userOrganismPermission
+                copyProperties(generateOrganismSummary(it),organismPermissionSummary)
+                userOrganismPermissionList.add(organismPermissionSummary)
+            }
+        }
+        else{
+            UserOrganismPermission.findAllByUser(owner).each {
+                OrganismPermissionSummary organismPermissionSummary = new OrganismPermissionSummary()
+                organismPermissionSummary.userOrganismPermission = it
+                copyProperties(generateOrganismSummary(it.organism),organismPermissionSummary)
+//                organismPermissionSummary.organismId = it.organismId
+
+                userOrganismPermissionList.add(organismPermissionSummary)
+            }
+//            annotatorSummary.userOrganismPermissionList =
+        }
+
+        annotatorSummary.userOrganismPermissionList = userOrganismPermissionList
 
 
         return annotatorSummary

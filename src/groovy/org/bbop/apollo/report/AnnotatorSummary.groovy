@@ -7,8 +7,7 @@ import org.bbop.apollo.User
  */
 class AnnotatorSummary extends OrganismSummary{
     User annotator
-    Integer numberOrganisms
-    Integer numberSequences
+    List<OrganismPermissionSummary> userOrganismPermissionList
 
     String getUsername(){annotator.username}
     String getFirstName(){annotator.firstName}

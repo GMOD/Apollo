@@ -321,10 +321,11 @@ class AnnotatorController {
 //        respond []
     }
 
-    def report() {
+    def report(Integer max) {
         List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
+        params.max = Math.min(max ?: 20, 100)
 
-        List<User> annotators = User.listOrderByUsername()
+        List<User> annotators = User.list(params)
 
         annotators.each {
             annotatorSummaryList.add(reportService.generateAnnotatorSummary(it))
