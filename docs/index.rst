@@ -1,8 +1,6 @@
 Web Apollo 2
 ------------------------
 
-View `On Github <https://github.com/GMOD/Apollo/blob/master/docs/index.md>`__
-
 Web Apollo 2 - An instantaneous, collaborative, genome annotation editor.
 
 The application's technology stack includes a Grails-based Java web application with flexible database backends and a
@@ -35,14 +33,14 @@ Contents:
    :maxdepth: 2
    :glob:
 
-   Quick-start guide <Apollo2Build>
    Prerequisites
+   Quick-start guide <Apollo2Build>
    Configure
    Data_loading
-   Build
+   Building Web Apollo 2.0 <Build>
    Troubleshooting
-   Migration
-   Permissions
+   Migration guide <Migration>
+   Permissions guide <Permissions>
    Testing_notes
    Architecture
    Command_line

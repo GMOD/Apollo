@@ -1,15 +1,20 @@
 # Web Apollo 2.0 quick-start instructions
 
-View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Apollo2Build.md">On GitHub</a>
+## Install grails
 
-## Install Grails:
+Installing grails is made easier by using [GVM](http://gvmtool.net/) which can automatically setup grails for you. We will use grails 2.4.4 for Web Apollo
+
 1. curl -s get.gvmtool.net | bash
 2. gvm install grails 2.4.4
 
 ## Get the code
+
+To setup WebApollo, you can download the code from github:
+
 - git clone https://github.com/GMOD/Apollo.git Apollo
 - cd Apollo
 
+Using a stable release tag might be suggested as well
 
 ## Basic configuration
 

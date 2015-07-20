@@ -1,5 +1,3 @@
-
-
 ## Architecture notes
 
 ### Overview
