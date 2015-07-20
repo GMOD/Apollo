@@ -13,6 +13,8 @@
                     <ul class="dropdown-menu">
                         %{--<li>Organism Annotations</li>--}%
                         <li><g:link action="report" controller="organism">Organism Annotations</g:link></li>
+                        <li><g:link action="report" controller="annotator">Annotation Report</g:link></li>
+                        <li><g:link action="systemInfo" controller="home">System Info</g:link></li>
                     </ul>
                 </div>
             </div>

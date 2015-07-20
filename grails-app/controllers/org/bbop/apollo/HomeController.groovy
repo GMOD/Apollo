@@ -1,7 +1,10 @@
 package org.bbop.apollo
 
+import org.grails.plugins.metrics.groovy.Timed
+
 class HomeController {
 
+    @Timed(name = "SystemInfo")
     def systemInfo() {
 
         Map<String,String> runtimeMapInstance = new HashMap<>()

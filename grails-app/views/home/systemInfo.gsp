@@ -5,17 +5,36 @@
   Time: 6:55 AM
 --%>
 
-<%@ page contentType="text/html;charset=UTF-8" %>
-<html>
 <head>
-    <title></title>
+    <meta name="layout" content="report">
+    <title>System Info</title>
+
 </head>
 
 <body>
 
+<g:render template="../layouts/reportHeader"/>
+
+
+<h3>Metrics</h3>
+<ul>
+    <li>
+    <g:link action="threads" controller="metrics">
+        Threads
+    </g:link>
+    </li>
+    <li>
+    <g:link action="metrics" controller="metrics" params="[pretty:true]">
+        Timings
+    </g:link>
+    </li>
+</ul>
 
 <h3>Runtime Info</h3>
 <table>
+    <tr>
+
+    </tr>
     <g:each in="${runtimeMapInstance}" var="data">
         <tr>
             <td>
@@ -55,8 +74,6 @@
         </tr>
     </g:each>
 </table>
-
-
 
 </body>
 </html>

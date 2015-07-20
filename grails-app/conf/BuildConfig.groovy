@@ -130,6 +130,8 @@ grails.project.dependency.resolution = {
         //compile ":gwt:1.0" , {
         //    transitive=true
         //}
+        compile ":yammer-metrics:3.0.1-2"
+
 
         //compile ":crypto:2.0"
         //compile ":kickstart-with-bootstrap:1.1.0"

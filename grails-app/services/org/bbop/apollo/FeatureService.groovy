@@ -13,6 +13,7 @@ import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.plugins.metrics.groovy.Timed
 
 //import org.json.JSONObject
 
@@ -38,6 +39,7 @@ class FeatureService {
     def overlapperService
 
 
+    @Timed(name = "convertJSONToFeatureLocation")
     @Transactional
     public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence) throws JSONException {
         FeatureLocation gsolLocation = new FeatureLocation();
@@ -128,6 +130,8 @@ class FeatureService {
      * @param isPseudogene
      * @return
      */
+
+    @Timed
     @Transactional
     def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
