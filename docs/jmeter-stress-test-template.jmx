@@ -25,7 +25,7 @@
           </elementProp>
           <elementProp name="track" elementType="Argument">
             <stringProp name="Argument.name">track</stringProp>
-            <stringProp name="Argument.value">Annotations-Scaffold1</stringProp>
+            <stringProp name="Argument.value">Scaffold1</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="feature_id" elementType="Argument">
@@ -107,7 +107,7 @@
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{ &quot;track&quot;: &quot;Annotations-Scaffold1&quot;, &quot;features&quot;: [{&quot;location&quot;:{&quot;fmin&quot;:1477397,&quot;fmax&quot;:1477640,&quot;strand&quot;:1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;mRNA&quot;},&quot;name&quot;:&quot;BgerTmpM000008-RA&quot;,&quot;children&quot;:[{&quot;location&quot;:{&quot;fmin&quot;:1477397,&quot;fmax&quot;:1477640,&quot;strand&quot;:1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}}]}], &quot;operation&quot;: &quot;add_transcript&quot; }</stringProp>
+                  <stringProp name="Argument.value">{ &quot;track&quot;: &quot;Scaffold1&quot;, &quot;features&quot;: [{&quot;location&quot;:{&quot;fmin&quot;:1477397,&quot;fmax&quot;:1477640,&quot;strand&quot;:1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;mRNA&quot;},&quot;name&quot;:&quot;BgerTmpM000008-RA&quot;,&quot;children&quot;:[{&quot;location&quot;:{&quot;fmin&quot;:1477397,&quot;fmax&quot;:1477640,&quot;strand&quot;:1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}}]}], &quot;operation&quot;: &quot;add_transcript&quot; }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>

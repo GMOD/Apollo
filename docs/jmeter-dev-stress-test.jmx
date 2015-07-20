@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.7" jmeter="2.12 r1636949">
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -25,7 +25,7 @@
           </elementProp>
           <elementProp name="track" elementType="Argument">
             <stringProp name="Argument.name">track</stringProp>
-            <stringProp name="Argument.value">Annotations-Group1.7</stringProp>
+            <stringProp name="Argument.value">Group1.1</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="feature_id" elementType="Argument">
@@ -58,7 +58,7 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">8</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">5</stringProp>
+        <stringProp name="ThreadGroup.num_threads">10</stringProp>
         <stringProp name="ThreadGroup.ramp_time">5</stringProp>
         <longProp name="ThreadGroup.start_time">1404149611000</longProp>
         <longProp name="ThreadGroup.end_time">1404149611000</longProp>
@@ -107,7 +107,7 @@
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{ &quot;track&quot;: &quot;Annotations-Group1.7&quot;, &quot;features&quot;: [{&quot;location&quot;:{&quot;fmin&quot;:398013,&quot;fmax&quot;:412787,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;mRNA&quot;},&quot;name&quot;:&quot;GB53205-RA&quot;,&quot;children&quot;:[{&quot;location&quot;:{&quot;fmin&quot;:398013,&quot;fmax&quot;:398033,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:399340,&quot;fmax&quot;:399474,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:402120,&quot;fmax&quot;:402593,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:402774,&quot;fmax&quot;:403128,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:403566,&quot;fmax&quot;:403986,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:404545,&quot;fmax&quot;:404854,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:405907,&quot;fmax&quot;:406357,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:407880,&quot;fmax&quot;:408508,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:412776,&quot;fmax&quot;:412787,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:398013,&quot;fmax&quot;:412787,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;CDS&quot;}}]}], &quot;operation&quot;: &quot;add_transcript&quot; }</stringProp>
+                  <stringProp name="Argument.value">{ &quot;track&quot;: &quot;Group1.7&quot;, &quot;features&quot;: [{&quot;location&quot;:{&quot;fmin&quot;:398013,&quot;fmax&quot;:412787,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;mRNA&quot;},&quot;name&quot;:&quot;GB53205-RA&quot;,&quot;children&quot;:[{&quot;location&quot;:{&quot;fmin&quot;:398013,&quot;fmax&quot;:398033,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:399340,&quot;fmax&quot;:399474,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:402120,&quot;fmax&quot;:402593,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:402774,&quot;fmax&quot;:403128,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:403566,&quot;fmax&quot;:403986,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:404545,&quot;fmax&quot;:404854,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:405907,&quot;fmax&quot;:406357,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:407880,&quot;fmax&quot;:408508,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:412776,&quot;fmax&quot;:412787,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;exon&quot;}},{&quot;location&quot;:{&quot;fmin&quot;:398013,&quot;fmax&quot;:412787,&quot;strand&quot;:-1},&quot;type&quot;:{&quot;cv&quot;:{&quot;name&quot;:&quot;sequence&quot;},&quot;name&quot;:&quot;CDS&quot;}}]}], &quot;operation&quot;: &quot;add_transcript&quot; }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
@@ -118,7 +118,7 @@
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/${species}/AnnotationEditorService</stringProp>
+            <stringProp name="HTTPSampler.path">/${species}/annotationEditor/addTranscript</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -156,7 +156,7 @@
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/${species}/AnnotationEditorService</stringProp>
+            <stringProp name="HTTPSampler.path">/${species}/annotationEditor/deleteFeature</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>

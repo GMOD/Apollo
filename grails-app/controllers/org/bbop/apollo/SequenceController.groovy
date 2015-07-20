@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.report.SequenceSummary
 import org.bbop.apollo.sequence.DownloadFile
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -22,6 +23,7 @@ class SequenceController {
     def transcriptService
     def permissionService
     def preferenceService
+    def reportService
 
 
     // see #464
@@ -193,6 +195,24 @@ class SequenceController {
         }
     }
 
+    def report(Organism organism,Integer max) {
+        organism = organism ?: Organism.first()
+        params.max = Math.min(max ?: 20, 100)
+
+        List<SequenceSummary> sequenceInstanceList = new ArrayList<>()
+
+//        List<Sequence> sequenceListInstance = Sequence.executeQuery("select s from Sequence s left outer join s.featureLocations fl left outer join fl.feature f where s.organism = :organism group by s",[organism:organism],params)
+//        List<Sequence> sequenceListInstance = Sequence.findAllByOrganism(organism,params)
+        List<Sequence> sequences = Sequence.findAllByOrganism(organism,params)
+
+        sequences.each {
+            sequenceInstanceList.add(reportService.generateSequenceSummary(it))
+        }
+        println "sequence summary list size: ${sequenceInstanceList.size()}"
+
+        int sequenceInstanceCount = Sequence.countByOrganism(organism)
+        render view:"report", model:[sequenceInstanceList:sequenceInstanceList,organism:organism,sequenceInstanceCount:sequenceInstanceCount]
+    }
 
 
 }

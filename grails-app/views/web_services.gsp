@@ -1642,7 +1642,7 @@
             <div class="code">'adapter' ('GFF3','FASTA')</div>
         </li>
         <li>
-            <div class="code">'tracks' (an array of tracks / reference sequences, e.g., ["Annotations-scf11","Annotations-BCD"])</div>
+            <div class="code">'tracks' (an array of tracks / reference sequences, e.g., ["scf111111","scf111112"])</div>
         </li>
         <li>
             <div class="code">'options' (e.g. output=file&format=gzip)</div>
@@ -1659,7 +1659,7 @@
 
     <div class="code">
         curl -e "http://$hostname:$port" --data '{ operation: "write", adapter: "GFF3",
-        tracks: ["Annotations-scf1117875582023"], options: "output=file&format=gzip",'username': '$username', 'password': '$password','organism':'$organism' }'
+        tracks: ["scf1117875582023"], options: "output=file&format=gzip",'username': '$username', 'password': '$password','organism':'$organism' }'
         http://$hostname:$port:8080/apollo/IOService
     </div>
 

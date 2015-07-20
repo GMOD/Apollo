@@ -122,7 +122,7 @@ return declare( [JBPlugin, HelpMixin],
 
         this.featSelectionManager = new FeatureSelectionManager();
         this.annotSelectionManager = new FeatureSelectionManager();
-        this.trackTransformer = new TrackConfigTransformer();
+        this.trackTransformer = new TrackConfigTransformer({ browser: browser });
 
         // setting up selection exclusiveOr --
         //    if selection is made in annot track, any selection in other tracks is deselected, and vice versa,

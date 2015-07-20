@@ -24,12 +24,12 @@ class AnnotatorController {
      * http://localhost:8080/apollo/annotator/loadLink?loc=chrII:302089..337445&organism=23357&highlight=0&tracklist=0&tracks=Reference%20sequence,User-created%20Annotations
      * @return
      */
-    def loadLink(){
+    def loadLink() {
         try {
             Organism organism = Organism.findById(params.organism as Long)
             log.debug "loading organism: ${organism}"
-            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
-            if(params.loc) {
+            preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
+            if (params.loc) {
                 String location = params.loc
                 String[] splitString = location.split(":")
                 log.debug "splitString : ${splitString}"
@@ -49,7 +49,7 @@ class AnnotatorController {
                 }
                 log.debug "fmin ${fmin} . . fmax ${fmax} . . ${sequence}"
 
-                preferenceService.setCurrentSequenceLocation(sequence.name,fmin,fmax)
+                preferenceService.setCurrentSequenceLocation(sequence.name, fmin, fmax)
             }
 
         } catch (e) {
@@ -69,13 +69,12 @@ class AnnotatorController {
     }
 
 
-    def adminPanel(){
-        if(permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
+    def adminPanel() {
+        if (permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
             def administativePanel = grailsApplication.config.apollo.administrativePanel
-            [links:administativePanel]
-        }
-        else{
-            render text:"Unauthorized"
+            [links: administativePanel]
+        } else {
+            render text: "Unauthorized"
         }
     }
 
@@ -166,7 +165,7 @@ class AnnotatorController {
         return jsonFeatureContainer;
     }
 
-    def findAnnotationsForSequence(String sequenceName, String request) {
+    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String order, String sort) {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
             if (sequenceName && !Sequence.countByName(sequenceName)) return
@@ -189,13 +188,57 @@ class AnnotatorController {
 
             // TODO: should only be returning the top-level features
             List<Feature> allFeatures
+            Integer annotationCount = 0
+
+            List<String> viewableTypes
+
+            if (type) {
+                viewableTypes = new ArrayList<>()
+                switch (type) {
+                    case "Gene": viewableTypes.add(Gene.class.canonicalName)
+                        break
+                    case "Pseudogene": viewableTypes.add(Pseudogene.class.canonicalName)
+                        break
+                    case "repeat_region": viewableTypes.add(RepeatRegion.class.canonicalName)
+                        break
+                    case "transposable_element": viewableTypes.add(TransposableElement.class.canonicalName)
+                        break
+                    default:
+                        log.warn "Type not found for annotation filter '${type}'"
+                        viewableTypes = requestHandlingService.viewableAnnotationList
+                        break
+                }
+            } else {
+                viewableTypes = requestHandlingService.viewableAnnotationList
+            }
+
+            String sortString
+
+            if (sort) {
+                sortString = " order by "
+                switch (sort) {
+                    case "name": sortString += " f.name "
+                        break
+                    case "sequence":
+                            sortString += " s.name "
+                        break
+                    case "length": sortString += " abs(fl.fmax-fl.fmin) "
+                        break
+                }
+                sortString += " ${order} "
+
+
+            }
+
             if (organism) {
                 if (!sequence) {
                     try {
                         final long start = System.currentTimeMillis();
-
-                        allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
-                        final long durationInMilliseconds = System.currentTimeMillis()-start;
+                        allFeatures = Feature.executeQuery("select distinct f, abs(fl.fmax-fl.fmin) as seqLength, s from Feature f join f.owners own left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes) and f.name like :annotationName and own.username like :username " + sortString, [organism: organism, viewableTypes: viewableTypes, offset: offset, max: max, annotationName: '%' + annotationName + "%", username: '%' + user + '%']).collect {
+                            it[0]
+                        }
+                        annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f join f.owners own left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)  and f.name like :annotationName and own.username like :username ", [organism: organism, viewableTypes: viewableTypes, annotationName: '%' + annotationName + '%', username: '%' + user + '%']).iterator().next()
+                        final long durationInMilliseconds = System.currentTimeMillis() - start;
 
                         log.debug "selecting features all ${durationInMilliseconds}"
                     } catch (e) {
@@ -204,27 +247,30 @@ class AnnotatorController {
                     }
                 } else {
                     final long start = System.currentTimeMillis();
-                    allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
-                    final long durationInMilliseconds = System.currentTimeMillis()-start;
+                    allFeatures = Feature.executeQuery("select distinct f, abs(fl.fmax-fl.fmin) as seqLength, s from Feature f join f.owners own left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and f.name like :annotationName and o = :organism  and f.class in (:viewableTypes)  and own.username like :username " + sortString, [sequenceName: sequenceName, organism: organism, viewableTypes: viewableTypes, offset: offset, max: max, annotationName: '%' + annotationName + "%", username: '%' + user + '%']).collect { it[0]}
+                    annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f  join f.owners own left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and f.name like :annotationName and o = :organism  and f.class in (:viewableTypes)  and own.username like :username ", [sequenceName: sequenceName, organism: organism, viewableTypes: viewableTypes, annotationName: '%' + annotationName + "%", username: '%' + user + '%']).iterator().next()
+                    final long durationInMilliseconds = System.currentTimeMillis() - start;
 
                     log.debug "selecting features ${durationInMilliseconds}"
                 }
                 final long start = System.currentTimeMillis();
                 for (Feature feature in allFeatures) {
-                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
+                    JSONObject featureObject = featureService.convertFeatureToJSON(feature, false)
+                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureObject)
                 }
-                final long durationInMilliseconds = System.currentTimeMillis()-start;
+                final long durationInMilliseconds = System.currentTimeMillis() - start;
 
                 log.debug "convert to json ${durationInMilliseconds}"
             }
 
             returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(), index + 1)
+            returnObject.put(FeatureStringEnum.ANNOTATION_COUNT.value, annotationCount)
 
             // TODO: do checks here
             render returnObject
         }
-        catch(Exception e) {
-            def error=[error: e.message]
+        catch (Exception e) {
+            def error = [error: e.message]
             log.error e.message
             e.printStackTrace()
             render e as JSON
@@ -265,8 +311,11 @@ class AnnotatorController {
         render annotatorService.getAppState() as JSON
     }
 
-    def notAuthorized(){
+    def notAuthorized() {
         log.error "not authorized"
     }
 
+    def changes() {
+//        respond []
+    }
 }

@@ -264,7 +264,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     /**
      * // input
-     *{"operation":"add_transcript","track":"Annotations-Group1.2",
+     *{"operation":"add_transcript","track":"Group1.2",
      * "features":[{"location":{"fmin":247892,"strand":1,"fmax":305356},
      * "name":"geneid_mRNA_CM000054.5_150","children":
      * [{"location":{"fmin":305327,"strand":1,"fmax":305356},
@@ -881,9 +881,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         if (events.length == 0) {
             return;
         }
-//        sendAnnotationEvent(events)
-        // TODO: this is more than a bit of a hack
-//        String sequenceName = "Annotations-${events[0].sequence.name}"
+        //sendAnnotationEvent(events)
         JSONArray operations = new JSONArray();
         for (AnnotationEvent event : events) {
             JSONObject features = event.getFeatures();

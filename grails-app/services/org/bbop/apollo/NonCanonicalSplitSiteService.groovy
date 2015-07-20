@@ -141,7 +141,6 @@ class NonCanonicalSplitSiteService {
 
         String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,fmin,fmax,strand);
         if(transcript.getStrand()==-1)residues=residues.reverse()
-        log.debug "${residues}"
 
         for (Exon exon : exons) {
             int fivePrimeSpliceSitePosition = -1;
@@ -160,8 +159,6 @@ class NonCanonicalSplitSiteService {
                     int local2=featureService.getFeatureModifiedCoord(transcript,local22,alts)
                     int local3=featureService.getFeatureModifiedCoord(transcript,local33,alts)
                     int local4=featureService.getFeatureModifiedCoord(transcript,local44,alts)
-                    log.debug "${local1} ${local2} ${local3} ${local4}"
-                    log.debug "${local11} ${local22} ${local33} ${local44}"
 
 
                     if (exon.featureLocation.getStrand() == -1) {
@@ -173,10 +170,9 @@ class NonCanonicalSplitSiteService {
                         local4=tmp2
                     }
                     if(local1>=0&&local2 < residues.length()) {
-                        log.debug "blah1 ${local1} ${local2} ${residues.length()}"
                         String acceptorSpliceSiteSequence = residues.substring(local1,local2)
                         acceptorSpliceSiteSequence=transcript.getStrand()==-1?acceptorSpliceSiteSequence.reverse():acceptorSpliceSiteSequence
-                        log.debug "acceptor ${acceptorSpliceSiteSequence} ${acceptor}"
+                        log.debug "acceptor ${local1} ${local2} ${acceptorSpliceSiteSequence} ${acceptor}"
                         if(acceptorSpliceSiteSequence==acceptor)
                             validThreePrimeSplice=true
                         else
@@ -184,10 +180,9 @@ class NonCanonicalSplitSiteService {
                     }
 
                     if(local3>=0&&local4<residues.length()) {
-                        log.debug "blah2 ${local3} ${local4} ${residues.length()}"
                         String donorSpliceSiteSequence = residues.substring(local3,local4)
                         donorSpliceSiteSequence=transcript.getStrand()==-1?donorSpliceSiteSequence.reverse():donorSpliceSiteSequence
-                        log.debug "donor ${donorSpliceSiteSequence} ${donor}"
+                        log.debug "donor ${local3} ${local4} ${donorSpliceSiteSequence} ${donor}"
                         if(donorSpliceSiteSequence==donor)
                             validFivePrimeSplice=true
                         else
