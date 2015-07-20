@@ -138,9 +138,6 @@ elif [[ $1 == "clean-all" ]];then
 elif [[ $1 == "clean" ]];then
     # should call the copy target first
     ant clean &&  grails clean
-elif [[ $1 == "generate-single-pdf" ]];then
-    # should call the copy target first
-    cd docs&&make latexpdf&&cd .
 else
     usage
 fi
