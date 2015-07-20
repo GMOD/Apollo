@@ -1,4 +1,4 @@
-# Details on Web Apollo builds
+# Detailed build instructions
 
 
 While the shortcut `apollo deploy` takes care of basic application deployment, understanding the full build process of

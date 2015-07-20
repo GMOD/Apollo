@@ -34,13 +34,13 @@ Contents:
    :glob:
 
    Prerequisites
-   Quick-start guide <Apollo2Build>
+   Apollo2Build
    Configure
    Data_loading
-   Building Web Apollo 2.0 <Build>
+   Build
    Troubleshooting
-   Migration guide <Migration>
-   Permissions guide <Permissions>
+   Migration
+   Permissions
    Testing_notes
    Architecture
    Command_line

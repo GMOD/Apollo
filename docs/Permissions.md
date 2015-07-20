@@ -1,4 +1,4 @@
-# Web Apollo Permissions guide
+# Permissions guide
 
 ### Global
 

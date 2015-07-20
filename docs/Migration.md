@@ -1,4 +1,4 @@
-# Web Apollo 2.0 Migration Guide
+# Migration guide
 
 This guide explains how to prepare your Web Apollo 2.0 instance, and to migrate data from previous Web Apollo versions into 2.0.
 

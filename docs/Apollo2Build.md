@@ -1,4 +1,4 @@
-# Web Apollo 2.0 quick-start instructions
+# Quick-start guide
 
 ## Install grails
 
