@@ -48,6 +48,22 @@ class FeatureController {
 //        respond featureInstance
     }
 
+    def organismSummary() {
+//        respond []
+    }
+
+    def annotatorSummary() {
+//        respond []
+    }
+
+    def systemInfo() {
+//        respond []
+    }
+
+    def changes() {
+//        respond []
+    }
+
     def create() {
         respond new Feature(params)
     }
