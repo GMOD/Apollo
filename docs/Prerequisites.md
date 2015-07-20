@@ -1,18 +1,18 @@
-## Prerequisites
+## Pre-requisites
 
 
-### Client Prerequisites
+### Client Pre-requisites
 
 Web Apollo 2.0 is a web-based application, so the only client side
 requirement is a web browser. Web Apollo has been tested on Chrome, Firefox, and Safari
 and matches the web browser requirements for JBrowse (see [jbrowse.org](http://jbrowse.org) for details).
 
-### Server-side Prerequisites
+### Server-side Pre-requisites
 
 Note: see the [Web Apollo 2.0 quick-start](Apollo2Build.md) for the
 quickest way to take care of pre-requisites.
 
--   System prerequisites (see quick-start guide for simple setup)
+-   System pre-requisites (see quick-start guide for simple setup)
     -   Any Unix like system (e.g., Unix, Linux, Mac OS X)
     -   Servlet container (must support servlet spec 3.0+) such as tomcat 7
     -   Java 7+
@@ -20,7 +20,7 @@ quickest way to take care of pre-requisites.
     -   Ant 1.8+ (most package managers will have this)
     -   A database (RDMS) system. Sample configurations for PostgreSQL and MySQL are available. H2 configuration does not require any manual installation.
     -   Basic tools like Git, Curl, a text editor, etc
--   Data generation pipeline prerequisites (for full list see http://gmod.org/wiki/JBrowse_Configuration_Guide)
+-   Data generation pipeline pre-requisites (for full list see http://gmod.org/wiki/JBrowse_Configuration_Guide)
     -   System packages
         -   libpng12-0 (optional, for JBrowse imagetrack)
         -   libpng12-dev (optional, for JBrowse imagetrack)
@@ -30,7 +30,7 @@ quickest way to take care of pre-requisites.
         -   zlib-devel (RedHat/CentOS)
         -   libexpat1-dev (Debian/Ubuntu)
         -   expat-dev (RedHat/CentOS)
--   Perl prerequisites:
+-   Perl pre-requisites:
     -   Web Apollo will automatically try to install all perl-pre-requisites
     -   If you are building Web Apollo in "release" mode, perl 5.10 or up will be required
 -   Sequence search (optional)
