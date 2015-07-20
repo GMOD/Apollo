@@ -44,7 +44,7 @@ After you have setup your apollo-config.groovy file, we will build a WAR file to
 
 After this completes, jbrowse and other prerequisites are automatically downloaded and packaged into a WAR file.
 
-You can then copy the war file at target/apollo-X.Y.war to your webapps folder as apollo.war or similar, and then the WAR file will be unpacked automatically and run. If you named your file apollo.war, hen you can access your app at "http://localhost:8080/apollo"
+You can then copy the war file at target/apollo-X.Y.war to your webapps folder as apollo.war or similar, and then the WAR file will be unpacked automatically and run. If you named your file apollo.war, then you can access your app at "http://localhost:8080/apollo"
 
 
 ### Login to the web interface

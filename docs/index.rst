@@ -24,7 +24,7 @@ Note: This documentation covers release versions 2.x of Web Apollo. For the 1.x 
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :glob:
 
    Quick-start guide <Apollo2Build>
