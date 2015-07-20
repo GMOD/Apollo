@@ -43,8 +43,8 @@
                 <td>
                     <g:link action="show"
                             id="${sequenceInstance.id}">${fieldValue(bean: sequenceInstance, field: "name")}</g:link></td>
-                <td>
-                    ${sequenceInstance.length}
+                <td style="text-align: left;">
+                    <g:formatNumber number="${sequenceInstance.length}" type="number"/>
                     %{--<g:link uri="">Browse</g:link>--}%
                 </td>
 
