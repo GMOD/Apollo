@@ -1,12 +1,12 @@
-## Web Apollo 2.0 build instructions
+# Web Apollo 2.0 quick-start instructions
 
-View <a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHub</a>
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Apollo2Build.md">On GitHub</a>
 
 ## Install Grails:
 1. curl -s get.gvmtool.net | bash
 2. gvm install grails 2.4.4
 
-## Get The code
+## Get the code
 - git clone https://github.com/GMOD/Apollo.git Apollo
 - cd Apollo
 
@@ -15,25 +15,36 @@ View <a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHu
 
 Web Apollo 2.0 simplifies and expands options for the database setup. This section will cover the basic options for this.
 
+The basic idea is to setup a new apollo-config.groovy file from some existing samples to initialize your database settings.
+
 ## Database options
 
 
 #### Configure for H2:
-- copy sample-h2-apollo-config.groovy to apollo-config.groovy and update the data directory
+- To use H2 for your database, simply copy sample-h2-apollo-config.groovy to apollo-config.groovy and continue with the deploy steps below
+- Note: H2 is a 'zero-configuration' or 'embedded' database, so it doesn't require any other programs to set it up like postgres, but often postgres/mysql are preferable for production.
 
 #### Configure for PostgreSQL:
-- Create a new database (e.g. default is just named `apollo`)
-- Copy sample-postgres-apollo-config.groovy to apollo-config.groovy and re-run apollo deploy
-- Note: There is no need to run the old add-tracks/add-users/set-track-permissions pipeline now.
+- Create a new database (e.g. this can be as simple as `createdb "apollo-production"`)
+- Copy sample-postgres-apollo-config.groovy to apollo-config.groovy and make sure to edit the database name appropriately
+- Note: the production environment in apollo-config is automatically used when you copy the war file to your tomcat server, and the schema will be initialized automatically.
 
 #### Configure for MySQL:
-- Create a new database (e.g. apollo by default)
-- Copy sample-mysql-apollo-config.groovy to apollo-config.groovy and re-run apollo deploy
+- Create a new MySQL database (e.g. just use the name apollo-production by default)
+- Copy sample-mysql-apollo-config.groovy to apollo-config.groovy
 
 
 ## Deploy the code as a war file
-- ./apollo deploy
-- copy the war file at target/apollo-X.Y.war to your webapps folder as apollo.war or similar
+
+After you have setup your apollo-config.groovy file, we will build a WAR file to deploy.
+
+```
+    ./apollo deploy
+```
+
+After this completes, jbrowse and other prerequisites are automatically downloaded and packaged into a WAR file.
+
+You can then copy the war file at target/apollo-X.Y.war to your webapps folder as apollo.war or similar, and then the WAR file will be unpacked automatically and run. If you named your file apollo.war, then you can access your app at "http://localhost:8080/apollo"
 
 
 ### Login to the web interface
@@ -55,3 +66,13 @@ scripts from the command line. See the [data loading](Data_loading.md) section f
 ![Open annotator](images/3.png)
 
 Figure 3. Open up the new organism from the drop down tab on the annotator panel.
+
+
+
+## Note about the test, development, and production environments
+
+The "production" settings in apollo-config are automatically used when you copy the war file to your tomcat server, and the schema will be initialized automatically.
+
+If you are instead using the "apollo run-local" instead of copying the war file, the "development" environment is used. More details are available in the [configuration section](Configure.md)!
+
+
