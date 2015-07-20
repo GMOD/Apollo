@@ -20,7 +20,7 @@ Note: This documentation covers release versions 2.x of Web Apollo. For the 1.x 
 `http://webapollo.readthedocs.org/en/1.0/ <http://webapollo.readthedocs.org/en/1.0/>`__
 
 PDF version
------------
+~~~~~~~~~
 
 
 A PDF version of this documentation is available for download that matches these web docs.
