@@ -11,10 +11,10 @@ h1, h2, h3, h4, h5, h6 {
 /* BASE LAYOUT */
 
 html {
-    background-color: #ddd;
-    background-image: -moz-linear-gradient(center top, #aaa, #ddd);
-    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #aaa), color-stop(1, #ddd));
-    background-image: linear-gradient(top, #aaa, #ddd);
+    /*background-color: #ddd;*/
+    /*background-image: -moz-linear-gradient(center top, #aaa, #ddd);*/
+    /*background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #aaa), color-stop(1, #ddd));*/
+    /*background-image: linear-gradient(top, #aaa, #ddd);*/
     filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#aaaaaa', EndColorStr='#dddddd');
     background-repeat: no-repeat;
     height: 100%;
@@ -632,5 +632,10 @@ tr:hover {
 a.skip {
     position: absolute;
     left: -9999px;
+}
+
+.report-header{
+    /*margin-left: 10px;*/
+    padding-left: 20px;
 }
 
