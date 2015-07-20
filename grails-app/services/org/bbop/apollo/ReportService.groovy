@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import org.bbop.apollo.report.OrganismSummary
+import org.bbop.apollo.report.SequenceSummary
 
 @Transactional
 class ReportService {
@@ -63,6 +64,36 @@ class ReportService {
         thisFeatureSummaryInstance.repeatRegionCount = (int) RepeatRegion.executeQuery("select count(distinct g) from RepeatRegion g join g.featureLocations fl join fl.sequence s join s.organism o where o = :organism", [organism: organism]).iterator().next()
         thisFeatureSummaryInstance.exonCount = (int) Exon.executeQuery("select count(distinct g) from Exon g join g.featureLocations fl join fl.sequence s join s.organism o where o = :organism", [organism: organism]).iterator().next()
         return thisFeatureSummaryInstance
+
+    }
+
+
+    def generateSequenceSummary(Sequence sequence){
+        SequenceSummary sequenceSummary = new SequenceSummary()
+        sequenceSummary.sequence = sequence
+        sequenceSummary.geneCount = (int) Gene.executeQuery("select count(g) from Gene g join g.featureLocations fl join fl.sequence s where s = :sequence ",[sequence:sequence]).iterator().next()
+        sequenceSummary.transposableElementCount = (int) TransposableElement.executeQuery("select count(g) from TransposableElement  g join g.featureLocations fl join fl.sequence s where s = :sequence ",[sequence:sequence]).iterator().next()
+        sequenceSummary.repeatRegionCount = (int) RepeatRegion.executeQuery("select count(g) from RepeatRegion  g join g.featureLocations fl join fl.sequence s where s = :sequence ",[sequence:sequence]).iterator().next()
+        sequenceSummary.exonCount = (int) Exon.executeQuery("select count(g) from Exon g join g.featureLocations fl join fl.sequence s where s = :sequence ",[sequence:sequence]).iterator().next()
+        sequenceSummary.annotators = User.executeQuery("select distinct annotator from Feature g join g.featureLocations fl join fl.sequence s join g.owners annotator where s = :sequence ",[sequence:sequence])
+
+
+        Map<String, Integer> transcriptMap = new TreeMap<>()
+        Transcript.executeQuery("select distinct g from Transcript g join g.featureLocations fl join fl.sequence s  where s = :sequence", [sequence: sequence]).each {
+//            println "it: ${it}"
+            String className = it.class.canonicalName.substring("org.bbop.apollo.".size())
+            Integer count = transcriptMap.get(className) ?: 0
+            transcriptMap.put(className, ++count)
+        }
+        sequenceSummary.transcriptTypeCount = transcriptMap
+        if (transcriptMap) {
+            sequenceSummary.transcriptCount = transcriptMap.values()?.sum()
+        } else {
+            sequenceSummary.transcriptCount = 0
+        }
+
+
+        return sequenceSummary
     }
 
 }

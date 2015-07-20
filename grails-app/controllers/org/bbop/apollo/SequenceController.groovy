@@ -23,6 +23,7 @@ class SequenceController {
     def transcriptService
     def permissionService
     def preferenceService
+    def reportService
 
 
     // see #464
@@ -198,19 +199,19 @@ class SequenceController {
         organism = organism ?: Organism.first()
         params.max = Math.min(max ?: 20, 100)
 
-        List<SequenceSummary> sequenceSummaryList = new ArrayList<>()
+        List<SequenceSummary> sequenceInstanceList = new ArrayList<>()
 
 //        List<Sequence> sequenceListInstance = Sequence.executeQuery("select s from Sequence s left outer join s.featureLocations fl left outer join fl.feature f where s.organism = :organism group by s",[organism:organism],params)
-        List<Sequence> sequenceListInstance = Sequence.findAllByOrganism(organism,params)
-        sequenceListInstance.each {
-            SequenceSummary sequenceSummary = new SequenceSummary()
-            sequenceSummary.sequence = it
-            sequenceSummary.geneCount = (int) Gene.executeQuery("select count(g) from Gene g join g.featureLocations fl join fl.sequence s where s = :sequence ",[sequence:it]).iterator().next()
-            sequenceSummaryList.add(sequenceSummary)
+//        List<Sequence> sequenceListInstance = Sequence.findAllByOrganism(organism,params)
+        List<Sequence> sequences = Sequence.findAllByOrganism(organism,params)
+
+        sequences.each {
+            sequenceInstanceList.add(reportService.generateSequenceSummary(it))
         }
+        println "sequence summary list size: ${sequenceInstanceList.size()}"
 
         int sequenceInstanceCount = Sequence.countByOrganism(organism)
-        respond sequenceListInstance, model:[organism:organism,sequenceInstanceCount:sequenceInstanceCount]
+        render view:"report", model:[sequenceInstanceList:sequenceInstanceList,organism:organism,sequenceInstanceCount:sequenceInstanceCount]
     }
 
 

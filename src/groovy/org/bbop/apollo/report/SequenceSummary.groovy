@@ -9,4 +9,8 @@ import org.bbop.apollo.Sequence
 class SequenceSummary extends OrganismSummary{
 
     Sequence sequence
+    String getName(){sequence.name}
+    Long getId(){sequence.id}
+    Integer getLength(){sequence.length}
+
 }
