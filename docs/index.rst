@@ -1,7 +1,5 @@
 Web Apollo 2
-------------------------
-
-View `On Github <https://github.com/GMOD/Apollo/blob/master/docs/index.md>`__
+============
 
 Web Apollo 2 - An instantaneous, collaborative, genome annotation editor.
 
@@ -19,24 +17,21 @@ For more information on JBrowse, please visit:
 Note: This documentation covers release versions 2.x of Web Apollo. For the 1.x installation please refer to
 `http://webapollo.readthedocs.org/en/1.0/ <http://webapollo.readthedocs.org/en/1.0/>`__
 
-PDF version
------------
 
+A PDF version of this documentation is also available for download.
 
-A PDF version of this documentation is available for download that matches these web docs.
-
-See `https://media.readthedocs.org/pdf/webapollo/latest/webapollo.pdf <https://media.readthedocs.org/pdf/webapollo/latest/webapollo.pdf>`__
+Link `https://media.readthedocs.org/pdf/webapollo/latest/webapollo.pdf <https://media.readthedocs.org/pdf/webapollo/latest/webapollo.pdf>`__
 
 
 
 Contents:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :glob:
 
-   Quick-start guide <Apollo2Build>
    Prerequisites
+   Apollo2Build
    Configure
    Data_loading
    Build

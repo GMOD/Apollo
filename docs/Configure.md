@@ -1,6 +1,5 @@
 ## WebApollo Configuration
 
-View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Configure.md">On GitHub</a>
 
 Web Apollo 2.0 includes some basic configuration parameters that are specified in configuration files. The most
 important parameters are the database parameters in order to get Web Apollo up and running. Other options besides the

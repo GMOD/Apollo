@@ -1,7 +1,5 @@
 # Data generation pipeline
 
-View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Data_loading.md">On GitHub</a>
-
 The data generation pipeline is based on the typical jbrowse commands such as prepare-refseqs.pl and flatfile-to-json.pl,
  and it is installed automatically using the `apollo deploy` or `install_jbrowse.sh` commands.
 
