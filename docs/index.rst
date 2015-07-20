@@ -32,7 +32,7 @@ See `https://media.readthedocs.org/pdf/webapollo/latest/webapollo.pdf <https://m
 Contents:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :glob:
 
    Quick-start guide <Apollo2Build>
