@@ -201,17 +201,17 @@ public class Gff3HandlerService {
 
     private void convertToEntry(WriteObject writeObject, Feature feature, String source, Collection<GFF3Entry> gffEntries) {
 
-        log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
+        //log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
 
         long timestart = System.currentTimeMillis();
 
         String seqId = feature.getFeatureLocation().sequence.name
         long durationInMilliseconds = System.currentTimeMillis()-timestart;
-        log.debug "selecting featloc ${durationInMilliseconds}"
+        //log.debug "selecting featloc ${durationInMilliseconds}"
         timestart = System.currentTimeMillis();
         String type = featureService.getCvTermFromFeature(feature);
         durationInMilliseconds = System.currentTimeMillis()-timestart;
-        log.debug "selecting cvterm ${durationInMilliseconds}"
+        //log.debug "selecting cvterm ${durationInMilliseconds}"
         int start = feature.getFmin() + 1;
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
         String score = ".";
@@ -228,7 +228,7 @@ public class Gff3HandlerService {
         timestart = System.currentTimeMillis();
         entry.setAttributes(extractAttributes(writeObject, feature));
         durationInMilliseconds = System.currentTimeMillis()-timestart;
-        log.debug "extract attributes ${durationInMilliseconds}"
+        //log.debug "extract attributes ${durationInMilliseconds}"
         gffEntries.add(entry);
         if(featureService.typeHasChildren(feature)){
             for (Feature child : featureRelationshipService.getChildren(feature)) {
@@ -243,15 +243,15 @@ public class Gff3HandlerService {
 
     private void convertToEntry(WriteObject writeObject, CDS cds, String source, Collection<GFF3Entry> gffEntries) {
 
-        log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
+        //log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
         long timestart = System.currentTimeMillis();
         String seqId = cds.getFeatureLocation().sequence.name
         long durationInMilliseconds = System.currentTimeMillis()-timestart;
-        log.debug "selecting featurelocation CDS ${durationInMilliseconds}"
+        //log.debug "selecting featurelocation CDS ${durationInMilliseconds}"
         timestart = System.currentTimeMillis();
         String type = cds.cvTerm
         durationInMilliseconds = System.currentTimeMillis()-timestart;
-        log.debug "selecting cvterm CDS ${durationInMilliseconds}"
+        //log.debug "selecting cvterm CDS ${durationInMilliseconds}"
         String score = ".";
         String strand;
         if (cds.getStrand() == 1) {
@@ -265,21 +265,21 @@ public class Gff3HandlerService {
         timestart = System.currentTimeMillis();
         Transcript transcript = transcriptService.getParentTranscriptForFeature(cds)
         durationInMilliseconds = System.currentTimeMillis()-timestart;
-        log.debug "selecting parenttranscript CDS ${durationInMilliseconds}"
+        //log.debug "selecting parenttranscript CDS ${durationInMilliseconds}"
         timestart = System.currentTimeMillis();
         List<Exon> exons = exonService.getSortedExons(transcript)
         durationInMilliseconds = System.currentTimeMillis()-timestart;
-        log.debug "selecting sortedexons CDS ${durationInMilliseconds}"
+        //log.debug "selecting sortedexons CDS ${durationInMilliseconds}"
         int length = 0;
         for (Exon exon : exons) {
             timestart = System.currentTimeMillis();
             if (!overlapperService.overlaps(exon, cds)) {
                 durationInMilliseconds = System.currentTimeMillis()-timestart;
-                log.debug "overlapper ${durationInMilliseconds}"
+                //log.debug "overlapper ${durationInMilliseconds}"
                 continue;
             }
             durationInMilliseconds = System.currentTimeMillis()-timestart;
-            log.debug "overlapper ${durationInMilliseconds}"
+            //log.debug "overlapper ${durationInMilliseconds}"
             int fmin = exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin();
             int fmax = exon.getFmax() > cds.getFmax() ? cds.getFmax() : exon.getFmax();
             String phase;
@@ -296,7 +296,7 @@ public class Gff3HandlerService {
             gffEntries.add(entry);
         }
         for (Feature child : featureRelationshipService.getChildren(cds)) {
-            log.debug "child of CDS? ${child.ontologyId}"
+            //log.debug "child of CDS? ${child.ontologyId}"
             convertToEntry(writeObject, child, source, gffEntries);
         }
     }

@@ -6,17 +6,16 @@ import grails.transaction.NotTransactional
 class FeatureRelationshipService {
 
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
-        List<Feature> childFeatures = FeatureRelationship.findAllByParentFeature(feature)*.childFeature
-        List<Feature> returnFeatures = new ArrayList<>()
-        if (childFeatures) {
-            returnFeatures.addAll(
-                    childFeatures.findAll() {
-                        it?.ontologyId in ontologyIds
-                    }
-            )
+        def list=new ArrayList<Feature>()
+        if(feature?.parentFeatureRelationships!=null) {
+            feature.parentFeatureRelationships.each { it ->
+                if (ontologyIds.size() == 0 || (it && ontologyIds.contains(it.childFeature.ontologyId))) {
+                    list.push(it.childFeature)
+                }
+            }
         }
 
-        return returnFeatures
+        return list
     }
 
 

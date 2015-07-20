@@ -999,7 +999,7 @@ class RequestHandlingService {
             feature.save()
 
             JSONObject newJsonFeature = featureService.convertFeatureToJSON(feature, false)
-            returnObject.getJSONArray("features").put(newJsonFeature);
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonFeature);
             featureEventService.addNewFeatureEvent(FeatureOperation.SET_BOUNDARIES, feature.name, feature.uniqueName, inputObject, oldJsonFeature, newJsonFeature, permissionService.getCurrentUser(inputObject))
         }
 

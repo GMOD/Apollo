@@ -397,8 +397,7 @@ class TranscriptService {
         }
         // Delete the empty transcript from the gene, if gene not already deleted
         if (getGene(transcript2)) {
-            def parentFeatureRelationships = transcript2.parentFeatureRelationships
-            def childFeatures = parentFeatureRelationships.childFeature
+            def childFeatures = featureRelationshipService.getChildren(transcript2)
             featureRelationshipService.deleteChildrenForTypes(transcript2)
             Feature.deleteAll(childFeatures)
             deleteTranscript(gene2, transcript2);

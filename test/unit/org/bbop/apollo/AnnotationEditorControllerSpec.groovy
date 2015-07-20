@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import grails.web.JSONBuilder
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.parser.JSONParser
@@ -80,8 +81,8 @@ class AnnotationEditorControllerSpec extends Specification {
         JSONObject jsonObject = (JSONObject) parser.parseJSON()
         assert jsonObject.get("operation") == "get_features"
         assert jsonObject.get("track") == "chromosome7"
-        log.debug jsonObject.getJSONArray("features")
-        JSONArray array = jsonObject.getJSONArray("features")
+        log.debug jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONArray array = jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         log.debug "array ${array}"
         assert 1 == array.size()
         JSONObject element = array.getJSONObject(0)

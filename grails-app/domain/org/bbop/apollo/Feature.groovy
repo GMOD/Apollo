@@ -62,14 +62,6 @@ class Feature implements Ontological{
             childFeatureRelationships cascade: 'all-delete-orphan'
             parentFeatureRelationships cascade: 'all-delete-orphan'
             featureLocations cascade: 'all-delete-orphan'
-            featureProperties
-            owners
-            featureDBXrefs
-            featureSynonyms
-            featurePublications
-            synonyms
-            featureCVTerms
-            featurePhenotypes
     }
 
 
