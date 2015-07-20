@@ -20,6 +20,14 @@ Note: This documentation covers release versions 2.x of Web Apollo. For the 1.x 
 
 
 
+## PDF guide
+
+
+A compiled PDF version of the documentation is also available for download that matches these web based docs.
+
+
+Link: [https://media.readthedocs.org/pdf/webapollo/latest/webapollo.pdf](https://media.readthedocs.org/pdf/webapollo/latest/webapollo.pdf)
+
 ## Table of contents
 
 Let's get started!
