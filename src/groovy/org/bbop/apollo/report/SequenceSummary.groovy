@@ -1,6 +1,5 @@
 package org.bbop.apollo.report
 
-import org.bbop.apollo.User
 import org.bbop.apollo.Sequence
 
 /**

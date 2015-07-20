@@ -48,14 +48,15 @@
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
 
                 <td>
-                    <g:link action="show"
-                            id="${sequenceInstance.id}">${sequenceInstance.name}</g:link></td>
+                    %{--<g:link action="show"--}%
+                            %{--id="${sequenceInstance.id}">${sequenceInstance.name}</g:link></td>--}%
+                ${sequenceInstance.name}
                 <td style="text-align: left;">
                     <g:formatNumber number="${sequenceInstance.length}" type="number"/>
                 </td>
                 <td>
                     <g:each in="${sequenceInstance.annotators}" var="annotator">
-                        <g:link action="report" controller="user" id="${annotator.id}">${annotator.username}</g:link>
+                        <g:link action="report" controller="annotator" id="${annotator.id}">${annotator.username}</g:link>
                     </g:each>
                 </td>
                 <td>

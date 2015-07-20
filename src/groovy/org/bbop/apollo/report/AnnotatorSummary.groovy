@@ -1,14 +1,16 @@
 package org.bbop.apollo.report
 
+import org.bbop.apollo.User
+
 /**
  * Created by nathandunn on 7/19/15.
  */
-class AnnotatorSummary {
-
-    String username
-
-    Integer numberAnnotations
+class AnnotatorSummary extends OrganismSummary{
+    User annotator
+    Integer numberOrganisms
     Integer numberSequences
-    String organism
-    String sequence
+
+    String getUsername(){annotator.username}
+    String getFirstName(){annotator.firstName}
+    String getLastName(){annotator.lastName}
 }

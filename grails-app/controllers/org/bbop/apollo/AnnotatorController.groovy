@@ -7,6 +7,7 @@ import org.apache.shiro.session.Session
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.report.AnnotatorSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -18,6 +19,7 @@ class AnnotatorController {
     def permissionService
     def annotatorService
     def preferenceService
+    def reportService
 
     /**
      * Loads the shared link and moves over:
@@ -317,5 +319,17 @@ class AnnotatorController {
 
     def changes() {
 //        respond []
+    }
+
+    def report() {
+        List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
+
+        List<User> annotators = User.listOrderByUsername()
+
+        annotators.each {
+            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it))
+        }
+
+        render view:"report", model:[annotatorInstanceList:annotatorSummaryList,annotatorInstanceCount:User.count]
     }
 }

@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import org.bbop.apollo.report.AnnotatorSummary
 import org.bbop.apollo.report.OrganismSummary
 import org.bbop.apollo.report.SequenceSummary
 
@@ -96,4 +97,30 @@ class ReportService {
         return sequenceSummary
     }
 
+    AnnotatorSummary generateAnnotatorSummary(User owner) {
+        AnnotatorSummary annotatorSummary = new AnnotatorSummary()
+        annotatorSummary.annotator = owner
+        annotatorSummary.geneCount = (int) Gene.executeQuery("select count(distinct g) from Gene g join g.owners owner where owner = :owner ",[owner:owner]).iterator().next()
+        annotatorSummary.transposableElementCount = (int) TransposableElement.executeQuery("select count(distinct g) from TransposableElement g join g.owners owner where owner = :owner",[owner: owner]).iterator().next()
+        annotatorSummary.repeatRegionCount = (int) TransposableElement.executeQuery("select count(distinct g) from RepeatRegion g join g.owners owner where owner = :owner",[owner: owner]).iterator().next()
+        annotatorSummary.exonCount = (int) TransposableElement.executeQuery("select count(distinct g) from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner where owner = :owner",[owner: owner]).iterator().next()
+
+
+        Map<String, Integer> transcriptMap = new TreeMap<>()
+        Transcript.executeQuery("select distinct g from Transcript g join g.owners owner where owner = :owner ", [owner: owner]).each {
+//            println "it: ${it}"
+            String className = it.class.canonicalName.substring("org.bbop.apollo.".size())
+            Integer count = transcriptMap.get(className) ?: 0
+            transcriptMap.put(className, ++count)
+        }
+        annotatorSummary.transcriptTypeCount = transcriptMap
+        if (transcriptMap) {
+            annotatorSummary.transcriptCount = transcriptMap.values()?.sum()
+        } else {
+            annotatorSummary.transcriptCount = 0
+        }
+
+
+        return annotatorSummary
+    }
 }
