@@ -36,7 +36,7 @@ class ReportService {
         return thisFeatureSummaryInstance
     }
 
-    def generateFeatureSummary(Organism organism) {
+    def generateOrganismSummary(Organism organism) {
         OrganismSummary thisFeatureSummaryInstance = new OrganismSummary()
         thisFeatureSummaryInstance.geneCount = (int) Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism o where o = :organism", [organism: organism]).iterator().next()
 
@@ -64,4 +64,5 @@ class ReportService {
         thisFeatureSummaryInstance.exonCount = (int) Exon.executeQuery("select count(distinct g) from Exon g join g.featureLocations fl join fl.sequence s join s.organism o where o = :organism", [organism: organism]).iterator().next()
         return thisFeatureSummaryInstance
     }
+
 }

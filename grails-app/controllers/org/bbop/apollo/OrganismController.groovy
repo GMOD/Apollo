@@ -238,7 +238,7 @@ class OrganismController {
 
 
         Organism.listOrderByCommonName().each { organism ->
-            OrganismSummary thisOrganismSummaryInstance = reportService.generateFeatureSummary(organism)
+            OrganismSummary thisOrganismSummaryInstance = reportService.generateOrganismSummary(organism)
             organismSummaryListInstance.put(organism,thisOrganismSummaryInstance)
         }
 
