@@ -11,37 +11,7 @@
 %{--<a href="#show-feature" class="skip" tabindex="-1"><g:message code="default.link.skip.label"--}%
 %{--default="Skip to content&hellip;"/></a>--}%
 
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-            %{--<a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a>--}%
-            %{--<button type="button" class="navbar-toggle collapsed" data-toggle="collapse"--}%
-            %{--data-target="#bs-example-navbar-collapse-1" aria-expanded="false">--}%
-            %{--<span class="sr-only">Toggle navigation</span>--}%
-            %{--<span class="icon-bar"></span>--}%
-            %{--<span class="icon-bar"></span>--}%
-            %{--<span class="icon-bar"></span>--}%
-            %{--</button>--}%
-            %{--<a class="navbar-brand glyphicon glyphicon-list-alt" href="${createLink(uri: '/')}">Reports</a>--}%
-            <div class="input-prepend">
-                <a class="navbar-brand glyphicon glyphicon-home" href="${createLink(uri: '/')}">Home</a>
-
-                <div class="btn btn-group">
-                    <button class="btn dropdown-toggle glyphicon glyphicon-list-alt " data-toggle="dropdown">
-                        Reports
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>Organism Annotations</li>
-                        %{--<li><a href="#">Organism Annotations</a></li>--}%
-                    </ul>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</nav>
+<g:render template="../layouts/reportHeader"/>
 
 %{--<div class="nav" role="navigation">--}%
 %{--<ul>--}%

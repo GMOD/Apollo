@@ -271,11 +271,11 @@ apollo {
             ['label': "Canned Comments", 'link': "/cannedComment/"]
             ,['label': "Feature Types", 'link': "/featureType/"]
             ,['label': "Statuses", 'link': "/availableStatus/"]
-            ,['label': "Report::Organism Annotations", 'link': "/feature/summary/"]
-//            ,['label': "Report::Sequences", 'link': "/feature/sequences/"]
-//            ,['label': "Report::Annotator", 'link': "/feature/annotator/"]
+            ,['label': "Report::Organisms", 'link': "/organism/report/"]
+            ,['label': "Report::Sequences", 'link': "/sequence/report/"]
+//            ,['label': "Report::Annotator", 'link': "/user/report/"]
+//            ,['label': "Report::Changes", 'link': "/annotator/changes/"]
 //            ,['label': "System Info", 'link': "/feature/system/"]
-//            ,['label': "Report::Changes", 'link': "/feature/changes/"]
     ]
 
     // customize new tabs on the annotator panel with these links

@@ -1,10 +1,8 @@
 package org.bbop.apollo
 
-import org.apache.shiro.session.Session
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import grails.converters.JSON
-import org.apache.shiro.SecurityUtils
+import org.bbop.apollo.report.OrganismSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.springframework.http.HttpStatus
@@ -22,6 +20,7 @@ class OrganismController {
     def requestHandlingService
     def preferenceService
 
+    def reportService
 
     def chooseOrganismForJbrowse(){
         [organisms:Organism.listOrderByCommonName(),urlString:params.urlString]
@@ -219,6 +218,33 @@ class OrganismController {
             jsonArray.add(jsonObject)
         }
         render jsonArray as JSON
+    }
+
+    /**
+     * TODO: perOrganism summary
+     * @param featureInstance
+     * @return
+     */
+    def report() {
+        Map<Organism,OrganismSummary> featureSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
+            @Override
+            int compare(Organism o1, Organism o2) {
+                return o1.commonName <=> o2.commonName
+            }
+        })
+
+        // global version
+        OrganismSummary featureSummaryInstance = reportService.generateAllFeatureSummary()
+
+
+        Organism.listOrderByCommonName().each { organism ->
+            OrganismSummary thisFeatureSummaryInstance = reportService.generateFeatureSummary(organism)
+            featureSummaryListInstance.put(organism,thisFeatureSummaryInstance)
+        }
+
+
+        respond featureSummaryInstance, model: [featureSummaries:featureSummaryListInstance]
+//        respond featureInstance
     }
 
     protected void notFound() {

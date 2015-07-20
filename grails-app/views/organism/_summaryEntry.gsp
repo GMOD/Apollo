@@ -1,7 +1,9 @@
 <div class="col-md-offset-0 col-md-4">
     <ul class="list-group">
         <li class="list-group-item list-group-item-info">
-            ${organism ? organism.commonName : "ALL"}
+            <g:link action="report" controller="sequence" id="${summaryData.organismId}">
+                ${organism ? organism.commonName : "ALL"}
+            </g:link>
         </li>
         <li class="list-group-item">
             Sequences <span class="badge">${summaryData.sequenceCount}</span>
@@ -17,7 +19,7 @@
                         <li class="list-group-item">
                             ${transcriptType.key}
                             <span class="badge">
-                            ${transcriptType.value}
+                                ${transcriptType.value}
                             </span>
                         </li>
                     </g:each>
@@ -25,7 +27,8 @@
             </g:if>
         </li>
         <li class="list-group-item">
-            % Coding Transcripts (Features) <span class="badge">${(summaryData.proteinCodingTranscriptPercent* 100).round(2)} (${(summaryData.proteinCodingFeaturePercent * 100).round(2)})</span>
+            % Coding Transcripts (Features) <span
+                class="badge">${(summaryData.proteinCodingTranscriptPercent * 100).round(2)} (${(summaryData.proteinCodingFeaturePercent * 100).round(2)})</span>
         </li>
 
         <li class="list-group-item">
@@ -35,7 +38,12 @@
             Repeat Regions <span class="badge">${summaryData.repeatRegionCount}</span>
         </li>
         <li class="list-group-item">
-            Exons (Exons/Transcript)<span class="badge">${summaryData.exonCount} ${summaryData.exonCount ? "(${summaryData.exonsPerTranscript})" : ''} </span>
+            Exons (Exons/Transcript)
+            <span class="badge">${summaryData.exonCount} ${summaryData.exonCount ? "(${summaryData.exonsPerTranscript})" : ''}</span>
+        </li>
+        <li class="list-group-item">
+            Annotators
+            <span class="badge">${summaryData.annotators?.size()} </span>
         </li>
     </ul>
 </div>

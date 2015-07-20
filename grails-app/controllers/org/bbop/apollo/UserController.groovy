@@ -326,4 +326,8 @@ class UserController {
 
         render userOrganismPermission as JSON
     }
+
+    def report() {
+//        respond []
+    }
 }

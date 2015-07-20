@@ -1,15 +1,19 @@
 package org.bbop.apollo.report
 
+import org.bbop.apollo.User
+
 /**
  * Created by nathandunn on 7/17/15.
  */
-class FeatureSummary {
+class OrganismSummary {
     int geneCount
     int transcriptCount
     int transposableElementCount
     int repeatRegionCount
     int exonCount
     int sequenceCount
+    long organismId
+    List<User> annotators
 
     Map<String, Integer> transcriptTypeCount
     Map<String, Integer> geneTypeCount

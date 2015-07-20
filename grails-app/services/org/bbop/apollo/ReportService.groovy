@@ -1,13 +1,13 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import org.bbop.apollo.report.FeatureSummary
+import org.bbop.apollo.report.OrganismSummary
 
 @Transactional
 class ReportService {
 
     def generateAllFeatureSummary() {
-        FeatureSummary thisFeatureSummaryInstance = new FeatureSummary()
+        OrganismSummary thisFeatureSummaryInstance = new OrganismSummary()
         thisFeatureSummaryInstance.geneCount = Gene.count
 
 
@@ -37,8 +37,10 @@ class ReportService {
     }
 
     def generateFeatureSummary(Organism organism) {
-        FeatureSummary thisFeatureSummaryInstance = new FeatureSummary()
+        OrganismSummary thisFeatureSummaryInstance = new OrganismSummary()
         thisFeatureSummaryInstance.geneCount = (int) Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism o where o = :organism", [organism: organism]).iterator().next()
+
+        thisFeatureSummaryInstance.annotators = User.executeQuery("select distinct own from Feature g join g.featureLocations fl join fl.sequence s join s.organism o join g.owners own where o = :organism", [organism: organism])
 
 
         Map<String, Integer> transcriptMap = new TreeMap<>()
@@ -55,6 +57,7 @@ class ReportService {
             thisFeatureSummaryInstance.transcriptCount = 0
         }
         thisFeatureSummaryInstance.sequenceCount = Sequence.countByOrganism(organism)
+        thisFeatureSummaryInstance.organismId = organism.id
 
         thisFeatureSummaryInstance.transposableElementCount = (int) TransposableElement.executeQuery("select count(distinct g) from TransposableElement g join g.featureLocations fl join fl.sequence s join s.organism o where o = :organism", [organism: organism]).iterator().next()
         thisFeatureSummaryInstance.repeatRegionCount = (int) RepeatRegion.executeQuery("select count(distinct g) from RepeatRegion g join g.featureLocations fl join fl.sequence s join s.organism o where o = :organism", [organism: organism]).iterator().next()

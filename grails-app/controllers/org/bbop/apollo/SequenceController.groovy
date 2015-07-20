@@ -193,6 +193,13 @@ class SequenceController {
         }
     }
 
+    def report(Organism organism,Integer max) {
+        organism = organism ?: Organism.first()
+        params.max = Math.min(max ?: 20, 100)
+        List<Sequence> sequenceListInstance = Sequence.findAllByOrganism(organism,params)
+        int sequenceInstanceCount = Sequence.countByOrganism(organism)
+        respond sequenceListInstance, model:[organism:organism,sequenceInstanceCount:sequenceInstanceCount]
+    }
 
 
 }

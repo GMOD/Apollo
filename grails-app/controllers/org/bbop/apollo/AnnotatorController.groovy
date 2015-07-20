@@ -315,4 +315,7 @@ class AnnotatorController {
         log.error "not authorized"
     }
 
+    def changes() {
+//        respond []
+    }
 }

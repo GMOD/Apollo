@@ -1,7 +1,5 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.report.FeatureSummary
-
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 
@@ -10,7 +8,6 @@ class FeatureController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def reportService
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
@@ -21,48 +18,6 @@ class FeatureController {
         respond featureInstance
     }
 
-    /**
-     * TODO: perOrganism summary
-     * @param featureInstance
-     * @return
-     */
-    def summary() {
-        Map<Organism,FeatureSummary> featureSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
-            @Override
-            int compare(Organism o1, Organism o2) {
-                return o1.commonName <=> o2.commonName
-            }
-        })
-
-        // global version
-        FeatureSummary featureSummaryInstance = reportService.generateAllFeatureSummary()
-
-
-        Organism.listOrderByCommonName().each { organism ->
-            FeatureSummary thisFeatureSummaryInstance = reportService.generateFeatureSummary(organism)
-            featureSummaryListInstance.put(organism,thisFeatureSummaryInstance)
-        }
-
-
-        respond featureSummaryInstance, model: [featureSummaries:featureSummaryListInstance]
-//        respond featureInstance
-    }
-
-    def organismSummary() {
-//        respond []
-    }
-
-    def annotatorSummary() {
-//        respond []
-    }
-
-    def systemInfo() {
-//        respond []
-    }
-
-    def changes() {
-//        respond []
-    }
 
     def create() {
         respond new Feature(params)
