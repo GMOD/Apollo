@@ -1,9 +1,6 @@
 # Troubleshooting guide
 
-
 ### Tomcat memory
-
-View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Troubleshooting.md">On GitHub</a>
 
 
 Typically, the default memory allowance for the Java Virtual Machine (JVM) is too low. The memory requirements for Web Apollo will depend on many variables, but in general, we recommend at least 1g for the heap size and 256m for the PermGen size as a starting point. 

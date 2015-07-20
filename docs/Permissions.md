@@ -44,11 +44,13 @@ Can only view things related to that organism.
 
 
 ```
-    Permission    | Annotator       | Tracks  |  Ref Seq | Organism | Users/groups |
-    ------------- | --------------- | ------- | -------- | -------- | -------      |
-    READ          | Vis / locked    | None    | no export| hide     | hide         |
-    EXPORT        | Vis / locked    | None    | export   | hide     | hide         |
-    WRITE         | Vis / editable  | None    | export   | hide     | hide         |
-    ADMIN         | Vis / editable  | None    | export   | vis      | vis          |
+Permission    | Annotator       | Tracks  |  Ref Seq | Organism | Users/groups |
+------------- | --------------- | ------- | -------- | -------- | -------      |
+READ          | Vis / locked    | None    | no export| hide     | hide         |
+EXPORT        | Vis / locked    | None    | export   | hide     | hide         |
+WRITE         | Vis / editable  | None    | export   | hide     | hide         |
+ADMIN         | Vis / editable  | None    | export   | vis      | vis          |
 ```
-Preference panel only for GLOBAL admin .  
+
+
+The Preference panel is available only for GLOBAL admin.
