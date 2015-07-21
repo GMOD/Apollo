@@ -12,3 +12,8 @@
 *= require_self
 *= require bootstrap
 */
+
+.apollo-header{
+   background-color: #000099;
+   padding-left: 12px;
+}

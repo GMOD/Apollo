@@ -1,6 +1,6 @@
 package org.bbop.apollo
 
-
+import org.bbop.apollo.history.FeatureEventView
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
@@ -12,7 +12,29 @@ class FeatureEventController {
 
     def changes(Integer max){
         params.max = Math.min(max ?: 10, 100)
-        respond FeatureEvent.list(params), model:[featureEventInstanceCount: FeatureEvent.count()]
+        Map<String,FeatureEvent> featureEventList = new HashMap<>()
+        Map<String,Feature> features = new HashMap<>()
+
+        FeatureEvent.list(params).each {
+            featureEventList.put(it.uniqueName,it)
+        }
+        Feature.findAllByUniqueNameInList(featureEventList.keySet() as List).each {
+            features.put(it.uniqueName,it)
+        }
+        println "featureEventList + ${featureEventList.size()}"
+        println "features+ ${features.size()}"
+        assert featureEventList.size()==features.size()
+
+        List<FeatureEventView> featureEventViewList = new ArrayList<>()
+        featureEventList.each{
+            FeatureEventView featureEventView = new FeatureEventView()
+            featureEventView.featureEvent = it.value
+            featureEventView.feature = features.get(it.key)
+            featureEventViewList.add(featureEventView)
+        }
+        println "featureEventViewList + ${featureEventViewList.size()}"
+
+        render view: "changes", model:[featureEventViewList:featureEventViewList,featureEventInstanceCount: FeatureEvent.count()]
     }
 
     def index(Integer max) {
