@@ -3,6 +3,7 @@ package org.bbop.apollo
 
 
 import grails.test.mixin.*
+import org.bbop.apollo.history.FeatureOperation
 import spock.lang.*
 
 @TestFor(FeatureEventController)
@@ -12,7 +13,10 @@ class FeatureEventControllerSpec extends Specification {
     def populateValidParams(params) {
         assert params != null
         // TODO: Populate valid properties like...
-        //params["name"] = 'someValidName'
+        params["name"] = 'someValidName'
+        params["uniqueName"] = 'someValidNameUniqueName'
+        params["operation"] = FeatureOperation.ADD_EXON
+        params["current"] = true
     }
 
     void "Test the index action returns the correct model"() {
