@@ -53,7 +53,7 @@ To perform active development of the codebase, use
 
 ```apollo debug```
 
-This will launch a temporary instance Apollo by running `grails run-app` and `ant devmode` at the same time, which means that any changes to the Java files will be picked up, allowing fast iteration.
+This will launch a temporary instance of Web Apollo by running `grails run-app` and `ant devmode` at the same time, which means that any changes to the Java files will be picked up, allowing fast iteration.
 
 If you modify the javascript files (i.e. the client directory), you can run `scripts/copy_client.sh` and these will be picked up on-the-fly too.
 
