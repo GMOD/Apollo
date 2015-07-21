@@ -7,7 +7,7 @@ define( [ 'dojo/_base/declare' ],
 
 return declare( null, {
 
-constructor: function()  {
+constructor: function( args )  {
    
     var browser=args.browser;
     this["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
