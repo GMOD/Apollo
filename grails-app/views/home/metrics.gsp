@@ -14,6 +14,11 @@
 
 <g:render template="../layouts/reportHeader"/>
 
+<div class="header">Total Hits: <span class="label label-info">${countTotal}</span></div>
+
+<div class="header">Overall Mean: <span class="label label-info">
+    <g:formatNumber number="${meanTotal}" maxFractionDigits="6"/>
+</span></div>
 
 
 <g:if test="${flash.message}">
@@ -35,13 +40,13 @@
     <tbody>
     <g:each in="${performanceMetricList}" status="i" var="metric">
         <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
-            <td> ${metric.className} </td>
-            <td> ${metric.methodName} </td>
-            <td> ${metric.count} </td>
-            <td> <g:formatNumber number="${metric.mean}" minFractionDigits="2" maxFractionDigits="2"/> </td>
-            <td> <g:formatNumber number="${metric.max}" minFractionDigits="2" maxFractionDigits="2"/> </td>
-            <td> <g:formatNumber number="${metric.min}" minFractionDigits="2" maxFractionDigits="2"/> </td>
-            <td> <g:formatNumber number="${metric.stddev}" minFractionDigits="2" maxFractionDigits="2"/> </td>
+            <td>${metric.className}</td>
+            <td>${metric.methodName}</td>
+            <td>${metric.count}</td>
+            <td><g:formatNumber number="${metric.mean}" minFractionDigits="2" maxFractionDigits="2"/></td>
+            <td><g:formatNumber number="${metric.max}" minFractionDigits="2" maxFractionDigits="2"/></td>
+            <td><g:formatNumber number="${metric.min}" minFractionDigits="2" maxFractionDigits="2"/></td>
+            <td><g:formatNumber number="${metric.stddev}" minFractionDigits="2" maxFractionDigits="2"/></td>
         </tr>
     </g:each>
     </tbody>
