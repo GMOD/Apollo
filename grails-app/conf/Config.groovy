@@ -275,7 +275,7 @@ apollo {
             ,['label': "Report::Sequences", 'link': "/sequence/report/"]
             ,['label': "Report::Annotator", 'link': "/annotator/report/"]
             ,['label': "System Info", 'link': "/home/systemInfo/"]
-//            ,['label': "Report::Changes", 'link': "/annotator/changes/"]
+            ,['label': "Report::Changes", 'link': "/featureEvent/changes/"]
     ]
 
     // customize new tabs on the annotator panel with these links
