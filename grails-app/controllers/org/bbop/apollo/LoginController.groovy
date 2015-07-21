@@ -213,6 +213,7 @@ class LoginController extends AbstractApolloController {
         JSONObject jsonObject = new JSONObject()
         jsonObject.put(FeatureStringEnum.USERNAME.value,username)
         jsonObject.put(AbstractApolloController.REST_OPERATION,"logout")
+        println "sending to: '/topic/AnnotationNotification/user/' + ${user.id}"
         brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + user.id , jsonObject.toString()
         return jsonObject.toString()
     }

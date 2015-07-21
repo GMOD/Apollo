@@ -285,6 +285,7 @@ define([
                             window.parent.handleNavigationEvent(JSON.stringify(currRegion));
                         }));
 
+
                         var sendTracks = function (trackList, visibleTrackNames) {
                             var filteredTrackList = [];
                             for (var trackConfigIndex in trackList) {
@@ -331,7 +332,7 @@ define([
                             var sequence = JSON.parse(window.parent.getCurrentSequence());
                             var user = JSON.parse(window.parent.getCurrentUser());
                             client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
-                            client.subscribe("/topic/AnnotationNotification/user/" + user.id, dojo.hitch(track, 'annotationNotification'));
+                            client.subscribe("/topic/AnnotationNotification/user/" + user.userId, dojo.hitch(track, 'annotationNotification'));
                         });
                         console.log('connection established');
                     }
@@ -339,6 +340,7 @@ define([
                 }
                 else {
                     console.log('No embedded server is present.');
+
                     client.connect({}, function () {
 
                         var request = {
@@ -369,11 +371,21 @@ define([
                 try {
                     changeData = JSON.parse(JSON.parse(message.body));
 
-                    alert("change data "+message.body);
-
                     if (track.verbose_server_notification) {
                         console.log(changeData.operation + " command from server: ");
                         console.log(JSON.stringify(changeData));
+                    }
+
+                    if (changeData.operation == "logout" && changeData.username == track.username) {
+                        alert("You have been logged out or your session has expired");
+                        if(window.parent){
+                            parent.location.reload();
+                        }
+                        else{
+                            location.reload();
+                        }
+
+                        return;
                     }
 
                     if (changeData.operation == "ERROR" && changeData.username == track.username) {
