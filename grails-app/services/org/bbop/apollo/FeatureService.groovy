@@ -13,6 +13,7 @@ import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.plugins.metrics.groovy.Timed
 
 
 /**
@@ -36,6 +37,7 @@ class FeatureService {
     def overlapperService
 
 
+    @Timed
     @Transactional
     public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence) throws JSONException {
         FeatureLocation gsolLocation = new FeatureLocation();
@@ -124,6 +126,8 @@ class FeatureService {
      * From Gene.addTranscript
      * @return
      */
+
+    @Timed
     @Transactional
     def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
@@ -288,6 +292,7 @@ class FeatureService {
      * @param feature
      * @return
      */
+    @Timed
     Feature getTopLevelFeature(Feature feature) {
         Collection<Feature> parents = feature?.childFeatureRelationships*.parentFeature
         if (parents) {
@@ -298,6 +303,7 @@ class FeatureService {
     }
 
 
+    @Timed
     @Transactional
     def addFeature(Feature feature) {
         if (feature instanceof Gene) {
@@ -422,6 +428,7 @@ class FeatureService {
 //        }
     }
 
+    @Timed
     @Transactional
     def calculateCDS(Transcript transcript, boolean readThroughStopCodon) {
         CDS cds = transcriptService.getCDS(transcript);
@@ -968,7 +975,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * @param transcript - Transcript to set the longest ORF to
  * @param translationTable - Translation table that defines the codon translation
  * @param allowPartialExtension - Where partial ORFs should be used for possible extension
+ *
  */
+    @Timed
     @Transactional
     public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon) {
         log.debug "setLongestORF(transcript,translationTable,allowPartialExtension,readThroughStopCodon)"
@@ -1052,6 +1061,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
 
+    @Timed
     @Transactional
     public Feature convertJSONToFeature(JSONObject jsonFeature, Sequence sequence) {
         Feature gsolFeature
@@ -1733,6 +1743,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @param includeSequence
      * @return
      */
+    @Timed
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
         JSONObject jsonFeature = new JSONObject();
         try {
@@ -1924,6 +1935,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return jsonObject
     }
 
+    @Timed
     JSONObject convertFeatureLocationToJSON(FeatureLocation gsolFeatureLocation) throws JSONException {
         JSONObject jsonFeatureLocation = new JSONObject();
         if (gsolFeatureLocation.id) {

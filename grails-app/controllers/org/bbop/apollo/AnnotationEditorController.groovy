@@ -5,6 +5,7 @@ import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
+import org.grails.plugins.metrics.groovy.Timed
 import org.springframework.http.HttpStatus
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -12,7 +13,6 @@ import java.nio.file.Paths
 import java.security.Principal
 import java.text.DateFormat
 import static grails.async.Promises.*
-//import grails.compiler.GrailsCompileStatic
 import grails.converters.JSON
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
@@ -26,7 +26,6 @@ import org.springframework.messaging.handler.annotation.SendTo
 /**
  * From the AnnotationEditorService
  */
-//@GrailsCompileStatic
 class AnnotationEditorController extends AbstractApolloController implements AnnotationListener {
 
 
@@ -61,6 +60,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     /**
      * @return
      */
+    @Timed
     def getUserPermission() {
         log.debug "getUserPermission ${params.data}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
@@ -111,6 +111,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render jre as JSON
     }
 
+    @Timed
     def getHistoryForFeatures() {
         log.debug "getHistoryForFeatures ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -364,7 +365,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         try {
             permissionService.checkPermissions(returnObject, PermissionEnum.READ)
-            render requestHandlingService.getFeatures(returnObject) as JSON
+            render requestHandlingService.getFeatures(returnObject)
         } catch (e) {
             def error = [error: 'problem getting features: ' + e.fillInStackTrace()]
             render error as JSON
@@ -372,6 +373,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @Timed
     def getInformation() {
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -463,6 +465,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             jsonObject.put(FeatureStringEnum.USERNAME.value, username)
     }
 
+    @Timed
     def getSequenceAlterations() {
         JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
 
@@ -704,6 +707,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @Timed
     def getAnnotationInfoEditorData() {
         Sequence sequence
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -787,14 +791,17 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @MessageMapping("/AnnotationNotification")
     @SendTo("/topic/AnnotationNotification")
+    @Timed
     protected String annotationEditor(String inputString, Principal principal) {
-        log.debug "annotationEditor: ${inputString}"
+        log.debug "Input String:  annotation editor service ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
+        log.debug "AEC::root element: ${rootElement as JSON}"
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
 
         String operationName = underscoreToCamelCase(operation)
+        log.debug "operationName: ${operationName}"
         def p = task {
             switch (operationName) {
                 case "setToDownstreamDonor": requestHandlingService.setDonor(rootElement, false)
@@ -837,9 +844,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     }
 
-    // TODO: handle errors without broadcasting
+// TODO: handle errors without broadcasting
     protected def sendError(AnnotationException exception, String username) {
-        log.debug "sendError: ${exception}"
+        log.debug "exception ${exception}"
+        log.debug "exception message ${exception.message}"
+        log.debug "username ${username}"
+
         JSONObject errorObject = new JSONObject()
         errorObject.put(REST_OPERATION, FeatureStringEnum.ERROR.name())
         errorObject.put(FeatureStringEnum.ERROR_MESSAGE.value, exception.message)
@@ -851,7 +861,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @SendTo("/topic/AnnotationNotification")
     protected String sendAnnotationEvent(String returnString) {
-        log.debug "sendAnnotationEvent: ${returnString?.size()}"
+        log.debug "AEC::return operations sent . . ${returnString?.size()}"
         return returnString
     }
 

@@ -1,18 +1,17 @@
 package org.bbop.apollo
 
-import grails.async.Promise
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import grails.converters.JSON
-
-//import grails.compiler.GrailsCompileStatic
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+
+//import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.plugins.metrics.groovy.Timed
 
 /**
  * This class is responsible for handling JSON requests from the AnnotationEditorController and routing
@@ -22,9 +21,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  *
  * Furthermore, this handles requests for websocket, which come in via a different mechanism than the controller
  */
-//@GrailsCompileStatic
 @Transactional
-//class RequestHandlingService implements  AnnotationListener{
 class RequestHandlingService {
 
     public static String REST_SEQUENCE_ALTERNATION_EVENT = "sequenceAlterationEvent"
@@ -500,6 +497,7 @@ class RequestHandlingService {
         return updateFeatureContainer
     }
 
+    @Timed
     @Transactional(readOnly = true)
     JSONObject getFeatures(JSONObject inputObject) {
 
@@ -558,6 +556,7 @@ class RequestHandlingService {
      * @param inputObject
      * @return
      */
+    @Timed
     JSONObject addExon(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value);
@@ -609,6 +608,7 @@ class RequestHandlingService {
 
     }
 
+    @Timed
     JSONObject addTranscript(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnObject = createJSONFeatureContainer()
@@ -674,6 +674,7 @@ class RequestHandlingService {
      * Transcript is the first object
      * @param inputObject
      */
+    @Timed
     JSONObject setTranslationStart(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject transcriptJSONObject = features.getJSONObject(0);
@@ -714,6 +715,7 @@ class RequestHandlingService {
      * Transcript is the first object
      * @param inputObject
      */
+    @Timed
     JSONObject setTranslationEnd(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject transcriptJSONObject = features.getJSONObject(0);
@@ -751,6 +753,7 @@ class RequestHandlingService {
         return featureContainer
     }
 
+    @Timed
     def setReadthroughStopCodon(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject transcriptJSONObject = features.getJSONObject(0);
@@ -782,6 +785,7 @@ class RequestHandlingService {
         return returnObject
     }
 
+    @Timed
     def setAcceptor(JSONObject inputObject, boolean upstreamDonor) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
@@ -830,6 +834,7 @@ class RequestHandlingService {
     }
 
 
+    @Timed
     def setDonor(JSONObject inputObject, boolean upstreamDonor) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
@@ -876,6 +881,7 @@ class RequestHandlingService {
         return featureContainer
     }
 
+    @Timed
     JSONObject setLongestOrf(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject transcriptJSONObject = features.getJSONObject(0);
@@ -906,6 +912,7 @@ class RequestHandlingService {
      * @param inputObject
      * @return
      */
+    @Timed
     JSONObject setExonBoundaries(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
@@ -972,6 +979,7 @@ class RequestHandlingService {
         return returnObject
     }
 
+    @Timed
     JSONObject setBoundaries(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
@@ -1051,6 +1059,7 @@ class RequestHandlingService {
 
     }
 
+    @Timed
     private JSONObject createJSONFeatureContainerFromFeatures(Feature... features) throws JSONException {
         def jsonObjects = new ArrayList()
         for (Feature feature in features) {
@@ -1060,6 +1069,7 @@ class RequestHandlingService {
         return createJSONFeatureContainer(jsonObjects as JSONObject[])
     }
 
+    @Timed
     JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
         JSONObject jsonFeatureContainer = new JSONObject();
         JSONArray jsonFeatures = new JSONArray();
@@ -1070,6 +1080,7 @@ class RequestHandlingService {
         return jsonFeatureContainer;
     }
 
+    @Timed
     JSONObject deleteSequenceAlteration(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONObject deleteFeatureContainer = createJSONFeatureContainer();
@@ -1114,6 +1125,7 @@ class RequestHandlingService {
     }
 
 //    { "track": "GroupUn4157", "features": [ { "location": { "fmin": 1284, "fmax": 1284, "strand": 1 }, "type": {"name": "insertion", "cv": { "name":"sequence" } }, "residues": "ATATATA" } ], "operation": "add_sequence_alteration" }
+    @Timed
     def addSequenceAlteration(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONObject addFeatureContainer = createJSONFeatureContainer();
@@ -1339,6 +1351,7 @@ class RequestHandlingService {
         return featureContainer
     }
 
+    @Timed
     def flipStrand(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         JSONObject featureContainer = createJSONFeatureContainer();
@@ -1371,6 +1384,7 @@ class RequestHandlingService {
         return featureContainer
     }
 
+    @Timed
     def mergeExons(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
@@ -1404,6 +1418,7 @@ class RequestHandlingService {
         return featureContainer
     }
 
+    @Timed
     def splitExon(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
@@ -1446,6 +1461,7 @@ class RequestHandlingService {
      * Subsequence objects are exons
      * @param inputObject
      */
+    @Timed
     def deleteExon(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
@@ -1474,6 +1490,7 @@ class RequestHandlingService {
         return featureContainer
     }
 
+    @Timed
     def addFeature(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         log.debug "adding sequence with found sequence ${sequence}"
@@ -1561,6 +1578,7 @@ class RequestHandlingService {
      *  From AnnotationEditorService
      */
 //    { "track": "Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:
+    @Timed
     def deleteFeature(JSONObject inputObject) {
         log.debug "in delete feature ${inputObject as JSON}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
@@ -1750,6 +1768,7 @@ class RequestHandlingService {
         return createJSONFeatureContainer()
     }
 
+    @Timed
     def makeIntron(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
@@ -1796,6 +1815,7 @@ class RequestHandlingService {
         return featureContainer
     }
 
+    @Timed
     def splitTranscript(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
@@ -1966,6 +1986,7 @@ class RequestHandlingService {
         return returnContainer
     }
 
+    @Timed
     def mergeTranscripts(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
@@ -2039,7 +2060,7 @@ class RequestHandlingService {
         return returnObject
     }
 
-
+    @Timed
     def duplicateTranscript(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
@@ -2062,6 +2083,7 @@ class RequestHandlingService {
         return featureContainer
     }
 
+    @Timed
     def undo(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
@@ -2077,6 +2099,7 @@ class RequestHandlingService {
         return new JSONObject()
     }
 
+    @Timed
     def redo(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)

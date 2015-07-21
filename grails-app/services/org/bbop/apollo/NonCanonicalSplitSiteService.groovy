@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
+import org.grails.plugins.metrics.groovy.Timed
 
 //@GrailsCompileStatic
 @Transactional
@@ -126,6 +127,7 @@ class NonCanonicalSplitSiteService {
         }
     }
 
+    @Timed
     public void findNonCanonicalAcceptorDonorSpliceSites(Transcript transcript) {
 
         transcript.attach()

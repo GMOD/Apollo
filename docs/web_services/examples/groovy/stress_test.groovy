@@ -113,7 +113,7 @@ println "${concurrency},${iter},${load},${totalTime/1000f},${meanIterTime/1000f}
 
 //println("total: "+totalTime/1000f)
 //println("mean per iteration : "+meanIterTime / 1000f)
-//println("stdev: "+Math.sqrt(variance)/1000f)
+//println("stddev: "+Math.sqrt(variance)/1000f)
 //println("per iteration : "+totalTime/(iter*1000f))
 //println("per transaction: "+totalTime/(totalTransactions*1000f))
 //println("per feature: "+totalTime/(totalFeatures*1000f))

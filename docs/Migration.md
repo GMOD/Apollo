@@ -1,10 +1,8 @@
-## Web Apollo 2.0 Migration Guide
+# Migration guide
 
-View <a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHub</a>
+This guide explains how to prepare your Web Apollo 2.0 instance, and to migrate data from previous Web Apollo versions into 2.0.
 
-This guide explains how to prepare your 2.0 instance as well as migrating data from previous instances.
-
-In all cases you will need to follow the [guide for setting up your 2.0 instance](Apollo2Build.md).   
+In all cases you will need to follow the [guide for setting up your 2.0 instance](Apollo2Build.md).
 
 
 ## Migration from Evaluation to Production:

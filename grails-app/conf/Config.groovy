@@ -271,11 +271,12 @@ apollo {
             ['label': "Canned Comments", 'link': "/cannedComment/"]
             ,['label': "Feature Types", 'link': "/featureType/"]
             ,['label': "Statuses", 'link': "/availableStatus/"]
-            ,['label': "Report::Organisms", 'link': "/organism/report/"]
-            ,['label': "Report::Sequences", 'link': "/sequence/report/"]
-//            ,['label': "Report::Annotator", 'link': "/user/report/"]
-//            ,['label': "Report::Changes", 'link': "/annotator/changes/"]
-//            ,['label': "System Info", 'link': "/feature/system/"]
+            ,['label': "Report::Organisms", 'link': "/organism/report/",'type':"report"]
+            ,['label': "Report::Sequences", 'link': "/sequence/report/",'type':"report"]
+            ,['label': "Report::Annotator", 'link': "/annotator/report/",'type':"report"]
+            ,['label': "Report::Changes", 'link': "/featureEvent/changes/",'type':"report"]
+            ,['label': "System Info", 'link': "/home/systemInfo/",'type':"report"]
+            ,['label': "Performance Metrics", 'link': "/home/metrics/",'type':"report"]
     ]
 
     // customize new tabs on the annotator panel with these links

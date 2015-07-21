@@ -7,6 +7,7 @@ import org.apache.shiro.session.Session
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.report.AnnotatorSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -18,6 +19,7 @@ class AnnotatorController {
     def permissionService
     def annotatorService
     def preferenceService
+    def reportService
 
     /**
      * Loads the shared link and moves over:
@@ -308,7 +310,20 @@ class AnnotatorController {
         log.error "not authorized"
     }
 
-    def changes() {
-//        respond []
+    def report(Integer max) {
+        List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
+        params.max = Math.min(max ?: 20, 100)
+
+        List<User> annotators = User.list(params)
+
+        annotators.each {
+            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it,true))
+        }
+
+        render view:"report", model:[annotatorInstanceList:annotatorSummaryList,annotatorInstanceCount:User.count]
+    }
+
+    def detail(User user) {
+        render view:"detail", model:[annotatorInstance:reportService.generateAnnotatorSummary(user)]
     }
 }

@@ -130,13 +130,15 @@ grails.project.dependency.resolution = {
         //compile ":gwt:1.0" , {
         //    transitive=true
         //}
+        compile ":yammer-metrics:3.0.1-2"
+
 
         //compile ":crypto:2.0"
         //compile ":kickstart-with-bootstrap:1.1.0"
         //compile ":twitter-bootstrap:3.1.1.3"
         //compile ":jasypt-encryption:1.1.0"
         //compile ":joda-time:1.4"
-        test ":rest-client-builder:2.1.1"
+        runtime ":rest-client-builder:2.1.1"
         test    ":geb:$gebVersion"
     }
 }

@@ -1,7 +1,9 @@
 package org.bbop.apollo
 
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.sequence.Strand;
+
+import org.bbop.apollo.sequence.Strand
+import org.grails.plugins.metrics.groovy.Timed;
 
 import java.io.*;
 import java.util.*
@@ -19,6 +21,7 @@ public class Gff3HandlerService {
     def featurePropertyService
 
 
+    @Timed
     public void writeFeaturesToText(String path, Collection<? extends Feature> features, String source, Boolean exportSequence = false, Collection<Sequence> sequences = null) throws IOException {
         WriteObject writeObject = new WriteObject()
 
@@ -58,6 +61,7 @@ public class Gff3HandlerService {
     }
 
 
+    @Timed
     public void writeFeatures(WriteObject writeObject, Collection<? extends Feature> features, String source) throws IOException {
         Map<Sequence, Collection<Feature>> featuresBySource = new HashMap<Sequence, Collection<Feature>>();
         for (Feature feature : features) {
@@ -79,6 +83,7 @@ public class Gff3HandlerService {
         }
     }
 
+    @Timed
     public void writeFeatures(WriteObject writeObject, Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
         while (iterator.hasNext()) {
             Feature feature = iterator.next();
@@ -199,19 +204,13 @@ public class Gff3HandlerService {
         return gffEntries;
     }
 
+    @Timed
     private void convertToEntry(WriteObject writeObject, Feature feature, String source, Collection<GFF3Entry> gffEntries) {
 
-        //log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
-
-        long timestart = System.currentTimeMillis();
+        log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
 
         String seqId = feature.getFeatureLocation().sequence.name
-        long durationInMilliseconds = System.currentTimeMillis()-timestart;
-        //log.debug "selecting featloc ${durationInMilliseconds}"
-        timestart = System.currentTimeMillis();
         String type = featureService.getCvTermFromFeature(feature);
-        durationInMilliseconds = System.currentTimeMillis()-timestart;
-        //log.debug "selecting cvterm ${durationInMilliseconds}"
         int start = feature.getFmin() + 1;
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
         String score = ".";
@@ -225,10 +224,7 @@ public class Gff3HandlerService {
         }
         String phase = ".";
         GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase);
-        timestart = System.currentTimeMillis();
         entry.setAttributes(extractAttributes(writeObject, feature));
-        durationInMilliseconds = System.currentTimeMillis()-timestart;
-        //log.debug "extract attributes ${durationInMilliseconds}"
         gffEntries.add(entry);
         if(featureService.typeHasChildren(feature)){
             for (Feature child : featureRelationshipService.getChildren(feature)) {
@@ -241,17 +237,13 @@ public class Gff3HandlerService {
         }
     }
 
+    @Timed
     private void convertToEntry(WriteObject writeObject, CDS cds, String source, Collection<GFF3Entry> gffEntries) {
 
-        //log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
-        long timestart = System.currentTimeMillis();
+        log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
+
         String seqId = cds.getFeatureLocation().sequence.name
-        long durationInMilliseconds = System.currentTimeMillis()-timestart;
-        //log.debug "selecting featurelocation CDS ${durationInMilliseconds}"
-        timestart = System.currentTimeMillis();
         String type = cds.cvTerm
-        durationInMilliseconds = System.currentTimeMillis()-timestart;
-        //log.debug "selecting cvterm CDS ${durationInMilliseconds}"
         String score = ".";
         String strand;
         if (cds.getStrand() == 1) {
@@ -262,24 +254,14 @@ public class Gff3HandlerService {
             strand = ".";
         }
         //featureRelationshipService.getParentForFeature(cds,transcriptService.ontologyIds)
-        timestart = System.currentTimeMillis();
         Transcript transcript = transcriptService.getParentTranscriptForFeature(cds)
-        durationInMilliseconds = System.currentTimeMillis()-timestart;
-        //log.debug "selecting parenttranscript CDS ${durationInMilliseconds}"
-        timestart = System.currentTimeMillis();
+
         List<Exon> exons = exonService.getSortedExons(transcript)
-        durationInMilliseconds = System.currentTimeMillis()-timestart;
-        //log.debug "selecting sortedexons CDS ${durationInMilliseconds}"
         int length = 0;
         for (Exon exon : exons) {
-            timestart = System.currentTimeMillis();
             if (!overlapperService.overlaps(exon, cds)) {
-                durationInMilliseconds = System.currentTimeMillis()-timestart;
-                //log.debug "overlapper ${durationInMilliseconds}"
                 continue;
             }
-            durationInMilliseconds = System.currentTimeMillis()-timestart;
-            //log.debug "overlapper ${durationInMilliseconds}"
             int fmin = exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin();
             int fmax = exon.getFmax() > cds.getFmax() ? cds.getFmax() : exon.getFmax();
             String phase;
@@ -296,11 +278,11 @@ public class Gff3HandlerService {
             gffEntries.add(entry);
         }
         for (Feature child : featureRelationshipService.getChildren(cds)) {
-            //log.debug "child of CDS? ${child.ontologyId}"
             convertToEntry(writeObject, child, source, gffEntries);
         }
     }
 
+    @Timed
     private Map<String, String> extractAttributes(WriteObject writeObject, Feature feature) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(FeatureStringEnum.EXPORT_ID.value, encodeString(feature.getUniqueName()));
@@ -375,8 +357,8 @@ public class Gff3HandlerService {
         }
         //TODO: Ontology_term
         //TODO: Is_circular
+        Iterator<FeatureProperty> propertyIter = feature.featureProperties.iterator();
         if (writeObject.attributesToExport.contains(FeatureStringEnum.ATTRIBUTES.value)) {
-            Iterator<FeatureProperty> propertyIter = feature.featureProperties.iterator();
             if (propertyIter.hasNext()) {
                 Map<String, StringBuilder> properties = new HashMap<String, StringBuilder>();
                 while (propertyIter.hasNext()) {
