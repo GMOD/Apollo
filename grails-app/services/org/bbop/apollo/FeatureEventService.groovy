@@ -45,19 +45,19 @@ class FeatureEventService {
 
     }
 
-/**
- * Convention is that 1 is the parent and is returned first in the array.
- * Because we are tracking the split in the actual object blocks, the newJSONArray is also split
- * @param name1
- * @param uniqueName1
- * @param name2
- * @param uniqueName2
- * @param commandObject
- * @param oldFeatureObject
- * @param newFeatureArray
- * @param user
- * @return
- */
+    /**
+     * Convention is that 1 is the parent and is returned first in the array.
+     * Because we are tracking the split in the actual object blocks, the newJSONArray is also split
+     * @param name1
+     * @param uniqueName1
+     * @param name2
+     * @param uniqueName2
+     * @param commandObject
+     * @param oldFeatureObject
+     * @param newFeatureArray
+     * @param user
+     * @return
+     */
     List<FeatureEvent> addSplitFeatureEvent(String name1, String uniqueName1, String name2, String uniqueName2
                                             , JSONObject commandObject, JSONObject oldFeatureObject
                                             , JSONArray newFeatureArray
@@ -128,19 +128,19 @@ class FeatureEventService {
         return featureEventList
     }
 
-/**
- * Convention is that 1 becomes the child and is returned.
- * Because we are tracking the merge in the actual object blocks, the newJSONArray is also split
- * @param geneName1
- * @param uniqueName1
- * @param geneName2
- * @param uniqueName2
- * @param commandObject
- * @param oldFeatureArray
- * @param newFeatureObject
- * @param user
- * @return
- */
+    /**
+     * Convention is that 1 becomes the child and is returned.
+     * Because we are tracking the merge in the actual object blocks, the newJSONArray is also split
+     * @param geneName1
+     * @param uniqueName1
+     * @param geneName2
+     * @param uniqueName2
+     * @param commandObject
+     * @param oldFeatureArray
+     * @param newFeatureObject
+     * @param user
+     * @return
+     */
     List<FeatureEvent> addMergeFeatureEvent(String geneName1, String uniqueName1, String geneName2, String uniqueName2, JSONObject commandObject, JSONArray oldFeatureArray, JSONObject newFeatureObject,
                                             User user) {
         List<FeatureEvent> featureEventList = new ArrayList<>()
@@ -389,13 +389,13 @@ class FeatureEventService {
 //        FeatureEvent.deleteAll(FeatureEvent.findAllByUniqueName(uniqueName))
     }
 
-/**
- * CurrentIndex of 0 is the oldest.  Highest number is the most recent
- * This returns an array.  We could have any number of splits going forward, so we have to return an array here.
- * @param uniqueName
- * @param currentIndex
- * @return
- */
+    /**
+     * CurrentIndex of 0 is the oldest.  Highest number is the most recent
+     * This returns an array.  We could have any number of splits going forward, so we have to return an array here.
+     * @param uniqueName
+     * @param currentIndex
+     * @return
+     */
     List<FeatureEvent> setTransactionForFeature(String uniqueName, int currentIndex) {
         log.info "setting previous transaction for feature ${uniqueName} -> ${currentIndex}"
         log.info "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${currentIndex}"
@@ -559,13 +559,13 @@ class FeatureEventService {
 
     }
 
-/**
- * Count back from most recent
- * @param inputObject
- * @param count
- * @param confirm
- * @return
- */
+    /**
+     * Count back from most recent
+     * @param inputObject
+     * @param count
+     * @param confirm
+     * @return
+     */
     def redo(JSONObject inputObject, int countForward, boolean confirm) {
         log.info "redoing ${countForward}"
         if (countForward == 0) {
@@ -670,14 +670,14 @@ class FeatureEventService {
         return futureEvents
     }
 
-/**
- * This is the root uniqueName
- * Should returned sorted most recent at 0, latest at end
- *
- * If splits occur we need to show them
- * @param uniqueName
- * @return
- */
+    /**
+     * This is the root uniqueName
+     * Should returned sorted most recent at 0, latest at end
+     *
+     * If splits occur we need to show them
+     * @param uniqueName
+     * @return
+     */
     List<List<FeatureEvent>> getHistory(String uniqueName) {
         List<FeatureEvent> currentFeatureEvent = findCurrentFeatureEvent(uniqueName)
 
