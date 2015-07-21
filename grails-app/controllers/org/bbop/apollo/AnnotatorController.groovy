@@ -317,14 +317,6 @@ class AnnotatorController {
         log.error "not authorized"
     }
 
-    /**
-     * Supply changes between a date range and paginate
-     */
-    def changes() {
-
-//        respond []
-    }
-
     def report(Integer max) {
         List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
         params.max = Math.min(max ?: 20, 100)
@@ -332,9 +324,13 @@ class AnnotatorController {
         List<User> annotators = User.list(params)
 
         annotators.each {
-            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it))
+            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it,true))
         }
 
         render view:"report", model:[annotatorInstanceList:annotatorSummaryList,annotatorInstanceCount:User.count]
+    }
+
+    def detail(User user) {
+        render view:"detail", model:[annotatorInstance:reportService.generateAnnotatorSummary(user)]
     }
 }

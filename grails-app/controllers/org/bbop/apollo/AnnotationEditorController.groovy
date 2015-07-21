@@ -1,18 +1,13 @@
 package org.bbop.apollo
 
-import org.apache.shiro.authc.UsernamePasswordToken
-import org.apache.shiro.session.Session
-import org.apache.shiro.subject.Subject
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.PermissionEnum
-import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
-import org.codehaus.groovy.runtime.StackTraceUtils
+import org.grails.plugins.metrics.groovy.Timed
 import org.springframework.http.HttpStatus
-import org.springframework.messaging.handler.annotation.DestinationVariable
 
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -23,10 +18,8 @@ import java.text.DateFormat
 import static grails.async.Promises.*
 
 
-//import grails.compiler.GrailsCompileStatic
 import grails.converters.JSON
 
-//import org.bbop.apollo.editor.AnnotationEditor
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -39,7 +32,6 @@ import org.springframework.messaging.handler.annotation.SendTo
 /**
  * From the AnnotationEditorService
  */
-//@GrailsCompileStatic
 class AnnotationEditorController extends AbstractApolloController implements AnnotationListener {
 
 
@@ -74,6 +66,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     /**
      * @return
      */
+    @Timed
     def getUserPermission() {
         log.debug "getUserPermission ${params.data}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
@@ -124,6 +117,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render jre as JSON
     }
 
+    @Timed
     def getHistoryForFeatures() {
         log.debug "getHistoryForFeatures ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -386,6 +380,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @Timed
     def getInformation() {
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -477,6 +472,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             jsonObject.put(FeatureStringEnum.USERNAME.value, username)
     }
 
+    @Timed
     def getSequenceAlterations() {
         JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
 
@@ -718,6 +714,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @Timed
     def getAnnotationInfoEditorData() {
         Sequence sequence
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -803,6 +800,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @MessageMapping("/AnnotationNotification")
     @SendTo("/topic/AnnotationNotification")
+    @Timed
     protected String annotationEditor(String inputString, Principal principal) {
         log.debug "Input String:  annotation editor service ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)

@@ -33,7 +33,9 @@
         <g:each in="${annotatorInstanceList}" status="i" var="annotatorInstance">
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
-                    ${annotatorInstance.username}
+                    <g:link action="detail" id="${annotatorInstance.annotator.id}">
+                        ${annotatorInstance.username}
+                    </g:link>
                 <td style="text-align: left;">
                     ${annotatorInstance.firstName}
                 </td>
@@ -76,63 +78,6 @@
                 <td>${annotatorInstance.transposableElementCount}</td>
                 <td>${annotatorInstance.repeatRegionCount}</td>
             </tr>
-            <g:each in="${annotatorInstance.userOrganismPermissionList}" var="userOrganismPermission">
-                <tr>
-                    <td></td>
-                    <td>
-                        <g:link action="report" id="${userOrganismPermission.userOrganismPermission.organism.id}" controller="sequence">
-                            ${userOrganismPermission.userOrganismPermission.organism.commonName}
-                        </g:link>
-                    </td>
-                    <td>
-                        <g:if test="${userOrganismPermission.userOrganismPermission.permissions.toLowerCase().contains(org.bbop.apollo.gwt.shared.PermissionEnum.ADMINISTRATE.display)}">
-                            <i class="glyphicon glyphicon-cog" title="Administrate privileges"></i>
-                        </g:if>
-                        <g:if test="${userOrganismPermission.userOrganismPermission.permissions.toLowerCase().contains(org.bbop.apollo.gwt.shared.PermissionEnum.WRITE.display)}">
-                            <i class="glyphicon glyphicon-edit" title="Edit privileges"></i>
-                        </g:if>
-                        <g:if test="${userOrganismPermission.userOrganismPermission.permissions.toLowerCase().contains(org.bbop.apollo.gwt.shared.PermissionEnum.EXPORT.display)}">
-                            <i class="glyphicon glyphicon-download-alt" title="Export privileges"></i>
-                        </g:if>
-                        <g:if test="${userOrganismPermission.userOrganismPermission.permissions.toLowerCase().contains(org.bbop.apollo.gwt.shared.PermissionEnum.READ.display)}">
-                            <i class="glyphicon glyphicon-search"  title="Read privileges"></i>
-                        </g:if>
-                    </td>
-                    <td>
-                        ${userOrganismPermission.totalFeatureCount}
-                    </td>
-                    <td>${userOrganismPermission.geneCount}</td>
-                    <td>
-                        <g:if test="${userOrganismPermission.transcriptCount}">
-                            <button>
-                                Total
-                                <span class="badge">${userOrganismPermission.transcriptCount}</span>
-                            </button>
-                            <button>
-                                Protein encoding
-                                <span class="badge"><g:formatNumber number="${userOrganismPermission.proteinCodingTranscriptPercent}" type="percent"/></span>
-                            </button>
-                            <button>
-                                Exons / transcript
-                                <span class="badge"><g:formatNumber number="${userOrganismPermission.exonsPerTranscript}" type="number"/></span>
-                            </button>
-
-                            <g:each in="${userOrganismPermission.transcriptTypeCount}" var="trans">
-                                <button>
-                                    ${trans.key}
-                                    <span class="badge">
-                                        ${trans.value}
-                                    </span>
-                                </button>
-                            </g:each>
-                        </g:if>
-                        <g:else>0</g:else>
-                    </td>
-                    <td>${userOrganismPermission.exonCount} </td>
-                    <td>${userOrganismPermission.transposableElementCount}</td>
-                    <td>${userOrganismPermission.repeatRegionCount}</td>
-                </tr>
-            </g:each>
         </g:each>
         </tbody>
     </table>
