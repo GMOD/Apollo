@@ -1,17 +1,11 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by ndunn on 1/11/15.
@@ -30,11 +24,7 @@ public class PreferencePanel extends Composite {
 //    @UiField
 //    Button newStatusButton;
 
-
-    public PreferencePanel() {
-        initWidget(ourUiBinder.createAndBindUi(this));
-
-
+    public void reload(){
         String url = "annotator/adminPanel";
         String rootUrl = Annotator.getRootUrl();
         if(!url.startsWith(rootUrl)){
@@ -63,6 +53,13 @@ public class PreferencePanel extends Composite {
         } catch (RequestException e) {
             Window.alert(e.toString());
         }
+    }
+
+    public PreferencePanel() {
+        initWidget(ourUiBinder.createAndBindUi(this));
+
+        reload();
+
 
 //        /annotator/adminPanel
 
