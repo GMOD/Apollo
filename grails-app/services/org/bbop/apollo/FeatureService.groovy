@@ -39,7 +39,7 @@ class FeatureService {
     def overlapperService
 
 
-    @Timed(name = "convertJSONToFeatureLocation")
+    @Timed
     @Transactional
     public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence) throws JSONException {
         FeatureLocation gsolLocation = new FeatureLocation();
@@ -1095,6 +1095,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
 
+    @Timed
     @Transactional
     public Feature convertJSONToFeature(JSONObject jsonFeature, Sequence sequence) {
         Feature gsolFeature
@@ -1932,6 +1933,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @param includeSequence
      * @return
      */
+    @Timed
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
         JSONObject jsonFeature = new JSONObject();
         try {
@@ -2093,6 +2095,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return jSONObject
     }
 
+    @Timed
     JSONObject convertFeatureLocationToJSON(FeatureLocation gsolFeatureLocation) throws JSONException {
         JSONObject jsonFeatureLocation = new JSONObject();
         if (gsolFeatureLocation.id) {

@@ -274,8 +274,9 @@ apollo {
             ,['label': "Report::Organisms", 'link': "/organism/report/",'type':"report"]
             ,['label': "Report::Sequences", 'link': "/sequence/report/",'type':"report"]
             ,['label': "Report::Annotator", 'link': "/annotator/report/",'type':"report"]
-            ,['label': "System Info", 'link': "/home/systemInfo/",'type':"report"]
             ,['label': "Report::Changes", 'link': "/featureEvent/changes/",'type':"report"]
+            ,['label': "System Info", 'link': "/home/systemInfo/",'type':"report"]
+            ,['label': "Performance Metrics", 'link': "/home/metrics/",'type':"report"]
     ]
 
     // customize new tabs on the annotator panel with these links
