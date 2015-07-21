@@ -1,7 +1,9 @@
+<%@ page import="org.codehaus.groovy.grails.web.json.JSONArray" %>
 <nav class="navbar navbar-default">
     <div class="apollo-header row">
         <asset:image src="ApolloLogo_100x36.png"/>
     </div>
+
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
@@ -14,10 +16,14 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        %{--<li>Organism Annotations</li>--}%
-                        <li><g:link action="report" controller="organism">Organism Annotations</g:link></li>
-                        <li><g:link action="report" controller="annotator">Annotation Report</g:link></li>
-                        <li><g:link action="systemInfo" controller="home">System Info</g:link></li>
+                        <g:each in="${grailsApplication.config.apollo.administrativePanel}" var="admin">
+                            <g:if test="${admin.type=='report'}">
+                                <li><g:link uri="${admin.link}">${admin.label}</g:link></li>
+                            </g:if>
+                        %{--<li><g:link action="report" controller="organism">Organism Annotations</g:link></li>--}%
+                        %{--<li><g:link action="report" controller="annotator">Annotation Report</g:link></li>--}%
+                        %{--<li><g:link action="systemInfo" controller="home">System Info</g:link></li>--}%
+                        </g:each>
                     </ul>
                 </div>
             </div>

@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import org.codehaus.groovy.grails.web.json.JSONArray
 import org.grails.plugins.metrics.groovy.Timed
 
 class HomeController {
@@ -25,5 +26,12 @@ class HomeController {
 
 //        servletContext
         render view: "systemInfo", model:[javaMapInstance:javaMapInstance,servletMapInstance:servletMapInstance,runtimeMapInstance:runtimeMapInstance]
+    }
+
+    def getHeader(){
+        JSONArray jsonArray = grailsApplication.config.apollo.administrativePanel as org.codehaus.groovy.grails.web.json.JSONArray
+        for(int i = 0 ; i < jsonArray.size() ; i++){
+
+        }
     }
 }
