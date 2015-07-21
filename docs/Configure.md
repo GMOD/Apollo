@@ -64,6 +64,7 @@ defined in the Config.groovy file:
         
 
         // TODO: should come from config or via preferences database
+
         splice_donor_sites = [ "GT"]
         splice_acceptor_sites = [ "AG"]
         gff3.source= "."
@@ -234,7 +235,20 @@ Then in your server config, i.e. httpd.conf, add extra ProxyPass calls for the w
     ProxyPass /apollo/stomp  ws://localhost:8080/apollo/stomp
     ProxyPassReverse /apollo/stomp ws://localhost:8080/apollo/stomp
 ```
-    
+
+
+Note: you can also proxy all apps on your tomcat server to a subdirectory like this, but the important part of this configuration is that ProxyPassReverseCookiePath is configured so that sessions are set up properly (otherwise it will look like the app is loaded, but you will not be able to login)
+
+
+```
+    ProxyPass  /testing http://localhost:8080
+    ProxyPassReverse  /testing http://localhost:8080
+    ProxyPassReverseCookiePath / /testing
+```
+
+With this configuration, an app that was originally at http://localhost:8080/apollo could then be accessed via http://localhost/testing/apollo
+
+
 
 #### Nginx Proxy (from version 1.4 on)
 
