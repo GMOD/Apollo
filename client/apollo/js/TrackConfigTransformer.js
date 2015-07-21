@@ -29,7 +29,7 @@ constructor: function( args )  {
         trackConfig.type = "WebApollo/View/Track/DraggableAlignments";
     };
 
-    if(!trackConfig.disableDraggable || browser.config.disableDraggable) this["JBrowse/View/Track/Alignments2"] = this["JBrowse/View/Track/Alignments"];
+    if(!browser.config.disableDraggable) this["JBrowse/View/Track/Alignments2"] = this["JBrowse/View/Track/Alignments"];
 
 },
 
