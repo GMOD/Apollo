@@ -7,7 +7,7 @@ define( [ 'dojo/_base/declare' ],
 
 return declare( null, {
 
-constructor: function()  {
+constructor: function( args )  {
    
     var browser=args.browser;
     this["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
@@ -29,7 +29,7 @@ constructor: function()  {
         trackConfig.type = "WebApollo/View/Track/DraggableAlignments";
     };
 
-    if(!trackConfig.disableDraggable || browser.config.disableDraggable) this["JBrowse/View/Track/Alignments2"] = this["JBrowse/View/Track/Alignments"];
+    if(!browser.config.disableDraggable) this["JBrowse/View/Track/Alignments2"] = this["JBrowse/View/Track/Alignments"];
 
 },
 
