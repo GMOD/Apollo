@@ -44,7 +44,9 @@
                 <td>${featureEventInstance.featureEvent.name}</td>
 
                 <td>
-                    ${featureEventInstance.featureEvent.editor.username}
+                    <g:link action="detail" controller="annotator" id="${featureEventInstance.featureEvent.editor.id}">
+                        ${featureEventInstance.featureEvent.editor.username}
+                    </g:link>
                 </td>
                 <td>
                     ${featureEventInstance.feature.cvTerm}
