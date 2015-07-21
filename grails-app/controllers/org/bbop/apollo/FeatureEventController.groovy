@@ -10,36 +10,41 @@ class FeatureEventController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def changes(Integer max){
+    def changes(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        Map<String,FeatureEvent> featureEventList = new HashMap<>()
-        Map<String,Feature> features = new HashMap<>()
+        Map<String, FeatureEvent> featureEventList = new HashMap<>()
+        Map<String, Feature> features = new HashMap<>()
 
         FeatureEvent.list(params).each {
-            featureEventList.put(it.uniqueName,it)
+            featureEventList.put(it.uniqueName, it)
         }
         Feature.findAllByUniqueNameInList(featureEventList.keySet() as List).each {
-            features.put(it.uniqueName,it)
+            features.put(it.uniqueName, it)
         }
         println "featureEventList + ${featureEventList.size()}"
         println "features+ ${features.size()}"
-        assert featureEventList.size()==features.size()
+        assert featureEventList.size() == features.size()
 
         List<FeatureEventView> featureEventViewList = new ArrayList<>()
-        featureEventList.each{
+        featureEventList.each {
             FeatureEventView featureEventView = new FeatureEventView()
             featureEventView.featureEvent = it.value
-            featureEventView.feature = features.get(it.key)
+            Feature feature = features.get(it.key)
+            featureEventView.feature = feature
+            featureEventView.organismId = feature.featureLocation.sequence.organismId
+            String locationString = feature.featureLocation.sequence.name + ":"
+            locationString += feature.featureLocation.fmin + ".." + feature.featureLocation.fmax
+            featureEventView.locString = locationString
             featureEventViewList.add(featureEventView)
         }
         println "featureEventViewList + ${featureEventViewList.size()}"
 
-        render view: "changes", model:[featureEventViewList:featureEventViewList,featureEventInstanceCount: FeatureEvent.count()]
+        render view: "changes", model: [featureEventViewList: featureEventViewList, featureEventInstanceCount: FeatureEvent.count()]
     }
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond FeatureEvent.list(params), model:[featureEventInstanceCount: FeatureEvent.count()]
+        respond FeatureEvent.list(params), model: [featureEventInstanceCount: FeatureEvent.count()]
     }
 
     def show(FeatureEvent featureEventInstance) {
@@ -58,11 +63,11 @@ class FeatureEventController {
         }
 
         if (featureEventInstance.hasErrors()) {
-            respond featureEventInstance.errors, view:'create'
+            respond featureEventInstance.errors, view: 'create'
             return
         }
 
-        featureEventInstance.save flush:true
+        featureEventInstance.save flush: true
 
         request.withFormat {
             form multipartForm {
@@ -85,18 +90,18 @@ class FeatureEventController {
         }
 
         if (featureEventInstance.hasErrors()) {
-            respond featureEventInstance.errors, view:'edit'
+            respond featureEventInstance.errors, view: 'edit'
             return
         }
 
-        featureEventInstance.save flush:true
+        featureEventInstance.save flush: true
 
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.updated.message', args: [message(code: 'FeatureEvent.label', default: 'FeatureEvent'), featureEventInstance.id])
                 redirect featureEventInstance
             }
-            '*'{ respond featureEventInstance, [status: OK] }
+            '*' { respond featureEventInstance, [status: OK] }
         }
     }
 
@@ -108,14 +113,14 @@ class FeatureEventController {
             return
         }
 
-        featureEventInstance.delete flush:true
+        featureEventInstance.delete flush: true
 
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.deleted.message', args: [message(code: 'FeatureEvent.label', default: 'FeatureEvent'), featureEventInstance.id])
-                redirect action:"index", method:"GET"
+                redirect action: "index", method: "GET"
             }
-            '*'{ render status: NO_CONTENT }
+            '*' { render status: NO_CONTENT }
         }
     }
 
@@ -125,7 +130,7 @@ class FeatureEventController {
                 flash.message = message(code: 'default.not.found.message', args: [message(code: 'featureEvent.label', default: 'FeatureEvent'), params.id])
                 redirect action: "index", method: "GET"
             }
-            '*'{ render status: NOT_FOUND }
+            '*' { render status: NOT_FOUND }
         }
     }
 }
