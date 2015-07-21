@@ -42,7 +42,7 @@ To build a Web Apollo release with Javascript minimization, you can use the comm
 
 `apollo release`
 
-This will compile JBrowse and Apollo at the same time into difference "layers" so that the number of HTTP requests are minimized.
+This will compile JBrowse and Apollo javascript code into compact files so that the number of HTTP requests that the client needs to make are reduced.
 
 In all other respects, `apollo release` is exactly the same as `apollo deploy` though.
 
