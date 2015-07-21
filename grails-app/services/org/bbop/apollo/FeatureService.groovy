@@ -306,6 +306,7 @@ class FeatureService {
      * @param feature
      * @return
      */
+    @Timed
     Feature getTopLevelFeature(Feature feature) {
         Collection<Feature> parents = feature?.childFeatureRelationships*.parentFeature
         if (parents) {
@@ -316,6 +317,7 @@ class FeatureService {
     }
 
 
+    @Timed
     @Transactional
     def addFeature(Feature feature) {
         if (feature instanceof Gene) {
@@ -445,6 +447,7 @@ class FeatureService {
 //        }
     }
 
+    @Timed
     @Transactional
     def calculateCDS(Transcript transcript, boolean readThroughStopCodon) {
         CDS cds = transcriptService.getCDS(transcript);
@@ -995,7 +998,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * @param transcript - Transcript to set the longest ORF to
  * @param translationTable - Translation table that defines the codon translation
  * @param allowPartialExtension - Where partial ORFs should be used for possible extension
+ *
  */
+    @Timed
     @Transactional
     public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon) {
         log.debug "setLongestORF(transcript,translationTable,allowPartialExtension,readThroughStopCodon)"

@@ -4,6 +4,8 @@ import org.bbop.apollo.sequence.DownloadFile
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.plugins.metrics.groovy.Timed
+
 import java.util.zip.GZIPOutputStream
 import org.springframework.http.HttpStatus
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -33,7 +35,8 @@ class IOServiceController extends AbstractApolloController {
         def mappedAction = underscoreToCamelCase(operation)
         forward action: "${mappedAction}", params: params
     }
-    
+
+    @Timed
     def write() {
         try {
             log.debug("params to IOService::write(): ${params}")
@@ -140,7 +143,8 @@ class IOServiceController extends AbstractApolloController {
             render error as JSON
         }
     }
-    
+
+    @Timed
     def download() {
         String uuid = params.uuid
         DownloadFile downloadFile = fileMap.remove(uuid)

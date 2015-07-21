@@ -2,7 +2,8 @@ package org.bbop.apollo
 
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
-import org.bbop.apollo.sequence.Strand;
+import org.bbop.apollo.sequence.Strand
+import org.grails.plugins.metrics.groovy.Timed;
 
 import java.io.*;
 import java.util.*
@@ -20,6 +21,7 @@ public class Gff3HandlerService {
     def featurePropertyService
 
 
+    @Timed
     public void writeFeaturesToText(String path, Collection<? extends Feature> features, String source, Boolean exportSequence = false, Collection<Sequence> sequences = null) throws IOException {
         WriteObject writeObject = new WriteObject()
 
@@ -59,6 +61,7 @@ public class Gff3HandlerService {
     }
 
 
+    @Timed
     public void writeFeatures(WriteObject writeObject, Collection<? extends Feature> features, String source) throws IOException {
         Map<Sequence, Collection<Feature>> featuresBySource = new HashMap<Sequence, Collection<Feature>>();
         for (Feature feature : features) {
@@ -80,6 +83,7 @@ public class Gff3HandlerService {
         }
     }
 
+    @Timed
     public void writeFeatures(WriteObject writeObject, Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
         while (iterator.hasNext()) {
             Feature feature = iterator.next();
@@ -200,6 +204,7 @@ public class Gff3HandlerService {
         return gffEntries;
     }
 
+    @Timed
     private void convertToEntry(WriteObject writeObject, Feature feature, String source, Collection<GFF3Entry> gffEntries) {
 
         log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
@@ -232,6 +237,7 @@ public class Gff3HandlerService {
         }
     }
 
+    @Timed
     private void convertToEntry(WriteObject writeObject, CDS cds, String source, Collection<GFF3Entry> gffEntries) {
 
         log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
@@ -276,6 +282,7 @@ public class Gff3HandlerService {
         }
     }
 
+    @Timed
     private Map<String, String> extractAttributes(WriteObject writeObject, Feature feature) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(FeatureStringEnum.EXPORT_ID.value, encodeString(feature.getUniqueName()));
