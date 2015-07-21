@@ -684,11 +684,19 @@ public class MainPanel extends Composite {
         }
     }
 
+
     public static String getCurrentSequenceAsJson(){
         if(currentSequence==null){
             return "{}";
         }
         return currentSequence.toJSON().toString();
+    }
+
+    public static String getCurrentUserAsJson(){
+        if(currentUser==null){
+            return "{}";
+        }
+        return currentUser.getJSONWithoutPassword().toString();
     }
 
     public static String getCurrentOrganismAsJson(){
@@ -710,6 +718,7 @@ public class MainPanel extends Composite {
         $wnd.handleFeatureDeleted = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureDeleted(Ljava/lang/String;));
         $wnd.handleFeatureUpdated = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureUpdated(Ljava/lang/String;));
         $wnd.getCurrentOrganism = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentOrganismAsJson());
+        $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
         $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
         $wnd.getEmbeddedVersion = $entry(
             function apolloEmbeddedVersion() {

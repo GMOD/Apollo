@@ -15,35 +15,34 @@ import java.util.Map;
  * Created by ndunn on 12/18/14.
  */
 public class UserInfo implements HasJSON {
-    private Long userId ;
+    private Long userId;
     private String firstName;
     private String lastName;
     private String email;
     private String role;
-    private Integer numberUserGroups ;
+    private Integer numberUserGroups;
     private String password;
     private List<String> groupList = new ArrayList<>();
     private List<String> availableGroupList = new ArrayList<>();
-    private Map<String,UserOrganismPermissionInfo> organismPermissionMap = new HashMap<>();
+    private Map<String, UserOrganismPermissionInfo> organismPermissionMap = new HashMap<>();
 
-    public UserInfo(){}
-    
+    public UserInfo() {
+    }
 
-    public UserInfo(String firstName){
-        this.firstName = firstName ;
-        this.email = (firstName.replace(" ","_")+"@place.gov").toLowerCase();
-        this.numberUserGroups = (int) Math.round(Math.random()*100);
+
+    public UserInfo(String firstName) {
+        this.firstName = firstName;
+        this.email = (firstName.replace(" ", "_") + "@place.gov").toLowerCase();
+        this.numberUserGroups = (int) Math.round(Math.random() * 100);
     }
 
     public UserInfo(JSONObject userObject) {
         setEmail(userObject.get("email").isString().stringValue());
         setFirstName(userObject.get("firstName").isString().stringValue());
         setLastName(userObject.get("lastName").isString().stringValue());
-        if(userObject.get("userId")!=null) {
+        if (userObject.get("userId") != null) {
             setUserId((long) userObject.get("userId").isNumber().doubleValue());
-        }
-        else
-        if(userObject.get("id")!=null) {
+        } else if (userObject.get("id") != null) {
             setUserId((long) userObject.get("id").isNumber().doubleValue());
         }
     }
@@ -87,9 +86,9 @@ public class UserInfo implements HasJSON {
     public void setNumberUserGroups(Integer numberUserGroups) {
         this.numberUserGroups = numberUserGroups;
     }
-    
-    public String getName(){
-        return firstName +" " + lastName ;
+
+    public String getName() {
+        return firstName + " " + lastName;
     }
 
     public void setPassword(String password) {
@@ -132,58 +131,64 @@ public class UserInfo implements HasJSON {
         this.organismPermissionMap = organismPermissionMap;
     }
 
-    public JSONObject toJSON(){
+    public JSONObject getJSONWithoutPassword() {
+        JSONObject returnObject = toJSON();
+        returnObject.put("password", new JSONString(""));
+        return returnObject;
+    }
+
+    public JSONObject toJSON() {
         JSONObject jsonObject = new JSONObject();
-        if(userId!=null){
-            jsonObject.put("userId",new JSONNumber(userId));
+        if (userId != null) {
+            jsonObject.put("userId", new JSONNumber(userId));
         }
-        jsonObject.put("firstName",new JSONString(firstName));
-        jsonObject.put("lastName",new JSONString(lastName));
-        jsonObject.put("email",new JSONString(email));
-        jsonObject.put("role",new JSONString(role));
+        jsonObject.put("firstName", new JSONString(firstName));
+        jsonObject.put("lastName", new JSONString(lastName));
+        jsonObject.put("email", new JSONString(email));
+        jsonObject.put("role", new JSONString(role));
 
         JSONArray groupArray = new JSONArray();
-        for(int i =0  ; i < groupList.size() ; i++){
-            groupArray.set(i,new JSONString(groupList.get(i)));
+        for (int i = 0; i < groupList.size(); i++) {
+            groupArray.set(i, new JSONString(groupList.get(i)));
         }
-        jsonObject.put("groups",groupArray);
+        jsonObject.put("groups", groupArray);
 
         JSONArray availableGroupArray = new JSONArray();
-        for(int i =0  ; i < availableGroupList.size() ; i++){
-            availableGroupArray.set(i,new JSONString(availableGroupList.get(i)));
+        for (int i = 0; i < availableGroupList.size(); i++) {
+            availableGroupArray.set(i, new JSONString(availableGroupList.get(i)));
         }
-        jsonObject.put("availableGroups",availableGroupArray);
+        jsonObject.put("availableGroups", availableGroupArray);
 
-        if(password!=null){
-            jsonObject.put("password",new JSONString(password));
+        if (password != null) {
+            jsonObject.put("password", new JSONString(password));
         }
 
         JSONArray organismPermissions = new JSONArray();
-        int index = 0 ;
-        for(String organism : organismPermissionMap.keySet()){
+        int index = 0;
+        for (String organism : organismPermissionMap.keySet()) {
             JSONObject orgPermission = new JSONObject();
-            orgPermission.put(organism,organismPermissionMap.get(organism).toJSON());
-            organismPermissions.set(index,orgPermission);
-            ++index ;
+            orgPermission.put(organism, organismPermissionMap.get(organism).toJSON());
+            organismPermissions.set(index, orgPermission);
+            ++index;
         }
-        jsonObject.put("organismPermissions",organismPermissions);
+        jsonObject.put("organismPermissions", organismPermissions);
 
 
         return jsonObject;
     }
 
-    PermissionEnum findHighestPermission(){
-        if(organismPermissionMap==null ) return null ;
-        PermissionEnum highestPermission = PermissionEnum.NONE ;
+    PermissionEnum findHighestPermission() {
+        if (organismPermissionMap == null) return null;
+        PermissionEnum highestPermission = PermissionEnum.NONE;
 
-        for(UserOrganismPermissionInfo userOrganismPermissionInfo : organismPermissionMap.values()){
+        for (UserOrganismPermissionInfo userOrganismPermissionInfo : organismPermissionMap.values()) {
             PermissionEnum thisHighestPermission = userOrganismPermissionInfo.getHighestPermission();
-            if(thisHighestPermission.getRank()>highestPermission.getRank()){
-                highestPermission = thisHighestPermission ;
+            if (thisHighestPermission.getRank() > highestPermission.getRank()) {
+                highestPermission = thisHighestPermission;
             }
         }
 
-        return highestPermission ;
+        return highestPermission;
     }
 
 }
