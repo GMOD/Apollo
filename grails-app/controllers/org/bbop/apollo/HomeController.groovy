@@ -47,6 +47,7 @@ class HomeController {
         List<PerformanceMetric> performanceMetricList = new ArrayList<>()
         Long countTotal = 0
         Double meanTotal = 0
+        Double totalTotal = 0
 
         for (String timerName : timerObjects.keySet()) {
 //            JSONObject jsonObject = timerObjects.getJSONObject(i).getJSONObject("timers")
@@ -64,12 +65,15 @@ class HomeController {
 
             countTotal += metric.count
             meanTotal += metric.mean
+            totalTotal += metric.total
 
             performanceMetricList.add(metric)
         }
 
-        performanceMetricList.each {
-            it.totalPercent =  it.total /  meanTotal * countTotal
+        println "total ${totalTotal}"
+        performanceMetricList.eachWithIndex { it,index ->
+            it.totalPercent =  it.total /  totalTotal
+            println "${index} = ${it.total} / ${totalTotal} -> ${it.totalPercent}"
         }
 
 //        http://localhost:8080/apollo/metrics/metrics?pretty=true
@@ -81,7 +85,7 @@ class HomeController {
         }
 
 
-        render view: "metrics", model: [performanceMetricList: performanceMetricList, countTotal: countTotal, meanTotal: countTotal ? meanTotal / countTotal : 0]
+        render view: "metrics", model: [performanceMetricList: performanceMetricList, countTotal: countTotal, meanTotal: performanceMetricList ? meanTotal / countTotal : 0 , totalTime: totalTotal]
     }
 
     def downloadReport() {
