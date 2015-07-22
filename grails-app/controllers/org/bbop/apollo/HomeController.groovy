@@ -52,7 +52,6 @@ class HomeController {
         for (String timerName : timerObjects.keySet()) {
 //            JSONObject jsonObject = timerObjects.getJSONObject(i).getJSONObject("timers")
             PerformanceMetric metric = new PerformanceMetric()
-//            println "timerName: [${timerName}]"
             metric.className = getClassName(timerName)
             metric.methodName = getMethodName(timerName)
             JSONObject timerData = timerObjects.getJSONObject(timerName)
@@ -70,10 +69,8 @@ class HomeController {
             performanceMetricList.add(metric)
         }
 
-        println "total ${totalTotal}"
         performanceMetricList.eachWithIndex { it,index ->
             it.totalPercent =  it.total /  totalTotal
-            println "${index} = ${it.total} / ${totalTotal} -> ${it.totalPercent}"
         }
 
 //        http://localhost:8080/apollo/metrics/metrics?pretty=true
@@ -91,7 +88,6 @@ class HomeController {
     def downloadReport() {
 
         String returnString = "class,method,total,count,mean,max,min,stddev\n"
-////        println "response text ${response.text}"
         def link = createLink(absolute: true, action: "metrics", controller: "metrics")
         RestBuilder rest = new RestBuilder()
         RestResponse restResponse = rest.get(link)
