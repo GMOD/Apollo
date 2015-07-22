@@ -86,7 +86,7 @@ class HomeController {
 
     def downloadReport() {
 
-        String returnString = "class,method,count,mean,max,min,stddev\n"
+        String returnString = "class,method,total,count,mean,max,min,stddev\n"
 ////        println "response text ${response.text}"
         def link = createLink(absolute: true, action: "metrics", controller: "metrics")
         RestBuilder rest = new RestBuilder()
@@ -95,6 +95,7 @@ class HomeController {
         for (String timerName : timerObjects.keySet()) {
             returnString += getClassName(timerName) +","+getMethodName(timerName)+","
             JSONObject timerData = timerObjects.getJSONObject(timerName)
+            returnString += timerData.getInt("count") * timerData.getDouble("mean")
             returnString += timerData.getInt("count")
             returnString += timerData.getDouble("min")
             returnString += timerData.getDouble("max")
