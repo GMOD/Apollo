@@ -473,6 +473,9 @@ public class MainPanel extends Composite {
             case 5:
                 userGroupPanel.reload();
                 break;
+            case 6:
+                preferencePanel.reload();
+                break;
             default:
                 break;
         }

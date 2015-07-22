@@ -37,11 +37,17 @@
                     <g:formatDate format="E dd-MMM-yy" date="${featureEventInstance.featureEvent.dateCreated}"/>
                 </td>
                 <td>
-                    <g:if test="${featureEventInstance.featureEvent.current }">
+                    <g:if test="${featureEventInstance.featureEvent.current}">
                         <span class="glyphicon glyphicon-check" style="color:green;"></span>
                     </g:if>
                 </td>
-                <td>${featureEventInstance.featureEvent.name}</td>
+                <td>
+                    %{--http://localhost:8080/apollo/annotator/loadLink?loc=Group1.1:529629..592207&organism=5662--}%
+                    <g:link target="_blank" controller="annotator" action="loadLink" params="['loc': featureEventInstance.locString, organism: featureEventInstance.organismId]">
+                        ${featureEventInstance.featureEvent.name}
+                    </g:link>
+                </td>
+
 
                 <td>
                     <g:link action="detail" controller="annotator" id="${featureEventInstance.featureEvent.editor.id}">

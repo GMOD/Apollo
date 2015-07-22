@@ -14,11 +14,13 @@
 
 <g:render template="../layouts/reportHeader"/>
 
-<div class="header">Total Hits: <span class="label label-info">${countTotal}</span></div>
+<div class="page-header"  style="margin-left: 20px;">
+    <div class="header"><h4>Total Hits <span class="label label-info">${countTotal}</span></h4></div>
 
-<div class="header">Overall Mean: <span class="label label-info">
-    <g:formatNumber number="${meanTotal}" maxFractionDigits="6"/>
-</span></div>
+    <div class="header"><h4>Overall Mean <span class="label label-info"> <g:formatNumber number="${meanTotal}" maxFractionDigits="6"/>
+    </span></h4></div>
+    <g:link action="downloadReport"><i class="glyphicon glyphicon-download-alt glyphicon-th-large"></i> </g:link>
+</div>
 
 
 <g:if test="${flash.message}">

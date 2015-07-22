@@ -42,7 +42,6 @@ class HomeController {
         def link = createLink(absolute: true, action: "metrics", controller: "metrics")
         RestBuilder rest = new RestBuilder()
         RestResponse response = rest.get(link)
-//        println "response text ${response.text}"
         JSONObject timerObjects = (response.json as JSONObject).getJSONObject("timers")
 
         List<PerformanceMetric> performanceMetricList = new ArrayList<>()
@@ -76,5 +75,34 @@ class HomeController {
 
 
         render view: "metrics", model: [performanceMetricList: performanceMetricList, countTotal: countTotal, meanTotal: countTotal ? meanTotal / countTotal : 0]
+    }
+
+    def downloadReport() {
+
+        String returnString = "class,method,count,mean,max,min,stddev\n"
+////        println "response text ${response.text}"
+        def link = createLink(absolute: true, action: "metrics", controller: "metrics")
+        RestBuilder rest = new RestBuilder()
+        RestResponse restResponse = rest.get(link)
+        JSONObject timerObjects = (restResponse.json as JSONObject).getJSONObject("timers")
+        for (String timerName : timerObjects.keySet()) {
+            returnString += getClassName(timerName) +","+getMethodName(timerName)+","
+            JSONObject timerData = timerObjects.getJSONObject(timerName)
+            returnString += timerData.getInt("count")
+            returnString += timerData.getDouble("min")
+            returnString += timerData.getDouble("max")
+            returnString += timerData.getDouble("mean")
+            returnString += timerData.getDouble("stddev")
+            returnString += "\n"
+        }
+
+
+
+        String fileName = "apollo-performance-metrics-${new Date().format('dd-MMM-yyyy')}"
+        response.setHeader "Content-disposition", "attachment; filename=${fileName}.csv"
+        response.setHeader("x-filename", "${fileName}.csv")
+        response.contentType = 'text/csv'
+        response.outputStream << returnString
+        response.outputStream.flush()
     }
 }
