@@ -230,7 +230,7 @@ define([
                             return;
                         }
 
-                        for (var i=0; i < responseFeatures.length; i++) {
+                        for (var i = 0; i < responseFeatures.length; i++) {
                             var jfeat = JSONUtils.createJBrowseFeature(responseFeatures[i]);
                             track.store.insert(jfeat);
                             track.processParent(responseFeatures[i], "ADD");
@@ -285,6 +285,7 @@ define([
                             window.parent.handleNavigationEvent(JSON.stringify(currRegion));
                         }));
 
+
                         var sendTracks = function (trackList, visibleTrackNames) {
                             var filteredTrackList = [];
                             for (var trackConfigIndex in trackList) {
@@ -329,7 +330,9 @@ define([
                             // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
                             var organism = JSON.parse(window.parent.getCurrentOrganism());
                             var sequence = JSON.parse(window.parent.getCurrentSequence());
+                            var user = JSON.parse(window.parent.getCurrentUser());
                             client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
+                            client.subscribe("/topic/AnnotationNotification/user/" + user.userId, dojo.hitch(track, 'annotationNotification'));
                         });
                         console.log('connection established');
                     }
@@ -337,6 +340,7 @@ define([
                 }
                 else {
                     console.log('No embedded server is present.');
+
                     client.connect({}, function () {
 
                         var request = {
@@ -348,15 +352,15 @@ define([
                             data: JSON.stringify(request),
                             handleAs: "json"
                         }).then(function (response) {
-                            if (response.error) {
-                                alert("Failed to subscribe to websocket, no seq/org id available");
-                                return;
-                            }
-                            client.subscribe("/topic/AnnotationNotification/" + track.webapollo.organism + "/" + response[0].id, dojo.hitch(track, 'annotationNotification'));
-                        },
-                        function () {
-                            console.log("Received error in organism lookup, anonymous mode jbrowse");
-                        });
+                                if (response.error) {
+                                    alert("Failed to subscribe to websocket, no seq/org id available");
+                                    return;
+                                }
+                                client.subscribe("/topic/AnnotationNotification/" + track.webapollo.organism + "/" + response[0].id, dojo.hitch(track, 'annotationNotification'));
+                            },
+                            function () {
+                                console.log("Received error in organism lookup, anonymous mode jbrowse");
+                            });
                     });
                 }
             },
@@ -370,6 +374,18 @@ define([
                     if (track.verbose_server_notification) {
                         console.log(changeData.operation + " command from server: ");
                         console.log(JSON.stringify(changeData));
+                    }
+
+                    if (changeData.operation == "logout" && changeData.username == track.username) {
+                        alert("You have been logged out or your session has expired");
+                        if(window.parent){
+                            parent.location.reload();
+                        }
+                        else{
+                            location.reload();
+                        }
+
+                        return;
                     }
 
                     if (changeData.operation == "ERROR" && changeData.username == track.username) {
@@ -3999,9 +4015,9 @@ define([
                     handleAs: "json",
                     load: function (response, ioArgs) {
                         dojo.create("a", {
-                            innerHTML: response.filename, 
-                            href: context_path + "/IOService/download?uuid=" + response.uuid + "&exportType=" + response.exportType + "&seqType=" + response.sequenceType + "&format="+response.format
-                        },content);
+                            innerHTML: response.filename,
+                            href: context_path + "/IOService/download?uuid=" + response.uuid + "&exportType=" + response.exportType + "&seqType=" + response.sequenceType + "&format=" + response.format
+                        }, content);
                         dojo.style(waitingDiv, {display: "none"});
                     },
                     // The ERROR function will be called in an error case.
