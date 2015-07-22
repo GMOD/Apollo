@@ -805,7 +805,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         def p = task {
             switch (operationName) {
                 case "logout":
-                    println "Trying to log shit out!"
                     SecurityUtils.subject.logout()
                     break
                 case "setToDownstreamDonor": requestHandlingService.setDonor(rootElement, false)
