@@ -264,11 +264,16 @@ class AnnotatorController {
             // TODO: do checks here
             render returnObject
         }
+        catch(PermissionException e) {
+            def error=[error: e.message]
+            log.warn "Permission exception: "+e.message
+            render error as JSON
+        }
         catch (Exception e) {
             def error = [error: e.message]
             log.error e.message
             e.printStackTrace()
-            render e as JSON
+            render error as JSON
         }
 
     }
