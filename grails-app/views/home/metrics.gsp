@@ -31,6 +31,8 @@
     <tr>
         <th>Class</th>
         <th>Method</th>
+        <th>total %</th>
+        <th>total (s)</th>
         <th>count</th>
         <th>mean</th>
         <th>max</th>
@@ -44,6 +46,8 @@
         <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
             <td>${metric.className}</td>
             <td>${metric.methodName}</td>
+            <td><g:formatNumber number="${metric.totalPercent / 100.0}"/>%</td>
+            <td><g:formatNumber number="${metric.total}"/></td>
             <td>${metric.count}</td>
             <td><g:formatNumber number="${metric.mean}" minFractionDigits="2" maxFractionDigits="2"/></td>
             <td><g:formatNumber number="${metric.max}" minFractionDigits="2" maxFractionDigits="2"/></td>

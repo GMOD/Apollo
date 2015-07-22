@@ -60,6 +60,7 @@ class HomeController {
             metric.max = timerData.getDouble("max")
             metric.mean = timerData.getDouble("mean")
             metric.stddev = timerData.getDouble("stddev")
+            metric.total = metric.count * metric.mean
 
             countTotal += metric.count
             meanTotal += metric.mean
@@ -67,10 +68,16 @@ class HomeController {
             performanceMetricList.add(metric)
         }
 
+        performanceMetricList.each {
+            it.totalPercent =  it.total /  meanTotal * countTotal
+        }
+
 //        http://localhost:8080/apollo/metrics/metrics?pretty=true
         performanceMetricList.sort(true) { a, b ->
             b.mean <=> a.mean
             b.count <=> a.count
+            b.total <=> a.total
+            b.totalPercent <=> a.totalPercent
         }
 
 

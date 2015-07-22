@@ -8,4 +8,6 @@ class PerformanceMetric{
     String methodName
     Integer count
     Float min, max, mean, stddev
+    Float total
+    Float totalPercent
 }
