@@ -287,5 +287,32 @@ Note: WebApollo 2.0 does not require using the `add-webapollo-plugin.pl` because
 
 It is not necessary to change your existing JBrowse data directories to use Web Apollo 2.0, you can just point to existing data directories from your previous instances.
 
+#### Adding custom CSS for track styling for JBrowse
+
+There are a variety of different ways to include new CSS into the browser, but the easiest might be the following
+
+
+Add the following statement to your trackList.json:
+
+```
+   "css" : "data/yourfile.css"
+```
+
+
+Then just place your CSS file in your organism's data directory.
+
+##### Adding custom CSS globally for JBrowse
+
+If you want to add CSS that is used globally for JBrowse, you can edit the CSS in the client/apollo/css folder, but since you need to re-deploy the app every time for updates, it is easier to just edit the data directories for your organisms (you do not need to re-deploy the app when you are editing organism specific data, since this is outside of the webapp directory and is not deployed with the WAR file)
+
+
+#### Adding custom CSS globally for the GWT app
+
+
+If you want to style the GWT sidebar, generally the bootstrap theme is used but extra CSS is also included from web-app/annotator/theme.css which overrides the bootstrap theme
+
+
+
+
 
 
