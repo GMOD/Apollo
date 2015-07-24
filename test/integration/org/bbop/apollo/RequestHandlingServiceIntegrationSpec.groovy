@@ -440,8 +440,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
         given: "a input JSON string"
         String jsonString = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":219994,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40772-RA\",\"children\":[{\"location\":{\"fmin\":222109,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":219994,\"fmax\":220044,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":222081,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":219994,\"fmax\":222109,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
-        String commandString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_NAME@\" } ], \"operation\": \"delete_feature\" }:\n" +
-                "Response Headersview source"
+        String commandString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_NAME@\" } ], \"operation\": \"delete_feature\" }"
 
         when: "we parse the string"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
@@ -484,6 +483,82 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert Feature.count == 0
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert returnFeaturesArray.size() == 0
+    }
+
+    void "we should be able to delete an isoform"(){
+
+        given: "a input JSON string"
+        String jsonString = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":219994,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40772-RA\",\"children\":[{\"location\":{\"fmin\":222109,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":219994,\"fmax\":220044,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":222081,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":219994,\"fmax\":222109,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String commandString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_NAME@\" } ], \"operation\": \"delete_feature\" }"
+
+        when: "we parse the string"
+        JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+
+        then: "we get a valid json object and no features"
+        assert Feature.count == 0
+
+        when: "we add the first transcript"
+        JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
+
+        then: "we should get a transcript back"
+        assert returnObject.getString('operation') == "ADD"
+        assert returnObject.getBoolean('sequenceAlterationEvent') == false
+        JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert 1 == featuresArray.size()
+        JSONObject mrna = featuresArray.getJSONObject(0)
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert "GB40772-RA-00001" == mrna.getString(FeatureStringEnum.NAME.value)
+        String transcriptUniqueName = mrna.getString(FeatureStringEnum.UNIQUENAME.value)
+        JSONArray children = mrna.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        assert 3 == children.size()
+        for (int i = 0; i < 3; i++) {
+            JSONObject codingObject = children.get(i)
+            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
+            assert locationObject != null
+        }
+
+        when: "we add the second transcript"
+        returnObject = requestHandlingService.addTranscript(jsonObject)
+
+        then: "we should get a second isoform back"
+        assert returnObject.getString('operation') == "ADD"
+        assert returnObject.getBoolean('sequenceAlterationEvent') == false
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert Exon.count == 4
+        assert CDS.count == 2
+        assert 1 == MRNA.countByName("GB40772-RA-00002")
+        assert 1 == MRNA.countByName("GB40772-RA-00001")
+
+
+        when: "we delete the transcript"
+        commandString = commandString.replaceAll("@TRANSCRIPT_NAME@", transcriptUniqueName)
+        JSONObject commandObject = JSON.parse(commandString) as JSONObject
+        JSONObject returnedAfterExonObject = requestHandlingService.deleteFeature(commandObject)
+
+        then: "we should see that it is removed with one left"
+//        def allFeatures = Feature.all
+        assert 1 == featuresArray.size()
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert "GB40772-RA-00002" == MRNA.first().name
+        assert returnedAfterExonObject != null
+
+        when: "we delete the second transcript"
+        String transcriptUniqueName2 = MRNA.first().uniqueName
+        commandString = commandString.replaceAll(transcriptUniqueName, transcriptUniqueName2)
+        commandObject = JSON.parse(commandString) as JSONObject
+        returnedAfterExonObject = requestHandlingService.deleteFeature(commandObject)
+
+
+        then: "we should see that all are removed"
+        assert returnedAfterExonObject != null
+        assert Feature.count == 0
     }
 
 

@@ -1681,7 +1681,9 @@ class RequestHandlingService {
                             fireAnnotationEvent(annotationEvent)
                         }
                     } else {
+                        featureRelationshipService.removeFeatureRelationship(gene,transcript)
                         featureRelationshipService.deleteFeatureAndChildren(transcript)
+//                        gene.save(flush: true)
                         gene.save()
 
                         if (!suppressEvents) {
