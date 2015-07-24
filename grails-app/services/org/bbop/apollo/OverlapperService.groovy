@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import org.bbop.apollo.sequence.Overlapper
+import org.bbop.apollo.sequence.Strand
 
 @Transactional(readOnly = true)
 class OverlapperService implements Overlapper{
@@ -63,10 +64,12 @@ class OverlapperService implements Overlapper{
             Exon exon2 = (Exon)exons2.get(j);
             if (overlaps(exon1,exon2)) {
                 if (checkStrand) {
-                    if (exon1.getStrand().equals(1) && exon1.getFmin() % 3 == exon2.getFmin() % 3) {
+                    FeatureLocation exon1FeatureLocation= exon1.featureLocation
+                    FeatureLocation exon2FeatureLocation= exon2.featureLocation
+                    if (exon1FeatureLocation.strand.equals(Strand.POSITIVE.value) && exon1FeatureLocation.getFmin() % 3 == exon2FeatureLocation.getFmin() % 3) {
                         return true;
                     }
-                    else if (exon1.getStrand().equals(-1) && exon1.getFmax() % 3 == exon2.getFmax() % 3) {
+                    else if (exon1.strand.equals(Strand.NEGATIVE.value) && exon1FeatureLocation.getFmax() % 3 == exon2FeatureLocation.getFmax() % 3) {
                         return true;
                     }
                 }

@@ -162,18 +162,12 @@ log4j.main = {
     //debug 'grails.app'
     //debug 'grails.app.controllers.org.bbop.apollo'
     //debug 'grails.app.controllers.org.bbop.apollo.JbrowseController'
+//    debug 'grails.app.services.org.bbop.apollo.FeatureService'
     //info  'grails.app.services'
-    //debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal'
     //debug 'grails.app.jobs'
     //debug 'grails.app.taglib'
-    //debug 'grails.app.taglib.edu.uoregon.nic.nemo.portal'
     //debug 'grails.app.controllers'
     //debug 'grails.app.services'
-    //debug 'grails.app.services.edu.uoregon.nic.nemo.portal.OntologyService'
-    //debug 'grails.app.services.edu.uoregon.nic.nemo.portal.DataStubService'
-    //debug 'grails.app.services.edu.uoregon.nic.nemo.portal.UserService'
-    //debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal'
-    //debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal.TermController'
 }
 
 //grails.gorm.default.constraints = {

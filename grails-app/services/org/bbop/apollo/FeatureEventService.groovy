@@ -626,7 +626,7 @@ class FeatureEventService {
     List<FeatureEvent> findCurrentFeatureEvent(String uniqueName) {
         List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true)
         if (featureEventList.size() != 1) {
-            log.warn("No current feature events for ${uniqueName}: " + featureEventList.size())
+            log.debug("No current feature events for ${uniqueName}: " + featureEventList.size())
             return null
         }
 

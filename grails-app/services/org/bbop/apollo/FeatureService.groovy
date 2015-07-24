@@ -168,9 +168,12 @@ class FeatureService {
         } else {
             log.debug "no gene given"
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
-            Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation);
+            Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll(){
+                it instanceof Gene
+            }
             log.debug "overlapping features: ${overlappingFeatures.size()}"
             for (Feature feature : overlappingFeatures) {
+                log.debug "evaluating overlap of feature ${feature.name}"
                 if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
                     Gene tmpGene = (Gene) feature;
                     log.debug "found an overlapping gene ${tmpGene}"
