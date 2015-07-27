@@ -62,7 +62,8 @@ class RequestHandlingService {
             MiRNA.class.name,
     ]
 
-    public static List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
+    public
+    static List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
 
     private String underscoreToCamelCase(String underscore) {
         if (!underscore || underscore.isAllWhitespace()) {
@@ -529,7 +530,15 @@ class RequestHandlingService {
 
 
         long start = System.currentTimeMillis();
-        List<Transcript> topLevelTranscripts = Feature.executeQuery("select distinct f from Transcript f join f.featureLocations fl where fl.sequence = :sequence and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationTranscriptList])
+        List topLevelTranscripts = Transcript.executeQuery("select distinct f , pr.childFeature from Transcript f join f.featureLocations fl join f.parentFeatureRelationships pr  where fl.sequence = :sequence and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationTranscriptList])
+        Map<Transcript, List<Feature>> transcriptMap = new HashMap<>()
+        Map<Transcript, Gene> geneMap = new HashMap<>()
+        topLevelTranscripts.each {
+            List<Feature> featureList
+            featureList = transcriptMap.containsKey(it[0]) ? transcriptMap.get(it[0]) : new ArrayList<>()
+            featureList.add(it[1])
+            transcriptMap.put(it[0], featureList)
+        }
 
         long durationInMilliseconds = System.currentTimeMillis() - start;
 
@@ -540,8 +549,9 @@ class RequestHandlingService {
 
         start = System.currentTimeMillis();
         println "transcripts found ${topLevelTranscripts.size()}"
-        for (Transcript transcript in topLevelTranscripts) {
-            jsonFeatures.put(transcriptService.convertTranscriptToJSON(transcript))
+//        for (Transcript transcript in topLevelTranscripts) {
+        for (Transcript transcript in transcriptMap.keySet()) {
+            jsonFeatures.put(transcriptService.convertTranscriptToJSON(transcript,transcriptMap.get(transcript)))
 //            jsonFeatures.put(featureService.convertFeatureToJSON(transcript))
         }
 

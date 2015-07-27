@@ -481,7 +481,7 @@ class TranscriptService {
      * @return
      */
     @Timed
-    JSONObject convertTranscriptToJSON(Transcript gsolFeature) {
+    JSONObject convertTranscriptToJSON(Feature gsolFeature,List<Feature> childFeatures = new ArrayList<>()) {
         JSONObject jsonFeature = new JSONObject();
         try {
             if (gsolFeature.id) {
@@ -520,7 +520,7 @@ class TranscriptService {
                 jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
             }
 
-            List<Feature> childFeatures = featureRelationshipService.getChildrenForFeatureAndTypes(gsolFeature)
+//            List<Feature> childFeatures = featureRelationshipService.getChildrenForFeatureAndTypes(gsolFeature)
 
 
             if (childFeatures) {
@@ -528,7 +528,7 @@ class TranscriptService {
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
                 for (Feature f : childFeatures) {
                     Feature childFeature = f
-                    children.put(featureService.convertFeatureToJSON(childFeature));
+                    children.put(convertTranscriptToJSON(childFeature));
                 }
             }
 
