@@ -1,9 +1,13 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.codehaus.groovy.grails.web.json.JSONException
+import org.codehaus.groovy.grails.web.json.JSONObject
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.grails.plugins.metrics.groovy.Timed
 
-//import grails.compiler.GrailsCompileStatic
 
 //@GrailsCompileStatic
 @Transactional(readOnly = true)
@@ -469,5 +473,149 @@ class TranscriptService {
 
     Transcript getTranscript(CDS cds) {
         return (Transcript) featureRelationshipService.getParentForFeature(cds, ontologyIds as String[])
+    }
+
+    /**
+     * @param gsolFeature
+     * @param includeSequence
+     * @return
+     */
+    @Timed
+    JSONObject convertTranscriptToJSON(Transcript gsolFeature) {
+        JSONObject jsonFeature = new JSONObject();
+        try {
+            if (gsolFeature.id) {
+                jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
+            }
+            jsonFeature.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(gsolFeature.ontologyId));
+            jsonFeature.put(FeatureStringEnum.UNIQUENAME.value, gsolFeature.getUniqueName());
+            if (gsolFeature.getName() != null) {
+                jsonFeature.put(FeatureStringEnum.NAME.value, gsolFeature.getName());
+            }
+            if (gsolFeature.symbol) {
+                jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol);
+            }
+            if (gsolFeature.description) {
+                jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
+            }
+            long start = System.currentTimeMillis();
+            String finalOwnerString = ""
+            if (gsolFeature.owners) {
+                String ownerString = ""
+                for (owner in gsolFeature.owners) {
+                    ownerString += gsolFeature.owner.username + " "
+                }
+                finalOwnerString = ownerString?.trim()
+            } else if (gsolFeature.owner) {
+                finalOwnerString = gsolFeature?.owner?.username
+            } else {
+                finalOwnerString = "None"
+            }
+            jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
+
+
+            start = System.currentTimeMillis();
+            if (gsolFeature.featureLocation) {
+                Sequence sequence = gsolFeature.featureLocation.sequence
+                jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
+            }
+
+            List<Feature> childFeatures = featureRelationshipService.getChildrenForFeatureAndTypes(gsolFeature)
+
+
+            if (childFeatures) {
+                JSONArray children = new JSONArray();
+                jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
+                for (Feature f : childFeatures) {
+                    Feature childFeature = f
+                    children.put(featureService.convertFeatureToJSON(childFeature));
+                }
+            }
+
+
+            start = System.currentTimeMillis()
+            // get parents
+            List<Feature> parentFeatures = featureRelationshipService.getParentsForFeature(gsolFeature)
+
+            //log.debug "parents ${durationInMilliseconds}"
+            if (parentFeatures?.size() == 1) {
+                Feature parent = parentFeatures.iterator().next();
+                jsonFeature.put(FeatureStringEnum.PARENT_ID.value, parent.getUniqueName());
+                jsonFeature.put(FeatureStringEnum.PARENT_TYPE.value, featureService.generateJSONFeatureStringForType(parent.ontologyId));
+            }
+
+
+            start = System.currentTimeMillis()
+
+            Collection<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations();
+            if (featureLocations) {
+                FeatureLocation gsolFeatureLocation = featureLocations.iterator().next();
+                if (gsolFeatureLocation != null) {
+                    jsonFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(gsolFeatureLocation));
+                }
+            }
+
+
+            if (gsolFeature instanceof SequenceAlteration) {
+                SequenceAlteration sequenceAlteration = (SequenceAlteration) gsolFeature
+                if (sequenceAlteration.alterationResidue) {
+                    jsonFeature.put(FeatureStringEnum.RESIDUES.value, sequenceAlteration.alterationResidue);
+                }
+            }
+
+
+            //e.g. properties: [{value: "demo", type: {name: "owner", cv: {name: "feature_property"}}}]
+            Collection<FeatureProperty> gsolFeatureProperties = gsolFeature.getFeatureProperties();
+
+            JSONArray properties = new JSONArray();
+            jsonFeature.put(FeatureStringEnum.PROPERTIES.value, properties);
+            if (gsolFeatureProperties) {
+                for (FeatureProperty property : gsolFeatureProperties) {
+                    JSONObject jsonProperty = new JSONObject();
+                    JSONObject jsonPropertyType = new JSONObject()
+                    if (property instanceof Comment) {
+                        //  TODO: This is a hack
+                        jsonPropertyType.put(FeatureStringEnum.NAME.value, "comment")
+                        JSONObject jsonPropertyTypeCv = new JSONObject()
+                        jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
+                        jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
+                        jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
+                        jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
+                        properties.put(jsonProperty);
+                        continue
+                    }
+                    jsonPropertyType.put(FeatureStringEnum.NAME.value, property.type)
+                    JSONObject jsonPropertyTypeCv = new JSONObject()
+                    jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
+                    jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
+
+                    jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
+                    jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
+                    properties.put(jsonProperty);
+                }
+            }
+            JSONObject ownerProperty = JSON.parse("{value: ${finalOwnerString}, type: {name: 'owner', cv: {name: 'feature_property'}}}") as JSONObject
+            properties.put(ownerProperty)
+
+
+            Collection<DBXref> gsolFeatureDbxrefs = gsolFeature.getFeatureDBXrefs();
+            if (gsolFeatureDbxrefs) {
+                JSONArray dbxrefs = new JSONArray();
+                jsonFeature.put(FeatureStringEnum.DBXREFS.value, dbxrefs);
+                for (DBXref gsolDbxref : gsolFeatureDbxrefs) {
+                    JSONObject dbxref = new JSONObject();
+                    dbxref.put(FeatureStringEnum.ACCESSION.value, gsolDbxref.getAccession());
+                    dbxref.put(FeatureStringEnum.DB.value, new JSONObject().put(FeatureStringEnum.NAME.value, gsolDbxref.getDb().getName()));
+                    dbxrefs.put(dbxref);
+                }
+            }
+            jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time);
+            jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time);
+        }
+        catch (JSONException e) {
+            log.error(e)
+            return null;
+        }
+        return jsonFeature;
     }
 }

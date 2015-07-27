@@ -1796,16 +1796,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             start = System.currentTimeMillis();
 
             // TODO: move this to a configurable place or in another method to process afterwards
-            List<String> errorList = new ArrayList<>()
-            errorList.addAll(new Cds3Filter().filterFeature(gsolFeature))
-            errorList.addAll(new StopCodonFilter().filterFeature(gsolFeature))
-            JSONArray notesArray = new JSONArray()
-            for (String error : errorList) {
-                notesArray.put(error)
-            }
-            jsonFeature.put(FeatureStringEnum.NOTES.value, notesArray)
-
-            durationInMilliseconds = System.currentTimeMillis()-start;
+//            List<String> errorList = new ArrayList<>()
+//            errorList.addAll(new Cds3Filter().filterFeature(gsolFeature))
+//            errorList.addAll(new StopCodonFilter().filterFeature(gsolFeature))
+//            JSONArray notesArray = new JSONArray()
+//            for (String error : errorList) {
+//                notesArray.put(error)
+//            }
+//            jsonFeature.put(FeatureStringEnum.NOTES.value, notesArray)
+//            durationInMilliseconds = System.currentTimeMillis()-start;
             //log.debug "notes ${durationInMilliseconds}"
 
 

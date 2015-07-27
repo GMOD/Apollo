@@ -39,19 +39,30 @@ class RequestHandlingService {
     def preferenceService
     def featurePropertyService
     def featureEventService
-
-
     def brokerMessagingTemplate
+
+
     public static List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
             TransposableElement.class.name
     ]
-    public static List<String> viewableAnnotationTranscriptList = [
+    public static List<String> viewableAnnotationTranscriptParentList = [
             Gene.class.name,
             Pseudogene.class.name
     ]
 
-    public static List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptList
+    public static List<String> viewableAnnotationTranscriptList = [
+            Transcript.class.name,
+            MRNA.class.name,
+            TRNA.class.name,
+            SnRNA.class.name,
+            SnoRNA.class.name,
+            NcRNA.class.name,
+            RRNA.class.name,
+            MiRNA.class.name,
+    ]
+
+    public static List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
 
     private String underscoreToCamelCase(String underscore) {
         if (!underscore || underscore.isAllWhitespace()) {
@@ -528,8 +539,10 @@ class RequestHandlingService {
 
 
         start = System.currentTimeMillis();
+        println "transcripts found ${topLevelTranscripts.size()}"
         for (Transcript transcript in topLevelTranscripts) {
-            jsonFeatures.put(featureService.convertFeatureToJSON(transcript, false))
+            jsonFeatures.put(transcriptService.convertTranscriptToJSON(transcript))
+//            jsonFeatures.put(featureService.convertFeatureToJSON(transcript))
         }
 
 
