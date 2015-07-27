@@ -2,10 +2,10 @@
 
 ## Install grails
 
-Installing grails is made easier by using [GVM](http://gvmtool.net/) which can automatically setup grails for you. We will use grails 2.4.4 for Web Apollo
+Installing grails is made easier by using [GVM](http://gvmtool.net/) which can automatically setup grails for you. We will use grails 2.4.5 for Web Apollo
 
 1. curl -s get.gvmtool.net | bash
-2. gvm install grails 2.4.4
+2. gvm install grails 2.4.5
 
 ## Get the code
 
