@@ -42,12 +42,16 @@ class RequestHandlingService {
 
 
     def brokerMessagingTemplate
-    public static List<String> viewableAnnotationList = [
-            Gene.class.name,
-            Pseudogene.class.name,
+    public static List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
             TransposableElement.class.name
     ]
+    public static List<String> viewableAnnotationTranscriptList = [
+            Gene.class.name,
+            Pseudogene.class.name
+    ]
+
+    public static List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptList
 
     private String underscoreToCamelCase(String underscore) {
         if (!underscore || underscore.isAllWhitespace()) {
@@ -502,7 +506,6 @@ class RequestHandlingService {
     JSONObject getFeatures(JSONObject inputObject) {
 
 
-
         String sequenceName = permissionService.getSequenceNameFromInput(inputObject)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
         if (sequenceName != sequence.name) {
@@ -512,37 +515,33 @@ class RequestHandlingService {
 
         log.debug "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
 
-        Set<Feature> featureSet = new HashSet<>()
 
 
         long start = System.currentTimeMillis();
-        List<Feature> topLevelTranscripts = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationList])
+        List<Transcript> topLevelTranscripts = Feature.executeQuery("select distinct f from Transcript f join f.featureLocations fl where fl.sequence = :sequence and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationTranscriptList])
 
-        long durationInMilliseconds = System.currentTimeMillis()-start;
+        long durationInMilliseconds = System.currentTimeMillis() - start;
 
         log.debug "selecting features all ${durationInMilliseconds}"
 
-        start = System.currentTimeMillis();
-        for (Feature feature in topLevelTranscripts) {
-            if (feature instanceof Gene) {
-                for (Transcript transcript : transcriptService.getTranscripts(feature)) {
-                    featureSet.add(transcript)
-                }
-            } else {
-                featureSet.add(feature)
-            }
-        }
-
-
-
         JSONArray jsonFeatures = new JSONArray()
-        featureSet.each { feature ->
-                JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
-                jsonFeatures.put(jsonObject)
+
+
+        start = System.currentTimeMillis();
+        for (Transcript transcript in topLevelTranscripts) {
+            jsonFeatures.put(featureService.convertFeatureToJSON(transcript, false))
         }
 
 
-        durationInMilliseconds = System.currentTimeMillis()-start;
+
+        List<Feature> topLevelFeatures = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationFeatureList])
+        topLevelFeatures.each { feature ->
+            JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
+            jsonFeatures.put(jsonObject)
+        }
+
+
+        durationInMilliseconds = System.currentTimeMillis() - start;
         log.debug "convert to json ${durationInMilliseconds}"
 
 
@@ -1681,7 +1680,7 @@ class RequestHandlingService {
                             fireAnnotationEvent(annotationEvent)
                         }
                     } else {
-                        featureRelationshipService.removeFeatureRelationship(gene,transcript)
+                        featureRelationshipService.removeFeatureRelationship(gene, transcript)
                         featureRelationshipService.deleteFeatureAndChildren(transcript)
 //                        gene.save(flush: true)
                         gene.save()
