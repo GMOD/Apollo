@@ -529,20 +529,26 @@ class RequestHandlingService {
 
 
 
-        List topLevelTranscripts = Transcript.executeQuery("select distinct f , pr.childFeature from Transcript f join f.featureLocations fl join f.parentFeatureRelationships pr  where fl.sequence = :sequence and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationTranscriptList])
+        List topLevelTranscripts = Transcript.executeQuery("select distinct f , child , childLocation from Transcript f join f.featureLocations fl join f.parentFeatureRelationships pr join pr.childFeature child join child.featureLocations childLocation where fl.sequence = :sequence and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationTranscriptList])
         Map<Transcript, List<Feature>> transcriptMap = new HashMap<>()
-        Map<Transcript, Gene> geneMap = new HashMap<>()
+        Map<Transcript, List<FeatureLocation>> featureLocationMap = new HashMap<>()
         topLevelTranscripts.each {
             List<Feature> featureList
             featureList = transcriptMap.containsKey(it[0]) ? transcriptMap.get(it[0]) : new ArrayList<>()
             featureList.add(it[1])
             transcriptMap.put(it[0], featureList)
+
+
+            List<FeatureLocation> featureLocationList
+            featureLocationList = featureLocationMap.containsKey(it[0]) ? featureLocationMap.get(it[0]) : new ArrayList<>()
+            featureLocationList.add(it[2])
+            featureLocationMap.put(it[0], featureLocationList)
         }
 
         JSONArray jsonFeatures = new JSONArray()
 
         for (Transcript transcript in transcriptMap.keySet()) {
-            jsonFeatures.put(transcriptService.convertTranscriptToJSON(transcript,transcriptMap.get(transcript)))
+            jsonFeatures.put(transcriptService.convertTranscriptToJSON(transcript,transcriptMap.get(transcript),featureLocationMap.get(transcript)))
         }
 
 

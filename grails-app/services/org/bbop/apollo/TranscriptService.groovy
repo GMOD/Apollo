@@ -481,7 +481,7 @@ class TranscriptService {
      * @return
      */
     @Timed
-    JSONObject convertTranscriptToJSON(Transcript gsolFeature, List<Feature> childFeatures = new ArrayList<>()) {
+    JSONObject convertTranscriptToJSON(Transcript gsolFeature, List<Feature> childFeatures = new ArrayList<>(),List<FeatureLocation> childFeatureLocations = new ArrayList<>()) {
         JSONObject jsonFeature = new JSONObject();
         try {
             if (gsolFeature.id) {
@@ -522,7 +522,8 @@ class TranscriptService {
             if (childFeatures) {
                 JSONArray children = new JSONArray();
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
-                for (Feature childFeature : childFeatures) {
+                childFeatures.eachWithIndex{ Feature childFeature , int i ->
+//                for (Feature childFeature : childFeatures) {
 //                    children.put(convertTranscriptToJSON(childFeature));
                     JSONObject childJsonObject = new JSONObject()
                     if (childFeature.id) {
@@ -534,9 +535,9 @@ class TranscriptService {
                         childJsonObject.put(FeatureStringEnum.NAME.value, childFeature.getName());
                     }
 //                    Collection<FeatureLocation> featureLocations = childFeature.getFeatureLocations();
-                    for (FeatureLocation childFeatureLocation : childFeature.featureLocations) {
-                        childJsonObject.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(childFeatureLocation));
-                    }
+//                    for (FeatureLocation childFeatureLocation : childFeature.featureLocations) {
+                        childJsonObject.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(childFeatureLocations.get(i)));
+//                    }
 
                     children.put(childJsonObject)
                 }
