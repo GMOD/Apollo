@@ -481,7 +481,7 @@ class TranscriptService {
      * @return
      */
     @Timed
-    JSONObject convertTranscriptToJSON(Transcript gsolFeature,List<Feature> childFeatures = new ArrayList<>()) {
+    JSONObject convertTranscriptToJSON(Transcript gsolFeature, List<Feature> childFeatures = new ArrayList<>()) {
         JSONObject jsonFeature = new JSONObject();
         try {
             if (gsolFeature.id) {
@@ -498,7 +498,7 @@ class TranscriptService {
             if (gsolFeature.description) {
                 jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
             }
-            String finalOwnerString=""
+            String finalOwnerString = ""
             if (gsolFeature.owners) {
                 String ownerString = ""
                 for (owner in gsolFeature.owners) {
@@ -513,8 +513,8 @@ class TranscriptService {
             jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
 
 
-            if (gsolFeature.featureLocation) {
-                Sequence sequence = gsolFeature.featureLocation.sequence
+            if (gsolFeature.featureLocations) {
+                Sequence sequence = gsolFeature.featureLocations.first().sequence
                 jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
             }
 
@@ -533,14 +533,10 @@ class TranscriptService {
                     if (childFeature.getName() != null) {
                         childJsonObject.put(FeatureStringEnum.NAME.value, childFeature.getName());
                     }
-                    Collection<FeatureLocation> featureLocations = childFeature.getFeatureLocations();
-                    if (featureLocations) {
-                        FeatureLocation childFeatureLocation = featureLocations.iterator().next();
-                        if (childFeatureLocation != null) {
-                            childJsonObject.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(childFeatureLocation));
-                        }
+                    // about 14 ops / sec
+                    for (FeatureLocation childFeatureLocation : childFeature.featureLocations) {
+                        childJsonObject.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(childFeatureLocation));
                     }
-
 
                     children.put(childJsonObject)
                 }
