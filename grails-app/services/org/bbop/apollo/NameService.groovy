@@ -29,7 +29,7 @@ class NameService {
                     }
                     principalName = gene.name
                 }
-                return makeUniqueFeatureName(organism,principalName.trim()+"-",new LeftPaddingStrategy())
+                return makeUniqueFeatureNameForTranscript(organism,principalName.trim()+"-")
             } else
             if (thisFeature instanceof Gene) {
                 log.debug "instance of Gene"
@@ -64,6 +64,23 @@ class NameService {
     boolean isUnique(Organism organism,String name){
         List results = (Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name = :name ",[org:organism,name:name]))
         return 0 == (int) results.get(0)
+    }
+
+    String makeUniqueFeatureNameForTranscript(Organism organism,String principalName){
+        String name
+        int i = 0
+        // 5
+        LeftPaddingStrategy paddingStrategy = new LeftPaddingStrategy()
+        name = principalName
+        List results = (Feature.executeQuery("select f.name from Feature f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name like :name order by f.name desc",[org:organism,name:name+'%']))
+
+        name = principalName + paddingStrategy.pad(results.size())
+        int count = results.size()
+        while(results.contains(name)){
+            name = principalName + paddingStrategy.pad(count)
+            ++count
+        }
+        return name
     }
 
     String makeUniqueFeatureName(Organism organism,String principalName,PaddingStrategy paddingStrategy,boolean useOriginal=false){
