@@ -553,10 +553,6 @@ class RequestHandlingService {
             jsonFeatures.put(jsonObject)
         }
 
-
-        log.debug "convert to json ${durationInMilliseconds}"
-
-
         inputObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
         return inputObject
 

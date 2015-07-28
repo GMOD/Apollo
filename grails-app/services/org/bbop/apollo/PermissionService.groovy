@@ -229,14 +229,11 @@ class PermissionService {
 
     public static String getSequenceNameFromInput(JSONObject inputObject) {
         String trackName = null
-        log.debug "input object for sequence ${inputObject as JSON}"
         if (inputObject.has("sequence")) {
             trackName = inputObject.sequence
-            log.debug "had a sequence track name: ${trackName}"
         }
         if (inputObject.has("track")) {
             trackName = inputObject.track
-            log.debug "had a track track name: ${trackName}"
         }
         return trackName
     }
