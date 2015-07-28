@@ -74,6 +74,7 @@ public class OrganismPanel extends Composite {
     boolean savingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
 
     final LoadingDialog loadingDialog;
+    final ErrorDialog errorDialog ;
     private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
     private List<OrganismInfo> organismInfoList = dataProvider.getList();
     private final SingleSelectionModel<OrganismInfo> singleSelectionModel = new SingleSelectionModel<>();
@@ -81,6 +82,7 @@ public class OrganismPanel extends Composite {
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
         loadingDialog = new LoadingDialog("Processing ...",null, false);
+        errorDialog = new ErrorDialog("Error","Organism directory must be an absolute path pointing to 'trackList.json'",false,true);
 
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
@@ -273,6 +275,11 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("createButton")
     public void handleSaveNewOrganism(ClickEvent clickEvent) {
+
+        if(!sequenceFile.getText().startsWith("/")){
+            errorDialog.show();
+            return ;
+        }
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
@@ -287,6 +294,7 @@ public class OrganismPanel extends Composite {
         OrganismRestService.createOrganism(new UpdateInfoListCallback(), organismInfo);
         loadingDialog.show();
     }
+
 
     @UiHandler("cancelButton")
     public void handleCancelNewOrganism(ClickEvent clickEvent) {
