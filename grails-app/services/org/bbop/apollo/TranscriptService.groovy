@@ -552,12 +552,8 @@ class TranscriptService {
                 jsonFeature.put(FeatureStringEnum.PARENT_TYPE.value, featureService.generateJSONFeatureStringForType(parent.ontologyId));
             }
 
-            Collection<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations();
-            if (featureLocations) {
-                FeatureLocation gsolFeatureLocation = featureLocations.iterator().next();
-                if (gsolFeatureLocation != null) {
+            for(FeatureLocation gsolFeatureLocation : gsolFeature.getFeatureLocations()) {
                     jsonFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(gsolFeatureLocation));
-                }
             }
 
             //e.g. properties: [{value: "demo", type: {name: "owner", cv: {name: "feature_property"}}}]
