@@ -877,17 +877,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
     
     /**
-     // TODO: should be a single query here
+     // TODO: should be a single query here, currently 194 ms
+     * Get all sequenceAlterations associated with a feature.
+     * Basically I want to include all upstream alterations on a sequence for that feature
      * @param feature
      * @return
      */
     List<SequenceAlteration> getAllSequenceAlterationsForFeature(Feature feature) {
-        List<Sequence> sequences = feature.featureLocations*.sequence
-        List<FeatureLocation> featureLocations = FeatureLocation.findAllBySequenceInList(sequences)
-//        return  SequenceAlteration.findAllByFeatureLocationsInList(featureLocations)
-        return SequenceAlteration.all.findAll() {
-            it.featureLocation in featureLocations
-        }
+        List<Sequence> sequence = Sequence.executeQuery("select s from Feature  f join f.featureLocations fl join fl.sequence s where f = :feature ",[feature:feature])
+        SequenceAlteration.executeQuery("select sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence s where s = :sequence order by fl.fmin asc ",[sequence:sequence])
     }
 
     List<SequenceAlteration> getFrameshiftsAsAlterations(Transcript transcript) {
