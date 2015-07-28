@@ -58,7 +58,7 @@ public class TrackPanel extends Composite {
 
     private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(100, tablecss);
+    DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(1000, tablecss);
     @UiField
     SplitLayoutPanel layoutPanel;
     @UiField
