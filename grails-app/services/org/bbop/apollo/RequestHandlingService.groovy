@@ -529,7 +529,6 @@ class RequestHandlingService {
 
 
 
-        long start = System.currentTimeMillis();
         List topLevelTranscripts = Transcript.executeQuery("select distinct f , pr.childFeature from Transcript f join f.featureLocations fl join f.parentFeatureRelationships pr  where fl.sequence = :sequence and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationTranscriptList])
         Map<Transcript, List<Feature>> transcriptMap = new HashMap<>()
         Map<Transcript, Gene> geneMap = new HashMap<>()
@@ -540,19 +539,10 @@ class RequestHandlingService {
             transcriptMap.put(it[0], featureList)
         }
 
-        long durationInMilliseconds = System.currentTimeMillis() - start;
-
-        log.debug "selecting features all ${durationInMilliseconds}"
-
         JSONArray jsonFeatures = new JSONArray()
 
-
-        start = System.currentTimeMillis();
-        println "transcripts found ${topLevelTranscripts.size()}"
-//        for (Transcript transcript in topLevelTranscripts) {
         for (Transcript transcript in transcriptMap.keySet()) {
             jsonFeatures.put(transcriptService.convertTranscriptToJSON(transcript,transcriptMap.get(transcript)))
-//            jsonFeatures.put(featureService.convertFeatureToJSON(transcript))
         }
 
 
@@ -564,7 +554,6 @@ class RequestHandlingService {
         }
 
 
-        durationInMilliseconds = System.currentTimeMillis() - start;
         log.debug "convert to json ${durationInMilliseconds}"
 
 
