@@ -7,16 +7,18 @@ define( [ 'dojo/_base/declare' ],
 
 return declare( null, {
 
+
 constructor: function( args )  {
    
+    this.transformers=[];
     var browser=args.browser;
-    this["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
+    this.overridePlugins=browser.config.overridePlugins;
+    console.log(browser.config);
+    this.transformers["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures"; 
-        // console.log("in TrackConfigTransformer: track " + trackConfig.label + ", changing type to: " + trackConfig.type);
     };
 
-    this["JBrowse/View/Track/Sequence"] = function(trackConfig) {
-        // console.log("transforming Sequence track");
+    this.transformers["JBrowse/View/Track/Sequence"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/AnnotSequenceTrack";
         trackConfig.storeClass = "WebApollo/Store/SeqFeature/ScratchPad";
         trackConfig.style = { className: "{type}", 
@@ -25,20 +27,22 @@ constructor: function( args )  {
         trackConfig.subfeatures = 1;
     };
     
-    this["JBrowse/View/Track/Alignments"] = function(trackConfig) {
-        trackConfig.type = "WebApollo/View/Track/DraggableAlignments";
+    this.transformers["JBrowse/View/Track/Alignments"] = function(trackConfig) {
+        if(!trackConfig.overrideDraggable&&!browser.config.overrideDraggable) {
+            trackConfig.type = "WebApollo/View/Track/DraggableAlignments";
+        }
     };
 
-    if(!browser.config.disableDraggable) this["JBrowse/View/Track/Alignments2"] = this["JBrowse/View/Track/Alignments"];
+    this.transformers["JBrowse/View/Track/Alignments2"] = this.transformers["JBrowse/View/Track/Alignments"];
 
 },
 
 transform: function(trackConfig) {
-    if (trackConfig.overridePlugins) {
+    if (trackConfig.overridePlugins||this.overridePlugins) {
         return;
     }
-    if (this[trackConfig.type]) {
-        var transformer = this[trackConfig.type];
+    if (this.transformers[trackConfig.type]) {
+        var transformer = this.transformers[trackConfig.type];
         transformer(trackConfig);
     }
 }

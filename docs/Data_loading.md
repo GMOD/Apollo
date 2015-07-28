@@ -225,3 +225,17 @@ Let's say we want to load `match` and `match_part` features as transcripts and e
 
 You can view the add_transcripts_from_gff3_to_annotations.pl help (`-h`) option for all available options.
 
+
+### Special track config parameters
+
+
+Web Apollo has a number of specific track config parameters
+
+
+    overrideDraggable (boolean)
+    determines whether to transform the alignments tracks to draggable alignments. avaiable since 2.x
+
+    overridePlugins (boolean)
+    determines whether to transform alignments and sequence tracks. available since early and 1.x versions of WA
+
+These can be specified on a specific track or globally (i.e. outside the "tracks" section of trackList.json)
