@@ -83,34 +83,6 @@ class FeatureService {
         else{
             Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where (fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax )",[fmin:location.fmin,fmax:location.fmax])
         }
-//
-////        def results = FeatureLocation.withCriteria {
-////            or {
-////                and {
-////                    le("fmin", location.fmin)
-////                    gt("fmax", location.fmin)
-////                    if (compareStrands) {
-////                        eq("strand", location.strand)
-////                    }
-////                }
-////                and {
-////                    lt("fmin", location.fmax)
-////                    ge("fmax", location.fmax)
-////                    if (compareStrands) {
-////                        eq("strand", location.strand)
-////                    }
-////                }
-////            }
-//////            projections{
-//////                distinct("feature")
-//////            }
-////        }
-////        println "results size: ${results?.size()}"
-////        return results*.feature.unique()
-//
-//        return results
-
-//        return (Collection<Feature>) results
     }
 
     @Transactional
@@ -247,10 +219,12 @@ class FeatureService {
                 geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
             }
             else{
-                geneName = nameService.makeUniqueFeatureName(sequence.organism, sequence.name, new LetterPaddingStrategy(), false)
+//                geneName = nameService.makeUniqueFeatureName(sequence.organism, sequence.name, new LetterPaddingStrategy(), false)
+                geneName = nameService.makeUniqueGeneName(sequence.organism, sequence.name, false)
             }
             if (!suppressHistory) {
-                geneName = nameService.makeUniqueFeatureName(sequence.organism, geneName, new LetterPaddingStrategy(), true)
+//                geneName = nameService.makeUniqueFeatureName(sequence.organism, geneName, new LetterPaddingStrategy(), true)
+                geneName = nameService.makeUniqueGeneName(sequence.organism, geneName, true)
             }
             // set back to the original gene name
             if (jsonTranscript.has(FeatureStringEnum.GENE_NAME.value)) {
@@ -889,7 +863,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         alterations.addAll(allSequenceAlterationList);
         return getResiduesWithAlterations(feature, alterations)
     }
-    
+
     /**
      // TODO: should be a single query here, currently 194 ms
      * Get all sequenceAlterations associated with a feature.
@@ -1586,7 +1560,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //        }
 //        return sequenceAlterationsInContext
 //    }
-    
+
 //    def isSequenceAlterationInContext(Feature feature, SequenceAlteration sequenceAlteration) {
 //        List<Exon> exonList = exonService.getSortedExons(feature, true)
 //        for (Exon exon : exonList) {
@@ -1743,7 +1717,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //        }
 //        return residues.toString();
 //    }
-    
+
     public void removeFeatureRelationship(Transcript transcript, Feature feature) {
 
         FeatureRelationship featureRelationship = FeatureRelationship.findByParentFeatureAndChildFeature(transcript, feature)
@@ -2127,7 +2101,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             leftBehindTranscripts = leftBehindTranscripts - overlappingTranscripts
         }
     }
-    
+
     private class SequenceAlterationInContextPositionComparator<SequenceAlterationInContext> implements Comparator<SequenceAlterationInContext> {
         public int compare(SequenceAlterationInContext obj1, SequenceAlterationInContext obj2) {
             return obj1.fmin - obj2.fmin
@@ -2185,7 +2159,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (!feature.strand.equals(orderedSequenceAlterationInContextList.get(0).strand)) {
             Collections.reverse(orderedSequenceAlterationInContextList);
         }
-        
+
         int currentOffset = 0
         for (SequenceAlterationInContext sequenceAlteration : orderedSequenceAlterationInContextList) {
             int localCoordinate
@@ -2234,7 +2208,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         sequenceAlterationResidues);
             }
         }
-        
+
         return residues.toString();
     }
 
@@ -2245,7 +2219,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         List<SequenceAlteration> sequenceAlterations = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId", [fmin: fmin, fmax: fmax, seqId: sequence])
         return sequenceAlterations
     }
-    
+
     public List<SequenceAlterationInContext> getSequenceAlterationsInContext(Feature feature, Collection<SequenceAlteration> sequenceAlterations) {
         List<Exon> exonList = feature instanceof CDS ? exonService.getSortedExons(transcriptService.getTranscript(feature)) : exonService.getSortedExons(feature, true)
         List<SequenceAlterationInContext> sequenceAlterationsInContext = new ArrayList<>()
@@ -2326,7 +2300,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         return sequenceAlterationsInContext
     }
-    
+
     public int convertModifiedLocalCoordinateToSourceCoordinate(Feature feature, int localCoordinate) {
         Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, Transcript.ontologyId)
         List<SequenceAlterationInContext> alterations = new ArrayList<>()
@@ -2360,7 +2334,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 return convertLocalCoordinateToSourceCoordinate(feature, localCoordinate);
             }
         }
-        
+
         Collections.sort(alterations, new SequenceAlterationInContextPositionComparator<SequenceAlterationInContext>());
         if (feature.getFeatureLocation().getStrand() == -1) {
             Collections.reverse(alterations);
@@ -2395,9 +2369,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
                 if ((localCoordinate - coordinateInContext) - 1 < alterationResidueLength && (localCoordinate - coordinateInContext) >= 0 && alteration.instanceOf == Insertion.canonicalName) {
                     insertionOffset -= (alterationResidueLength - (localCoordinate - coordinateInContext - 1))
-                    
+
                 }
-                
+
             } else {
                 if (coordinateInContext < localCoordinate && alteration.instanceOf == Deletion.canonicalName) {
                     deletionOffset += alterationResidueLength
