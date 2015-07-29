@@ -93,9 +93,12 @@ class FeatureService {
                     }
                 }
             }
+            projections{
+                distinct("feature")
+            }
         }
 
-        return results*.feature.unique()
+        return (Collection<Feature>) results
     }
 
     @Transactional

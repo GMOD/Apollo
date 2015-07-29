@@ -4,7 +4,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.transaction.Transactional
 
-@Transactional
+@Transactional(readOnly = true)
 class NameService {
 
     def transcriptService
