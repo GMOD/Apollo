@@ -76,7 +76,6 @@ class FeatureService {
      * @return Collection of Feature objects that overlap the FeatureLocation
      */
     public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands = true) {
-        FeatureLocation.findAllBySequenceAndStrandAndFminLessThanEquals(location.sequence, location.strand, location.fmin)
         def results = FeatureLocation.withCriteria {
             or {
                 and {
