@@ -76,29 +76,41 @@ class FeatureService {
      * @return Collection of Feature objects that overlap the FeatureLocation
      */
     public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands = true) {
-        def results = FeatureLocation.withCriteria {
-            or {
-                and {
-                    le("fmin", location.fmin)
-                    gt("fmax", location.fmin)
-                    if (compareStrands) {
-                        eq("strand", location.strand)
-                    }
-                }
-                and {
-                    lt("fmin", location.fmax)
-                    ge("fmax", location.fmax)
-                    if (compareStrands) {
-                        eq("strand", location.strand)
-                    }
-                }
-            }
-            projections{
-                distinct("feature")
-            }
-        }
 
-        return (Collection<Feature>) results
+        if(compareStrands){
+            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.strand = :strand and (fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax )",[fmin:location.fmin,fmax:location.fmax,strand:location.strand])
+        }
+        else{
+            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where (fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax )",[fmin:location.fmin,fmax:location.fmax])
+        }
+//
+////        def results = FeatureLocation.withCriteria {
+////            or {
+////                and {
+////                    le("fmin", location.fmin)
+////                    gt("fmax", location.fmin)
+////                    if (compareStrands) {
+////                        eq("strand", location.strand)
+////                    }
+////                }
+////                and {
+////                    lt("fmin", location.fmax)
+////                    ge("fmax", location.fmax)
+////                    if (compareStrands) {
+////                        eq("strand", location.strand)
+////                    }
+////                }
+////            }
+//////            projections{
+//////                distinct("feature")
+//////            }
+////        }
+////        println "results size: ${results?.size()}"
+////        return results*.feature.unique()
+//
+//        return results
+
+//        return (Collection<Feature>) results
     }
 
     @Transactional
