@@ -1,13 +1,13 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import grails.transaction.Transactional
 
-@Transactional
+@Transactional(readOnly = true)
 class NameService {
 
     def transcriptService
+    def letterPaddingStrategy = new LetterPaddingStrategy()
+    def leftPaddingStrategy = new LeftPaddingStrategy()
 
 
     // TODO: replace with more reasonable naming schemas
@@ -29,7 +29,7 @@ class NameService {
                     }
                     principalName = gene.name
                 }
-                return makeUniqueFeatureName(organism,principalName.trim()+"-",new LeftPaddingStrategy())
+                return makeUniqueTranscriptName(organism,principalName.trim()+"-")
             } else
             if (thisFeature instanceof Gene) {
                 log.debug "instance of Gene"
@@ -39,14 +39,16 @@ class NameService {
                 if(Gene.countByName(principalName.trim())==0){
                     return principalName
                 }
-                return makeUniqueFeatureName(organism,principalName.trim(),new LetterPaddingStrategy())
+                  return makeUniqueGeneName(organism,principalName.trim())
+//                return makeUniqueFeatureName(organism,principalName.trim(),new LetterPaddingStrategy())
             }
-            if (thisFeature instanceof Exon) {
+            if (thisFeature instanceof Exon || thisFeature instanceof NonCanonicalFivePrimeSpliceSite || thisFeature instanceof NonCanonicalThreePrimeSpliceSite || thisFeature instanceof CDS) {
                 log.debug "instance of Exon"
                 if(!principalName){
                     principalName = ((Exon) thisFeature).name
                 }
-                return makeUniqueFeatureName(organism,principalName.trim(),new LeftPaddingStrategy())
+//                return makeUniqueFeatureName(organism,principalName.trim(),new LeftPaddingStrategy())
+                return generateUniqueName()
             }
             else{
                 if(!principalName){
@@ -61,9 +63,65 @@ class NameService {
     }
 
 
+    boolean isUniqueGene(Organism organism,String name){
+        if(Gene.countByName(name)==0) {
+            return true
+        }
+        List results = (Gene.executeQuery("select count(f) from Gene f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name = :name ",[org:organism,name:name]))
+        return 0 == (int) results.get(0)
+    }
+
     boolean isUnique(Organism organism,String name){
+        if(Feature.countByName(name)==0) {
+            return true
+        }
         List results = (Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name = :name ",[org:organism,name:name]))
         return 0 == (int) results.get(0)
+    }
+
+    String makeUniqueTranscriptName(Organism organism,String principalName){
+        String name
+
+        name = principalName + leftPaddingStrategy.pad(0)
+        if(Transcript.countByName(name)==0){
+            return name
+        }
+        List results = (Feature.executeQuery("select f.name from Transcript f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name like :name ",[org:organism,name:principalName+'%']))
+
+        name = principalName + leftPaddingStrategy.pad(results.size())
+        int count = results.size()
+        while(results.contains(name)){
+            name = principalName + leftPaddingStrategy.pad(count)
+            ++count
+        }
+        return name
+    }
+
+    String makeUniqueGeneName(Organism organism,String principalName,boolean useOriginal=false){
+
+        if(useOriginal && isUniqueGene(organism,principalName)){
+            return principalName
+        }
+
+        if(isUniqueGene(organism,principalName)){
+            return principalName
+        }
+
+        String name = principalName + letterPaddingStrategy.pad(0)
+
+        List results = (Gene.executeQuery("select f.name from Gene f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name like :name ",[org:organism,name:principalName+'%']))
+        int count = results.size()
+        while(results.contains(name)){
+            name = principalName + letterPaddingStrategy.pad(count)
+            ++count
+        }
+        return name
+
+//        name = principalName + letterPaddingStrategy.pad(i++)
+//        while(!isUnique(organism,name)){
+//            name = principalName + letterPaddingStrategy.pad(i++)
+//        }
+//        return name
     }
 
     String makeUniqueFeatureName(Organism organism,String principalName,PaddingStrategy paddingStrategy,boolean useOriginal=false){
@@ -71,6 +129,10 @@ class NameService {
         int i = 0
 
         if(useOriginal && isUnique(organism,principalName)){
+            return principalName
+        }
+
+        if(isUnique(organism,principalName)){
             return principalName
         }
 

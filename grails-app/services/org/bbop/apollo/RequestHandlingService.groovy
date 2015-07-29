@@ -39,15 +39,31 @@ class RequestHandlingService {
     def preferenceService
     def featurePropertyService
     def featureEventService
-
-
     def brokerMessagingTemplate
-    public static List<String> viewableAnnotationList = [
-            Gene.class.name,
-            Pseudogene.class.name,
+
+
+    public static List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
             TransposableElement.class.name
     ]
+    public static List<String> viewableAnnotationTranscriptParentList = [
+            Gene.class.name,
+            Pseudogene.class.name
+    ]
+
+    public static List<String> viewableAnnotationTranscriptList = [
+            Transcript.class.name,
+            MRNA.class.name,
+            TRNA.class.name,
+            SnRNA.class.name,
+            SnoRNA.class.name,
+            NcRNA.class.name,
+            RRNA.class.name,
+            MiRNA.class.name,
+    ]
+
+    public
+    static List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
 
     private String underscoreToCamelCase(String underscore) {
         if (!underscore || underscore.isAllWhitespace()) {
@@ -502,7 +518,6 @@ class RequestHandlingService {
     JSONObject getFeatures(JSONObject inputObject) {
 
 
-
         String sequenceName = permissionService.getSequenceNameFromInput(inputObject)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
         if (sequenceName != sequence.name) {
@@ -512,39 +527,37 @@ class RequestHandlingService {
 
         log.debug "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
 
-        Set<Feature> featureSet = new HashSet<>()
 
 
-        long start = System.currentTimeMillis();
-        List<Feature> topLevelTranscripts = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationList])
+        List topLevelTranscripts = Transcript.executeQuery("select distinct f , child , childLocation from Transcript f join f.featureLocations fl join f.parentFeatureRelationships pr join pr.childFeature child join child.featureLocations childLocation where fl.sequence = :sequence and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationTranscriptList])
+        Map<Transcript, List<Feature>> transcriptMap = new HashMap<>()
+        Map<Transcript, List<FeatureLocation>> featureLocationMap = new HashMap<>()
+        topLevelTranscripts.each {
+            List<Feature> featureList
+            featureList = transcriptMap.containsKey(it[0]) ? transcriptMap.get(it[0]) : new ArrayList<>()
+            featureList.add(it[1])
+            transcriptMap.put(it[0], featureList)
 
-        long durationInMilliseconds = System.currentTimeMillis()-start;
 
-        log.debug "selecting features all ${durationInMilliseconds}"
-
-        start = System.currentTimeMillis();
-        for (Feature feature in topLevelTranscripts) {
-            if (feature instanceof Gene) {
-                for (Transcript transcript : transcriptService.getTranscripts(feature)) {
-                    featureSet.add(transcript)
-                }
-            } else {
-                featureSet.add(feature)
-            }
+            List<FeatureLocation> featureLocationList
+            featureLocationList = featureLocationMap.containsKey(it[0]) ? featureLocationMap.get(it[0]) : new ArrayList<>()
+            featureLocationList.add(it[2])
+            featureLocationMap.put(it[0], featureLocationList)
         }
-
-
 
         JSONArray jsonFeatures = new JSONArray()
-        featureSet.each { feature ->
-                JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
-                jsonFeatures.put(jsonObject)
+
+        for (Transcript transcript in transcriptMap.keySet()) {
+            jsonFeatures.put(transcriptService.convertTranscriptToJSON(transcript,transcriptMap.get(transcript),featureLocationMap.get(transcript)))
         }
 
 
-        durationInMilliseconds = System.currentTimeMillis()-start;
-        log.debug "convert to json ${durationInMilliseconds}"
 
+        List<Feature> topLevelFeatures = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationFeatureList])
+        topLevelFeatures.each { feature ->
+            JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
+            jsonFeatures.put(jsonObject)
+        }
 
         inputObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
         return inputObject
@@ -651,8 +664,24 @@ class RequestHandlingService {
             }
         }
 
+        List topLevelTranscripts = Transcript.executeQuery("select distinct f , child , childLocation from Transcript f  join f.parentFeatureRelationships pr join pr.childFeature child join child.featureLocations childLocation where f in (:transcriptList) ", [transcriptList: transcriptList])
+        Map<Transcript, List<Feature>> transcriptMap = new HashMap<>()
+        Map<Transcript, List<FeatureLocation>> featureLocationMap = new HashMap<>()
+        topLevelTranscripts.each {
+            List<Feature> featureList
+            featureList = transcriptMap.containsKey(it[0]) ? transcriptMap.get(it[0]) : new ArrayList<>()
+            featureList.add(it[1])
+            transcriptMap.put(it[0], featureList)
+
+
+            List<FeatureLocation> featureLocationList
+            featureLocationList = featureLocationMap.containsKey(it[0]) ? featureLocationMap.get(it[0]) : new ArrayList<>()
+            featureLocationList.add(it[2])
+            featureLocationMap.put(it[0], featureLocationList)
+        }
         transcriptList.each { transcript ->
-            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
+//            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(transcriptService.convertTranscriptToJSON(transcript, transcriptMap.get(transcript), featureLocationMap.get(transcript)));
         }
 
 
@@ -1681,7 +1710,7 @@ class RequestHandlingService {
                             fireAnnotationEvent(annotationEvent)
                         }
                     } else {
-                        featureRelationshipService.removeFeatureRelationship(gene,transcript)
+                        featureRelationshipService.removeFeatureRelationship(gene, transcript)
                         featureRelationshipService.deleteFeatureAndChildren(transcript)
 //                        gene.save(flush: true)
                         gene.save()

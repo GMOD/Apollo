@@ -229,14 +229,11 @@ class PermissionService {
 
     public static String getSequenceNameFromInput(JSONObject inputObject) {
         String trackName = null
-        println "input object ${inputObject as JSON}"
         if (inputObject.has("sequence")) {
             trackName = inputObject.sequence
-            println "had a sequence track name: ${trackName}"
         }
         if (inputObject.has("track")) {
             trackName = inputObject.track
-            println "had a track track name: ${trackName}"
         }
         return trackName
     }
@@ -391,7 +388,7 @@ class PermissionService {
     Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
         String trackName = getSequenceNameFromInput(inputObject)
-        println "track from input '${trackName}'"
+        log.debug "track from input '${trackName}'"
 
         // this is for testing only
         if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
