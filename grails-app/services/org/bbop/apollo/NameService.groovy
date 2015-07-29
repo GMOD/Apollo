@@ -72,7 +72,7 @@ class NameService {
         // 5
         LeftPaddingStrategy paddingStrategy = new LeftPaddingStrategy()
         name = principalName
-        List results = (Feature.executeQuery("select f.name from Feature f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name like :name order by f.name desc",[org:organism,name:name+'%']))
+        List results = (Feature.executeQuery("select f.name from Feature f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name like :name ",[org:organism,name:name+'%']))
 
         name = principalName + paddingStrategy.pad(results.size())
         int count = results.size()
