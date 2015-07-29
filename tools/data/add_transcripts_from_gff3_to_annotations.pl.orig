@@ -15,6 +15,8 @@ use Getopt::Long qw(:config no_ignore_case bundling);
 use IO::File;
 use LWP::UserAgent;
 use JSON;
+use Data::Dumper;
+
 
 my $gene_types_in = "gene";
 my $transcript_types_in = "transcript|mRNA";
@@ -29,13 +31,15 @@ my $annotation_track_prefix = "";
 my $property_ontology = "feature_property";
 my $comment_type_out = "comment";
 my $property_type_out = "feature_property";
-my $organism;
 my $in = \*STDIN;
 my $username;
 my $password;
 my $url;
+<<<<<<< HEAD
+=======
 my $session_id;
-my $name_attributes="Name";
+my $name_attributes
+>>>>>>> 7c455285e1ba6288ebf439523bbb3145c9137c37
 
 my $success_log;
 my $error_log;
@@ -76,7 +80,6 @@ sub parse_options {
            "gene_types_in|g=s"      => \$gene_types_in,
            "transcript_types_in|t=s"    => \$transcript_types_in,
            "exon_types_in|e=s"      => \$exon_types_in,
-           "organism|o=s"      => \$organism,
            "cds_types_in|d=s"       => \$cds_types_in,
            "ontology|O=s"       => \$ontology,
            "gene_type_out|G=s"      => \$gene_type_out,
@@ -257,7 +260,7 @@ sub convert_feature {
     my $start = get_start($features);
     my $end = get_end($features);
     my $strand = get_strand($features);
-    my $name = get_name($features,$name_attributes);
+    my $name = get_name($features,$name_attributes)
     my $comments = get_comments($features);
     my $dbxrefs = get_dbxrefs($features);
     my $ontology_terms = get_ontology_terms($features);
@@ -355,10 +358,7 @@ sub send_request {
             username => $username,
             password => $password
     };
-    if($organism) {
-        $request->{organism}= $organism;
-    }
-
+    print Dumper($request) ;
     if ($features) {
         foreach my $feature (@{$features}) {
             push(@{$request->{features}}, $feature);
@@ -368,8 +368,8 @@ sub send_request {
     $req->method("POST");
 
     my $newurl = get_editor_url();
-    $newurl = "$newurl/$operation";
-    print "$newurl \n";
+	$newurl = "$newurl/$operation";
+	print "$newurl \n";
     $req->uri($newurl);
     $req->content($json->encode($request));
     my $res = $ua->request($req);
@@ -486,7 +486,14 @@ sub get_type {
 
 sub process_gene {
     my $features = shift;
+<<<<<<< HEAD
+    my $gene = convert_feature($features, $gene_type_out);
+=======
+    if (!validate_feature($features, "Gene")) {
+        return undef;
+    }
     my $gene = convert_feature($features, $gene_type_out, $name_attributes);
+>>>>>>> 7c455285e1ba6288ebf439523bbb3145c9137c37
     my $subfeatures = get_subfeatures($features);
     foreach my $subfeature (@{$subfeatures}) {
         my $type = get_type($subfeature);
@@ -500,7 +507,14 @@ sub process_gene {
 
 sub process_transcript {
     my $features = shift;
+<<<<<<< HEAD
+    my $transcript = convert_feature($features, $transcript_type_out);
+=======
+    if (!validate_feature($features, "Transcript")) {
+        return undef;
+    }
     my $transcript = convert_feature($features, $transcript_type_out, $name_attributes);
+>>>>>>> 7c455285e1ba6288ebf439523bbb3145c9137c37
     my $cds_feature = undef;
     my $subfeatures = get_subfeatures($features);
     foreach my $subfeature (@{$subfeatures}) {
