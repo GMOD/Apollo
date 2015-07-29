@@ -15,8 +15,6 @@ use Getopt::Long qw(:config no_ignore_case bundling);
 use IO::File;
 use LWP::UserAgent;
 use JSON;
-use Data::Dumper;
-
 
 my $gene_types_in = "gene";
 my $transcript_types_in = "transcript|mRNA";
@@ -35,6 +33,8 @@ my $in = \*STDIN;
 my $username;
 my $password;
 my $url;
+my $session_id;
+my $name_attributes
 
 my $success_log;
 my $error_log;
@@ -88,7 +88,9 @@ sub parse_options {
            "success_log|l=s"        => \$success_log_file,
            "error_log|L=s"      => \$error_log_file,
            "skip|s=s"           => \$skip_file,
-           "help|h"         => \$help);
+           "help|h"         => \$help,
+           "name_attributes=s"   => \$name_attributes);
+           
     print_usage() if $help;
     $in = new IO::File($input_file) or die "Error reading $input_file: $!\n"
         if $input_file;
@@ -132,6 +134,7 @@ usage: $progname
     [--error_log|-L <error log file>]
     [--skip|-s <skip id file>]
     [--help|-h]
+    [--name_attributes <feature attribute to be used as name, first found used>]
 
     U: URL to WebApollo instance
     u: username to access WebApollo
@@ -248,10 +251,11 @@ sub process_feature {
 sub convert_feature {
     my $features = shift;
     my $type = shift;
+    my $name_attributes = shift;
     my $start = get_start($features);
     my $end = get_end($features);
     my $strand = get_strand($features);
-    my $name = get_name($features);
+    my $name = get_name($features,$name_attributes)
     my $comments = get_comments($features);
     my $dbxrefs = get_dbxrefs($features);
     my $ontology_terms = get_ontology_terms($features);
@@ -385,7 +389,15 @@ sub send_request {
 
 sub get_name {
     my $features = shift;
-    return $features->[0]->{attributes}->{Name}->[0];
+    my $name_attributes = shift;
+    my @attrs = split /\|/, $name_attributes;
+    my $name;
+    ATTR:
+    foreach my $attr (@attrs) {
+        $name = $features->[0]->{attributes}->{$attr}->[0];
+        last ATTR unless !$name;
+    }
+    return $name;
 }
 
 sub get_comments {
@@ -469,7 +481,10 @@ sub get_type {
 
 sub process_gene {
     my $features = shift;
-    my $gene = convert_feature($features, $gene_type_out);
+    if (!validate_feature($features, "Gene")) {
+        return undef;
+    }
+    my $gene = convert_feature($features, $gene_type_out, $name_attributes);
     my $subfeatures = get_subfeatures($features);
     foreach my $subfeature (@{$subfeatures}) {
         my $type = get_type($subfeature);
@@ -483,13 +498,16 @@ sub process_gene {
 
 sub process_transcript {
     my $features = shift;
-    my $transcript = convert_feature($features, $transcript_type_out);
+    if (!validate_feature($features, "Transcript")) {
+        return undef;
+    }
+    my $transcript = convert_feature($features, $transcript_type_out, $name_attributes);
     my $cds_feature = undef;
     my $subfeatures = get_subfeatures($features);
     foreach my $subfeature (@{$subfeatures}) {
         my $type = get_type($subfeature);
         if ($type =~ /$exon_types_in/) {
-            my $exon = convert_feature($subfeature, $exon_type_out);
+            my $exon = convert_feature($subfeature, $exon_type_out,$name_attributes);
             push(@{$transcript->{children}}, $exon);
         }   
         elsif ($type =~ /$cds_types_in/) {
@@ -511,7 +529,7 @@ sub process_transcript {
         }
     }
     if ($cds_feature) {
-        my $cds = convert_feature($cds_feature, $cds_type_out);
+        my $cds = convert_feature($cds_feature, $cds_type_out, $name_attributes);
         push(@{$transcript->{children}}, $cds);
     }
     return $transcript;
