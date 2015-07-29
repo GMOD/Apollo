@@ -481,7 +481,7 @@ class TranscriptService {
      * @return
      */
     @Timed
-    JSONObject convertTranscriptToJSON(Transcript gsolFeature, List<Feature> childFeatures = new ArrayList<>(),List<FeatureLocation> childFeatureLocations = new ArrayList<>()) {
+    JSONObject convertTranscriptToJSON(Transcript gsolFeature, List<Feature> childFeatures = new ArrayList<>(), List<FeatureLocation> childFeatureLocations = new ArrayList<>()) {
         JSONObject jsonFeature = new JSONObject();
         try {
             if (gsolFeature.id) {
@@ -522,24 +522,24 @@ class TranscriptService {
             if (childFeatures) {
                 JSONArray children = new JSONArray();
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
-                childFeatures.eachWithIndex{ Feature childFeature , int i ->
-//                for (Feature childFeature : childFeatures) {
-//                    children.put(convertTranscriptToJSON(childFeature));
-                    JSONObject childJsonObject = new JSONObject()
-                    if (childFeature.id) {
-                        childJsonObject.put(FeatureStringEnum.ID.value, childFeature.id);
-                    }
-                    childJsonObject.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(childFeature.ontologyId));
-                    childJsonObject.put(FeatureStringEnum.UNIQUENAME.value, childFeature.getUniqueName());
-                    if (childFeature.getName() != null) {
-                        childJsonObject.put(FeatureStringEnum.NAME.value, childFeature.getName());
-                    }
-//                    Collection<FeatureLocation> featureLocations = childFeature.getFeatureLocations();
-//                    for (FeatureLocation childFeatureLocation : childFeature.featureLocations) {
+                childFeatures.eachWithIndex { Feature childFeature, int i ->
+                    // have to handle set readhthrough stop codons
+                    if (childFeature instanceof CDS && childFeature.parentFeatureRelationships) {
+                        children.put(featureService.convertFeatureToJSON(childFeature))
+                    } else {
+                        JSONObject childJsonObject = new JSONObject()
+                        if (childFeature.id) {
+                            childJsonObject.put(FeatureStringEnum.ID.value, childFeature.id);
+                        }
+                        childJsonObject.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(childFeature.ontologyId));
+                        childJsonObject.put(FeatureStringEnum.UNIQUENAME.value, childFeature.getUniqueName());
+                        if (childFeature.getName() != null) {
+                            childJsonObject.put(FeatureStringEnum.NAME.value, childFeature.getName());
+                        }
                         childJsonObject.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(childFeatureLocations.get(i)));
-//                    }
+                        children.put(childJsonObject)
+                    }
 
-                    children.put(childJsonObject)
                 }
             }
 

@@ -681,7 +681,7 @@ class RequestHandlingService {
         }
         transcriptList.each { transcript ->
 //            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
-            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(transcriptService.convertTranscriptToJSON(transcript,transcriptMap.get(transcript),featureLocationMap.get(transcript)));
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(transcriptService.convertTranscriptToJSON(transcript, transcriptMap.get(transcript), featureLocationMap.get(transcript)));
         }
 
 
