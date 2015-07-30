@@ -1,3 +1,35 @@
+## 2.0.0 release
+
+Features
+
++ multiple genome / organism per server support 
++ organism-level permissions for users and groups, with UI
++ side-bar for viewing annotations, references sequences
++ simplified administration interface to manage users, groups, and organisms
++ evidence tracks explicitly adding the plugin
++ multiple databases supported including MySQL, PostgreSQL, Oracle, and H2 (embedded), providing a universally 
++ reports for organisms, sequences, users, and system performance
++ includes an extensible framework for creating customizable reports
++ backend switched to [Grails](https://grails.org/) 2.4.5  [Release notes](https://github.com/grails/grails-core/releases) for a higher concurrency, scaleable, and robust framework based on Spring and Hibernate
++ implemented a development mode to test / evaluate without a full install
++ websocket implementation (https://github.com/GMOD/Apollo/issues/14)
++ expanded webservices interface, including [support for migrating annotations from WA1 to WA2](https://github.com/GMOD/Apollo/blob/master/docs/Migration.md), adding organisms, and adding users in bulk 
++ simplified management of status, custom comments, and feature types
++ jbrowse standalone supports multiple organisms
+
+
+Bugfixes
+
++ multiple bugs having to with annotation of sequence alterations (https://github.com/GMOD/Apollo/issues/428 , https://github.com/GMOD/Apollo/issues/420 )
++ made retrieval of sequences uniform and correct
++ fixed the merging and splitting of transcripts and made undo / redo operations more uniform (https://github.com/GMOD/Apollo/issues/356)
++ in-frame stop codons not identified after manually setting translation start (https://github.com/GMOD/Apollo/issues/356)
++ Offending exon with "non canonical" (and non existent) boundaries, and an artificial intron (https://github.com/GMOD/Apollo/issues/16)
++ Fix merge of unlike annotation types, causes mixed subfeatures (https://github.com/GMOD/Apollo/issues/23)
++ Genome insertion trigers recalculate CDS on non-coding features (https://github.com/GMOD/Apollo/issues/30)
++ Extension of mRNA causes 500 error (https://github.com/GMOD/Apollo/issues/27)
+
+
 ## 1.0.4 release
 
 Features
