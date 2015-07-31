@@ -12,7 +12,6 @@ class PermissionTagLib {
 
 
     def admin = { attrs, body ->
-        println "${permissionService.currentUser} -> ${permissionService.admin}"
         if (permissionService.admin) {
             out << body()
         }
