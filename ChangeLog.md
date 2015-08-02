@@ -1,33 +1,69 @@
-## 2.0.0 release
+## 2.0.0-RC3
 
 Features
 
-+ multiple genome / organism per server support 
-+ organism-level permissions for users and groups, with UI
-+ side-bar for viewing annotations, references sequences
-+ simplified administration interface to manage users, groups, and organisms
-+ evidence tracks explicitly adding the plugin
-+ multiple databases supported including MySQL, PostgreSQL, Oracle, and H2 (embedded), providing a universally 
-+ reports for organisms, sequences, users, and system performance
-+ includes an extensible framework for creating customizable reports
-+ backend switched to [Grails](https://grails.org/) 2.4.5  [Release notes](https://github.com/grails/grails-core/releases) for a higher concurrency, scaleable, and robust framework based on Spring and Hibernate
-+ implemented a development mode to test / evaluate without a full install
-+ websocket implementation (https://github.com/GMOD/Apollo/issues/14)
-+ expanded webservices interface, including [support for migrating annotations from WA1 to WA2](https://github.com/GMOD/Apollo/blob/master/docs/Migration.md), adding organisms, and adding users in bulk 
-+ simplified management of status, custom comments, and feature types
-+ jbrowse standalone supports multiple organisms
++ Added CSV downloads of reports, and created more extensible framework for creating customizable reports.
++ Updated application to use Grails 2.4.5.
++ Updated bulk loader to support loading for a specific organism with the --organism parameter (See #505).
++ Updated bulk loader to support looking up the name of a feature from a specific GFF3 tag with the --name_attributes. Thanks to @anaome for the idea and implementation (See #396).
++ Raise limit on number of tracks allowed in track panel (#502).
++ Added some database optimizations for retrieving sequence features (#504).
+
+Bugfixes
+
++ Fixed bug that prevented deleting of certain isoforms after database optimizations were applied in RC2 (#497).
+
+
+## 2.0.0-RC2
+
+Features
+
++ Added a PDF version of documentation to [readthedocs](http://webapollo.readthedocs.org).
++ Added a button to generate a public link to the genome browser for a particular organism.
++ Added ability to manage statuses, custom comments, and feature types using the "Admin panel".
++ Added a feature to logout all instances of webapollo from different windows if one window is logged out (#409).
++ Added stress testing scripts using JMeter and tested application reliability.
++ Added new report pages for getting overview of annotations, organisms, sequences, users, and system performance statistics.
++ Added asynchronous data provider to the "Annotator panel" for faster "on-demand" download of data.
++ Added customizable data adapter configurations in the configuration guide.
++ Added gzip functionality to data downloads (#252).
++ Added command line exporter for GFF3.
+
+Bugfixes
+
++ Fixed small bug with permission checking on creating new organism permissions (#463).
++ Fixed bug with stop codons being retained in peptide sequence exports (#448).
++ Fixed bug with stop codon readthrough features not being restored after "Undo/Redo" (#400).
++ Fixed a bug with downloading data files (#464).
++ Fixed a bug that prevented running multiple instances of WebApollo2 at the same time (#462).
++ Fixed a bug where tracks without a key would cause track panel to produce error (#461).
+
+## 2.0.0-RC1
+
+Features
+
++ Created a major rewrite of the backend using [Grails](https://grails.org/), which is a scalabe, high-concurrency framework based on Spring and Hibernate
++ Added ability to support multiple organisms in a single application instance.
++ Added organism-level permissions for users and groups and created new admin panel for setting these permissions.
++ Added webservices and command-line scripts for creating new organisms (#360).
++ Added webservices and command line scripts for adding users and [support for migrating annotations from WA1 to WA2](https://github.com/GMOD/Apollo/blob/master/docs/Migration.md) (#255).
++ Created a new "Annotator panel", a side-bar for viewing annotations, reference sequences, export options, and admin features.
++ Added ability to load WebApollo client-side plugin automatically, so there is no need to run add-webapollo-plugin.pl (#435).
++ Implemented new data models for Hibernate with support for MySQL, PostgreSQL, Oracle, and H2.
++ Implemented simplified configuration via apollo-config.groovy.
++ Added websocket implementation for annotation updates, with long-polling fallback (#14).
++ Optimized non-canonical splice site search (#454).
++ Updated undo/redo operations to work in WA2.0 and fixed several issues with undoing merged transcript operations (#356).
 
 
 Bugfixes
 
-+ multiple bugs having to with annotation of sequence alterations (https://github.com/GMOD/Apollo/issues/428 , https://github.com/GMOD/Apollo/issues/420 )
-+ made retrieval of sequences uniform and correct
-+ fixed the merging and splitting of transcripts and made undo / redo operations more uniform (https://github.com/GMOD/Apollo/issues/356)
-+ in-frame stop codons not identified after manually setting translation start (https://github.com/GMOD/Apollo/issues/356)
-+ Offending exon with "non canonical" (and non existent) boundaries, and an artificial intron (https://github.com/GMOD/Apollo/issues/16)
-+ Fix merge of unlike annotation types, causes mixed subfeatures (https://github.com/GMOD/Apollo/issues/23)
-+ Genome insertion trigers recalculate CDS on non-coding features (https://github.com/GMOD/Apollo/issues/30)
-+ Extension of mRNA causes 500 error (https://github.com/GMOD/Apollo/issues/27)
++ Fixed several bugs with sequence alternations (#442, #447, 428, #420).
++ Fixed bug with in-frame stop codons not being identified after manually setting translation start (#55).
++ Fixed bug with exon identified as having non-canonical splice site with non-existent boundaries (#16).
++ Fix merge of unlike annotation types, causes mixed subfeatures (#23).
++ Fixed bug with where CDS calculation was triggered on non-coding features (#30).
++ Extension of mRNA causes 500 error (#27).
 
 
 ## 1.0.4 release
