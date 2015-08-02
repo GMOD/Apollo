@@ -1,3 +1,7 @@
+## 2.0.1-SNAPSHOT
+
+Development snapshot
+
 ## 2.0.0-RC3
 
 Features
