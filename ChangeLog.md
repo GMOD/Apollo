@@ -42,7 +42,7 @@ Bugfixes
 
 Features
 
-+ Created a major rewrite of the backend using [Grails](https://grails.org/), which is a scalabe, high-concurrency framework based on Spring and Hibernate
++ Created a major rewrite of the backend using [Grails](https://grails.org/), which is a scalable, high-concurrency framework based on Spring and Hibernate
 + Added ability to support multiple organisms in a single application instance.
 + Added organism-level permissions for users and groups and created new admin panel for setting these permissions.
 + Added webservices and command-line scripts for creating new organisms (#360).
