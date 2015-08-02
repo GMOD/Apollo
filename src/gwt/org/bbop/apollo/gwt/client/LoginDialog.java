@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -39,7 +40,12 @@ public class LoginDialog extends DialogBox {
         grid.setWidget(1, 1, passwordTextBox);
         panel.add(grid);
 
-        username.setFocus(true);
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                username.setFocus(true);
+            }
+        });
 
         horizontalPanel.add(rememberMeCheckBox);
         horizontalPanel.add(new HTML("&nbsp;&nbsp;&nbsp;&nbsp;"));
