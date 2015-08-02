@@ -317,17 +317,13 @@ return declare( [JBPlugin, HelpMixin],
 
     plusStrandFilter: function(feature)  {
         var strand = feature.get('strand');
-        if (strand == 1 || strand == '+' || !strand)  { return true; }
-        else  { return false; }
+        return !(strand == 1 || strand == '+' || !strand)
     },
 
     minusStrandFilter: function(feature)  {
         var strand = feature.get('strand');
-        if (strand == -1 || strand == '-' || !strand)  { return true; }
-        else  { return false; }
+        return !(strand = -1 || strand == '-' || !strand)
     },
-    passAllFilter: function(feature)  {  return true; },
-    passNoneFilter: function(feature)  { return false; },
 
     addStrandFilterOptions: function()  {
         var thisB = this;
@@ -337,19 +333,11 @@ return declare( [JBPlugin, HelpMixin],
                     label: "Show plus strand",
                     checked: true,
                     onClick: function(event) {
-                        var plus = plus_strand_toggle.checked;
-                        var minus = minus_strand_toggle.checked;
-                        if (plus && minus)  {
-                            browser.setFeatureFilter(thisB.passAllFilter);
-                        }
-                        else if (plus)  {
-                            browser.setFeatureFilter(thisB.plusStrandFilter);
-                        }
-                        else if (minus)  {
-                            browser.setFeatureFilter(thisB.minusStrandFilter);
-                        }
-                        else  {
-                            browser.setFeatureFilter(thisB.passNoneFilter);
+                        var plus = this.get("checked");
+                        if(!plus) {
+                            thisB.plusFilter=browser.addFeatureFilter(thisB.plusStrandFilter);
+                        } else  {
+                            browser.removeFeatureFilter(thisB.plusFilter);
                         }
                         browser.view.redrawTracks();
                     }
@@ -360,22 +348,15 @@ return declare( [JBPlugin, HelpMixin],
                     label: "Show minus strand",
                     checked: true,
                     onClick: function(event) {
-                        var plus = plus_strand_toggle.checked;
-                        var minus = minus_strand_toggle.checked;
-                        if (plus && minus)  {
-                            browser.setFeatureFilter(thisB.passAllFilter);
-                        }
-                        else if (plus)  {
-                            browser.setFeatureFilter(thisB.plusStrandFilter);
-                        }
-                        else if (minus)  {
-                            browser.setFeatureFilter(thisB.minusStrandFilter);
+                        var minus = this.get('checked');
+                        if (!minus)  {
+                            thisB.minusFilter=browser.addFeatureFilter(thisB.minusStrandFilter);
                         }
                         else  {
-                            browser.setFeatureFilter(thisB.passNoneFilter);
+                            browser.removeFeatureFilter(thisB.minusFilter);
                         }
                         browser.view.redrawTracks();
-                        }
+                    }
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
     },
