@@ -199,7 +199,7 @@ class AnnotatorController {
                     case "transposable_element": viewableTypes.add(TransposableElement.class.canonicalName)
                         break
                     default:
-                        log.warn "Type not found for annotation filter '${type}'"
+                        log.info "Type not found for annotation filter '${type}'"
                         viewableTypes = requestHandlingService.viewableAnnotationList
                         break
                 }

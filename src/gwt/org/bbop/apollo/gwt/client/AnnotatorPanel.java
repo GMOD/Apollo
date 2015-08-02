@@ -152,7 +152,6 @@ public class AnnotatorPanel extends Composite {
 
 
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
-//                if (nameSortInfo.getColumn().isSortable()) {
                 Column<AnnotationInfo, ?> sortColumn = (Column<AnnotationInfo, ?>) sortList.get(0).getColumn();
                 Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
                 String searchColumnString = null ;
@@ -167,7 +166,6 @@ public class AnnotatorPanel extends Composite {
                         searchColumnString = "length";
                         break;
                     default:
-//                        Window.alert("Not sure how to sort column: " + columnIndex);
                         break;
                 }
                 Boolean sortNameAscending = nameSortInfo.isAscending();
