@@ -2,14 +2,21 @@ package org.bbop.apollo
 
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.PerformanceMetric
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
 
 class HomeController {
 
+    def permissionService
+
     @Timed(name = "SystemInfo")
     def systemInfo() {
+        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+            redirect(uri: "/auth/unauthorized")
+            return
+        }
 
         Map<String, String> runtimeMapInstance = new HashMap<>()
         Map<String, String> servletMapInstance = new HashMap<>()
@@ -39,6 +46,10 @@ class HomeController {
     }
 
     def metrics() {
+        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+            redirect(uri: "/auth/unauthorized")
+            return
+        }
         def link = createLink(absolute: true, action: "metrics", controller: "metrics")
         RestBuilder rest = new RestBuilder()
         RestResponse response = rest.get(link)

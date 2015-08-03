@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureEventView
 
 import static org.springframework.http.HttpStatus.*
@@ -10,7 +11,13 @@ class FeatureEventController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
+    def permissionService
+
     def changes(Integer max) {
+        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+            redirect(uri: "/auth/unauthorized")
+            return
+        }
         params.max = Math.min(max ?: 10, 100)
         Map<String, FeatureEvent> featureEventList = new HashMap<>()
         Map<String, Feature> features = new HashMap<>()

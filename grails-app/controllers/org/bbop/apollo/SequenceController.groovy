@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.SequenceSummary
 import org.bbop.apollo.sequence.DownloadFile
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -188,6 +189,10 @@ class SequenceController {
     }
 
     def report(Organism organism,Integer max) {
+        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+            redirect(uri: "/auth/unauthorized")
+            return
+        }
         organism = organism ?: Organism.first()
         params.max = Math.min(max ?: 20, 100)
 

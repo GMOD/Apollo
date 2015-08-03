@@ -316,6 +316,10 @@ class AnnotatorController {
     }
 
     def report(Integer max) {
+        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+            redirect(uri: "/auth/unauthorized")
+            return
+        }
         List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
         params.max = Math.min(max ?: 20, 100)
 
