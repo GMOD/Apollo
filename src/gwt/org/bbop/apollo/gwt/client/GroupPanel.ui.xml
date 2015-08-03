@@ -19,11 +19,17 @@
             margin: 10px;
         }
 
-
         .paddedTable {
             padding-left: 30px;
             padding-top: 10px;
-        }</ui:style>
+        }
+
+        .pager {
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </ui:style>
     <gwt:SplitLayoutPanel>
 
         <gwt:center>
@@ -50,24 +56,22 @@
                         </b:Row>
                         <b:Row>
                             <b:Column size="MD_6" styleName="{style.paddedTable}">
-                                    <gwt:FlexTable ui:field="userData"/>
+                                <gwt:FlexTable ui:field="userData"/>
                             </b:Column>
                         </b:Row>
                     </b:Container>
                 </gwt:tab>
-                <!--<gwt:tab>-->
-                <!--<gwt:header>Users</gwt:header>-->
-                <!--<cellview:DataGrid ui:field="userData" styleName="{style.trackTable}"/>-->
-                <!--</gwt:tab>-->
-                <!--<gwt:tab>-->
-                <!--<gwt:header>Tracks</gwt:header>-->
-                <!--<gwt:HTML text="track permissions"/>-->
-                <!--<gwt:FlexTable ui:field="trackPermissions" width="90%" styleName="{style.center-table}"/>-->
-                <!--</gwt:tab>-->
                 <gwt:tab>
                     <gwt:header>Organisms</gwt:header>
-                    <cellview:DataGrid ui:field="organismPermissionsGrid" width="90%"
-                                       styleName="{style.center-table}"/>
+                    <gwt:DockLayoutPanel>
+                        <gwt:north size="25">
+                            <cellview:SimplePager ui:field="organismPager" styleName="{style.pager}"/>
+                        </gwt:north>
+                        <gwt:center>
+                            <cellview:DataGrid ui:field="organismPermissionsGrid" width="90%"
+                                               styleName="{style.center-table}"/>
+                        </gwt:center>
+                    </gwt:DockLayoutPanel>
                 </gwt:tab>
             </gwt:TabLayoutPanel>
         </gwt:south>

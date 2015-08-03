@@ -82,6 +82,8 @@ public class UserPanel extends Composite {
     DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4,tablecss);
     @UiField(provided = true)
     SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);
+    @UiField(provided = true)
+    SimplePager organismPager = new SimplePager(SimplePager.TextLocation.CENTER);
     @UiField
     org.gwtbootstrap3.client.ui.TextBox nameSearchBox;
     @UiField
@@ -252,6 +254,7 @@ public class UserPanel extends Composite {
 
         organismPermissionsGrid.addColumnSortHandler(sortHandler);
         organismPermissionsGrid.setEmptyTableWidget(new Label("Please select a user to view organism permissions"));
+        organismPager.setDisplay(organismPermissionsGrid);
 
         sortHandler.setComparator(organismNameColumn, new Comparator<UserOrganismPermissionInfo>() {
             @Override

@@ -56,6 +56,8 @@ public class GroupPanel extends Composite {
     @UiField
     FlexTable userData;
     @UiField(provided = true)
+    SimplePager organismPager = new SimplePager(SimplePager.TextLocation.CENTER);
+    @UiField(provided = true)
     DataGrid<GroupOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4,tablecss);
     private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
     private List<GroupInfo> groupInfoList = dataProvider.getList();
@@ -93,6 +95,7 @@ public class GroupPanel extends Composite {
 
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
+        organismPager.setDisplay(organismPermissionsGrid);
 
 
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
