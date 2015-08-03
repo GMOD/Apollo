@@ -226,6 +226,10 @@ class OrganismController {
      * @return
      */
     def report() {
+        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+            redirect(uri: "/auth/unauthorized")
+            return
+        }
         Map<Organism,OrganismSummary> organismSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
             @Override
             int compare(Organism o1, Organism o2) {

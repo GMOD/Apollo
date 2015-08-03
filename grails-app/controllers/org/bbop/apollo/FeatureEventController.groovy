@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureEventView
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -35,7 +36,13 @@ class FeatureEventController {
         render view:"changes2",model:[organismInstance:Organism.first()]
     }
 
+    def permissionService
+
     def changes(Integer max) {
+        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+            redirect(uri: "/auth/unauthorized")
+            return
+        }
         params.max = Math.min(max ?: 10, 100)
         Map<String, FeatureEvent> featureEventList = new HashMap<>()
         Map<String, Feature> features = new HashMap<>()
@@ -46,6 +53,8 @@ class FeatureEventController {
         Feature.findAllByUniqueNameInList(featureEventList.keySet() as List).each {
             features.put(it.uniqueName, it)
         }
+        println "featureEventList + ${featureEventList.size()}"
+        println "features+ ${features.size()}"
         assert featureEventList.size() == features.size()
 
         List<FeatureEventView> featureEventViewList = new ArrayList<>()
@@ -60,6 +69,7 @@ class FeatureEventController {
             featureEventView.locString = locationString
             featureEventViewList.add(featureEventView)
         }
+        println "featureEventViewList + ${featureEventViewList.size()}"
 
         render view: "changes", model: [featureEventViewList: featureEventViewList, featureEventInstanceCount: FeatureEvent.count()]
     }
