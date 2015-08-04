@@ -11,11 +11,13 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.springframework.messaging.handler.annotation.SendTo
 
 @Transactional
 class PermissionService {
 
     def preferenceService
+    def brokerMessagingTemplate
 
     boolean isUserAdmin(User user) {
         if(user!=null) {
@@ -575,5 +577,18 @@ class PermissionService {
         }
 
         return false
+    }
+
+
+    @SendTo("/topic/AnnotationNotification")
+    def sendLogout(String username ) {
+        User user = User.findByUsername(username)
+        log.debug "sending logout for ${user} via ${username}"
+        JSONObject jsonObject = new JSONObject()
+        jsonObject.put(FeatureStringEnum.USERNAME.value,username)
+        jsonObject.put(AbstractApolloController.REST_OPERATION,"logout")
+        log.debug "sending to: '/topic/AnnotationNotification/user/' + ${user.id}"
+        brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + user.id , jsonObject.toString()
+        return jsonObject.toString()
     }
 }

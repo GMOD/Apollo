@@ -9,6 +9,8 @@ import org.apache.shiro.authc.UnknownAccountException
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.crypto.hash.Sha256Hash
 import org.apache.shiro.session.Session
+import org.apache.shiro.subject.PrincipalCollection
+import org.apache.shiro.subject.SimplePrincipalCollection
 import org.apache.shiro.subject.Subject
 import org.apache.shiro.web.util.SavedRequest
 import org.apache.shiro.web.util.WebUtils
@@ -201,20 +203,8 @@ class LoginController extends AbstractApolloController {
 
     def logout(){
         log.debug "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
-        sendLogout(SecurityUtils.subject.principal)
+        permissionService.sendLogout(SecurityUtils.subject.principal)
         SecurityUtils.subject.logout()
         render new JSONObject() as JSON
-    }
-
-    @SendTo("/topic/AnnotationNotification")
-    def sendLogout(String username ) {
-        User user = User.findByUsername(username)
-        log.debug "sending logout for ${user} via ${username}"
-        JSONObject jsonObject = new JSONObject()
-        jsonObject.put(FeatureStringEnum.USERNAME.value,username)
-        jsonObject.put(AbstractApolloController.REST_OPERATION,"logout")
-        log.debug "sending to: '/topic/AnnotationNotification/user/' + ${user.id}"
-        brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + user.id , jsonObject.toString()
-        return jsonObject.toString()
     }
 }
