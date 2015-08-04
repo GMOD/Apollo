@@ -181,22 +181,23 @@ public class AnnotatorPanel extends Composite {
                         try {
                             returnValue = JSONParser.parseStrict(response.getText());
                         } catch (Exception e) {
-
-                            Window.Location.reload();
-                            GWT.log(e.getMessage());
+                            Window.alert(e.getMessage());
                         }
-                        long localRequestValue = (long) returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue()).isNumber().doubleValue();
-                        if (localRequestValue <= requestIndex) {
-                            return;
-                        } else {
-                            requestIndex = localRequestValue;
+                        JSONValue localRequestObject = returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue());
+                        if(localRequestObject!=null) {
+                            long localRequestValue = (long) localRequestObject.isNumber().doubleValue();
+                            if (localRequestValue <= requestIndex) {
+                                return;
+                            } else {
+                                requestIndex = localRequestValue;
+                            }
+                            Integer annotationCount = (int) returnValue.isObject().get(FeatureStringEnum.ANNOTATION_COUNT.getValue()).isNumber().doubleValue();
+
+                            JSONArray jsonArray = returnValue.isObject().get(FeatureStringEnum.FEATURES.getValue()).isArray();
+
+                            dataGrid.setRowCount(annotationCount, true);
+                            dataGrid.setRowData(start, AnnotationInfoConverter.convertFromJsonArray(jsonArray));
                         }
-                        Integer annotationCount = (int) returnValue.isObject().get(FeatureStringEnum.ANNOTATION_COUNT.getValue()).isNumber().doubleValue();
-
-                        JSONArray jsonArray = returnValue.isObject().get(FeatureStringEnum.FEATURES.getValue()).isArray();
-
-                        dataGrid.setRowCount(annotationCount, true);
-                        dataGrid.setRowData(start, AnnotationInfoConverter.convertFromJsonArray(jsonArray));
 
                     }
 
