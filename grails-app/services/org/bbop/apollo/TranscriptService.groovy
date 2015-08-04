@@ -481,7 +481,7 @@ class TranscriptService {
      * @return
      */
     @Timed
-    JSONObject convertTranscriptToJSON(Transcript gsolFeature, List<Feature> childFeatures = new ArrayList<>(), List<FeatureLocation> childFeatureLocations = new ArrayList<>()) {
+    JSONObject convertTranscriptToJSON(Transcript gsolFeature, List<Feature> childFeatures , List<FeatureLocation> childFeatureLocations ) {
         JSONObject jsonFeature = new JSONObject();
         try {
             if (gsolFeature.id) {
