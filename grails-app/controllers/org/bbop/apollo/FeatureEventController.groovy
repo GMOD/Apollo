@@ -55,19 +55,22 @@ class FeatureEventController {
         }
         println "featureEventList + ${featureEventList.size()}"
         println "features+ ${features.size()}"
-        assert featureEventList.size() == features.size()
+        assert featureEventList.size() >= features.size()
 
         List<FeatureEventView> featureEventViewList = new ArrayList<>()
         featureEventList.each {
-            FeatureEventView featureEventView = new FeatureEventView()
-            featureEventView.featureEvent = it.value
+            // sometimes a feature is deleted when its event may not have been
             Feature feature = features.get(it.key)
-            featureEventView.feature = feature
-            featureEventView.organismId = feature.featureLocation.sequence.organismId
-            String locationString = feature.featureLocation.sequence.name + ":"
-            locationString += feature.featureLocation.fmin + ".." + feature.featureLocation.fmax
-            featureEventView.locString = locationString
-            featureEventViewList.add(featureEventView)
+            if(feature){
+                FeatureEventView featureEventView = new FeatureEventView()
+                featureEventView.featureEvent = it.value
+                featureEventView.feature = feature
+                featureEventView.organismId = feature.featureLocation.sequence.organismId
+                String locationString = feature.featureLocation.sequence.name + ":"
+                locationString += feature.featureLocation.fmin + ".." + feature.featureLocation.fmax
+                featureEventView.locString = locationString
+                featureEventViewList.add(featureEventView)
+            }
         }
         println "featureEventViewList + ${featureEventViewList.size()}"
 
