@@ -203,7 +203,7 @@ class LoginController extends AbstractApolloController {
 
     def logout(){
         log.debug "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
-        permissionService.sendLogout(SecurityUtils.subject.principal)
+        permissionService.sendLogout(SecurityUtils.subject?.principal)
         SecurityUtils.subject.logout()
         render new JSONObject() as JSON
     }

@@ -1,5 +1,6 @@
 import grails.converters.JSON
 import grails.util.Environment
+import org.apache.shiro.grails.ShiroSecurityService
 import org.bbop.apollo.FeatureType
 import org.bbop.apollo.Organism
 import org.bbop.apollo.Role
@@ -18,7 +19,10 @@ class BootStrap {
     def apolloSessionManager
 
     def initShiro() {
-        // DefaultWebSessionManager with MySessionListener
+//         DefaultWebSessionManager with MySessionListener
+//        println "pre session manager ${shiroSecurityManager.class.name}"
+//        println "session manager ${shiroSecurityManager.sessionManager.class.name}"
+//        println "post session manager ${apolloSessionManager}"
         shiroSecurityManager.sessionManager = apolloSessionManager
     }
 
