@@ -1,7 +1,10 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureEventView
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
@@ -10,6 +13,28 @@ import grails.transaction.Transactional
 class FeatureEventController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
+
+    def changesValues(){
+
+        JSONObject jsonObject = new JSONObject()
+
+        jsonObject.testValue = "yeah its working"
+        JSONArray changesArray = new JSONArray()
+        for(FeatureEvent featureEvent : FeatureEvent.list([max:10])){
+            JSONObject jsonObject1 = new JSONObject()
+            jsonObject1.operation = featureEvent.operation.name()
+            changesArray.add(jsonObject1)
+        }
+
+        jsonObject.changes = changesArray
+
+
+        render jsonObject as JSON
+    }
+
+    def changes2(){
+        render view:"changes2",model:[organismInstance:Organism.first()]
+    }
 
     def permissionService
 

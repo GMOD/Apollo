@@ -212,7 +212,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
 
     def addComments() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        println inputObject.toString()
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addComments(inputObject)
         } else {
@@ -540,7 +541,26 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             render status: HttpStatus.UNAUTHORIZED
         }
     }
-
+    
+    def setStatus() {
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.setStatus(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+    
+    def addAttribute() {
+        println("PARAMS: " + params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.addNonReservedProperties(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+    
     def setReadthroughStopCodon() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {

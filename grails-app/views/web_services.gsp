@@ -11,14 +11,7 @@
 
 <body>
 
-
 <g:render template="../layouts/reportHeader"/>
-%{--<div class="nav" role="navigation">--}%
-    %{--<ul>--}%
-        %{--<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>--}%
-        %{--<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>--}%
-    %{--</ul>--}%
-%{--</div>--}%
 
 <div class="section" id="login">
 
@@ -30,7 +23,40 @@
         <a href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/">scripting examples</a> utilizing
     web services in addition to utilizing them internally.
     </p>
+</div>
 
+<div class="section" id="operation-summary">
+    <h3>Operations</h3>
+
+    <p>Summary of some of the operations supported by the API.</p>
+
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_organism"><code>add_organism</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#get_sequences_for_organism"><code>get_sequences_for_organism</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_feature"><code>add_feature</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#delete_feature"><code>delete_feature</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#get_features"><code>get_features</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_transcript"><code>add_transcript</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#duplicate_transcript"><code>duplicate_transcript</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#merge_transcripts"><code>merge_transcripts</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_translation_start"><code>set_translation_start</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_translation_end"><code>set_translation_end</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_longest_orf"><code>set_longest_orf</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_exon"><code>add_exon</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#delete_exon"><code>delete_exon</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#merge_exons"><code>merge_exons</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#split_exon"><code>split_exon</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#split_transcript"><code>split_transcript</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_sequence_alteration"><code>add_sequence_alteration</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#delete_sequence_alteration"><code>delete_sequence_alteration</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#get_sequence_alterations"><code>get_sequence_alterations</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_attribute"><code>add_attribute</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_comments"><code>add_comments</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_status"><code>set_status</code></a>
+
+
+</div>
+
+<div class="section" id="requests">
 
     <h3>Requests</h3>
 
@@ -153,11 +179,11 @@
 
 </div>
 
+
 <div class="section" id="operations">
-    <h3>Operations</h3>
+    <h3>Operation Details</h3>
 
-
-    <h4>add_organism</h4>
+    <a name="add_organism"><h4>add_organism</h4></a>
 
     <p>
         Adds an organism to the database.
@@ -188,17 +214,18 @@
         {}
     </div>
 
-    <h4>get_sequences_for_organism</h4>
-    
+    <a name="get_sequences_for_organism"><h4>get_sequences_for_organism</h4></a>
+
     <p>
         Gets all sequence names for a given organism, that has annotations.
-        An example using this operation is <a href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/migrate_annotations.groovy">migrate_annotations.groovy</a>.
+        An example using this operation is <a
+            href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/migrate_annotations.groovy">migrate_annotations.groovy</a>.
     </p>
-    
+
     <p>
         Request: <code>/organism/getSequencesForOrganism</code>
     </p>
-    
+
     <div class="code">
         {
         "username": "bob@admin.gov",
@@ -206,11 +233,11 @@
         "organism": "organism_common_name"
         }
     </div>
-    
+
     <p>
         Response Status 200:
     </p>
-    
+
     <div class="code">
         {
         "username": "bob@admin.gov",
@@ -218,8 +245,8 @@
         "organism": "organism_common_name"
         }
     </div>
-    
-    <h4>add_feature</h4>
+
+    <a name="add_feature"><h4>add_feature</h4></a>
 
     <inp>
         Add a top level feature. Returns feature just added.
@@ -264,7 +291,7 @@
     }]}
     </div>
 
-    <h4>delete_feature</h4>
+    <a name="delete_feature"><h4>delete_feature</h4></a>
 
     <p>
         Delete feature(s) from the session. Each feature only requires <code>uniquename</code> to be set. Returns
@@ -287,7 +314,7 @@
     <div class="code">{"features": []}
     </div>
 
-    <h4>get_features</h4>
+    <a name="get_features"><h4>get_features</h4></a>
 
     <p>
         Get all top level features.
@@ -319,7 +346,7 @@
     }]}
     </div>
 
-    <h4>add_transcript</h4>
+    <a name="add_transcript"><h4>add_transcript</h4></a>
 
     <p>
         Add transcript(s) to a gene. The first element of the <code>features</code> array should be the gene to add
@@ -380,7 +407,7 @@
     }]}
     </div>
 
-    <h4>duplicate_transcript</h4>
+    <a name="duplicate_transcript"><h4>duplicate_transcript</h4></a>
 
     <p>
         Duplicate a transcript. Only the first transcript in the <code>features</code> array is processed. The transcript
@@ -440,7 +467,7 @@
     }]}
     </div>
 
-    <h4>merge_transcripts</h4>
+    <a name="merge_transcripts"><h4>merge_transcripts</h4></a>
 
     <p>
         Merge two transcripts together. Only the transcripts in the first and second positions in the <code>features</code>
@@ -544,7 +571,7 @@
     }]}
     </div>
 
-    <h4>set_translation_start</h4>
+    <a name="set_translation_start"><h4>set_translation_start</h4></a>
 
     <p>
         Set the CDS start and end in a transcript. The transcript feature only needs to have the <code>uniquename</code>
@@ -666,7 +693,7 @@
     }]}
     </div>
 
-    <h4>set_translation_end</h4>
+    <a name="set_translation_end"><h4>set_translation_end</h4></a>
 
     <p>
         Set the CDS end in a transcript. The transcript feature only needs to have the <code>uniquename</code>
@@ -789,7 +816,7 @@
     </div>
 
 
-    <h4>set_longest_orf</h4>
+    <a name="set_longest_orf"><h4>set_longest_orf</h4></a>
 
     <p>
         Calculate the longest ORF for a transcript. The only element in the <code>features</code> array should
@@ -887,7 +914,7 @@
     }]}
     </div>
 
-    <h4>add_exon</h4>
+    <a name="add_exon"><h4>add_exon</h4></a>
 
     <p>
         Add exon(s) to a transcript. The first element of the <code>features</code> array should be the transcript
@@ -998,7 +1025,7 @@
     }]}
     </div>
 
-    <h4>delete_exon</h4>
+    <a name="delete_exon"><h4>delete_exon</h4></a>
 
     <p>
         Delete an exon from a transcript. If there are no exons left on the transcript, the transcript
@@ -1061,7 +1088,7 @@
     }]}
     </div>
 
-    <h4>merge_exons</h4>
+    <a name="merge_exons"><h4>merge_exons</h4></a>
 
     <p>
         Merge exons. The <code>features</code> array should contain two exons. Each exon only requires
@@ -1122,7 +1149,7 @@
     }]}
     </div>
 
-    <h4>split_exon</h4>
+    <a name="split_exon"><h4>split_exon</h4></a>
 
     <p>
         Splits the exon, creating two exons, the left one ends at at the new fmax and the right one starts at the
@@ -1202,7 +1229,7 @@
     }]}
     </div>
 
-    <h4>split_transcript</h4>
+    <a name="split_transcript"><h4>split_transcript</h4></a>
 
     <p>
         Split a transcript between the two exons. One transcript will contain all exons from the leftmost
@@ -1292,7 +1319,7 @@
     }]}
     </div>
 
-    <h4>add_sequence_alteration</h4>
+    <a name="add_sequence_alteration"><h4>add_sequence_alteration</h4></a>
 
     <p>
         Add sequence alteration(s). Each element of the <code>features</code> array should be an alteration feature
@@ -1340,7 +1367,7 @@
     }]}
     </div>
 
-    <h4>delete_sequence_alteration</h4>
+    <a name="delete_sequence_alteration"><h4>delete_sequence_alteration</h4></a>
 
     <p>
         Delete sequence alteration(s). Each feature only requires <code>uniquename</code> to be set. Returns
@@ -1366,7 +1393,7 @@
     <div class="code">{"features": []}
     </div>
 
-    <h4>get_sequence_alterations</h4>
+    <a name="get_sequence_alterations"><h4>get_sequence_alterations</h4></a>
 
     <p>
         Get all sequence alterations. Returns an array of alterations.
@@ -1626,6 +1653,393 @@
     %{--}]}--}%
     %{--</div>--}%
 
+    <a name="add_attribute"><h4>add_attribute</h4></a>
+
+    <p>
+        Add attributes to a feature
+    </p>
+
+    <p>
+        Request: <code>/annotationEditor/addAttribute</code>
+    </p>
+
+    <div class="code">{
+    "features":[{
+    "non_reserved_properties":[{
+    "tag":"attributeName",
+    "value":"attributeValue"
+    }],
+    "uniquename":"bc7a1c02-3503-416f-97f4-70489e6477b0"
+    }]
+    }
+    </div>
+
+    <p>
+        Response:
+    </p>
+
+    <div class="code">{
+    "features":[{
+    "id":207387,
+    "date_creation":1438616294696,
+    "location":{
+    "id":207388,
+    "fmin":97044,
+    "strand":1,
+    "fmax":97323
+    },
+    "sequence":"Group1.14",
+    "name":"GB51850-RA",
+    "owner":"user@email.com",
+    "children":[{
+    "id":207389,
+    "date_creation":1438616294686,
+    "location":{
+    "id":207390,
+    "fmin":97044,
+    "strand":1,
+    "fmax":97323
+    },
+    "sequence":"Group1.14",
+    "parent_type":{
+    "name":"gene",
+    "cv":{"name":"sequence"}
+    },
+    "name":"GB51850-RA-00001",
+    "owner":"user@email.com",
+    "children":[{
+    "id":207391,
+    "date_creation":1438616294661,
+    "location":{
+    "id":207392,
+    "fmin":97044,
+    "strand":1,
+    "fmax":97323
+    },
+    "sequence":"Group1.14",
+    "parent_type":{
+    "name":"mRNA",
+    "cv":{"name":"sequence"}
+    },
+    "name":"986735ff-d666-416f-8246-aba7f9c30d66-exon",
+    "owner":"None",
+    "properties":[{
+    "value":"None",
+    "type":{
+    "name":"owner",
+    "cv":{"name":"feature_property"}
+    }
+    }],
+    "uniquename":"986735ff-d666-416f-8246-aba7f9c30d66",
+    "type":{
+    "name":"exon",
+    "cv":{"name":"sequence"}
+    },
+    "date_last_modified":1438616294716,
+    "parent_id":"2fe372e5-3ea6-4ef1-83af-747be8473ef3"
+    },
+    {
+    "id":207394,
+    "date_creation":1438616294678,
+    "location":{
+    "id":207395,
+    "fmin":97044,
+    "strand":1,
+    "fmax":97323},
+    "sequence":"Group1.14",
+    "parent_type":{
+    "name":"mRNA",
+    "cv":{"name":"sequence"}
+    },
+    "name":"a200b8e2-7a1f-44b4-8ec3-2cc7fe4e9981-CDS",
+    "owner":"None",
+    "properties":[{
+    "value":"None",
+    "type":{
+    "name":"owner",
+    "cv":{"name":"feature_property"}
+    }}],
+    "uniquename":"a200b8e2-7a1f-44b4-8ec3-2cc7fe4e9981",
+    "type":{
+    "name":"CDS",
+    "cv":{"name":"sequence"}
+    },
+    "date_last_modified":1438616294718,
+    "parent_id":"2fe372e5-3ea6-4ef1-83af-747be8473ef3"
+    }],
+    "properties":[{
+    "value":"user@email.com",
+    "type":{
+    "name":"owner",
+    "cv":{"name":"feature_property"}
+    }}],
+    "uniquename":"2fe372e5-3ea6-4ef1-83af-747be8473ef3",
+    "type":{
+    "name":"mRNA",
+    "cv":{"name":"sequence"}
+    },
+    "date_last_modified":1438616294838,
+    "parent_id":"bc7a1c02-3503-416f-97f4-70489e6477b0"
+    }],
+    "properties":[{
+    "value":"attributeName",
+    "type":{
+    "cv":{"name":"feature_property"}
+    }},
+    {"value":"attributeValue",
+    "type":{
+    "cv":{"name":"feature_property"}
+    }},
+    {
+    "value":"user@email.com",
+    "type":{
+    "name":"owner",
+    "cv":{
+    "name":"feature_property"}
+    }}],
+    "uniquename":"bc7a1c02-3503-416f-97f4-70489e6477b0",
+    "type":{
+    "name":"gene",
+    "cv":{"name":"sequence"}
+    },
+    "date_last_modified":1438616294836}
+    ]
+    }
+
+    </div>
+
+    <a name="add_comments"><h4>add_comments</h4></a>
+
+    <p>
+        Add comments to a feature
+    </p>
+
+    <p>
+        Request: <code>/annotationEditor/addComments</code>
+    </p>
+
+    <div class="code">{
+    "features":[{
+    "uniquename":"bc7a1c02-3503-416f-97f4-70489e6477b0",
+    "comments":["This is a comment"]
+    }]
+    }
+    </div>
+
+    <p>
+        Response:
+    </p>
+
+    <div class="code">{
+    "features":[{
+    "id":207389,
+    "date_creation":1438616294686,
+    "location":{
+    "id":207390,
+    "fmin":97044,
+    "strand":1,
+    "fmax":97323
+    },
+    "sequence":"Group1.14",
+    "parent_type":{
+    "name":"gene",
+    "cv":{"name":"sequence"}
+    },
+    "name":"GB51850-RA-00001",
+    "owner":"user@email.com",
+    "children":[{
+    "id":207391,
+    "date_creation":1438616294661,
+    "location":{
+    "id":207392,
+    "fmin":97044,
+    "strand":1,
+    "fmax":97323},
+    "sequence":"Group1.14",
+    "parent_type":{
+    "name":"mRNA",
+    "cv":{"name":"sequence"}
+    },
+    "name":"986735ff-d666-416f-8246-aba7f9c30d66-exon",
+    "owner":"None",
+    "properties":[{
+    "value":"None",
+    "type":{
+    "name":"owner",
+    "cv":{"name":"feature_property"}
+    }}],
+    "uniquename":"986735ff-d666-416f-8246-aba7f9c30d66",
+    "type":{
+    "name":"exon",
+    "cv":{"name":"sequence"}
+    },
+    "date_last_modified":1438616294716,
+    "parent_id":"2fe372e5-3ea6-4ef1-83af-747be8473ef3"
+    },
+    {"id":207394,
+    "date_creation":1438616294678,
+    "location":{
+    "id":207395,
+    "fmin":97044,
+    "strand":1,
+    "fmax":97323
+    },
+    "sequence":"Group1.14",
+    "parent_type":{
+    "name":"mRNA",
+    "cv":{"name":"sequence"}
+    },
+    "name":"a200b8e2-7a1f-44b4-8ec3-2cc7fe4e9981-CDS",
+    "owner":"None",
+    "properties":[{
+    "value":"None",
+    "type":{
+    "name":"owner",
+    "cv":{
+    "name":"feature_property"
+    }}}],
+    "uniquename":"a200b8e2-7a1f-44b4-8ec3-2cc7fe4e9981",
+    "type":{
+    "name":"CDS",
+    "cv":{"name":"sequence"}
+    },
+    "date_last_modified":1438616294718,
+    "parent_id":"2fe372e5-3ea6-4ef1-83af-747be8473ef3"
+    }],
+    "properties":[{
+    "value":"user@email.com",
+    "type":{
+    "name":"owner",
+    "cv":{
+    "name":"feature_property"
+    }}}],
+    "uniquename":"2fe372e5-3ea6-4ef1-83af-747be8473ef3",
+    "type":{
+    "name":"mRNA",
+    "cv":{
+    "name":"sequence"
+    }},
+    "date_last_modified":1438616294838,
+    "parent_id":"bc7a1c02-3503-416f-97f4-70489e6477b0"
+    }]}
+    }
+    </div>
+
+    <a name="set_status"><h4>set_status</h4></a>
+
+    <p>
+        Set status for a feature to indicate annotation quality or annotation progress.
+    </p>
+
+    <p>
+        Request: <code>/annotationEditor/setStatus</code>
+    </p>
+
+    <div class="code">{
+    "features":[{
+    "status":"Verification Needed",
+    "uniquename":"bc7a1c02-3503-416f-97f4-70489e6477b0"
+    }]
+    }
+    </div>
+
+    <p>
+        Response:
+    </p>
+
+    <div class="code">{
+    "features": [{
+    "id": 207389,
+    "date_creation": 1438616294686,
+    "location": {
+    "id": 207390,
+    "fmin": 97044,
+    "strand": 1,
+    "fmax": 97323
+    },
+    "sequence": "Group1.14",
+    "parent_type": {
+    "name": "gene",
+    "cv": {"name": "sequence"}
+    },
+    "name": "GB51850-RA-00001",
+    "owner": "user@email.com",
+    "children": [{
+    "id": 207391,
+    "date_creation": 1438616294661,
+    "location": {
+    "id": 207392,
+    "fmin": 97044,
+    "strand": 1,
+    "fmax": 97323
+    },
+    "sequence": "Group1.14",
+    "parent_type": {
+    "name": "mRNA",
+    "cv": {"name": "sequence"}
+    },
+    "name": "986735ff-d666-416f-8246-aba7f9c30d66-exon",
+    "owner": "None",
+    "properties": [{
+    "value": "None",
+    "type": {
+    "name": "owner",
+    "cv": {"name": "feature_property"}
+    }}],
+    "uniquename": "986735ff-d666-416f-8246-aba7f9c30d66",
+    "type": {
+    "name": "exon",
+    "cv": {"name": "sequence"}
+    },
+    "date_last_modified": 1438616294716,
+    "parent_id": "2fe372e5-3ea6-4ef1-83af-747be8473ef3"
+    },
+    {
+    "id": 207394,
+    "date_creation": 1438616294678,
+    "location": {
+    "id": 207395,
+    "fmin": 97044,
+    "strand": 1,
+    "fmax": 97323
+    },
+    "sequence": "Group1.14",
+    "parent_type": {
+    "name": "mRNA",
+    "cv": {"name": "sequence"}
+    },
+    "name": "a200b8e2-7a1f-44b4-8ec3-2cc7fe4e9981-CDS",
+    "owner": "None",
+    "properties": [{
+    "value": "None",
+    "type": {
+    "name": "owner",
+    "cv": {"name": "feature_property"}
+    }}],
+    "uniquename": "a200b8e2-7a1f-44b4-8ec3-2cc7fe4e9981",
+    "type": {
+    "name": "CDS",
+    "cv": {"name": "sequence"}
+    },
+    "date_last_modified": 1438616294718,
+    "parent_id": "2fe372e5-3ea6-4ef1-83af-747be8473ef3"
+    }],
+    "properties": [{
+    "value": "user@email.com",
+    "type": {
+    "name": "owner",
+    "cv": {"name": "feature_property"}
+    }}],
+    "uniquename": "2fe372e5-3ea6-4ef1-83af-747be8473ef3",
+    "type": {
+    "name": "mRNA",
+    "cv": {"name": "sequence"}
+    },
+    "date_last_modified": 1438616294838,
+    "parent_id": "bc7a1c02-3503-416f-97f4-70489e6477b0"
+    }]
+    }
+    </div>
 </div>
 
 <div class="section" id="ioservice">
@@ -1689,6 +2103,7 @@
             }
         </code>
     </p>
+
     <p>
         Response: <code>{}</code>
     </p>
@@ -1706,10 +2121,10 @@
 
         Conversely, userId can also be passed in with the database id.
     </p>
+
     <p>
         Response: <code>{}</code>
     </p>
-
 
 </div>
 
