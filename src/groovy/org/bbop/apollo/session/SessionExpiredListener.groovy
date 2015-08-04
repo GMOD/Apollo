@@ -16,16 +16,19 @@ class SessionExpiredListener  extends SessionListenerAdapter{
 
     @Override
     void onStart(Session session) {
+        println "session listener started"
         super.onStart(session)
     }
 
     @Override
     void onStop(Session session) {
+        println "session listener STOPPED"
         super.onStop(session)
     }
 
     @Override
     void onExpiration(Session session) {
+        println "session EXPIRED "
         super.onExpiration(session)
 //        println "trying to logout? " + session.id
 //        SecurityUtils.securityManager.getSession(session.id)
