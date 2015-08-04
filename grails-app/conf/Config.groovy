@@ -22,7 +22,7 @@ grails.config.locations = [
 // }
 
 
-security.shiro.session.mode = 'native'
+//security.shiro.session.mode = 'native'
 
 grails.assets.minifyJs = false
 grails.assets.minifyCss = false
