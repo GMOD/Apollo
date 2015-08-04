@@ -11,14 +11,7 @@
 
 <body>
 
-
 <g:render template="../layouts/reportHeader"/>
-%{--<div class="nav" role="navigation">--}%
-    %{--<ul>--}%
-        %{--<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>--}%
-        %{--<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>--}%
-    %{--</ul>--}%
-%{--</div>--}%
 
 <div class="section" id="login">
 
@@ -30,7 +23,40 @@
         <a href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/">scripting examples</a> utilizing
     web services in addition to utilizing them internally.
     </p>
+</div>
 
+<div class="section" id="operation-summary">
+    <h3>Operations</h3>
+
+    <p>Summary of some of the operations supported by the API.</p>
+
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_organism"><code>add_organism</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#get_sequences_for_organism"><code>get_sequences_for_organism</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_feature"><code>add_feature</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#delete_feature"><code>delete_feature</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#get_features"><code>get_features</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_transcript"><code>add_transcript</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#duplicate_transcript"><code>duplicate_transcript</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#merge_transcripts"><code>merge_transcripts</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_translation_start"><code>set_translation_start</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_translation_end"><code>set_translation_end</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_longest_orf"><code>set_longest_orf</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_exon"><code>add_exon</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#delete_exon"><code>delete_exon</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#merge_exons"><code>merge_exons</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#split_exon"><code>split_exon</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#split_transcript"><code>split_transcript</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_sequence_alteration"><code>add_sequence_alteration</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#delete_sequence_alteration"><code>delete_sequence_alteration</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#get_sequence_alterations"><code>get_sequence_alterations</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_attribute"><code>add_attribute</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_comments"><code>add_comments</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_status"><code>set_status</code></a>
+
+
+</div>
+
+<div class="section" id="requests">
 
     <h3>Requests</h3>
 
@@ -153,33 +179,9 @@
 
 </div>
 
+
 <div class="section" id="operations">
-    <h3>Operations</h3>
-    <p>Summary of operations supported by the API</p>
-    <ol>
-        <li><a href="#add_organism"><code>add_organism</code></a></li>
-        <li><a href="#get_sequences_for_organism"><code>get_sequences_for_organism</code></a></li>
-        <li><a href="#add_feature"><code>add_feature</code></a></li>
-        <li><a href="#delete_feature"><code>delete_feature</code></a></li>
-        <li><a href="#get_features"><code>get_features</code></a></li>
-        <li><a href="#add_transcript"><code>add_transcript</code></a></li>
-        <li><a href="#duplicate_transcript"><code>duplicate_transcript</code></a></li>
-        <li><a href="#merge_transcripts"><code>merge_transcripts</code></a></li>
-        <li><a href="#set_translation_start"><code>set_translation_start</code></a></li>
-        <li><a href="#set_translation_end"><code>set_translation_end</code></a></li>
-        <li><a href="#set_longest_orf"><code>set_longest_orf</code></a></li>
-        <li><a href="#add_exon"><code>add_exon</code></a></li>
-        <li><a href="#delete_exon"><code>delete_exon</code></a></li>
-        <li><a href="#merge_exons"><code>merge_exons</code></a></li>
-        <li><a href="#split_exon"><code>split_exon</code></a></li>
-        <li><a href="#split_transcript"><code>split_transcript</code></a></li>
-        <li><a href="#add_sequence_alteration"><code>add_sequence_alteration</code></a></li>
-        <li><a href="#delete_sequence_alteration"><code>delete_sequence_alteration</code></a></li>
-        <li><a href="#get_sequence_alterations"><code>get_sequence_alterations</code></a></li>
-        <li><a href="#add_attribute"><code>add_attribute</code></a></li>
-        <li><a href="#add_comments"><code>add_comments</code></a></li>
-        <li><a href="#set_status"><code>set_status</code></a></li>
-    </ol>
+    <h3>Operation Details</h3>
 
     <a name="add_organism"><h4>add_organism</h4></a>
 
@@ -213,16 +215,17 @@
     </div>
 
     <a name="get_sequences_for_organism"><h4>get_sequences_for_organism</h4></a>
-    
+
     <p>
         Gets all sequence names for a given organism, that has annotations.
-        An example using this operation is <a href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/migrate_annotations.groovy">migrate_annotations.groovy</a>.
+        An example using this operation is <a
+            href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/migrate_annotations.groovy">migrate_annotations.groovy</a>.
     </p>
-    
+
     <p>
         Request: <code>/organism/getSequencesForOrganism</code>
     </p>
-    
+
     <div class="code">
         {
         "username": "bob@admin.gov",
@@ -230,11 +233,11 @@
         "organism": "organism_common_name"
         }
     </div>
-    
+
     <p>
         Response Status 200:
     </p>
-    
+
     <div class="code">
         {
         "username": "bob@admin.gov",
@@ -242,9 +245,9 @@
         "organism": "organism_common_name"
         }
     </div>
-    
+
     <a name="add_feature"><h4>add_feature</h4></a>
-    
+
     <inp>
         Add a top level feature. Returns feature just added.
 
@@ -289,7 +292,7 @@
     </div>
 
     <a name="delete_feature"><h4>delete_feature</h4></a>
-    
+
     <p>
         Delete feature(s) from the session. Each feature only requires <code>uniquename</code> to be set. Returns
     an empty <code>features</code> array.
@@ -312,7 +315,7 @@
     </div>
 
     <a name="get_features"><h4>get_features</h4></a>
-    
+
     <p>
         Get all top level features.
     </p>
@@ -344,7 +347,7 @@
     </div>
 
     <a name="add_transcript"><h4>add_transcript</h4></a>
-    
+
     <p>
         Add transcript(s) to a gene. The first element of the <code>features</code> array should be the gene to add
     the transcript(s) to, with each subsequent feature being a transcript to be added. The gene feature only
@@ -1317,7 +1320,7 @@
     </div>
 
     <a name="add_sequence_alteration"><h4>add_sequence_alteration</h4></a>
-    
+
     <p>
         Add sequence alteration(s). Each element of the <code>features</code> array should be an alteration feature
     (e.g. substitution, insertion, deletion). Each alteration needs to have <code>location</code>, <code>type</code>,
@@ -1365,7 +1368,7 @@
     </div>
 
     <a name="delete_sequence_alteration"><h4>delete_sequence_alteration</h4></a>
-    
+
     <p>
         Delete sequence alteration(s). Each feature only requires <code>uniquename</code> to be set. Returns
     an empty <code>features</code> array.
@@ -1391,7 +1394,7 @@
     </div>
 
     <a name="get_sequence_alterations"><h4>get_sequence_alterations</h4></a>
-    
+
     <p>
         Get all sequence alterations. Returns an array of alterations.
     </p>
@@ -1806,14 +1809,15 @@
     </div>
 
     <a name="add_comments"><h4>add_comments</h4></a>
-    
+
     <p>
         Add comments to a feature
     </p>
+
     <p>
         Request: <code>/annotationEditor/addComments</code>
     </p>
-    
+
     <div class="code">{
     "features":[{
     "uniquename":"bc7a1c02-3503-416f-97f4-70489e6477b0",
@@ -1825,7 +1829,7 @@
     <p>
         Response:
     </p>
-    
+
     <div class="code">{
     "features":[{
     "id":207389,
@@ -1943,7 +1947,7 @@
         Response:
     </p>
 
-    <div class="code"> {
+    <div class="code">{
     "features": [{
     "id": 207389,
     "date_creation": 1438616294686,
@@ -2037,6 +2041,7 @@
     }
     </div>
 </div>
+
 <div class="section" id="ioservice">
     <h3>IO Service</h3>
 
@@ -2098,6 +2103,7 @@
             }
         </code>
     </p>
+
     <p>
         Response: <code>{}</code>
     </p>
@@ -2115,10 +2121,10 @@
 
         Conversely, userId can also be passed in with the database id.
     </p>
+
     <p>
         Response: <code>{}</code>
     </p>
-
 
 </div>
 
