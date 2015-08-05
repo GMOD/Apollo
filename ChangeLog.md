@@ -1,7 +1,3 @@
-## 2.0.1-SNAPSHOT
-
-Development snapshot
-
 ## 2.0.0-RC3
 
 Features
@@ -11,11 +7,21 @@ Features
 + Updated bulk loader to support loading for a specific organism with the --organism parameter (See #505).
 + Updated bulk loader to support looking up the name of a feature from a specific GFF3 tag with the --name_attributes. Thanks to @anaome for the idea and implementation (See #396).
 + Raise limit on number of tracks allowed in track panel (#502).
-+ Added some database optimizations for retrieving sequence features (#504).
++ Added some database optimizations for retrieving sequence features (#504, #452).
++ Optimized annotation panel (#389).
++ UI improvements (#385).
++ Add compression to gzip / fasta (#252).
++ Add stress testing frameworks (#137).
 
 Bugfixes
 
 + Fixed bug that prevented deleting of certain isoforms after database optimizations were applied in RC2 (#497).
++ Moving to opposite strand was not recalculating the ORF (#468).
++ Secure GFF3 / FASTA export (#464, #467).
++ Unable to add organisms from some users (#463).
++ Fixed bug when not stopping (#448).
++ Readthrough stop codons are not being highlighted after undo/redo (#400).
+
 
 
 ## 2.0.0-RC2
