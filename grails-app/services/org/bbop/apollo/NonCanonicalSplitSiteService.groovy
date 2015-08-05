@@ -141,7 +141,7 @@ class NonCanonicalSplitSiteService {
         Sequence sequence=transcript.getFeatureLocation().sequence
         Strand strand=transcript.getFeatureLocation().strand==-1?Strand.NEGATIVE:Strand.POSITIVE
 
-        String residues = sequenceService.etGenomicResiduesFromSequenceWithAlterations(sequence,fmin,fmax,strand);
+        String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,fmin,fmax,strand);
         if(transcript.getStrand()==-1)residues=residues.reverse()
 
         for (Exon exon : exons) {
