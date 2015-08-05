@@ -3,6 +3,8 @@ package org.bbop.apollo.session
 import org.apache.shiro.session.Session
 import org.apache.shiro.session.SessionListenerAdapter
 
+import javax.servlet.http.HttpSessionEvent
+
 /**
  * Created by nathandunn on 8/3/15.
  */
@@ -40,13 +42,5 @@ class SessionExpiredListener  extends SessionListenerAdapter{
 ////        sendLogout()
 ////    }
 //
-//    @Override
-//    void sessionCreated(HttpSessionEvent httpSessionEvent) {
-//
-//    }
-//
-//    @Override
-//    void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
-//
-//    }
+
 }
