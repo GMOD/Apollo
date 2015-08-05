@@ -1,9 +1,10 @@
 # Quick-start guide
 
+There are two modes of installation.  Development, in which case you should (look here)[Architecture.md] or production, which will typically require an external separate database and producing a ```war``` file that will be placed in a webapp directory association with a server such as tomcat or resin.
+
 ## Install prerequisites
 
-You will minimally need to install Java (Oracle or OpenJDK's version, minimally Java7, ([Grails](https://grails.org/), [git](https://git-scm.com/), [ant] (http://ant.apache.org/), and a servlet web server - [tomcat, minimally 7.0.28](http://tomcat.apache.org/) or [resin](http://caucho.com/).  If you wish to use a database a non-embedded database (recommended for a production environment) you will have to install that separately.  
-
+You will minimally need to install Java (Oracle or OpenJDK's version, Java (7 or greater), ([Grails](https://grails.org/), [git](https://git-scm.com/), [ant] (http://ant.apache.org/), and java web server - [tomcat, minimally 7.0.28](http://tomcat.apache.org/) or [resin](http://caucho.com/).  If you wish to use a database a non-embedded database (recommended for a production environment) you will have to install that separately.  
 ### Grails 
 Installing grails is made easier by using [GVM](http://gvmtool.net/) which can automatically setup grails for you. We will use grails 2.4.5 for Web Apollo
 
@@ -19,11 +20,21 @@ To setup WebApollo, you can download the code from github:
 
 Using a stable release tag might be suggested as well
 
+### Verify install requirements
+
+Once you have the pre-requisites installed and the code checked out, you can verify that it will work by typing:
+
+```ant run-local```
+
+and connecting to ```http://localhost:8080/apollo``` once is up and running.
+
+You can the attempt to load an organism / tracks.  Any annotations created or organism rendered will not be recorded, but it is an easy way to verify that you have the pre-requisites installed and that your tracks are properly configured. 
+
 ## Basic configuration
 
-Web Apollo 2.0 simplifies and expands options for the database setup. This section will cover the basic options for this.
+Web Apollo 2.0 simplifies and expands options for the database setup. This section will cover the basic options for this in a production environment.
 
-The basic idea is to setup a new apollo-config.groovy file from some existing samples to initialize your database settings.
+The general idea is to create a new ```apollo-config.groovy``` file from some existing samples to initialize your database settings.
 
 ## Database options
 
