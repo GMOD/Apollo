@@ -1,13 +1,16 @@
 # Quick-start guide
 
-## Install grails
+## Install prerequisites
 
+You will minimally need to install Java (Oracle or OpenJDK's version, minimally Java7, ([Grails](https://grails.org/), [git](https://git-scm.com/), [ant] (http://ant.apache.org/), and a servlet web server - [tomcat, minimally 7.0.28](http://tomcat.apache.org/) or [resin](http://caucho.com/).  If you wish to use a database a non-embedded database (recommended for a production environment) you will have to install that separately.  
+
+### Grails 
 Installing grails is made easier by using [GVM](http://gvmtool.net/) which can automatically setup grails for you. We will use grails 2.4.5 for Web Apollo
 
 1. curl -s get.gvmtool.net | bash
 2. gvm install grails 2.4.5
 
-## Get the code
+### Get the code
 
 To setup WebApollo, you can download the code from github:
 
@@ -39,12 +42,11 @@ The basic idea is to setup a new apollo-config.groovy file from some existing sa
 
 ### Database schema
 
-The database schema is automatically initialized when you startup Web Apollo
-
+After you create the database, the database schema (tables, etc.) is automatically formatted when the Web Apollo start to run in the web server.
 
 ## Deploy the application
 
-After you have setup your apollo-config.groovy file, we will build a WAR file to deploy.
+After you have setup your apollo-config.groovy file, we will build a WAR file to deploy.  You will also need to modify it to include your username, password, and point to your database (the JDBC URL) in order to connect to a remote database if you are running in production.   
 
 ```
     ./apollo deploy
