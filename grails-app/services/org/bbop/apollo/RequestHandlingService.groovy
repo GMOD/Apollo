@@ -548,7 +548,7 @@ class RequestHandlingService {
         JSONArray jsonFeatures = new JSONArray()
 
         for (Transcript transcript in transcriptMap.keySet()) {
-            jsonFeatures.put(transcriptService.convertTranscriptToJSON(transcript,transcriptMap.get(transcript),featureLocationMap.get(transcript)))
+            jsonFeatures.put(transcriptService.convertTranscriptToJSON(transcript, transcriptMap.get(transcript), featureLocationMap.get(transcript)))
         }
 
 
@@ -650,11 +650,13 @@ class RequestHandlingService {
             transcript.save(flush: true)
             transcriptList.add(transcript)
 
+            // https://github.com/GMOD/Apollo/issues/453
+            // enforce calculation for ALL created transcripts
             // checking for overlapping Sequence Alterations
-            List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin > :fmin and fl.fmax < :fmax and fl.sequence = :seqId", [seqId: transcript.featureLocation.sequence, fmin: transcript.featureLocation.fmin, fmax: transcript.featureLocation.fmax])
-            if (sequenceAlterationList.size() > 0) {
-                featureService.setLongestORF(transcript)
-            }
+//            List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin > :fmin and fl.fmax < :fmax and fl.sequence = :seqId", [seqId: transcript.featureLocation.sequence, fmin: transcript.featureLocation.fmin, fmax: transcript.featureLocation.fmax])
+//            if (sequenceAlterationList.size() > 0) {
+            featureService.setLongestORF(transcript)
+//            }
             Gene gene = transcriptService.getGene(transcript)
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
 
