@@ -5,7 +5,7 @@ The data generation pipeline is based on the typical jbrowse commands such as pr
 
 If you have setup webapollo properly using these steps, then a bin/ subdirectory will be initialized with the jbrowse
 perl scripts. If this does not exist, please check setup.log to see where the error might be, and check the [troubleshooting
-guide](Troubleshooting.html).
+guide](Troubleshooting.md).
 
 ### prepare-refseqs.pl
 
@@ -27,7 +27,7 @@ The flatfile-to-json.pl script can be used to setup a GFF3 tracks with flexible 
  
 Note: you can also use simple scripts like bin/maker2jbrowse to expedite loading of MAKER data.
 
-Also see the section [Customizing features](Data_loading.html#customizing-features) section for more information on customizing the CSS styles of the Web Apollo 2.0 features.
+Also see the section [Customizing features](Data_loading.md#customizing-features) section for more information on customizing the CSS styles of the Web Apollo 2.0 features.
 
 
 ### generate-names.pl
@@ -122,7 +122,7 @@ the `alternateClasses` element. Let's look at that default element:
 ```
 
 For each annotation type, you can override the default class mapping for both `className` and `renderClassName` to use
-another CSS class. Check out the [Customizing features](Data_loading.html#customizing-features) section for more
+another CSS class. Check out the [Customizing features](Data_loading.md#customizing-features) section for more
 information on customizing the CSS classes.
 
 ### Customizing features
@@ -132,7 +132,7 @@ tracks. Every feature and subfeature is given a default CSS "class" that matches
 stylesheet. These styles are are defined in `client/apollo/css/track_styles.css` and
 `client/apollo/css/webapollo_track_styles.css`. Additional styles are also defined in these
 files, and can be used by explicitly specifying them in the --className, --subfeatureClasses, --renderClassname, or
---arrowheadClass parameters to flatfile-to-json.pl ([see data loading section](Data_loading.html#flatfile-to-json.pl_transcripts)).
+--arrowheadClass parameters to flatfile-to-json.pl ([see data loading section](Data_loading.md#flatfile-to-json.pl_transcripts)).
 
 WebApollo differs from JBrowse in some of it's styling, largely in order to help with feature selection, edge-matching,
 and dragging. WebApollo by default uses invisible container elements (with style class names like "container-16px") for

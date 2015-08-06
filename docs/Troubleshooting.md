@@ -78,6 +78,8 @@ The "linkTemplate" track configuration parameter in JBrowse is overridden by Web
 Please check that you don't already have a tomcat running ``netstat -tan | grep 8080``.  
 Sometimes tomcat does not exit properly.  ``ps -ef | grep java`` and then ``kill -9`` the offending processing.
 
+Note that you can also configure tomcat to run on different ports, or you can launch a temporary instance of apollo with `apollo run-local 8085` for example to avoid the port conflict.
+
 ### Unable to open the h2 / default database for writing
 
 If you receive an error similar to this:
@@ -100,7 +102,7 @@ This will write a H2 db file to ```/tmp/prodDB.db```.  If you don't specify an a
 that tomcat is running in e.g., ``/var/lib/tomcat7/``.
 
 
-[More detail on database configuration](Setup.html) is available when specifying the `apollo-config.groovy` file.
+[More detail on database configuration](Setup.md) is available when specifying the `apollo-config.groovy` file.
 
 
 ### Cache Error
