@@ -100,7 +100,7 @@ This will write a H2 db file to ```/tmp/prodDB.db```.  If you don't specify an a
 that tomcat is running in e.g., ``/var/lib/tomcat7/``.
 
 
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/Configure.md">More detail on database configuration</a> is available when specifying the ``apollo-config.groovy`` file.
+[More detail on database configuration](Setup.html) is available when specifying the `apollo-config.groovy` file.
 
 
 ### Cache Error

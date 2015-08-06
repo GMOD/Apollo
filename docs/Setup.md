@@ -74,13 +74,13 @@ If you use the `apollo run-local` command, then the "development" section of the
 While the shortcut `apollo deploy` takes care of basic application deployment, understanding the full build process of
 Web Apollo 2.0 can help you to optimize and improve your deployed instances.
 
-To learn more about the architecture of webapollo, view the [architecture guide](Architecture.md) but the main idea here is to
+To learn more about the architecture of webapollo, view the [architecture guide](Architecture.html) but the main idea here is to
 learn how to use `apollo release` to construct a build that includes javascript minimization
 
 
 ### Pre-requisites for Javascript minimization
 
-In addition to the system [pre-requisites](Prerequisites.md), the javascript compilation will use nodejs, which can be
+In addition to the system [pre-requisites](Prerequisites.html), the javascript compilation will use nodejs, which can be
 installed from a package manager on many platforms.
 
 #### Install NodeJS

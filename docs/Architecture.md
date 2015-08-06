@@ -2,7 +2,7 @@
 
 ### Overview and quick-start
 
-See the [build doc](Apollo2Build.md) for the official quick-start guide.
+See the [build doc](Apollo2Build.html) for the official quick-start guide.
 
 
 Minimally, the apollo application can be launched by running `apollo run-local`. This starts up a temporary tomcat server automatically and runs apollo off of a in-memory H2 database.
@@ -155,7 +155,7 @@ The different services do exactly what their name implies. It may not always be 
 
 ### Main Configuration
 
-The central configuration files are defined in grails-app/conf/ folder, however the user normally only edits their personal config in apollo-config.groovy. That is because the user config file will override those in the central configuration. See [Configure.md](Configure.md) for details.
+The central configuration files are defined in grails-app/conf/ folder, however the user normally only edits their personal config in apollo-config.groovy. That is because the user config file will override those in the central configuration. See [Configure.md](Configure.html) for details.
 
 #### Database configuration
 
@@ -213,7 +213,7 @@ In our application, we use the apollo-config.groovy then everything in there sup
 
 The log4j area can enable logging levels. You can turn on the "debug grails.app" to output all the webapollo debug info, or also set the "grails.debug" environment variable for java too.
 
-There is also some WebApollo configuration here, and it is mostly covered by the [configuration section](Configure.md).
+There is also some WebApollo configuration here, and it is mostly covered by the [configuration section](Configure.html).
 
 
 
@@ -241,5 +241,5 @@ Unit tests and some basic javascript tests are running on Travis-CI (see .travis
 You can also run "apollo test" to run the tests locally. It will use the "test" database configuration automatically. 
 
 
-Also see the [testing notes](Testing_notes.md) for more details.
+Also see the [testing notes](Testing_notes.html) for more details.
 

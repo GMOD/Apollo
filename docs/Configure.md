@@ -260,7 +260,7 @@ Your setup may vary, but setting the upgrade headers can be used for the websock
 
 ### Upgrading existing instances
 
-There are several scripts for migrating from older instances. See the [migration guide](Migration.md) for details. Particular notes:
+There are several scripts for migrating from older instances. See the [migration guide](Migration.html) for details. Particular notes:
 
 Note: WebApollo 2.0 does not require using the `add-webapollo-plugin.pl` because the plugin is loaded implicitely by including the client/apollo/json/annot.json file at run time.
 

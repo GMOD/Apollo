@@ -5,7 +5,7 @@ The data generation pipeline is based on the typical jbrowse commands such as pr
 
 If you have setup webapollo properly using these steps, then a bin/ subdirectory will be initialized with the jbrowse
 perl scripts. If this does not exist, please check setup.log to see where the error might be, and check the [troubleshooting
-guide](Troubleshooting.md), and post to apollo@lists.lbl.gov for further assistance.
+guide](Troubleshooting.html).
 
 ### prepare-refseqs.pl
 
@@ -22,23 +22,12 @@ script to output to the data directory that we will point to later in the organi
 The flatfile-to-json.pl script can be used to setup a GFF3 tracks with flexible feature types. Here, we'll start off by loading data from the MAKER generated GFF for the Pythium ultimum data. The simplest loading command specifies a --trackLabel, the --type of feature to load, the --gff file and the --out directory.
 
 ```
-    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type mRNA:maker --trackLabel MAKER --out /opt/apollo/data
+    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type mRNA --trackLabel MAKER --out /opt/apollo/data
 ````
-    
-Note: We are using the --type parameter for flatfile-to-json here which is filtering the feature type from column 3 of the GFF, and filtering the source from column 2. Some GFF files might not need this type of filtering on the source column, so you can just use --type mRNA. You can also filter other types too e.g. blast hits, for example:
+ 
+Note: you can also use simple scripts like bin/maker2jbrowse to expedite loading of MAKER data.
 
-``` 
-    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type match:repeatmasker --trackLabel RepeatMasker --out /opt/apollo/data
-    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type expressed_sequence_match:blastn --trackLabel BlastN --out /opt/apollo/data
-    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type protein_match:blastx --trackLabel BlastX --out /opt/apollo/data 
-    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type match:snap_masked --trackLabel SNAP_masked --out /opt/apollo/data  
-    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type protein_match:protein2genome --trackLabel Protein2Genome --out /opt/apollo/data  
-    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type expressed_sequence_match:est2genome --trackLabel Est2Genome --out /opt/apollo/data  
-```    
-
-
-
-Also: See the [Customizing features](Data_loading.md#customizing-features) section for more information on customizing the CSS styles of the Web Apollo 2.0 features.
+Also see the section [Customizing features](Data_loading.html#customizing-features) section for more information on customizing the CSS styles of the Web Apollo 2.0 features.
 
 
 ### generate-names.pl
@@ -133,7 +122,7 @@ the `alternateClasses` element. Let's look at that default element:
 ```
 
 For each annotation type, you can override the default class mapping for both `className` and `renderClassName` to use
-another CSS class. Check out the [Customizing features](Data_loading.md#customizing-features) section for more
+another CSS class. Check out the [Customizing features](Data_loading.html#customizing-features) section for more
 information on customizing the CSS classes.
 
 ### Customizing features
@@ -143,7 +132,7 @@ tracks. Every feature and subfeature is given a default CSS "class" that matches
 stylesheet. These styles are are defined in `client/apollo/css/track_styles.css` and
 `client/apollo/css/webapollo_track_styles.css`. Additional styles are also defined in these
 files, and can be used by explicitly specifying them in the --className, --subfeatureClasses, --renderClassname, or
---arrowheadClass parameters to flatfile-to-json.pl ([see data loading section](Data_loading.md#flatfile-to-json.pl_transcripts)).
+--arrowheadClass parameters to flatfile-to-json.pl ([see data loading section](Data_loading.html#flatfile-to-json.pl_transcripts)).
 
 WebApollo differs from JBrowse in some of it's styling, largely in order to help with feature selection, edge-matching,
 and dragging. WebApollo by default uses invisible container elements (with style class names like "container-16px") for
