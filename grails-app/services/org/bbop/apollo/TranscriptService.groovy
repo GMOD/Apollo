@@ -523,7 +523,7 @@ class TranscriptService {
                 JSONArray children = new JSONArray();
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
                 childFeatures.eachWithIndex { Feature childFeature, int i ->
-                    // have to handle set readhthrough stop codons
+                    // have to handle set readthrough stop codons
                     if (childFeature instanceof CDS && childFeature.parentFeatureRelationships) {
                         children.put(featureService.convertFeatureToJSON(childFeature))
                     } else {
@@ -539,7 +539,6 @@ class TranscriptService {
                         childJsonObject.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(childFeatureLocations.get(i)));
                         children.put(childJsonObject)
                     }
-
                 }
             }
 
