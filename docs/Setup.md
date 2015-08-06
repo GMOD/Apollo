@@ -8,6 +8,14 @@ The quick-start guide showed how to quickly launch a temporary instance of Web A
 The general idea behind your deployment is to create a `apollo-config.groovy` file from some existing sample files which have sample settings for various database engines.
 
 
+## Production prerequisites
+
+You will minimally need to have Java (Oracle or OpenJDK's version, Java (7 or greater), ([Grails](https://grails.org/), [git](https://git-scm.com/), [ant](http://ant.apache.org/), and a Java web server (servlet container) which is generally [tomcat, minimally 7.0.28](http://tomcat.apache.org/), jetty, or resin. An external database such as PostgreSQL or MySQL is generally used for production, but an embedded H2 database will also be used in this guide for ease of deployment.
+
+See the [pre-requisites](Prerequisites.md) for more details.
+
+
+
 ### Database configuration
 
 
@@ -16,11 +24,11 @@ Web Apollo supports several database backends, and you can choose sample configu
 Each has a file called `sample-h2-apollo-config.groovy` or `sample-postgres-apollo-config.groovy` that is designed to be
 renamed to apollo-config.groovy before running `apollo deploy`.
 
-Furthermore, the `apollo-config.groovy` has instructions for configuring test, development, and production modes, which will be selected automatically selected depending on how it is run, e.g:
+Furthermore, the `apollo-config.groovy` has different environments for test, development, and production modes. The environment will be selected automatically selected depending on how it is run, e.g:
 
-* `apollo deploy` or `apollo release` use the production environment
-* `apollo run-local` or `apollo debug` use the development environment
-* `apollo test` uses the test environment
+* `apollo deploy` or `apollo release` use the production environment (i.e. when you copy the war file to your production server)
+* `apollo run-local` or `apollo debug` use the development environment (i.e. when you are running it locally)
+* `apollo test` uses the test environment (i.e. only when running unit tests)
 
 
 
@@ -31,7 +39,7 @@ Furthermore, the `apollo-config.groovy` has instructions for configuring test, d
 - Create a new database with postgres for production mode (i.e. via the command line `createdb apollo-production`) and copy the sample-postgres-apollo-config.groovy to apollo-config.groovy.
 
 #### Configure for MySQL:
-- Create a new MySQL database for production mode (i.e. run `create database `apollo-production`` in the mysql console) and copy the sample-postgres-apollo-config.groovy to apollo-config.groovy.
+- Create a new MySQL database for production mode (i.e. run `create database \`apollo-production\`` in the mysql console) and copy the sample-postgres-apollo-config.groovy to apollo-config.groovy.
 
 *Note:* to deploy on tomcat you *NEED* to have a configured `apollo-config` file copied to deploy to production.
 
@@ -74,13 +82,13 @@ If you use the `apollo run-local` command, then the "development" section of the
 While the shortcut `apollo deploy` takes care of basic application deployment, understanding the full build process of
 Web Apollo 2.0 can help you to optimize and improve your deployed instances.
 
-To learn more about the architecture of webapollo, view the [architecture guide](Architecture.md) but the main idea here is to
+To learn more about the architecture of webapollo, view the [architecture guide](Architecture.html) but the main idea here is to
 learn how to use `apollo release` to construct a build that includes javascript minimization
 
 
 ### Pre-requisites for Javascript minimization
 
-In addition to the system [pre-requisites](Prerequisites.md), the javascript compilation will use nodejs, which can be
+In addition to the system [pre-requisites](Prerequisites.html), the javascript compilation will use nodejs, which can be
 installed from a package manager on many platforms.
 
 #### Install NodeJS
