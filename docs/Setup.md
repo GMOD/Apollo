@@ -16,11 +16,11 @@ Web Apollo supports several database backends, and you can choose sample configu
 Each has a file called `sample-h2-apollo-config.groovy` or `sample-postgres-apollo-config.groovy` that is designed to be
 renamed to apollo-config.groovy before running `apollo deploy`.
 
-Furthermore, the `apollo-config.groovy` has instructions for configuring test, development, and production modes, which will be selected automatically selected depending on how it is run, e.g:
+Furthermore, the `apollo-config.groovy` has different environments for test, development, and production modes. The environment will be selected automatically selected depending on how it is run, e.g:
 
-* `apollo deploy` or `apollo release` use the production environment
-* `apollo run-local` or `apollo debug` use the development environment
-* `apollo test` uses the test environment
+* `apollo deploy` or `apollo release` use the production environment (i.e. when you copy the war file to your production server)
+* `apollo run-local` or `apollo debug` use the development environment (i.e. when you are running it locally)
+* `apollo test` uses the test environment (i.e. only when running unit tests)
 
 
 
