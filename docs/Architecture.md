@@ -1,22 +1,24 @@
 ## Architecture notes
 
-### QuickStart
+### Overview and quick-start
 
-See the [build doc](Apollo2Build.md) to get an overview.   
+See the [build doc](Apollo2Build.md) for the official quick-start guide.
 
-For doing straight development, however, you won't want to use tomcat and you will want your code to reload dynamically.
 
-Minimally (with no configuration) type 'apollo run-local'.  
+Minimally, the apollo application can be launched by running `apollo run-local`. This starts up a temporary tomcat server automatically and runs apollo off of a in-memory H2 database.
 
-Here are the pieces of code that be "reloaded":
-- Grails (server code): launch with ```grails -reloading run-app```  Changes to domain objects will require a restart, however.
-- DataStore:  this can be h2 (no configuration), as well as PostgreSQL, MySQL, or any other backend that Grails supports (some configuration)
-- GWT (side-bar code): ```ant devmode```.   A browser refresh will recompile.
-- client javascript:  ```./scripts/copy_client.sh```.   
+When using the run-local command, you can also enable automatic code reloading which helps during development.
+    
+    
+- Grails (server code): launch with `grails -reloading run-app` will allow changes to the server side code to be auto-reloaded. 
+- GWT (side-bar code): You can run `ant devmode` in a separate console tab, and this will provide auto-reloading of GWT code changes
+- Javascript:  `scripts/copy_client.sh` will copy the plugin code to the web-apps folder so that the app doesn't need to be redeployed   
 
-If you look at the ```apollo``` binary, you'll see a lot of this code already started.
+Note: Changes to domain/database objects will require an application restart, but, a very cool feature of our applicatioe is that the whole database doesn't need reloading after a database change.
 
-Often-times you will want to clear the cache ("shift-reload" on most browsers).
+If you look at the `apollo` binary, you'll see that the code for `grails run-app` and others are automatically launched during `apollo run-local`.
+
+Also, as always during web development, yoe will want to clear the cache to see changes ("shift-reload" on most browsers).
 
 ### Overview
 

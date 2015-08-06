@@ -53,7 +53,11 @@ To run tomcat on 8080:
 
     apollo run-local
     
-   
+It optionally takes a port number argument, e.g.:
+
+    apollo run-local 8085
+
+
 ### Run locally for GWT development
 
     apollo devmode 
