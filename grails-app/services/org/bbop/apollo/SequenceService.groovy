@@ -7,6 +7,7 @@ import org.apache.commons.lang.RandomStringUtils
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.Strand
+import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -74,52 +75,124 @@ class SequenceService {
         if(strand==Strand.NEGATIVE){
             residueString = SequenceTranslationHandler.reverseComplementSequence(residueString)
         }
-
+        
         StringBuilder residues = new StringBuilder(residueString);
         List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId ",[seqId:sequence.id])
+        List<SequenceAlterationInContext> sequenceAlterationsInContextList = new ArrayList<SequenceAlterationInContext>()
+        for (SequenceAlteration sequenceAlteration : sequenceAlterationList) {
+            int alterationFmin = sequenceAlteration.fmin
+            int alterationFmax = sequenceAlteration.fmax
+            SequenceAlterationInContext sa = new SequenceAlterationInContext()
+            if ((alterationFmin >= fmin && alterationFmax <= fmax) && (alterationFmax >= fmin && alterationFmax <= fmax)) {
+                // alteration is within the generic feature
+                sa.fmin = alterationFmin
+                sa.fmax = alterationFmax
+                if (sequenceAlteration instanceof Insertion) {
+                    sa.instanceOf = Insertion.canonicalName
+                }
+                else if (sequenceAlteration instanceof Deletion) {
+                    sa.instanceOf = Deletion.canonicalName
+                }
+                else if (sequenceAlteration instanceof Substitution) {
+                    sa.instanceOf = Substitution.canonicalName
+                }
+                sa.type = 'within'
+                sa.strand = sequenceAlteration.strand
+                sa.name = sequenceAlteration.name + '-inContext'
+                sa.originalAlterationUniqueName = sequenceAlteration.uniqueName
+                sa.offset = sequenceAlteration.offset
+                sa.alterationResidue = sequenceAlteration.alterationResidue
+                sequenceAlterationsInContextList.add(sa)
+            }
+            else if ((alterationFmin >= fmin && alterationFmin <= fmax) && (alterationFmax >= fmin && alterationFmax >= fmax)) {
+                // alteration starts in exon but ends in an intron
+                int difference = alterationFmax - fmax
+                sa.fmin = alterationFmin
+                sa.fmax = Math.min(fmax,alterationFmax)
+                if (sequenceAlteration instanceof Insertion) {
+                    sa.instanceOf = Insertion.canonicalName
+                }
+                else if (sequenceAlteration instanceof Deletion) {
+                    sa.instanceOf = Deletion.canonicalName
+                }
+                else if (sequenceAlteration instanceof Substitution) {
+                    sa.instanceOf = Substitution.canonicalName
+                }
+                sa.type = 'exon-to-intron'
+                sa.strand = sequenceAlteration.strand
+                sa.name = sequenceAlteration.name + '-inContext'
+                sa.originalAlterationUniqueName = sequenceAlteration.uniqueName
+                sa.offset = sequenceAlteration.offset - difference
+                sa.alterationResidue = sequenceAlteration.alterationResidue.substring(0, sequenceAlteration.alterationResidue.length() - difference)
+                sequenceAlterationsInContextList.add(sa)
+            }
+            else if ((alterationFmin <= fmin && alterationFmin <= fmax) && (alterationFmax >= fmin && alterationFmax <= fmax)) {
+                // alteration starts within intron but ends in an exon
+                int difference = fmin - alterationFmin
+                sa.fmin = Math.max(fmin, alterationFmin)
+                sa.fmax = alterationFmax
+                if (sequenceAlteration instanceof Insertion) {
+                    sa.instanceOf = Insertion.canonicalName
+                }
+                else if (sequenceAlteration instanceof Deletion) {
+                    sa.instanceOf = Deletion.canonicalName
+                }
+                else if (sequenceAlteration instanceof Substitution) {
+                    sa.instanceOf = Substitution.canonicalName
+                }
+                sa.type = 'intron-to-exon'
+                sa.strand = sequenceAlteration.strand
+                sa.name = sequenceAlteration.name + '-inContext'
+                sa.originalAlterationUniqueName = sequenceAlteration.uniqueName
+                sa.offset = sequenceAlteration.offset - difference
+                sa.alterationResidue = sequenceAlteration.alterationResidue.substring(difference, sequenceAlteration.alterationResidue.length())
+                sequenceAlterationsInContextList.add(sa)
+            }
+        }
         int currentOffset = 0;
         // TODO: refactor with getResidues in FeatureService so we are calling a similar method
-        for(SequenceAlteration sequenceAlteration in sequenceAlterationList.sort(){ a,b ->
-                 a.featureLocation.fmin <=> b.featureLocation.fmin
+        for (SequenceAlterationInContext sequenceAlteration in sequenceAlterationsInContextList.sort() { a,b ->
+                 a.fmin <=> b.fmin
         }){
-            int localCoordinate = featureService.convertSourceCoordinateToLocalCoordinate(fmin,fmax,strand, sequenceAlteration.featureLocation.fmin);
-            if(!overlapperService.overlaps(fmin,fmax,sequenceAlteration.featureLocation.fmin,sequenceAlteration.featureLocation.fmax)){
-                continue
-            }
+            int localCoordinate = featureService.convertSourceCoordinateToLocalCoordinate(fmin,fmax,strand, sequenceAlteration.fmin);
+            // Commented out since check for overlap is done beforehand
+//            if(!overlapperService.overlaps(fmin,fmax,sequenceAlteration.fmin,sequenceAlteration.fmax)){
+//                continue
+//            }
 
             // TODO: is this correct?
             String sequenceAlterationResidues = sequenceAlteration.alterationResidue
+            int alterationLength = sequenceAlteration.alterationResidue.length()
             if (strand == Strand.NEGATIVE) {
                 sequenceAlterationResidues = SequenceTranslationHandler.reverseComplementSequence(sequenceAlterationResidues);
             }
             // Insertions
-            if (sequenceAlteration instanceof Insertion) {
+            if (sequenceAlteration.instanceOf == Insertion.canonicalName) {
                 if (strand==Strand.NEGATIVE) {
                     ++localCoordinate;
                 }
                 residues.insert(localCoordinate + currentOffset, sequenceAlterationResidues);
-                currentOffset += sequenceAlterationResidues.length();
+                currentOffset += alterationLength;
             }
             // Deletions
-            else if (sequenceAlteration instanceof Deletion) {
+            else if (sequenceAlteration.instanceOf == Deletion.canonicalName) {
                 if (strand == Strand.NEGATIVE) {
-                    residues.delete(localCoordinate + currentOffset - sequenceAlteration.getLength() + 1,
+                    residues.delete(localCoordinate + currentOffset - alterationLength + 1,
                             localCoordinate + currentOffset + 1);
                 } else {
                     residues.delete(localCoordinate + currentOffset,
-                            localCoordinate + currentOffset + sequenceAlteration.getLength());
+                            localCoordinate + currentOffset + alterationLength);
                 }
-                currentOffset -= sequenceAlterationResidues.length();
+                currentOffset -= alterationLength;
             }
             // Substitions
-            else if (sequenceAlteration instanceof Substitution) {
-                int start = strand == Strand.NEGATIVE ? localCoordinate - (sequenceAlteration.getLength() - 1) : localCoordinate;
+            else if (sequenceAlteration.instanceOf == Substitution.canonicalName) {
+                int start = strand == Strand.NEGATIVE ? localCoordinate - (alterationLength - 1) : localCoordinate;
                 residues.replace(start + currentOffset,
-                        start + currentOffset + sequenceAlteration.getLength(),
+                        start + currentOffset + alterationLength,
                         sequenceAlterationResidues);
             }
         }
-
 
         return residues.toString()
     }

@@ -2135,19 +2135,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         } else {
             // sequence from feature, as is
             residueString = sequenceService.getResiduesFromFeature(feature)
-            for (SequenceAlteration eachSequenceAlteration : sequenceAlterations) {
-                if (overlapperService.overlaps(eachSequenceAlteration, feature, false)) {
-                    SequenceAlterationInContext sa = new SequenceAlterationInContext()
-                    sa.fmin = eachSequenceAlteration.fmin
-                    sa.fmax = eachSequenceAlteration.fmax
-                    sa.strand = eachSequenceAlteration.strand
-                    sa.name = eachSequenceAlteration.name + '-inContext'
-                    sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
-                    sa.offset = eachSequenceAlteration.offset
-                    sa.alterationResidue = eachSequenceAlteration.alterationResidue
-                    sequenceAlterationInContextList.add(sa)
-                }
-            }
+            sequenceAlterationInContextList = getSequenceAlterationsInContext(feature, sequenceAlterations)
         }
         if (sequenceAlterations.size() == 0 || sequenceAlterationInContextList.size() == 0) {
             return residueString
@@ -2221,18 +2209,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     public List<SequenceAlterationInContext> getSequenceAlterationsInContext(Feature feature, Collection<SequenceAlteration> sequenceAlterations) {
-        List<Exon> exonList = feature instanceof CDS ? exonService.getSortedExons(transcriptService.getTranscript(feature)) : exonService.getSortedExons(feature, true)
-        List<SequenceAlterationInContext> sequenceAlterationsInContext = new ArrayList<>()
-        for (Exon exon : exonList) {
-            int exonFmin = exon.fmin
-            int exonFmax = exon.fmax
-
+        List<SequenceAlterationInContext> sequenceAlterationInContextList = new ArrayList<>()
+        if (!(feature instanceof CDS) && !(feature instanceof Transcript)) {
+            // for features that are not instance of CDS or Transcript (ex. Single exons)
+            int featureFmin = feature.fmin
+            int featureFmax = feature.fmax
             for (SequenceAlteration eachSequenceAlteration : sequenceAlterations) {
                 int alterationFmin = eachSequenceAlteration.fmin
                 int alterationFmax = eachSequenceAlteration.fmax
                 SequenceAlterationInContext sa = new SequenceAlterationInContext()
-                if ((alterationFmin >= exonFmin && alterationFmin <= exonFmax) && (alterationFmax >= exonFmin && alterationFmax <= exonFmax)) {
-                    // alteration is within exon
+                if ((alterationFmin >= featureFmin && alterationFmax <= featureFmax) && (alterationFmax >= featureFmin && alterationFmax <= featureFmax)) {
+                    // alteration is within the generic feature
                     sa.fmin = alterationFmin
                     sa.fmax = alterationFmax
                     if (eachSequenceAlteration instanceof Insertion) {
@@ -2250,13 +2237,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
                     sa.offset = eachSequenceAlteration.offset
                     sa.alterationResidue = eachSequenceAlteration.alterationResidue
-                    sequenceAlterationsInContext.add(sa)
+                    sequenceAlterationInContextList.add(sa)
                 }
-                else if ((alterationFmin >= exonFmin && alterationFmin <= exonFmax) && (alterationFmax >= exonFmin && alterationFmax >= exonFmax)) {
+                else if ((alterationFmin >= featureFmin && alterationFmin <= featureFmax) && (alterationFmax >= featureFmin && alterationFmax >= featureFmax)) {
                     // alteration starts in exon but ends in an intron
-                    int difference = alterationFmax - exonFmax
+                    int difference = alterationFmax - featureFmax
                     sa.fmin = alterationFmin
-                    sa.fmax = Math.min(exonFmax,alterationFmax)
+                    sa.fmax = Math.min(featureFmax,alterationFmax)
                     if (eachSequenceAlteration instanceof Insertion) {
                         sa.instanceOf = Insertion.canonicalName
                     }
@@ -2272,12 +2259,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
                     sa.offset = eachSequenceAlteration.offset - difference
                     sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(0, eachSequenceAlteration.alterationResidue.length() - difference)
-                    sequenceAlterationsInContext.add(sa)
+                    sequenceAlterationInContextList.add(sa)
                 }
-                else if ((alterationFmin <= exonFmin && alterationFmin <= exonFmax) && (alterationFmax >= exonFmin && alterationFmax <= exonFmax)) {
+                else if ((alterationFmin <= featureFmin && alterationFmin <= featureFmax) && (alterationFmax >= featureFmin && alterationFmax <= featureFmax)) {
                     // alteration starts within intron but ends in an exon
-                    int difference = exonFmin - alterationFmin
-                    sa.fmin = Math.max(exonFmin, alterationFmin)
+                    int difference = featureFmin - alterationFmin
+                    sa.fmin = Math.max(featureFmin, alterationFmin)
                     sa.fmax = alterationFmax
                     if (eachSequenceAlteration instanceof Insertion) {
                         sa.instanceOf = Insertion.canonicalName
@@ -2294,11 +2281,81 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
                     sa.offset = eachSequenceAlteration.offset - difference
                     sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(difference, eachSequenceAlteration.alterationResidue.length())
-                    sequenceAlterationsInContext.add(sa)
+                    sequenceAlterationInContextList.add(sa)
                 }
             }
         }
-        return sequenceAlterationsInContext
+        else {
+            List<Exon> exonList = feature instanceof CDS ? exonService.getSortedExons(transcriptService.getTranscript(feature)) : exonService.getSortedExons(feature, true)
+            for (Exon exon : exonList) {
+                int exonFmin = exon.fmin
+                int exonFmax = exon.fmax
+
+                for (SequenceAlteration eachSequenceAlteration : sequenceAlterations) {
+                    int alterationFmin = eachSequenceAlteration.fmin
+                    int alterationFmax = eachSequenceAlteration.fmax
+                    SequenceAlterationInContext sa = new SequenceAlterationInContext()
+                    if ((alterationFmin >= exonFmin && alterationFmin <= exonFmax) && (alterationFmax >= exonFmin && alterationFmax <= exonFmax)) {
+                        // alteration is within exon
+                        sa.fmin = alterationFmin
+                        sa.fmax = alterationFmax
+                        if (eachSequenceAlteration instanceof Insertion) {
+                            sa.instanceOf = Insertion.canonicalName
+                        } else if (eachSequenceAlteration instanceof Deletion) {
+                            sa.instanceOf = Deletion.canonicalName
+                        } else if (eachSequenceAlteration instanceof Substitution) {
+                            sa.instanceOf = Substitution.canonicalName
+                        }
+                        sa.type = 'within'
+                        sa.strand = eachSequenceAlteration.strand
+                        sa.name = eachSequenceAlteration.name + '-inContext'
+                        sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
+                        sa.offset = eachSequenceAlteration.offset
+                        sa.alterationResidue = eachSequenceAlteration.alterationResidue
+                        sequenceAlterationInContextList.add(sa)
+                    } else if ((alterationFmin >= exonFmin && alterationFmin <= exonFmax) && (alterationFmax >= exonFmin && alterationFmax >= exonFmax)) {
+                        // alteration starts in exon but ends in an intron
+                        int difference = alterationFmax - exonFmax
+                        sa.fmin = alterationFmin
+                        sa.fmax = Math.min(exonFmax, alterationFmax)
+                        if (eachSequenceAlteration instanceof Insertion) {
+                            sa.instanceOf = Insertion.canonicalName
+                        } else if (eachSequenceAlteration instanceof Deletion) {
+                            sa.instanceOf = Deletion.canonicalName
+                        } else if (eachSequenceAlteration instanceof Substitution) {
+                            sa.instanceOf = Substitution.canonicalName
+                        }
+                        sa.type = 'exon-to-intron'
+                        sa.strand = eachSequenceAlteration.strand
+                        sa.name = eachSequenceAlteration.name + '-inContext'
+                        sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
+                        sa.offset = eachSequenceAlteration.offset - difference
+                        sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(0, eachSequenceAlteration.alterationResidue.length() - difference)
+                        sequenceAlterationInContextList.add(sa)
+                    } else if ((alterationFmin <= exonFmin && alterationFmin <= exonFmax) && (alterationFmax >= exonFmin && alterationFmax <= exonFmax)) {
+                        // alteration starts within intron but ends in an exon
+                        int difference = exonFmin - alterationFmin
+                        sa.fmin = Math.max(exonFmin, alterationFmin)
+                        sa.fmax = alterationFmax
+                        if (eachSequenceAlteration instanceof Insertion) {
+                            sa.instanceOf = Insertion.canonicalName
+                        } else if (eachSequenceAlteration instanceof Deletion) {
+                            sa.instanceOf = Deletion.canonicalName
+                        } else if (eachSequenceAlteration instanceof Substitution) {
+                            sa.instanceOf = Substitution.canonicalName
+                        }
+                        sa.type = 'intron-to-exon'
+                        sa.strand = eachSequenceAlteration.strand
+                        sa.name = eachSequenceAlteration.name + '-inContext'
+                        sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
+                        sa.offset = eachSequenceAlteration.offset - difference
+                        sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(difference, eachSequenceAlteration.alterationResidue.length())
+                        sequenceAlterationInContextList.add(sa)
+                    }
+                }
+            }
+        }
+        return sequenceAlterationInContextList
     }
 
     public int convertModifiedLocalCoordinateToSourceCoordinate(Feature feature, int localCoordinate) {

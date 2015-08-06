@@ -1,5 +1,23 @@
 ## Architecture notes
 
+### QuickStart
+
+See the [build doc](Apollo2Build.md) to get an overview.   
+
+For doing straight development, however, you won't want to use tomcat and you will want your code to reload dynamically.
+
+Minimally (with no configuration) type 'apollo run-local'.  
+
+Here are the pieces of code that be "reloaded":
+- Grails (server code): launch with ```grails -reloading run-app```  Changes to domain objects will require a restart, however.
+- DataStore:  this can be h2 (no configuration), as well as PostgreSQL, MySQL, or any other backend that Grails supports (some configuration)
+- GWT (side-bar code): ```ant devmode```.   A browser refresh will recompile.
+- client javascript:  ```./scripts/copy_client.sh```.   
+
+If you look at the ```apollo``` binary, you'll see a lot of this code already started.
+
+Often-times you will want to clear the cache ("shift-reload" on most browsers).
+
 ### Overview
 
 ![](architecture2.png)
