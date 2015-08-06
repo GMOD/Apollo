@@ -5,16 +5,19 @@
 See the [build doc](Apollo2Build.md) for the official quick-start guide.
 
 
-Minimally, the apollo application can be launched by running `apollo run-local`. This starts up a temporary tomcat server automatically and runs apollo off of a in-memory H2 database.
+Minimally, the apollo application can be launched by running `apollo run-local`. This starts up a temporary tomcat server automatically. It will also simply use a in-memory H2 database if a different database configuration isn't setup yet.
 
-When using the run-local command, you can also enable automatic code reloading which helps during development.
+For development purposes, you can also enable automatic code reloading which helps for fast iteration.
     
     
-- Grails (server code): launch with `grails -reloading run-app` will allow changes to the server side code to be auto-reloaded. 
-- GWT (side-bar code): You can run `ant devmode` in a separate console tab, and this will provide auto-reloading of GWT code changes
-- Javascript:  `scripts/copy_client.sh` will copy the plugin code to the web-apps folder so that the app doesn't need to be redeployed   
+- `grails -reloading run-app` will allow changes to the server side code to be auto-reloaded. 
+- `ant devmode` will provide auto-reloading of GWT code changes
+- `scripts/copy_client.sh` will copy the plugin code to the web-apps folder to update the plugin javascript
 
-Note: Changes to domain/database objects will require an application restart, but, a very cool feature of our applicatioe is that the whole database doesn't need reloading after a database change.
+The `apollo` script automatically does several of these functions.
+
+
+Note: Changes to domain/database objects will require an application restart, but, a very cool feature of our application is that the whole database doesn't need reloading after a database change.
 
 If you look at the `apollo` binary, you'll see that the code for `grails run-app` and others are automatically launched during `apollo run-local`.
 
