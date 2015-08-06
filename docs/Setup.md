@@ -8,6 +8,14 @@ The quick-start guide showed how to quickly launch a temporary instance of Web A
 The general idea behind your deployment is to create a `apollo-config.groovy` file from some existing sample files which have sample settings for various database engines.
 
 
+## Production prerequisites
+
+You will minimally need to have Java (Oracle or OpenJDK's version, Java (7 or greater), ([Grails](https://grails.org/), [git](https://git-scm.com/), [ant](http://ant.apache.org/), and a Java web server (servlet container) which is generally [tomcat, minimally 7.0.28](http://tomcat.apache.org/), jetty, or resin. An external database such as PostgreSQL or MySQL is generally used for production, but an embedded H2 database will also be used in this guide for ease of deployment.
+
+See the [pre-requisites](Prerequisites.md) for more details.
+
+
+
 ### Database configuration
 
 

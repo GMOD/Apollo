@@ -6,12 +6,6 @@ There is "development mode" where the application is launched in a temporary ser
 
 This guide will cover the "development mode" scenario which is easy to start. See the [setup](Setup) guide to cover the "production mode" setup.
 
-## Install prerequisites
-
-You will minimally need to install Java (Oracle or OpenJDK's version, Java (7 or greater), ([Grails](https://grails.org/), [git](https://git-scm.com/), [ant](http://ant.apache.org/), and a Java web server (servlet container) which is generally [tomcat, minimally 7.0.28](http://tomcat.apache.org/), jetty, or resin. An external database such as PostgreSQL or MySQL is generally used for production, but an embedded H2 database will also be used in this guide for ease of deployment.
-
-See the [pre-requisites](Prerequisites.md) for more details.
-
 
 ### Grails
 
