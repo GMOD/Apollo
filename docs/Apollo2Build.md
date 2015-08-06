@@ -10,7 +10,7 @@ This guide will cover the "development mode" scenario which is easy to start. Se
 
 You will minimally need to install Java (Oracle or OpenJDK's version, Java (7 or greater), ([Grails](https://grails.org/), [git](https://git-scm.com/), [ant](http://ant.apache.org/), and a Java web server - generally [tomcat, minimally 7.0.28](http://tomcat.apache.org/). An external database such as PostgreSQL or MySQL is generally used for production, but an embedded H2 database will also be used in this guide for ease of deployment.
 
-See the [pre-requisites](Prerequisites.html) for more details.
+See the [pre-requisites](Prerequisites.md) for more details.
 
 
 ### Grails
@@ -43,7 +43,7 @@ Note: the `apollo run-local` command also accepts a port number as an argument, 
 ## Setting up the application
 
 
-After we have a server setup, we will want to add a new organism to the panel. If you are a new user, you will want to setup this data with the jbrowse pre-processing scripts. You can see the [data loading guide](Data_loading.html) for more details, but essentially, you will want to load a reference genome and an annotations file at a minimum:
+After we have a server setup, we will want to add a new organism to the panel. If you are a new user, you will want to setup this data with the jbrowse pre-processing scripts. You can see the [data loading guide](Data_loading.md) for more details, but essentially, you will want to load a reference genome and an annotations file at a minimum:
 
 ```
     bin/prepare-refseqs.pl --fasta yourgenome.fasta --out /some/directory
@@ -65,7 +65,7 @@ Figure 1. "Register First Admin User" screen allows you to create a new admin us
 
 Figure 2. Navigate to the "Organism tab" and select "Create new organism". Then enter the new information for your
 organism. Importantly, the data directory refers to a directory that has been prepared with the JBrowse data loading
-scripts from the command line. See the [data loading](Data_loading.html) section for details.
+scripts from the command line. See the [data loading](Data_loading.md) section for details.
 
 ![Open annotator](images/3.png)
 
@@ -75,4 +75,4 @@ Figure 3. Open up the new organism from the drop down tab on the annotator panel
 
 ## Conclusion
 
-If you completed this setup, you can then begin adding new users and performing annotations. Please continue to the [setup guide](Setup.html) for deploying the webapp to production or visit the [troubleshooting guide](Troubleshooting.html) if you encounter problems during setup.
+If you completed this setup, you can then begin adding new users and performing annotations. Please continue to the [setup guide](Setup.md) for deploying the webapp to production or visit the [troubleshooting guide](Troubleshooting.md) if you encounter problems during setup.
