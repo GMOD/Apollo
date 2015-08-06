@@ -1603,7 +1603,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             // Insertions
             if (sequenceAlteration instanceof Insertion) {
                 if (localCoordinate < inputCoord) {
-                    currentOffset += sequenceAlteration.length
+                    currentOffset += sequenceAlteration.alterationResidue.length()
                     if(feature.strand==-1) {
                         currentOffset += 1
                     }
@@ -1616,7 +1616,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             else if (sequenceAlteration instanceof Deletion) {
                 if(localCoordinate<inputCoord) {
                     if(localCoordinateMax>=inputCoord) {
-                        currentOffset-=sequenceAlteration.length
+                        currentOffset-=sequenceAlteration.alterationResidue.length()
                         if(feature.strand==-1) {
                             currentOffset += 1
                         }
