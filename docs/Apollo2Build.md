@@ -1,6 +1,6 @@
 # Quick-start guide
 
-There are two modes of installation.  Development, in which case you should (look here)[Architecture.md] or production, which will typically require an external separate database and producing a ```war``` file that will be placed in a webapp directory association with a server such as tomcat or resin.
+There are two modes of installation.  Development, in which case you should [look here](Architecture.md) or production, which will typically require an external separate database and producing a ```war``` file that will be placed in a webapp directory association with a server such as tomcat or resin.
 
 ## Install prerequisites
 
