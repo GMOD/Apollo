@@ -9,28 +9,9 @@ web interface.
 Note: Configuration options may change over time, as more configuration items are integrated into the web interface.
 
 
-### Database configuration
-
-
-You can choose from using H2, Postgres, or MySQL database configurations by default.
-
-Each has a file called `sample-h2-apollo-config.groovy` or `sample-postgres-apollo-config.groovy` that is designed to be
-renamed to apollo-config.groovy before running `apollo deploy`.
-
-The database configurations in `apollo-config.groovy` can be used in test, development, and production modes, and the
-environment will be automatically selected depending on how it is run, e.g:
-
-* `apollo deploy` or `apollo release` for a production environment
-* `apollo run-local` or `apollo debug` for a development environment
-* `apollo test` for a test environment
-
-*Note:* additional general configuration from the "Main configuration" can also be added to your apollo-config.groovy.
-
-*Note:* to deploy on tomcat you *NEED* to have a configured `apollo-config` file copied from one of the samples.
-
 ### Main configuration
 
-The main configuration settings for Apollo are stored in Config.groovy, but you can override settings in your
+The main configuration settings for Apollo are stored in grails-app/conf/Config.groovy, but you can override settings in your
 `apollo-config.groovy` file (i.e. the same file that contains your database parameters). Here are the defaults that are
 defined in the Config.groovy file:
 

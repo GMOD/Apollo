@@ -32,9 +32,9 @@ Contents:
 
    Prerequisites
    Apollo2Build
+   Setup
    Configure
    Data_loading
-   Build
    Troubleshooting
    Migration
    Permissions
