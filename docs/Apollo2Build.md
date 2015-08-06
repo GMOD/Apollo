@@ -4,13 +4,7 @@ Here we will introduce how to setup WebApollo on your server. In general, there 
 
 There is "development mode" where the application is launched in a temporary server (automatically) and there is "production mode", which will typically require an external separate database and tomcat server where you can deploy the generated `war` file.
 
-This guide will cover the "development mode" scenario which is easy to start, and the [setup](Setup) guide will cover the "production mode" setup.
-
-## Install prerequisites
-
-You will minimally need to install Java (Oracle or OpenJDK's version, Java (7 or greater), ([Grails](https://grails.org/), [git](https://git-scm.com/), [ant](http://ant.apache.org/), and a Java web server - generally [tomcat, minimally 7.0.28](http://tomcat.apache.org/). An external database such as PostgreSQL or MySQL is generally used for production, but an embedded H2 database will also be used in this guide for ease of deployment.
-
-See the [pre-requisites](Prerequisites.md) for more details.
+This guide will cover the "development mode" scenario which is easy to start. See the [setup](Setup) guide to cover the "production mode" setup.
 
 
 ### Grails
@@ -36,9 +30,9 @@ We can now perform a quick-start of the application in "development mode" with t
     apollo run-local
 ```
 
-The jbrowse and perl pre-requisites will be installed during this step, but if there is a success, then the a server will be automatically launched at `http://localhost:8080/apollo` once is up and running.
+The jbrowse and perl pre-requisites will be installed during this step, but if there is a success, then a temporary server will be automatically launched at `http://localhost:8080/apollo`.
 
-Note: the `apollo run-local` command also accepts a port number as an argument, e.g. `apollo run-local 8085` so you can use this if there are conflicts on port 8080.
+Note: You can also supply a port number e.g. `apollo run-local 8085` if there are conflicts on port 8080.
 
 ## Setting up the application
 

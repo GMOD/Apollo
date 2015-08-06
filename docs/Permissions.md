@@ -43,6 +43,8 @@ Can only view things related to that organism.
 ```
 
 
+Table of permissions:
+
 ```
 Permission    | Annotator       | Tracks  |  Ref Seq | Organism | Users/groups |
 ------------- | --------------- | ------- | -------- | -------- | -------      |

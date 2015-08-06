@@ -28,9 +28,11 @@ This runs ALL of the tests in “test/unit”. If you want to test a specific fu
 ### Notes about the test suites:
 
 1. @Mock includes any domain objects you’ll use.  Unit tests don’t use the database.
-2. setup() is run for each test (*we believe*) 
-3. when: “” then: “”   You have to have both or it is not a test. 
-4. Notice the valid groovy notation  .name == “Chr3”, it implies the Java .equals() function . . everywhere . . . . groovy rox
+2. The setup() function is run for each test 
+3. The test is composed of blocks of code with `when:` and `then:`. You have to have both or it is not a test. 
+
+
+Example test:
 
 ```
     @TestFor(FeatureService)
@@ -56,7 +58,7 @@ This runs ALL of the tests in “test/unit”. If you want to test a specific fu
     } }
 ```
 
-There are 3 “special” types of things to test, which are all important and reflect the grails special functions: Domains, Controllers, Services.  They will all be in the “test” directory and all be suffixed with “Spec” for a Spock test.
+There are 3 "special" types of things to test, which are all important and reflect the grails special functions: Domains, Controllers, Services.  They will all be in the “test” directory and all be suffixed with “Spec” for a Spock test.
 
 
 
