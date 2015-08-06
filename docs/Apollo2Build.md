@@ -1,10 +1,10 @@
 # Quick-start guide
 
-There are two modes of installation.  Development, in which case you should (look here)[Architecture.md] or production, which will typically require an external separate database and producing a ```war``` file that will be placed in a webapp directory association with a server such as tomcat or resin.
+There are two modes of installation.  Development, in which case you should [look here](Architecture.md) or production, which will typically require an external separate database and producing a ```war``` file that will be placed in a webapp directory association with a server such as tomcat or resin.
 
 ## Install prerequisites
 
-You will minimally need to install Java (Oracle or OpenJDK's version, Java (7 or greater), ([Grails](https://grails.org/), [git](https://git-scm.com/), [ant] (http://ant.apache.org/), and java web server - [tomcat, minimally 7.0.28](http://tomcat.apache.org/) or [resin](http://caucho.com/).  If you wish to use a database a non-embedded database (recommended for a production environment) you will have to install that separately.  
+You will minimally need to install Java (Oracle or OpenJDK's version, Java (7 or greater), ([Grails](https://grails.org/), [git](https://git-scm.com/), [ant](http://ant.apache.org/), and java web server - [tomcat, minimally 7.0.28](http://tomcat.apache.org/) or [resin](http://caucho.com/).  If you wish to use a database a non-embedded database (recommended for a production environment) you will have to install that separately.  
 ### Grails 
 Installing grails is made easier by using [GVM](http://gvmtool.net/) which can automatically setup grails for you. We will use grails 2.4.5 for Web Apollo
 
