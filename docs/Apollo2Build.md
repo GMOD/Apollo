@@ -36,9 +36,9 @@ We can now perform a quick-start of the application in "development mode" with t
     apollo run-local
 ```
 
-The jbrowse and perl pre-requisites will be installed during this step, but if there is a success, then the a server will be automatically launched at `http://localhost:8080/apollo` once is up and running.
+The jbrowse and perl pre-requisites will be installed during this step, but if there is a success, then a temporary server will be automatically launched at `http://localhost:8080/apollo`.
 
-Note: the `apollo run-local` command also accepts a port number as an argument, e.g. `apollo run-local 8085` so you can use this if there are conflicts on port 8080.
+Note: You can also supply a port number e.g. `apollo run-local 8085` if there are conflicts on port 8080.
 
 ## Setting up the application
 
