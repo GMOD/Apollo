@@ -41,7 +41,7 @@ After we have a server setup, we will want to add a new organism to the panel. I
 
 ```
     bin/prepare-refseqs.pl --fasta yourgenome.fasta --out /some/directory
-    bin/flatfile-to-json.pl --gff yourannotations.fasta --type mRNA --trackLabel Annotations --out /some/directory
+    bin/flatfile-to-json.pl --gff yourannotations.gff --type mRNA --trackLabel AnnotationsGff --out /some/directory
 ```
 
 
