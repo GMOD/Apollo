@@ -62,7 +62,7 @@ public class SequenceRestService {
     }
 
     public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Integer start, Integer end,boolean suppressOutput) {
-        String url = "sequence/setCurrentSequenceLocation/?name=" + sequenceNameString + "&startbp=" + start + "&endbp=" + end;
+        String url = "sequence/setCurrentSequenceLocation/?name=" + sequenceNameString + "&start=" + start + "&end=" + end;
         if(suppressOutput){
             url += "&suppressOutput=true";
         }
