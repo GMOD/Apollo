@@ -11,7 +11,7 @@ Note: Configuration options may change over time, as more configuration items ar
 
 ### Main configuration
 
-The main configuration settings for Apollo are stored in grails-app/conf/Config.groovy, but you can override settings in your
+The main configuration settings for Apollo are stored in `grails-app/conf/Config.groovy`, but you can override settings in your
 `apollo-config.groovy` file (i.e. the same file that contains your database parameters). Here are the defaults that are
 defined in the Config.groovy file:
 
@@ -39,7 +39,7 @@ defined in the Config.groovy file:
                 search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
                 name: "Blat protein",
                 params: ""
-                //tmp_dir: "/opt/apollo/tmp" optional param
+                tmp_dir: "/opt/apollo/tmp" //optional param
             ]
         ]
         
@@ -156,14 +156,14 @@ Data adapters are currently configured as follows
 
 ```
 
-#### Data adapter options
+#### Default data adapter options
 
-The data adapters are set up to take several configurable options
+The default data adapters are configured by simple URL strings to the IOServiceController. There are GFF3 and FASTA export types and they are set up to take several configurable options
 
-- output: can be file or text
-- format: can by gzip on blank (not yet available)
-- type: GFF3 or FASTA
-- exportSequence: include the FASTA sequence for the reference at the bottom of the GFF3
+- type: `GFF3` or `FASTA`
+- output: can be `file` or `text`. `file` exports to a file and provides a UUID link for downloads, text just outputs to stream.
+- format: can by `gzip` or `plain`. `gzip` offers gzip compression of the exports, which is the default.
+- exportSequence: `true` or `false`, which is used to include FASTA sequence at the bottom of a GFF3 export
 
 
 ### Supported annotation types
