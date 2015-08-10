@@ -589,7 +589,7 @@ class RequestHandlingService {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
 
-            transcriptService.addExon(transcript, gsolExon,false)
+            transcriptService.addExon(transcript, gsolExon, false)
 
             gsolExon.save()
         }
@@ -668,7 +668,7 @@ class RequestHandlingService {
             }
         }
 
-        returnObject.put(FeatureStringEnum.FEATURES.value,transcriptService.convertTranscriptsToJSON(transcriptList))
+        returnObject.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptList))
 
         if (!suppressEvents) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -808,29 +808,27 @@ class RequestHandlingService {
         JSONArray transcriptArray = new JSONArray()
         featureContainer.put(FeatureStringEnum.FEATURES.value, transcriptArray)
 
-        Transcript.withNewSession {
-            for (int i = 0; i < features.length(); ++i) {
-                JSONObject oldJsonObject = features.getJSONObject(i)
-                String uniqueName = oldJsonObject.getString(FeatureStringEnum.UNIQUENAME.value);
-                Exon exon = Exon.findByUniqueName(uniqueName)
-                Transcript transcript = exonService.getTranscript(exon)
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject oldJsonObject = features.getJSONObject(i)
+            String uniqueName = oldJsonObject.getString(FeatureStringEnum.UNIQUENAME.value);
+            Exon exon = Exon.findByUniqueName(uniqueName)
+            Transcript transcript = exonService.getTranscript(exon)
 
-                if (upstreamDonor) {
-                    exonService.setToUpstreamAcceptor(exon)
-                } else {
-                    exonService.setToDownstreamAcceptor(exon)
-                }
-
-
-                featureService.calculateCDS(transcript)
-
-                nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
-
-                transcript.save()
-                JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
-                transcriptArray.add(newJsonObject)
-                featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
+            if (upstreamDonor) {
+                exonService.setToUpstreamAcceptor(exon)
+            } else {
+                exonService.setToDownstreamAcceptor(exon)
             }
+
+
+            featureService.calculateCDS(transcript)
+
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+
+            transcript.save()
+            JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
+            transcriptArray.add(newJsonObject)
+            featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
         }
 
 
@@ -857,28 +855,26 @@ class RequestHandlingService {
         JSONArray transcriptArray = new JSONArray()
         featureContainer.put(FeatureStringEnum.FEATURES.value, transcriptArray)
 
-        Transcript.withNewSession {
-            for (int i = 0; i < features.length(); ++i) {
-                JSONObject oldJsonObject = features.getJSONObject(i)
-                String uniqueName = oldJsonObject.getString(FeatureStringEnum.UNIQUENAME.value);
-                Exon exon = Exon.findByUniqueName(uniqueName)
-                Transcript transcript = exonService.getTranscript(exon)
-                if (upstreamDonor) {
-                    exonService.setToUpstreamDonor(exon)
-                } else {
-                    exonService.setToDownstreamDonor(exon)
-                }
-
-
-                featureService.calculateCDS(transcript)
-
-                nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
-
-                transcript.save()
-                JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
-                transcriptArray.add(newJsonObject)
-                featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject oldJsonObject = features.getJSONObject(i)
+            String uniqueName = oldJsonObject.getString(FeatureStringEnum.UNIQUENAME.value);
+            Exon exon = Exon.findByUniqueName(uniqueName)
+            Transcript transcript = exonService.getTranscript(exon)
+            if (upstreamDonor) {
+                exonService.setToUpstreamDonor(exon)
+            } else {
+                exonService.setToDownstreamDonor(exon)
             }
+
+
+            featureService.calculateCDS(transcript)
+
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+
+            transcript.save()
+            JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
+            transcriptArray.add(newJsonObject)
+            featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
         }
 
 
