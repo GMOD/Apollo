@@ -63,6 +63,10 @@ class FeatureLocation {
         return result;
     }
 
+    public Integer calculateLength(){
+        return fmax-fmin
+    }
+
     public FeatureLocation generateClone() {
         FeatureLocation cloned = new FeatureLocation();
         cloned.sequence = this.sequence;
