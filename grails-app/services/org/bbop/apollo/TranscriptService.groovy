@@ -237,22 +237,25 @@ class TranscriptService {
 
         log.debug "exon feature locations ${exon.featureLocation}"
         log.debug "transcript feature locations ${transcript.featureLocation}"
-        if (exon.getFeatureLocation().getFmin() < transcript.getFeatureLocation().getFmin()) {
-            transcript.getFeatureLocation().setFmin(exon.getFeatureLocation().getFmin());
+        FeatureLocation exonFeatureLocation = exon.featureLocation
+        FeatureLocation transcriptFeatureLocation = transcript.featureLocation
+        if (exonFeatureLocation.fmin < transcriptFeatureLocation.fmin) {
+            transcriptFeatureLocation.setFmin(exonFeatureLocation.fmin);
         }
-        if (exon.getFeatureLocation().getFmax() > transcript.getFeatureLocation().getFmax()) {
-            transcript.getFeatureLocation().setFmax(exon.getFeatureLocation().getFmax());
+        if (exonFeatureLocation.fmax > transcriptFeatureLocation.fmax) {
+            transcriptFeatureLocation.setFmax(exonFeatureLocation.fmax);
         }
         transcript.save()
 
         // if the transcript's bounds are beyond the gene's bounds, need to adjust the gene's bounds
         Gene gene = getGene(transcript)
         if (gene) {
-            if (transcript.featureLocation.getFmin() < gene.featureLocation.getFmin()) {
-                gene.featureLocation.setFmin(transcript.featureLocation.getFmin());
+            FeatureLocation geneFeatureLocation = gene.featureLocation
+            if (transcriptFeatureLocation.fmin < geneFeatureLocation.fmin) {
+                geneFeatureLocation.setFmin(transcriptFeatureLocation.fmin);
             }
-            if (transcript.featureLocation.getFmax() > gene.featureLocation.getFmax()) {
-                gene.featureLocation.setFmax(transcript.getFmax());
+            if (transcriptFeatureLocation.fmax > geneFeatureLocation.fmax) {
+                geneFeatureLocation.setFmax(transcriptFeatureLocation.fmax);
             }
         }
         gene.save()

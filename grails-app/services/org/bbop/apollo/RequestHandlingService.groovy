@@ -2021,8 +2021,8 @@ class RequestHandlingService {
         String gene2Name = transcriptService.getGene(transcript2)
         String transcript2UniqueName = transcript2.uniqueName
 
-        JSONObject transcript2JSONObject = featureService.convertFeatureToJSON(transcript2)
-//        JSONObject transcript2JSONObject = transcriptService.convertTranscriptsToJSON(transcript2 as List).getJSONObject(0)
+//        JSONObject transcript2JSONObject = featureService.convertFeatureToJSON(transcript2)
+        JSONObject transcript2JSONObject = transcriptService.convertTranscriptsToJSON([transcript2]).getJSONObject(0)
 
         transcriptService.mergeTranscripts(transcript1, transcript2)
         featureService.calculateCDS(transcript1)
@@ -2040,6 +2040,8 @@ class RequestHandlingService {
 
         gene1 = gene1.refresh()
         List<Transcript> gene1Transcripts = transcriptService.getTranscripts(gene1)
+        // does not return the children correctly
+//        updateFeatureContainer.put(FeatureStringEnum.FEATURES.value,transcriptService.convertTranscriptsToJSON(gene1Transcripts))
         for (Transcript transcript : gene1Transcripts) {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
         }
