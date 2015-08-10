@@ -14,6 +14,7 @@ class OverlapperService implements Overlapper{
 
     @Override
     boolean overlaps(Transcript transcript, Gene gene) {
+        log.debug("overlaps(Transcript transcript, Gene gene) ")
         String overlapperName = configWrapperService.overlapper.class.name
         if(overlapperName.contains("Orf")){
             return overlapsOrf(transcript,gene)
@@ -23,6 +24,7 @@ class OverlapperService implements Overlapper{
 
     @Override
     boolean overlaps(Transcript transcript1, Transcript transcript2) {
+        log.debug("overlaps(Transcript transcript1, Transcript transcript2) ")
         String overlapperName = configWrapperService.overlapper.class.name
         if(overlapperName.contains("Orf")){
             return overlapsOrf(transcript1,transcript2)
@@ -32,6 +34,7 @@ class OverlapperService implements Overlapper{
 
 
     boolean overlapsOrf(Transcript transcript, Gene gene) {
+        log.debug("overlapsOrf(Transcript transcript, Gene gene) ")
 
         for (Transcript geneTranscript : transcriptService.getTranscripts(gene)) {
             if (overlapsOrf(transcript, geneTranscript)) {
@@ -42,6 +45,7 @@ class OverlapperService implements Overlapper{
     }
 
     boolean overlapsOrf(Transcript transcript1, Transcript transcript2) {
+        log.debug("overlapsOrf(Transcript transcript1, Transcript transcript2) ")
         if ((transcriptService.isProteinCoding(transcript1) && transcriptService.isProteinCoding(transcript2))
                 && ((transcriptService.getGene(transcript1) == null || transcriptService.getGene(transcript2) == null) || (!(transcriptService.getGene(transcript1) instanceof Pseudogene) && !(transcriptService.getGene(transcript2) instanceof Pseudogene)))) {
 
@@ -57,6 +61,7 @@ class OverlapperService implements Overlapper{
     }
 
     private boolean exonsOverlap(List<Exon> exons1, List<Exon> exons2, boolean checkStrand) {
+        log.debug("boolean exonsOverlap(List<Exon> exons1, List<Exon> exons2, boolean checkStrand) ")
         int i = 0;
         int j = 0;
         while (i < exons1.size() && j < exons2.size()) {
@@ -98,10 +103,12 @@ class OverlapperService implements Overlapper{
     }
 
     boolean overlaps(Feature leftFeature, Feature rightFeature, boolean compareStrands = true) {
+        log.debug("overlaps(Feature leftFeature, Feature rightFeature, boolean compareStrands)")
         return overlaps(leftFeature.featureLocation, rightFeature.featureLocation, compareStrands)
     }
 
     boolean overlaps(FeatureLocation leftFeatureLocation, FeatureLocation rightFeatureLocation, boolean compareStrands = true) {
+        log.debug("overlaps(FeatureLocation leftFeatureLocation, FeatureLocation rightFeatureLocation, boolean compareStrands)")
         if (leftFeatureLocation.sequence != rightFeatureLocation.sequence) {
             return false;
         }
