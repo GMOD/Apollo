@@ -614,4 +614,30 @@ class TranscriptService {
         }
         return jsonFeature;
     }
+
+    JSONArray convertTranscriptsToJSON(List<Transcript> transcripts) {
+        JSONArray returnArray = new JSONArray()
+        List topLevelTranscripts = Transcript.executeQuery("select distinct f , child , childLocation from Transcript f  join f.parentFeatureRelationships pr join pr.childFeature child join child.featureLocations childLocation where f in (:transcriptList) ", [transcriptList: transcripts])
+        Map<Transcript, List<Feature>> transcriptMap = new HashMap<>()
+        Map<Transcript, List<FeatureLocation>> featureLocationMap = new HashMap<>()
+        topLevelTranscripts.each {
+            List<Feature> featureList
+            featureList = transcriptMap.containsKey(it[0]) ? transcriptMap.get(it[0]) : new ArrayList<>()
+            featureList.add(it[1])
+            transcriptMap.put(it[0], featureList)
+
+
+            List<FeatureLocation> featureLocationList
+            featureLocationList = featureLocationMap.containsKey(it[0]) ? featureLocationMap.get(it[0]) : new ArrayList<>()
+            featureLocationList.add(it[2])
+            featureLocationMap.put(it[0], featureLocationList)
+        }
+        transcripts.each { transcript ->
+//            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
+            returnArray.add(convertTranscriptToJSON(transcript, transcriptMap.get(transcript), featureLocationMap.get(transcript)));
+        }
+
+        return returnArray
+
+    }
 }

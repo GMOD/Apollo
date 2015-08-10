@@ -666,26 +666,7 @@ class RequestHandlingService {
             }
         }
 
-        List topLevelTranscripts = Transcript.executeQuery("select distinct f , child , childLocation from Transcript f  join f.parentFeatureRelationships pr join pr.childFeature child join child.featureLocations childLocation where f in (:transcriptList) ", [transcriptList: transcriptList])
-        Map<Transcript, List<Feature>> transcriptMap = new HashMap<>()
-        Map<Transcript, List<FeatureLocation>> featureLocationMap = new HashMap<>()
-        topLevelTranscripts.each {
-            List<Feature> featureList
-            featureList = transcriptMap.containsKey(it[0]) ? transcriptMap.get(it[0]) : new ArrayList<>()
-            featureList.add(it[1])
-            transcriptMap.put(it[0], featureList)
-
-
-            List<FeatureLocation> featureLocationList
-            featureLocationList = featureLocationMap.containsKey(it[0]) ? featureLocationMap.get(it[0]) : new ArrayList<>()
-            featureLocationList.add(it[2])
-            featureLocationMap.put(it[0], featureLocationList)
-        }
-        transcriptList.each { transcript ->
-//            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
-            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(transcriptService.convertTranscriptToJSON(transcript, transcriptMap.get(transcript), featureLocationMap.get(transcript)));
-        }
-
+        returnObject.put(FeatureStringEnum.FEATURES.value,transcriptService.convertTranscriptsToJSON(transcriptList))
 
         if (!suppressEvents) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -2029,6 +2010,11 @@ class RequestHandlingService {
         Transcript transcript1 = Transcript.findByUniqueName(jsonTranscript1.getString(FeatureStringEnum.UNIQUENAME.value))
         Transcript transcript2 = Transcript.findByUniqueName(jsonTranscript2.getString(FeatureStringEnum.UNIQUENAME.value))
 
+        // cannot merge transcripts from different strands
+        if (!transcript1.getStrand().equals(transcript2.getStrand())) {
+            throw new AnnotationException("You cannot merge transcripts on opposite strands");
+        }
+
         String gene1Name = transcriptService.getGene(transcript1)
         String transcript1UniqueName = transcript1.uniqueName
 
@@ -2036,10 +2022,8 @@ class RequestHandlingService {
         String transcript2UniqueName = transcript2.uniqueName
 
         JSONObject transcript2JSONObject = featureService.convertFeatureToJSON(transcript2)
-        // cannot merge transcripts from different strands
-        if (!transcript1.getStrand().equals(transcript2.getStrand())) {
-            throw new AnnotationException("You cannot merge transcripts on opposite strands");
-        }
+//        JSONObject transcript2JSONObject = transcriptService.convertTranscriptsToJSON(transcript2 as List).getJSONObject(0)
+
         transcriptService.mergeTranscripts(transcript1, transcript2)
         featureService.calculateCDS(transcript1)
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1)
