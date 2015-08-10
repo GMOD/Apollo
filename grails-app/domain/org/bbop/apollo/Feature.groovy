@@ -119,29 +119,6 @@ class Feature implements Ontological{
 
 
 
-
-    /** Convenience method for retrieving the location.  Assumes that it only contains a single
-     *  location so it returns the first (and hopefully only) location from the collection of
-     *  locations.  Returns <code>null</code> if none are found.
-     *
-     *  @deprecated  Just use getFeatureLocation
-     *
-     * @return FeatureLocation of this object
-     */
-    public FeatureLocation getSingleFeatureLocation() {
-        Collection<FeatureLocation> locs = getFeatureLocations();
-        if (locs != null) {
-            Iterator<FeatureLocation> i = locs.iterator();
-            if (i.hasNext()) {
-                return i.next();
-            }
-        }
-        return null;
-    }
-
-
-
-
     /** Convenience method for retrieving the location.  Assumes that it only contains a single
      *  location so it returns the first (and hopefully only) location from the collection of
      *  locations.  Returns <code>null</code> if none are found.
@@ -150,13 +127,14 @@ class Feature implements Ontological{
      */
     public FeatureLocation getFeatureLocation() {
         Collection<FeatureLocation> locs = getFeatureLocations();
-        if (locs != null) {
-            Iterator<FeatureLocation> i = locs.iterator();
-            if (i.hasNext()) {
-                return i.next();
-            }
-        }
-        return null;
+        return locs?.first()
+//        if (locs != null) {
+//            Iterator<FeatureLocation> i = locs.iterator();
+//            if (i.hasNext()) {
+//                return i.next();
+//            }
+//        }
+//        return null;
     }
 
 
@@ -165,7 +143,7 @@ class Feature implements Ontological{
      * @return Length of feature
      */
     public int getLength() {
-        return getFeatureLocation().getFmax() - getFeatureLocation().getFmin();
+        return featureLocation.calculateLength()
     }
 
     public Integer getFmin(){
