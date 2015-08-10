@@ -233,26 +233,29 @@ class TranscriptService {
     }
 
     @Transactional
-    def addExon(Transcript transcript, Exon exon) {
+    def addExon(Transcript transcript, Exon exon,Boolean fixTranscript = true ) {
 
         log.debug "exon feature locations ${exon.featureLocation}"
         log.debug "transcript feature locations ${transcript.featureLocation}"
-        if (exon.getFeatureLocation().getFmin() < transcript.getFeatureLocation().getFmin()) {
-            transcript.getFeatureLocation().setFmin(exon.getFeatureLocation().getFmin());
+        FeatureLocation exonFeatureLocation = exon.featureLocation
+        FeatureLocation transcriptFeatureLocation = transcript.featureLocation
+        if (exonFeatureLocation.fmin < transcriptFeatureLocation.fmin) {
+            transcriptFeatureLocation.setFmin(exonFeatureLocation.fmin);
         }
-        if (exon.getFeatureLocation().getFmax() > transcript.getFeatureLocation().getFmax()) {
-            transcript.getFeatureLocation().setFmax(exon.getFeatureLocation().getFmax());
+        if (exonFeatureLocation.fmax > transcriptFeatureLocation.fmax) {
+            transcriptFeatureLocation.setFmax(exonFeatureLocation.fmax);
         }
         transcript.save()
 
         // if the transcript's bounds are beyond the gene's bounds, need to adjust the gene's bounds
         Gene gene = getGene(transcript)
         if (gene) {
-            if (transcript.featureLocation.getFmin() < gene.featureLocation.getFmin()) {
-                gene.featureLocation.setFmin(transcript.featureLocation.getFmin());
+            FeatureLocation geneFeatureLocation = gene.featureLocation
+            if (transcriptFeatureLocation.fmin < geneFeatureLocation.fmin) {
+                geneFeatureLocation.setFmin(transcriptFeatureLocation.fmin);
             }
-            if (transcript.featureLocation.getFmax() > gene.featureLocation.getFmax()) {
-                gene.featureLocation.setFmax(transcript.getFmax());
+            if (transcriptFeatureLocation.fmax > geneFeatureLocation.fmax) {
+                geneFeatureLocation.setFmax(transcriptFeatureLocation.fmax);
             }
         }
         gene.save()
@@ -264,12 +267,14 @@ class TranscriptService {
         log.debug "final size: ${finalSize}" // 4 (+1 exon)
 
 
-        featureService.removeExonOverlapsAndAdjacencies(transcript)
-        log.debug "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
+        if(fixTranscript){
+            featureService.removeExonOverlapsAndAdjacencies(transcript)
+            log.debug "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
 //
 //        // if the exon is removed during a merge, then we will get a null-pointer
-        updateGeneBoundaries(transcript);  // 6, moved transcript fmin, fmax
-        log.debug "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
+            updateGeneBoundaries(transcript);  // 6, moved transcript fmin, fmax
+            log.debug "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
+        }
     }
 
     Transcript getParentTranscriptForFeature(Feature feature) {
@@ -613,5 +618,31 @@ class TranscriptService {
             return null;
         }
         return jsonFeature;
+    }
+
+    JSONArray convertTranscriptsToJSON(List<Transcript> transcripts) {
+        JSONArray returnArray = new JSONArray()
+        List topLevelTranscripts = Transcript.executeQuery("select distinct f , child , childLocation from Transcript f  join f.parentFeatureRelationships pr join pr.childFeature child join child.featureLocations childLocation where f in (:transcriptList) ", [transcriptList: transcripts])
+        Map<Transcript, List<Feature>> transcriptMap = new HashMap<>()
+        Map<Transcript, List<FeatureLocation>> featureLocationMap = new HashMap<>()
+        topLevelTranscripts.each {
+            List<Feature> featureList
+            featureList = transcriptMap.containsKey(it[0]) ? transcriptMap.get(it[0]) : new ArrayList<>()
+            featureList.add(it[1])
+            transcriptMap.put(it[0], featureList)
+
+
+            List<FeatureLocation> featureLocationList
+            featureLocationList = featureLocationMap.containsKey(it[0]) ? featureLocationMap.get(it[0]) : new ArrayList<>()
+            featureLocationList.add(it[2])
+            featureLocationMap.put(it[0], featureLocationList)
+        }
+        transcripts.each { transcript ->
+//            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
+            returnArray.add(convertTranscriptToJSON(transcript, transcriptMap.get(transcript), featureLocationMap.get(transcript)));
+        }
+
+        return returnArray
+
     }
 }

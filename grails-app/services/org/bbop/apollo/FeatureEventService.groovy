@@ -454,7 +454,7 @@ class FeatureEventService {
         }
 
         Sequence sequence = Feature.findByUniqueName(uniqueName).featureLocation.sequence
-        println "sequence: ${sequence}"
+        log.debug "sequence: ${sequence}"
 
 
         def newUniqueNames = getHistory(uniqueName)[count].collect() {
@@ -501,8 +501,8 @@ class FeatureEventService {
                         featureObject.put(FeatureStringEnum.GENE_NAME.value, featureEvent.name)
                     }
 //                }
-                    println "original command object = ${originalCommandObject as JSON}"
-                    println "final command object = ${addCommandObject as JSON}"
+                    log.debug "original command object = ${originalCommandObject as JSON}"
+                    log.debug "final command object = ${addCommandObject as JSON}"
 
                     returnObject = requestHandlingService.addTranscript(addCommandObject)
                 } else {
@@ -529,32 +529,32 @@ class FeatureEventService {
         for (FeatureEvent deleteFeatureEvent in findCurrentFeatureEvent(uniqueName)) {
             JSONObject deleteCommandObject = new JSONObject()
             JSONArray featuresArray = new JSONArray()
-            println "delete feature event uniqueNAe: ${deleteFeatureEvent.uniqueName}"
+            log.debug "delete feature event uniqueNamee: ${deleteFeatureEvent.uniqueName}"
             JSONObject featureToDelete = new JSONObject()
             featureToDelete.put(FeatureStringEnum.UNIQUENAME.value, deleteFeatureEvent.uniqueName)
             featuresArray.add(featureToDelete)
 
-            println "inputObject ${inputObject as JSON}"
-            println "deleteCommandObject ${deleteCommandObject as JSON}"
+            log.debug  "inputObject ${inputObject as JSON}"
+            log.debug "deleteCommandObject ${deleteCommandObject as JSON}"
 
             if (!deleteCommandObject.containsKey(FeatureStringEnum.TRACK.value)) {
 //            for(int i = 0 ; i < featuresArray.size() ; i++){
                 deleteCommandObject.put(FeatureStringEnum.TRACK.value, sequence.name)
 //            }
             }
-            deleteCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY,true)
-            println "final deleteCommandObject ${deleteCommandObject as JSON}"
+            deleteCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY, true)
+            log.debug "final deleteCommandObject ${deleteCommandObject as JSON}"
 
             deleteCommandObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
             deleteCommandObject = permissionService.copyUserName(inputObject, deleteCommandObject)
 
-            println " final delete JSON ${deleteCommandObject as JSON}"
+            log.debug " final delete JSON ${deleteCommandObject as JSON}"
 //            FeatureEvent.withNewTransaction {
             // suppress any events that are not part of the new state
-            println "newUniqueNames ${newUniqueNames} vs uniqueName ${uniqueName} vs df-uniqueName ${deleteFeatureEvent.uniqueName}"
+            log.debug "newUniqueNames ${newUniqueNames} vs uniqueName ${uniqueName} vs df-uniqueName ${deleteFeatureEvent.uniqueName}"
             requestHandlingService.deleteFeature(deleteCommandObject)
 //            }
-            println "deletion sucess . .  "
+            log.debug "deletion sucess . .  "
         }
 
     }
