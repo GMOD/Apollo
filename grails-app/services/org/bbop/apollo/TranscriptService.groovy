@@ -233,7 +233,7 @@ class TranscriptService {
     }
 
     @Transactional
-    def addExon(Transcript transcript, Exon exon) {
+    def addExon(Transcript transcript, Exon exon,Boolean fixTranscript = true ) {
 
         log.debug "exon feature locations ${exon.featureLocation}"
         log.debug "transcript feature locations ${transcript.featureLocation}"
@@ -267,12 +267,14 @@ class TranscriptService {
         log.debug "final size: ${finalSize}" // 4 (+1 exon)
 
 
-        featureService.removeExonOverlapsAndAdjacencies(transcript)
-        log.debug "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
+        if(fixTranscript){
+            featureService.removeExonOverlapsAndAdjacencies(transcript)
+            log.debug "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
 //
 //        // if the exon is removed during a merge, then we will get a null-pointer
-        updateGeneBoundaries(transcript);  // 6, moved transcript fmin, fmax
-        log.debug "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
+            updateGeneBoundaries(transcript);  // 6, moved transcript fmin, fmax
+            log.debug "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
+        }
     }
 
     Transcript getParentTranscriptForFeature(Feature feature) {

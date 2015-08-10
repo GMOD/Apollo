@@ -589,12 +589,14 @@ class RequestHandlingService {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
 
-            transcriptService.addExon(transcript, gsolExon)
-            featureService.calculateCDS(transcript)
-            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+            transcriptService.addExon(transcript, gsolExon,false)
 
             gsolExon.save()
         }
+        featureService.removeExonOverlapsAndAdjacencies(transcript)
+        transcriptService.updateGeneBoundaries(transcript)
+        featureService.calculateCDS(transcript)
+//        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
         transcript.save(flush: true)
         transcript.attach()
