@@ -1589,7 +1589,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         List<SequenceAlteration> orderedSequenceAlterationList = new ArrayList<>(sequenceAlterationsInContext)
         Collections.sort(orderedSequenceAlterationList, new FeaturePositionComparator<SequenceAlteration>());
-        if (!feature.getStrand().equals(Strand.NEGATIVE.value)) {
+        if (!feature.getFeatureLocation().getStrand().equals(orderedSequenceAlterationList.get(0).getFeatureLocation().getStrand())) {
             Collections.reverse(orderedSequenceAlterationList);
         }
 

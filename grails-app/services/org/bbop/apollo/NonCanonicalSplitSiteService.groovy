@@ -142,7 +142,7 @@ class NonCanonicalSplitSiteService {
         Strand strand=transcript.getFeatureLocation().strand==-1?Strand.NEGATIVE:Strand.POSITIVE
 
         String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,fmin,fmax,strand);
-//        if(transcript.getStrand()==-1)residues=residues.reverse()
+        if(transcript.getStrand()==-1)residues=residues.reverse()
 
         for (Exon exon : exons) {
             int fivePrimeSpliceSitePosition = -1;
@@ -163,14 +163,14 @@ class NonCanonicalSplitSiteService {
                     int local4=featureService.getFeatureModifiedCoord(transcript,local44,alts)
 
 
-//                    if (exon.featureLocation.getStrand() == -1) {
-//                        int tmp1=local1
-//                        int tmp2=local2
-//                        local1=local3
-//                        local2=local4
-//                        local3=tmp1
-//                        local4=tmp2
-//                    }
+                    if (exon.featureLocation.getStrand() == -1) {
+                        int tmp1=local1
+                        int tmp2=local2
+                        local1=local3
+                        local2=local4
+                        local3=tmp1
+                        local4=tmp2
+                    }
                     if(local1>=0&&local2 < residues.length()) {
                         String acceptorSpliceSiteSequence = residues.substring(local1,local2)
                         acceptorSpliceSiteSequence=transcript.getStrand()==-1?acceptorSpliceSiteSequence.reverse():acceptorSpliceSiteSequence
