@@ -206,15 +206,18 @@ class LoginController extends AbstractApolloController {
         render new JSONObject() as JSON
     }
 
-    @SendTo("/topic/AnnotationNotification")
     def sendLogout(String username ) {
         User user = User.findByUsername(username)
-        log.debug "sending logout for ${user} via ${username}"
+        println "sending logout for ${user} via ${username}"
         JSONObject jsonObject = new JSONObject()
         jsonObject.put(FeatureStringEnum.USERNAME.value,username)
-        jsonObject.put(AbstractApolloController.REST_OPERATION,"logout")
-        log.debug "sending to: '/topic/AnnotationNotification/user/' + ${user.id}"
-        brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + user.id , jsonObject.toString()
+        jsonObject.put(REST_OPERATION,"logout")
+        println "sending to: '/topic/AnnotationNotification/user/' + ${user.username}"
+        try {
+            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + username, jsonObject.toString()
+        } catch (e) {
+            log.error("working?: "+e)
+        }
         return jsonObject.toString()
     }
 }
