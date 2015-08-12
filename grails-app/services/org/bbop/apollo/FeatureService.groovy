@@ -2218,7 +2218,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         alterations.addAll(getAllSequenceAlterationsForFeature(feature))
 
         if (alterations.size() == 0) {
-            log.debug "alterations.size() == 0"
+            log.debug "No alterations returning ${localCoordinate}"
             return localCoordinate
         }
 
@@ -2243,24 +2243,26 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             if (feature.strand == Strand.NEGATIVE.value) {
+                coordinateInContext=feature.featureLocation.calculateLength()-coordinateInContext
+                log.debug "Checking negative insertion ${coordinateInContext} ${localCoordinate} ${(coordinateInContext - alterationResidueLength) - 1}"
                 if (coordinateInContext <= localCoordinate && alteration instanceof Deletion) {
                     log.debug "Processing negative deletion"
                     deletionOffset += alterationResidueLength
                 }
                 if ((coordinateInContext - alterationResidueLength) - 1 <= localCoordinate && alteration instanceof Insertion) {
-                    log.debug "Processing negative insertion"
-                    insertionOffset -= alterationResidueLength
+                    log.debug "Processing negative insertion ${coordinateInContext} ${localCoordinate} ${(coordinateInContext - alterationResidueLength) - 1}"
+                    insertionOffset += alterationResidueLength
                 }
                 if ((localCoordinate - coordinateInContext) - 1 < alterationResidueLength && (localCoordinate - coordinateInContext) >= 0 && alteration instanceof Insertion) {
                     log.debug "Processing negative insertion pt 2"
-                    insertionOffset += (alterationResidueLength - (localCoordinate - coordinateInContext - 1))
+                    insertionOffset -= (alterationResidueLength - (localCoordinate - coordinateInContext - 1))
 
                 }
 
             } else {
                 if (coordinateInContext < localCoordinate && alteration instanceof Deletion) {
                     log.debug "Processing positive deletion"
-                    deletionOffset -= alterationResidueLength
+                    deletionOffset += alterationResidueLength
                 }
                 if ((coordinateInContext + alterationResidueLength) <= localCoordinate && alteration instanceof Insertion) {
                     log.debug "Processing positive insertion"
