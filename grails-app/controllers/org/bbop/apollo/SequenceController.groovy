@@ -161,8 +161,10 @@ class SequenceController {
             organism=Organism.findById(j.organism)
         }
         def seqid=j.name
-        def sequences = Sequence.findAllByNameAndOrganism(seqid,organism)
-        render sequences as JSON
+        def sequenceId = Sequence.findByNameAndOrganism(seqid,organism).id
+        JSONObject jsonObject = new JSONObject()
+        jsonObject.put(FeatureStringEnum.ID,sequenceId)
+        render jsonObject as JSON
     }
 
     @Transactional
@@ -197,9 +199,6 @@ class SequenceController {
         params.max = Math.min(max ?: 20, 100)
 
         List<SequenceSummary> sequenceInstanceList = new ArrayList<>()
-
-//        List<Sequence> sequenceListInstance = Sequence.executeQuery("select s from Sequence s left outer join s.featureLocations fl left outer join fl.feature f where s.organism = :organism group by s",[organism:organism],params)
-//        List<Sequence> sequenceListInstance = Sequence.findAllByOrganism(organism,params)
         List<Sequence> sequences = Sequence.findAllByOrganism(organism,params)
 
         sequences.each {
