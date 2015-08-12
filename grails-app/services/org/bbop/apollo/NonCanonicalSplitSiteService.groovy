@@ -144,6 +144,9 @@ class NonCanonicalSplitSiteService {
         String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,fmin,fmax,strand);
         if(transcript.getStrand()==-1)residues=residues.reverse()
 
+        List<SequenceAlteration> sequenceAlterationList = new ArrayList<>()
+        sequenceAlterationList.addAll(featureService.getAllSequenceAlterationsForFeature(transcript))
+
         for (Exon exon : exons) {
             int fivePrimeSpliceSitePosition = -1;
             int threePrimeSpliceSitePosition = -1;
@@ -155,12 +158,11 @@ class NonCanonicalSplitSiteService {
                     int local22=exon.fmin-transcript.fmin
                     int local33=exon.fmax-transcript.fmin
                     int local44=exon.fmax+donor.length()-transcript.fmin
-                    List<SequenceAlteration> alts=featureService.getAllSequenceAlterationsForFeature(transcript)
 
-                    int local1=featureService.getFeatureModifiedCoord(transcript,local11,alts)
-                    int local2=featureService.getFeatureModifiedCoord(transcript,local22,alts)
-                    int local3=featureService.getFeatureModifiedCoord(transcript,local33,alts)
-                    int local4=featureService.getFeatureModifiedCoord(transcript,local44,alts)
+                    int local1=featureService.convertSourceToModifiedLocalCoordinate(transcript,local11,sequenceAlterationList)
+                    int local2=featureService.convertSourceToModifiedLocalCoordinate(transcript,local22,sequenceAlterationList)
+                    int local3=featureService.convertSourceToModifiedLocalCoordinate(transcript,local33,sequenceAlterationList)
+                    int local4=featureService.convertSourceToModifiedLocalCoordinate(transcript,local44,sequenceAlterationList)
 
 
                     if (exon.featureLocation.getStrand() == -1) {
