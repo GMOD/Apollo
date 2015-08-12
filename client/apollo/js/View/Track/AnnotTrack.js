@@ -356,6 +356,9 @@ define([
                                     alert("Failed to subscribe to websocket, no seq/org id available");
                                     return;
                                 }
+                                if(typeof track.webapollo.organism == 'undefined'){
+                                    track.webapollo.organism = response.organismId;
+                                }
                                 client.subscribe("/topic/AnnotationNotification/" + track.webapollo.organism + "/" + response.id, dojo.hitch(track, 'annotationNotification'));
                                 client.subscribe("/topic/AnnotationNotification/user/" + track.username, dojo.hitch(track, 'annotationNotification'));
                             },
