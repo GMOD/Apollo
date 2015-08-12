@@ -163,7 +163,8 @@ class SequenceController {
         def seqid=j.name
         def sequenceId = Sequence.findByNameAndOrganism(seqid,organism).id
         JSONObject jsonObject = new JSONObject()
-        jsonObject.put(FeatureStringEnum.ID,sequenceId)
+        jsonObject.put(FeatureStringEnum.ID.value,sequenceId)
+        jsonObject.put(FeatureStringEnum.ORGANISM_ID.value,organism.id)
         render jsonObject as JSON
     }
 
