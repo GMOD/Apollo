@@ -2212,10 +2212,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     /* convert an input local coordinate to a local coordinate that incorporates sequence alterations */
 
-    public int convertSourceToModifiedLocalCoordinate(Feature feature, Integer localCoordinate) {
+    public int convertSourceToModifiedLocalCoordinate(Feature feature, Integer localCoordinate,List<SequenceAlteration> alterations = new ArrayList<>()) {
         log.debug "convertSourceToModifiedLocalCoordinate"
-        List<SequenceAlteration> alterations = new ArrayList<>()
-        alterations.addAll(getAllSequenceAlterationsForFeature(feature))
 
         if (alterations.size() == 0) {
             log.debug "No alterations returning ${localCoordinate}"
