@@ -2,11 +2,12 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
+import org.bbop.apollo.Feature
 import grails.transaction.Transactional
 import org.bbop.apollo.filter.Cds3Filter
 import org.bbop.apollo.filter.StopCodonFilter
 import org.bbop.apollo.sequence.SequenceTranslationHandler
+import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.sequence.TranslationTable
@@ -1956,6 +1957,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return sequenceAlterations
     }
 
+
+
     public List<SequenceAlterationInContext> getSequenceAlterationsInContext(Feature feature, Collection<SequenceAlteration> sequenceAlterations) {
         List<SequenceAlterationInContext> sequenceAlterationInContextList = new ArrayList<>()
         if (!(feature instanceof CDS) && !(feature instanceof Transcript)) {
@@ -2211,15 +2214,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     public int convertSourceToModifiedLocalCoordinate(Feature feature, Integer localCoordinate) {
         log.debug "convertSourceToModifiedLocalCoordinate"
-        List<SequenceAlterationInContext> alterations = new ArrayList<>()
-        alterations.addAll(getSequenceAlterationsInContext(feature, getAllSequenceAlterationsForFeature(feature)))
+        List<SequenceAlteration> alterations = new ArrayList<>()
+        alterations.addAll(getAllSequenceAlterationsForFeature(feature))
+
         if (alterations.size() == 0) {
             log.debug "alterations.size() == 0"
             return localCoordinate
         }
 
 
-        Collections.sort(alterations, new SequenceAlterationInContextPositionComparator<SequenceAlterationInContext>());
+        Collections.sort(alterations, new FeaturePositionComparator<SequenceAlteration>());
         if (feature.getFeatureLocation().getStrand() == -1) {
             Collections.reverse(alterations);
         }
@@ -2227,7 +2231,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         int deletionOffset = 0
         int insertionOffset = 0
 
-        for (SequenceAlterationInContext alteration : alterations) {
+        for (SequenceAlteration alteration : alterations) {
             int alterationResidueLength = alteration.alterationResidue.length()
             int coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.fmin);
             if (feature.strand == Strand.NEGATIVE.value) {
