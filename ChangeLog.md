@@ -1,4 +1,29 @@
+## 2.0.0-RC5
+
+Features
+
++ Optimized transcript merging (#529,#515).
+
+Bugfixes
+
++ History operations fail when setting acceptor / donor (#530). 
+
 ## 2.0.0-RC4
+Features
+
++ Optimized transcript merging (#529).
++ Added "add_comment", "add_attribute", "set_status" to the web services API (#492). 
++ Add an interim export panel (#78).
++ Added google analytics integration (#146).
+
+Bugfixes
+
++ User's last location isn't preserved on page on page refresh (#522).
++ Added security to report pages (#513).
++ Unble to add / view more than 4 organism permissions (#512).
++ Set current sequence dropdown not selecting sequence (#511).
++ Peptide sequence not exporting properly (#453).
++ Peptide sequence not exporting properly (#453).
 
 
 ## 2.0.0-RC3
