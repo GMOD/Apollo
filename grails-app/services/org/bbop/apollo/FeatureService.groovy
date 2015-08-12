@@ -79,10 +79,10 @@ class FeatureService {
     public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands = true) {
 
         if(compareStrands){
-            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.strand = :strand and (fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax )",[fmin:location.fmin,fmax:location.fmax,strand:location.strand])
+            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and fl.strand = :strand and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax ))",[fmin:location.fmin,fmax:location.fmax,strand:location.strand,sequence:location.sequence])
         }
         else{
-            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where (fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax )",[fmin:location.fmin,fmax:location.fmax])
+            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax ))",[fmin:location.fmin,fmax:location.fmax,sequence:location.sequence])
         }
     }
 
