@@ -2216,7 +2216,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         log.debug "convertSourceToModifiedLocalCoordinate"
         List<SequenceAlteration> alterations = new ArrayList<>()
         alterations.addAll(getAllSequenceAlterationsForFeature(feature))
-        log.debug "ALTERATIONS ${alterations} ${alterations[0].fmin}"
 
         if (alterations.size() == 0) {
             log.debug "alterations.size() == 0"
@@ -2235,6 +2234,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         for (SequenceAlteration alteration : alterations) {
             int alterationResidueLength = alteration.alterationResidue.length()
             int coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.fmin);
+
+
+            //getAllSequenceAlterationsForFeature returns alterations over entire scaffold?!
+            if(alteration.fmin<=feature.fmin || alteration.fmax> feature.fmax) {
+                log.debug "SKIPPING ${coordinateInContext}"
+                continue
+            }
+
             if (feature.strand == Strand.NEGATIVE.value) {
                 if (coordinateInContext <= localCoordinate && alteration instanceof Deletion) {
                     log.debug "Processing negative deletion"
