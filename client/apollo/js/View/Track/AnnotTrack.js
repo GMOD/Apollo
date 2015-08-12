@@ -332,7 +332,7 @@ define([
                             var sequence = JSON.parse(window.parent.getCurrentSequence());
                             var user = JSON.parse(window.parent.getCurrentUser());
                             client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
-                            client.subscribe("/topic/AnnotationNotification/user/" + user.username, dojo.hitch(track, 'annotationNotification'));
+                            client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
                         });
                         console.log('connection established');
                     }
