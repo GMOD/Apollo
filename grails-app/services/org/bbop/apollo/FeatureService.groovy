@@ -2,11 +2,12 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
+import org.bbop.apollo.Feature
 import grails.transaction.Transactional
 import org.bbop.apollo.filter.Cds3Filter
 import org.bbop.apollo.filter.StopCodonFilter
 import org.bbop.apollo.sequence.SequenceTranslationHandler
+import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.sequence.TranslationTable
@@ -1464,259 +1465,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
     }
 
-//    String getResiduesWithAlterations(Feature feature,
-//                                      Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
-//        String residueString = null
-//
-//        if (feature instanceof Transcript) {
-//            residueString = transcriptService.getResiduesFromTranscript((Transcript) feature)
-//            // sequence from exons with UTRs too
-//        } else if (feature instanceof CDS) {
-//            residueString = cdsService.getResiduesFromCDS((CDS) feature)
-//            // sequence from exons without UTRs (if any)
-//        } else {
-//            residueString = sequenceService.getResiduesFromFeature(feature)
-//            // sequence from feature, as is.
-//        }
-//        if (sequenceAlterations.size() == 0) {
-//            return residueString
-//        }
-//        StringBuilder residues = new StringBuilder(residueString);
-//        FeatureLocation featureLoc = feature.getFeatureLocation();
-////        List<SequenceAlteration> orderedSequenceAlterationList = BioObjectUtil.createSortedFeatureListByLocation(sequenceAlterations);
-//
-//        List<SequenceAlteration> orderedSequenceAlterationList = new ArrayList<>(sequenceAlterations)
-//        Collections.sort(orderedSequenceAlterationList, new FeaturePositionComparator<SequenceAlteration>());
-//        if (!feature.getFeatureLocation().getStrand().equals(orderedSequenceAlterationList.get(0).getFeatureLocation().getStrand())) {
-//            Collections.reverse(orderedSequenceAlterationList);
-//        }
-//        int currentOffset = 0;
-//        for (SequenceAlteration sequenceAlteration : orderedSequenceAlterationList) {
-//            if (!overlapperService.overlaps(feature, sequenceAlteration, false)) {
-//                continue
-//            }
-////            if (!feature.overlaps(sequenceAlteration, false)) {
-////                continue;
-////            }
-//            FeatureLocation sequenceAlterationLoc = sequenceAlteration.getFeatureLocation();
-//            if (sequenceAlterationLoc.sequence == featureLoc.sequence) {
-//
-//                int localCoordinate
-//                if(feature instanceof Transcript){
-//                    localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(feature, sequenceAlterationLoc.getFmin());
-//                }
-//                else {
-//                    localCoordinate = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlterationLoc.getFmin());
-//                }
-////                int localCoordinate = convertModifiedLocalCoordinateToSourceCoordinate(feature, sequenceAlterationLoc.getFmin());
-////                String sequenceAlterationResidues = sequenceAlteration.getResidues();
-//
-//                // TODO: is this correct?
-//                String sequenceAlterationResidues = sequenceAlteration.alterationResidue
-//                if (feature.getFeatureLocation().getStrand() == -1) {
-//                    sequenceAlterationResidues = SequenceTranslationHandler.reverseComplementSequence(sequenceAlterationResidues);
-//                }
-//                // Insertions
-//                if (sequenceAlteration instanceof Insertion) {
-//                    if (feature.getFeatureLocation().getStrand() == -1) {
-//                        ++localCoordinate;
-//                    }
-//                    residues.insert(localCoordinate + currentOffset, sequenceAlterationResidues);
-//                    currentOffset += sequenceAlterationResidues.length();
-//                }
-//                // Deletions
-//                else if (sequenceAlteration instanceof Deletion) {
-//                    if (feature.getFeatureLocation().getStrand() == -1) {
-//                        residues.delete(localCoordinate + currentOffset - sequenceAlteration.getLength() + 1,
-//                                localCoordinate + currentOffset + 1);
-//                    } else {
-//                        residues.delete(localCoordinate + currentOffset,
-//                                localCoordinate + currentOffset + sequenceAlteration.getLength());
-//                    }
-//                    currentOffset -= sequenceAlterationResidues.length();
-//                }
-//                // Substitions
-//                else if (sequenceAlteration instanceof Substitution) {
-//                    int start = feature.getStrand() == -1 ? localCoordinate - (sequenceAlteration.getLength() - 1) : localCoordinate;
-//                    residues.replace(start + currentOffset,
-//                            start + currentOffset + sequenceAlteration.getLength(),
-//                            sequenceAlterationResidues);
-//                }
-//            }
-//        }
-//        return residues.toString();
-//    }
 
-//    def getSequenceAlterationsInContext(Feature feature, Collection<SequenceAlteration> sequenceAlterations) {
-//        List<Exon> exonList = exonService.getSortedExons(feature, true)
-//        List<SequenceAlteration> sequenceAlterationsInContext = new ArrayList<>()
-//        for (SequenceAlteration eachSequenceAlteration : sequenceAlterations) {
-//            for (Exon exon : exonList) {
-//                if (overlapperService.overlaps(exon, eachSequenceAlteration, false)) {
-//                    // alteration overlaps with exon and is overlapping with the CDS
-//                    sequenceAlterationsInContext.add(eachSequenceAlteration)
-//                }
-//            }
-//        }
-//        return sequenceAlterationsInContext
-//    }
-
-//    def isSequenceAlterationInContext(Feature feature, SequenceAlteration sequenceAlteration) {
-//        List<Exon> exonList = exonService.getSortedExons(feature, true)
-//        for (Exon exon : exonList) {
-//            if (overlapperService.overlaps(exon, sequenceAlteration, false)) {
-//                // alteration overlaps with exon and is overlapping with the CDS
-//                return true
-//            }
-//        }
-//        return false
-//    }
-
-    /* convert an input local coordinate to a local coordinate that incorporates sequence alterations */
-
-    Integer getFeatureModifiedCoord(Feature feature, Integer inputCoord, Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
-
-        List<SequenceAlteration> sequenceAlterationsInContext = new ArrayList<>()
-
-        // sequence from feature, as is
-        for (SequenceAlteration eachSequenceAlteration : sequenceAlterations) {
-            if (overlapperService.overlaps(eachSequenceAlteration, feature, false)) {
-                sequenceAlterationsInContext.add(eachSequenceAlteration)
-            }
-        }
-        if (sequenceAlterations.size() == 0 || sequenceAlterationsInContext.size() == 0) {
-            return inputCoord
-        }
-        List<SequenceAlteration> orderedSequenceAlterationList = new ArrayList<>(sequenceAlterationsInContext)
-        Collections.sort(orderedSequenceAlterationList, new FeaturePositionComparator<SequenceAlteration>());
-        if (!feature.getStrand().equals(Strand.NEGATIVE.value)) {
-            Collections.reverse(orderedSequenceAlterationList);
-        }
-
-        int currentOffset = 0
-        for (SequenceAlteration sequenceAlteration : orderedSequenceAlterationList) {
-            int localCoordinate
-            int localCoordinateMax
-            localCoordinate = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlteration.fmin);
-            localCoordinateMax = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlteration.fmax);
-
-            // Insertions
-            if (sequenceAlteration instanceof Insertion) {
-                if (localCoordinate < inputCoord) {
-                    currentOffset += sequenceAlteration.alterationResidue.length()
-                    if(feature.strand==-1) {
-                        currentOffset += 1
-                    }
-                }
-                else {
-                    break
-                }
-            }
-            // Deletions
-            else if (sequenceAlteration instanceof Deletion) {
-                if(localCoordinate<inputCoord) {
-                    if(localCoordinateMax>=inputCoord) {
-                        currentOffset-=sequenceAlteration.alterationResidue.length()
-                        if(feature.strand==-1) {
-                            currentOffset += 1
-                        }
-                    }
-                    else {
-                        currentOffset-=localCoordinate-localCoordinateMax-inputCoord
-                        if(feature.strand==-1) {
-                            currentOffset += 1
-                        }
-                    }
-                }
-                else {
-                    break
-                }
-            }
-        }
-        return inputCoord+currentOffset;
-
-    }
-
-//    String getResiduesWithAlterationsNew (Feature feature, Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
-//        String residueString = null
-//        List<SequenceAlteration> sequenceAlterationsInContext = new ArrayList<>()
-//        if (feature instanceof Transcript) {
-//            residueString = transcriptService.getResiduesFromTranscript((Transcript) feature)
-//            // sequence from exons, with UTRs too
-//            sequenceAlterationsInContext = getSequenceAlterationsInContext(feature, sequenceAlterations)
-//        } else if (feature instanceof CDS) {
-//            residueString = cdsService.getResiduesFromCDS((CDS) feature)
-//            // sequence from exons without UTRs
-//            sequenceAlterationsInContext = getSequenceAlterationsInContext(transcriptService.getTranscript(feature), sequenceAlterations)
-//        } else {
-//            // sequence from feature, as is
-//            residueString = sequenceService.getResiduesFromFeature(feature)
-//            for (SequenceAlteration eachSequenceAlteration : sequenceAlterations) {
-//                if (overlapperService.overlaps(eachSequenceAlteration, feature, false)) {
-//                    sequenceAlterationsInContext.add(eachSequenceAlteration)
-//                }
-//            }
-//        }
-//        if (sequenceAlterations.size() == 0 || sequenceAlterationsInContext.size() == 0) {
-//            return residueString
-//        }
-//
-//        StringBuilder residues = new StringBuilder(residueString);
-//        List<SequenceAlteration> orderedSequenceAlterationList = new ArrayList<>(sequenceAlterationsInContext)
-//        Collections.sort(orderedSequenceAlterationList, new FeaturePositionComparator<SequenceAlteration>());
-//        if (!feature.getFeatureLocation().getStrand().equals(orderedSequenceAlterationList.get(0).getFeatureLocation().getStrand())) {
-//            Collections.reverse(orderedSequenceAlterationList);
-//        }
-//
-//        int currentOffset = 0;
-//        for (SequenceAlteration sequenceAlteration : orderedSequenceAlterationList) {
-//            int localCoordinate
-//            if(feature instanceof Transcript) {
-//                localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(feature, sequenceAlteration.featureLocation.fmin);
-//            } else if (feature instanceof CDS){
-//                if (! overlapperService.overlaps(feature, sequenceAlteration, false)) {
-//                    // a check to verify if alteration is part of the CDS
-//                    continue
-//                }
-//                //localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(transcriptService.getTranscript(feature), sequenceAlteration.featureLocation.fmin);
-//                localCoordinate = convertSourceCoordinateToLocalCoordinateForCDS(transcriptService.getTranscript(feature), sequenceAlteration.featureLocation.fmin)
-//            }
-//            else {
-//                localCoordinate = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlteration.featureLocation.fmin);
-//            }
-//            String sequenceAlterationResidues = sequenceAlteration.alterationResidue
-//            if (feature.getFeatureLocation().getStrand() == -1) {
-//                sequenceAlterationResidues = SequenceTranslationHandler.reverseComplementSequence(sequenceAlterationResidues);
-//            }
-//            // Insertions
-//            if (sequenceAlteration instanceof Insertion) {
-//                if (feature.getFeatureLocation().getStrand() == -1) {
-//                    ++localCoordinate;
-//                }
-//                residues.insert(localCoordinate + currentOffset, sequenceAlterationResidues);
-//                currentOffset += sequenceAlterationResidues.length();
-//            }
-//            // Deletions
-//            else if (sequenceAlteration instanceof Deletion) {
-//                if (feature.getFeatureLocation().getStrand() == -1) {
-//                    residues.delete(localCoordinate + currentOffset - sequenceAlteration.getLength() + 1,
-//                            localCoordinate + currentOffset + 1);
-//                } else {
-//                    residues.delete(localCoordinate + currentOffset,
-//                            localCoordinate + currentOffset + sequenceAlteration.getLength());
-//                }
-//                currentOffset -= sequenceAlterationResidues.length();
-//            }
-//            // Substitions
-//            else if (sequenceAlteration instanceof Substitution) {
-//                int start = feature.getStrand() == -1 ? localCoordinate - (sequenceAlteration.getLength() - 1) : localCoordinate;
-//                residues.replace(start + currentOffset,
-//                        start + currentOffset + sequenceAlteration.getLength(),
-//                        sequenceAlterationResidues);
-//            }
-//        }
-//        return residues.toString();
-//    }
 
     public void removeFeatureRelationship(Transcript transcript, Feature feature) {
 
@@ -2053,14 +1802,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
     }
 
-/**
- * From https://github.com/GMOD/Apollo/issues/73
- * Need to add another call after other calculations are done to verify that we verify that we have not left our current isoform siblings or that we have just joined some and we should merge genes (always taking the one on the left).
- 1 - using OrfOverlapper, find other isoforms
- 2 - for each isoform, confirm that they belong to the same gene (if not, we merge genes)
- 3 - confirm that no other non-overlapping isoforms have the same gene (if not, we create a new gene)
- * @param transcript
- */
+    /**
+     * From https://github.com/GMOD/Apollo/issues/73
+     * Need to add another call after other calculations are done to verify that we verify that we have not left our current isoform siblings or that we have just joined some and we should merge genes (always taking the one on the left).
+     1 - using OrfOverlapper, find other isoforms
+     2 - for each isoform, confirm that they belong to the same gene (if not, we merge genes)
+     3 - confirm that no other non-overlapping isoforms have the same gene (if not, we create a new gene)
+     * @param transcript
+     */
     @Transactional
     def handleIsoformOverlap(Transcript transcript) {
         Gene originalGene = transcriptService.getGene(transcript)
@@ -2207,6 +1956,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         List<SequenceAlteration> sequenceAlterations = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId", [fmin: fmin, fmax: fmax, seqId: sequence])
         return sequenceAlterations
     }
+
+
 
     public List<SequenceAlterationInContext> getSequenceAlterationsInContext(Feature feature, Collection<SequenceAlteration> sequenceAlterations) {
         List<SequenceAlterationInContext> sequenceAlterationInContextList = new ArrayList<>()
@@ -2455,5 +2206,78 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             // calling convertLocalCoordinateToSourceCoordinate for all other feature types
             return convertLocalCoordinateToSourceCoordinate(feature, localCoordinate)
         }
+    }
+
+
+
+    /* convert an input local coordinate to a local coordinate that incorporates sequence alterations */
+
+    public int convertSourceToModifiedLocalCoordinate(Feature feature, Integer localCoordinate) {
+        log.debug "convertSourceToModifiedLocalCoordinate"
+        List<SequenceAlteration> alterations = new ArrayList<>()
+        alterations.addAll(getAllSequenceAlterationsForFeature(feature))
+
+        if (alterations.size() == 0) {
+            log.debug "No alterations returning ${localCoordinate}"
+            return localCoordinate
+        }
+
+
+        Collections.sort(alterations, new FeaturePositionComparator<SequenceAlteration>());
+        if (feature.getFeatureLocation().getStrand() == -1) {
+            Collections.reverse(alterations);
+        }
+
+        int deletionOffset = 0
+        int insertionOffset = 0
+
+        for (SequenceAlteration alteration : alterations) {
+            int alterationResidueLength = alteration.alterationResidue.length()
+            int coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.fmin);
+
+
+            //getAllSequenceAlterationsForFeature returns alterations over entire scaffold?!
+            if(alteration.fmin<=feature.fmin || alteration.fmax> feature.fmax) {
+                log.debug "SKIPPING ${coordinateInContext}"
+                continue
+            }
+
+            if (feature.strand == Strand.NEGATIVE.value) {
+                coordinateInContext=feature.featureLocation.calculateLength()-coordinateInContext
+                log.debug "Checking negative insertion ${coordinateInContext} ${localCoordinate} ${(coordinateInContext - alterationResidueLength) - 1}"
+                if (coordinateInContext <= localCoordinate && alteration instanceof Deletion) {
+                    log.debug "Processing negative deletion"
+                    deletionOffset += alterationResidueLength
+                }
+                if ((coordinateInContext - alterationResidueLength) - 1 <= localCoordinate && alteration instanceof Insertion) {
+                    log.debug "Processing negative insertion ${coordinateInContext} ${localCoordinate} ${(coordinateInContext - alterationResidueLength) - 1}"
+                    insertionOffset += alterationResidueLength
+                }
+                if ((localCoordinate - coordinateInContext) - 1 < alterationResidueLength && (localCoordinate - coordinateInContext) >= 0 && alteration instanceof Insertion) {
+                    log.debug "Processing negative insertion pt 2"
+                    insertionOffset -= (alterationResidueLength - (localCoordinate - coordinateInContext - 1))
+
+                }
+
+            } else {
+                if (coordinateInContext < localCoordinate && alteration instanceof Deletion) {
+                    log.debug "Processing positive deletion"
+                    deletionOffset += alterationResidueLength
+                }
+                if ((coordinateInContext + alterationResidueLength) <= localCoordinate && alteration instanceof Insertion) {
+                    log.debug "Processing positive insertion"
+                    insertionOffset += alterationResidueLength
+                }
+                if ((localCoordinate - coordinateInContext) < alterationResidueLength && (localCoordinate - coordinateInContext) >= 0 && alteration instanceof Insertion) {
+                    log.debug "Processing positive insertion pt 2"
+                    insertionOffset += localCoordinate - coordinateInContext
+                }
+            }
+
+        }
+
+        log.debug "Returning ${localCoordinate-deletionOffset+insertionOffset}"
+        return localCoordinate-deletionOffset+insertionOffset
+
     }
 }
