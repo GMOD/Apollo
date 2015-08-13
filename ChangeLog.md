@@ -1,3 +1,21 @@
+
+
+## 2.0.0
+
+Bugfixes
+
++ Organism panel not showing all organisms (#540).
++ Admins for specific organisms are able to create organisms for organisms they aren't admins of (#542).
+
+## 2.0.0-RC6
+
+Bugfixes
+
++ Fixed multiple bugs having to do with sequence alterations (#534, #531, #458, #456).
++ Fixed logout for multiple windows on the same browser (#480).
++ JBrowse only mode not listening to websockets (#537).  
+
+
 ## 2.0.0-RC5
 
 Features
