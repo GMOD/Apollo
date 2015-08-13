@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.bbop.apollo.UserOrganismPermission;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
@@ -508,7 +509,20 @@ public class UserPanel extends Composite {
             }
 
             permissionProviderList.clear();
-            permissionProviderList.addAll(selectedUserInfo.getOrganismPermissionMap().values());
+            // only show organisms that this user is an admin on . . . https://github.com/GMOD/Apollo/issues/540
+//            permissionProviderList.addAll(selectedUserInfo.getOrganismPermissionMap().values());
+            List<String> organismsToShow = new ArrayList<>();
+            for(UserOrganismPermissionInfo userOrganismPermission : MainPanel.getInstance().getCurrentUser().getOrganismPermissionMap().values()){
+                if(userOrganismPermission.isAdmin()){
+                    organismsToShow.add(userOrganismPermission.getOrganismName());
+                }
+            }
+
+            for(UserOrganismPermissionInfo userOrganismPermission : selectedUserInfo.getOrganismPermissionMap().values()){
+                if (organismsToShow.contains(userOrganismPermission.getOrganismName())){
+                    permissionProviderList.add(userOrganismPermission);
+                }
+            }
         }
     }
 
