@@ -15,7 +15,7 @@ The main configuration settings for Apollo are stored in `grails-app/conf/Config
 `apollo-config.groovy` file (i.e. the same file that contains your database parameters). Here are the defaults that are
 defined in the Config.groovy file:
 
-```
+``` 
     // default apollo settings
     apollo {
         default_minimum_intron_size = 1
@@ -66,7 +66,7 @@ These settings are essentially the same familiar parameters from a config.xml fi
 The defaults are generally sufficient, but as noted above, you can override any particular parameter in your
 apollo-config.groovy file, e.g. you can add override configuration any given parameter as follows:
 
-```
+``` 
     grails {
         apollo.get_translation_code = 1 
         apollo {
@@ -88,7 +88,7 @@ Canned comments are configured via the admin panel on the web interface.
 Web Apollo can be configured to work with sequence search tools. The tool UCSC BLAT is
 commonly used and can be easily configured via the config file, with the general parameters given as follows:
 
-```
+``` 
     sequence_search_tools = [
         blat_nuc: [
             search_exe: "/usr/local/bin/blat",
@@ -119,7 +119,7 @@ installation binaries reside elsewhere, edit the search_exe location to point to
 
 Data adapters are currently configured as follows
 
-```
+``` 
     data_adapters = [[
         permission: 1,
         key: "GFF3",
@@ -196,17 +196,17 @@ One thing to consider with this proxy setup is the websocket calls. We use the S
 
 The most simple setup on apache is a reverse proxy. Note that a reverse proxy _does not_ use `ProxyRequests On` (i.e. if you want you can set `ProxyRequests Off`, it is not relevant to reverse proxies). Here is the most basic configuration:
 
-```
+``` 
     ProxyPass  /apollo http://localhost:8080/apollo
     ProxyPassReverse  /apollo http://localhost:8080/apollo
     ProxyPassReverseCookiePath  / http://localhost:8080/apollo
-```
+``` 
 
 This setup will use AJAX long-polling unless websockets are also configured to be proxied. To setup the proxy for websockets, you can use mod_proxy_wstunnel (available for httpd 2.4):  http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html
 
 First load the module or use a2enmod enable it (on ubuntu / debian):
 
-```
+``` 
     LoadModule proxy_wstunnel_module libexec/apache2/mod_proxy_wstunnel.so
 ```
 
@@ -221,7 +221,7 @@ Then in your server config, i.e. httpd.conf, add extra ProxyPass calls for the w
 Note: you can also proxy all apps on your tomcat server to a subdirectory like this, but the important part of this configuration is that ProxyPassReverseCookiePath is configured so that sessions are set up properly (otherwise it will look like the app is loaded, but you will not be able to login)
 
 
-```
+``` 
     ProxyPass  /testing http://localhost:8080
     ProxyPassReverse  /testing http://localhost:8080
     ProxyPassReverseCookiePath / /testing
@@ -235,7 +235,7 @@ With this configuration, an app that was originally at http://localhost:8080/apo
 
 Your setup may vary, but setting the upgrade headers can be used for the websocket configuration http://nginx.org/en/docs/http/websocket.html
 
-```
+``` 
     map $http_upgrade $connection_upgrade {
             default upgrade;
             ''      close;
@@ -275,7 +275,7 @@ There are a variety of different ways to include new CSS into the browser, but t
 
 Add the following statement to your trackList.json:
 
-```
+``` 
    "css" : "data/yourfile.css"
 ```
 

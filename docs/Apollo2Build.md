@@ -30,7 +30,7 @@ There won't be any difference in the workflow either way that you choose to get 
 
 We can now perform a quick-start of the application in "development mode" with this command:
 
-```
+``` 
     ./apollo run-local
 ```
 
@@ -45,7 +45,7 @@ Also note: if there are any errors at this step, check the setup.log file for er
 
 After we have a server setup, we will want to add a new organism to the panel. If you are a new user, you will want to setup this data with the jbrowse pre-processing scripts. You can see the [data loading guide](Data_loading.md) for more details, but essentially, you will want to load a reference genome and an annotations file at a minimum:
 
-```
+``` 
     bin/prepare-refseqs.pl --fasta yourgenome.fasta --out /some/directory
     bin/flatfile-to-json.pl --gff yourannotations.gff --type mRNA --trackLabel AnnotationsGff --out /some/directory
 ```

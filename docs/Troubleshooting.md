@@ -7,14 +7,14 @@ Typically, the default memory allowance for the Java Virtual Machine (JVM) is to
 
 #### Suggested Tomcat memory settings
 
-```
+``` 
     export CATALINA_OPTS="-Xms512m -Xmx1g -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m"
 ```
 
 
 In cases where the assembled genome is highly fragmented, additional tuning of memory requirements and garbage collection will be necessary to maintain the system stable. Below is an example from a research group that maintains over 40 Apollo instances with assemblies that range from 1,000 to 150,000 scaffolds (reference sequences):  
 
-```
+``` 
     export CATALINA_OPTS="-Xmx12288m -Xms8192m -XX:PermSize=256m -XX:MaxPermSize=1024m -XX:ReservedCodeCacheSize=64m -XX:+UseG1GC -XX:+CMSClassUnloadingEnabled -Xloggc:$CATALINA_HOME/logs/gc.log -XX:+PrintHeapAtGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
 ```
 
@@ -24,13 +24,13 @@ To change your settings, you can edit the setenv.sh script in
 
 #### Confirm your settings
 
-```
+``` 
     ps -ef | grep -i tomcat
 ```
 
 You should see your memory settings in the command that runs tomcat.   
 
-```
+``` 
     /usr/local/bin/java -Dfile.encoding=UTF-8 -Xmx2048M -Xms64M -XX:MaxPermSize=1024m 
 ```
 
@@ -43,8 +43,8 @@ If you have named your web application named "WebApollo.war" then you can remove
 - `apollo deploy`  (or `apollo release` for javascript-minimization)
 - stop tomcat
 - `rm -f $TOMCAT_WEBAPPS_DIR/webapps/WebApollo.war && sudo rm -rf $TOMCAT_WEBAPPS_DIR/webapps/WebApollo`
-- start tomcat 
 - `cp target/apollo-XXX.war $TOMCAT_WEBAPPS_DIR/webapps/WebApollo.war`
+- start tomcat 
 
 ### Tomcat permissions
 
@@ -84,7 +84,7 @@ Note that you can also configure tomcat to run on different ports, or you can la
 
 If you receive an error similar to this:
 
-```
+``` 
     SEVERE: Unable to create initial connections of pool.
     org.h2.jdbc.JdbcSQLException: Error opening database: "Could not save properties /var/lib/tomcat7/prodDb.lock.db" [8000-176]
 ```
@@ -94,7 +94,7 @@ If you use H2 (which is great for testing or single-user user, but not for full-
 
 You can modify the specified data directory for the H2 database in the apollo-config.groovy. For example, using the /tmp/ directory, or some other directory:
 
-```
+``` 
     url = "jdbc:h2:/tmp/prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
 ```
 
@@ -109,7 +109,7 @@ that tomcat is running in e.g., ``/var/lib/tomcat7/``.
 
 In some instances you can't write to the default cache location on disk.  Part of an example config log:
 
-```
+``` 
     2015-07-03 14:37:39,675 [main] ERROR context.GrailsContextLoaderListener  - Error initializing the application: null
     java.lang.NullPointerException
             at grails.plugin.cache.ehcache.GrailsEhCacheManagerFactoryBean$ReloadableCacheManager.rebuild(GrailsEhCacheManagerFactoryBean.java:171)
@@ -121,7 +121,7 @@ There are several solutions to this, but all involve updating the ```apollo-conf
 
 1) Disabling the cache:
 
-```
+``` 
     grails.cache.config = {
         cache {
             enabled = false
@@ -132,7 +132,7 @@ There are several solutions to this, but all involve updating the ```apollo-conf
 
 2) Disallow writing overflow to disk (best solution for small installations):
 
-```
+``` 
     grails.cache.config = {
         // avoid ehcache naming conflict to run multiple WA instances
         provider {
@@ -150,7 +150,7 @@ There are several solutions to this, but all involve updating the ```apollo-conf
 
 3) Specify the overflow directory (best for high load servers, which will need the cache).  Make sure your tomcat / web-server user can write to that directory:
 
-```
+``` 
     // copy from Config.groovy except where noted
     grails.cache.config = {
     ... 
