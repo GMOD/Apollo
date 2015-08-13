@@ -38,12 +38,6 @@ class OrganismController {
             Organism organism = Organism.findById(organismJson.id as Long)
             if (organism) {
                 UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
-                Sequence.findAllByOrganism(organism).each { it ->
-                    log.debug "${it.name}"
-                    Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence", [sequence: it]).each { it2 ->
-                        it2.featureLocations.clear()
-                    }
-                }
                 organism.delete()
             }
         }
