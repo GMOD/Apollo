@@ -23,6 +23,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.GroupInfo;
 import org.bbop.apollo.gwt.client.dto.GroupOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
+import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.event.GroupChangeEvent;
 import org.bbop.apollo.gwt.client.event.GroupChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -30,6 +31,7 @@ import org.bbop.apollo.gwt.client.rest.GroupRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -203,7 +205,22 @@ public class GroupPanel extends Composite {
                 int rowCount = userData.getRowCount() ;
                 userData.setHTML(rowCount,0,userInfo.getName());
             }
-            permissionProviderList.addAll(selectedGroupInfo.getOrganismPermissionMap().values());
+
+            // only show organisms that this user is an admin on . . . https://github.com/GMOD/Apollo/issues/540
+//            permissionProviderList.addAll(selectedGroupInfo.getOrganismPermissionMap().values());
+
+            List<String> organismsToShow = new ArrayList<>();
+            for(UserOrganismPermissionInfo userOrganismPermission : MainPanel.getInstance().getCurrentUser().getOrganismPermissionMap().values()){
+                if(userOrganismPermission.isAdmin()){
+                    organismsToShow.add(userOrganismPermission.getOrganismName());
+                }
+            }
+
+            for(GroupOrganismPermissionInfo userOrganismPermission : selectedGroupInfo.getOrganismPermissionMap().values()){
+                if (organismsToShow.contains(userOrganismPermission.getOrganismName())){
+                    permissionProviderList.add(userOrganismPermission);
+                }
+            }
         } else {
             name.setText("");
             deleteButton.setVisible(false);
