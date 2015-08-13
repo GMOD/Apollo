@@ -23,7 +23,7 @@ To setup Web Apollo, you can download the code from github:
 
 Alternatively, download a .tar.gz file or .zip file from the releases page: [https://github.com/GMOD/Apollo/releases](https://github.com/GMOD/Apollo/releases).
 
-There won't be any difference in the workflow either way you get the code.
+There won't be any difference in the workflow either way that you choose to get the code.
 
 
 ### Verify install requirements
@@ -34,9 +34,11 @@ We can now perform a quick-start of the application in "development mode" with t
     ./apollo run-local
 ```
 
-The jbrowse and perl pre-requisites will be installed during this step, but if there is a success, then a temporary server will be automatically launched at `http://localhost:8080/apollo`.
+The jbrowse and perl pre-requisites will be installed during this step, and if there is a success, then a temporary server will be automatically launched at `http://localhost:8080/apollo`.
 
 Note: You can also supply a port number e.g. `apollo run-local 8085` if there are conflicts on port 8080.
+
+Also note: if there are any errors at this step, check the setup.log file for errors. You can refer to the [troubleshooting guide](Troubleshooting.md) and often it just means the pre-requisites or perl modules failed.
 
 ## Setting up the application
 
