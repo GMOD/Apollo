@@ -69,6 +69,8 @@ public class OrganismPanel extends Composite {
     Button cancelButton;
     @UiField
     Button deleteButton;
+    @UiField(provided = true)
+    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);
 
     boolean creatingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
@@ -145,6 +147,7 @@ public class OrganismPanel extends Composite {
         dataGrid.setSelectionModel(singleSelectionModel);
 
         dataProvider.addDataDisplay(dataGrid);
+        pager.setDisplay(dataGrid);
 
 
         dataGrid.addDomHandler(new DoubleClickHandler() {
