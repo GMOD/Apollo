@@ -1,6 +1,6 @@
 # Quick-start guide
 
-Here we will introduce how to setup WebApollo on your server. In general, there are two modes of deploying WebApollo.
+Here we will introduce how to setup Web Apollo on your server. In general, there are two modes of deploying Web Apollo.
 
 There is "development mode" where the application is launched in a temporary server (automatically) and there is "production mode", which will typically require an external separate database and tomcat server where you can deploy the generated `war` file.
 
@@ -16,10 +16,14 @@ Installing grails is made easier by using [GVM](http://gvmtool.net/) which can a
 
 ### Get the code
 
-To setup WebApollo, you can download the code from github:
+To setup Web Apollo, you can download the code from github:
 
 - git clone https://github.com/GMOD/Apollo.git Apollo
 - cd Apollo
+
+Alternatively, download a .tar.gz file or .zip file from the releases page: [https://github.com/GMOD/Apollo/releases](https://github.com/GMOD/Apollo/releases).
+
+There won't be any difference in the workflow either way that you choose to get the code.
 
 
 ### Verify install requirements
@@ -27,12 +31,14 @@ To setup WebApollo, you can download the code from github:
 We can now perform a quick-start of the application in "development mode" with this command:
 
 ```
-    apollo run-local
+    ./apollo run-local
 ```
 
-The jbrowse and perl pre-requisites will be installed during this step, but if there is a success, then a temporary server will be automatically launched at `http://localhost:8080/apollo`.
+The jbrowse and perl pre-requisites will be installed during this step, and if there is a success, then a temporary server will be automatically launched at `http://localhost:8080/apollo`.
 
 Note: You can also supply a port number e.g. `apollo run-local 8085` if there are conflicts on port 8080.
+
+Also note: if there are any errors at this step, check the setup.log file for errors. You can refer to the [troubleshooting guide](Troubleshooting.md) and often it just means the pre-requisites or perl modules failed.
 
 ## Setting up the application
 
