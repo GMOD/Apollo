@@ -31,14 +31,20 @@ class OrganismController {
         log.debug "DELETING ORGANISM params: ${params.data}"
         JSONObject organismJson = (request.JSON?:JSON.parse(params.data.toString())) as JSONObject
         try {
-            permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+            if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
 
-            log.debug "organismJSON ${organismJson}"
-            log.debug "id: ${organismJson.id}"
-            Organism organism = Organism.findById(organismJson.id as Long)
-            if (organism) {
-                UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
-                organism.delete()
+                log.debug "organismJSON ${organismJson}"
+                log.debug "id: ${organismJson.id}"
+                Organism organism = Organism.findById(organismJson.id as Long)
+                if (organism) {
+                    UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
+                    organism.delete()
+                }
+            }
+            else {
+                def error= [error: 'not authorized to delete organism']
+                render error as JSON
+                log.error(error.error)
             }
         }
         catch(Exception e) {
@@ -55,7 +61,7 @@ class OrganismController {
     def addOrganism() {
         JSONObject organismJson = request.JSON?:JSON.parse(params.data) as JSONObject
         try {
-            if (permissionService.hasPermissions(organismJson,PermissionEnum.ADMINISTRATE)) {
+            if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
                 if (organismJson.get("commonName") == "" || organismJson.get("directory") == "") {
                     throw new Exception('empty fields detected')
                 }
@@ -77,7 +83,9 @@ class OrganismController {
                 render findAllOrganisms()
             }
             else {
-                render status: HttpStatus.UNAUTHORIZED
+                def error= [error: 'not authorized to add organism']
+                render error as JSON
+                log.error(error.error)
             }
         } catch (e) {
             def error= [error: 'problem saving organism: '+e]
