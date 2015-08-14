@@ -33,6 +33,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -79,7 +80,7 @@ public class UserPanel extends Composite {
     @UiField
     TabLayoutPanel userDetailTab;
     @UiField(provided = true)
-    DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4,tablecss);
+    DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4, tablecss);
     @UiField(provided = true)
     SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);
     @UiField(provided = true)
@@ -213,11 +214,11 @@ public class UserPanel extends Composite {
             }
         });
     }
+
     @UiHandler("userDetailTab")
     void onTabSelection(SelectionEvent<Integer> event) {
         organismPermissionsGrid.redraw();
     }
-
 
 
     private void createOrganismPermissionsTable() {
@@ -339,9 +340,9 @@ public class UserPanel extends Composite {
 
     private void setCurrentUserInfoFromUI() {
         String emailString = email.getText().trim();
-        if(emailString.indexOf("@")>=emailString.lastIndexOf(".")){
-           Window.alert("Does not appear to be a valid email "+emailString);
-           return ;
+        if (emailString.indexOf("@") >= emailString.lastIndexOf(".")) {
+            Window.alert("Does not appear to be a valid email " + emailString);
+            return;
         }
         selectedUserInfo.setEmail(emailString);
         selectedUserInfo.setFirstName(firstName.getText());
@@ -391,7 +392,7 @@ public class UserPanel extends Composite {
 
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent) {
-        if(Window.confirm("Delete user "+selectedUserInfo.getName()+"?")){
+        if (Window.confirm("Delete user " + selectedUserInfo.getName() + "?")) {
             UserRestService.deleteUser(userInfoList, selectedUserInfo);
             selectedUserInfo = null;
             updateUserInfo();
@@ -408,16 +409,15 @@ public class UserPanel extends Composite {
 
         filteredUserInfoList.clear();
         String nameText = nameSearchBox.getText().toLowerCase().trim();
-        if(nameText.length()>0){
+        if (nameText.length() > 0) {
             for (UserInfo userInfo : userInfoList) {
                 if (userInfo.getName().toLowerCase().contains(nameText)
-                        ||  userInfo.getEmail().toLowerCase().contains(nameText)
+                        || userInfo.getEmail().toLowerCase().contains(nameText)
                         ) {
                     filteredUserInfoList.add(userInfo);
                 }
             }
-        }
-        else{
+        } else {
             filteredUserInfoList.addAll(userInfoList);
         }
         GWT.log("filtered size: " + filteredUserInfoList.size());
@@ -461,8 +461,7 @@ public class UserPanel extends Composite {
                 userRow1.setVisible(true);
                 userRow2.setVisible(true);
                 passwordRow.setVisible(true);
-            }
-            else{
+            } else {
                 userRow1.setVisible(false);
                 userRow2.setVisible(false);
                 passwordRow.setVisible(false);
@@ -509,17 +508,20 @@ public class UserPanel extends Composite {
 
             permissionProviderList.clear();
             // only show organisms that this user is an admin on . . . https://github.com/GMOD/Apollo/issues/540
-//            permissionProviderList.addAll(selectedUserInfo.getOrganismPermissionMap().values());
-            List<String> organismsToShow = new ArrayList<>();
-            for(UserOrganismPermissionInfo userOrganismPermission : MainPanel.getInstance().getCurrentUser().getOrganismPermissionMap().values()){
-                if(userOrganismPermission.isAdmin()){
-                    organismsToShow.add(userOrganismPermission.getOrganismName());
+            if (MainPanel.getInstance().isCurrentUserAdmin()) {
+                permissionProviderList.addAll(selectedUserInfo.getOrganismPermissionMap().values());
+            } else {
+                List<String> organismsToShow = new ArrayList<>();
+                for (UserOrganismPermissionInfo userOrganismPermission : MainPanel.getInstance().getCurrentUser().getOrganismPermissionMap().values()) {
+                    if (userOrganismPermission.isAdmin()) {
+                        organismsToShow.add(userOrganismPermission.getOrganismName());
+                    }
                 }
-            }
 
-            for(UserOrganismPermissionInfo userOrganismPermission : selectedUserInfo.getOrganismPermissionMap().values()){
-                if (organismsToShow.contains(userOrganismPermission.getOrganismName())){
-                    permissionProviderList.add(userOrganismPermission);
+                for (UserOrganismPermissionInfo userOrganismPermission : selectedUserInfo.getOrganismPermissionMap().values()) {
+                    if (organismsToShow.contains(userOrganismPermission.getOrganismName())) {
+                        permissionProviderList.add(userOrganismPermission);
+                    }
                 }
             }
         }
