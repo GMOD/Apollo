@@ -25,13 +25,18 @@ class ProjectionSpec extends Specification{
 
         when: "we generate a projection"
         Projection projectionTrack1To2  = projectionEngine.generateForwardProjection(track1,track2)
-
         List<Projection> projectionList = [projectionTrack1To2]
-
         Track track3 = projectionEngine.projectToTrack(track1,projectionList)
 
         then: "it should generate forward "
         assert projectionEngine.sameTrack(track2,track3)
+
+        when: "we project backwards"
+        Projection projectionTrack2To1  = projectionEngine.generateForwardProjection(track2,track1)
+        Track track0 = projectionEngine.projectToTrack(track1,[projectionTrack2To1])
+
+        then: "it should generate backward"
+        assert projectionEngine.sameTrack(track0,track1)
 
     }
 }

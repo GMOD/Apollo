@@ -1,13 +1,14 @@
 package org.bbop.apollo.projection
 
 import org.bbop.apollo.Feature
+import org.bbop.apollo.FeatureLocation
 
 /**
  * Created by nathandunn on 8/14/15.
  */
 class Projection {
 
-    TreeMap<Integer,Feature> projectionMap = new TreeMap<>()
+    TreeMap<Integer,FeatureLocation> projectionMap = new TreeMap<>()
 
     /**
      *
@@ -18,18 +19,23 @@ class Projection {
      * @param feature
      * @return
      */
-    Feature project(Integer min,Integer max,Feature feature){
-        Feature f2 = new Feature()
+    FeatureLocation project(Integer min,Integer max,FeatureLocation featureLocation){
+        FeatureLocation f2 = new FeatureLocation()
 
-        Map.Entry<Integer,Feature> floorEntry = projectionMap.floorEntry(min)
+        Map.Entry<Integer,FeatureLocation> floorEntry = projectionMap.floorEntry(min)
 
 
         return f2
     }
 
-
+    /**
+     * Itera
+     * @param trackInte over feature mins to produce a feature max
+     * @return
+     */
     Track project(Track trackIn){
         Track trackOut = new Track()
+
 
         return trackOut
     }
