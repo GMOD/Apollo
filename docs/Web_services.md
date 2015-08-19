@@ -98,6 +98,11 @@ Note that different operations will require different fields to be set (which wi
 ## Web Services API
 
 
+### AnnotationEditor
+
+
+#### add_organism
+
 Adds an organism to the database. An example using this script [add_organism.groovy](https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/add_organism.groovy).
 
 Request: `/organism/addOrganism`
@@ -554,7 +559,7 @@ Response:
 ```
 
 
-### IOService Web Service
+### IOService
 
 All JSON requests need to define: `operation` field, which defines the operation being
 
@@ -574,7 +579,7 @@ curl -e "http://$hostname:$port" --data '{ operation: "write", adapter: "GFF3", 
 
 
 
-### User Web Service
+### UserController
 
 User specific operations are restricted to users with administrator permissions.
 
