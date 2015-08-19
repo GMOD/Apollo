@@ -93,6 +93,20 @@ public class BlatCommandLine extends SequenceSearchTool {
                 commands.add(option);
             }
         }
+        runCommand(commands,log);
+
+        Collection<BlastAlignment> matches = new ArrayList<BlastAlignment>();
+        BufferedReader in = new BufferedReader(new FileReader(outputArg));
+        String line;
+        while ((line = in.readLine()) != null) {
+            matches.add(new TabDelimittedAlignment(line));
+        }
+        in.close();
+        return matches;
+    }
+
+
+    private void runCommand(List<String> commands, PrintWriter log) throws IOException, InterruptedException {
         log.println("Command:");
         for (String arg : commands) {
             log.print(arg + " ");
@@ -114,13 +128,6 @@ public class BlatCommandLine extends SequenceSearchTool {
         }
         log.close();
         p.destroy();
-        Collection<BlastAlignment> matches = new ArrayList<BlastAlignment>();
-        BufferedReader in = new BufferedReader(new FileReader(outputArg));
-        while ((line = in.readLine()) != null) {
-            matches.add(new TabDelimittedAlignment(line));
-        }
-        in.close();
-        return matches;
     }
 
     private void deleteTmpDir(File dir) {

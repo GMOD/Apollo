@@ -16,5 +16,7 @@ public abstract class SequenceSearchTool {
     public Collection<BlastAlignment> search(String uniqueToken, String query) throws SequenceSearchToolException {
         return search(uniqueToken, query, null);
     }
+
+
     
 }
