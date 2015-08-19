@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.bbop.apollo.gwt.client.WebApolloSimplePager;
 import org.bbop.apollo.gwt.client.dto.GroupInfo;
 import org.bbop.apollo.gwt.client.dto.GroupOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
@@ -58,7 +59,7 @@ public class GroupPanel extends Composite {
     @UiField
     FlexTable userData;
     @UiField(provided = true)
-    SimplePager organismPager = new SimplePager(SimplePager.TextLocation.CENTER);
+    WebApolloSimplePager organismPager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField(provided = true)
     DataGrid<GroupOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4, tablecss);
     private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();

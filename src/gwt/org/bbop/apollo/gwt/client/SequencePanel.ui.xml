@@ -3,6 +3,7 @@
              xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
              xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
              xmlns:select="urn:import:org.gwtbootstrap3.extras.select.client.ui"
+             xmlns:wa="urn:import:org.bbop.apollo.gwt.client"
 
 
         >
@@ -134,7 +135,7 @@
                                               icon="CHECK_CIRCLE" marginLeft="10" visible="false"/>
                                 </td>
                                 <td align="center">
-                                    <cellview:SimplePager ui:field="pager" styleName="{style.pager}"/>
+                                    <wa:WebApolloSimplePager ui:field="pager" styleName="{style.pager}"/>
                                 </td>
                                 <td style="width:20%"/>
                             </tr>

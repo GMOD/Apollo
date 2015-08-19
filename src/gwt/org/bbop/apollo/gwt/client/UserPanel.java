@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.bbop.apollo.gwt.client.WebApolloSimplePager;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
@@ -82,9 +83,9 @@ public class UserPanel extends Composite {
     @UiField(provided = true)
     DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4, tablecss);
     @UiField(provided = true)
-    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);
+    WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField(provided = true)
-    SimplePager organismPager = new SimplePager(SimplePager.TextLocation.CENTER);
+    WebApolloSimplePager organismPager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField
     org.gwtbootstrap3.client.ui.TextBox nameSearchBox;
     @UiField

@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.bbop.apollo.gwt.client.WebApolloSimplePager;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.OrganismInfoConverter;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
@@ -70,7 +71,7 @@ public class OrganismPanel extends Composite {
     @UiField
     Button deleteButton;
     @UiField(provided = true)
-    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);
+    WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
 
     boolean creatingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info

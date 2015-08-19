@@ -53,8 +53,8 @@ public class SequencePanel extends Composite {
     @UiField(provided = true)
     DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>(20, tablecss);
     @UiField(provided = true)
-    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);
-//    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER, (SimplePager.Resources) GWT.create(SimplePager.Resources.class), false, 0, true);
+    WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
+//    WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER, (WebApolloSimplePager.Resources) GWT.create(WebApolloSimplePager.Resources.class), false, 0, true);
 
 
     @UiField
