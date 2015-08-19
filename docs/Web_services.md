@@ -98,8 +98,7 @@ Note that different operations will require different fields to be set (which wi
 ## Web Services API
 
 
-### AnnotationEditor
-
+### OrganismController
 
 #### add_organism
 
@@ -127,7 +126,7 @@ Response Status 200:
 
 
 
-Gets all sequence names for a given organism, that has annotations. An example using this operation is [migrate_annotations.groovy](https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/migrate_annotations.groovy).
+Gets all sequence names for a given organism, that has annotations. An example using this operation is [migrate_annotations.groovy](https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/migrate_annotations1to2.groovy).
 
 Request: `/organism/getSequencesForOrganism`
 
@@ -150,6 +149,7 @@ Response Status 200:
 ```
 
 
+### AnnotationEditorController
 
 #### add_feature
 
@@ -559,7 +559,7 @@ Response:
 ```
 
 
-### IOService
+### IOServiceController
 
 All JSON requests need to define: `operation` field, which defines the operation being
 
