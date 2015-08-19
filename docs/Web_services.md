@@ -1,8 +1,8 @@
 # Web Service API
 
 
-The Apollo Web Service API is JSON-based REST API to easily interact with the annotations and other services of Web Apollo.
-Both the request and response JSON objects can contain feature information that are based on the Chado schema.  We use that API for several 
+The Apollo Web Service API is a JSON-based REST API to interact with the annotations and other services of Web Apollo.
+Both the request and response JSON objects can contain feature information that are based on the Chado schema.  We use the web services API for several 
 <a href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/">scripting examples</a> and also use them in the Web Apollo JBrowse plugin,
 and this document provides details on the parameters for each API.
 
