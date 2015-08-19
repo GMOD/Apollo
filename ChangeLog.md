@@ -2,8 +2,12 @@
 
 Features
 
-+ Make the pagination more intuitive by only loading the remainder on the last page
-+ Only allow the global admin role to create and delete organisms (#542).
++ Make the pagination for the annotator sidebar more intuitive by only loading the remainder of rows on the last page.
+
+
+Bugfixes
+
++ Fixed the permissions to only allow the global admin role to create and delete organisms (#542).
 
 ## 2.0.0
 
