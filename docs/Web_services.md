@@ -563,20 +563,42 @@ Response:
 
 All JSON requests need to define: `operation` field, which defines the operation being
 
-* `adapter` 'GFF3','FASTA', 'Chado' (Chado not yet supported in 2.x)
-* `tracks` an array of tracks / reference sequences, e.g., ["scf111111","scf111112"])*   
+
+#### write
+
+Can write to a file or to http output stream
+
+Request: `/IOService/write`
+
+Example
+
+``` 
+{ "adapter": "GFF3", "tracks": ["scf111111","scf111112"], "output": "text" }
+```
+
+Parameters:
+
+* `adapter` 'GFF3','FASTA', 'Chado' ('Chado' not yet supported in 2.x)
+* `tracks` an array of tracks / reference sequences, e.g., ["scf111111","scf111112"])
 * `output` can be `file` or `plain`
 * `format` can be `gzip` or `text`
 
-The request is returned according to the options and the adapter chosen.
+
+#### download
+
+This is used to retrieve the file once the write operation was initialized using output: file.
+
+
+Parameters:
+
+* `uuid` a UUID returned by the /IOService/write operation
+* `exportType` the exportType is returned by the /IOService/write operation
+* `seqType` the seqType is returned by the /IOService/write operation
+* `format` the format is returned by the /IOService/write operation
 
 Example:
 
-``` 
-curl -e "http://$hostname:$port" --data '{ operation: "write", adapter: "GFF3", tracks: ["scf1117875582023"], options: "output=file&format=gzip",'username': '$username', 'password': '$password','organism':'$organism' }' http://$hostname:$port:8080/apollo/IOService
-```
-
-
+An example script is used in the [get_gff3.groovy script](https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/get_gff3.groovy).
 
 
 ### UserController
