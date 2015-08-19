@@ -1,23 +1,23 @@
-# Apollo Web Service API
+# Web Service API
 
 
-The Apollo web service API is JSON based REST API to easily interact with the annotations and other services of Web Apollo.
+The Apollo Web Service API is JSON-based REST API to easily interact with the annotations and other services of Web Apollo.
 Both the request and response JSON objects can contain feature information that are based on the Chado schema.  We use that API for several 
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/">scripting examples</a> in additon to utilizing these APIs
-by the Web Apollo JBrowse plugin, and this document provides details on the parameters for each API.
+<a href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/">scripting examples</a> and also use them in the Web Apollo JBrowse plugin,
+and this document provides details on the parameters for each API.
 
 
-## Requests
+## What is the Web Service API?
 
-For a given Web Apollo server url (e.g., `https://localhost:8080/apollo` or any other Web Apollo site on the web) we can make API requests to the various "controllers" of the application.
+For a given Web Apollo server url (e.g., `https://localhost:8080/apollo` or any other Web Apollo site on the web), the Web Service API allows us to make requests to the various "controllers" of the application and perform operations.
 
-We have for instance, the AnnotationEditorController, the OrganismController, the IOServiceController for downloads of data, and the UserController for user management.
+The controllers that are available for Web Apollo include the AnnotationEditorController, the OrganismController, the IOServiceController for downloads of data, and the UserController for user management.
 
 
 Most API requests will take:
 
 * The proper url (e.g., to get features from the AnnotationEditorController, we can send requests to `http://localhost/apollo/annotationEditor/getFeatures`)
-* username - a authorized user 
+* username - an authorized user 
 * password - a password
 * organism - (optional) the "common name" of the organism for feature related operations -- will also pull from the "user preferences" if none is specified.
 * track/sequence - (optional) reference sequence name (shown in sequence panel / genomic browse)
@@ -58,7 +58,7 @@ appended to all subsequent requests as <code>jsessionid=session-id</code> as a U
 {"session-id":"43FBA5B967595D260A1C0E6B7052C7A1"}
 ```
 
-## Feature Objectd
+### Representing features in JSON
 
 Most requests and responses will contain an array of `feature` JSON objects named `features`.
 The `feature` object is based on the Chado `feature`, `featureloc`, `cv`, and `cvterm` tables.
@@ -136,7 +136,7 @@ Request: `/organism/getSequencesForOrganism`
 
 Response Status 200:
 
-```
+``` 
 {
     "username": "bob@admin.gov",
     "sequences": [ "chr1", "chr4", "chr11" ],
@@ -526,13 +526,13 @@ Add comments to a feature
 Request: `/annotationEditor/addComments`
 
 ``` 
-    { "features":[{ "uniquename":"bc7a1c02-3503-416f-97f4-70489e6477b0", "comments":["This is a comment"] }] }
+{ "features":[{ "uniquename":"bc7a1c02-3503-416f-97f4-70489e6477b0", "comments":["This is a comment"] }] }
 ```
 
 Response:
 
 ``` 
-{ "features":[{ "id":207389, "date_creation":1438616294686, "location":{ "id":207390, "fmin":97044, "strand":1, "fmax":97323 }, "sequence":"Group1.14", "parent_type":{ "name":"gene", "cv":{"name":"sequence"} }, "name":"GB51850-RA-00001", "owner":"user@email.com", "children":[{ "id":207391, "date_creation":1438616294661, "location":{ "id":207392, "fmin":97044, "strand":1, "fmax":97323}, "sequence":"Group1.14", "parent_type":{ "name":"mRNA", "cv":{"name":"sequence"} }, "name":"986735ff-d666-416f-8246-aba7f9c30d66-exon", "owner":"None", "properties":[{ "value":"None", "type":{ "name":"owner", "cv":{"name":"feature_property"} }}], "uniquename":"986735ff-d666-416f-8246-aba7f9c30d66", "type":{ "name":"exon", "cv":{"name":"sequence"} }, "date_last_modified":1438616294716, "parent_id":"2fe372e5-3ea6-4ef1-83af-747be8473ef3" }, {"id":207394, "date_creation":1438616294678, "location":{ "id":207395, "fmin":97044, "strand":1, "fmax":97323 }, "sequence":"Group1.14", "parent_type":{ "name":"mRNA", "cv":{"name":"sequence"} }, "name":"a200b8e2-7a1f-44b4-8ec3-2cc7fe4e9981-CDS", "owner":"None", "properties":[{ "value":"None", "type":{ "name":"owner", "cv":{ "name":"feature_property" }}}], "uniquename":"a200b8e2-7a1f-44b4-8ec3-2cc7fe4e9981", "type":{ "name":"CDS", "cv":{"name":"sequence"} }, "date_last_modified":1438616294718, "parent_id":"2fe372e5-3ea6-4ef1-83af-747be8473ef3" }], "properties":[{ "value":"user@email.com", "type":{ "name":"owner", "cv":{ "name":"feature_property" }}}], "uniquename":"2fe372e5-3ea6-4ef1-83af-747be8473ef3", "type":{ "name":"mRNA", "cv":{ "name":"sequence" }}, "date_last_modified":1438616294838, "parent_id":"bc7a1c02-3503-416f-97f4-70489e6477b0" }]} }
+{ "features":[{ "id":207389, "date_creation":1438616294686, "location":{ "id":207390, "fmin":97044, "strand":1, "fmax":97323 }, "sequence":"Group1.14", "parent_type":{ "name":"gene", "cv":{"name":"sequence"} }, "name":"GB51850-RA-00001", "owner":"user@email.com", "children":[{ "id":207391, "date_creation":1438616294661, "location":{ "id":207392, "fmin":97044, "strand":1, "fmax":97323}, "sequence":"Group1.14", "parent_type":{ "name":"mRNA", "cv":{"name":"sequence"} }, "name":"986735ff-d666-416f-8246-aba7f9c30d66-exon", "owner":"None", "properties":[{ "value":"None", "type":{ "name":"owner", "cv":{"name":"feature_property"} }}], "uniquename":"986735ff-d666-416f-8246-aba7f9c30d66", "type":{ "name":"exon", "cv":{"name":"sequence"} }, "date_last_modified":1438616294716, "parent_id":"2fe372e5-3ea6-4ef1-83af-747be8473ef3" }, {"id":207394, "date_creation":1438616294678, "location":{ "id":207395, "fmin":97044, "strand":1, "fmax":97323 }, "sequence":"Group1.14", "parent_type":{ "name":"mRNA", "cv":{"name":"sequence"} }, "name":"a200b8e2-7a1f-44b4-8ec3-2cc7fe4e9981-CDS", "owner":"None", "properties":[{ "value":"None", "type":{ "name":"owner", "cv":{ "name":"feature_property" }}}], "uniquename":"a200b8e2-7a1f-44b4-8ec3-2cc7fe4e9981", "type":{ "name":"CDS", "cv":{"name":"sequence"} }, "date_last_modified":1438616294718, "parent_id":"2fe372e5-3ea6-4ef1-83af-747be8473ef3" }], "properties":[{ "value":"user@email.com", "type":{ "name":"owner", "cv":{ "name":"feature_property" }}}], "uniquename":"2fe372e5-3ea6-4ef1-83af-747be8473ef3", "type":{ "name":"mRNA", "cv":{ "name":"sequence" }}, "date_last_modified":1438616294838, "parent_id":"bc7a1c02-3503-416f-97f4-70489e6477b0" }]}
 ```
 
 
