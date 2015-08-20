@@ -6,7 +6,7 @@ Apollo 2 - An instantaneous, collaborative, genome annotation editor.
 The application's technology stack includes a Grails-based Java web application with flexible database backends and a
 Javascript client that runs in a web browser as a JBrowse plugin.
 
-For general information on WebApollo, go to: 
+For general information on Apollo, go to: 
 `http://genomearchitect.org/ <http://genomearchitect.org>`__
 
 For more information on JBrowse, please visit:
