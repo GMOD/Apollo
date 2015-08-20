@@ -167,7 +167,7 @@ Add a top level feature. Returns feature just added.
 
 Request: `/annotationEditor/addFeature`
 
-Example: request.json
+Example `request.json`
 
 ``` 
 {
@@ -181,8 +181,11 @@ Example: request.json
     "organism": "Apis mellifera",
     "track": "Group1.1"
 }
-
 ```
+
+Send request:
+
+``` 
 curl -X POST --header "Content-Type:application/json" --data @request.json http://localhost:8080/apollo/annotationEditor/addFeature
 ```
 
