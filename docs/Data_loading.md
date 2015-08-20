@@ -1,20 +1,23 @@
 # Data generation pipeline
 
-The data generation pipeline is based on the typical jbrowse commands such as prepare-refseqs.pl and flatfile-to-json.pl,
- and it is installed automatically using the `apollo deploy` or `install_jbrowse.sh` commands.
+The data generation pipeline for Web Apollo is based on the typical jbrowse commands for loading data such as prepare-refseqs.pl and flatfile-to-json.pl.
 
-If you have setup webapollo properly using these steps, then a bin/ subdirectory will be initialized with the jbrowse
-perl scripts. If this does not exist, please check setup.log to see where the error might be, and check the [troubleshooting
-guide](Troubleshooting.md).
+These scripts are automatically copied to a "bin" directory when you run `apollo deploy` or `apollo run-local` or `install_jbrowse.sh`.
+
+If the "bin" directory does not appear in your folder after running any of those commands, then please check setup.log to see where the error might be. Also check the [troubleshooting guide](Troubleshooting.md) for additional instructions on the setup.
+
+
 
 ### prepare-refseqs.pl
 
-The first step to setup the genome browser is to load the reference genome data. We'll use the `prepare-refseqs.pl`
-script to output to the data directory that we will point to later in the organism tab.
+The first step to setup a genome browser is to load the reference genome data. We will use the `prepare-refseqs.pl`
+script to output to a data directory.
 
 ``` 
     bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out /opt/apollo/data
 ```
+
+Note: make sure the directory that you use for --out is somewhere that tomcat can access. Permissions will not be an issue for this since it is read-only data, but if for example, it is in your "home directory" and you are deploying to a "production server", then your production server's priviledges might not be able to access your home directory.
 
 
 ### flatfile-to-json.pl
