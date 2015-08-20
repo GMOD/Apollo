@@ -583,10 +583,11 @@ Parameters:
 * `output` can be `file` or `plain`
 * `format` can be `gzip` or `text`
 
+An example script is used in the [get_gff3.groovy script](https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/get_gff3.groovy).
 
 #### download
 
-This is used to retrieve the file once the write operation was initialized using output: file.
+This is used to retrieve the a download link once the write operation was initialized using output: file.
 
 
 Parameters:
@@ -595,11 +596,6 @@ Parameters:
 * `exportType` the exportType is returned by the /IOService/write operation
 * `seqType` the seqType is returned by the /IOService/write operation
 * `format` the format is returned by the /IOService/write operation
-
-Example:
-
-An example script is used in the [get_gff3.groovy script](https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/get_gff3.groovy).
-
 
 ### UserController
 
