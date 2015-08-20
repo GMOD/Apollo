@@ -1,21 +1,20 @@
 # Data generation pipeline
 
 The data generation pipeline is based on the typical jbrowse commands such as prepare-refseqs.pl and flatfile-to-json.pl,
- and it is installed automatically using the `apollo deploy` or `install_jbrowse.sh` commands.
+ and these scripts are automatically copied to a local bin/ directory when you run the setup scripts (e.g. `apollo run-local` or `apollo deploy` or `install_jbrowse.sh`).
 
-If you have setup webapollo properly using these steps, then a bin/ subdirectory will be initialized with the jbrowse
-perl scripts. If this does not exist, please check setup.log to see where the error might be, and check the [troubleshooting
-guide](Troubleshooting.md).
+If you don't see a bin/ subdirectory containing these scripts after running the setup, check setup.log and check the [troubleshooting guide](Troubleshooting.md) for additional tips or feel free to post the error and setup.log on GitHub or the mailing list.
 
 ### prepare-refseqs.pl
 
 The first step to setup the genome browser is to load the reference genome data. We'll use the `prepare-refseqs.pl`
-script to output to the data directory that we will point to later in the organism tab.
+script to output to the data directory.
 
 ``` 
     bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out /opt/apollo/data
 ```
 
+Note: the output directory is used later when we load the organism into the browser with the "Create organism" form
 
 ### flatfile-to-json.pl
 
