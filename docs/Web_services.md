@@ -19,8 +19,8 @@ Most API requests will take:
 * The proper url (e.g., to get features from the AnnotationEditorController, we can send requests to `http://localhost/apollo/annotationEditor/getFeatures`)
 * username - an authorized user 
 * password - a password
-* organism - (optional) the "common name" of the organism for feature related operations -- will also pull from the "user preferences" if none is specified.
-* track/sequence - (optional) reference sequence name (shown in sequence panel / genomic browse)
+* organism - (if applicable) the "common name" of the organism for the operation -- will also pull from the "user preferences" if none is specified.
+* track/sequence - (if applicable) reference sequence name (shown in sequence panel / genomic browse)
 * uniquename - (if applicable) the uniquename is a [UUID](https://docs.oracle.com/javase/7/docs/api/java/util/UUID.html) used to guarantee a unique ID
 
 
@@ -36,7 +36,7 @@ is returned, in JSON format:
 
 ### Additional Notes
 
-If you are sending password you care about over the wire (even if not using web services) it is <strong>highly recommended</strong>  that you use https (which adds encryption ssl) instead of http.
+If you are sending password you care about over the wire (even if not using web services) it is *highly recommended*  that you use https (which adds encryption ssl) instead of http.
 
 
 ### Example
@@ -48,15 +48,21 @@ curl -b cookies.txt -c cookies.txt -e "http://localhost:8080" -H "Content-Type:a
 ```
 
 
-Login expects two parameters: <code>username</code> and <code>password</code>.
+Login expects two parameters: <code>username</code> and <code>password</code>, and optionally rememberMe for a persistent cookie.
 
-Login will return a JSON containing the <code>session-id</code> for the user. This is needed if the user's
-browser does not support cookies (or is turned off), in which case the <code>session-id</code> should be
-appended to all subsequent requests as <code>jsessionid=session-id</code> as a URL parameter.
+A successful login returns a empty object
 
-``` 
-{"session-id":"43FBA5B967595D260A1C0E6B7052C7A1"}
 ```
+{}
+```
+
+### Cookies
+
+The Web Apollo Login creates a JSESSIONID cookie and rememberMe cookie (if applicable) and these can be used in downstream API requests (for example, by setting -b cookies.txt in curl will preserve the cookie in the request).
+
+You can also pass username/password to individual API requests and these will authenticate each individual request. 
+
+
 
 ### Representing features in JSON
 
@@ -104,6 +110,8 @@ Note that different operations will require different fields to be set (which wi
 
 Adds an organism to the database. An example using this script [add_organism.groovy](https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/add_organism.groovy).
 
+Only users with the admin role can perform this operation
+
 Request: `/organism/addOrganism`
 
 ``` 
@@ -117,7 +125,9 @@ Request: `/organism/addOrganism`
 }
 ```
 
-Response Status 200:
+Response:
+
+Contains a list of current organisms
 
 `{}`
 
@@ -157,15 +167,27 @@ Add a top level feature. Returns feature just added.
 
 Request: `/annotationEditor/addFeature`
 
+Example: request.json
+
 ``` 
 {
     "features": [{
         "location": { "fmax": 2735, "fmin": 0, "strand": 1 },
-        "type": { "cv": {"name": "SO"}, "name": "gene" },
+        "type": { "cv": {"name": "sequence"}, "name": "gene" },
         "uniquename": "gene"
-    }]
+    }],
+    "username": "username",
+    "password": "password",
+    "organism": "Apis mellifera",
+    "track": "Group1.1"
 }
+
 ```
+curl -X POST --header "Content-Type:application/json" --data @request.json http://localhost:8080/apollo/annotationEditor/addFeature
+```
+
+This indicates loading a gene with a CV from the sequence ontology.
+
 
 Response:
 
@@ -173,7 +195,7 @@ Response:
 {
     "features": [{
         "location": { "fmax": 2735, "fmin": 0, "strand": 1 },
-        "type": { "cv": {"name": "SO"}, "name": "gene" }, "uniquename": "gene"
+        "type": { "cv": {"name": "sequence"}, "name": "gene" }, "uniquename": "gene"
     }]
 }
 ```
@@ -561,7 +583,6 @@ Response:
 
 ### IOServiceController
 
-All JSON requests need to define: `operation` field, which defines the operation being
 
 
 #### write
@@ -606,7 +627,12 @@ User specific operations are restricted to users with administrator permissions.
 Request: `/user/createUser`
 
 ``` 
-{ firstName:"Bob", lastName:"Smith", username:"bob@admin.gov", password:"supersecret" }
+{
+    "firstName":"Bob",
+    "lastName":"Smith",
+    "username":"bob@admin.gov",
+    "password":"supersecret"
+}
 ```
 
 Response: `{}`
@@ -616,7 +642,7 @@ Response: `{}`
 Request: `/user/deleteUser` 
 
 ``` 
-{ userToDelete:"bob@admin.gov" }
+{ "userToDelete": "bob@admin.gov" }
 ```
 
 Conversely, userId can also be passed in with the database id.
