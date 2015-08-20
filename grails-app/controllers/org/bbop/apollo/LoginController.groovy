@@ -192,7 +192,7 @@ class LoginController extends AbstractApolloController {
             if (jsonObj.targetUri) {
                 m["targetUri"] = jsonObj.targetUri
             }
-            m.error="Unknown authentication erro"
+            m.error="Unknown authentication error"
             render m as JSON
             //unexpected condition - error?
         }
