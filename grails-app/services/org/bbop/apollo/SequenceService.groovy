@@ -279,7 +279,15 @@ class SequenceService {
         Sequence.deleteAll(Sequence.findAllByOrganism(organism))
         for (int i = 0; i < refSeqs.length(); ++i) {
             JSONObject refSeq = refSeqs.getJSONObject(i);
-            int length = refSeq.getInt("length");
+            int length;
+            if(refSeq.has("length")) {
+                length = refSeq.getInt("length");
+            }
+            else {
+                //workaround for jbrowse refSeqs that have no length element
+                length = refSeq.getInt("end")-refSeq.getInt("start");
+            }
+
             String name = refSeq.getString("name");
             String seqDir;
             String seqChunkPrefix = "";
