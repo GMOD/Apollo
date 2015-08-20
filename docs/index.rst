@@ -14,7 +14,7 @@ For more information on JBrowse, please visit:
 
 .. image:: https://travis-ci.org/GMOD/Apollo.png?branch=master
 
-Note: This documentation covers release versions 2.x of Web Apollo. For the 1.x installation please refer to
+Note: This documentation covers release versions 2.x of Apollo. For the 1.x installation please refer to
 `http://webapollo.readthedocs.org/en/1.0/ <http://webapollo.readthedocs.org/en/1.0/>`__
 
 
