@@ -25,9 +25,7 @@ Version 2.0.0 is now released. See [the announcement](http://genomearchitect.org
 
 ## Quick Update Guide to Version 2.0.x 
 
-If you already have Web Apollo instances running, you can use your current JBrowse data directories.  
-
-See [the Apollo2 build guide](docs/Apollo2Build.md) to get the proper build guides up.
+The [quick-start guide](docs/Apollo2Build.md) shows how to easily get started with Apollo 2, and further setup steps are shown how to deploy on a production server with customized settings in the [setup guide](docs/Setup.md) and [configuration guide](docs/Configure.md).
 
 ## Migrating data from older versions to WA2
 
@@ -38,7 +36,7 @@ You can follow steps in our [migration guide](docs/Migration.md) to move annotat
 In WA2.0, all data directories are stored in locations outside of the tomcat webapps directory. Use the WA2.0 [quick-start guide](docs/Apollo2Build.md) to learn how to add new data directories for your organisms.
 
 
-**Important Note: Data from your data loading pipeline should not be stored in the Tomcat webapps directory. This can result in data loss when doing undeploy operations in Tomcat. It will even delete data from inside symlinks instead of just removing the symlink itself.**.
+**Important Note: Data from your data loading pipeline should not be stored in the Tomcat webapps directory for important reasons! It can result in data loss when doing undeploy operations in Tomcat. The undeploy operations will even delete data from inside symlinks instead of just removing the symlink itself.**.
 
 ### Run Apollo in a temporary server
 
