@@ -38,19 +38,16 @@ In WA2.0, all data directories are stored in locations outside of the tomcat web
 
 **Important Note: Data from your data loading pipeline should not be stored in the Tomcat webapps directory for important reasons! It can result in data loss when doing undeploy operations in Tomcat. The undeploy operations will even delete data from inside symlinks instead of just removing the symlink itself.**.
 
-### Run Apollo in a temporary server
-
-Users can evaluate webapollo
 
 
-### Run locally 
 
-To launch Apollo with temporary settings, use the run-local command
+### Launch Apollo in a temporary server
+
+To launch Apollo with temporary settings, use the `apollo run-local` command, which will initialize your server automatically with an H2 (zero-configuration) database.
  
     apollo run-local 8080
-    
-This will automatically launch Web Apollo 2 in a temporary server.
 
+It will also use your custom settings if an apollo-config.groovy file has been setup.
 
 ### Generate a war file
 
