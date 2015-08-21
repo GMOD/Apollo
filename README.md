@@ -21,9 +21,7 @@ The Web Apollo client is implemented as a plugin for JBrowse, for more informati
 ## Please note repository update and be aware
 As of 15-April-2015 the mainline is our 2.0 code. The 1.0 code has now moved to a 1.0 branch.
 
-**Apollo 2 is still a project under development, it has not been formally released, and will lack some of the features and stability necessary for annotation.**
-
-Version 1.0.4 is the latest, fully-functional version of Apollo and is available for download at https://github.com/GMOD/Apollo/releases/latest
+Version 2.0.0 is now released. See [the announcement](http://genomearchitect.org/Apollo2_first_release)
 
 ## Quick Update Guide to Version 2.0.x 
 
@@ -31,31 +29,38 @@ If you already have Web Apollo instances running, you can use your current JBrow
 
 See [the Apollo2 build guide](docs/Apollo2Build.md) to get the proper build guides up.
 
-## Migrating data from &lt;2.0:
+## Migrating data from older versions to WA2
 
-You should be able to migrate most of your annotation data from Apollo 1 to Apollo 2 using our [migration guide](docs/Migration.md) built upon our web services.  
+You can follow steps in our [migration guide](docs/Migration.md) to move annotations and data from older versions to WA2.
 
-### Remove any symlinks in your deploy directory if updating from &lt;1.0 version
-In your deployment / webapp directory, remove your symlinks.  Tomcat will remove data through the symlinks.  You won't need symlinks or to deploy the war file. 
+### Note about data directories
 
-**Important Note: the JBrowse data directory should not be stored in the Tomcat webapps directory. This can result in data loss when doing undeploy operations in Tomcat**.
+In WA2.0, all data directories are stored in locations outside of the tomcat webapps directory. Use the WA2.0 [quick-start guide](docs/Apollo2Build.md) to learn how to add new data directories for your organisms.
+
+
+**Important Note: Data from your data loading pipeline should not be stored in the Tomcat webapps directory. This can result in data loss when doing undeploy operations in Tomcat. It will even delete data from inside symlinks instead of just removing the symlink itself.**.
+
+### Run Apollo in a temporary server
+
+Users can evaluate webapollo
+
+
+### Run locally 
+
+To launch Apollo with temporary settings, use the run-local command
+ 
+    apollo run-local 8080
+    
+This will automatically launch Web Apollo 2 in a temporary server.
 
 
 ### Generate a war file
 
-Most users will only need to generate a war file (for example target/apollo-1.0.2.war) that will be copied into their tomcat webapps directory:
+Users can generate a war file (for example target/apollo-1.0.2.war) that will be copied into their tomcat webapps directory for production deployments:
 
     apollo deploy 
 
-### Run locally 
-
-To run tomcat on 8080:
-
-    apollo run-local
-    
-It optionally takes a port number argument, e.g.:
-
-    apollo run-local 8085
+Note: make sure to create an apollo-config.groovy file following the sample data (e.g. sample-postgres-apollo-config.groovy) to make sure you use your preferred database settings.
 
 
 ### Run locally for GWT development
