@@ -3,8 +3,13 @@ package org.bbop.apollo.projection
 
 /**
  * Created by nathandunn on 8/14/15.
+ *
+ * This is essentially the same thing as a scaffold.
  */
 class Track {
+
+    int length
+    String name
 
     List<Coordinate> coordinateList = new ArrayList<>()
 
