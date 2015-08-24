@@ -35,6 +35,7 @@ import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.WebApolloSimplePager;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
@@ -71,7 +72,7 @@ public class AnnotatorPanel extends Composite {
     @UiField(provided = true)
     static DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(20, tablecss);
     @UiField(provided = true)
-    SimplePager pager = null;
+    WebApolloSimplePager pager = null;
 
 
     @UiField
@@ -112,7 +113,8 @@ public class AnnotatorPanel extends Composite {
         initializeTable();
 
 
-        pager = new SimplePager(SimplePager.TextLocation.CENTER);
+        pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
+        pager.setRangeLimited(false);
 
         dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<AnnotationInfo>() {
             @Override

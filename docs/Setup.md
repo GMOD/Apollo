@@ -54,7 +54,7 @@ The `apollo run-local` command only launches a temporary server and should reall
 
 
 
-```
+``` 
     ./apollo deploy
 ```
 
@@ -64,7 +64,7 @@ This command will package the application and it will download any missing pre-r
 
 Alternatively, as we alluded to previously, you can also launch a temporary instance of the server which is useful for testing
 
-```
+``` 
     ./apollo run-local 8080
 ```
 
@@ -118,7 +118,7 @@ The `apollo release` command also requires some extra Perl modules, namely Text:
 
 To build a Web Apollo release with Javascript minimization, you can use the command
 
-```
+``` 
     ./apollo release
 ```
 
@@ -131,7 +131,7 @@ In all other respects, `apollo release` is exactly the same as `apollo deploy` t
 
 To perform active development of the codebase, use
 
-```
+``` 
     ./apollo debug
 ```
 
@@ -144,7 +144,7 @@ If you modify the javascript files (i.e. the client directory), you can run `scr
 
 A temporary tomcat server can be automatically launched without having you configure your own Tomcat server with the `apollo run-local` command:
 
-```
+``` 
     ./apollo run-local [8085]
 ```
 

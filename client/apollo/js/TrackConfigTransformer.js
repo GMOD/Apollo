@@ -13,7 +13,6 @@ constructor: function( args )  {
     this.transformers=[];
     var browser=args.browser;
     this.overridePlugins=browser.config.overridePlugins;
-    console.log(browser.config);
     this.transformers["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures"; 
     };

@@ -20,9 +20,11 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.bbop.apollo.gwt.client.WebApolloSimplePager;
 import org.bbop.apollo.gwt.client.dto.GroupInfo;
 import org.bbop.apollo.gwt.client.dto.GroupOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
+import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.event.GroupChangeEvent;
 import org.bbop.apollo.gwt.client.event.GroupChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -30,6 +32,7 @@ import org.bbop.apollo.gwt.client.rest.GroupRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -56,9 +59,9 @@ public class GroupPanel extends Composite {
     @UiField
     FlexTable userData;
     @UiField(provided = true)
-    SimplePager organismPager = new SimplePager(SimplePager.TextLocation.CENTER);
+    WebApolloSimplePager organismPager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField(provided = true)
-    DataGrid<GroupOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4,tablecss);
+    DataGrid<GroupOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4, tablecss);
     private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
     private List<GroupInfo> groupInfoList = dataProvider.getList();
     private SingleSelectionModel<GroupInfo> selectionModel = new SingleSelectionModel<>();
@@ -159,14 +162,15 @@ public class GroupPanel extends Composite {
 
     private GroupInfo getGroupFromUI() {
         String groupName = name.getText().trim();
-        if(groupName.length()<3){
+        if (groupName.length() < 3) {
             Window.alert("Group must be at least 3 characters long");
-            return null ;
+            return null;
         }
         GroupInfo groupInfo = new GroupInfo();
         groupInfo.setName(groupName);
         return groupInfo;
     }
+
     @UiHandler("userDetailTab")
     void onTabSelection(SelectionEvent<Integer> event) {
         organismPermissionsGrid.redraw();
@@ -177,7 +181,7 @@ public class GroupPanel extends Composite {
     public void createGroup(ClickEvent clickEvent) {
         GroupInfo groupInfo = getGroupFromUI();
 
-        if(groupInfo==null) return ;
+        if (groupInfo == null) return;
 
         GroupRestService.addNewGroup(groupInfo);
     }
@@ -199,11 +203,29 @@ public class GroupPanel extends Composite {
             deleteButton.setVisible(true);
             userData.removeAllRows();
 
-            for(UserInfo userInfo : selectedGroupInfo.getUserInfoList()){
-                int rowCount = userData.getRowCount() ;
-                userData.setHTML(rowCount,0,userInfo.getName());
+            for (UserInfo userInfo : selectedGroupInfo.getUserInfoList()) {
+                int rowCount = userData.getRowCount();
+                userData.setHTML(rowCount, 0, userInfo.getName());
             }
-            permissionProviderList.addAll(selectedGroupInfo.getOrganismPermissionMap().values());
+
+            // only show organisms that this user is an admin on . . . https://github.com/GMOD/Apollo/issues/540
+            if (MainPanel.getInstance().isCurrentUserAdmin()) {
+                permissionProviderList.addAll(selectedGroupInfo.getOrganismPermissionMap().values());
+            }
+            else{
+                List<String> organismsToShow = new ArrayList<>();
+                for (UserOrganismPermissionInfo userOrganismPermission : MainPanel.getInstance().getCurrentUser().getOrganismPermissionMap().values()) {
+                    if (userOrganismPermission.isAdmin()) {
+                        organismsToShow.add(userOrganismPermission.getOrganismName());
+                    }
+                }
+
+                for (GroupOrganismPermissionInfo userOrganismPermission : selectedGroupInfo.getOrganismPermissionMap().values()) {
+                    if (organismsToShow.contains(userOrganismPermission.getOrganismName())) {
+                        permissionProviderList.add(userOrganismPermission);
+                    }
+                }
+            }
         } else {
             name.setText("");
             deleteButton.setVisible(false);

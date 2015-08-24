@@ -332,7 +332,7 @@ define([
                             var sequence = JSON.parse(window.parent.getCurrentSequence());
                             var user = JSON.parse(window.parent.getCurrentUser());
                             client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
-                            client.subscribe("/topic/AnnotationNotification/user/" + user.userId, dojo.hitch(track, 'annotationNotification'));
+                            client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
                         });
                         console.log('connection established');
                     }
@@ -356,7 +356,11 @@ define([
                                     alert("Failed to subscribe to websocket, no seq/org id available");
                                     return;
                                 }
-                                client.subscribe("/topic/AnnotationNotification/" + track.webapollo.organism + "/" + response[0].id, dojo.hitch(track, 'annotationNotification'));
+                                if(typeof track.webapollo.organism == 'undefined'){
+                                    track.webapollo.organism = response.organismId;
+                                }
+                                client.subscribe("/topic/AnnotationNotification/" + track.webapollo.organism + "/" + response.id, dojo.hitch(track, 'annotationNotification'));
+                                client.subscribe("/topic/AnnotationNotification/user/" + track.username, dojo.hitch(track, 'annotationNotification'));
                             },
                             function () {
                                 console.log("Received error in organism lookup, anonymous mode jbrowse");

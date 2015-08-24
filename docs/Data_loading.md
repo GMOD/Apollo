@@ -1,31 +1,30 @@
 # Data generation pipeline
 
 The data generation pipeline is based on the typical jbrowse commands such as prepare-refseqs.pl and flatfile-to-json.pl,
- and it is installed automatically using the `apollo deploy` or `install_jbrowse.sh` commands.
+ and these scripts are automatically copied to a local bin/ directory when you run the setup scripts (e.g. `apollo run-local` or `apollo deploy` or `install_jbrowse.sh`).
 
-If you have setup webapollo properly using these steps, then a bin/ subdirectory will be initialized with the jbrowse
-perl scripts. If this does not exist, please check setup.log to see where the error might be, and check the [troubleshooting
-guide](Troubleshooting.md).
+If you don't see a bin/ subdirectory containing these scripts after running the setup, check setup.log and check the [troubleshooting guide](Troubleshooting.md) for additional tips or feel free to post the error and setup.log on GitHub or the mailing list.
 
 ### prepare-refseqs.pl
 
 The first step to setup the genome browser is to load the reference genome data. We'll use the `prepare-refseqs.pl`
-script to output to the data directory that we will point to later in the organism tab.
+script to output to the data directory.
 
-```
+``` 
     bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out /opt/apollo/data
-````
+```
 
+Note: the output directory is used later when we load the organism into the browser with the "Create organism" form
 
 ### flatfile-to-json.pl
 
 The flatfile-to-json.pl script can be used to setup a GFF3 tracks with flexible feature types. Here, we'll start off by loading data from the MAKER generated GFF for the Pythium ultimum data. The simplest loading command specifies a --trackLabel, the --type of feature to load, the --gff file and the --out directory.
 
-```
+``` 
     bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type mRNA --trackLabel MAKER --out /opt/apollo/data
-````
+```
  
-Note: you can also use simple scripts like bin/maker2jbrowse to expedite loading of MAKER data.
+Note: you can also use simple scripts like `bin/maker2jbrowse` to expedite loading of MAKER data.
 
 Also see the section [Customizing features](Data_loading.md#customizing-features) section for more information on customizing the CSS styles of the Web Apollo 2.0 features.
 
@@ -34,7 +33,7 @@ Also see the section [Customizing features](Data_loading.md#customizing-features
 
 Once data tracks have been created, you can generate a searchable index of names using the generate-names.pl script:
 
-```
+``` 
     bin/generate-names.pl --verbose --out /opt/apollo/data
 ```
 
@@ -47,17 +46,18 @@ option to disable the completion on certain tracks.
 
 WebApollo natively supports BAM files and the file can be read (in chunks) directly from the server with no preprocessing.
 
-To add a BAM track, copy the BAM+BAI files to your data directory, and then use the add-bam-track.pl to add the file to the tracklist.
+To add a BAM track, copy the .bam and .bam.bai files to your data directory, and then use the add-bam-track.pl to add the file to the tracklist.
 
-```
+``` 
     mkdir /opt/apollo/data/bam
-    cp pyu_data/simulated-sorted.bam* /opt/apollo/data/bam
+    cp pyu_data/simulated-sorted.bam /opt/apollo/data/bam
+    cp pyu_data/simulated-sorted.bam.bai /opt/apollo/data/bam
     bin/add-bam-track.pl --bam_url bam/simulated-sorted.bam \
        --label simulated_bam --key "simulated BAM" -i /opt/apollo/data/trackList.json
 ```
 
 
-Note: the `bam_url` parameter is a URL that is relative to the data directory. It is not a filepath!
+Note: the `bam_url` parameter is a URL that is relative to the data directory. It is not a filepath! Also, the .bai will automatically be located if it is simply the .bam with .bai appended to it.
 
 ### add-bw-track.pl
 
@@ -66,7 +66,7 @@ WebApollo also has native support for BigWig files (.bw), so no extra processing
 To use this, copy the BigWig data into the jbrowse data directory and then use the add-bw-track.pl to add the file to
 the tracklist.
 
-```
+``` 
     mkdir /opt/apollo/data/bigwig
     cp pyu_data/*.bw /opt/apollo/data/bigwig
     bin/add-bw-track.pl --bw_url bigwig/simulated-sorted.coverage.bw \
@@ -81,7 +81,7 @@ To change how the different annotation types look in the "User-created annotatio
 annotation type to the appropriate CSS class. This data resides in `client/apollo/json/annot.json`, which is a file containing WebApollo tracks that is loaded by default. You'll need to modify the JSON entry whose label is `Annotations`. Of particular interest is
 the `alternateClasses` element. Let's look at that default element:
 
-```
+``` 
     "alternateClasses": {
         "pseudogene" : {
            "className" : "light-purple-80pct",
@@ -145,7 +145,7 @@ It is relatively easy to add other stylesheets that have custom style classes th
 `flatfile-to-json.pl`. For example, you can create `/opt/apollo/data/custom_track_styles.css` which contains two new
 styles:
 
-```
+``` 
     .gold-90pct, 
     .plus-gold-90pct, 
     .minus-gold-90pct  {
@@ -179,7 +179,7 @@ adding this to the trackList.json
 
 Then you may use these new styles using --subfeatureClasses, which uses the specified CSS classes for your features in the genome browser, for example:
 
-```
+``` 
     bin/flatfile-to-json.pl --gff MyFile.gff --type mRNA --trackLabel MyTrack
         --subfeatureClasses '{"CDS":"gold-90pct", "UTR": "dimgold-60pct"}' 
 ```
@@ -191,7 +191,7 @@ Then you may use these new styles using --subfeatureClasses, which uses the spec
 You can use the `tools/data/add_transcripts_from_gff3_to_annotations.pl` script to bulk load GFF3 files with transcripts
 to the user annotation track. Let's say we want to load our `maker.gff` transcripts.
 
-```
+``` 
     tools/data/add_transcripts_from_gff3_to_annotations.pl \
         -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
         -i scf1117875582023.gff -type mRNA
@@ -204,7 +204,7 @@ You can still use this script even if the GFF3 file that you are loading does no
 Let's say we want to load `match` and `match_part` features as transcripts and exons respectively. We'll use the
 `blastn.gff` file as an example.
 
-```
+``` 
     tools/data/add_transcripts_from_gff3_to_annotations.pl \
        -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
        -i cf1117875582023gff -t match -e match_part

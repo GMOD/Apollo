@@ -79,10 +79,10 @@ class FeatureService {
     public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands = true) {
 
         if(compareStrands){
-            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.strand = :strand and (fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax )",[fmin:location.fmin,fmax:location.fmax,strand:location.strand])
+            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and fl.strand = :strand and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax ))",[fmin:location.fmin,fmax:location.fmax,strand:location.strand,sequence:location.sequence])
         }
         else{
-            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where (fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax )",[fmin:location.fmin,fmax:location.fmax])
+            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax ))",[fmin:location.fmin,fmax:location.fmax,sequence:location.sequence])
         }
     }
 
@@ -2212,10 +2212,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     /* convert an input local coordinate to a local coordinate that incorporates sequence alterations */
 
-    public int convertSourceToModifiedLocalCoordinate(Feature feature, Integer localCoordinate) {
+    public int convertSourceToModifiedLocalCoordinate(Feature feature, Integer localCoordinate,List<SequenceAlteration> alterations = new ArrayList<>()) {
         log.debug "convertSourceToModifiedLocalCoordinate"
-        List<SequenceAlteration> alterations = new ArrayList<>()
-        alterations.addAll(getAllSequenceAlterationsForFeature(feature))
 
         if (alterations.size() == 0) {
             log.debug "No alterations returning ${localCoordinate}"
