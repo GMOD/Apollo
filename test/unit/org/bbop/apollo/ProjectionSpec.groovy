@@ -1,7 +1,9 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.projection.DuplicateTrackProjection
+import org.bbop.apollo.projection.DuplicateTrackProjectionFactory
 import org.bbop.apollo.projection.Projection
-import org.bbop.apollo.projection.ProjectionEngine
+import org.bbop.apollo.projection.IntronProjectionFactory
 import org.bbop.apollo.projection.Track
 import spock.lang.Specification
 
@@ -16,27 +18,20 @@ class ProjectionSpec extends Specification{
     def cleanup() {
     }
 
-    void "generate-spec"() {
+    void "confirm that we can generate a duplicate projection"() {
 
         given:
         Track track1 = new Track()
-        Track track2 = new Track()
-        ProjectionEngine projectionEngine = new ProjectionEngine()
 
-        when: "we generate a projection"
-        Projection projectionTrack1To2  = projectionEngine.generateForwardProjection(track1,track2)
-        List<Projection> projectionList = [projectionTrack1To2]
-        Track track3 = projectionEngine.projectToTrack(track1,projectionList)
+        when: "we generate a duplicate projection"
+        track1.addCoordinate(4,12)
+        track1.addCoordinate(70,80)
+        Projection projectionTrack1To2 = new DuplicateTrackProjection()
+        Track track2 = projectionTrack1To2.projectTrack(track1)
 
         then: "it should generate forward "
-        assert projectionEngine.sameTrack(track2,track3)
+        assert track1.equals(track2)
 
-        when: "we project backwards"
-        Projection projectionTrack2To1  = projectionEngine.generateForwardProjection(track2,track1)
-        Track track0 = projectionEngine.projectToTrack(track1,[projectionTrack2To1])
-
-        then: "it should generate backward"
-        assert projectionEngine.sameTrack(track0,track1)
 
     }
 }

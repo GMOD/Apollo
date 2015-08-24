@@ -3,18 +3,16 @@ package org.bbop.apollo.projection
 /**
  * Created by nathandunn on 8/14/15.
  */
-class ProjectionEngine {
+class IntronProjectionFactory {
 
 
-    Projection generateForwardProjection(Track trackA,Track trackB){
-       Projection projection= new Projection()
+    Projection generateProjection(Track trackA,Track trackB){
+       IntronProjection projection= new IntronProjection()
+
+
+
 
         return projection
-    }
-
-    def sameTrack(Track track1, Track track2) {
-
-        return true
     }
 
 
