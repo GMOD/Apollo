@@ -21,16 +21,16 @@ class DiscontinuousProjection extends AbstractProjection{
         Integer floorMaxKey = maxMap.floorKey(input)
         Integer ceilMaxKey = maxMap.ceilingKey(input)
 
-        println "minKey ${floorMinKey}-${ceilMinKey}"
-        println "maxKey ${floorMaxKey}-${ceilMaxKey}"
+        println "input ${input} minKey ${floorMinKey}-${ceilMinKey}"
+        println "input ${input} maxKey ${floorMaxKey}-${ceilMaxKey}"
 
-        if(!floorMinKey || !ceilMaxKey){
+        if(floorMinKey==null || ceilMaxKey==null){
             return UNMAPPED_VALUE
         }
 
         // if is a hit for min and no max hit, then it is the left-most
         if(floorMinKey==ceilMinKey){
-            if(!floorMaxKey){
+            if(floorMaxKey==null){
                 return 0
             }
             else{
@@ -42,7 +42,7 @@ class DiscontinuousProjection extends AbstractProjection{
 
 
         // this is the left-most still
-        if(floorMinKey!=ceilMinKey && !floorMaxKey){
+        if(floorMinKey!=ceilMinKey && floorMaxKey==null){
             return input - floorMinKey
         }
 
@@ -51,15 +51,13 @@ class DiscontinuousProjection extends AbstractProjection{
             return input - floorMinKey + projectValue(floorMinKey)
         }
 
-        // we are in no-man's land
-        if(input > floorMaxKey && input < ceilMinKey){
-            return UNMAPPED_VALUE
-        }
 
-        return input
+        println "unable to find match, returning UNMAPPED"
+        return UNMAPPED_VALUE
     }
 
     def addInterval(int min, int max) {
+        assert max>=min
         Coordinate coordinate = new Coordinate(min:min,max:max)
         minMap.put(min,coordinate)
         maxMap.put(max,coordinate)

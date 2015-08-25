@@ -90,6 +90,34 @@ class ProjectionSpec extends Specification{
 
     }
 
+    void "try a difference discontinuous projection capable of reverse projection"(){
+
+        given:
+        Track track1 = new Track(length: 10)
+        DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
+
+        when: "we generate a duplicate projection"
+        track1.addCoordinate(2,4)
+        track1.addCoordinate(7,8)
+        track1.addCoordinate(9,10)
+        discontinuousProjection.addInterval(0,2)
+        discontinuousProjection.addInterval(4,6)
+        discontinuousProjection.addInterval(8,9)
+
+        then: "values should be mapped appropriately"
+        assert 0 == discontinuousProjection.projectValue(0)
+        assert 1 == discontinuousProjection.projectValue(1)
+        assert 2 == discontinuousProjection.projectValue(2)
+        assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(3)
+        assert 3 == discontinuousProjection.projectValue(4)
+        assert 4 == discontinuousProjection.projectValue(5)
+        assert 5 == discontinuousProjection.projectValue(6)
+        assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(7)
+        assert 6 == discontinuousProjection.projectValue(8)
+        assert 7 == discontinuousProjection.projectValue(9)
+        assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(10)
+
+    }
 
 
 }
