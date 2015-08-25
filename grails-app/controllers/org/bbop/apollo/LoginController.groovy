@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import org.apache.catalina.security.SecurityUtil
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.AuthenticationException
 import org.apache.shiro.authc.IncorrectCredentialsException
@@ -15,7 +14,6 @@ import org.apache.shiro.web.util.WebUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.springframework.messaging.handler.annotation.SendTo
 
 import javax.servlet.http.HttpServletResponse
 
@@ -97,8 +95,9 @@ class LoginController extends AbstractApolloController {
      * @return
      */
     def login(){
+        def jsonObj
         try {
-            def jsonObj = request.JSON
+            jsonObj = request.JSON
             if(!jsonObj){
                 jsonObj = JSON.parse(params.data)
                 log.debug "jsonObj ${jsonObj}"
