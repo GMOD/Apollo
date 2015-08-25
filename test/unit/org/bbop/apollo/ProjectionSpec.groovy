@@ -88,6 +88,15 @@ class ProjectionSpec extends Specification{
         assert 5 == discontinuousProjection.projectValue(9)
         assert 6 == discontinuousProjection.projectValue(10)
 
+        // test reverse values
+        assert 2 == discontinuousProjection.reverseProjectValue(0)
+        assert 3 == discontinuousProjection.reverseProjectValue(1)
+        assert 4 == discontinuousProjection.reverseProjectValue(2)
+        assert 7 == discontinuousProjection.reverseProjectValue(3)
+        assert 8 == discontinuousProjection.reverseProjectValue(4)
+        assert 9 == discontinuousProjection.reverseProjectValue(5)
+        assert 10 == discontinuousProjection.reverseProjectValue(6)
+
     }
 
     void "try a difference discontinuous projection capable of reverse projection"(){
@@ -117,6 +126,15 @@ class ProjectionSpec extends Specification{
         assert 7 == discontinuousProjection.projectValue(9)
         assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(10)
 
+        // test reverse values
+        assert 0 == discontinuousProjection.reverseProjectValue(0)
+        assert 1 == discontinuousProjection.reverseProjectValue(1)
+        assert 2 == discontinuousProjection.reverseProjectValue(2)
+        assert 4 == discontinuousProjection.reverseProjectValue(3)
+        assert 5 == discontinuousProjection.reverseProjectValue(4)
+        assert 6 == discontinuousProjection.reverseProjectValue(5)
+        assert 8 == discontinuousProjection.reverseProjectValue(6)
+        assert 9 == discontinuousProjection.reverseProjectValue(7)
     }
 
 

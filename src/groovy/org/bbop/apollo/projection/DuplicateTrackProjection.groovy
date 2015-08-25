@@ -10,4 +10,8 @@ class DuplicateTrackProjection extends AbstractProjection{
         return input
     }
 
+    @Override
+    Integer reverseProjectValue(Integer input) {
+        return input
+    }
 }

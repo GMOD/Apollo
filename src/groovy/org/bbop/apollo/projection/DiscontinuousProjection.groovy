@@ -9,6 +9,40 @@ class DiscontinuousProjection extends AbstractProjection{
     TreeMap<Integer,Coordinate> minMap = new TreeMap<>()
     TreeMap<Integer,Coordinate> maxMap = new TreeMap<>()
 
+    /**
+     * Get the coordinate value out and add some to min
+     *
+     * To do this efficiently we simply get the interval sizes
+     * and stop when we've hit all of the sizes
+     *
+     * @param input
+     * @return
+     */
+    @Override
+    Integer reverseProjectValue(Integer input){
+
+        Iterator<Integer> minIterator = minMap.keySet().iterator()
+        Iterator<Integer> maxIterator = maxMap.keySet().iterator()
+        Integer min, max
+
+        // TODO: for speed generate a reverse map for quick lookup whilst doing this or another operation
+        // here we can assume that the input maps onto the current length
+        Integer currentLength = 0
+        Integer bucketCount = 0
+        Integer previousLength = 0
+        while(minIterator.hasNext()){
+            min = minIterator.next()
+            max = maxIterator.next()
+            currentLength += (max - min)
+            if(currentLength+bucketCount>=input){
+                return min + input - previousLength - bucketCount
+            }
+            previousLength += (max - min)
+            ++bucketCount
+        }
+        return UNMAPPED_VALUE
+    }
+
     @Override
     Integer projectValue(Integer input) {
         if(!minMap && !maxMap){
@@ -21,8 +55,8 @@ class DiscontinuousProjection extends AbstractProjection{
         Integer floorMaxKey = maxMap.floorKey(input)
         Integer ceilMaxKey = maxMap.ceilingKey(input)
 
-        log.debug "input ${input} minKey ${floorMinKey}-${ceilMinKey}"
-        log.debug "input ${input} maxKey ${floorMaxKey}-${ceilMaxKey}"
+//        log.debug "input ${input} minKey ${floorMinKey}-${ceilMinKey}"
+//        log.debug "input ${input} maxKey ${floorMaxKey}-${ceilMaxKey}"
 
         if(floorMinKey==null || ceilMaxKey==null){
             return UNMAPPED_VALUE
@@ -56,7 +90,7 @@ class DiscontinuousProjection extends AbstractProjection{
             return input - floorMinKey + projectValue(floorMinKey)
         }
 
-        log.debug "${input} unable to find match, returning UNMAPPED"
+//        log.debug "${input} unable to find match, returning UNMAPPED"
         return UNMAPPED_VALUE
     }
 

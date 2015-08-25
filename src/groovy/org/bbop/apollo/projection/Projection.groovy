@@ -11,16 +11,15 @@ interface Projection {
      *
      * Probably just works on FeatureLocation
      *
-     * @param min
-     * @param max
-     * @param feature
+     * @param input
      * @return
      */
     Integer projectValue(Integer input)
 
+    Integer reverseProjectValue(Integer input)
+
     /**
-     * Itera
-     * @param trackInte over feature mins to produce a feature max
+     * @param trackIn
      * @return
      */
     Track projectTrack(Track trackIn)

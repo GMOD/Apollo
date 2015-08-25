@@ -13,6 +13,11 @@ public class ReverseProjection extends AbstractProjection{
     }
 
     @Override
+    Integer reverseProjectValue(Integer input) {
+        return input
+    }
+
+    @Override
     Integer projectValue(Integer input) {
         if(input < trackLength && input >= 0 ){
             return trackLength - input - 1
