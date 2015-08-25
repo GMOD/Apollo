@@ -21,8 +21,8 @@ class DiscontinuousProjection extends AbstractProjection{
         Integer floorMaxKey = maxMap.floorKey(input)
         Integer ceilMaxKey = maxMap.ceilingKey(input)
 
-        println "input ${input} minKey ${floorMinKey}-${ceilMinKey}"
-        println "input ${input} maxKey ${floorMaxKey}-${ceilMaxKey}"
+        log.debug "input ${input} minKey ${floorMinKey}-${ceilMinKey}"
+        log.debug "input ${input} maxKey ${floorMaxKey}-${ceilMaxKey}"
 
         if(floorMinKey==null || ceilMaxKey==null){
             return UNMAPPED_VALUE
@@ -51,8 +51,12 @@ class DiscontinuousProjection extends AbstractProjection{
             return input - floorMinKey + projectValue(floorMinKey)
         }
 
+        // if we are inbetween a ceiling max and floor min, then we are in a viable block
+        if(input > floorMinKey && input < ceilMaxKey &&  ceilMinKey >= ceilMaxKey){
+            return input - floorMinKey + projectValue(floorMinKey)
+        }
 
-        println "unable to find match, returning UNMAPPED"
+        log.debug "${input} unable to find match, returning UNMAPPED"
         return UNMAPPED_VALUE
     }
 
