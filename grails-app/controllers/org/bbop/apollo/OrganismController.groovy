@@ -90,6 +90,7 @@ class OrganismController {
         } catch (e) {
             def error= [error: 'problem saving organism: '+e]
             render error as JSON
+            e.printStackTrace()
             log.error(error.error)
         }
     }
