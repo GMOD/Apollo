@@ -3,11 +3,11 @@ package org.bbop.apollo.projection
 /**
  * Created by nathandunn on 8/14/15.
  */
-class IntronProjectionFactory {
+class DiscontinuousProjectionFactory {
 
 
     Projection generateProjection(Track trackA,Track trackB){
-       IntronProjection projection= new IntronProjection()
+       DiscontinuousProjection projection= new DiscontinuousProjection()
 
 
 

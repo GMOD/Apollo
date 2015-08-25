@@ -1,5 +1,7 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.projection.AbstractProjection
+import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.DuplicateTrackProjection
 
 import org.bbop.apollo.projection.Projection
@@ -49,4 +51,45 @@ class ProjectionSpec extends Specification{
         assert 9==projectionTrack1To2.projectValue(90)
         assert !track1.equals(track2)
     }
+
+    void "create a discontinuous projection capable of appropriately "(){
+
+        given:
+        Track track1 = new Track(length: 10)
+        DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
+
+        when: "we generate a duplicate projection"
+        track1.addCoordinate(2,4)
+        track1.addCoordinate(7,8)
+        track1.addCoordinate(9,10)
+        Track nullTrack = discontinuousProjection.projectTrack(track1)
+
+        then: "with no map in the discontinuous projection, should return same"
+        for(i in 0..track1.length){
+            assert discontinuousProjection.projectValue(i)==i
+        }
+        assert nullTrack==track1
+
+        when: "we add some intervals"
+        discontinuousProjection.addInterval(2,4)
+        discontinuousProjection.addInterval(7,8)
+        discontinuousProjection.addInterval(9,10)
+
+        then: "values should be mapped appropriately"
+        assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(0)
+        assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(1)
+        assert 0 == discontinuousProjection.projectValue(2)
+        assert 1 == discontinuousProjection.projectValue(3)
+        assert 2 == discontinuousProjection.projectValue(4)
+        assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(5)
+        assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(6)
+        assert 3 == discontinuousProjection.projectValue(7)
+        assert 4 == discontinuousProjection.projectValue(8)
+        assert 5 == discontinuousProjection.projectValue(9)
+        assert 6 == discontinuousProjection.projectValue(10)
+
+    }
+
+
+
 }

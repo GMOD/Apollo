@@ -5,6 +5,8 @@ package org.bbop.apollo.projection
  */
 abstract class AbstractProjection implements Projection{
 
+    public final static Integer UNMAPPED_VALUE = -1
+
     @Override
     Track projectTrack(Track trackIn) {
         Track trackOut = new Track()
