@@ -23,6 +23,11 @@ class Track {
 
         Track track = (Track) o
 
+        if(track.length!=length) {
+            println "different trac lengths ${track.length} vs ${length}"
+            return false
+        }
+
         // coordinates must be in the same order as well
         for(int i = 0 ; i < coordinateList.size() ;i++){
             Coordinate coordinateA = coordinateList.get(i)

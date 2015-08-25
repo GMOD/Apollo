@@ -56,7 +56,7 @@ class ProjectionSpec extends Specification{
     void "create a discontinuous projection capable of appropriately "(){
 
         given:
-        Track track1 = new Track(length: 10)
+        Track track1 = new Track(length: 11)
         DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
 
         when: "we generate a duplicate projection"
@@ -176,7 +176,7 @@ class ProjectionSpec extends Specification{
 
 
         when: "we create a projection from them"
-        DiscontinuousProjection projection = DiscontinuousProjectionFactory.createProjection(track1,track2)
+        DiscontinuousProjection projection = DiscontinuousProjectionFactory.getInstance().createProjection(track1)
         Track track3 = projection.projectTrack(track1)
 
 

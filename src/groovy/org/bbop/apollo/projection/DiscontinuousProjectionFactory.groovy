@@ -3,16 +3,22 @@ package org.bbop.apollo.projection
 /**
  * Created by nathandunn on 8/14/15.
  */
+@Singleton
 class DiscontinuousProjectionFactory {
 
-
-    static Projection createProjection(Track trackA,Track trackB){
+    /**
+     * For each track,
+     * @param inputTrack
+     * @param padding
+     * @return
+     */
+    Projection createProjection(Track inputTrack,Integer padding=0){
        DiscontinuousProjection projection= new DiscontinuousProjection()
 
-        // TODO: do this type of conversion
-//        projection.addInterval()
-
-
+        inputTrack.coordinateList.each {
+//            projection.addInterval(Math.max(it.min-padding,0),Math.min(it.max+padding,inputTrack.length))
+            projection.addInterval(it.min-padding,it.max+padding)
+        }
 
         return projection
     }

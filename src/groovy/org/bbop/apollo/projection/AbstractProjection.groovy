@@ -9,7 +9,7 @@ abstract class AbstractProjection implements Projection{
 
     @Override
     Track projectTrack(Track trackIn) {
-        Track trackOut = new Track()
+        Track trackOut = new Track(length: trackIn.length)
         for(Coordinate coordinate in trackIn.coordinateList.sort()){
             Coordinate returnCoordinate = new Coordinate()
             returnCoordinate.min = projectValue(coordinate.min)

@@ -100,4 +100,22 @@ class DiscontinuousProjection extends AbstractProjection{
         minMap.put(min,coordinate)
         maxMap.put(max,coordinate)
     }
+
+    @Override
+    Track projectTrack(Track trackIn) {
+        Track trackOut = new Track()
+        Integer trackLength = 0
+
+        for(Coordinate coordinate in trackIn.coordinateList.sort()){
+            Coordinate returnCoordinate = new Coordinate()
+            returnCoordinate.min = projectValue(coordinate.min)
+            returnCoordinate.max = projectValue(coordinate.max)
+            trackOut.coordinateList.add(returnCoordinate)
+            trackLength = returnCoordinate.max
+        }
+        trackOut.length = trackLength+1
+        return trackOut
+    }
+
+
 }
