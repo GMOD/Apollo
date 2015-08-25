@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import org.bbop.apollo.projection.AbstractProjection
 import org.bbop.apollo.projection.DiscontinuousProjection
+import org.bbop.apollo.projection.DiscontinuousProjectionFactory
 import org.bbop.apollo.projection.DuplicateTrackProjection
 
 import org.bbop.apollo.projection.Projection
@@ -159,8 +160,28 @@ class ProjectionSpec extends Specification{
         assert 7==trackOut.coordinateList.get(2).min  // 9
         assert -1==trackOut.coordinateList.get(2).max  // 10
 
-
     }
 
+    void "create discontinuous projection"(){
+
+        given: "if we have two sets of tracks"
+        Track track1 = new Track(length: 11)
+        track1.addCoordinate(2,4)
+        track1.addCoordinate(7,8)
+        track1.addCoordinate(9,10)
+        Track track2 = new Track(length: 7)
+        track2.addCoordinate(0,2)
+        track2.addCoordinate(3,4)
+        track2.addCoordinate(5,6)
+
+
+        when: "we create a projection from them"
+        DiscontinuousProjection projection = DiscontinuousProjectionFactory.createProjection(track1,track2)
+        Track track3 = projection.projectTrack(track1)
+
+
+        then: "if we create a track from that projection it should be an equivalent track"
+        assert track2==track3
+    }
 
 }

@@ -6,9 +6,11 @@ package org.bbop.apollo.projection
 class DiscontinuousProjectionFactory {
 
 
-    Projection generateProjection(Track trackA,Track trackB){
+    static Projection createProjection(Track trackA,Track trackB){
        DiscontinuousProjection projection= new DiscontinuousProjection()
 
+        // TODO: do this type of conversion
+//        projection.addInterval()
 
 
 
@@ -16,13 +18,13 @@ class DiscontinuousProjectionFactory {
     }
 
 
-    Track projectToTrack(Track track,List<Projection> projections) {
-        Track returnTrack = track
-
-        for(Projection projection : projections){
-            returnTrack = projection.project(returnTrack)
-        }
-
-        return returnTrack
-    }
+//    Track projectToTrack(Track track,List<Projection> projections) {
+//        Track returnTrack = track
+//
+//        for(Projection projection : projections){
+//            returnTrack = projection.project(returnTrack)
+//        }
+//
+//        return returnTrack
+//    }
 }
