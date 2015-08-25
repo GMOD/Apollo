@@ -2,8 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
-import org.apache.shiro.session.Session
-import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
