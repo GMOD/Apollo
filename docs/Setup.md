@@ -41,7 +41,7 @@ Furthermore, the `apollo-config.groovy` has different environments for test, dev
 #### Configure for MySQL:
 - Create a new MySQL database for production mode (i.e. run ``create database `apollo-production``` in the mysql console) and copy the sample-postgres-apollo-config.groovy to apollo-config.groovy.
 
-*Note:* to deploy on tomcat you *NEED* to have a configured `apollo-config` file copied to deploy to production.
+*Note:* to deploy on tomcat you *NEED* to have a configured `apollo-config.groovy` file copied to deploy to production.
 
 
 ### Database schema

@@ -40,6 +40,8 @@ Note: You can also supply a port number e.g. `apollo run-local 8085` if there ar
 
 Also note: if there are any errors at this step, check the setup.log file for errors. You can refer to the [troubleshooting guide](Troubleshooting.md) and often it just means the pre-requisites or perl modules failed.
 
+Also also note: the "development mode" uses an in-memory H2 database for storing data by default. The setup guide will show you how to configure custom database settings.
+
 ## Setting up the application
 
 
