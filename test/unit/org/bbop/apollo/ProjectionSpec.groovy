@@ -97,6 +97,17 @@ class ProjectionSpec extends Specification{
         assert 9 == discontinuousProjection.reverseProjectValue(5)
         assert 10 == discontinuousProjection.reverseProjectValue(6)
 
+        when: "we project a track"
+        Track trackOut = discontinuousProjection.projectTrack(track1)
+
+        then: "it should properly projecto out the proper coordinates"
+        assert track1.coordinateList.size()==trackOut.coordinateList.size()
+        assert 0==trackOut.coordinateList.get(0).min  // 2
+        assert 2==trackOut.coordinateList.get(0).max  // 4
+        assert 3==trackOut.coordinateList.get(1).min  // 7
+        assert 4==trackOut.coordinateList.get(1).max  // 8
+        assert 5==trackOut.coordinateList.get(2).min  // 9
+        assert 6==trackOut.coordinateList.get(2).max  // 10
     }
 
     void "try a difference discontinuous projection capable of reverse projection"(){
@@ -135,6 +146,20 @@ class ProjectionSpec extends Specification{
         assert 6 == discontinuousProjection.reverseProjectValue(5)
         assert 8 == discontinuousProjection.reverseProjectValue(6)
         assert 9 == discontinuousProjection.reverseProjectValue(7)
+
+        when: "we project a track"
+        Track trackOut = discontinuousProjection.projectTrack(track1)
+
+        then: "it should properly projecto out the proper coordinates"
+        assert track1.coordinateList.size()==trackOut.coordinateList.size()
+        assert 2==trackOut.coordinateList.get(0).min  // 2
+        assert 3==trackOut.coordinateList.get(0).max  // 4
+        assert -1==trackOut.coordinateList.get(1).min  // 7
+        assert 6==trackOut.coordinateList.get(1).max  // 8
+        assert 7==trackOut.coordinateList.get(2).min  // 9
+        assert -1==trackOut.coordinateList.get(2).max  // 10
+
+
     }
 
 
