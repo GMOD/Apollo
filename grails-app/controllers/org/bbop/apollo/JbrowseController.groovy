@@ -2,7 +2,13 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.filefilter.FileFilterUtils
+import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.DiscontinuousProjection
+import org.bbop.apollo.projection.DiscontinuousProjectionFactory
+import org.bbop.apollo.projection.Projection
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -21,6 +27,11 @@ class JbrowseController {
     def permissionService
     def preferenceService
     def servletContext
+
+    // TODO: move to database as JSON
+    // track, sequence, projection
+    // TODO: should also include organism at some point as well
+    private Map<String,Map<String,Projection>> projectionMap = new HashMap<>()
 
     def indexRouter(){
         log.debug "indexRouter ${params}"
@@ -114,10 +125,13 @@ class JbrowseController {
      * Handles data directory serving for jbrowse
      */
     def data() {
+
         String dataDirectory = getJBrowseDirectoryForSession()
         String dataFileName = dataDirectory + "/" + params.path
         String fileName = FilenameUtils.getName(params.path)
         File file = new File(dataFileName);
+
+        println "processing path ${params.path} -> ${dataFileName}"
 
         if (!file.exists()) {
             log.warn("File not found: " + dataFileName);
@@ -276,6 +290,57 @@ class JbrowseController {
 
         // add datasets to the configuration
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
+
+        // TODO: refactor to a single method
+        // get the OGS data if it exists
+        JSONArray tracksArray = jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value)
+
+        // TODO: this is only hear for debuggin
+        projectionMap.clear()
+        long startTime = System.currentTimeMillis()
+        for(int i = 0 ; i < tracksArray.size() ; i++){
+            JSONObject trackObject = tracksArray.getJSONObject(i)
+            if(trackObject.containsKey("OGS") && trackObject.getBoolean("OGS") && !projectionMap.containsKey(trackObject.keys())){
+                println "tring to generate projection for ${trackObject.key}"
+                File trackDirectory = new File(getJBrowseDirectoryForSession()+"/tracks/"+trackObject.key)
+                println "track directory ${trackDirectory.absolutePath}"
+
+                File[] files = FileUtils.listFiles(trackDirectory,FileFilterUtils.nameFileFilter("trackData.json"),TrueFileFilter.INSTANCE)
+
+                println "# of files ${files.length}"
+
+                Map<String,Projection> sequenceProjectionMap = new HashMap<>()
+
+                for(File trackDataFile in files){
+//                    println "file ${trackDataFile.absolutePath}"
+
+                    String sequenceFileName = trackDataFile.absolutePath.substring(trackDirectory.absolutePath.length(),trackDataFile.absolutePath.length()-"trackData.json".length()).replaceAll("/","")
+
+//                    println "sequencefileName [${sequenceFileName}]"
+
+                    JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
+
+                    // TODO: interpret the format properly
+                    DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
+                    JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject("intervals").getJSONArray("nclist")
+                    for(int coordIndex = 0 ; coordIndex < coordinateReferenceJsonArray.size() ; ++coordIndex ){
+                        JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
+                        discontinuousProjection.addInterval(coordinate.getInt(1),coordinate.getInt(2))
+                    }
+
+                    sequenceProjectionMap.put(sequenceFileName,discontinuousProjection)
+                }
+
+                println "final size: ${sequenceProjectionMap.size()}"
+
+                projectionMap.put(trackObject.key,sequenceProjectionMap)
+            }
+        }
+
+        println "total time ${System.currentTimeMillis()-startTime}"
+
+
+
         Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
         if(currentOrganism!=null) {
             jsonObject.put("dataset_id",currentOrganism.id)

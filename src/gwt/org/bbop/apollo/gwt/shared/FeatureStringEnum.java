@@ -61,6 +61,7 @@ public enum FeatureStringEnum {
         CV,
         SEQUENCE,
         TRACK,
+        TRACKS,
         DB,
         DBXREFS,
         ACCESSION,
