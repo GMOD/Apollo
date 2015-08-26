@@ -56,6 +56,7 @@ public enum FeatureStringEnum {
         IS_FMAX_PARTIAL,
         STRAND,
         NAME,
+        INTERVALS,
         GENE_NAME,
         VALUE,
         CV,
