@@ -252,12 +252,18 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
      * @return
      */
     def addTranscript() {
-        log.debug "AEC::adding transcript ${params}"
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.addTranscript(inputObject)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
+        try {
+            log.debug "AEC::adding transcript ${params}"
+            JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+                render requestHandlingService.addTranscript(inputObject)
+            } else {
+                render status: HttpStatus.UNAUTHORIZED
+            }
+        }
+        catch(Exception e) {
+            def error=[error: e.message]
+            render error as JSON
         }
     }
 

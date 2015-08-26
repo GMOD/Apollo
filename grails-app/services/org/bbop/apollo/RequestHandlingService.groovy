@@ -624,7 +624,7 @@ class RequestHandlingService {
     }
 
     @Timed
-    JSONObject addTranscript(JSONObject inputObject) {
+    JSONObject addTranscript(JSONObject inputObject) throws Exception {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnObject = createJSONFeatureContainer()
 
@@ -681,7 +681,6 @@ class RequestHandlingService {
         }
 
         return returnObject
-
     }
 
     /**
