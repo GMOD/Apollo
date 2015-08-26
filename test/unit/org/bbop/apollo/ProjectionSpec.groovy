@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import org.bbop.apollo.projection.AbstractProjection
+import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.DiscontinuousProjectionFactory
 import org.bbop.apollo.projection.DuplicateTrackProjection
@@ -89,14 +90,31 @@ class ProjectionSpec extends Specification{
         assert 5 == discontinuousProjection.projectValue(9)
         assert 6 == discontinuousProjection.projectValue(10)
 
+        // in-phase
+        assert new Coordinate(min:1,max:2)== discontinuousProjection.projectCoordinate(3,4)
+        // right-edge
+        assert null== discontinuousProjection.projectCoordinate(4,5)
+        // left-edge
+        assert null== discontinuousProjection.projectCoordinate(1,2)
+        // right-edge overlap
+        assert new Coordinate(min:1,max:2)== discontinuousProjection.projectCoordinate(3,5)
+        // right-edge overlap . . . A-B?
+        assert new Coordinate(min:3,max:5)== discontinuousProjection.projectCoordinate(7,9)
+        // left-edge overlap
+        assert new Coordinate(min:3,max:4)== discontinuousProjection.projectCoordinate(6,8)
+        // AB overlap
+        assert new Coordinate(min:1,max:4)== discontinuousProjection.projectCoordinate(3,8)
+        // AC overlap
+        assert new Coordinate(min:1,max:6)== discontinuousProjection.projectCoordinate(3,10)
+
         // test reverse values
-        assert 2 == discontinuousProjection.reverseProjectValue(0)
-        assert 3 == discontinuousProjection.reverseProjectValue(1)
-        assert 4 == discontinuousProjection.reverseProjectValue(2)
-        assert 7 == discontinuousProjection.reverseProjectValue(3)
-        assert 8 == discontinuousProjection.reverseProjectValue(4)
-        assert 9 == discontinuousProjection.reverseProjectValue(5)
-        assert 10 == discontinuousProjection.reverseProjectValue(6)
+        assert 2 == discontinuousProjection.projectReverseValue(0)
+        assert 3 == discontinuousProjection.projectReverseValue(1)
+        assert 4 == discontinuousProjection.projectReverseValue(2)
+        assert 7 == discontinuousProjection.projectReverseValue(3)
+        assert 8 == discontinuousProjection.projectReverseValue(4)
+        assert 9 == discontinuousProjection.projectReverseValue(5)
+        assert 10 == discontinuousProjection.projectReverseValue(6)
 
         when: "we project a track"
         Track trackOut = discontinuousProjection.projectTrack(track1)
@@ -138,15 +156,33 @@ class ProjectionSpec extends Specification{
         assert 7 == discontinuousProjection.projectValue(9)
         assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(10)
 
+
+        // in-phase
+        assert new Coordinate(min:3,max:4)== discontinuousProjection.projectCoordinate(4,5)
+        // right-edge
+        assert null== discontinuousProjection.projectCoordinate(2,3)
+        // left-edge
+        assert null== discontinuousProjection.projectCoordinate(3,4)
+        // right-edge overlap
+        assert new Coordinate(min:1,max:2)== discontinuousProjection.projectCoordinate(1,3)
+        // right-edge overlap
+        assert new Coordinate(min:3,max:4)== discontinuousProjection.projectCoordinate(4,5)
+        // left-edge overlap
+        assert new Coordinate(min:3,max:4)== discontinuousProjection.projectCoordinate(3,5)
+        // AB overlap
+        assert new Coordinate(min:1,max:4)== discontinuousProjection.projectCoordinate(1,5)
+        // AC overlap
+        assert new Coordinate(min:1,max:7)== discontinuousProjection.projectCoordinate(1,9)
+
         // test reverse values
-        assert 0 == discontinuousProjection.reverseProjectValue(0)
-        assert 1 == discontinuousProjection.reverseProjectValue(1)
-        assert 2 == discontinuousProjection.reverseProjectValue(2)
-        assert 4 == discontinuousProjection.reverseProjectValue(3)
-        assert 5 == discontinuousProjection.reverseProjectValue(4)
-        assert 6 == discontinuousProjection.reverseProjectValue(5)
-        assert 8 == discontinuousProjection.reverseProjectValue(6)
-        assert 9 == discontinuousProjection.reverseProjectValue(7)
+        assert 0 == discontinuousProjection.projectReverseValue(0)
+        assert 1 == discontinuousProjection.projectReverseValue(1)
+        assert 2 == discontinuousProjection.projectReverseValue(2)
+        assert 4 == discontinuousProjection.projectReverseValue(3)
+        assert 5 == discontinuousProjection.projectReverseValue(4)
+        assert 6 == discontinuousProjection.projectReverseValue(5)
+        assert 8 == discontinuousProjection.projectReverseValue(6)
+        assert 9 == discontinuousProjection.projectReverseValue(7)
 
         when: "we project a track"
         Track trackOut = discontinuousProjection.projectTrack(track1)
@@ -182,6 +218,11 @@ class ProjectionSpec extends Specification{
 
         then: "if we create a track from that projection it should be an equivalent track"
         assert track2==track3
+    }
+
+    void "create projection spec"(){
+
+
     }
 
 }

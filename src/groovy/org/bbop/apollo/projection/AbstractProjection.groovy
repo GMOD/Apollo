@@ -18,4 +18,14 @@ abstract class AbstractProjection implements Projection{
         }
         return trackOut
     }
+
+    @Override
+    Coordinate projectCoordinate(int min, int max) {
+        return new Coordinate(min:projectValue(min),max:projectValue(max))
+    }
+
+    @Override
+    Coordinate projectReverseCoordinate(int min, int max) {
+        return new Coordinate(min:projectReverseValue(min),max:projectReverseValue(max))
+    }
 }

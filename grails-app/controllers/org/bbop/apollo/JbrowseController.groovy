@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
 import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.DiscontinuousProjectionFactory
 import org.bbop.apollo.projection.Projection
@@ -247,15 +248,19 @@ class JbrowseController {
                     for(int i = 0 ; i < coordinateJsonArray.size() ; i++){
                         JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
                         Integer oldMin = coordinate.getInt(1)
-                        Integer newMin = projection.projectValue(oldMin)
                         Integer oldMax = coordinate.getInt(2)
-                        Integer newMax = projection.projectValue(oldMax)
-                        coordinate.set(1,newMin)
-                        coordinate.set(2,newMax)
 
-                        if(newMin >= 0 && newMax >= 0 ){
+                        Coordinate newCoordinate = projection.projectCoordinate(oldMin,oldMax)
+//                        Integer newMin = projection.projectValue(oldMin)
+//                        Integer newMax = projection.projectValue(oldMax)
+                        if(newCoordinate){
+                            coordinate.set(1,newCoordinate.min)
+                            coordinate.set(2,newCoordinate.max)
                             replacementCoordinateJsonArray.add(coordinate)
                         }
+
+//                        if(newMin >= 0 && newMax >= 0 ){
+//                        }
                     }
 
                     intervalsJsonArray.put(FeatureStringEnum.NCLIST.value,replacementCoordinateJsonArray)

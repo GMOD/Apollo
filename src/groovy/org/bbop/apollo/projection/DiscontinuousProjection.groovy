@@ -19,7 +19,7 @@ class DiscontinuousProjection extends AbstractProjection{
      * @return
      */
     @Override
-    Integer reverseProjectValue(Integer input){
+    Integer projectReverseValue(Integer input){
 
         Iterator<Integer> minIterator = minMap.keySet().iterator()
         Iterator<Integer> maxIterator = maxMap.keySet().iterator()
@@ -117,5 +117,50 @@ class DiscontinuousProjection extends AbstractProjection{
         return trackOut
     }
 
+    @Override
+    Coordinate projectCoordinate(int min, int max) {
+        int newMin = projectValue(min)
+        int newMax = projectValue(max)
+        if(newMin>=0 && newMax >=0){
+            return new Coordinate(min:newMin,max:newMax)
+        }
+        else
+        if( (newMin<0 && newMax<0)) {
+            return null
+        }
+        else
+        if(newMin>=0) {
+            // newMin is less than 0 so find the next one higher and move up
+            Integer floorMaxKey = projectValue(maxMap.floorKey(max))
+            if(floorMaxKey > newMin){
+                return new Coordinate(min:newMin,max:floorMaxKey)
+            }
+            else{
+                return null
+//                throw new RuntimeException("can not get correct value  ${min}->${newMin}, ${max}->${newMax}/${floorMaxKey}")
+            }
+        }
+        else
+        if(newMax>=0) {
+            // newMin is less than 0 so find the next one higher and move up
+            Integer ceilMinKey = projectValue(minMap.ceilingKey(min))
+            if(ceilMinKey < newMax){
+                return new Coordinate(min:ceilMinKey,max:newMax)
+            }
+            else{
+                return null
+//                throw new RuntimeException("can not get correctvalue  ${min}->${newMin}/${ceilMinKey}, ${max}->${newMax}")
+            }
+        }
+        else{
+            throw new RuntimeException("not sure how we got here ${min}->${newMin}, ${max}->${newMax}")
+        }
+    }
 
+    @Override
+    Coordinate projectReverseCoordinate(int min, int max) {
+        int newMin = projectReverseValue(min)
+        int newMax = projectReverseValue(max)
+        if(newMin<0 && newMax<0) return null
+    }
 }

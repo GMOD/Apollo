@@ -13,7 +13,7 @@ public class ReverseProjection extends AbstractProjection{
     }
 
     @Override
-    Integer reverseProjectValue(Integer input) {
+    Integer projectReverseValue(Integer input) {
         return input
     }
 
