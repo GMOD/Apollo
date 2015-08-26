@@ -57,6 +57,7 @@ public enum FeatureStringEnum {
         STRAND,
         NAME,
         INTERVALS,
+        NCLIST,
         GENE_NAME,
         VALUE,
         CV,

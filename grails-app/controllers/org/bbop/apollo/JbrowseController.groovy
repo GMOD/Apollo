@@ -234,20 +234,31 @@ class JbrowseController {
                     String trackName = getTrackName(file.absolutePath)
                     String sequenceName = getSequenceName(file.absolutePath)
                     // get the track from the json object
-                    println "getting track / sequence from ${file.absolutePath} -> ${trackName}"
+//                    println "getting track / sequence from ${file.absolutePath} -> ${trackName}"
 
-                    Projection projection = projectionMap.get(trackName)?.get(sequenceName)
+                    // TODO: it should look up the OGS track either default or variable
+//                    Projection projection = projectionMap.get(trackName)?.get(sequenceName)
+                    Projection projection = projectionMap.values().iterator().next()?.get(sequenceName)
 
-                    JSONArray coordinateJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray("nclist")
+                    JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
+                    JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
+                    JSONArray replacementCoordinateJsonArray = new JSONArray()
+                    intervalsJsonArray.remove(FeatureStringEnum.NCLIST.value)
                     for(int i = 0 ; i < coordinateJsonArray.size() ; i++){
                         JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
-                        Integer oldMin = coordinate.get(1)
+                        Integer oldMin = coordinate.getInt(1)
                         Integer newMin = projection.projectValue(oldMin)
-                        Integer oldMax = coordinate.get(2)
+                        Integer oldMax = coordinate.getInt(2)
                         Integer newMax = projection.projectValue(oldMax)
                         coordinate.set(1,newMin)
                         coordinate.set(2,newMax)
+
+                        if(newMin >= 0 && newMax >= 0 ){
+                            replacementCoordinateJsonArray.add(coordinate)
+                        }
                     }
+
+                    intervalsJsonArray.put(FeatureStringEnum.NCLIST.value,replacementCoordinateJsonArray)
 
                     response.outputStream << trackDataJsonObject.toString()
 //                    return
