@@ -161,6 +161,18 @@ class JbrowseController {
             }
         }
 
+        if (fileName.endsWith(".json") || params.format == "json") {
+//            [{"length":1382403,"name":"Group1.1","seqChunkSize":20000,"end":1382403,"start":0},{"length":1405242,"name":"Group1.10","seqChunkSize":20000,"end":1405242,"start":0},{"length":2557,"name":"Group1.11","seqChunkSize":20000,"end":2557,"start":0},
+           if(fileName.endsWith("refSeqs.json")){
+               // TODO: project refSeqs.json
+           }
+           else
+           if (fileName.endsWith("trackData.json")) {
+               // TODO: project trackData.json
+               // transform 2nd and 3rd array in intervals/ncList
+           }
+        }
+
         if (isCacheableFile(fileName)) {
             String eTag = createHashFromFile(file);
             String dateString = formatLastModifiedDate(file);
