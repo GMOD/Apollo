@@ -92,7 +92,6 @@ class DiscontinuousProjection extends AbstractProjection {
     }
 
     private Coordinate addCoordinate(int min, int max) {
-        println "adding ${min} ${max}"
         Coordinate coordinate = new Coordinate(min: min, max: max)
         minMap.put(min, coordinate)
         maxMap.put(max, coordinate)
@@ -102,7 +101,6 @@ class DiscontinuousProjection extends AbstractProjection {
 //    private List<Coordinate> removeIntermediates()
 
     private Coordinate replaceCoordinate(Coordinate coordinate, int min, int max) {
-        println "replacing ${coordinate.min}-${coordinate.max} with ${min}-${max}"
         assert minMap.remove(coordinate.min) != null
         assert maxMap.remove(coordinate.max) != null
 
@@ -111,46 +109,27 @@ class DiscontinuousProjection extends AbstractProjection {
         while (nextMin && minMap && maxMap && nextMin < max) {
             Coordinate nextMinCoord = minMap.get(nextMin)
             if (nextMinCoord.max > min) {
-                println "removing min ${min} -> ${nextMinCoord.min}"
-                println "removing max ${max} -> ${nextMinCoord.max}"
                 assert minMap.remove(nextMinCoord.min) != null
                 assert maxMap.remove(nextMinCoord.max) != null
             }
             nextMin = minMap.higherKey(coordinate.min)
         }
-
-//        while(minMap.size()>=0 && minMap.ceilingKey(min)<max && minMap.ceilingKey(min)>0 ){
-//            println "removing min ${min} -> ${minMap.ceilingKey(min)}"
-//            println "removing max ${max} -> ${maxMap.ceilingKey(max)}"
-//            assert minMap.remove(minMap.ceilingKey(min))!=null
-//            assert maxMap.remove(maxMap.ceilingKey(max))!=null
-//        }
-
         return addCoordinate(min, max)
     }
 
     def addInterval(int min, int max) {
         assert max >= min
 
-        println "adding interval ${min}-${max}"
         Integer floorMinKey = minMap.floorKey(min)
         Integer ceilMinKey = minMap.ceilingKey(min)
 
         Integer floorMaxKey = maxMap.floorKey(max)
         Integer ceilMaxKey = maxMap.ceilingKey(max)
 
-        println "floor ${min} min[${floorMinKey}]-max[${floorMaxKey}]"
-        println "ceil ${max} min[${ceilMinKey}]-max[${ceilMaxKey}]"
-
         Coordinate floorMinCoord = floorMinKey ? minMap.get(floorMinKey) : null
         Coordinate floorMaxCoord = floorMaxKey ? maxMap.get(floorMaxKey) : null
         Coordinate ceilMaxCoord = ceilMaxKey ? maxMap.get(ceilMaxKey) : null
         Coordinate ceilMinCoord = ceilMinKey ? minMap.get(ceilMinKey) : null
-
-        println "floorMinCoord ${floorMinCoord}"
-        println "floorMaxCoord ${floorMaxCoord}"
-        println "ceilMinCoord ${ceilMinCoord}"
-        println "ceilMaxCoord ${ceilMaxCoord}"
 
         // no entries at all . . just add
         if (floorMinCoord == null && floorMaxCoord == null && ceilMinCoord == null && ceilMaxCoord == null) {
@@ -187,9 +166,6 @@ class DiscontinuousProjection extends AbstractProjection {
         if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord != null && ceilMaxCoord != null) {
             // this overlaps on both sides
             if (floorMinCoord != floorMaxCoord && ceilMinCoord!=ceilMaxCoord && floorMaxCoord==ceilMinCoord) {
-//                else{
-//                    println "not sure what this condition is"
-//                }
 
                 if(min < ceilMinCoord.min && min > floorMinCoord.max && max > floorMaxCoord.max && max < ceilMaxCoord.min){
                     return replaceCoordinate(floorMaxCoord,min,max)
@@ -222,11 +198,6 @@ class DiscontinuousProjection extends AbstractProjection {
                     int newMax = max < ceilMaxCoord.min ? max : ceilMaxCoord.max
                     return replaceCoordinate(floorMinCoord, newMin, newMax)
                 }
-
-//                else
-//                if(min < floorMaxCoord.min && max < ceilMaxCoord.min){
-//                    return replaceCoordinate(floorMinCoord, floorMinCoord.min, ceilMaxCoord.max)
-//                }
             }
             else
             if (floorMinCoord != floorMaxCoord && ceilMinCoord==ceilMaxCoord) {
@@ -264,7 +235,6 @@ class DiscontinuousProjection extends AbstractProjection {
             return addCoordinate(min, max)
 
         } else {
-            println "ELSE condition . . "
             return addCoordinate(min, max)
         }
 

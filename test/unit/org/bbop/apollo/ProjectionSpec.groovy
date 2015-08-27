@@ -322,14 +322,8 @@ class ProjectionSpec extends Specification{
 
 
         then: "we see another one to the right"
-        projection.minMap.each {
-            println "min: ${it.key} -> ${it.value}"
-        }
-        projection.maxMap.each {
-            println "max: ${it.key} -> ${it.value}"
-        }
-        projection.minMap.size()==3
-        projection.maxMap.size()==3
+        assert projection.minMap.size()==3
+        assert projection.maxMap.size()==3
         assert coordinate0.min==10
         assert coordinate0.max==15
         assert coordinate1.min==30
@@ -347,12 +341,6 @@ class ProjectionSpec extends Specification{
         Coordinate coordinate3 = projection.minMap.values().getAt(3)
 
         then: "we see another one in the middle"
-        projection.minMap.each {
-            println "min: ${it.key} -> ${it.value}"
-        }
-        projection.maxMap.each {
-            println "max: ${it.key} -> ${it.value}"
-        }
         assert projection.minMap.size()==4
         assert projection.maxMap.size()==4
         assert coordinate0.min==10
@@ -374,12 +362,6 @@ class ProjectionSpec extends Specification{
         Coordinate coordinate4 = projection.minMap.values().getAt(4)
 
         then: "we see another one in the middle"
-        projection.minMap.each {
-            println "min: ${it.key} -> ${it.value}"
-        }
-        projection.maxMap.each {
-            println "max: ${it.key} -> ${it.value}"
-        }
         assert projection.minMap.size()==5
         assert projection.maxMap.size()==5
         assert coordinate0.min==10
@@ -404,12 +386,6 @@ class ProjectionSpec extends Specification{
 
 
         then: "it should provide both on most sides"
-        projection.minMap.each {
-            println "2 min: ${it.key} -> ${it.value}"
-        }
-        projection.maxMap.each {
-            println "2 max: ${it.key} -> ${it.value}"
-        }
         assert projection.minMap.size()==5
         assert projection.maxMap.size()==5
         assert coordinate0.min==10
@@ -431,14 +407,8 @@ class ProjectionSpec extends Specification{
         coordinate2 = projection.minMap.values().getAt(2)
 
         then: "we merge overlapping ones"
-        projection.minMap.each {
-            println "A min: ${it.key} -> ${it.value}"
-        }
-        projection.maxMap.each {
-            println "A max: ${it.key} -> ${it.value}"
-        }
-        projection.minMap.size()==3
-        projection.maxMap.size()==3
+        assert projection.minMap.size()==3
+        assert projection.maxMap.size()==3
         assert coordinate0.min==10
         assert coordinate0.max==15
         assert coordinate1.min==19
@@ -453,12 +423,6 @@ class ProjectionSpec extends Specification{
         coordinate2 = projection.minMap.values().getAt(2)
 
         then: "should extend center one to the left"
-        projection.minMap.each {
-            println "B min: ${it.key} -> ${it.value}"
-        }
-        projection.maxMap.each {
-            println "B max: ${it.key} -> ${it.value}"
-        }
         assert projection.minMap.size()==3
         assert projection.maxMap.size()==3
         assert coordinate0.min==10
@@ -475,12 +439,6 @@ class ProjectionSpec extends Specification{
         coordinate2 = projection.minMap.values().getAt(2)
 
         then: "should extend center one to the left"
-        projection.minMap.each {
-            println "C min: ${it.key} -> ${it.value}"
-        }
-        projection.maxMap.each {
-            println "C max: ${it.key} -> ${it.value}"
-        }
         assert projection.minMap.size()==3
         assert projection.maxMap.size()==3
         assert coordinate0.min==10
