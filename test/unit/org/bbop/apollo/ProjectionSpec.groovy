@@ -234,6 +234,8 @@ class ProjectionSpec extends Specification{
         then: "it shows up"
         projection.minMap.size()==1
         projection.maxMap.size()==1
+        assert coordinate.min==45
+        assert coordinate.max==55
 
         when : "we add within that one"
         projection.addInterval(47,53)
@@ -372,6 +374,22 @@ class ProjectionSpec extends Specification{
         assert coordinate3.max==77
         assert coordinate4.min==80
         assert coordinate4.max==85
+
+        when: "we add another to overlap "
+        projection.addInterval(22,76)
+        coordinate0 = projection.minMap.values().getAt(0)
+        coordinate1 = projection.minMap.values().getAt(1)
+        coordinate2 = projection.minMap.values().getAt(2)
+
+        then: "we merge overlapping ones"
+        projection.minMap.size()==3
+        projection.maxMap.size()==3
+        assert coordinate0.min==10
+        assert coordinate0.max==15
+        assert coordinate1.min==20
+        assert coordinate1.max==77
+        assert coordinate2.min==80
+        assert coordinate2.max==85
 
     }
 

@@ -94,32 +94,103 @@ class DiscontinuousProjection extends AbstractProjection{
         return UNMAPPED_VALUE
     }
 
+    private Coordinate addCoordinate(int min,int max){
+        Coordinate coordinate = new Coordinate(min:min,max:max)
+        minMap.put(min,coordinate)
+        maxMap.put(max,coordinate)
+        return coordinate
+    }
+
+    private Coordinate replaceCoordinate(Coordinate coordinate, int min, int max) {
+        minMap.remove(coordinate.min)
+        maxMap.remove(coordinate.max)
+
+        while(minMap.size()>=0 && minMap.ceilingKey(min)<max && minMap.ceilingKey(min)>0 ){
+            minMap.remove(minMap.ceilingKey(min))
+            maxMap.remove(maxMap.ceilingKey(max))
+        }
+
+        return addCoordinate(min,max)
+    }
+
     def addInterval(int min, int max) {
         assert max>=min
 
+        println "adding interval ${min}-${max}"
         Integer floorMinKey = minMap.floorKey(min)
         Integer ceilMinKey = minMap.ceilingKey(min)
 
         Integer floorMaxKey = maxMap.floorKey(max)
         Integer ceilMaxKey = maxMap.ceilingKey(max)
 
+        println "floor ${min} min[${floorMinKey}]-max[${floorMaxKey}]"
+        println "ceil ${max} min[${ceilMinKey}]-max[${ceilMaxKey}]"
 
-        if(max <= ceilMaxKey  && min >= floorMinKey){
-            Coordinate minCoordinate = minMap.get(floorMinKey)
-            Coordinate maxCoordinate = maxMap.get(ceilMaxKey)
+        Coordinate floorMinCoord = floorMinKey ? minMap.get(floorMinKey) : null
+        Coordinate floorMaxCoord = floorMaxKey ? maxMap.get(floorMaxKey) : null
+        Coordinate ceilMaxCoord = ceilMaxKey ? maxMap.get(ceilMaxKey) : null
+        Coordinate ceilMinCoord = ceilMinKey ? minMap.get(ceilMinKey) : null
 
-            if(minCoordinate==maxCoordinate){
-                // we are a subset
-                return
+        // no entries at all . . just add
+        if(floorMinCoord==null && floorMaxCoord==null && ceilMinCoord== null && ceilMaxCoord==null){
+            return addCoordinate(min,max)
+        }
+        else
+        // empty floor / LHS side
+        if(floorMinCoord==null && floorMaxCoord==null && ceilMinCoord!=null && ceilMaxCoord!=null){
+            assert ceilMinCoord==ceilMaxCoord
+            if(max < ceilMinCoord.min){
+                return addCoordinate(min,max)
+            }
+            return replaceCoordinate(ceilMinCoord,min,ceilMinCoord.max)
+        }
+        else
+        // empty ceil / RHS side
+        if(floorMinCoord!=null && floorMaxCoord!=null && ceilMinCoord==null && ceilMaxCoord==null){
+            assert ceilMinCoord==ceilMaxCoord
+            if(min > floorMaxCoord.max){
+                return addCoordinate(min,max)
+            }
+            return replaceCoordinate(floorMaxCoord,floorMinCoord.min,max)
+        }
+        // overlapping within?
+        if(floorMinCoord!=null && floorMaxCoord==null && ceilMinCoord==null && ceilMaxCoord!=null){
+            assert floorMinCoord==ceilMaxCoord
+
+            return replaceCoordinate(floorMinCoord,Math.min(min,floorMinCoord.min),Math.max(max,ceilMaxCoord.max))
+        }
+        // overlapping without?
+        if(floorMinCoord==null && floorMaxCoord!=null && ceilMinCoord!=null && ceilMaxCoord==null){
+            assert floorMaxCoord==ceilMinCoord
+            return replaceCoordinate(floorMaxCoord,Math.min(min,floorMaxCoord.min),Math.max(max,ceilMinCoord.max))
+        }
+        // overlapping without?
+        if(floorMinCoord!=null && floorMaxCoord!=null && ceilMinCoord!=null && ceilMaxCoord!=null){
+            if(floorMinCoord!=floorMaxCoord){
+                return replaceCoordinate(floorMinCoord,Math.min(min,floorMinCoord.min),Math.max(max,ceilMaxCoord.max))
             }
 
+            return addCoordinate(min,max)
+        }
+        else{
+            println "ELSE condition . . "
+            return addCoordinate(min,max)
         }
 
+//        if(max <= ceilMaxKey  && min >= floorMinKey){
+//            Coordinate minCoordinate = minMap.get(floorMinKey)
+//            Coordinate maxCoordinate = maxMap.get(ceilMaxKey)
+//
+//            if(minCoordinate==maxCoordinate){
+//                // we are a subset
+//                return
+//            }
+//
+//        }
 
-        Coordinate coordinate = new Coordinate(min:min,max:max)
-        minMap.put(min,coordinate)
-        maxMap.put(max,coordinate)
+
     }
+
 
     @Override
     Track projectTrack(Track trackIn) {
