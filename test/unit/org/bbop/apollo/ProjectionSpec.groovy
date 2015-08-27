@@ -224,50 +224,157 @@ class ProjectionSpec extends Specification{
     void "when adding intervals overlapping intervals should merge"(){
 
         given: "some intervals"
+        Projection projection = new DiscontinuousProjection()
 
 
         when: "we add an interval to a null one"
-
+        projection.addInterval(45,55)
+        Coordinate coordinate = projection.minMap.values().iterator().next()
 
         then: "it shows up"
+        projection.minMap.size()==1
+        projection.maxMap.size()==1
 
         when : "we add within that one"
+        projection.addInterval(47,53)
+        coordinate = projection.minMap.values().iterator().next()
 
         then: "nothing happens"
+        projection.minMap.size()==1
+        projection.maxMap.size()==1
+        assert coordinate.min==45
+        assert coordinate.min==65
 
         when: "we add a larger one over it"
+        projection.addInterval(40,60)
+        coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge and expand on both sides"
+        projection.minMap.size()==1
+        projection.maxMap.size()==1
+        assert coordinate.min==40
+        assert coordinate.min==60
 
 
         when: "we add to the continuous right edge"
+        projection.addInterval(60,65)
+        coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge the two on the right edge"
+        projection.minMap.size()==1
+        projection.maxMap.size()==1
+        assert coordinate.min==40
+        assert coordinate.min==65
 
         when: "we add to the continuous left edge"
+        projection.addInterval(35,40)
+        coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge the two on the left edge"
+        projection.minMap.size()==1
+        projection.maxMap.size()==1
+        assert coordinate.min==35
+        assert coordinate.min==65
 
         when: "we add to the continuous right overlap"
+        projection.addInterval(62,70)
+        coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge the two on the right overlap"
+        projection.minMap.size()==1
+        projection.maxMap.size()==1
+        assert coordinate.min==35
+        assert coordinate.min==70
 
         when: "we add to the continuous left overlap"
+        projection.addInterval(30,37)
+        coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge the two on the left overlap"
+        projection.minMap.size()==1
+        projection.maxMap.size()==1
+        assert coordinate.min==30
+        assert coordinate.min==70
 
         when: "we add another one to the left of all of the others"
+        projection.addInterval(10,15)
+
 
         then: "we see another one to the left"
+        projection.minMap.size()==2
+        projection.maxMap.size()==2
+        coordinate = projection.minMap.values().getAt(0)
+        assert coordinate.min==10
+        assert coordinate.min==15
+        coordinate = projection.minMap.values().getAt(1)
+        assert coordinate.min==30
+        assert coordinate.min==70
+
 
         when: "we add another one to the right of all of the others"
+        projection.addInterval(80,85)
+        coordinate = projection.minMap.values().iterator().next()
+
+
 
         then: "we see another one to the right"
+        projection.minMap.size()==3
+        projection.maxMap.size()==3
+        coordinate = projection.minMap.values().getAt(0)
+        assert coordinate.min==10
+        assert coordinate.min==15
+        coordinate = projection.minMap.values().getAt(1)
+        assert coordinate.min==30
+        assert coordinate.min==70
+        coordinate = projection.minMap.values().getAt(2)
+        assert coordinate.min==80
+        assert coordinate.min==85
+
+
 
         when: "we add another one in the middle of all of the others"
+        projection.addInterval(75,77)
+        coordinate = projection.minMap.values().iterator().next()
 
         then: "we see another one in the middle"
+        projection.minMap.size()==4
+        projection.maxMap.size()==4
+        coordinate = projection.minMap.values().getAt(0)
+        assert coordinate.min==10
+        assert coordinate.min==15
+        coordinate = projection.minMap.values().getAt(1)
+        assert coordinate.min==30
+        assert coordinate.min==70
+        coordinate = projection.minMap.values().getAt(2)
+        assert coordinate.min==75
+        assert coordinate.min==77
+        coordinate = projection.minMap.values().getAt(3)
+        assert coordinate.min==80
+        assert coordinate.min==85
 
+
+        when: "we add another one in the middle of all of the others again"
+        projection.addInterval(20,25)
+        coordinate = projection.minMap.values().iterator().next()
+
+        then: "we see another one in the middle"
+        projection.minMap.size()==5
+        projection.maxMap.size()==5
+        coordinate = projection.minMap.values().getAt(0)
+        assert coordinate.min==10
+        assert coordinate.min==15
+        coordinate = projection.minMap.values().getAt(1)
+        assert coordinate.min==20
+        assert coordinate.min==25
+        coordinate = projection.minMap.values().getAt(2)
+        assert coordinate.min==30
+        assert coordinate.min==70
+        coordinate = projection.minMap.values().getAt(3)
+        assert coordinate.min==75
+        assert coordinate.min==77
+        coordinate = projection.minMap.values().getAt(4)
+        assert coordinate.min==80
+        assert coordinate.min==85
 
     }
 

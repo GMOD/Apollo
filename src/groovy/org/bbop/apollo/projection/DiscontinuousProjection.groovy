@@ -96,6 +96,9 @@ class DiscontinuousProjection extends AbstractProjection{
 
     def addInterval(int min, int max) {
         assert max>=min
+        
+
+
         Coordinate coordinate = new Coordinate(min:min,max:max)
         minMap.put(min,coordinate)
         maxMap.put(max,coordinate)
