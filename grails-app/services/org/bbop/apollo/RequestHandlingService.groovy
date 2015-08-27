@@ -657,7 +657,11 @@ class RequestHandlingService {
             // checking for overlapping Sequence Alterations
 //            List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin > :fmin and fl.fmax < :fmax and fl.sequence = :seqId", [seqId: transcript.featureLocation.sequence, fmin: transcript.featureLocation.fmin, fmax: transcript.featureLocation.fmax])
 //            if (sequenceAlterationList.size() > 0) {
-            featureService.setLongestORF(transcript)
+
+            //
+            if (!configWrapperService.useCDS() || transcriptService.getCDS(transcript) == null) {
+                featureService.calculateCDS(transcript);
+            }
 //            }
             Gene gene = transcriptService.getGene(transcript)
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
