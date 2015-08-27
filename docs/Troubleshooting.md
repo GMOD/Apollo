@@ -67,7 +67,7 @@ If you get this error, then you may need to re-run `apollo deploy` or even do a 
 
 The "linkTemplate" track configuration parameter in JBrowse is overridden by WebApollo's feature edge matcher and drag and drop functions. It is recommended to use menuTemplate instead.
 
-Web Apollo 2.x versions pre-processe the trackList.json so it needs to validate through a JSON parser that is generally more strict than the javascript JSON parsers are, so make sure your JSON for trackList.json is validated.
+Web Apollo 2.x versions pre-processe the trackList.json so it needs to validate through a JSON parser that is generally more strict than the javascript JSON parsers are, so make sure your JSON for trackList.json is validated. If you see the JBrowse loading page with an error that says "RequestError: Unable to load http://genomes.missouri.edu/Apollo2/jbrowse/data/trackList.json status: 500." inside of Web Apollo 2.x, then make sure your trackList.json is checked by a JSON validator.
 
 
 ### Complaints about 8080 being in use
