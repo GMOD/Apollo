@@ -116,12 +116,6 @@ class MockupService {
         deepak.addToRoles(adminRole)
         elsikLabGroup.addToUsers(moni)
 
-//        User moni = new User(
-//                username: "nathandunn@lbl.gov"
-//                , passwordHash: new Sha256Hash("agreatpassword").toHex()
-//        ).save(failOnError: true)
-//        moni.addToRoles(adminRole)
-
         User adminUser = new User(
                 username: "admin@admin.gov"
                 , passwordHash: new Sha256Hash(generatePassword()).toHex()
