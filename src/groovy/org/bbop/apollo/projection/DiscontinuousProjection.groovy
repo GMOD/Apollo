@@ -3,11 +3,11 @@ package org.bbop.apollo.projection
 /**
  * Created by ndunn on 8/24/15.
  */
-class DiscontinuousProjection extends AbstractProjection{
+class DiscontinuousProjection extends AbstractProjection {
 
     // projection from X -> X'
-    TreeMap<Integer,Coordinate> minMap = new TreeMap<>()
-    TreeMap<Integer,Coordinate> maxMap = new TreeMap<>()
+    TreeMap<Integer, Coordinate> minMap = new TreeMap<>()
+    TreeMap<Integer, Coordinate> maxMap = new TreeMap<>()
 
     /**
      * Get the coordinate value out and add some to min
@@ -19,7 +19,7 @@ class DiscontinuousProjection extends AbstractProjection{
      * @return
      */
     @Override
-    Integer projectReverseValue(Integer input){
+    Integer projectReverseValue(Integer input) {
 
         Iterator<Integer> minIterator = minMap.keySet().iterator()
         Iterator<Integer> maxIterator = maxMap.keySet().iterator()
@@ -30,11 +30,11 @@ class DiscontinuousProjection extends AbstractProjection{
         Integer currentLength = 0
         Integer bucketCount = 0
         Integer previousLength = 0
-        while(minIterator.hasNext()){
+        while (minIterator.hasNext()) {
             min = minIterator.next()
             max = maxIterator.next()
             currentLength += (max - min)
-            if(currentLength+bucketCount>=input){
+            if (currentLength + bucketCount >= input) {
                 return min + input - previousLength - bucketCount
             }
             previousLength += (max - min)
@@ -45,7 +45,7 @@ class DiscontinuousProjection extends AbstractProjection{
 
     @Override
     Integer projectValue(Integer input) {
-        if(!minMap && !maxMap){
+        if (!minMap && !maxMap) {
             return input
         }
 
@@ -58,35 +58,32 @@ class DiscontinuousProjection extends AbstractProjection{
 //        log.debug "input ${input} minKey ${floorMinKey}-${ceilMinKey}"
 //        log.debug "input ${input} maxKey ${floorMaxKey}-${ceilMaxKey}"
 
-        if(floorMinKey==null || ceilMaxKey==null){
+        if (floorMinKey == null || ceilMaxKey == null) {
             return UNMAPPED_VALUE
         }
 
         // if is a hit for min and no max hit, then it is the left-most
-        if(floorMinKey==ceilMinKey){
-            if(floorMaxKey==null){
+        if (floorMinKey == ceilMinKey) {
+            if (floorMaxKey == null) {
                 return 0
-            }
-            else{
+            } else {
 //                return input - floorMaxKey
-                return projectValue(floorMaxKey)+1
+                return projectValue(floorMaxKey) + 1
             }
         }
 
-
-
         // this is the left-most still
-        if(floorMinKey!=ceilMinKey && floorMaxKey==null){
+        if (floorMinKey != ceilMinKey && floorMaxKey == null) {
             return input - floorMinKey
         }
 
         // if we are at the max border
-        if(floorMaxKey==ceilMaxKey){
+        if (floorMaxKey == ceilMaxKey) {
             return input - floorMinKey + projectValue(floorMinKey)
         }
 
         // if we are inbetween a ceiling max and floor min, then we are in a viable block
-        if(input > floorMinKey && input < ceilMaxKey &&  ceilMinKey >= ceilMaxKey){
+        if (input > floorMinKey && input < ceilMaxKey && ceilMinKey >= ceilMaxKey) {
             return input - floorMinKey + projectValue(floorMinKey)
         }
 
@@ -94,27 +91,46 @@ class DiscontinuousProjection extends AbstractProjection{
         return UNMAPPED_VALUE
     }
 
-    private Coordinate addCoordinate(int min,int max){
-        Coordinate coordinate = new Coordinate(min:min,max:max)
-        minMap.put(min,coordinate)
-        maxMap.put(max,coordinate)
+    private Coordinate addCoordinate(int min, int max) {
+        println "adding ${min} ${max}"
+        Coordinate coordinate = new Coordinate(min: min, max: max)
+        minMap.put(min, coordinate)
+        maxMap.put(max, coordinate)
         return coordinate
     }
 
-    private Coordinate replaceCoordinate(Coordinate coordinate, int min, int max) {
-        minMap.remove(coordinate.min)
-        maxMap.remove(coordinate.max)
+//    private List<Coordinate> removeIntermediates()
 
-        while(minMap.size()>=0 && minMap.ceilingKey(min)<max && minMap.ceilingKey(min)>0 ){
-            minMap.remove(minMap.ceilingKey(min))
-            maxMap.remove(maxMap.ceilingKey(max))
+    private Coordinate replaceCoordinate(Coordinate coordinate, int min, int max) {
+        println "replacing ${coordinate.min}-${coordinate.max} with ${min}-${max}"
+        assert minMap.remove(coordinate.min) != null
+        assert maxMap.remove(coordinate.max) != null
+
+        Integer nextMin = minMap ? minMap.higherKey(coordinate.min) : null
+
+        while (nextMin && minMap && maxMap && nextMin < max) {
+            Coordinate nextMinCoord = minMap.get(nextMin)
+            if (nextMinCoord.max > min) {
+                println "removing min ${min} -> ${nextMinCoord.min}"
+                println "removing max ${max} -> ${nextMinCoord.max}"
+                assert minMap.remove(nextMinCoord.min) != null
+                assert maxMap.remove(nextMinCoord.max) != null
+            }
+            nextMin = minMap.higherKey(coordinate.min)
         }
 
-        return addCoordinate(min,max)
+//        while(minMap.size()>=0 && minMap.ceilingKey(min)<max && minMap.ceilingKey(min)>0 ){
+//            println "removing min ${min} -> ${minMap.ceilingKey(min)}"
+//            println "removing max ${max} -> ${maxMap.ceilingKey(max)}"
+//            assert minMap.remove(minMap.ceilingKey(min))!=null
+//            assert maxMap.remove(maxMap.ceilingKey(max))!=null
+//        }
+
+        return addCoordinate(min, max)
     }
 
     def addInterval(int min, int max) {
-        assert max>=min
+        assert max >= min
 
         println "adding interval ${min}-${max}"
         Integer floorMinKey = minMap.floorKey(min)
@@ -131,50 +147,125 @@ class DiscontinuousProjection extends AbstractProjection{
         Coordinate ceilMaxCoord = ceilMaxKey ? maxMap.get(ceilMaxKey) : null
         Coordinate ceilMinCoord = ceilMinKey ? minMap.get(ceilMinKey) : null
 
+        println "floorMinCoord ${floorMinCoord}"
+        println "floorMaxCoord ${floorMaxCoord}"
+        println "ceilMinCoord ${ceilMinCoord}"
+        println "ceilMaxCoord ${ceilMaxCoord}"
+
         // no entries at all . . just add
-        if(floorMinCoord==null && floorMaxCoord==null && ceilMinCoord== null && ceilMaxCoord==null){
-            return addCoordinate(min,max)
-        }
-        else
+        if (floorMinCoord == null && floorMaxCoord == null && ceilMinCoord == null && ceilMaxCoord == null) {
+            return addCoordinate(min, max)
+        } else
         // empty floor / LHS side
-        if(floorMinCoord==null && floorMaxCoord==null && ceilMinCoord!=null && ceilMaxCoord!=null){
-            assert ceilMinCoord==ceilMaxCoord
-            if(max < ceilMinCoord.min){
-                return addCoordinate(min,max)
+        if (floorMinCoord == null && floorMaxCoord == null && ceilMinCoord != null && ceilMaxCoord != null) {
+            assert ceilMinCoord == ceilMaxCoord
+            if (max < ceilMinCoord.min) {
+                return addCoordinate(min, max)
             }
-            return replaceCoordinate(ceilMinCoord,min,ceilMinCoord.max)
-        }
-        else
+            return replaceCoordinate(ceilMinCoord, min, ceilMinCoord.max)
+        } else
         // empty ceil / RHS side
-        if(floorMinCoord!=null && floorMaxCoord!=null && ceilMinCoord==null && ceilMaxCoord==null){
-            assert ceilMinCoord==ceilMaxCoord
-            if(min > floorMaxCoord.max){
-                return addCoordinate(min,max)
+        if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord == null && ceilMaxCoord == null) {
+            assert ceilMinCoord == ceilMaxCoord
+            if (min > floorMaxCoord.max) {
+                return addCoordinate(min, max)
             }
-            return replaceCoordinate(floorMaxCoord,floorMinCoord.min,max)
+            return replaceCoordinate(floorMaxCoord, floorMinCoord.min, max)
         }
         // overlapping within?
-        if(floorMinCoord!=null && floorMaxCoord==null && ceilMinCoord==null && ceilMaxCoord!=null){
-            assert floorMinCoord==ceilMaxCoord
+        if (floorMinCoord != null && floorMaxCoord == null && ceilMinCoord == null && ceilMaxCoord != null) {
+            assert floorMinCoord == ceilMaxCoord
 
-            return replaceCoordinate(floorMinCoord,Math.min(min,floorMinCoord.min),Math.max(max,ceilMaxCoord.max))
+            return replaceCoordinate(floorMinCoord, Math.min(min, floorMinCoord.min), Math.max(max, ceilMaxCoord.max))
         }
         // overlapping without?
-        if(floorMinCoord==null && floorMaxCoord!=null && ceilMinCoord!=null && ceilMaxCoord==null){
-            assert floorMaxCoord==ceilMinCoord
-            return replaceCoordinate(floorMaxCoord,Math.min(min,floorMaxCoord.min),Math.max(max,ceilMinCoord.max))
+        if (floorMinCoord == null && floorMaxCoord != null && ceilMinCoord != null && ceilMaxCoord == null) {
+            assert floorMaxCoord == ceilMinCoord
+            return replaceCoordinate(floorMaxCoord, Math.min(min, floorMaxCoord.min), Math.max(max, ceilMinCoord.max))
         }
         // overlapping without?
-        if(floorMinCoord!=null && floorMaxCoord!=null && ceilMinCoord!=null && ceilMaxCoord!=null){
-            if(floorMinCoord!=floorMaxCoord){
-                return replaceCoordinate(floorMinCoord,Math.min(min,floorMinCoord.min),Math.max(max,ceilMaxCoord.max))
+        if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord != null && ceilMaxCoord != null) {
+            // this overlaps on both sides
+            if (floorMinCoord != floorMaxCoord && ceilMinCoord!=ceilMaxCoord && floorMaxCoord==ceilMinCoord) {
+//                else{
+//                    println "not sure what this condition is"
+//                }
+
+                if(min < ceilMinCoord.min && min > floorMinCoord.max && max > floorMaxCoord.max && max < ceilMaxCoord.min){
+                    return replaceCoordinate(floorMaxCoord,min,max)
+                }
+                else
+                // in-between all, so just add
+                if(min > floorMaxCoord.max && max < ceilMinCoord.min ){
+                    return addCoordinate(min, max)
+                }
+                // putting on the LHS
+                else
+                if(min > floorMaxCoord.max && max < ceilMaxCoord.max){
+                    return replaceCoordinate(ceilMinCoord, min, ceilMaxCoord.max)
+                }
+                // putting on the RHS
+                else
+                if(min < floorMaxCoord.max && max < ceilMaxCoord.min){
+                    return replaceCoordinate(floorMinCoord, floorMinCoord.min , max)
+                }
+                else
+                if(min < floorMaxCoord.min && max < ceilMaxCoord.min){
+                    return replaceCoordinate(floorMinCoord, floorMinCoord.min, ceilMaxCoord.max)
+                }
+                else
+                if(min > floorMinCoord.min && min < floorMinCoord.max && max > ceilMaxCoord.min && max < ceilMaxCoord.max){
+                    return replaceCoordinate(floorMinCoord, floorMinCoord.min, ceilMaxCoord.max)
+                }
+                else{
+                    int newMin = min > floorMinCoord.max ? floorMinCoord.min : min
+                    int newMax = max < ceilMaxCoord.min ? max : ceilMaxCoord.max
+                    return replaceCoordinate(floorMinCoord, newMin, newMax)
+                }
+
+//                else
+//                if(min < floorMaxCoord.min && max < ceilMaxCoord.min){
+//                    return replaceCoordinate(floorMinCoord, floorMinCoord.min, ceilMaxCoord.max)
+//                }
+            }
+            else
+            if (floorMinCoord != floorMaxCoord && ceilMinCoord==ceilMaxCoord) {
+                return replaceCoordinate(floorMinCoord, Math.min(min, floorMinCoord.min), Math.max(max, ceilMaxCoord.max))
+            }
+            else
+            // if we have coordinates on either side
+            if(floorMinCoord == floorMaxCoord && ceilMinCoord == ceilMaxCoord && ceilMinCoord != floorMinCoord ){
+                // in-between all, so just add
+                if(min > floorMaxKey && max < ceilMinKey){
+                    return addCoordinate(min, max)
+                }
+                // putting on the LHS
+                else
+                if(min > floorMaxKey && max < ceilMaxCoord.max){
+                    return replaceCoordinate(ceilMinCoord, min, ceilMaxCoord.max)
+                }
+                // putting on the RHS
+                else
+                if(min < floorMaxCoord.max && max < ceilMaxCoord.min){
+                    return replaceCoordinate(floorMinCoord, floorMinCoord.min , max)
+                }
+                else{
+                    int newMin = min > floorMinCoord.max ? floorMinCoord.min : min
+                    int newMax = max < ceilMaxCoord.min ? max : ceilMaxCoord.max
+                    return replaceCoordinate(floorMinCoord, newMin, newMax)
+                }
+            }
+            // in the case they are in-between an existing scaffold
+            else
+            if(floorMinCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord ){
+                return null
             }
 
-            return addCoordinate(min,max)
-        }
-        else{
+            return addCoordinate(min, max)
+
+        } else {
             println "ELSE condition . . "
-            return addCoordinate(min,max)
+            return addCoordinate(min, max)
         }
 
 //        if(max <= ceilMaxKey  && min >= floorMinKey){
@@ -197,14 +288,14 @@ class DiscontinuousProjection extends AbstractProjection{
         Track trackOut = new Track()
         Integer trackLength = 0
 
-        for(Coordinate coordinate in trackIn.coordinateList.sort()){
+        for (Coordinate coordinate in trackIn.coordinateList.sort()) {
             Coordinate returnCoordinate = new Coordinate()
             returnCoordinate.min = projectValue(coordinate.min)
             returnCoordinate.max = projectValue(coordinate.max)
             trackOut.coordinateList.add(returnCoordinate)
             trackLength = returnCoordinate.max
         }
-        trackOut.length = trackLength+1
+        trackOut.length = trackLength + 1
         return trackOut
     }
 
@@ -212,38 +303,29 @@ class DiscontinuousProjection extends AbstractProjection{
     Coordinate projectCoordinate(int min, int max) {
         int newMin = projectValue(min)
         int newMax = projectValue(max)
-        if(newMin>=0 && newMax >=0){
-            return new Coordinate(min:newMin,max:newMax)
-        }
-        else
-        if( (newMin<0 && newMax<0)) {
+        if (newMin >= 0 && newMax >= 0) {
+            return new Coordinate(min: newMin, max: newMax)
+        } else if ((newMin < 0 && newMax < 0)) {
             return null
-        }
-        else
-        if(newMin>=0) {
+        } else if (newMin >= 0) {
             // newMin is less than 0 so find the next one higher and move up
             Integer floorMaxKey = projectValue(maxMap.floorKey(max))
-            if(floorMaxKey > newMin){
-                return new Coordinate(min:newMin,max:floorMaxKey)
-            }
-            else{
+            if (floorMaxKey > newMin) {
+                return new Coordinate(min: newMin, max: floorMaxKey)
+            } else {
                 return null
 //                throw new RuntimeException("can not get correct value  ${min}->${newMin}, ${max}->${newMax}/${floorMaxKey}")
             }
-        }
-        else
-        if(newMax>=0) {
+        } else if (newMax >= 0) {
             // newMin is less than 0 so find the next one higher and move up
             Integer ceilMinKey = projectValue(minMap.ceilingKey(min))
-            if(ceilMinKey < newMax){
-                return new Coordinate(min:ceilMinKey,max:newMax)
-            }
-            else{
+            if (ceilMinKey < newMax) {
+                return new Coordinate(min: ceilMinKey, max: newMax)
+            } else {
                 return null
 //                throw new RuntimeException("can not get correctvalue  ${min}->${newMin}/${ceilMinKey}, ${max}->${newMax}")
             }
-        }
-        else{
+        } else {
             throw new RuntimeException("not sure how we got here ${min}->${newMin}, ${max}->${newMax}")
         }
     }
@@ -252,6 +334,6 @@ class DiscontinuousProjection extends AbstractProjection{
     Coordinate projectReverseCoordinate(int min, int max) {
         int newMin = projectReverseValue(min)
         int newMax = projectReverseValue(max)
-        if(newMin<0 && newMax<0) return null
+        if (newMin < 0 && newMax < 0) return null
     }
 }

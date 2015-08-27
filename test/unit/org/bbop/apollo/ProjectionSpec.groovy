@@ -322,6 +322,12 @@ class ProjectionSpec extends Specification{
 
 
         then: "we see another one to the right"
+        projection.minMap.each {
+            println "min: ${it.key} -> ${it.value}"
+        }
+        projection.maxMap.each {
+            println "max: ${it.key} -> ${it.value}"
+        }
         projection.minMap.size()==3
         projection.maxMap.size()==3
         assert coordinate0.min==10
@@ -341,8 +347,14 @@ class ProjectionSpec extends Specification{
         Coordinate coordinate3 = projection.minMap.values().getAt(3)
 
         then: "we see another one in the middle"
-        projection.minMap.size()==4
-        projection.maxMap.size()==4
+        projection.minMap.each {
+            println "min: ${it.key} -> ${it.value}"
+        }
+        projection.maxMap.each {
+            println "max: ${it.key} -> ${it.value}"
+        }
+        assert projection.minMap.size()==4
+        assert projection.maxMap.size()==4
         assert coordinate0.min==10
         assert coordinate0.max==15
         assert coordinate1.min==30
@@ -362,8 +374,14 @@ class ProjectionSpec extends Specification{
         Coordinate coordinate4 = projection.minMap.values().getAt(4)
 
         then: "we see another one in the middle"
-        projection.minMap.size()==5
-        projection.maxMap.size()==5
+        projection.minMap.each {
+            println "min: ${it.key} -> ${it.value}"
+        }
+        projection.maxMap.each {
+            println "max: ${it.key} -> ${it.value}"
+        }
+        assert projection.minMap.size()==5
+        assert projection.maxMap.size()==5
         assert coordinate0.min==10
         assert coordinate0.max==15
         assert coordinate1.min==20
@@ -375,6 +393,37 @@ class ProjectionSpec extends Specification{
         assert coordinate4.min==80
         assert coordinate4.max==85
 
+
+        when: "we project outside of the center on both sides"
+        projection.addInterval(19,26)
+        coordinate0 = projection.minMap.values().getAt(0)
+        coordinate1 = projection.minMap.values().getAt(1)
+        coordinate2 = projection.minMap.values().getAt(2)
+        coordinate3 = projection.minMap.values().getAt(3)
+        coordinate4 = projection.minMap.values().getAt(4)
+
+
+        then: "it should provide both on most sides"
+        projection.minMap.each {
+            println "2 min: ${it.key} -> ${it.value}"
+        }
+        projection.maxMap.each {
+            println "2 max: ${it.key} -> ${it.value}"
+        }
+        assert projection.minMap.size()==5
+        assert projection.maxMap.size()==5
+        assert coordinate0.min==10
+        assert coordinate0.max==15
+        assert coordinate1.min==19
+        assert coordinate1.max==26
+        assert coordinate2.min==30
+        assert coordinate2.max==70
+        assert coordinate3.min==75
+        assert coordinate3.max==77
+        assert coordinate4.min==80
+        assert coordinate4.max==85
+
+
         when: "we add another to overlap "
         projection.addInterval(22,76)
         coordinate0 = projection.minMap.values().getAt(0)
@@ -382,14 +431,85 @@ class ProjectionSpec extends Specification{
         coordinate2 = projection.minMap.values().getAt(2)
 
         then: "we merge overlapping ones"
+        projection.minMap.each {
+            println "A min: ${it.key} -> ${it.value}"
+        }
+        projection.maxMap.each {
+            println "A max: ${it.key} -> ${it.value}"
+        }
         projection.minMap.size()==3
         projection.maxMap.size()==3
         assert coordinate0.min==10
         assert coordinate0.max==15
-        assert coordinate1.min==20
+        assert coordinate1.min==19
         assert coordinate1.max==77
         assert coordinate2.min==80
         assert coordinate2.max==85
+
+        when: "we add LHS to center"
+        projection.addInterval(18,22)
+        coordinate0 = projection.minMap.values().getAt(0)
+        coordinate1 = projection.minMap.values().getAt(1)
+        coordinate2 = projection.minMap.values().getAt(2)
+
+        then: "should extend center one to the left"
+        projection.minMap.each {
+            println "B min: ${it.key} -> ${it.value}"
+        }
+        projection.maxMap.each {
+            println "B max: ${it.key} -> ${it.value}"
+        }
+        assert projection.minMap.size()==3
+        assert projection.maxMap.size()==3
+        assert coordinate0.min==10
+        assert coordinate0.max==15
+        assert coordinate1.min==18
+        assert coordinate1.max==77
+        assert coordinate2.min==80
+        assert coordinate2.max==85
+
+        when: "we add RHS to center"
+        projection.addInterval(76,78)
+        coordinate0 = projection.minMap.values().getAt(0)
+        coordinate1 = projection.minMap.values().getAt(1)
+        coordinate2 = projection.minMap.values().getAt(2)
+
+        then: "should extend center one to the left"
+        projection.minMap.each {
+            println "C min: ${it.key} -> ${it.value}"
+        }
+        projection.maxMap.each {
+            println "C max: ${it.key} -> ${it.value}"
+        }
+        assert projection.minMap.size()==3
+        assert projection.maxMap.size()==3
+        assert coordinate0.min==10
+        assert coordinate0.max==15
+        assert coordinate1.min==18
+        assert coordinate1.max==78
+        assert coordinate2.min==80
+        assert coordinate2.max==85
+
+
+
+        when: "we project in the center of the center"
+        projection.addInterval(30,40)
+        coordinate0 = projection.minMap.values().getAt(0)
+        coordinate1 = projection.minMap.values().getAt(1)
+        coordinate2 = projection.minMap.values().getAt(2)
+
+
+        then: "nothing should happen"
+        assert projection.minMap.size()==3
+        assert projection.maxMap.size()==3
+        assert coordinate0.min==10
+        assert coordinate0.max==15
+        assert coordinate1.min==18
+        assert coordinate1.max==78
+        assert coordinate2.min==80
+        assert coordinate2.max==85
+
+
 
     }
 

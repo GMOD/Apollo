@@ -33,4 +33,13 @@ class Coordinate implements Comparable<Coordinate>{
         result = 31 * result + (max != null ? max.hashCode() : 0)
         return result
     }
+
+
+    @Override
+    public String toString() {
+        return "Coordinate{" +
+                "min=" + min +
+                ", max=" + max +
+                '}';
+    }
 }
