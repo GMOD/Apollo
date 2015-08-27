@@ -220,7 +220,53 @@ class ProjectionSpec extends Specification{
         assert track2==track3
     }
 
-    void "create projection spec"(){
+    // TODO: add these tests
+    void "when adding intervals overlapping intervals should merge"(){
+
+        given: "some intervals"
+
+
+        when: "we add an interval to a null one"
+
+
+        then: "it shows up"
+
+        when : "we add within that one"
+
+        then: "nothing happens"
+
+        when: "we add a larger one over it"
+
+        then: "we merge and expand on both sides"
+
+
+        when: "we add to the continuous right edge"
+
+        then: "we merge the two on the right edge"
+
+        when: "we add to the continuous left edge"
+
+        then: "we merge the two on the left edge"
+
+        when: "we add to the continuous right overlap"
+
+        then: "we merge the two on the right overlap"
+
+        when: "we add to the continuous left overlap"
+
+        then: "we merge the two on the left overlap"
+
+        when: "we add another one to the left of all of the others"
+
+        then: "we see another one to the left"
+
+        when: "we add another one to the right of all of the others"
+
+        then: "we see another one to the right"
+
+        when: "we add another one in the middle of all of the others"
+
+        then: "we see another one in the middle"
 
 
     }
