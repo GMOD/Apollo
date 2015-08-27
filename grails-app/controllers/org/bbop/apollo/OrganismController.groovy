@@ -78,7 +78,7 @@ class OrganismController {
                 if (checkOrganism(organism)) {
                     organism.save(failOnError: true, flush: true, insert: true)
                 }
-                preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
+                preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism)
                 sequenceService.loadRefSeqs(organism)
                 render findAllOrganisms()
             }
