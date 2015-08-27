@@ -248,12 +248,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    /**
-     * @return
-     */
     def addTranscript() {
         try {
-            log.debug "AEC::adding transcript ${params}"
+            log.debug "addTranscript ${params}"
             JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
             if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
                 render requestHandlingService.addTranscript(inputObject)
@@ -268,7 +265,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def duplicateTranscript() {
-        log.debug "AEC::set translation start ${params}"
+        log.debug "duplicateTranscript ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.duplicateTranscript(inputObject)
@@ -278,7 +275,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def setTranslationStart() {
-        log.debug "AEC::set translation start ${params}"
+        log.debug "setTranslationStart ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setTranslationStart(inputObject)
@@ -288,7 +285,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def setTranslationEnd() {
-        log.debug "AEC::set translation end ${params}"
+        log.debug "setTranslationEnd ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setTranslationEnd(inputObject)
@@ -298,7 +295,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def setLongestOrf() {
-        log.debug "AEC::set longest ORF ${params}"
+        log.debug "setLongestORF ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setLongestOrf(inputObject)
@@ -308,7 +305,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def setBoundaries() {
-        log.debug "AEC::set boundaries ${params}"
+        log.debug "setBoundaries ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setBoundaries(inputObject)
@@ -755,11 +752,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @SendTo("/topic/AnnotationNotification")
     @Timed
     protected String annotationEditor(String inputString, Principal principal) {
-        log.debug "Input String:  annotation editor service ${inputString}"
+        log.debug "Input String: annotation editor service ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
-        log.debug "AEC::root element: ${rootElement as JSON}"
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
 
         String operationName = underscoreToCamelCase(operation)
@@ -826,12 +822,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @SendTo("/topic/AnnotationNotification")
     protected String sendAnnotationEvent(String returnString) {
-        log.debug "AEC::return operations sent . . ${returnString?.size()}"
+        log.debug "sendAnnotationEvent ${returnString?.size()}"
         return returnString
     }
 
     synchronized void handleChangeEvent(AnnotationEvent... events) {
-        log.debug "handingling event ${events.length}"
+        log.debug "handleChangeEvent ${events.length}"
         if (events.length == 0) {
             return;
         }
