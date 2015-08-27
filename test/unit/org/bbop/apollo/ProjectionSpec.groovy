@@ -243,7 +243,7 @@ class ProjectionSpec extends Specification{
         projection.minMap.size()==1
         projection.maxMap.size()==1
         assert coordinate.min==45
-        assert coordinate.min==65
+        assert coordinate.max==55
 
         when: "we add a larger one over it"
         projection.addInterval(40,60)
@@ -253,7 +253,7 @@ class ProjectionSpec extends Specification{
         projection.minMap.size()==1
         projection.maxMap.size()==1
         assert coordinate.min==40
-        assert coordinate.min==60
+        assert coordinate.max==60
 
 
         when: "we add to the continuous right edge"
@@ -264,7 +264,7 @@ class ProjectionSpec extends Specification{
         projection.minMap.size()==1
         projection.maxMap.size()==1
         assert coordinate.min==40
-        assert coordinate.min==65
+        assert coordinate.max==65
 
         when: "we add to the continuous left edge"
         projection.addInterval(35,40)
@@ -274,7 +274,7 @@ class ProjectionSpec extends Specification{
         projection.minMap.size()==1
         projection.maxMap.size()==1
         assert coordinate.min==35
-        assert coordinate.min==65
+        assert coordinate.max==65
 
         when: "we add to the continuous right overlap"
         projection.addInterval(62,70)
@@ -284,7 +284,7 @@ class ProjectionSpec extends Specification{
         projection.minMap.size()==1
         projection.maxMap.size()==1
         assert coordinate.min==35
-        assert coordinate.min==70
+        assert coordinate.max==70
 
         when: "we add to the continuous left overlap"
         projection.addInterval(30,37)
@@ -294,87 +294,84 @@ class ProjectionSpec extends Specification{
         projection.minMap.size()==1
         projection.maxMap.size()==1
         assert coordinate.min==30
-        assert coordinate.min==70
+        assert coordinate.max==70
 
         when: "we add another one to the left of all of the others"
         projection.addInterval(10,15)
+        Coordinate coordinate0 = projection.minMap.values().getAt(0)
+        Coordinate coordinate1 = projection.minMap.values().getAt(1)
 
 
         then: "we see another one to the left"
         projection.minMap.size()==2
         projection.maxMap.size()==2
-        coordinate = projection.minMap.values().getAt(0)
-        assert coordinate.min==10
-        assert coordinate.min==15
-        coordinate = projection.minMap.values().getAt(1)
-        assert coordinate.min==30
-        assert coordinate.min==70
+        assert coordinate0.min==10
+        assert coordinate0.max==15
+        assert coordinate1.min==30
+        assert coordinate1.max==70
 
 
         when: "we add another one to the right of all of the others"
         projection.addInterval(80,85)
-        coordinate = projection.minMap.values().iterator().next()
+        coordinate0 = projection.minMap.values().getAt(0)
+        coordinate1 = projection.minMap.values().getAt(1)
+        Coordinate coordinate2 = projection.minMap.values().getAt(2)
 
 
 
         then: "we see another one to the right"
         projection.minMap.size()==3
         projection.maxMap.size()==3
-        coordinate = projection.minMap.values().getAt(0)
-        assert coordinate.min==10
-        assert coordinate.min==15
-        coordinate = projection.minMap.values().getAt(1)
-        assert coordinate.min==30
-        assert coordinate.min==70
-        coordinate = projection.minMap.values().getAt(2)
-        assert coordinate.min==80
-        assert coordinate.min==85
+        assert coordinate0.min==10
+        assert coordinate0.max==15
+        assert coordinate1.min==30
+        assert coordinate1.max==70
+        assert coordinate2.min==80
+        assert coordinate2.max==85
 
 
 
         when: "we add another one in the middle of all of the others"
         projection.addInterval(75,77)
-        coordinate = projection.minMap.values().iterator().next()
+        coordinate0 = projection.minMap.values().getAt(0)
+        coordinate1 = projection.minMap.values().getAt(1)
+        coordinate2 = projection.minMap.values().getAt(2)
+        Coordinate coordinate3 = projection.minMap.values().getAt(3)
 
         then: "we see another one in the middle"
         projection.minMap.size()==4
         projection.maxMap.size()==4
-        coordinate = projection.minMap.values().getAt(0)
-        assert coordinate.min==10
-        assert coordinate.min==15
-        coordinate = projection.minMap.values().getAt(1)
-        assert coordinate.min==30
-        assert coordinate.min==70
-        coordinate = projection.minMap.values().getAt(2)
-        assert coordinate.min==75
-        assert coordinate.min==77
-        coordinate = projection.minMap.values().getAt(3)
-        assert coordinate.min==80
-        assert coordinate.min==85
+        assert coordinate0.min==10
+        assert coordinate0.max==15
+        assert coordinate1.min==30
+        assert coordinate1.max==70
+        assert coordinate2.min==75
+        assert coordinate2.max==77
+        assert coordinate3.min==80
+        assert coordinate3.max==85
 
 
         when: "we add another one in the middle of all of the others again"
         projection.addInterval(20,25)
-        coordinate = projection.minMap.values().iterator().next()
+        coordinate0 = projection.minMap.values().getAt(0)
+        coordinate1 = projection.minMap.values().getAt(1)
+        coordinate2 = projection.minMap.values().getAt(2)
+        coordinate3 = projection.minMap.values().getAt(3)
+        Coordinate coordinate4 = projection.minMap.values().getAt(4)
 
         then: "we see another one in the middle"
         projection.minMap.size()==5
         projection.maxMap.size()==5
-        coordinate = projection.minMap.values().getAt(0)
-        assert coordinate.min==10
-        assert coordinate.min==15
-        coordinate = projection.minMap.values().getAt(1)
-        assert coordinate.min==20
-        assert coordinate.min==25
-        coordinate = projection.minMap.values().getAt(2)
-        assert coordinate.min==30
-        assert coordinate.min==70
-        coordinate = projection.minMap.values().getAt(3)
-        assert coordinate.min==75
-        assert coordinate.min==77
-        coordinate = projection.minMap.values().getAt(4)
-        assert coordinate.min==80
-        assert coordinate.min==85
+        assert coordinate0.min==10
+        assert coordinate0.max==15
+        assert coordinate1.min==20
+        assert coordinate1.max==25
+        assert coordinate2.min==30
+        assert coordinate2.max==70
+        assert coordinate3.min==75
+        assert coordinate3.max==77
+        assert coordinate4.min==80
+        assert coordinate4.max==85
 
     }
 

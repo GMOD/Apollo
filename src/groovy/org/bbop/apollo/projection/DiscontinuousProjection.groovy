@@ -96,7 +96,24 @@ class DiscontinuousProjection extends AbstractProjection{
 
     def addInterval(int min, int max) {
         assert max>=min
-        
+
+        Integer floorMinKey = minMap.floorKey(min)
+        Integer ceilMinKey = minMap.ceilingKey(min)
+
+        Integer floorMaxKey = maxMap.floorKey(max)
+        Integer ceilMaxKey = maxMap.ceilingKey(max)
+
+
+        if(max <= ceilMaxKey  && min >= floorMinKey){
+            Coordinate minCoordinate = minMap.get(floorMinKey)
+            Coordinate maxCoordinate = maxMap.get(ceilMaxKey)
+
+            if(minCoordinate==maxCoordinate){
+                // we are a subset
+                return
+            }
+
+        }
 
 
         Coordinate coordinate = new Coordinate(min:min,max:max)
