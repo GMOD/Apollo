@@ -49,6 +49,10 @@ class DiscontinuousProjection extends AbstractProjection {
             return input
         }
 
+        if(input==null){
+            return -1
+        }
+
         Integer floorMinKey = minMap.floorKey(input)
         Integer ceilMinKey = minMap.ceilingKey(input)
 

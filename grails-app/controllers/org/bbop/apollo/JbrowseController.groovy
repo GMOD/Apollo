@@ -228,7 +228,7 @@ class JbrowseController {
 //                    return
 //                }
 //                else
-                if (false && fileName.endsWith("trackData.json")) {
+                if (fileName.endsWith("trackData.json")) {
                     // TODO: project trackData.json
                     // transform 2nd and 3rd array object in intervals/ncList
                     JSONObject trackDataJsonObject = new JSONObject(file.text)
@@ -239,31 +239,17 @@ class JbrowseController {
 
                     // TODO: it should look up the OGS track either default or variable
 //                    Projection projection = projectionMap.get(trackName)?.get(sequenceName)
-                    Projection projection = projectionMap.values().iterator().next()?.get(sequenceName)
+                    Projection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
 
-                    JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
-                    JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
-                    JSONArray replacementCoordinateJsonArray = new JSONArray()
-                    intervalsJsonArray.remove(FeatureStringEnum.NCLIST.value)
-                    for(int i = 0 ; i < coordinateJsonArray.size() ; i++){
-                        JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
-                        Integer oldMin = coordinate.getInt(1)
-                        Integer oldMax = coordinate.getInt(2)
-
-                        Coordinate newCoordinate = projection.projectCoordinate(oldMin,oldMax)
-//                        Integer newMin = projection.projectValue(oldMin)
-//                        Integer newMax = projection.projectValue(oldMax)
-                        if(newCoordinate){
-                            coordinate.set(1,newCoordinate.min)
-                            coordinate.set(2,newCoordinate.max)
-                            replacementCoordinateJsonArray.add(coordinate)
+                    if(projection){
+                        JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
+                        JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
+                        for(int i = 0 ; i < coordinateJsonArray.size() ; i++){
+                            JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
+                            projectJsonArray(projection,coordinate)
                         }
-
-//                        if(newMin >= 0 && newMax >= 0 ){
-//                        }
                     }
 
-                    intervalsJsonArray.put(FeatureStringEnum.NCLIST.value,replacementCoordinateJsonArray)
 
                     response.outputStream << trackDataJsonObject.toString()
 //                    return
@@ -346,6 +332,44 @@ class JbrowseController {
 
         }
 
+    }
+
+    private JSONArray projectJsonArray(Projection projection, JSONArray coordinate) {
+
+        // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
+        for(int subIndex  = 0 ; subIndex < coordinate.size() ; ++subIndex){
+            def subArray = coordinate.get(subIndex)
+//            if(subArray?.size()>4 && (0..5).contains(subArray.getInt(0)) ){
+            if(subArray instanceof JSONArray){
+                println "rewriting subArray ${subArray}"
+                projectJsonArray(projection,subArray)
+            }
+            else{
+                println "not rewriting ${coordinate.get(subIndex)}"
+            }
+//            }
+        }
+
+        if(coordinate.size()>4
+                && coordinate.get(0) instanceof Integer
+                && coordinate.get(1) instanceof Integer
+                && coordinate.get(2) instanceof Integer
+        ) {
+            Integer oldMin = coordinate.getInt(1)
+            Integer oldMax = coordinate.getInt(2)
+            Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax)
+            if(newCoordinate && newCoordinate.isValid()){
+                coordinate.set(1, newCoordinate.min)
+                coordinate.set(2, newCoordinate.max)
+            }
+            else{
+                log.error("Invalid mapping of coordinate ${coordinate} -> ${newCoordinate}")
+                coordinate.set(1, -1)
+                coordinate.set(2, -1)
+            }
+        }
+
+        return coordinate
     }
 
     def trackList() {

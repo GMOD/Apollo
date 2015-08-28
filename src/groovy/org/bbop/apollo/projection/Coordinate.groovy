@@ -42,4 +42,8 @@ class Coordinate implements Comparable<Coordinate>{
                 ", max=" + max +
                 '}';
     }
+
+    Boolean isValid() {
+        return min>=0 && max>=0
+    }
 }
