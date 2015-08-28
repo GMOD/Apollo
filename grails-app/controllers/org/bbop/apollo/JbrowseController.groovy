@@ -282,7 +282,7 @@ class JbrowseController {
         }
 
         else {
-            int id=session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
+            int id=request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
             jsonObject.put("dataset_id",id);
         }
         List<Organism> list=permissionService.getOrganismsForCurrentUser()
