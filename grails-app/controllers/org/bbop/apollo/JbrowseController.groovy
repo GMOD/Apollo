@@ -280,6 +280,11 @@ class JbrowseController {
         if(currentOrganism!=null) {
             jsonObject.put("dataset_id",currentOrganism.id)
         }
+
+        else {
+            int id=session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
+            jsonObject.put("dataset_id",id);
+        }
         List<Organism> list=permissionService.getOrganismsForCurrentUser()
         JSONObject organismObjectContainer = new JSONObject()
         for(organism in list) {
@@ -292,6 +297,15 @@ class JbrowseController {
             organismObject.put("url",url)
             organismObjectContainer.put(organism.id, organismObject)
         }
+
+        if(list.size()==0) {
+            JSONObject organismObject = new JSONObject()
+            organismObject.put("name",Organism.findById(id).commonName)
+            organismObject.put("url","#")
+            organismObjectContainer.put(id, organismObject)
+
+        }
+
         jsonObject.put("datasets",organismObjectContainer)
 
         if(jsonObject.include==null) jsonObject.put("include",new JSONArray())
