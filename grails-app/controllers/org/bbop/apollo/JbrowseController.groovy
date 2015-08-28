@@ -132,7 +132,7 @@ class JbrowseController {
         String fileName = FilenameUtils.getName(params.path)
         File file = new File(dataFileName);
 
-        println "processing path ${params.path} -> ${dataFileName}"
+        log.debug "processing path ${params.path} -> ${dataFileName}"
 
         if (!file.exists()) {
             log.warn("File not found: " + dataFileName);
@@ -341,12 +341,12 @@ class JbrowseController {
             def subArray = coordinate.get(subIndex)
 //            if(subArray?.size()>4 && (0..5).contains(subArray.getInt(0)) ){
             if(subArray instanceof JSONArray){
-                println "rewriting subArray ${subArray}"
+//                println "rewriting subArray ${subArray}"
                 projectJsonArray(projection,subArray)
             }
-            else{
-                println "not rewriting ${coordinate.get(subIndex)}"
-            }
+//            else{
+//                println "not rewriting ${coordinate.get(subIndex)}"
+//            }
 //            }
         }
 
