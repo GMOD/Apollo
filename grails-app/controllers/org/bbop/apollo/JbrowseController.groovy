@@ -1,5 +1,7 @@
 package org.bbop.apollo
 
+import edu.unc.genomics.io.SAMFileReader
+import edu.unc.genomics.util.Samtools
 import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
 import org.apache.commons.io.FileUtils
@@ -215,9 +217,9 @@ class JbrowseController {
 
         }
 
+
         response.setContentType(mimeType);
         if (ranges.isEmpty() || ranges.get(0) == full) {
-
 
             if (fileName.endsWith(".json") || params.format == "json") {
 //            [{"length":1382403,"name":"Group1.1","seqChunkSize":20000,"end":1382403,"start":0},{"length":1405242,"name":"Group1.10","seqChunkSize":20000,"end":1405242,"start":0},{"length":2557,"name":"Group1.11","seqChunkSize":20000,"end":2557,"start":0},
@@ -272,6 +274,26 @@ class JbrowseController {
                     out.close();
                 }
             }
+            else
+            if (fileName.endsWith(".bai")) {
+                println "processing bai file"
+//                SAMFileReader samFileReader = new SAMFileReader()
+                // Set content size
+                response.setContentLength((int) file.length());
+
+                // Open the file and output streams
+                FileInputStream inputStream = new FileInputStream(file);
+                OutputStream out = response.getOutputStream();
+
+                // Copy the contents of the file to the output stream
+                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+                int count = 0;
+                while ((count = inputStream.read(buf)) >= 0) {
+                    out.write(buf, 0, count);
+                }
+                inputStream.close();
+                out.close();
+            }
             else{
                 // Set content size
                 response.setContentLength((int) file.length());
@@ -291,6 +313,7 @@ class JbrowseController {
 
             }
         } else if (ranges.size() == 1) {
+            println "files with range 1 ${file.absolutePath}"
             // Return single part of file.
             Range r = ranges.get(0);
             response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);

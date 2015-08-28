@@ -78,6 +78,12 @@ grails.project.dependency.resolution = {
         //compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
         //compile 'org.biojava:biojava3-core:3.1.0'
 
+        // for SamTools
+        compile 'org.apache.commons:commons-lang3:3.0'
+        compile 'org.apache.commons:commons-math3:3.0'
+        compile 'org.utgenome.thirdparty:picard:1.86.0'
+
+
 
         test "org.grails:grails-datastore-test-support:1.0-grails-2.4"
         test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
