@@ -228,11 +228,11 @@ class JbrowseController {
 //                    return
 //                }
 //                else
-                if (fileName.endsWith("trackData.json")) {
+                if (false && fileName.endsWith("trackData.json")) {
                     // TODO: project trackData.json
                     // transform 2nd and 3rd array object in intervals/ncList
                     JSONObject trackDataJsonObject = new JSONObject(file.text)
-                    String trackName = getTrackName(file.absolutePath)
+//                    String trackName = getTrackName(file.absolutePath)
                     String sequenceName = getSequenceName(file.absolutePath)
                     // get the track from the json object
 //                    println "getting track / sequence from ${file.absolutePath} -> ${trackName}"
@@ -285,6 +285,24 @@ class JbrowseController {
                     inputStream.close();
                     out.close();
                 }
+            }
+            else{
+                // Set content size
+                response.setContentLength((int) file.length());
+
+                // Open the file and output streams
+                FileInputStream inputStream = new FileInputStream(file);
+                OutputStream out = response.getOutputStream();
+
+                // Copy the contents of the file to the output stream
+                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+                int count = 0;
+                while ((count = inputStream.read(buf)) >= 0) {
+                    out.write(buf, 0, count);
+                }
+                inputStream.close();
+                out.close();
+
             }
         } else if (ranges.size() == 1) {
             // Return single part of file.
