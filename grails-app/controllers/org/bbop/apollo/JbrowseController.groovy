@@ -1,8 +1,7 @@
 package org.bbop.apollo
 
-import edu.unc.genomics.io.SAMFileReader
-import edu.unc.genomics.util.Samtools
 import grails.converters.JSON
+import htsjdk.samtools.BAMFileReader
 import liquibase.util.file.FilenameUtils
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
@@ -10,7 +9,6 @@ import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousProjection
-import org.bbop.apollo.projection.DiscontinuousProjectionFactory
 import org.bbop.apollo.projection.Projection
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -277,6 +275,11 @@ class JbrowseController {
             else
             if (fileName.endsWith(".bai")) {
                 println "processing bai file"
+
+                // TODO: read in . . . write out another one to process . . . which will be alternate index?
+                // file, index file, etc. etc. etc.
+//                BAMFileReader reader = new BAMFileReader()
+
 //                SAMFileReader samFileReader = new SAMFileReader()
                 // Set content size
                 response.setContentLength((int) file.length());

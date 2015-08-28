@@ -82,6 +82,7 @@ grails.project.dependency.resolution = {
         compile 'org.apache.commons:commons-lang3:3.0'
         compile 'org.apache.commons:commons-math3:3.0'
         compile 'org.utgenome.thirdparty:picard:1.86.0'
+        compile 'org.seqdoop:htsjdk:1.118'
 
 
 
