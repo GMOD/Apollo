@@ -1,7 +1,9 @@
 package org.bbop.apollo
 
+import edu.unc.genomics.io.SAMFileReader
 import grails.converters.JSON
 import htsjdk.samtools.BAMFileReader
+import htsjdk.samtools.BAMIndexer
 import liquibase.util.file.FilenameUtils
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
@@ -278,7 +280,16 @@ class JbrowseController {
 
                 // TODO: read in . . . write out another one to process . . . which will be alternate index?
                 // file, index file, etc. etc. etc.
-//                BAMFileReader reader = new BAMFileReader()
+                // generate the BAM
+                if(projectionMap){
+                    // TODO: implement
+//                    String bamfileName = findBamFileName(fileName)
+//                    File bamFile = new File(bamfileName)
+//                    File newIndexFile = new File(generateBamIndexFileForProjection())
+////                    BAMIndexer.createIndex(new SAMFileReader(bamFile),newIndexFile)
+//                    ProjectionBAMIndexer.createIndex(new SAMFileReader(bamFile),newIndexFile)
+//                    BAMFileReader reader = new BAMFileReader(bamFile,file,false)
+                }
 
 //                SAMFileReader samFileReader = new SAMFileReader()
                 // Set content size
@@ -358,6 +369,9 @@ class JbrowseController {
 
         }
 
+    }
+
+    String findBamFileName(String bamFileName) {
     }
 
     private JSONArray projectJsonArray(Projection projection, JSONArray coordinate) {
