@@ -62,41 +62,24 @@ class OverlapperService implements Overlapper{
 
     private boolean exonsOverlap(List<Exon> exons1, List<Exon> exons2, boolean checkStrand) {
         //log.debug("boolean exonsOverlap(List<Exon> exons1, List<Exon> exons2, boolean checkStrand) ")
-        int i = 0;
-        int j = 0;
-        while (i < exons1.size() && j < exons2.size()) {
-            Exon exon1 = (Exon)exons1.get(i);
-            Exon exon2 = (Exon)exons2.get(j);
-            if (overlaps(exon1,exon2)) {
-                if (checkStrand) {
-                    FeatureLocation exon1FeatureLocation= exon1.featureLocation
-                    FeatureLocation exon2FeatureLocation= exon2.featureLocation
-                    if (exon1FeatureLocation.strand.equals(Strand.POSITIVE.value) && exon1FeatureLocation.getFmin() % 3 == exon2FeatureLocation.getFmin() % 3) {
-                        return true;
+        CDS cds1 = transcriptService.getCDS(exonService.getTranscript(exons1.get(0)))
+        CDS cds2 = transcriptService.getCDS(exonService.getTranscript(exons2.get(0)))
+        int cds1TranslStart = cds1.strand.equals(Strand.POSITIVE.value) ? cds1.fmin : cds1.fmax
+        int cds2TranslStart = cds2.strand.equals(Strand.POSITIVE.value) ? cds2.fmin : cds2.fmax
+        for (int i = 0; i < exons1.size(); i++) {
+            for (int j = 0; j < exons2.size(); j++) {
+                Exon exon1 = (Exon) exons1.get(i);
+                Exon exon2 = (Exon) exons2.get(j);
+                if (overlaps(exon1, exon2)) {
+                    if (checkStrand) {
+                        if (overlaps(cds1,cds2) && cds1TranslStart % 3 == cds2TranslStart % 3) {
+                            return true
+                        }
                     }
-                    else if (exon1.strand.equals(Strand.NEGATIVE.value) && exon1FeatureLocation.getFmax() % 3 == exon2FeatureLocation.getFmax() % 3) {
-                        return true;
+                    else {
+                        return true
                     }
                 }
-                else {
-                    return true;
-                }
-            }
-            if (exon1.getFmin() < exon2.getFmin()) {
-                ++i;
-            }
-            else if (exon2.getFmin() < exon1.getFmin()) {
-                ++j;
-            }
-            else if (exon1.getFmax() < exon2.getFmax()) {
-                ++i;
-            }
-            else if (exon2.getFmax() < exon1.getFmax()) {
-                ++j;
-            }
-            else {
-                ++i;
-                ++j;
             }
         }
         return false;
