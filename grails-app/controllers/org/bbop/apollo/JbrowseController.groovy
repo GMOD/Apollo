@@ -239,10 +239,8 @@ class JbrowseController {
                     // TODO: project trackData.json
                     // transform 2nd and 3rd array object in intervals/ncList
                     JSONObject trackDataJsonObject = new JSONObject(file.text)
-//                    String trackName = getTrackName(file.absolutePath)
                     String sequenceName = getSequenceName(file.absolutePath)
                     // get the track from the json object
-//                    println "getting track / sequence from ${file.absolutePath} -> ${trackName}"
 
                     // TODO: it should look up the OGS track either default or variable
 //                    Projection projection = projectionMap.get(trackName)?.get(sequenceName)
@@ -277,39 +275,121 @@ class JbrowseController {
                     inputStream.close();
                     out.close();
                 }
-            } else if (fileName.endsWith(".bai")) {
-                println "processing bai file"
-
-                // TODO: read in . . . write out another one to process . . . which will be alternate index?
-                // file, index file, etc. etc. etc.
-                // generate the BAM
-                if (projectionMap) {
-                    // TODO: implement
-//                    String bamfileName = findBamFileName(fileName)
-//                    File bamFile = new File(bamfileName)
-//                    File newIndexFile = new File(generateBamIndexFileForProjection())
-////                    BAMIndexer.createIndex(new SAMFileReader(bamFile),newIndexFile)
-//                    ProjectionBAMIndexer.createIndex(new SAMFileReader(bamFile),newIndexFile)
-//                    BAMFileReader reader = new BAMFileReader(bamFile,file,false)
-                }
-
-//                SAMFileReader samFileReader = new SAMFileReader()
+            }
+            else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
                 // Set content size
-                response.setContentLength((int) file.length());
+                // fileName
+//                Group1.22-18.txt
+                String parentFile = file.parent
+                println "HANDINGL SEQ DATA ${fileName}"
+                String sequenceName = fileName.split("-")[0]
 
-                // Open the file and output streams
-                FileInputStream inputStream = new FileInputStream(file);
-                OutputStream out = response.getOutputStream();
+                // if getting
+                Projection projection = projectionMap.values().iterator().next().get(sequenceName)
+                if(projection && false ){
+                    // TODO: get proper chunk size from the RefSeq
+                    Integer chunkSize = 20000
+                    String suffix = fileName.split("-")[1]
+                    println "suffix ${suffix}"
+                    println "suf length ${suffix.length()} ${'.txt'.length()}"
+                    Integer endIndex = suffix.length() - 4
+                    println "endIndex ${endIndex}"
+                    Integer chunkNumber = Integer.parseInt(suffix.substring(0,endIndex))
+                    println "maping chunk ${chunkNumber} on proj"
+                    Integer start = chunkNumber * chunkSize
+                    Integer end = (chunkNumber+1) * chunkSize
+                    println "start ${start} end ${end}"
+                    Integer projectedChunkStart = projection.projectReverseValue(start)
+                    Integer projectedChunkEnd = projection.projectReverseValue(end)
+                    println "projection max length ${projection.length}"
+                    println "projectedStart ${projectedChunkStart}"
+                    println "projectedEnd ${projectedChunkEnd}"
+                    Integer startChunk = projectedChunkStart / chunkSize
+                    Integer endChunk = projectedChunkEnd / chunkSize
+                    println "startChunk ${startChunk} endChunk ${endChunk}"
 
-                // Copy the contents of the file to the output stream
-                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-                int count = 0;
-                while ((count = inputStream.read(buf)) >= 0) {
-                    out.write(buf, 0, count);
+                    file = new File(parentFile+sequenceName+"-"+startChunk+".txt")
+                    String inputText = file.text
+                    while(startChunk < endChunk){
+                        ++startChunk
+                        println "Adding other chunk file ! "
+                        File otherFile = new File(parentFile+sequenceName+"-"+startChunk+".txt")
+                        println "otherFile ${otherFile.absolutePath} ${otherFile.exists()} "
+                        inputText += otherFile.text
+                    }
+
+                    // TODO: get chunks needed for cuts . . ..
+                    // TODO: get substrings from start / end
+//                    projection.cutToProjection()
+
+                    response.setContentLength((int) inputText.bytes.length);
+
+                    // Open the file and output streams
+//                    FileInputStream inputStream = new FileInputStream(file);
+//                    OutputStream out = response.getOutputStream();
+
+                    // Copy the contents of the file to the output stream
+//                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+//                    int count = 0;
+//                    while ((count = inputStream.read(buf)) >= 0) {
+//                        out.write(buf, 0, count);
+//                    }
+
+                    response.outputStream << inputText
+                    response.outputStream.close()
+
                 }
-                inputStream.close();
-                out.close();
-            } else {
+                else{
+                    response.setContentLength((int) file.length());
+
+                    // Open the file and output streams
+                    FileInputStream inputStream = new FileInputStream(file);
+                    OutputStream out = response.getOutputStream();
+
+                    // Copy the contents of the file to the output stream
+                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+                    int count = 0;
+                    while ((count = inputStream.read(buf)) >= 0) {
+                        out.write(buf, 0, count);
+                    }
+                    inputStream.close();
+                    out.close();
+                }
+            }
+//            else if (fileName.endsWith(".bai")) {
+//                println "processing bai file"
+//
+//                // TODO: read in . . . write out another one to process . . . which will be alternate index?
+//                // file, index file, etc. etc. etc.
+//                // generate the BAM
+//                if (projectionMap) {
+//                    // TODO: implement
+////                    String bamfileName = findBamFileName(fileName)
+////                    File bamFile = new File(bamfileName)
+////                    File newIndexFile = new File(generateBamIndexFileForProjection())
+//////                    BAMIndexer.createIndex(new SAMFileReader(bamFile),newIndexFile)
+////                    ProjectionBAMIndexer.createIndex(new SAMFileReader(bamFile),newIndexFile)
+////                    BAMFileReader reader = new BAMFileReader(bamFile,file,false)
+//                }
+//
+////                SAMFileReader samFileReader = new SAMFileReader()
+//                // Set content size
+//                response.setContentLength((int) file.length());
+//
+//                // Open the file and output streams
+//                FileInputStream inputStream = new FileInputStream(file);
+//                OutputStream out = response.getOutputStream();
+//
+//                // Copy the contents of the file to the output stream
+//                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+//                int count = 0;
+//                while ((count = inputStream.read(buf)) >= 0) {
+//                    out.write(buf, 0, count);
+//                }
+//                inputStream.close();
+//                out.close();
+//            }
+            else {
                 // Set content size
                 response.setContentLength((int) file.length());
 
@@ -371,8 +451,6 @@ class JbrowseController {
 
     }
 
-    String findBamFileName(String bamFileName) {
-    }
 
     private JSONArray projectJsonArray(Projection projection, JSONArray coordinate) {
 
