@@ -144,9 +144,6 @@ class FeatureService {
             }
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
-                println "useCDS: ${useCDS}"
-                println "Does transcript have cds: ${transcriptService.getCDS(transcript)}"
-                println "Calculating CDS"
                 calculateCDS(transcript);
             }
 
