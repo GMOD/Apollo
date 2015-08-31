@@ -78,7 +78,7 @@ class OrganismController {
                 if (checkOrganism(organism)) {
                     organism.save(failOnError: true, flush: true, insert: true)
                 }
-                preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
+                preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism)
                 sequenceService.loadRefSeqs(organism)
                 render findAllOrganisms()
             }
@@ -90,6 +90,7 @@ class OrganismController {
         } catch (e) {
             def error= [error: 'problem saving organism: '+e]
             render error as JSON
+            e.printStackTrace()
             log.error(error.error)
         }
     }
@@ -197,35 +198,42 @@ class OrganismController {
     }
 
     def findAllOrganisms() {
-        if(!permissionService.isAdmin()){
-            def error= [error: 'Must be admin to see all organisms ']
+        JSONObject organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
+        try {
+            if(!permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))){
+                def error= [error: 'Must be admin to see all organisms ']
+                render error as JSON
+                return
+            }
+
+            List<Organism> organismList = permissionService.getOrganismsForCurrentUser()
+            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.currentUser, true)
+            Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
+
+            JSONArray jsonArray = new JSONArray()
+            for (Organism organism in organismList) {
+                Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])[0] as Integer
+                Integer sequenceCount = Sequence.countByOrganism(organism)
+                JSONObject jsonObject = [
+                        id             : organism.id,
+                        commonName     : organism.commonName,
+                        blatdb         : organism.blatdb,
+                        directory      : organism.directory,
+                        annotationCount: annotationCount,
+                        sequences      : sequenceCount,
+                        genus          : organism.genus,
+                        species        : organism.species,
+                        valid          : organism.valid,
+                        currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
+                ] as JSONObject
+                jsonArray.add(jsonObject)
+            }
+            render jsonArray as JSON
+        }
+        catch(Exception e) {
+            def error=[error: e.message]
             render error as JSON
-            return
         }
-
-        List<Organism> organismList = permissionService.getOrganismsForCurrentUser()
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.currentUser, true)
-        Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
-
-        JSONArray jsonArray = new JSONArray()
-        for (Organism organism in organismList) {
-            Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])[0] as Integer
-            Integer sequenceCount = Sequence.countByOrganism(organism)
-            JSONObject jsonObject = [
-                    id             : organism.id,
-                    commonName     : organism.commonName,
-                    blatdb         : organism.blatdb,
-                    directory      : organism.directory,
-                    annotationCount: annotationCount,
-                    sequences      : sequenceCount,
-                    genus          : organism.genus,
-                    species        : organism.species,
-                    valid          : organism.valid,
-                    currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
-            ] as JSONObject
-            jsonArray.add(jsonObject)
-        }
-        render jsonArray as JSON
     }
 
     /**

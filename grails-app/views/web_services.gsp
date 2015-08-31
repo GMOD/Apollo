@@ -31,28 +31,38 @@
     <p>Summary of some of the operations supported by the API.</p>
 
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_organism"><code>add_organism</code></a>
-    <a style='margin-bottom: 5px;' class='btn btn-default' href="#get_sequences_for_organism"><code>get_sequences_for_organism</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default'
+       href="#get_sequences_for_organism"><code>get_sequences_for_organism</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_feature"><code>add_feature</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#delete_feature"><code>delete_feature</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#get_features"><code>get_features</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_transcript"><code>add_transcript</code></a>
-    <a style='margin-bottom: 5px;' class='btn btn-default' href="#duplicate_transcript"><code>duplicate_transcript</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default'
+       href="#duplicate_transcript"><code>duplicate_transcript</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#merge_transcripts"><code>merge_transcripts</code></a>
-    <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_translation_start"><code>set_translation_start</code></a>
-    <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_translation_end"><code>set_translation_end</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default'
+       href="#set_translation_start"><code>set_translation_start</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_translation_end"><code>set_translation_end</code>
+    </a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_longest_orf"><code>set_longest_orf</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_exon"><code>add_exon</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#delete_exon"><code>delete_exon</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#merge_exons"><code>merge_exons</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#split_exon"><code>split_exon</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#split_transcript"><code>split_transcript</code></a>
-    <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_sequence_alteration"><code>add_sequence_alteration</code></a>
-    <a style='margin-bottom: 5px;' class='btn btn-default' href="#delete_sequence_alteration"><code>delete_sequence_alteration</code></a>
-    <a style='margin-bottom: 5px;' class='btn btn-default' href="#get_sequence_alterations"><code>get_sequence_alterations</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default'
+       href="#add_sequence_alteration"><code>add_sequence_alteration</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default'
+       href="#delete_sequence_alteration"><code>delete_sequence_alteration</code></a>
+    <a style='margin-bottom: 5px;' class='btn btn-default'
+       href="#get_sequence_alterations"><code>get_sequence_alterations</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_attribute"><code>add_attribute</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#add_comments"><code>add_comments</code></a>
     <a style='margin-bottom: 5px;' class='btn btn-default' href="#set_status"><code>set_status</code></a>
-
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#user_controller"><code>UserController methods</code>
+    </a>
+    <a style='margin-bottom: 5px;' class='btn btn-default' href="#group_controller"><code>GroupController methods</code>
+    </a>
 
 </div>
 
@@ -2125,6 +2135,39 @@
     <p>
         Response: <code>{}</code>
     </p>
+
+
+    <a name="user_controller"></a>
+    <h4>Other UserController Operations</h4>
+
+    <p>
+        <a href="https://github.com/GMOD/Apollo/blob/master/grails-app/controllers/org/bbop/apollo/UserController.groovy">UserController</a>
+    </p>
+
+    <ul>
+        <li>addUserToGroup</li>
+        <li>removeUserFromGroup</li>
+        <li>updateUser</li>
+        <li>getOrganismPermissionsForUser</li>
+        <li>updateOrganismPermission</li>
+    </ul>
+
+
+    <a name="group_controller"></a>
+    <h4>Other GroupController Operations</h4>
+
+    <p>
+        <a href="https://github.com/GMOD/Apollo/blob/master/grails-app/controllers/org/bbop/apollo/GroupController.groovy">GroupController</a>
+    </p>
+
+    <ul>
+        <li>getOrganismPermissionsForGroup</li>
+        <li>loadGroups</li>
+        <li>createGroup</li>
+        <li>deleteGroup</li>
+        <li>updateGroup</li>
+        <li>updateOrganismPermission</li>
+    </ul>
 
 </div>
 

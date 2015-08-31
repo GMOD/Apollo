@@ -326,7 +326,7 @@ class PermissionService {
 
         if (highestValue.rank < requiredPermissionEnum.rank) {
             //return false
-            throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
+            throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
 
         return organism
@@ -412,7 +412,7 @@ class PermissionService {
             log.debug "required permission ${requiredPermissionEnum}"
             log.debug "highest value display ${highestValue.display}"
             log.debug "permission display ${requiredPermissionEnum.display}"
-            throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
+            throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
         return sequence
     }
@@ -467,7 +467,7 @@ class PermissionService {
 
         if (highestValue.rank < requiredPermissionEnum.rank) {
             //return false
-            throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
+            throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
 
         return highestValue
