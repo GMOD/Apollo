@@ -1,9 +1,6 @@
 package org.bbop.apollo
 
-import edu.unc.genomics.io.SAMFileReader
 import grails.converters.JSON
-import htsjdk.samtools.BAMFileReader
-import htsjdk.samtools.BAMIndexer
 import liquibase.util.file.FilenameUtils
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
@@ -34,39 +31,38 @@ class JbrowseController {
     // TODO: move to database as JSON
     // track, sequence, projection
     // TODO: should also include organism at some point as well
-    private Map<String,Map<String,Projection>> projectionMap = new HashMap<>()
+    private Map<String, Map<String, Projection>> projectionMap = new HashMap<>()
 
-    def indexRouter(){
+    def indexRouter() {
         log.debug "indexRouter ${params}"
 
         List<String> paramList = new ArrayList<>()
-        params.eachWithIndex{ entry, int i ->
-            if(entry.key!="action" && entry.key!="controller"){
-                paramList.add(entry.key+"="+entry.value)
+        params.eachWithIndex { entry, int i ->
+            if (entry.key != "action" && entry.key != "controller") {
+                paramList.add(entry.key + "=" + entry.value)
             }
         }
         String urlString = "/jbrowse/index.html?${paramList.join("&")}"
         // case 3 - validated login (just read from preferences, then
-        if(permissionService.currentUser&&params.organism){
+        if (permissionService.currentUser && params.organism) {
             Organism organism = Organism.findById(params.organism)
-            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
+            preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
         }
 
-        if(permissionService.currentUser) {
+        if (permissionService.currentUser) {
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
             render file.text
             return
         }
 
-
         // case 1 - anonymous login with organism ID, show organism
-        if(params.organism){
+        if (params.organism) {
             log.debug "organism ID specified: ${params.organism}"
 
             // set the organism
             Organism organism = Organism.findById(params.organism)
             def session = request.getSession(true)
-            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
 
             // create an anonymous login
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
@@ -75,12 +71,12 @@ class JbrowseController {
         }
 
         // case 2 - anonymous login with-OUT organism ID, show organism list
-        forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
+        forward(controller: "organism", action: "chooseOrganismForJbrowse", params: [urlString: urlString])
     }
 
 
     private String getJBrowseDirectoryForSession() {
-        if(!permissionService.currentUser){
+        if (!permissionService.currentUser) {
             return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         }
 
@@ -94,17 +90,16 @@ class JbrowseController {
 
                 if (organism.sequences) {
                     User user = permissionService.currentUser
-                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user,organism)
+                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
                     Sequence sequence = organism?.sequences?.first()
-                    if(userOrganismPreference ==null){
+                    if (userOrganismPreference == null) {
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
-                                ,organism: organism
-                                ,sequence: sequence
-                                ,currentOrganism: true
-                        ).save(insert:true,flush:true)
-                    }
-                    else{
+                                , organism: organism
+                                , sequence: sequence
+                                , currentOrganism: true
+                        ).save(insert: true, flush: true)
+                    } else {
                         userOrganismPreference.sequence = sequence
                         userOrganismPreference.currentOrganism = true
                         userOrganismPreference.save()
@@ -121,8 +116,6 @@ class JbrowseController {
         }
         return organismJBrowseDirectory
     }
-
-
 
     /**
      * Handles data directory serving for jbrowse
@@ -223,14 +216,26 @@ class JbrowseController {
 
             if (fileName.endsWith(".json") || params.format == "json") {
 //            [{"length":1382403,"name":"Group1.1","seqChunkSize":20000,"end":1382403,"start":0},{"length":1405242,"name":"Group1.10","seqChunkSize":20000,"end":1405242,"start":0},{"length":2557,"name":"Group1.11","seqChunkSize":20000,"end":2557,"start":0},
-//                if(fileName.endsWith("refSeqs.json")){
-//                    // TODO: project refSeqs.json
-//                    file.text
-//
-//                    return
-//                }
-//                else
-                if (fileName.endsWith("trackData.json")) {
+                if (fileName.endsWith("refSeqs.json")) {
+                    JSONArray refSeqJsonObject = new JSONArray(file.text)
+                    // TODO: it should look up the OGS track either default or variable
+                    if (projectionMap) {
+                        for (int i = 0; i < refSeqJsonObject.size(); i++) {
+
+                            JSONObject sequenceValue = refSeqJsonObject.getJSONObject(i)
+
+                            String sequenceName = sequenceValue.getString("name")
+                            DiscontinuousProjection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
+                            // not projections for every sequence  . . .
+                            if (projection) {
+                                Integer projectedSequenceLength = projection.length
+                                sequenceValue.put("length", projectedSequenceLength)
+                                sequenceValue.put("end", projectedSequenceLength)
+                            }
+                        }
+                    }
+                    response.outputStream << refSeqJsonObject.toString()
+                } else if (fileName.endsWith("trackData.json")) {
                     // TODO: project trackData.json
                     // transform 2nd and 3rd array object in intervals/ncList
                     JSONObject trackDataJsonObject = new JSONObject(file.text)
@@ -243,20 +248,19 @@ class JbrowseController {
 //                    Projection projection = projectionMap.get(trackName)?.get(sequenceName)
                     Projection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
 
-                    if(projection){
+                    if (projection) {
                         JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
                         JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
-                        for(int i = 0 ; i < coordinateJsonArray.size() ; i++){
+                        for (int i = 0; i < coordinateJsonArray.size(); i++) {
                             JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
-                            projectJsonArray(projection,coordinate)
+                            projectJsonArray(projection, coordinate)
                         }
                     }
 
 
                     response.outputStream << trackDataJsonObject.toString()
 //                    return
-                }
-                else{
+                } else {
                     // Set content size
                     response.setContentLength((int) file.length());
 
@@ -273,15 +277,13 @@ class JbrowseController {
                     inputStream.close();
                     out.close();
                 }
-            }
-            else
-            if (fileName.endsWith(".bai")) {
+            } else if (fileName.endsWith(".bai")) {
                 println "processing bai file"
 
                 // TODO: read in . . . write out another one to process . . . which will be alternate index?
                 // file, index file, etc. etc. etc.
                 // generate the BAM
-                if(projectionMap){
+                if (projectionMap) {
                     // TODO: implement
 //                    String bamfileName = findBamFileName(fileName)
 //                    File bamFile = new File(bamfileName)
@@ -307,8 +309,7 @@ class JbrowseController {
                 }
                 inputStream.close();
                 out.close();
-            }
-            else{
+            } else {
                 // Set content size
                 response.setContentLength((int) file.length());
 
@@ -334,32 +335,31 @@ class JbrowseController {
             response.setHeader("Content-Length", String.valueOf(r.length));
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
 
-            BufferedInputStream bis= new BufferedInputStream(new FileInputStream(file));
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
 
             OutputStream output = response.getOutputStream();
             byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-            long count=r.start;
+            long count = r.start;
             try {
 
                 // Copy single part range.
-                long ret=bis.skip(r.start);
-                if(ret != r.start) {
+                long ret = bis.skip(r.start);
+                if (ret != r.start) {
                     log.error("Failed to read range request!");
                     bis.close();
                     output.close();
                     return;
                 }
 
-                while (count<r.end) {
-                    int bret=bis.read(buf,0,DEFAULT_BUFFER_SIZE);
-                    if(bret!=-1) {
+                while (count < r.end) {
+                    int bret = bis.read(buf, 0, DEFAULT_BUFFER_SIZE);
+                    if (bret != -1) {
                         output.write(buf, 0, bret);
-                        count+=bret;
-                    }
-                    else break;
+                        count += bret;
+                    } else break;
                 }
 
-            } catch(Exception e) {
+            } catch (Exception e) {
                 log.error(e.message);
                 e.printStackTrace();
             }
@@ -377,12 +377,12 @@ class JbrowseController {
     private JSONArray projectJsonArray(Projection projection, JSONArray coordinate) {
 
         // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
-        for(int subIndex  = 0 ; subIndex < coordinate.size() ; ++subIndex){
+        for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
             def subArray = coordinate.get(subIndex)
 //            if(subArray?.size()>4 && (0..5).contains(subArray.getInt(0)) ){
-            if(subArray instanceof JSONArray){
+            if (subArray instanceof JSONArray) {
 //                println "rewriting subArray ${subArray}"
-                projectJsonArray(projection,subArray)
+                projectJsonArray(projection, subArray)
             }
 //            else{
 //                println "not rewriting ${coordinate.get(subIndex)}"
@@ -390,7 +390,7 @@ class JbrowseController {
 //            }
         }
 
-        if(coordinate.size()>4
+        if (coordinate.size() > 4
                 && coordinate.get(0) instanceof Integer
                 && coordinate.get(1) instanceof Integer
                 && coordinate.get(2) instanceof Integer
@@ -398,11 +398,10 @@ class JbrowseController {
             Integer oldMin = coordinate.getInt(1)
             Integer oldMax = coordinate.getInt(2)
             Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax)
-            if(newCoordinate && newCoordinate.isValid()){
+            if (newCoordinate && newCoordinate.isValid()) {
                 coordinate.set(1, newCoordinate.min)
                 coordinate.set(2, newCoordinate.max)
-            }
-            else{
+            } else {
                 log.error("Invalid mapping of coordinate ${coordinate} -> ${newCoordinate}")
                 coordinate.set(1, -1)
                 coordinate.set(2, -1)
@@ -433,24 +432,24 @@ class JbrowseController {
 
 
         Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
-        if(currentOrganism!=null) {
-            jsonObject.put("dataset_id",currentOrganism.id)
+        if (currentOrganism != null) {
+            jsonObject.put("dataset_id", currentOrganism.id)
         }
-        List<Organism> list=permissionService.getOrganismsForCurrentUser()
+        List<Organism> list = permissionService.getOrganismsForCurrentUser()
         JSONObject organismObjectContainer = new JSONObject()
-        for(organism in list) {
+        for (organism in list) {
             JSONObject organismObject = new JSONObject()
-            organismObject.put("name",organism.commonName)
+            organismObject.put("name", organism.commonName)
             String url = "javascript:window.top.location.href = '../annotator/loadLink?"
             url += "organism=" + organism.getId();
             url += "&highlight=0";
             url += "&tracks='";
-            organismObject.put("url",url)
+            organismObject.put("url", url)
             organismObjectContainer.put(organism.id, organismObject)
         }
-        jsonObject.put("datasets",organismObjectContainer)
+        jsonObject.put("datasets", organismObjectContainer)
 
-        if(jsonObject.include==null) jsonObject.put("include",new JSONArray())
+        if (jsonObject.include == null) jsonObject.put("include", new JSONArray())
         jsonObject.include.add("../plugins/WebApollo/json/annot.json")
 
         response.outputStream << jsonObject.toString()
@@ -465,22 +464,21 @@ class JbrowseController {
         // TODO: this is only hear for debuggin
         projectionMap.clear()
         long startTime = System.currentTimeMillis()
-        for(int i = 0 ; i < tracksArray.size() ; i++){
+        for (int i = 0; i < tracksArray.size(); i++) {
             JSONObject trackObject = tracksArray.getJSONObject(i)
-            if(trackObject.containsKey("OGS") && trackObject.getBoolean("OGS") && !projectionMap.containsKey(trackObject.keys())){
+            if (trackObject.containsKey("OGS") && trackObject.getBoolean("OGS") && !projectionMap.containsKey(trackObject.keys())) {
                 println "tring to generate projection for ${trackObject.key}"
-                File trackDirectory = new File(getJBrowseDirectoryForSession()+"/tracks/"+trackObject.key)
+                File trackDirectory = new File(getJBrowseDirectoryForSession() + "/tracks/" + trackObject.key)
                 println "track directory ${trackDirectory.absolutePath}"
 
-                File[] files = FileUtils.listFiles(trackDirectory,FileFilterUtils.nameFileFilter("trackData.json"),TrueFileFilter.INSTANCE)
+                File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
 
                 println "# of files ${files.length}"
 
-                Map<String,Projection> sequenceProjectionMap = new HashMap<>()
+                Map<String, Projection> sequenceProjectionMap = new HashMap<>()
 
-                for(File trackDataFile in files){
+                for (File trackDataFile in files) {
 //                    println "file ${trackDataFile.absolutePath}"
-
 
 //                    String sequenceFileName = trackDataFile.absolutePath.substring(trackDirectory.absolutePath.length(),trackDataFile.absolutePath.length()-"trackData.json".length()).replaceAll("/","")
                     String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
@@ -492,21 +490,21 @@ class JbrowseController {
                     // TODO: interpret the format properly
                     DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
                     JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray("nclist")
-                    for(int coordIndex = 0 ; coordIndex < coordinateReferenceJsonArray.size() ; ++coordIndex ){
+                    for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
                         JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
-                        discontinuousProjection.addInterval(coordinate.getInt(1),coordinate.getInt(2))
+                        discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2))
                     }
 
-                    sequenceProjectionMap.put(sequenceFileName,discontinuousProjection)
+                    sequenceProjectionMap.put(sequenceFileName, discontinuousProjection)
                 }
 
                 println "final size: ${sequenceProjectionMap.size()}"
 
-                projectionMap.put(trackObject.key,sequenceProjectionMap)
+                projectionMap.put(trackObject.key, sequenceProjectionMap)
             }
         }
 
-        println "total time ${System.currentTimeMillis()-startTime}"
+        println "total time ${System.currentTimeMillis() - startTime}"
 
 
     }
@@ -550,11 +548,11 @@ class JbrowseController {
 
     private String getTrackName(String fileName) {
         String[] tokens = fileName.split("/")
-        return tokens[tokens.length-3]
+        return tokens[tokens.length - 3]
     }
 
     private String getSequenceName(String fileName) {
         String[] tokens = fileName.split("/")
-        return tokens[tokens.length-2]
+        return tokens[tokens.length - 2]
     }
 }

@@ -46,4 +46,8 @@ class Coordinate implements Comparable<Coordinate>{
     Boolean isValid() {
         return min>=0 && max>=0
     }
+
+    Integer getLength(){
+        return Math.abs(max - min)
+    }
 }

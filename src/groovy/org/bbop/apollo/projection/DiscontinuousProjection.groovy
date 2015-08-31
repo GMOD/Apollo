@@ -310,4 +310,12 @@ class DiscontinuousProjection extends AbstractProjection {
         int newMax = projectReverseValue(max)
         if (newMin < 0 && newMax < 0) return null
     }
+
+    Integer getLength(){
+        int returnValue = 0
+        for(Coordinate coordinate : minMap.values()){
+            returnValue += coordinate.length;
+        }
+        return returnValue
+    }
 }
