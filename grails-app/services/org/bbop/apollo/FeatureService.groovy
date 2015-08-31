@@ -181,10 +181,7 @@ class FeatureService {
                     }
 
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
-                        println "===> Running CALCULATECDS"
                         calculateCDS(tmpTranscript);
-                        println "TMPTRANSCRIPT CDS.fmin : ${transcriptService.getCDS(tmpTranscript).fmin}"
-                        println "TMPTRANSCRIPT CDS.fmax : ${transcriptService.getCDS(tmpTranscript).fmax}"
                     }
                     if (!suppressHistory) {
                         tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
