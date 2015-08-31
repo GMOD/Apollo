@@ -138,9 +138,15 @@ class UserController {
     }
 
 
+    //webservice
+    @Transactional
     def addUserToGroup() {
         log.debug "adding user to group ${request.JSON} -> ${params}"
-        JSONObject dataObject = JSON.parse(params.data)
+        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
         UserGroup userGroup = UserGroup.findByName(dataObject.group)
         User user = User.findById(dataObject.userId)
         user.addToUserGroups(userGroup)
@@ -148,9 +154,15 @@ class UserController {
         render new JSONObject() as JSON
     }
 
+    //webservice
+    @Transactional
     def removeUserFromGroup() {
         log.debug "removing user from group ${request.JSON} -> ${params}"
-        JSONObject dataObject = JSON.parse(params.data)
+        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
         UserGroup userGroup = UserGroup.findByName(dataObject.group)
         User user = User.findById(dataObject.userId)
         user.removeFromUserGroups(userGroup)
@@ -232,9 +244,15 @@ class UserController {
         }
     }
 
+    // webservice
+    @Transactional
     def updateUser() {
         try {
-            JSONObject dataObject = JSON.parse(params.data)
+            JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+                render status: HttpStatus.UNAUTHORIZED
+                return
+            }
             User user = User.findById(dataObject.userId)
             user.firstName = dataObject.firstName
             user.lastName = dataObject.lastName
@@ -265,6 +283,7 @@ class UserController {
 
     }
 
+    // webservice
     def getOrganismPermissionsForUser() {
         JSONObject dataObject = JSON.parse(params.data)
         User user = User.findById(dataObject.userId)
@@ -278,6 +297,8 @@ class UserController {
      * Only changing one of the boolean permissions
      * @return
      */
+    // webservice
+    @Transactional
     def updateOrganismPermission() {
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if(!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
