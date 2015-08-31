@@ -288,7 +288,7 @@ class JbrowseController {
                 Projection projection = projectionMap.values().iterator().next().get(sequenceName)
                 if(projection && false ){
                     // TODO: get proper chunk size from the RefSeq
-                    Integer chunkSize = 20000
+                    Integer chunkSize = 200000
                     String suffix = fileName.split("-")[1]
                     println "suffix ${suffix}"
                     println "suf length ${suffix.length()} ${'.txt'.length()}"
