@@ -1,24 +1,29 @@
 package org.bbop.apollo
 
+import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.springframework.http.HttpStatus
 
 class GroupController {
 
     def permissionService
 
+    // webservice
     def getOrganismPermissionsForGroup(){
-        JSONObject dataObject = JSON.parse(params.data)
+        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         UserGroup group = UserGroup.findById(dataObject.userId)
 
         List<GroupOrganismPermission> groupOrganismPermissions = GroupOrganismPermission.findAllByGroup(group)
         render groupOrganismPermissions as JSON
     }
 
+    // webservice
+    // TODO: may need to have more restrictive permissions
     def loadGroups() {
         JSONArray returnArray = new JSONArray()
         def allowableOrganisms = permissionService.getOrganisms((User) permissionService.currentUser)
@@ -95,9 +100,15 @@ class GroupController {
         render returnArray as JSON
     }
 
+    //webservice
+    @Transactional
     def createGroup(){
-        log.debug "creating user ${request.JSON} -> ${params}"
-        JSONObject dataObject = JSON.parse(params.data)
+        log.debug "creating group ${request.JSON} -> ${params}"
+        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
         log.debug "dataObject ${dataObject}"
 
         UserGroup group = new UserGroup(
@@ -109,9 +120,15 @@ class GroupController {
 
     }
 
+    // webservice
+    @Transactional
     def deleteGroup(){
         log.debug "deleting user ${request.JSON} -> ${params}"
-        JSONObject dataObject = JSON.parse(params.data)
+        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
         UserGroup group = UserGroup.findById(dataObject.id)
         group.users.each { it ->
             it.removeFromUserGroups(group)
@@ -123,12 +140,17 @@ class GroupController {
         render new JSONObject() as JSON
     }
 
+    // webservice
+    @Transactional
     def updateGroup(){
-
         log.debug "json: ${request.JSON}"
         log.debug "params: ${params}"
         log.debug "params.data: ${params.data}"
-        JSONObject dataObject = JSON.parse(params.data)
+        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
         UserGroup group = UserGroup.findById(dataObject.id)
         // the only thing that can really change
         group.name = dataObject.name
@@ -140,8 +162,14 @@ class GroupController {
      * Only changing one of the boolean permissions
      * @return
      */
+    // webservice
+    @Transactional
     def updateOrganismPermission(){
-        JSONObject dataObject = JSON.parse(params.data)
+        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
         log.debug "json data ${dataObject}"
         GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findById(dataObject.id)
 
