@@ -220,7 +220,6 @@ class ProjectionSpec extends Specification{
         assert track2==track3
     }
 
-    // TODO: add these tests
     void "when adding intervals overlapping intervals should merge"(){
 
         given: "some intervals"
@@ -467,6 +466,26 @@ class ProjectionSpec extends Specification{
         assert coordinate2.min==80
         assert coordinate2.max==85
 
+    }
+
+    void "we should be able to project substring between projected coordinates"(){
+
+        given: "we have an unprojected and projected string"
+        String unprojected = "ZZZZZZAAAYYYYYYYBBXXXXXXCCWW"
+        String projected = "AAABBCC"
+        Track track1 = new Track(length: 28)
+        track1.addCoordinate(6,8)
+        track1.addCoordinate(16,17)
+        track1.addCoordinate(24,25)
+
+        when: "we add the appropriate intervals"
+        DiscontinuousProjection projection = DiscontinuousProjectionFactory.getInstance().createProjection(track1)
+        String projectedSequence = projection.projectSequence(unprojected)
+
+        then: "make sure we have the same thing"
+        assert projected==projectedSequence
+        assert 7==projection.projectReverseValue(1)
+        assert 24==projection.projectReverseValue(5)
 
 
     }

@@ -1,9 +1,12 @@
 package org.bbop.apollo.projection
 
+import groovy.transform.CompileStatic
+
 /**
  * Created by ndunn on 8/24/15.
  */
-class DiscontinuousProjection extends AbstractProjection {
+@CompileStatic
+public class DiscontinuousProjection extends AbstractProjection {
 
     // projection from X -> X'
     TreeMap<Integer, Coordinate> minMap = new TreeMap<>()
@@ -19,7 +22,7 @@ class DiscontinuousProjection extends AbstractProjection {
      * @return
      */
     @Override
-    Integer projectReverseValue(Integer input) {
+    public Integer projectReverseValue(Integer input) {
 
         Iterator<Integer> minIterator = minMap.keySet().iterator()
         Iterator<Integer> maxIterator = maxMap.keySet().iterator()
@@ -44,7 +47,7 @@ class DiscontinuousProjection extends AbstractProjection {
     }
 
     @Override
-    Integer projectValue(Integer input) {
+    public Integer projectValue(Integer input) {
         if (!minMap && !maxMap) {
             return input
         }
@@ -258,7 +261,7 @@ class DiscontinuousProjection extends AbstractProjection {
 
 
     @Override
-    Track projectTrack(Track trackIn) {
+    public Track projectTrack(Track trackIn) {
         Track trackOut = new Track()
         Integer trackLength = 0
 
@@ -274,7 +277,7 @@ class DiscontinuousProjection extends AbstractProjection {
     }
 
     @Override
-    Coordinate projectCoordinate(int min, int max) {
+    public Coordinate projectCoordinate(int min, int max) {
         int newMin = projectValue(min)
         int newMax = projectValue(max)
         if (newMin >= 0 && newMax >= 0) {
@@ -305,17 +308,33 @@ class DiscontinuousProjection extends AbstractProjection {
     }
 
     @Override
-    Coordinate projectReverseCoordinate(int min, int max) {
+    public Coordinate projectReverseCoordinate(int min, int max) {
         int newMin = projectReverseValue(min)
         int newMax = projectReverseValue(max)
         if (newMin < 0 && newMax < 0) return null
     }
 
-    Integer getLength(){
+    @Override
+    public Integer getLength(){
         int returnValue = 0
         for(Coordinate coordinate : minMap.values()){
             returnValue += coordinate.length;
         }
         return returnValue
+    }
+
+    @Override
+    String projectSequence(String inputSequence) {
+        String returnSequence = ""
+        Iterator<Coordinate> minKeys = minMap.values().iterator()
+
+        while(minKeys.hasNext()){
+            Coordinate coordinate = minKeys.next()
+            if(coordinate.max < inputSequence.length()){
+                returnSequence += inputSequence.substring(coordinate.min,coordinate.max+1)
+            }
+        }
+
+        return returnSequence
     }
 }

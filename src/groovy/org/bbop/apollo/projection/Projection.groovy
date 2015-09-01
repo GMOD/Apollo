@@ -1,9 +1,12 @@
 package org.bbop.apollo.projection
 
+import groovy.transform.CompileStatic
+
 
 /**
  * Created by nathandunn on 8/14/15.
  */
+@CompileStatic
 interface Projection {
 
 
@@ -26,4 +29,7 @@ interface Projection {
 
     Coordinate projectCoordinate(int min, int max)
     Coordinate projectReverseCoordinate(int min, int max)
+    Integer getLength()
+
+    String projectSequence(String inputSequence)
 }

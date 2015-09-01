@@ -1,8 +1,11 @@
 package org.bbop.apollo.projection
 
+import groovy.transform.CompileStatic
+
 /**
  * Created by ndunn on 8/24/15.
  */
+@CompileStatic
 public class ReverseProjection extends AbstractProjection{
 
 
@@ -26,4 +29,13 @@ public class ReverseProjection extends AbstractProjection{
         return -1
     }
 
+    @Override
+    Integer getLength() {
+        return null
+    }
+
+    @Override
+    String projectSequence(String inputSequence) {
+        return inputSequence.reverse()
+    }
 }
