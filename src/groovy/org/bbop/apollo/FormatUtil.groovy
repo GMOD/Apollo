@@ -10,7 +10,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * Created by ndunn on 4/14/15.
+ * Created by Nathan Dunn on 4/14/15.
  */
 class FormatUtil {
 

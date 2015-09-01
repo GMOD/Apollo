@@ -3,7 +3,7 @@ package org.bbop.apollo.gwt.client.comparators;
 import java.util.Comparator;
 
 /**
- * Created by ndunn on 1/27/15.
+ * Created by Nathan Dunn on 1/27/15.
  * Inspired / borrowed from:  http://sanjaal.com/java/206/java-data-structure/alphanumeric-string-sorting-in-java-implementation/
  */
 public class AlphanumericSorter implements Comparator<String> {

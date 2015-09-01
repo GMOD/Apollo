@@ -7,7 +7,7 @@ import com.google.gwt.json.client.JSONObject;
 import java.util.List;
 
 /**
- * Created by ndunn on 4/17/15.
+ * Created by Nathan Dunn on 4/17/15.
  */
 public class AppStateInfo implements HasJSON{
 

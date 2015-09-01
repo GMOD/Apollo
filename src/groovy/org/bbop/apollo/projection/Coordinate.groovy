@@ -1,7 +1,7 @@
 package org.bbop.apollo.projection
 
 /**
- * Created by ndunn on 8/24/15.
+ * Created by Nathan Dunn on 8/24/15.
  */
 class Coordinate implements Comparable<Coordinate>{
 

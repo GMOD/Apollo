@@ -7,7 +7,7 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Window;
 
 /**
- * Created by ndunn on 1/9/15.
+ * Created by Nathan Dunn on 1/9/15.
  */
 public class AnnotatorService {
 

@@ -16,7 +16,7 @@ import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.TextBox;
 /**
- * Created by ndunn on 1/9/15.
+ * Created by Nathan Dunn on 1/9/15.
  */
 public class GeneDetailPanel extends Composite {
 

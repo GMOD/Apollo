@@ -7,6 +7,7 @@ import org.apache.commons.io.filefilter.FileFilterUtils
 import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
+import org.bbop.apollo.projection.DiscontinuousChunkProjector
 import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.Projection
 import org.bbop.apollo.sequence.Range
@@ -27,6 +28,7 @@ class JbrowseController {
     def permissionService
     def preferenceService
     def servletContext
+
 
     // TODO: move to database as JSON
     // track, sequence, projection
@@ -288,35 +290,53 @@ class JbrowseController {
                 Projection projection = projectionMap.values().iterator().next().get(sequenceName)
                 if(projection && false ){
                     // TODO: get proper chunk size from the RefSeq
-                    Integer chunkSize = 200000
-                    String suffix = fileName.split("-")[1]
-                    println "suffix ${suffix}"
-                    println "suf length ${suffix.length()} ${'.txt'.length()}"
-                    Integer endIndex = suffix.length() - 4
-                    println "endIndex ${endIndex}"
-                    Integer chunkNumber = Integer.parseInt(suffix.substring(0,endIndex))
+                    Integer chunkSize = 20000
+                    Integer chunkNumber = getChunkNumberFromFileName(fileName)
+                    println "projected length ${projection.length}"
                     println "maping chunk ${chunkNumber} on proj"
-                    Integer start = chunkNumber * chunkSize
-                    Integer end = (chunkNumber+1) * chunkSize
-                    println "start ${start} end ${end}"
-                    Integer projectedChunkStart = projection.projectReverseValue(start)
-                    Integer projectedChunkEnd = projection.projectReverseValue(end)
-                    println "projection max length ${projection.length}"
-                    println "projectedStart ${projectedChunkStart}"
-                    println "projectedEnd ${projectedChunkEnd}"
-                    Integer startChunk = projectedChunkStart / chunkSize
-                    Integer endChunk = projectedChunkEnd / chunkSize
-                    println "startChunk ${startChunk} endChunk ${endChunk}"
+                    DiscontinuousChunkProjector discontinuousChunkProjector = new DiscontinuousChunkProjector()
+                    Integer startProjectedChunk = discontinuousChunkProjector.getStartChunk(chunkNumber,chunkSize)
+                    Integer endProjectedChunk = discontinuousChunkProjector.getEndChunk(chunkNumber,chunkSize)
+                    println "projected chunk ${startProjectedChunk}::${endProjectedChunk}"
+                    Integer startOriginal = projection.projectReverseValue(startProjectedChunk)
+                    Integer endOriginal = projection.projectReverseValue(endProjectedChunk)
+                    println "original coord values ${startOriginal}::${endOriginal}"
 
-                    file = new File(parentFile+sequenceName+"-"+startChunk+".txt")
-                    String inputText = file.text
-                    while(startChunk < endChunk){
-                        ++startChunk
-                        println "Adding other chunk file ! "
-                        File otherFile = new File(parentFile+sequenceName+"-"+startChunk+".txt")
-                        println "otherFile ${otherFile.absolutePath} ${otherFile.exists()} "
-                        inputText += otherFile.text
-                    }
+                    Integer startOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(startOriginal,chunkSize)
+                    Integer endOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(endOriginal,chunkSize)
+                    println "original chunk number ${startOriginalChunkNumber}::${endOriginalChunkNumber}"
+
+                    String chunkSequence = discontinuousChunkProjector.getSequenceForChunks(startOriginalChunkNumber,endOriginalChunkNumber,parentFile,sequenceName)
+                    println "chunk sequence length ${chunkSequence.length()}"
+                    Integer chunkOffset = startOriginal - startOriginalChunkNumber
+                    Integer chunkLength = endOriginal
+                    println "offset-> length ${chunkOffset}::${chunkLength}"
+
+
+                    String concatenatedSequence = chunkSequence.substring(chunkOffset,chunkLength)
+                    println "concatenated length ${concatenatedSequence.length()}"
+
+                    // re-project
+                    String inputText = projection.projectSequence(concatenatedSequence)
+                    println "return string length ${inputText.length()}"
+
+//                    println "projection max length ${projection.length}"
+//                    println "projectedStart ${projectedChunkStart}"
+//                    println "projectedEnd ${projectedChunkEnd}"
+//                    Integer startChunk = projectedChunkStart / chunkSize
+//                    Integer endChunk = projectedChunkEnd / chunkSize
+//                    println "startChunk ${startChunk} endChunk ${endChunk}"
+
+//                    file = new File(parentFile+sequenceName+"-"+startChunk+".txt")
+//                    String inputText = file.text
+//                    while(startChunk < endChunk){
+//                        ++startChunk
+//                        println "Adding other chunk file ! "
+//                        File otherFile = new File(parentFile+sequenceName+"-"+startChunk+".txt")
+//                        println "otherFile ${otherFile.absolutePath} ${otherFile.exists()} "
+//                        inputText += otherFile.text
+//                    }
+
 
                     // TODO: get chunks needed for cuts . . ..
                     // TODO: get substrings from start / end
@@ -451,6 +471,15 @@ class JbrowseController {
 
     }
 
+    private Integer getChunkNumberFromFileName(String fileName) {
+        String suffix = fileName.split("-")[1]
+        println "suffix ${suffix}"
+        println "suf length ${suffix.length()} ${'.txt'.length()}"
+        Integer endIndex = suffix.length() - 4
+        println "endIndex ${endIndex}"
+        Integer chunkNumber = Integer.parseInt(suffix.substring(0,endIndex))
+        return chunkNumber
+    }
 
     private JSONArray projectJsonArray(Projection projection, JSONArray coordinate) {
 

@@ -6,7 +6,7 @@ import com.google.gwt.json.client.JSONString;
 import org.bbop.apollo.gwt.client.comparators.AlphanumericSorter;
 
 /**
- * Created by ndunn on 12/18/14.
+ * Created by Nathan Dunn on 12/18/14.
  */
 public class SequenceInfo implements Comparable<SequenceInfo>,HasJSON{
 

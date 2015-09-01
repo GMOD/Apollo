@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by ndunn on 4/20/15.
+ * Created by Nathan Dunn on 4/20/15.
  */
 public class SequenceInfoConverter {
     public static SequenceInfo convertFromJson(JSONObject object) {

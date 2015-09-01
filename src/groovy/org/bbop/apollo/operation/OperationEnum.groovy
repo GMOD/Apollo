@@ -1,7 +1,7 @@
 package org.bbop.apollo.operation
 
 /**
- * Created by ndunn on 3/13/15.
+ * Created by Nathan Dunn on 3/13/15.
  */
 enum OperationEnum {
     ADD_FEATURE(DELETE_FEATURE),

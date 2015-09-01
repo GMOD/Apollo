@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by ndunn on 1/27/15.
+ * Created by Nathan Dunn on 1/27/15.
  */
 public class AnnotationInfo {
     private String uniqueName;

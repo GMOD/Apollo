@@ -3,7 +3,7 @@ package org.bbop.apollo.gwt.client.dto;
 import com.google.gwt.json.client.JSONObject;
 
 /**
- * Created by ndunn on 12/18/14.
+ * Created by Nathan Dunn on 12/18/14.
  */
 public class TrackInfo implements Comparable<TrackInfo> {
 

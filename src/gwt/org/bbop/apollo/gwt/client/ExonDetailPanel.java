@@ -36,7 +36,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by ndunn on 1/9/15.
+ * Created by Nathan Dunn on 1/9/15.
  */
 public class ExonDetailPanel extends Composite {
 

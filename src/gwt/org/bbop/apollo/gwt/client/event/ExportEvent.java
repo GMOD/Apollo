@@ -7,7 +7,7 @@ import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import java.util.List;
 
 /**
- * Created by ndunn on 1/19/15.
+ * Created by Nathan Dunn on 1/19/15.
  */
 public class ExportEvent extends GwtEvent<ExportEventHandler> {
 

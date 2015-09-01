@@ -1,6 +1,6 @@
 package org.bbop.apollo
 /**
- * Created by ndunn on 10/29/14.
+ * Created by Nathan Dunn on 10/29/14.
  */
 class FeaturePositionComparator<T extends Feature> implements  Comparator<T>{
 

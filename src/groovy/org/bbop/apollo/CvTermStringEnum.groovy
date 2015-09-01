@@ -1,6 +1,6 @@
 package org.bbop.apollo
 /**
- * Created by ndunn on 10/28/14.
+ * Created by Nathan Dunn on 10/28/14.
  */
 enum CvTermStringEnum {
      PART_OF("PartOf")

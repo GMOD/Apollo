@@ -6,7 +6,7 @@ import com.google.gwt.json.client.JSONString;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 
 /**
- * Created by ndunn on 1/28/15.
+ * Created by Nathan Dunn on 1/28/15.
  */
 public class AnnotationRestService {
 

@@ -4,7 +4,7 @@ import com.google.gwt.resources.client.ClientBundle;
 import org.gwtbootstrap3.client.ui.gwt.DataGrid;
 
 /**
- * Created by ndunn on 12/19/14.
+ * Created by Nathan Dunn on 12/19/14.
  */
 public class TableResources implements  ClientBundle{
     // TableCss cell table

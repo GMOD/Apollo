@@ -47,7 +47,7 @@ import org.gwtbootstrap3.client.ui.TextBox;
 import java.util.*;
 
 /**
- * Created by ndunn on 12/17/14.
+ * Created by Nathan Dunn on 12/17/14.
  */
 public class AnnotatorPanel extends Composite {
 

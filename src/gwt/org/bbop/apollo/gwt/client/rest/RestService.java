@@ -8,7 +8,7 @@ import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 
 /**
- * Created by ndunn on 1/14/15.
+ * Created by Nathan Dunn on 1/14/15.
  */
 public class RestService {
 

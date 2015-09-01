@@ -3,7 +3,7 @@ package org.bbop.apollo.projection
 import groovy.transform.CompileStatic
 
 /**
- * Created by ndunn on 8/24/15.
+ * Created by Nathan Dunn on 8/24/15.
  */
 @CompileStatic
 abstract class AbstractProjection implements Projection{

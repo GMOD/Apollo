@@ -3,7 +3,7 @@ package org.bbop.apollo.sequence
 import org.bbop.apollo.AnnotationException
 
 /**
- * Created by ndunn on 10/29/14.
+ * Created by Nathan Dunn on 10/29/14.
  */
 class SequenceTranslationHandler {
 

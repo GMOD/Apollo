@@ -35,7 +35,7 @@ import java.util.List;
 
 
 /**
- * Created by ndunn on 12/16/14.
+ * Created by Nathan Dunn on 12/16/14.
  */
 public class TrackPanel extends Composite {
     interface TrackUiBinder extends UiBinder<Widget, TrackPanel> {
