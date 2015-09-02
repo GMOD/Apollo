@@ -313,41 +313,17 @@ class JbrowseController {
                     Integer endOriginalChunkCoordinate = (endOriginalChunkNumber+1) * defaultChunkSize
                     println "original chunk coordinate ${startOriginalChunkCoordinate}::${endOriginalChunkCoordinate}"
 
-                    String chunkSequence = discontinuousChunkProjector.getSequenceForChunks(startOriginalChunkNumber,endOriginalChunkNumber,parentFile,sequenceName)
-                    println "chunk sequence length ${chunkSequence.length()}"
-                    Integer chunkOffset = startOriginal - startOriginalChunkCoordinate
-//                    Integer chunkLength = (endOriginal - startOriginal) + startOriginal
-                    Integer chunkLength = endOriginal
-                    println "offset-> length ${chunkOffset}::${chunkLength}"
 
-
-                    String concatenatedSequence = chunkSequence.substring(chunkOffset,chunkLength)
+                    Organism organism = preferenceService.currentOrganismForCurrentUser
+                    Sequence sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
+                    println "ffound sequence ${sequence} for org ${organism.commonName}"
+                    String concatenatedSequence = sequenceService.getRawResiduesFromSequence(sequence,startOriginal,endOriginal)
                     println "concatenated length ${concatenatedSequence.length()}"
 
                     // re-project
 //                    String inputText = concatenatedSequence
                     String inputText = projection.projectSequence(concatenatedSequence)
-//                    println "return string length ${inputText.length()}"
-//                    if(inputText.length()!=defaultChunkSize){
-//                        println "they aren ot the same ${inputText.length()} vs ${defaultChunkSize} which is fine if last chunk?"
-//                    }
-
-//                    println "projection max length ${projection.length}"
-//                    println "projectedStart ${projectedChunkStart}"
-//                    println "projectedEnd ${projectedChunkEnd}"
-//                    Integer startChunk = projectedChunkStart / chunkSize
-//                    Integer endChunk = projectedChunkEnd / chunkSize
-//                    println "startChunk ${startChunk} endChunk ${endChunk}"
-
-//                    file = new File(parentFile+sequenceName+"-"+startChunk+".txt")
-//                    String inputText = file.text
-//                    while(startChunk < endChunk){
-//                        ++startChunk
-//                        println "Adding other chunk file ! "
-//                        File otherFile = new File(parentFile+sequenceName+"-"+startChunk+".txt")
-//                        println "otherFile ${otherFile.absolutePath} ${otherFile.exists()} "
-//                        inputText += otherFile.text
-//                    }
+                    println "return string length ${inputText.length()}"
 
 
                     // TODO: get chunks needed for cuts . . ..

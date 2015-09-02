@@ -486,7 +486,22 @@ class ProjectionSpec extends Specification{
         assert projected==projectedSequence
         assert 7==projection.projectReverseValue(1)
         assert 24==projection.projectReverseValue(5)
+        assert "ABBC"==projection.projectSequence(unprojected,8,24)
+        assert "AAABBC"==projection.projectSequence(unprojected,4,24)
+        assert "AAABBCC"==projection.projectSequence(unprojected,4,27)
+        assert ""==projection.projectSequence(unprojected,9,12)
+        assert "BB"==projection.projectSequence(unprojected,9,18)
+        assert "BB"==projection.projectSequence(unprojected,9,17)
+        assert "B"==projection.projectSequence(unprojected,9,16)
+        assert "B"==projection.projectSequence(unprojected,17,22)
+        assert "BC"==projection.projectSequence(unprojected,17,24)
 
+//        when: "we project for a min / max "
+////        projectedSequence = projection.projectSequence(unprojected,8,24)
+//
+//        then: "make sure we have the same thing"
+////        assert projected!=projectedSequence
+//        assert "ABBC"==projection.projectSequence(unprojected,8,24)
 
     }
 

@@ -31,4 +31,5 @@ abstract class AbstractProjection implements Projection{
     public Coordinate projectReverseCoordinate(int min, int max) {
         return new Coordinate(min:projectReverseValue(min),max:projectReverseValue(max))
     }
+
 }

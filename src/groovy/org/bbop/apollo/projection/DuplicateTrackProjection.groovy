@@ -25,7 +25,9 @@ class DuplicateTrackProjection extends AbstractProjection{
     }
 
     @Override
-    String projectSequence(String inputSequence) {
-        return inputSequence
+    String projectSequence(String inputSequence,Integer minCoordinate ,Integer maxCoordinate ) {
+        minCoordinate = minCoordinate >=0 ? minCoordinate : 0
+        maxCoordinate = maxCoordinate >=0 ? maxCoordinate : inputSequence.length()
+        return inputSequence.substring( minCoordinate , maxCoordinate )
     }
 }

@@ -323,16 +323,54 @@ public class DiscontinuousProjection extends AbstractProjection {
         return returnValue
     }
 
-    @Override
     String projectSequence(String inputSequence) {
-        String returnSequence = ""
-        Iterator<Coordinate> minKeys = minMap.values().iterator()
+        return projectSequence(inputSequence,-1,-1)
+    }
 
-        while(minKeys.hasNext()){
-            Coordinate coordinate = minKeys.next()
-            if(coordinate.max < inputSequence.length()){
+    @Override
+    String projectSequence(String inputSequence,Integer minCoordinate,Integer maxCoordinate ) {
+        String returnSequence = ""
+        Iterator<Coordinate> minKeyIterator = minMap.values().iterator()
+        minCoordinate = minCoordinate >=0 ? minCoordinate : 0
+        maxCoordinate = maxCoordinate >=0 ? maxCoordinate : inputSequence.length()
+        println "minCoordinate = ${minCoordinate}"
+        println "maxCoordinate = ${maxCoordinate}"
+        println "# of min maps ${minMap.size()}"
+
+        while(minKeyIterator.hasNext()){
+            Coordinate coordinate = minKeyIterator.next()
+            println "minKey coord ${coordinate.min}::${coordinate.max} vs ${inputSequence.length()}"
+            println "min/max ${minCoordinate}::${maxCoordinate} vs ${inputSequence.length()}"
+            // 6 cases
+            // case 1, max < minCoordinate . . .ignore
+            // case 5, min > maxCoordinate  . . .ignore
+            if(coordinate.max < minCoordinate || coordinate.min > maxCoordinate){
+                // do nothing
+            }
+            // case 6, overlaps all the way, min < minCoordinate, max > maxCoordinate, add minCoorindate, maxCoordinate
+            else
+            if(coordinate.min <= minCoordinate && coordinate.max >= maxCoordinate){
+                returnSequence += inputSequence.substring(minCoordinate,maxCoordinate+1)
+            }
+            // case 2, left-hand edge , min < minCoordinate , max > minCoordinate, add minCoordinate, max
+            else
+            if(coordinate.min <= minCoordinate && coordinate.max >= minCoordinate){
+                returnSequence += inputSequence.substring(minCoordinate,coordinate.max+1)
+            }
+            // case 3, inside min > minCoordinate , max < maxCoordinate . . . add as-is, min/ max
+            else
+            if(coordinate.min > minCoordinate && coordinate.max <= maxCoordinate ){
                 returnSequence += inputSequence.substring(coordinate.min,coordinate.max+1)
             }
+            // case 4, right-hand edge min < maxCoordinate , max > maxCoordinate . . . add min, maxCoordinate
+            else
+            if(coordinate.min <= maxCoordinate && coordinate.max > maxCoordinate){
+                returnSequence += inputSequence.substring(coordinate.min,maxCoordinate+1)
+            }
+            else{
+                println "what is this error case? "
+            }
+
         }
 
         return returnSequence
