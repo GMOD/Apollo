@@ -12,7 +12,7 @@ import org.bbop.apollo.projection.Track
 import spock.lang.Specification
 
 /**
- * Created by nathandunn on 8/14/15.
+ * Created by Nathan Dunn on 8/14/15.
  */
 class ProjectionSpec extends Specification{
 

@@ -323,49 +323,57 @@ public class DiscontinuousProjection extends AbstractProjection {
         return returnValue
     }
 
-    String projectSequence(String inputSequence) {
-        return projectSequence(inputSequence,-1,-1)
+    String projectSequence(String inputSequence ) {
+        projectSequence(inputSequence,-1,-1,0)
+    }
+
+    String projectSequence(String inputSequence,Integer minCoordinate,Integer maxCoordinate ) {
+        projectSequence(inputSequence,minCoordinate,maxCoordinate,0)
     }
 
     @Override
-    String projectSequence(String inputSequence,Integer minCoordinate,Integer maxCoordinate ) {
+    String projectSequence(String inputSequence,Integer minCoordinate,Integer maxCoordinate ,Integer offset) {
         String returnSequence = ""
         Iterator<Coordinate> minKeyIterator = minMap.values().iterator()
         minCoordinate = minCoordinate >=0 ? minCoordinate : 0
         maxCoordinate = maxCoordinate >=0 ? maxCoordinate : inputSequence.length()
         println "minCoordinate = ${minCoordinate}"
         println "maxCoordinate = ${maxCoordinate}"
+        println "offset = ${offset}"
         println "# of min maps ${minMap.size()}"
 
         while(minKeyIterator.hasNext()){
             Coordinate coordinate = minKeyIterator.next()
-            println "minKey coord ${coordinate.min}::${coordinate.max} vs ${inputSequence.length()}"
+            println "coodinate coord ${coordinate.min}::${coordinate.max} vs ${inputSequence.length()}"
+            Integer offsetMinCoordinate = coordinate.min - offset
+            Integer offsetMaxCoordinate = coordinate.max - offset
+            println "offset coord ${offsetMinCoordinate}::${offsetMaxCoordinate} vs ${inputSequence.length()}"
             println "min/max ${minCoordinate}::${maxCoordinate} vs ${inputSequence.length()}"
             // 6 cases
             // case 1, max < minCoordinate . . .ignore
             // case 5, min > maxCoordinate  . . .ignore
-            if(coordinate.max < minCoordinate || coordinate.min > maxCoordinate){
+            if(offsetMaxCoordinate < minCoordinate || offsetMinCoordinate > maxCoordinate){
                 // do nothing
             }
             // case 6, overlaps all the way, min < minCoordinate, max > maxCoordinate, add minCoorindate, maxCoordinate
             else
-            if(coordinate.min <= minCoordinate && coordinate.max >= maxCoordinate){
+            if(offsetMinCoordinate <= minCoordinate && offsetMaxCoordinate >= maxCoordinate){
                 returnSequence += inputSequence.substring(minCoordinate,maxCoordinate+1)
             }
             // case 2, left-hand edge , min < minCoordinate , max > minCoordinate, add minCoordinate, max
             else
-            if(coordinate.min <= minCoordinate && coordinate.max >= minCoordinate){
-                returnSequence += inputSequence.substring(minCoordinate,coordinate.max+1)
+            if(offsetMinCoordinate <= minCoordinate && offsetMaxCoordinate >= minCoordinate){
+                returnSequence += inputSequence.substring(minCoordinate,offsetMaxCoordinate+1)
             }
             // case 3, inside min > minCoordinate , max < maxCoordinate . . . add as-is, min/ max
             else
-            if(coordinate.min > minCoordinate && coordinate.max <= maxCoordinate ){
-                returnSequence += inputSequence.substring(coordinate.min,coordinate.max+1)
+            if(offsetMinCoordinate > minCoordinate && offsetMaxCoordinate <= maxCoordinate ){
+                returnSequence += inputSequence.substring(offsetMinCoordinate,offsetMaxCoordinate+1)
             }
             // case 4, right-hand edge min < maxCoordinate , max > maxCoordinate . . . add min, maxCoordinate
             else
-            if(coordinate.min <= maxCoordinate && coordinate.max > maxCoordinate){
-                returnSequence += inputSequence.substring(coordinate.min,maxCoordinate+1)
+            if(offsetMinCoordinate <= maxCoordinate && offsetMaxCoordinate > maxCoordinate){
+                returnSequence += inputSequence.substring(offsetMinCoordinate,maxCoordinate+1)
             }
             else{
                 println "what is this error case? "

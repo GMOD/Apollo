@@ -306,12 +306,12 @@ class JbrowseController {
                     Integer endOriginal = projection.projectReverseValue(endProjectedChunk)
                     println "original coord values ${startOriginal}::${endOriginal}"
 
-                    Integer startOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(startOriginal,defaultChunkSize)
-                    Integer endOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(endOriginal,defaultChunkSize)
-                    println "original chunk number ${startOriginalChunkNumber}::${endOriginalChunkNumber}"
-                    Integer startOriginalChunkCoordinate = startOriginalChunkNumber * defaultChunkSize
-                    Integer endOriginalChunkCoordinate = (endOriginalChunkNumber+1) * defaultChunkSize
-                    println "original chunk coordinate ${startOriginalChunkCoordinate}::${endOriginalChunkCoordinate}"
+//                    Integer startOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(startOriginal,defaultChunkSize)
+//                    Integer endOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(endOriginal,defaultChunkSize)
+//                    println "original chunk number ${startOriginalChunkNumber}::${endOriginalChunkNumber}"
+//                    Integer startOriginalChunkCoordinate = startOriginalChunkNumber * defaultChunkSize
+//                    Integer endOriginalChunkCoordinate = (endOriginalChunkNumber+1) * defaultChunkSize
+//                    println "original chunk coordinate ${startOriginalChunkCoordinate}::${endOriginalChunkCoordinate}"
 
 
                     Organism organism = preferenceService.currentOrganismForCurrentUser
@@ -322,7 +322,8 @@ class JbrowseController {
 
                     // re-project
 //                    String inputText = concatenatedSequence
-                    String inputText = projection.projectSequence(concatenatedSequence)
+//                    String inputText = projection.projectSequence(concatenatedSequence,startOriginal,endOriginal,startOriginal)
+                    String inputText = concatenatedSequence
                     println "return string length ${inputText.length()}"
 
 

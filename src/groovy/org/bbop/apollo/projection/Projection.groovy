@@ -31,5 +31,5 @@ interface Projection {
     Coordinate projectReverseCoordinate(int min, int max)
     Integer getLength()
 
-    String projectSequence(String inputSequence,Integer minCoordinate,Integer maxCoordinate)
+    String projectSequence(String inputSequence,Integer minCoordinate,Integer maxCoordinate,Integer offset)
 }
