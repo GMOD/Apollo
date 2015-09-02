@@ -288,27 +288,35 @@ class JbrowseController {
 
                 // if getting
                 Projection projection = projectionMap.values().iterator().next().get(sequenceName)
-                if(projection && false ){
+                if(projection ){
+                    DiscontinuousChunkProjector discontinuousChunkProjector = DiscontinuousChunkProjector.instance
                     // TODO: get proper chunk size from the RefSeq
-                    Integer chunkSize = 20000
-                    Integer chunkNumber = getChunkNumberFromFileName(fileName)
+                    Integer defaultChunkSize = 20000
+                    Integer chunkNumber = discontinuousChunkProjector.getChunkNumberFromFileName(fileName)
                     println "projected length ${projection.length}"
                     println "maping chunk ${chunkNumber} on proj"
-                    DiscontinuousChunkProjector discontinuousChunkProjector = new DiscontinuousChunkProjector()
-                    Integer startProjectedChunk = discontinuousChunkProjector.getStartChunk(chunkNumber,chunkSize)
-                    Integer endProjectedChunk = discontinuousChunkProjector.getEndChunk(chunkNumber,chunkSize)
+                    List<Integer> chunks = discontinuousChunkProjector.getChunksForPath(parentFile)
+                    for(Integer chunk in chunks){
+                        println "chunk ${chunk} / ${chunks.size()}"
+                    }
+                    Integer startProjectedChunk = discontinuousChunkProjector.getStartChunk(chunkNumber,defaultChunkSize)
+                    Integer endProjectedChunk = discontinuousChunkProjector.getEndChunk(chunkNumber,defaultChunkSize)
                     println "projected chunk ${startProjectedChunk}::${endProjectedChunk}"
                     Integer startOriginal = projection.projectReverseValue(startProjectedChunk)
                     Integer endOriginal = projection.projectReverseValue(endProjectedChunk)
                     println "original coord values ${startOriginal}::${endOriginal}"
 
-                    Integer startOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(startOriginal,chunkSize)
-                    Integer endOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(endOriginal,chunkSize)
+                    Integer startOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(startOriginal,defaultChunkSize)
+                    Integer endOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(endOriginal,defaultChunkSize)
                     println "original chunk number ${startOriginalChunkNumber}::${endOriginalChunkNumber}"
+                    Integer startOriginalChunkCoordinate = startOriginalChunkNumber * defaultChunkSize
+                    Integer endOriginalChunkCoordinate = (endOriginalChunkNumber+1) * defaultChunkSize
+                    println "original chunk coordinate ${startOriginalChunkCoordinate}::${endOriginalChunkCoordinate}"
 
                     String chunkSequence = discontinuousChunkProjector.getSequenceForChunks(startOriginalChunkNumber,endOriginalChunkNumber,parentFile,sequenceName)
                     println "chunk sequence length ${chunkSequence.length()}"
-                    Integer chunkOffset = startOriginal - startOriginalChunkNumber
+                    Integer chunkOffset = startOriginal - startOriginalChunkCoordinate
+//                    Integer chunkLength = (endOriginal - startOriginal) + startOriginal
                     Integer chunkLength = endOriginal
                     println "offset-> length ${chunkOffset}::${chunkLength}"
 
@@ -317,8 +325,12 @@ class JbrowseController {
                     println "concatenated length ${concatenatedSequence.length()}"
 
                     // re-project
+//                    String inputText = concatenatedSequence
                     String inputText = projection.projectSequence(concatenatedSequence)
-                    println "return string length ${inputText.length()}"
+//                    println "return string length ${inputText.length()}"
+//                    if(inputText.length()!=defaultChunkSize){
+//                        println "they aren ot the same ${inputText.length()} vs ${defaultChunkSize} which is fine if last chunk?"
+//                    }
 
 //                    println "projection max length ${projection.length}"
 //                    println "projectedStart ${projectedChunkStart}"
@@ -471,15 +483,6 @@ class JbrowseController {
 
     }
 
-    private Integer getChunkNumberFromFileName(String fileName) {
-        String suffix = fileName.split("-")[1]
-        println "suffix ${suffix}"
-        println "suf length ${suffix.length()} ${'.txt'.length()}"
-        Integer endIndex = suffix.length() - 4
-        println "endIndex ${endIndex}"
-        Integer chunkNumber = Integer.parseInt(suffix.substring(0,endIndex))
-        return chunkNumber
-    }
 
     private JSONArray projectJsonArray(Projection projection, JSONArray coordinate) {
 
