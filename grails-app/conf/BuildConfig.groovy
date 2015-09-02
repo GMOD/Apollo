@@ -77,7 +77,7 @@ grails.project.dependency.resolution = {
         //compile 'asm:asm:3.1'
         //compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
         //compile 'org.biojava:biojava3-core:3.1.0'
-        compile 'org.seqdoop:htsjdk:1.118'
+        compiile 'com.github.samtools:htsjdk:1.138'
         compile 'org.utgenome.thirdparty:picard:1.86.0'
 
 
