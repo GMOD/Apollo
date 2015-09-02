@@ -364,6 +364,30 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         //println "MRNA Sequence: ${mrnaSequence}"
         //println mrnaSequence.length()
     }
-    
-    
+
+
+    void "projected tracks should have "() {
+
+        given: "a simple gene model with 1 mRNA, 1 exon and 1 CDS"
+        String transcript1String = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40722-RA\",\"children\":[{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String transcript2String = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":694293,\"fmax\":696055,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40749-RA\",\"children\":[{\"location\":{\"fmin\":695943,\"fmax\":696055,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":694293,\"fmax\":694440,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":694293,\"fmax\":694606,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":694918,\"fmax\":695591,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":695882,\"fmax\":696055,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":694440,\"fmax\":695943,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+
+        when: "the gene model is added"
+        requestHandlingService.addTranscript(JSON.parse(transcript1String) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(transcript2String) as JSONObject)
+
+        then: "we should have a couple of transcripts"
+
+
+        when: "we get sequences from those transcripts"
+
+        then: "we can confirm that they are correct"
+
+
+        when: "we add projected sequences"
+
+        then: "the updated sequences should be UNCHANGED, but the updated sequence locations should be changed and the refseq should be shorter"
+
+    }
+
 }
