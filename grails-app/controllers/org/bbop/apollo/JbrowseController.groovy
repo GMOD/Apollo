@@ -53,6 +53,8 @@ class JbrowseController {
             Organism organism = Organism.findById(params.organism)
             def session = request.getSession(true)
             session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
+            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value,organism.commonName)
 
             // create an anonymous login
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
@@ -266,6 +268,7 @@ class JbrowseController {
         File file = new File(absoluteFilePath);
         def mimeType = "application/json";
         response.setContentType(mimeType);
+        int id
 
         if (!file.exists()) {
             log.warn("Could not get for name and path: ${absoluteFilePath}");
@@ -282,7 +285,7 @@ class JbrowseController {
         }
 
         else {
-            int id=request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
+            id=request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
             jsonObject.put("dataset_id",id);
         }
         List<Organism> list=permissionService.getOrganismsForCurrentUser()
@@ -303,7 +306,6 @@ class JbrowseController {
             organismObject.put("name",Organism.findById(id).commonName)
             organismObject.put("url","#")
             organismObjectContainer.put(id, organismObject)
-
         }
 
         jsonObject.put("datasets",organismObjectContainer)
