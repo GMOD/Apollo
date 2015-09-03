@@ -245,7 +245,6 @@ class JbrowseController {
                     // get the track from the json object
 
                     // TODO: it should look up the OGS track either default or variable
-//                    Projection projection = projectionMap.get(trackName)?.get(sequenceName)
                     Projection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
 
                     if (projection) {
@@ -262,41 +261,20 @@ class JbrowseController {
 //                    return
                 } else if (fileName.startsWith("lf-")) {
                     // TODO: project trackData.json
-                    // transform 2nd and 3rd array object in intervals/ncList
                     JSONArray trackDataJsonObject = new JSONArray(file.text)
                     String sequenceName = getSequenceName(file.absolutePath)
                     // get the track from the json object
 
                     // TODO: it should look up the OGS track either default or variable
-//                    Projection projection = projectionMap.get(trackName)?.get(sequenceName)
                     Projection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
 
                     if (projection) {
-//                    JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
-//                    JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
                         for (int i = 0; i < trackDataJsonObject.size(); i++) {
                             JSONArray coordinate = trackDataJsonObject.getJSONArray(i)
                             projectJsonArray(projection, coordinate)
                         }
                     }
-//                    response.setContentLength((int) file.length());
-//
                     response.outputStream << trackDataJsonObject.toString()
-//                    // Open the file and output streams
-//                    FileInputStream inputStream = new FileInputStream(file);
-//                    OutputStream out = response.getOutputStream();
-//
-//                    // Copy the contents of the file to the output stream
-//                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-//                    int count = 0;
-//                    while ((count = inputStream.read(buf)) >= 0) {
-//                        out.write(buf, 0, count);
-//                    }
-//                    inputStream.close();
-//                    out.close();
-
-//                response.outputStream << trackDataJsonObject.toString()
-//                    return
                 } else {
                     // Set content size
                     response.setContentLength((int) file.length());
