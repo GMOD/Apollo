@@ -345,8 +345,8 @@ public class DiscontinuousProjection extends AbstractProjection {
         while(minKeyIterator.hasNext()){
             Coordinate coordinate = minKeyIterator.next()
             println "coodinate coord ${coordinate.min}::${coordinate.max} vs ${inputSequence.length()}"
-            Integer offsetMinCoordinate = coordinate.min - offset
-            Integer offsetMaxCoordinate = coordinate.max - offset
+            Integer offsetMinCoordinate = coordinate.min + offset
+            Integer offsetMaxCoordinate = coordinate.max + offset
             println "offset coord ${offsetMinCoordinate}::${offsetMaxCoordinate} vs ${inputSequence.length()}"
             println "min/max ${minCoordinate}::${maxCoordinate} vs ${inputSequence.length()}"
             // 6 cases
