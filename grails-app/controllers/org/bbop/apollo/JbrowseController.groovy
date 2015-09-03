@@ -29,7 +29,6 @@ class JbrowseController {
     def preferenceService
     def servletContext
 
-
     // TODO: move to database as JSON
     // track, sequence, projection
     // TODO: should also include organism at some point as well
@@ -239,6 +238,7 @@ class JbrowseController {
                     response.outputStream << refSeqJsonObject.toString()
                 } else if (fileName.endsWith("trackData.json")) {
                     // TODO: project trackData.json
+                    println "fileNAme is lf-type ${fileName}"
                     // transform 2nd and 3rd array object in intervals/ncList
                     JSONObject trackDataJsonObject = new JSONObject(file.text)
                     String sequenceName = getSequenceName(file.absolutePath)
@@ -260,6 +260,43 @@ class JbrowseController {
 
                     response.outputStream << trackDataJsonObject.toString()
 //                    return
+                } else if (fileName.startsWith("lf-")) {
+                    // TODO: project trackData.json
+                    // transform 2nd and 3rd array object in intervals/ncList
+                    JSONArray trackDataJsonObject = new JSONArray(file.text)
+                    String sequenceName = getSequenceName(file.absolutePath)
+                    // get the track from the json object
+
+                    // TODO: it should look up the OGS track either default or variable
+//                    Projection projection = projectionMap.get(trackName)?.get(sequenceName)
+                    Projection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
+
+                    if (projection) {
+//                    JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
+//                    JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
+                        for (int i = 0; i < trackDataJsonObject.size(); i++) {
+                            JSONArray coordinate = trackDataJsonObject.getJSONArray(i)
+                            projectJsonArray(projection, coordinate)
+                        }
+                    }
+//                    response.setContentLength((int) file.length());
+//
+                    response.outputStream << trackDataJsonObject.toString()
+//                    // Open the file and output streams
+//                    FileInputStream inputStream = new FileInputStream(file);
+//                    OutputStream out = response.getOutputStream();
+//
+//                    // Copy the contents of the file to the output stream
+//                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+//                    int count = 0;
+//                    while ((count = inputStream.read(buf)) >= 0) {
+//                        out.write(buf, 0, count);
+//                    }
+//                    inputStream.close();
+//                    out.close();
+
+//                response.outputStream << trackDataJsonObject.toString()
+//                    return
                 } else {
                     // Set content size
                     response.setContentLength((int) file.length());
@@ -277,8 +314,7 @@ class JbrowseController {
                     inputStream.close();
                     out.close();
                 }
-            }
-            else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+            } else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
                 // Set content size
                 // fileName
 //                Group1.22-18.txt
@@ -288,7 +324,7 @@ class JbrowseController {
 
                 // if getting
                 Projection projection = projectionMap.values().iterator().next().get(sequenceName)
-                if(projection ){
+                if (projection) {
                     DiscontinuousChunkProjector discontinuousChunkProjector = DiscontinuousChunkProjector.instance
                     // TODO: get proper chunk size from the RefSeq
                     Integer defaultChunkSize = 20000
@@ -296,11 +332,11 @@ class JbrowseController {
                     println "projected length ${projection.length}"
                     println "maping chunk ${chunkNumber} on proj"
                     List<Integer> chunks = discontinuousChunkProjector.getChunksForPath(parentFile)
-                    for(Integer chunk in chunks){
+                    for (Integer chunk in chunks) {
                         println "chunk ${chunk} / ${chunks.size()}"
                     }
-                    Integer startProjectedChunk = discontinuousChunkProjector.getStartChunk(chunkNumber,defaultChunkSize)
-                    Integer endProjectedChunk = discontinuousChunkProjector.getEndChunk(chunkNumber,defaultChunkSize)
+                    Integer startProjectedChunk = discontinuousChunkProjector.getStartChunk(chunkNumber, defaultChunkSize)
+                    Integer endProjectedChunk = discontinuousChunkProjector.getEndChunk(chunkNumber, defaultChunkSize)
                     println "projected chunk ${startProjectedChunk}::${endProjectedChunk}"
                     Integer startOriginal = projection.projectReverseValue(startProjectedChunk)
                     Integer endOriginal = projection.projectReverseValue(endProjectedChunk)
@@ -315,9 +351,9 @@ class JbrowseController {
 
 
                     Organism organism = preferenceService.currentOrganismForCurrentUser
-                    Sequence sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
+                    Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
                     println "ffound sequence ${sequence} for org ${organism.commonName}"
-                    String concatenatedSequence = sequenceService.getRawResiduesFromSequence(sequence,startOriginal,endOriginal)
+                    String concatenatedSequence = sequenceService.getRawResiduesFromSequence(sequence, startOriginal, endOriginal)
                     println "concatenated length ${concatenatedSequence.length()}"
 
                     // re-project
@@ -325,7 +361,6 @@ class JbrowseController {
 //                    String inputText = projection.projectSequence(concatenatedSequence,startOriginal,endOriginal,startOriginal)
                     String inputText = concatenatedSequence
                     println "return string length ${inputText.length()}"
-
 
                     // TODO: get chunks needed for cuts . . ..
                     // TODO: get substrings from start / end
@@ -347,8 +382,7 @@ class JbrowseController {
                     response.outputStream << inputText
                     response.outputStream.close()
 
-                }
-                else{
+                } else {
                     response.setContentLength((int) file.length());
 
                     // Open the file and output streams
