@@ -12,7 +12,7 @@ class DiscontinuousProjectionFactory {
      * @param padding
      * @return
      */
-    Projection createProjection(Track inputTrack,Integer padding=0){
+    DiscontinuousProjection createProjection(Track inputTrack,Integer padding=0){
        DiscontinuousProjection projection= new DiscontinuousProjection()
 
         inputTrack.coordinateList.each {

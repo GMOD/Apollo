@@ -505,4 +505,22 @@ class ProjectionSpec extends Specification{
 
     }
 
+    void "let us try to project sequence features again to make sure it works properly"(){
+        given: "an input sequence"
+        String inputSequence = "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRST"
+        Track track1 = new Track(length: 72)
+        track1.addCoordinate(8,16)
+        track1.addCoordinate(24,32)
+        track1.addCoordinate(40,56)
+
+
+        when: "we project a sequence"
+        DiscontinuousProjection projection = DiscontinuousProjectionFactory.getInstance().createProjection(track1)
+        String projectedSequence = projection.projectSequence(inputSequence)
+
+        then: "we should get back the projected sequence"
+        assert projectedSequence == inputSequence.substring(8,16+1) + inputSequence.substring(24,32+1) + inputSequence.substring(40,56+1)
+
+    }
+
 }
