@@ -238,7 +238,7 @@ class JbrowseController {
                     response.outputStream << refSeqJsonObject.toString()
                 } else if (fileName.endsWith("trackData.json")) {
                     // TODO: project trackData.json
-                    println "fileNAme is lf-type ${fileName}"
+                    println "fileNAme is NOT lf-type ${fileName}"
                     // transform 2nd and 3rd array object in intervals/ncList
                     JSONObject trackDataJsonObject = new JSONObject(file.text)
                     String sequenceName = getSequenceName(file.absolutePath)
@@ -269,9 +269,13 @@ class JbrowseController {
                     Projection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
 
                     if (projection) {
+//                        println "re-writing the LF array ${trackDataJsonObject.size()}"
+//                        println "coordinates are ${projection.toString()}"
                         for (int i = 0; i < trackDataJsonObject.size(); i++) {
                             JSONArray coordinate = trackDataJsonObject.getJSONArray(i)
+//                            println "lf-from ${coordinate as JSON}"
                             projectJsonArray(projection, coordinate)
+//                            println "lf-to ${coordinate as JSON}"
                         }
                     }
                     response.outputStream << trackDataJsonObject.toString()
@@ -489,7 +493,7 @@ class JbrowseController {
 //            }
         }
 
-        if (coordinate.size() > 4
+        if (coordinate.size() >= 3
                 && coordinate.get(0) instanceof Integer
                 && coordinate.get(1) instanceof Integer
                 && coordinate.get(2) instanceof Integer
@@ -591,7 +595,21 @@ class JbrowseController {
                     JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray("nclist")
                     for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
                         JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
-                        discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2))
+                        // TODO: use enums to better track format
+                        if(coordinate.getInt(0)==4){
+                            // projecess the file lf-${coordIndex} instead
+                            File chunkFile = new File(trackDataFile.parent+"/lf-${coordIndex+1}.json")
+                            JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
+
+                            for(int chunkArrayIndex = 0 ; chunkArrayIndex < chunkReferenceJsonArray.size() ; ++chunkArrayIndex){
+                                JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
+                                discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1), chunkArrayCoordinate.getInt(2))
+                            }
+
+                        }
+                        else{
+                            discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2))
+                        }
                     }
 
                     sequenceProjectionMap.put(sequenceFileName, discontinuousProjection)

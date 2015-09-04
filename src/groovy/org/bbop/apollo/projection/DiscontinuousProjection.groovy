@@ -52,7 +52,7 @@ public class DiscontinuousProjection extends AbstractProjection {
             return input
         }
 
-        if(input==null){
+        if (input == null) {
             return -1
         }
 
@@ -172,70 +172,55 @@ public class DiscontinuousProjection extends AbstractProjection {
         // overlapping without?
         if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord != null && ceilMaxCoord != null) {
             // this overlaps on both sides
-            if (floorMinCoord != floorMaxCoord && ceilMinCoord!=ceilMaxCoord && floorMaxCoord==ceilMinCoord) {
+            if (floorMinCoord != floorMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord == ceilMinCoord) {
 
-                if(min < ceilMinCoord.min && min > floorMinCoord.max && max > floorMaxCoord.max && max < ceilMaxCoord.min){
-                    return replaceCoordinate(floorMaxCoord,min,max)
-                }
-                else
+                if (min < ceilMinCoord.min && min > floorMinCoord.max && max > floorMaxCoord.max && max < ceilMaxCoord.min) {
+                    return replaceCoordinate(floorMaxCoord, min, max)
+                } else
                 // in-between all, so just add
-                if(min > floorMaxCoord.max && max < ceilMinCoord.min ){
+                if (min > floorMaxCoord.max && max < ceilMinCoord.min) {
                     return addCoordinate(min, max)
                 }
                 // putting on the LHS
-                else
-                if(min > floorMaxCoord.max && max < ceilMaxCoord.max){
+                else if (min > floorMaxCoord.max && max < ceilMaxCoord.max) {
                     return replaceCoordinate(ceilMinCoord, min, ceilMaxCoord.max)
                 }
                 // putting on the RHS
-                else
-                if(min < floorMaxCoord.max && max < ceilMaxCoord.min){
-                    return replaceCoordinate(floorMinCoord, floorMinCoord.min , max)
-                }
-                else
-                if(min < floorMaxCoord.min && max < ceilMaxCoord.min){
+                else if (min < floorMaxCoord.max && max < ceilMaxCoord.min) {
+                    return replaceCoordinate(floorMinCoord, floorMinCoord.min, max)
+                } else if (min < floorMaxCoord.min && max < ceilMaxCoord.min) {
                     return replaceCoordinate(floorMinCoord, floorMinCoord.min, ceilMaxCoord.max)
-                }
-                else
-                if(min > floorMinCoord.min && min < floorMinCoord.max && max > ceilMaxCoord.min && max < ceilMaxCoord.max){
+                } else if (min > floorMinCoord.min && min < floorMinCoord.max && max > ceilMaxCoord.min && max < ceilMaxCoord.max) {
                     return replaceCoordinate(floorMinCoord, floorMinCoord.min, ceilMaxCoord.max)
-                }
-                else{
+                } else {
                     int newMin = min > floorMinCoord.max ? floorMinCoord.min : min
                     int newMax = max < ceilMaxCoord.min ? max : ceilMaxCoord.max
                     return replaceCoordinate(floorMinCoord, newMin, newMax)
                 }
-            }
-            else
-            if (floorMinCoord != floorMaxCoord && ceilMinCoord==ceilMaxCoord) {
+            } else if (floorMinCoord != floorMaxCoord && ceilMinCoord == ceilMaxCoord) {
                 return replaceCoordinate(floorMinCoord, Math.min(min, floorMinCoord.min), Math.max(max, ceilMaxCoord.max))
-            }
-            else
+            } else
             // if we have coordinates on either side
-            if(floorMinCoord == floorMaxCoord && ceilMinCoord == ceilMaxCoord && ceilMinCoord != floorMinCoord ){
+            if (floorMinCoord == floorMaxCoord && ceilMinCoord == ceilMaxCoord && ceilMinCoord != floorMinCoord) {
                 // in-between all, so just add
-                if(min > floorMaxKey && max < ceilMinKey){
+                if (min > floorMaxKey && max < ceilMinKey) {
                     return addCoordinate(min, max)
                 }
                 // putting on the LHS
-                else
-                if(min > floorMaxKey && max < ceilMaxCoord.max){
+                else if (min > floorMaxKey && max < ceilMaxCoord.max) {
                     return replaceCoordinate(ceilMinCoord, min, ceilMaxCoord.max)
                 }
                 // putting on the RHS
-                else
-                if(min < floorMaxCoord.max && max < ceilMaxCoord.min){
-                    return replaceCoordinate(floorMinCoord, floorMinCoord.min , max)
-                }
-                else{
+                else if (min < floorMaxCoord.max && max < ceilMaxCoord.min) {
+                    return replaceCoordinate(floorMinCoord, floorMinCoord.min, max)
+                } else {
                     int newMin = min > floorMinCoord.max ? floorMinCoord.min : min
                     int newMax = max < ceilMaxCoord.min ? max : ceilMaxCoord.max
                     return replaceCoordinate(floorMinCoord, newMin, newMax)
                 }
             }
             // in the case they are in-between an existing scaffold
-            else
-            if(floorMinCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord ){
+            else if (floorMinCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord) {
                 return null
             }
 
@@ -315,34 +300,34 @@ public class DiscontinuousProjection extends AbstractProjection {
     }
 
     @Override
-    public Integer getLength(){
+    public Integer getLength() {
         int returnValue = 0
-        for(Coordinate coordinate : minMap.values()){
+        for (Coordinate coordinate : minMap.values()) {
             returnValue += coordinate.length;
         }
         return returnValue
     }
 
-    String projectSequence(String inputSequence ) {
-        projectSequence(inputSequence,-1,-1,0)
+    String projectSequence(String inputSequence) {
+        projectSequence(inputSequence, -1, -1, 0)
     }
 
-    String projectSequence(String inputSequence,Integer minCoordinate,Integer maxCoordinate ) {
-        projectSequence(inputSequence,minCoordinate,maxCoordinate,0)
+    String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate) {
+        projectSequence(inputSequence, minCoordinate, maxCoordinate, 0)
     }
 
     @Override
-    String projectSequence(String inputSequence,Integer minCoordinate,Integer maxCoordinate ,Integer offset) {
+    String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate, Integer offset) {
         String returnSequence = ""
         Iterator<Coordinate> minKeyIterator = minMap.values().iterator()
-        minCoordinate = minCoordinate >=0 ? minCoordinate : 0
-        maxCoordinate = maxCoordinate >=0 ? maxCoordinate : inputSequence.length()
+        minCoordinate = minCoordinate >= 0 ? minCoordinate : 0
+        maxCoordinate = maxCoordinate >= 0 ? maxCoordinate : inputSequence.length()
         println "minCoordinate = ${minCoordinate}"
         println "maxCoordinate = ${maxCoordinate}"
         println "offset = ${offset}"
         println "# of min maps ${minMap.size()}"
 
-        while(minKeyIterator.hasNext()){
+        while (minKeyIterator.hasNext()) {
             Coordinate coordinate = minKeyIterator.next()
             println "coodinate coord ${coordinate.min}::${coordinate.max} vs ${inputSequence.length()}"
             Integer offsetMinCoordinate = coordinate.min + offset
@@ -352,35 +337,44 @@ public class DiscontinuousProjection extends AbstractProjection {
             // 6 cases
             // case 1, max < minCoordinate . . .ignore
             // case 5, min > maxCoordinate  . . .ignore
-            if(offsetMaxCoordinate < minCoordinate || offsetMinCoordinate > maxCoordinate){
+            if (offsetMaxCoordinate < minCoordinate || offsetMinCoordinate > maxCoordinate) {
                 // do nothing
             }
             // case 6, overlaps all the way, min < minCoordinate, max > maxCoordinate, add minCoorindate, maxCoordinate
-            else
-            if(offsetMinCoordinate <= minCoordinate && offsetMaxCoordinate >= maxCoordinate){
-                returnSequence += inputSequence.substring(minCoordinate,maxCoordinate+1)
+            else if (offsetMinCoordinate <= minCoordinate && offsetMaxCoordinate >= maxCoordinate) {
+                returnSequence += inputSequence.substring(minCoordinate, maxCoordinate + 1)
             }
             // case 2, left-hand edge , min < minCoordinate , max > minCoordinate, add minCoordinate, max
-            else
-            if(offsetMinCoordinate <= minCoordinate && offsetMaxCoordinate >= minCoordinate){
-                returnSequence += inputSequence.substring(minCoordinate,offsetMaxCoordinate+1)
+            else if (offsetMinCoordinate <= minCoordinate && offsetMaxCoordinate >= minCoordinate) {
+                returnSequence += inputSequence.substring(minCoordinate, offsetMaxCoordinate + 1)
             }
             // case 3, inside min > minCoordinate , max < maxCoordinate . . . add as-is, min/ max
-            else
-            if(offsetMinCoordinate > minCoordinate && offsetMaxCoordinate <= maxCoordinate ){
-                returnSequence += inputSequence.substring(offsetMinCoordinate,offsetMaxCoordinate+1)
+            else if (offsetMinCoordinate > minCoordinate && offsetMaxCoordinate <= maxCoordinate) {
+                returnSequence += inputSequence.substring(offsetMinCoordinate, offsetMaxCoordinate + 1)
             }
             // case 4, right-hand edge min < maxCoordinate , max > maxCoordinate . . . add min, maxCoordinate
-            else
-            if(offsetMinCoordinate <= maxCoordinate && offsetMaxCoordinate > maxCoordinate){
-                returnSequence += inputSequence.substring(offsetMinCoordinate,maxCoordinate+1)
-            }
-            else{
+            else if (offsetMinCoordinate <= maxCoordinate && offsetMaxCoordinate > maxCoordinate) {
+                returnSequence += inputSequence.substring(offsetMinCoordinate, maxCoordinate + 1)
+            } else {
                 println "what is this error case? "
             }
 
         }
 
         return returnSequence
+    }
+
+
+    @Override
+    public String toString() {
+        String returnString = "DiscontinuousProjection{"
+
+        minMap.values().each { it ->
+            returnString += "[${it.min}::${it.max}]"
+        }
+
+        returnString += '}';
+
+        return returnString
     }
 }
