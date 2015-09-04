@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.test.spock.IntegrationSpec
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Ignore
 
@@ -409,12 +410,12 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         then: "we should have a couple of transcripts"
         assert Gene.count == 2
         assert MRNA.count == 2
-        assert Exon.count == 6
+        assert Exon.count == 4
 
 
         when: "we get sequences from those transcripts"
-        String sequence1 = sequenceService.getRawResiduesFromSequence(Sequence.first(),1248797,1249052)
-        String sequence2 = sequenceService.getRawResiduesFromSequence(Sequence.first(),694293,696055)
+        String sequence1 = sequenceService.getGenomicResiduesFromSequenceWithAlterations(Sequence.first(),1248797,1249052, Strand.POSITIVE)
+        String sequence2 = sequenceService.getGenomicResiduesFromSequenceWithAlterations(Sequence.first(),694293,696055,Strand.POSITIVE)
 
         then: "we can confirm that they are correct"
         assert sequence1==sequenceGB40722String
