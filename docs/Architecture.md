@@ -4,7 +4,6 @@
 
 See the [build doc](Apollo2Build.md) for the official quick-start guide.
 
-
 Minimally, the apollo application can be launched by running `apollo run-local`. This starts up a temporary tomcat server automatically. It will also simply use a in-memory H2 database if a different database configuration isn't setup yet.
 
 For development purposes, you can also enable automatic code reloading which helps for fast iteration.
@@ -31,10 +30,10 @@ Also, as always during web development, yoe will want to clear the cache to see 
 
 The main components of the Web Apollo 2.0 application are:
 
-- Grails Server (formally a simple servlet 3 container)
+- Grails Server (formally a simple servlet 3 container) [Grails 2.4.5 doc](https://grails.github.io/grails-doc/2.4.5/guide/)
 - Datastore: configured via Hibernate / Grails whcih can use most anything supported by JDBC / hibernate (primarily, Postgres, MySQL, H2)
-- JBrowse / Apollo Plugin: JS / HTML5
-- GWT client: provides the sidebar.   Can be written in another front-end language, as well.
+- JBrowse / Apollo Plugin: JS / HTML5 [JBrowse doc](http://jbrowse.org/code/JBrowse-1.11.6/docs/) and [main site](http://jbrowse.org)
+- GWT client: provides the sidebar.   Can be written in another front-end language, as well.  [GWT doc](http://www.gwtproject.org/)
 
 
 ### Basic layout
