@@ -7,7 +7,7 @@ import groovy.transform.CompileStatic
  * Created by nathandunn on 8/14/15.
  */
 @CompileStatic
-interface Projection {
+interface ProjectionInterface {
 
 
     /**

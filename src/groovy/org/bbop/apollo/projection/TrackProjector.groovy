@@ -5,5 +5,5 @@ package org.bbop.apollo.projection
  */
 interface TrackProjector {
 
-    Track projectTrack(Track trackA,Track trackB,Projection projection)
+    Track projectTrack(Track trackA,Track trackB,ProjectionInterface projection)
 }

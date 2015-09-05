@@ -6,7 +6,7 @@ import groovy.transform.CompileStatic
  * Created by Nathan Dunn on 8/24/15.
  */
 @CompileStatic
-abstract class AbstractProjection implements Projection{
+abstract class AbstractProjection implements ProjectionInterface{
 
     public final static Integer UNMAPPED_VALUE = -1
 

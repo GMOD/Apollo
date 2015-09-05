@@ -9,7 +9,7 @@ class RefSeqProjector implements TrackProjector{
     ReferenceTrack referenceTrack
 
     @Override
-    Track projectTrack(Track trackA, Track trackB, Projection projection) {
+    Track projectTrack(Track trackA, Track trackB, ProjectionInterface projection) {
         return null
     }
 }

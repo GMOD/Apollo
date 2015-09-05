@@ -9,7 +9,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousChunkProjector
 import org.bbop.apollo.projection.DiscontinuousProjection
-import org.bbop.apollo.projection.Projection
+import org.bbop.apollo.projection.ProjectionInterface
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -32,7 +32,7 @@ class JbrowseController {
     // TODO: move to database as JSON
     // track, sequence, projection
     // TODO: should also include organism at some point as well
-    private Map<String, Map<String, Projection>> projectionMap = new HashMap<>()
+    private Map<String, Map<String, ProjectionInterface>> projectionMap = new HashMap<>()
 
     def indexRouter() {
         log.debug "indexRouter ${params}"
@@ -245,7 +245,7 @@ class JbrowseController {
                     // get the track from the json object
 
                     // TODO: it should look up the OGS track either default or variable
-                    Projection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
+                    ProjectionInterface projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
 
                     if (projection) {
                         JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
@@ -266,7 +266,7 @@ class JbrowseController {
                     // get the track from the json object
 
                     // TODO: it should look up the OGS track either default or variable
-                    Projection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
+                    ProjectionInterface projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
 
                     if (projection) {
 //                        println "re-writing the LF array ${trackDataJsonObject.size()}"
@@ -305,7 +305,7 @@ class JbrowseController {
                 String sequenceName = fileName.split("-")[0]
 
                 // if getting
-                Projection projection = projectionMap.values().iterator().next().get(sequenceName)
+                ProjectionInterface projection = projectionMap.values().iterator().next().get(sequenceName)
                 if (projection) {
                     DiscontinuousChunkProjector discontinuousChunkProjector = DiscontinuousChunkProjector.instance
                     // TODO: get proper chunk size from the RefSeq
@@ -335,6 +335,7 @@ class JbrowseController {
                     Organism organism = preferenceService.currentOrganismForCurrentUser
                     Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
                     println "ffound sequence ${sequence} for org ${organism.commonName}"
+                    // TODO: fix the offsets here
                     String concatenatedSequence = sequenceService.getRawResiduesFromSequence(sequence, startOriginal, endOriginal)
                     println "concatenated length ${concatenatedSequence.length()}"
 
@@ -477,7 +478,7 @@ class JbrowseController {
     }
 
 
-    private JSONArray projectJsonArray(Projection projection, JSONArray coordinate) {
+    private JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate) {
 
         // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
         for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
@@ -578,7 +579,7 @@ class JbrowseController {
 
                 println "# of files ${files.length}"
 
-                Map<String, Projection> sequenceProjectionMap = new HashMap<>()
+                Map<String, ProjectionInterface> sequenceProjectionMap = new HashMap<>()
 
                 for (File trackDataFile in files) {
 //                    println "file ${trackDataFile.absolutePath}"
