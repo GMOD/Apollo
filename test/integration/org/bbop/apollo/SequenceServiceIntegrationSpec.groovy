@@ -367,7 +367,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
     }
 
 
-    void "projected tracks should have "() {
+    void "projected tracks should have an offset"() {
 
         given: "a simple gene model with 1 mRNA, 1 exon and 1 CDS"
         String transcriptGB40722String = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40722-RA\",\"children\":[{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
@@ -403,6 +403,17 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
                 "AATGTATTTCGTTAATTAACACTGTAAAATTTGAATTCGAAATATCACTGTATTGTTATTCTAATATACA\n" +
                 "TATATATATGTG"
 
+        when: "we can confirm that they are correct"
+        Integer firstOffset = 19635
+        String sampleString = "TCACACGGTGAAATGATAGATGAA"
+
+
+        then: "should match a simple string"
+        assert 24 == sampleString.length()
+        // its an exclusive include
+        assert sampleString == sequenceService.getGenomicResiduesFromSequenceWithAlterations(Sequence.first(),1+firstOffset,25+firstOffset, Strand.POSITIVE)
+
+
         when: "the gene model is added"
         requestHandlingService.addTranscript(JSON.parse(transcriptGB40722String) as JSONObject)
         requestHandlingService.addTranscript(JSON.parse(transcripGB40749String) as JSONObject)
@@ -417,12 +428,13 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         String sequence1 = sequenceService.getGenomicResiduesFromSequenceWithAlterations(Sequence.first(),1248797,1249052, Strand.POSITIVE)
         String sequence2 = sequenceService.getGenomicResiduesFromSequenceWithAlterations(Sequence.first(),694293,696055,Strand.POSITIVE)
 
-        then: "we can confirm that they are correct"
-        assert sequence1==sequenceGB40722String
-        assert sequence2==sequenceGB40749String
+        then: "they should match"
+        // can I get the projection?
+//        assert sequence1==sequenceGB40722String
+//        assert sequence2==sequenceGB40749String
 
 
-        when: "we add projected sequences"
+        when: "we add the inserted projection"
 
 
         then: "the updated sequences should be UNCHANGED, but the updated sequence locations should be changed and the refseq should be shorter"
