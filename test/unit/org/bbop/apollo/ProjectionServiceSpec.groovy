@@ -4,10 +4,10 @@ import grails.test.mixin.TestFor
 import spock.lang.Specification
 
 /**
- * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
+ * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
-@TestFor(JbrowseController)
-class JbrowseControllerSpec extends Specification {
+@TestFor(ProjectionService)
+class ProjectionServiceSpec extends Specification {
 
     def setup() {
     }
@@ -20,7 +20,7 @@ class JbrowseControllerSpec extends Specification {
         String trackDataFileName = "/opt/apollo/honeybee/data/tracks/Official Gene Set v3.2/Group1.1/trackData.json"
 
         then: "we get out the track name and session name"
-        assert "Official Gene Set v3.2"==controller.getTrackName(trackDataFileName)
+        assert "Official Gene Set v3.2"==service.getTrackName(trackDataFileName)
     }
 
     void "get sequence name"() {
@@ -28,6 +28,6 @@ class JbrowseControllerSpec extends Specification {
         String trackDataFileName = "/opt/apollo/honeybee/data/tracks/Official Gene Set v3.2/Group1.1/trackData.json"
 
         then: "we get out the track name and session name"
-        assert "Group1.1"==controller.getSequenceName(trackDataFileName)
+        assert "Group1.1"==service.getSequenceName(trackDataFileName)
     }
 }

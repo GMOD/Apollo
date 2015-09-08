@@ -28,11 +28,7 @@ class JbrowseController {
     def permissionService
     def preferenceService
     def servletContext
-
-    // TODO: move to database as JSON
-    // track, sequence, projection
-    // TODO: should also include organism at some point as well
-    private Map<String, Map<String, ProjectionInterface>> projectionMap = new HashMap<>()
+    def projectionService
 
     def indexRouter() {
         log.debug "indexRouter ${params}"
@@ -220,32 +216,34 @@ class JbrowseController {
                 if (fileName.endsWith("refSeqs.json")) {
                     JSONArray refSeqJsonObject = new JSONArray(file.text)
                     // TODO: it should look up the OGS track either default or variable
-                    if (projectionMap) {
-                        for (int i = 0; i < refSeqJsonObject.size(); i++) {
 
-                            JSONObject sequenceValue = refSeqJsonObject.getJSONObject(i)
+//                    if (projectionService.hasProjection(preferenceService.currentOrganismForCurrentUser,projectionService.getTrackName(file.absolutePath))) {
+                    for (int i = 0; i < refSeqJsonObject.size(); i++) {
 
-                            String sequenceName = sequenceValue.getString("name")
-                            DiscontinuousProjection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
-                            // not projections for every sequence  . . .
-                            if (projection) {
-                                Integer projectedSequenceLength = projection.length
-                                sequenceValue.put("length", projectedSequenceLength)
-                                sequenceValue.put("end", projectedSequenceLength)
-                            }
+                        JSONObject sequenceValue = refSeqJsonObject.getJSONObject(i)
+
+                        String sequenceName = sequenceValue.getString("name")
+//                            DiscontinuousProjection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
+                        ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, "", sequenceName)
+                        // not projections for every sequence  . . .
+                        if (projection) {
+                            Integer projectedSequenceLength = projection.length
+                            sequenceValue.put("length", projectedSequenceLength)
+                            sequenceValue.put("end", projectedSequenceLength)
                         }
                     }
+//                    }
                     response.outputStream << refSeqJsonObject.toString()
                 } else if (fileName.endsWith("trackData.json")) {
                     // TODO: project trackData.json
                     println "fileNAme is NOT lf-type ${fileName}"
                     // transform 2nd and 3rd array object in intervals/ncList
                     JSONObject trackDataJsonObject = new JSONObject(file.text)
-                    String sequenceName = getSequenceName(file.absolutePath)
+                    String sequenceName = projectionService.getSequenceName(file.absolutePath)
                     // get the track from the json object
 
                     // TODO: it should look up the OGS track either default or variable
-                    ProjectionInterface projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
+                    ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
 
                     if (projection) {
                         JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
@@ -256,17 +254,16 @@ class JbrowseController {
                         }
                     }
 
-
                     response.outputStream << trackDataJsonObject.toString()
 //                    return
                 } else if (fileName.startsWith("lf-")) {
                     // TODO: project trackData.json
                     JSONArray trackDataJsonObject = new JSONArray(file.text)
-                    String sequenceName = getSequenceName(file.absolutePath)
+                    String sequenceName = projectionService.getSequenceName(file.absolutePath)
                     // get the track from the json object
 
                     // TODO: it should look up the OGS track either default or variable
-                    ProjectionInterface projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
+                    ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
 
                     if (projection) {
 //                        println "re-writing the LF array ${trackDataJsonObject.size()}"
@@ -305,7 +302,8 @@ class JbrowseController {
                 String sequenceName = fileName.split("-")[0]
 
                 // if getting
-                ProjectionInterface projection = projectionMap.values().iterator().next().get(sequenceName)
+//                ProjectionInterface projection = projectionMap.values().iterator().next().get(sequenceName)
+                ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
                 if (projection) {
                     DiscontinuousChunkProjector discontinuousChunkProjector = DiscontinuousChunkProjector.instance
                     // TODO: get proper chunk size from the RefSeq
@@ -532,10 +530,10 @@ class JbrowseController {
         // add datasets to the configuration
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
 
-        createProjection(jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value))
-
-
         Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
+        projectionService.createProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value))
+
+
         if (currentOrganism != null) {
             jsonObject.put("dataset_id", currentOrganism.id)
         }
@@ -560,72 +558,72 @@ class JbrowseController {
         response.outputStream.close()
     }
 
-    private createProjection(JSONArray tracksArray) {
-        // TODO: refactor to a single method
-        // get the OGS data if it exists
-//        JSONArray tracksArray = jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value)
-
-        // TODO: this is only hear for debuggin
-        projectionMap.clear()
-        long startTime = System.currentTimeMillis()
-        for (int i = 0; i < tracksArray.size(); i++) {
-            JSONObject trackObject = tracksArray.getJSONObject(i)
-            if (trackObject.containsKey("OGS") && trackObject.getBoolean("OGS") && !projectionMap.containsKey(trackObject.keys())) {
-                println "tring to generate projection for ${trackObject.key}"
-                File trackDirectory = new File(getJBrowseDirectoryForSession() + "/tracks/" + trackObject.key)
-                println "track directory ${trackDirectory.absolutePath}"
-
-                File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
-
-                println "# of files ${files.length}"
-
-                Map<String, ProjectionInterface> sequenceProjectionMap = new HashMap<>()
-
-                for (File trackDataFile in files) {
-//                    println "file ${trackDataFile.absolutePath}"
-
-//                    String sequenceFileName = trackDataFile.absolutePath.substring(trackDirectory.absolutePath.length(),trackDataFile.absolutePath.length()-"trackData.json".length()).replaceAll("/","")
-                    String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
-
-//                    println "sequencefileName [${sequenceFileName}]"
-
-                    JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
-
-                    // TODO: interpret the format properly
-                    DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
-                    JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray("nclist")
-                    for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
-                        JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
-                        // TODO: use enums to better track format
-                        if(coordinate.getInt(0)==4){
-                            // projecess the file lf-${coordIndex} instead
-                            File chunkFile = new File(trackDataFile.parent+"/lf-${coordIndex+1}.json")
-                            JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
-
-                            for(int chunkArrayIndex = 0 ; chunkArrayIndex < chunkReferenceJsonArray.size() ; ++chunkArrayIndex){
-                                JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-                                discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1), chunkArrayCoordinate.getInt(2))
-                            }
-
-                        }
-                        else{
-                            discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2))
-                        }
-                    }
-
-                    sequenceProjectionMap.put(sequenceFileName, discontinuousProjection)
-                }
-
-                println "final size: ${sequenceProjectionMap.size()}"
-
-                projectionMap.put(trackObject.key, sequenceProjectionMap)
-            }
-        }
-
-        println "total time ${System.currentTimeMillis() - startTime}"
-
-
-    }
+//    private createProjection(JSONArray tracksArray) {
+//        // TODO: refactor to a single method
+//        // get the OGS data if it exists
+////        JSONArray tracksArray = jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value)
+//
+//        // TODO: this is only hear for debuggin
+//        projectionMap.clear()
+//        long startTime = System.currentTimeMillis()
+//        for (int i = 0; i < tracksArray.size(); i++) {
+//            JSONObject trackObject = tracksArray.getJSONObject(i)
+//            if (trackObject.containsKey("OGS") && trackObject.getBoolean("OGS") && !projectionMap.containsKey(trackObject.keys())) {
+//                println "tring to generate projection for ${trackObject.key}"
+//                File trackDirectory = new File(getJBrowseDirectoryForSession() + "/tracks/" + trackObject.key)
+//                println "track directory ${trackDirectory.absolutePath}"
+//
+//                File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
+//
+//                println "# of files ${files.length}"
+//
+//                Map<String, ProjectionInterface> sequenceProjectionMap = new HashMap<>()
+//
+//                for (File trackDataFile in files) {
+////                    println "file ${trackDataFile.absolutePath}"
+//
+////                    String sequenceFileName = trackDataFile.absolutePath.substring(trackDirectory.absolutePath.length(),trackDataFile.absolutePath.length()-"trackData.json".length()).replaceAll("/","")
+//                    String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
+//
+////                    println "sequencefileName [${sequenceFileName}]"
+//
+//                    JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
+//
+//                    // TODO: interpret the format properly
+//                    DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
+//                    JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray("nclist")
+//                    for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
+//                        JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
+//                        // TODO: use enums to better track format
+//                        if(coordinate.getInt(0)==4){
+//                            // projecess the file lf-${coordIndex} instead
+//                            File chunkFile = new File(trackDataFile.parent+"/lf-${coordIndex+1}.json")
+//                            JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
+//
+//                            for(int chunkArrayIndex = 0 ; chunkArrayIndex < chunkReferenceJsonArray.size() ; ++chunkArrayIndex){
+//                                JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
+//                                discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1), chunkArrayCoordinate.getInt(2))
+//                            }
+//
+//                        }
+//                        else{
+//                            discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2))
+//                        }
+//                    }
+//
+//                    sequenceProjectionMap.put(sequenceFileName, discontinuousProjection)
+//                }
+//
+//                println "final size: ${sequenceProjectionMap.size()}"
+//
+//                projectionMap.put(trackObject.key, sequenceProjectionMap)
+//            }
+//        }
+//
+//        println "total time ${System.currentTimeMillis() - startTime}"
+//
+//
+//    }
 
     private static boolean isCacheableFile(String fileName) {
         if (fileName.endsWith(".txt")) return true;
@@ -662,15 +660,5 @@ class JbrowseController {
     private static long sublong(String value, int beginIndex, int endIndex) {
         String substring = value.substring(beginIndex, endIndex);
         return (substring.length() > 0) ? Long.parseLong(substring) : -1;
-    }
-
-    private String getTrackName(String fileName) {
-        String[] tokens = fileName.split("/")
-        return tokens[tokens.length - 3]
-    }
-
-    private String getSequenceName(String fileName) {
-        String[] tokens = fileName.split("/")
-        return tokens[tokens.length - 2]
     }
 }
