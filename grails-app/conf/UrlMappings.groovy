@@ -27,5 +27,12 @@ class UrlMappings {
         "/IOService/download"(controller:"IOService",action: "download", params:params)
         "/jbrowse/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
         "/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
+
+        // add other types
+        "/bigwig/stats/global"(controller: "bigwig",action: "global")
+        "/bigwig/stats/region"(controller: "bigwig",action: "region")
+        "/bigwig/stats/regionFeatureDensities"(controller: "bigwig",action: "regionFeatureDensities")
+        "/bigwig/features/${sequenceName}"(controller: "bigwig",action: "features",params:params,sequenceName:sequenceName)
+
     }
 }

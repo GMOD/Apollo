@@ -234,6 +234,7 @@ class JbrowseController {
                     }
 //                    }
                     response.outputStream << refSeqJsonObject.toString()
+                    return
                 } else if (fileName.endsWith("trackData.json")) {
                     // TODO: project trackData.json
                     println "fileNAme is NOT lf-type ${fileName}"
@@ -255,7 +256,7 @@ class JbrowseController {
                     }
 
                     response.outputStream << trackDataJsonObject.toString()
-//                    return
+                    return
                 } else if (fileName.startsWith("lf-")) {
                     // TODO: project trackData.json
                     JSONArray trackDataJsonObject = new JSONArray(file.text)
@@ -276,6 +277,7 @@ class JbrowseController {
                         }
                     }
                     response.outputStream << trackDataJsonObject.toString()
+                    return
                 } else {
                     // Set content size
                     response.setContentLength((int) file.length());
