@@ -131,7 +131,6 @@ class BigwigController {
 
     JSONObject global(){
         println "params ${params}"
-        println "refSeqName ${sequenceName}, start ${start}, end ${end}"
 
         JSONObject returnObject = new JSONObject()
         Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession()+"/"+params.urlTemplate)
@@ -140,6 +139,9 @@ class BigwigController {
         returnObject.put("scoreMin",bigWigFileReader.min())
         returnObject.put("scoreMax",bigWigFileReader.max())
         returnObject.put("scoreMean",bigWigFileReader.mean())
+        returnObject.put("scoreStdDev",bigWigFileReader.stdev())
+        returnObject.put("featureCount",bigWigFileReader.numBases())
+        returnObject.put("featureDensity",1)
 //        {
 //
 //            "featureDensity": 0.02,
