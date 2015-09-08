@@ -45,7 +45,6 @@ class BigwigController {
     JSONObject features(String sequenceName, Integer start, Integer end) {
         println "params ${params}"
         println "refSeqName ${sequenceName}, start ${start}, end ${end}"
-        Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
 
         JSONObject returnObject = new JSONObject()
         JSONArray featuresArray = new JSONArray()
@@ -79,7 +78,7 @@ class BigwigController {
             println "actual stop ${actualStop}"
 
             // let 500 be max in view
-            int maxInView = 200
+            int maxInView = 500
             // calculate step size
             int stepSize = maxInView < (actualStop - actualStart) ? (actualStop-actualStart) / maxInView : 1
 
@@ -131,6 +130,16 @@ class BigwigController {
     }
 
     JSONObject global(){
+        println "params ${params}"
+        println "refSeqName ${sequenceName}, start ${start}, end ${end}"
+
+        JSONObject returnObject = new JSONObject()
+        Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession()+"/"+params.urlTemplate)
+        // TODO: should cache these if open
+        BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
+        returnObject.put("scoreMin",bigWigFileReader.min())
+        returnObject.put("scoreMax",bigWigFileReader.max())
+        returnObject.put("scoreMean",bigWigFileReader.mean())
 //        {
 //
 //            "featureDensity": 0.02,
@@ -142,7 +151,7 @@ class BigwigController {
 //            "scoreMean": 42,
 //            "scoreStdDev": 2.1
 //        }
-        render new JSONObject() as JSON
+        render returnObject as JSON
     }
 
     // TODO: abstract or put in service
