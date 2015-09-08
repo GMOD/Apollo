@@ -4,6 +4,8 @@ import edu.unc.genomics.Interval
 import edu.unc.genomics.io.BigWigFileReader
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.Coordinate
+import org.bbop.apollo.projection.ProjectionInterface
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -15,6 +17,7 @@ class BigwigController {
     def permissionService
     def preferenceService
     def sequenceService
+    def projectionService
 
     /**
      * {
@@ -53,7 +56,11 @@ class BigwigController {
         BigWigFileReader bigWigFileReader
         Path path
         try {
-            path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession()+"/"+params.urlTemplate)
+            File file = new File(getJBrowseDirectoryForSession()+"/"+params.urlTemplate)
+            ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, "", sequenceName)
+            Coordinate reverseCoordinate = projection.projectReverseCoordinate(start,end)
+
+            path = FileSystems.getDefault().getPath(file.absolutePath)
             // TODO: should cache these if open
             bigWigFileReader = new BigWigFileReader(path)
 
@@ -70,8 +77,10 @@ class BigwigController {
             println "length ${chrStop-chrStart}, values ${values.length}"
 
 
-            Integer actualStart = chrStart + start
-            Integer actualStop = chrStart + end
+            Integer actualStart = projection && reverseCoordinate?.isValid() ? chrStart + reverseCoordinate.min : chrStart + start
+            Integer actualStop = projection && reverseCoordinate?.isValid() ? chrStart + reverseCoordinate.max : chrStart + end
+//            Integer actualStart =  chrStart + start
+//            Integer actualStop = chrStart + end
             println "chr start ${chrStart}"
             println "chr stop ${chrStop}"
             println "actual start ${actualStart}"
