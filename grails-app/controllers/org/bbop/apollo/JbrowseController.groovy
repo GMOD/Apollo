@@ -218,13 +218,15 @@ class JbrowseController {
                     // TODO: it should look up the OGS track either default or variable
 
 //                    if (projectionService.hasProjection(preferenceService.currentOrganismForCurrentUser,projectionService.getTrackName(file.absolutePath))) {
+                    Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
+                    println "refseq size ${refSeqJsonObject.size()}"
                     for (int i = 0; i < refSeqJsonObject.size(); i++) {
 
                         JSONObject sequenceValue = refSeqJsonObject.getJSONObject(i)
 
                         String sequenceName = sequenceValue.getString("name")
 //                            DiscontinuousProjection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
-                        ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, "", sequenceName)
+                        ProjectionInterface projection = projectionService.getProjection(currentOrganism, "", sequenceName)
                         // not projections for every sequence  . . .
                         if (projection) {
                             Integer projectedSequenceLength = projection.length

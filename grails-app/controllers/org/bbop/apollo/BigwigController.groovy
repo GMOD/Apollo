@@ -20,29 +20,21 @@ class BigwigController {
     def projectionService
 
     /**
-     * {
-     "features": [
+     *{"features": [
 
-     // minimal required data
-    { "start": 123, "end": 456 },
+     // minimal required data{ "start": 123, "end": 456 },
 
-    // typical quantitative data
-    { "start": 123, "end": 456, "score": 42 },
+     // typical quantitative data{ "start": 123, "end": 456, "score": 42 },
 
-    // Expected format of the single feature expected when the track is a sequence data track.
-    {"seq": "gattacagattaca", "start": 0, "end": 14},
+     // Expected format of the single feature expected when the track is a sequence data track.{"seq": "gattacagattaca", "start": 0, "end": 14},
 
-    // typical processed transcript with subfeatures
-    { "type": "mRNA", "start": 5975, "end": 9744, "score": 0.84, "strand": 1,
-        "name": "au9.g1002.t1", "uniqueID": "globallyUniqueString3",
-        "subfeatures": [
-            { "type": "five_prime_UTR", "start": 5975, "end": 6109, "score": 0.98, "strand": 1 },
-            { "type": "start_codon", "start": 6110, "end": 6112, "strand": 1, "phase": 0 },
-            { "type": "CDS",         "start": 6110, "end": 6148, "score": 1, "strand": 1, "phase": 0 },
+     // typical processed transcript with subfeatures{ "type": "mRNA", "start": 5975, "end": 9744, "score": 0.84, "strand": 1,
+     "name": "au9.g1002.t1", "uniqueID": "globallyUniqueString3",
+     "subfeatures": [{ "type": "five_prime_UTR", "start": 5975, "end": 6109, "score": 0.98, "strand": 1 },{ "type": "start_codon", "start": 6110, "end": 6112, "strand": 1, "phase": 0 },{ "type": "CDS",         "start": 6110, "end": 6148, "score": 1, "strand": 1, "phase": 0 },
 
-     * @param refSeqName
-     * @param start
-     * @param end
+     * @param refSeqName The sequence name
+     * @param start The request view start
+     * @param end The request view end
      * @return
      */
     JSONObject features(String sequenceName, Integer start, Integer end) {
@@ -51,14 +43,20 @@ class BigwigController {
 
         JSONObject returnObject = new JSONObject()
         JSONArray featuresArray = new JSONArray()
-        returnObject.put(FeatureStringEnum.FEATURES.value,featuresArray)
+        returnObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
 
         BigWigFileReader bigWigFileReader
         Path path
         try {
-            File file = new File(getJBrowseDirectoryForSession()+"/"+params.urlTemplate)
+            File file = new File(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
             ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, "", sequenceName)
-            Coordinate reverseCoordinate = projection.projectReverseCoordinate(start,end)
+//            Coordinate reverseCoordinate = projection.projectReverseCoordinate(start,end)
+//            Integer reverseStart = projection.projectReverseValue(start)
+//            Integer reverseEnd = projection.projectReverseValue(end)
+//            println "reverseSrart ${start} -> ${reverseStart}"
+//            println "reverseEnd ${end} -> ${reverseEnd}"
+//            println "INIT ${start}-${end} -> ${reverseCoordinate}"
+//            println "${start}-${end} -> ${reverseCoordinate.min}-${reverseCoordinate.max}"
 
             path = FileSystems.getDefault().getPath(file.absolutePath)
             // TODO: should cache these if open
@@ -70,17 +68,21 @@ class BigwigController {
             double max = bigWigFileReader.max()
             double min = bigWigFileReader.min()
 
-            Interval interval = new Interval(sequenceName,chrStart,chrStop)
-            edu.unc.genomics.Contig contig = bigWigFileReader.query(interval)
-            float[] values = contig.get(interval)
+//            Interval interval = new Interval(sequenceName, chrStart, chrStop)
+//            Interval interval = new Interval(sequenceName, chrStart, chrStop)
+//            edu.unc.genomics.Contig contig = bigWigFileReader.query(interval)
+//            float[] values = contig.get(interval)
             println "input values ${min}, ${mean}, ${max}"
-            println "length ${chrStop-chrStart}, values ${values.length}"
+//            println "length ${chrStop - chrStart}, values ${values.length}"
 
-
-            Integer actualStart = projection && reverseCoordinate?.isValid() ? chrStart + reverseCoordinate.min : chrStart + start
-            Integer actualStop = projection && reverseCoordinate?.isValid() ? chrStart + reverseCoordinate.max : chrStart + end
-//            Integer actualStart =  chrStart + start
+//            Integer actualStart = projection && reverseCoordinate?.isValid() ? chrStart + reverseCoordinate.min : chrStart + start
+//            Integer actualStop = projection && reverseCoordinate?.isValid() ? chrStart + reverseCoordinate.max : chrStart + end
+//            Integer actualStart = projection && reverseStart>=0 ? reverseStart :  start
+//            Integer actualStop = projection && reverseEnd >=0  ? reverseEnd :  end
+//            Integer actualStart = chrStart + start
 //            Integer actualStop = chrStart + end
+            Integer actualStart = start
+            Integer actualStop = end
             println "chr start ${chrStart}"
             println "chr stop ${chrStop}"
             println "actual start ${actualStart}"
@@ -89,24 +91,51 @@ class BigwigController {
             // let 500 be max in view
             int maxInView = 500
             // calculate step size
-            int stepSize = maxInView < (actualStop - actualStart) ? (actualStop-actualStart) / maxInView : 1
+            int stepSize = maxInView < (actualStop - actualStart) ? (actualStop - actualStart) / maxInView : 1
 
             println "step size ${stepSize} "
-            println " -> steps: ${(actualStop-actualStart)/stepSize}"
+            println " -> steps: ${(actualStop - actualStart) / stepSize}"
 
-
-            for(int i = actualStart; i < actualStop ; i+=stepSize ){
-                JSONObject globalFeature = new JSONObject()
-                globalFeature.put("start",i)
-                globalFeature.put("end",i+1)
-                if(values[i]<max && values[i]>min){
-                    globalFeature.put("score",values[i])
+            if (projection && false) {
+                for (Integer i = actualStart; i < actualStop; i += stepSize) {
+                    JSONObject globalFeature = new JSONObject()
+                    globalFeature.put("start", start)
+                    Integer endStep = i + stepSize
+                    globalFeature.put("end", end)
+                    Integer reverseStart = projection.projectReverseValue(i)
+                    Integer reverseEnd = projection.projectReverseValue(endStep)
+                    println "start / end ${i}/${endStep}"
+                    println "reverse start / end ${reverseStart}/${reverseEnd}"
+                    edu.unc.genomics.Contig contig = bigWigFileReader.query(sequenceName, reverseStart, reverseEnd)
+                    println "mean ${contig.mean()}"
+                    if (contig.mean() != Float.NaN && contig.mean() >= 0) {
+//                        // TODO: this should be th mean value
+                        globalFeature.put("score", contig.mean())
+                    } else {
+                        globalFeature.put("score", 0)
+                    }
                     featuresArray.add(globalFeature)
+                }
+            } else {
+                Interval interval = new Interval(sequenceName, chrStart, chrStop)
+                edu.unc.genomics.Contig contig = bigWigFileReader.query(interval)
+                float[] values = contig.values
+                for (Integer i = actualStart; i < actualStop; i += stepSize) {
+                    JSONObject globalFeature = new JSONObject()
+                    globalFeature.put("start", i)
+                    Integer endStep = i + stepSize
+                    globalFeature.put("end", endStep)
+
+//            Interval interval = new Interval(sequenceName, chrStart, chrStop)
+                    if (values[i] < max && values[i] > min) {
+                        // TODO: this should be th mean value
+                        globalFeature.put("score", values[i])
+                        featuresArray.add(globalFeature)
+                    }
                 }
             }
 
             println "end array ${featuresArray.size()}"
-
 
 
         } catch (e) {
@@ -138,19 +167,19 @@ class BigwigController {
         render new JSONObject() as JSON
     }
 
-    JSONObject global(){
+    JSONObject global() {
         println "params ${params}"
 
         JSONObject returnObject = new JSONObject()
-        Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession()+"/"+params.urlTemplate)
+        Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
         // TODO: should cache these if open
         BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
-        returnObject.put("scoreMin",bigWigFileReader.min())
-        returnObject.put("scoreMax",bigWigFileReader.max())
-        returnObject.put("scoreMean",bigWigFileReader.mean())
-        returnObject.put("scoreStdDev",bigWigFileReader.stdev())
-        returnObject.put("featureCount",bigWigFileReader.numBases())
-        returnObject.put("featureDensity",1)
+        returnObject.put("scoreMin", bigWigFileReader.min())
+        returnObject.put("scoreMax", bigWigFileReader.max())
+        returnObject.put("scoreMean", bigWigFileReader.mean())
+        returnObject.put("scoreStdDev", bigWigFileReader.stdev())
+        returnObject.put("featureCount", bigWigFileReader.numBases())
+        returnObject.put("featureDensity", 1)
 //        {
 //
 //            "featureDensity": 0.02,

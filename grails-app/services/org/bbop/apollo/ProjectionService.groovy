@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
@@ -10,7 +11,7 @@ import org.bbop.apollo.projection.ProjectionInterface
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-@Transactional
+@Transactional(readOnly = true)
 class ProjectionService {
 
     // TODO: move to database as JSON
@@ -20,6 +21,7 @@ class ProjectionService {
     private Map<String, Map<String, ProjectionInterface>> projectionMap = new HashMap<>()
 
     // TODO: should do an actual lookup / query in cache and DB
+    @NotTransactional
     Boolean hasProjection(Organism organism, String trackName) {
         return projectionMap.size() > 0
     }
@@ -32,16 +34,19 @@ class ProjectionService {
      * @param sequenceName
      * @return
      */
+    @NotTransactional
     ProjectionInterface getProjection(Organism organism, String trackName, String sequenceName) {
         return projectionMap ? projectionMap.values()?.iterator()?.next()?.get(sequenceName) : null
     }
 
 
+    @NotTransactional
     String getTrackName(String fileName) {
         String[] tokens = fileName.split("/")
         return tokens[tokens.length - 3]
     }
 
+    @NotTransactional
     String getSequenceName(String fileName) {
         String[] tokens = fileName.split("/")
         return tokens[tokens.length - 2]
