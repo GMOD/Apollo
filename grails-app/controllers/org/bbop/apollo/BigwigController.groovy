@@ -93,24 +93,29 @@ class BigwigController {
             // calculate step size
             int stepSize = maxInView < (actualStop - actualStart) ? (actualStop - actualStart) / maxInView : 1
 
-            println "step size ${stepSize} "
-            println " -> steps: ${(actualStop - actualStart) / stepSize}"
+//            println "step size ${stepSize} "
+//            println " -> steps: ${(actualStop - actualStart) / stepSize}"
 
-            if (projection && false) {
+            if (projection) {
                 for (Integer i = actualStart; i < actualStop; i += stepSize) {
                     JSONObject globalFeature = new JSONObject()
-                    globalFeature.put("start", start)
                     Integer endStep = i + stepSize
-                    globalFeature.put("end", end)
+                    globalFeature.put("start", i)
+                    globalFeature.put("end", endStep)
                     Integer reverseStart = projection.projectReverseValue(i)
                     Integer reverseEnd = projection.projectReverseValue(endStep)
-                    println "start / end ${i}/${endStep}"
-                    println "reverse start / end ${reverseStart}/${reverseEnd}"
-                    edu.unc.genomics.Contig contig = bigWigFileReader.query(sequenceName, reverseStart, reverseEnd)
-                    println "mean ${contig.mean()}"
-                    if (contig.mean() != Float.NaN && contig.mean() >= 0) {
+//                    Integer reverseStart = i
+//                    Integer reverseEnd = endStep
+//                    println "start / end ${i}/${endStep}"
+                    edu.unc.genomics.Contig innerContig = bigWigFileReader.query(sequenceName, reverseStart, reverseEnd)
+                    Integer value = innerContig.mean()
+//                    println "1 start: ${i} ${reverseStart}"
+//                    println "Length: ${values.length} ${value}"
+
+
+                    if (value >= 0) {
 //                        // TODO: this should be th mean value
-                        globalFeature.put("score", contig.mean())
+                        globalFeature.put("score", value)
                     } else {
                         globalFeature.put("score", 0)
                     }
@@ -120,6 +125,7 @@ class BigwigController {
                 Interval interval = new Interval(sequenceName, chrStart, chrStop)
                 edu.unc.genomics.Contig contig = bigWigFileReader.query(interval)
                 float[] values = contig.values
+
                 for (Integer i = actualStart; i < actualStop; i += stepSize) {
                     JSONObject globalFeature = new JSONObject()
                     globalFeature.put("start", i)
