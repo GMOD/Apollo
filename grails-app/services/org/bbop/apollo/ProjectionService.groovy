@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.apache.commons.io.FileUtils
@@ -30,7 +31,7 @@ class ProjectionService {
     /**
      *
      * @param organism
-     * @param trackName  TODO: this is the REFERENCE track!! .. might be too specific
+     * @param trackName TODO: this is the REFERENCE track!! .. might be too specific
      * @param sequenceName
      * @return
      */
@@ -53,7 +54,7 @@ class ProjectionService {
     }
 
     // TODO: do re-lookup
-    def createTranscriptProjection(Organism organism, JSONArray tracksArray,Integer padding=0) {
+    def createTranscriptProjection(Organism organism, JSONArray tracksArray, Integer padding = 0) {
         // TODO: this is only here for debugging . .
         projectionMap.clear()
         long startTime = System.currentTimeMillis()
@@ -94,11 +95,11 @@ class ProjectionService {
 
                             for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
                                 JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-                                discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1)-padding, chunkArrayCoordinate.getInt(2)+padding)
+                                discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1) - padding, chunkArrayCoordinate.getInt(2) + padding)
                             }
 
                         } else {
-                            discontinuousProjection.addInterval(coordinate.getInt(1)-padding, coordinate.getInt(2)+padding)
+                            discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
                         }
                     }
 
@@ -119,9 +120,15 @@ class ProjectionService {
      *
      * If in trackList . . or lf-x
      *
+     * If type is "mRNA", search for any subarrays including sublist in array
+     * If type is "other transcript?", ??
+     * If type is "exon", add Interval for min, max, else ginreo
+     *
      * The "type" is listed in 0-> column 9
+     * The "type" is listed in 1-> column 7
      * The "type" is listed in 2-> column 6
      * The "type" is listed in 3-> column 6
+     * The "type" is listed in 4-> column ?
      *
      * // and in the sublist as well (typicallly column 11 of an mRNA . . prob for overlap
      *
@@ -129,7 +136,7 @@ class ProjectionService {
      * @param tracksArray
      * @return
      */
-    def createExonLevelProjection(Organism organism, JSONArray tracksArray,Integer padding=0) {
+    def createExonLevelProjection(Organism organism, JSONArray tracksArray, Integer padding = 0) {
         // TODO: this is only here for debugging . .
         projectionMap.clear()
         long startTime = System.currentTimeMillis()
@@ -161,21 +168,52 @@ class ProjectionService {
                     DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
                     JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
                     for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
+
+                        // TODO: this needs to be recursive
                         JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
                         // TODO: use enums to better track format
-                        if (coordinate.getInt(0) == 4) {
-                            // projecess the file lf-${coordIndex} instead
-                            File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
-                            JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
-
-                            for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
-                                JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-                                discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1)-padding, chunkArrayCoordinate.getInt(2)+padding)
-                            }
-
-                        } else {
-                            discontinuousProjection.addInterval(coordinate.getInt(1)-padding, coordinate.getInt(2)+padding)
+                        int classType = coordinate.getInt(0)
+                        String featureType
+                        switch (classType) {
+                            case 0:
+                                featureType = coordinate.getString(9)
+                                // process array in 10
+                                // process sublist if 11 exists
+                                break
+                            case 1:
+                                featureType = coordinate.getString(7)
+                                // no subarrays
+                                break
+                            case 2:
+                                featureType = coordinate.getString(6)
+                                break
+                            case 3:
+                                featureType = coordinate.getString(6)
+                                // process array in 10
+                                // process sublist if 11 exists
+                                break
+                            case 4:
+                                println "not sure how to handle case 4 ${coordinate as JSON}"
+                                break
                         }
+
+                        if (featureType && featureType == "exon") {
+                            discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
+                        }
+
+//                        if (coordinate.getInt(0) == 4) {
+//                            // projecess the file lf-${coordIndex} instead
+//                            File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
+//                            JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
+//
+//                            for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
+//                                JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
+//                                discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1) - padding, chunkArrayCoordinate.getInt(2) + padding)
+//                            }
+//
+//                        } else {
+//                            discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
+//                        }
                     }
 
                     sequenceProjectionMap.put(sequenceFileName, discontinuousProjection)
