@@ -2,13 +2,9 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
-import org.apache.commons.io.FileUtils
-import org.apache.commons.io.filefilter.FileFilterUtils
-import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousChunkProjector
-import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.ProjectionInterface
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -535,7 +531,7 @@ class JbrowseController {
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
 
         Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
-        projectionService.createProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value))
+        projectionService.createTranscriptProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value))
 
 
         if (currentOrganism != null) {
@@ -562,72 +558,6 @@ class JbrowseController {
         response.outputStream.close()
     }
 
-//    private createProjection(JSONArray tracksArray) {
-//        // TODO: refactor to a single method
-//        // get the OGS data if it exists
-////        JSONArray tracksArray = jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value)
-//
-//        // TODO: this is only hear for debuggin
-//        projectionMap.clear()
-//        long startTime = System.currentTimeMillis()
-//        for (int i = 0; i < tracksArray.size(); i++) {
-//            JSONObject trackObject = tracksArray.getJSONObject(i)
-//            if (trackObject.containsKey("OGS") && trackObject.getBoolean("OGS") && !projectionMap.containsKey(trackObject.keys())) {
-//                println "tring to generate projection for ${trackObject.key}"
-//                File trackDirectory = new File(getJBrowseDirectoryForSession() + "/tracks/" + trackObject.key)
-//                println "track directory ${trackDirectory.absolutePath}"
-//
-//                File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
-//
-//                println "# of files ${files.length}"
-//
-//                Map<String, ProjectionInterface> sequenceProjectionMap = new HashMap<>()
-//
-//                for (File trackDataFile in files) {
-////                    println "file ${trackDataFile.absolutePath}"
-//
-////                    String sequenceFileName = trackDataFile.absolutePath.substring(trackDirectory.absolutePath.length(),trackDataFile.absolutePath.length()-"trackData.json".length()).replaceAll("/","")
-//                    String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
-//
-////                    println "sequencefileName [${sequenceFileName}]"
-//
-//                    JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
-//
-//                    // TODO: interpret the format properly
-//                    DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
-//                    JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray("nclist")
-//                    for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
-//                        JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
-//                        // TODO: use enums to better track format
-//                        if(coordinate.getInt(0)==4){
-//                            // projecess the file lf-${coordIndex} instead
-//                            File chunkFile = new File(trackDataFile.parent+"/lf-${coordIndex+1}.json")
-//                            JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
-//
-//                            for(int chunkArrayIndex = 0 ; chunkArrayIndex < chunkReferenceJsonArray.size() ; ++chunkArrayIndex){
-//                                JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-//                                discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1), chunkArrayCoordinate.getInt(2))
-//                            }
-//
-//                        }
-//                        else{
-//                            discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2))
-//                        }
-//                    }
-//
-//                    sequenceProjectionMap.put(sequenceFileName, discontinuousProjection)
-//                }
-//
-//                println "final size: ${sequenceProjectionMap.size()}"
-//
-//                projectionMap.put(trackObject.key, sequenceProjectionMap)
-//            }
-//        }
-//
-//        println "total time ${System.currentTimeMillis() - startTime}"
-//
-//
-//    }
 
     private static boolean isCacheableFile(String fileName) {
         if (fileName.endsWith(".txt")) return true;

@@ -125,6 +125,7 @@ public class DiscontinuousProjection extends AbstractProjection {
     }
 
     def addInterval(int min, int max) {
+        min = min < 0 ? 0 : min
         assert max >= min
 
         Integer floorMinKey = minMap.floorKey(min)

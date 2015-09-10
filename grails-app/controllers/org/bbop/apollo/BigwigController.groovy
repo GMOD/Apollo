@@ -38,8 +38,8 @@ class BigwigController {
      * @return
      */
     JSONObject features(String sequenceName, Integer start, Integer end) {
-        println "params ${params}"
-        println "refSeqName ${sequenceName}, start ${start}, end ${end}"
+//        println "params ${params}"
+//        println "refSeqName ${sequenceName}, start ${start}, end ${end}"
 
         JSONObject returnObject = new JSONObject()
         JSONArray featuresArray = new JSONArray()
@@ -50,13 +50,6 @@ class BigwigController {
         try {
             File file = new File(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
             ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, "", sequenceName)
-//            Coordinate reverseCoordinate = projection.projectReverseCoordinate(start,end)
-//            Integer reverseStart = projection.projectReverseValue(start)
-//            Integer reverseEnd = projection.projectReverseValue(end)
-//            println "reverseSrart ${start} -> ${reverseStart}"
-//            println "reverseEnd ${end} -> ${reverseEnd}"
-//            println "INIT ${start}-${end} -> ${reverseCoordinate}"
-//            println "${start}-${end} -> ${reverseCoordinate.min}-${reverseCoordinate.max}"
 
             path = FileSystems.getDefault().getPath(file.absolutePath)
             // TODO: should cache these if open
@@ -68,33 +61,13 @@ class BigwigController {
             double max = bigWigFileReader.max()
             double min = bigWigFileReader.min()
 
-//            Interval interval = new Interval(sequenceName, chrStart, chrStop)
-//            Interval interval = new Interval(sequenceName, chrStart, chrStop)
-//            edu.unc.genomics.Contig contig = bigWigFileReader.query(interval)
-//            float[] values = contig.get(interval)
-            println "input values ${min}, ${mean}, ${max}"
-//            println "length ${chrStop - chrStart}, values ${values.length}"
-
-//            Integer actualStart = projection && reverseCoordinate?.isValid() ? chrStart + reverseCoordinate.min : chrStart + start
-//            Integer actualStop = projection && reverseCoordinate?.isValid() ? chrStart + reverseCoordinate.max : chrStart + end
-//            Integer actualStart = projection && reverseStart>=0 ? reverseStart :  start
-//            Integer actualStop = projection && reverseEnd >=0  ? reverseEnd :  end
-//            Integer actualStart = chrStart + start
-//            Integer actualStop = chrStart + end
             Integer actualStart = start
             Integer actualStop = end
-            println "chr start ${chrStart}"
-            println "chr stop ${chrStop}"
-            println "actual start ${actualStart}"
-            println "actual stop ${actualStop}"
 
             // let 500 be max in view
             int maxInView = 500
             // calculate step size
             int stepSize = maxInView < (actualStop - actualStart) ? (actualStop - actualStart) / maxInView : 1
-
-//            println "step size ${stepSize} "
-//            println " -> steps: ${(actualStop - actualStart) / stepSize}"
 
             if (projection) {
                 for (Integer i = actualStart; i < actualStop; i += stepSize) {
@@ -104,14 +77,8 @@ class BigwigController {
                     globalFeature.put("end", endStep)
                     Integer reverseStart = projection.projectReverseValue(i)
                     Integer reverseEnd = projection.projectReverseValue(endStep)
-//                    Integer reverseStart = i
-//                    Integer reverseEnd = endStep
-//                    println "start / end ${i}/${endStep}"
                     edu.unc.genomics.Contig innerContig = bigWigFileReader.query(sequenceName, reverseStart, reverseEnd)
                     Integer value = innerContig.mean()
-//                    println "1 start: ${i} ${reverseStart}"
-//                    println "Length: ${values.length} ${value}"
-
 
                     if (value >= 0) {
 //                        // TODO: this should be th mean value
@@ -132,7 +99,6 @@ class BigwigController {
                     Integer endStep = i + stepSize
                     globalFeature.put("end", endStep)
 
-//            Interval interval = new Interval(sequenceName, chrStart, chrStop)
                     if (values[i] < max && values[i] > min) {
                         // TODO: this should be th mean value
                         globalFeature.put("score", values[i])
