@@ -55,6 +55,34 @@ class OrganismController {
         render findAllOrganisms()
     }
 
+    // webservice
+    @Transactional
+    def deleteOrganismFeatures() {
+        JSONObject organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
+        if (organismJson.username == "" || organismJson.organism == "" ||organismJson.password == "") {
+            def error = ['error' : 'Empty fields in request JSON']
+            render error as JSON
+            log.error(error.error)
+            return
+        }
+        try {
+            if (!permissionService.hasPermissions(organismJson, PermissionEnum.ADMINISTRATE)) {
+                def error= [error: 'not authorized to delete all features from organism']
+                log.error(error.error)
+                render error as JSON
+                return
+            }
+
+
+
+        }
+        catch(e){
+            def error= [error: 'problem saving organism: '+e]
+            render error as JSON
+            e.printStackTrace()
+            log.error(error.error)
+        }
+    }
 
     // webservice
     @Transactional
