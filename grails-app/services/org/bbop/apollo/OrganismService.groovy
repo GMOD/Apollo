@@ -23,12 +23,6 @@ class OrganismService {
         int count = 0
         final Session session = sessionFactory.currentSession
 
-        List topLevelFeatures = session.createSQLQuery("select f.unique_name from feature f join feature_location fl on fl.feature_id=f.id join sequence s on s.id = fl.sequence_id join organism o ON o.id = s.organism_id where o.id = ${organism.id}").list()
-        println "top level features ${topLevelFeatures.size()}"
-        for(def feat in topLevelFeatures){
-            println "feat ${feat}"
-        }
-
         // there are a few missing heere
         println "deleted owners " + session.createSQLQuery("delete from feature_grails_user where EXISTS (select 'x' from feature_grails_user fgu JOIN feature f ON fgu.feature_owners_id=f.id join feature_location fl on fl.feature_id=f.id join sequence s on s.id = fl.sequence_id join organism o ON o.id = s.organism_id where o.id = ${organism.id})").executeUpdate()
 
@@ -50,16 +44,9 @@ class OrganismService {
 
         println "deleted location " + session.createSQLQuery("delete from feature_location where EXISTS (select 'x' from feature_location fl join sequence s on s.id = fl.sequence_id join organism o ON o.id = s.organism_id where o.id = ${organism.id})").executeUpdate()
 
-        println "featre events ${FeatureEvent.count}"
-        FeatureEvent.findAll().each {
-            println it.uniqueName
-        }
-        println "featres ${Feature.count}"
-        Feature.findAll().each {
-            println it.uniqueName
-        }
-        println "deleted feature_event " + session.createSQLQuery("delete from feature_event where unique_name in (:featureList) ").setParameterList("featureList",topLevelFeatures).executeUpdate()
         println "deleted feature " + session.createSQLQuery("delete from feature where not EXISTS (select 'x' from feature f join feature_location fl on fl.feature_id=f.id)").executeUpdate()
+
+        println "deleted feature_event " + session.createSQLQuery("delete from feature_event where not exists (select 'x' from feature f, feature_event fe where f.unique_name=f.name) ").executeUpdate()
 
         organism.save(flush: true )
         return count
