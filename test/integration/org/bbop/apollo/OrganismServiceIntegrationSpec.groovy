@@ -57,6 +57,7 @@ class OrganismServiceIntegrationSpec extends IntegrationSpec {
         assert CDS.count == 1
         assert MRNA.count == 1
         assert Gene.count == 1
+        assert FeatureEvent.count == 1
         def allFeatures = Feature.all
 
         // this is the new part
@@ -73,7 +74,9 @@ class OrganismServiceIntegrationSpec extends IntegrationSpec {
         assert 1==Organism.count
         assert null==Sequence.first()?.featureLocations
         assert 0==FeatureLocation.count
+        assert 0==FeatureRelationship.count
         assert 0==Feature.count
+        assert 0==FeatureEvent.count
 
     }
 }

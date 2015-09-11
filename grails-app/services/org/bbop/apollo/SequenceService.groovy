@@ -423,22 +423,6 @@ class SequenceService {
                 }
 
             }
-//            FlankingRegion genomicRegion = new FlankingRegion(
-//                    name: gbolFeature.name
-//                    , uniqueName: gbolFeature.uniqueName + "_flank"
-//            ).save()
-//            FeatureLocation genomicRegionLocation = new FeatureLocation(
-//                    feature: genomicRegion
-//                    , fmin: fmin
-//                    , fmax: fmax
-//                    , strand: gbolFeature.strand
-//                    , sequence: gbolFeature.getFeatureLocation().sequence
-//            ).save()
-//            genomicRegion.addToFeatureLocations(genomicRegionLocation)
-            // since we are saving the genomicFeature object, the backend database will have these entities
-//            gbolFeature = genomicRegion
-            //sequence = getResiduesFromFeature(gbolFeature)
-//            featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
             featureResidues = getGenomicResiduesFromSequenceWithAlterations(gbolFeature.featureLocation.sequence,fmin,fmax,Strand.getStrandForValue(gbolFeature.strand))
         }
         return featureResidues
