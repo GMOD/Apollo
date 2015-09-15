@@ -163,7 +163,7 @@ log4j.main = {
     //debug 'grails.app.controllers.org.bbop.apollo'
     //debug 'grails.app.controllers.org.bbop.apollo.JbrowseController'
 //    debug 'grails.app.services.org.bbop.apollo.FeatureService'
-    //info  'grails.app.services'
+    debug 'grails.app.services.org.bbop.apollo.ProjectionService'
     //debug 'grails.app.jobs'
     //debug 'grails.app.taglib'
     //debug 'grails.app.controllers'

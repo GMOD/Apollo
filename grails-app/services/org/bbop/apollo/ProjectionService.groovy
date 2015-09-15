@@ -155,6 +155,11 @@ class ProjectionService {
                 Map<String, ProjectionInterface> sequenceProjectionMap = new HashMap<>()
 
                 for (File trackDataFile in files) {
+                    println "processing file ${trackDataFile}"
+
+                    if(trackDataFile.absolutePath.contains("Group10.19")){
+                        println "stopping to process"
+                    }
 //                    println "file ${trackDataFile.absolutePath}"
 
 //                    String sequenceFileName = trackDataFile.absolutePath.substring(trackDirectory.absolutePath.length(),trackDataFile.absolutePath.length()-"trackData.json".length()).replaceAll("/","")
@@ -172,8 +177,7 @@ class ProjectionService {
                         // TODO: this needs to be recursive
                         JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
 
-//                        processExonArray(discontinuousProjection, coordinate)
-
+                        println "handling coord ${coordIndex}"
                         processHighLevelArray(discontinuousProjection, coordinate)
 //
 //                        if (featureType && featureType == "exon") {
@@ -195,6 +199,8 @@ class ProjectionService {
 //                        }
                     }
 
+                    println "# of entries: ${discontinuousProjection.minMap.size()}"
+
                     sequenceProjectionMap.put(sequenceFileName, discontinuousProjection)
                 }
 
@@ -209,7 +215,7 @@ class ProjectionService {
     def processHighLevelArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate) {
 //                        // TODO: use enums to better track format
         int classType = coordinate.getInt(0)
-        println "processing high level array  ${coordinate as JSON}"
+        log.debug "processing high level array  ${coordinate as JSON}"
         String featureType
         switch (classType) {
             case 0:
@@ -232,19 +238,20 @@ class ProjectionService {
                 break
             case 4:
                 println "not sure how to handle case 4 ${coordinate as JSON}"
+                // ignore .  . . not an exon
                 break
         }
 
     }
 
     def processExonArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, Integer padding = 0) {
-        println "processing exon array ${coordinate as  JSON}"
+        log.debug "processing exon array ${coordinate as  JSON}"
         def classType = coordinate.get(0)
 
         // then we assume that the rest are arrays if the first are . . and process them accordingly
         if(classType instanceof JSONArray){
             for(int i = 0 ; i < coordinate.size() ; i++){
-                println "subarray ${coordinate.get(i) as JSON}"
+                log.debug "subarray ${coordinate.get(i) as JSON}"
                 processExonArray(discontinuousProjection,coordinate.getJSONArray(i))
             }
             return
@@ -256,7 +263,7 @@ class ProjectionService {
         String featureType
         switch (classType) {
             case 0:
-                println "not sure if this will work . . check! ${coordinate.size()} > 9"
+                log.debug "not sure if this will work . . check! ${coordinate.size()} > 9"
                 featureType = coordinate.getString(9)
                 if (coordinate.size() >= 10) {
                     processExonArray(discontinuousProjection, coordinate.getJSONArray(10))
@@ -279,7 +286,7 @@ class ProjectionService {
         }
 
         // TODO: or repeat region?
-        if (featureType && featureType == FeatureStringEnum.EXON.value) {
+        if (featureType && featureType == "exon") {
             discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
         }
 

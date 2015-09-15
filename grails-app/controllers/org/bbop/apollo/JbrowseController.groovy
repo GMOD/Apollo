@@ -535,6 +535,7 @@ class JbrowseController {
         projectionService.createExonLevelProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),20)
 
 
+
         if (currentOrganism != null) {
             jsonObject.put("dataset_id", currentOrganism.id)
         }
