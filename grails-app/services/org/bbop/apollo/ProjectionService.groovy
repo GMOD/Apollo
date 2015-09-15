@@ -171,35 +171,14 @@ class ProjectionService {
 
                         // TODO: this needs to be recursive
                         JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
-                        // TODO: use enums to better track format
-                        int classType = coordinate.getInt(0)
-                        String featureType
-                        switch (classType) {
-                            case 0:
-                                featureType = coordinate.getString(9)
-                                // process array in 10
-                                // process sublist if 11 exists
-                                break
-                            case 1:
-                                featureType = coordinate.getString(7)
-                                // no subarrays
-                                break
-                            case 2:
-                                featureType = coordinate.getString(6)
-                                break
-                            case 3:
-                                featureType = coordinate.getString(6)
-                                // process array in 10
-                                // process sublist if 11 exists
-                                break
-                            case 4:
-                                println "not sure how to handle case 4 ${coordinate as JSON}"
-                                break
-                        }
 
-                        if (featureType && featureType == "exon") {
-                            discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
-                        }
+//                        processExonArray(discontinuousProjection, coordinate)
+
+                        processHighLevelArray(discontinuousProjection, coordinate)
+//
+//                        if (featureType && featureType == "exon") {
+//                            discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
+//                        }
 
 //                        if (coordinate.getInt(0) == 4) {
 //                            // projecess the file lf-${coordIndex} instead
@@ -225,5 +204,86 @@ class ProjectionService {
             }
         }
         println "total time ${System.currentTimeMillis() - startTime}"
+    }
+
+    def processHighLevelArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate) {
+//                        // TODO: use enums to better track format
+        int classType = coordinate.getInt(0)
+        println "processing high level array  ${coordinate as JSON}"
+        String featureType
+        switch (classType) {
+            case 0:
+                featureType = coordinate.getString(9)
+                // process array in 10
+                processExonArray(discontinuousProjection, coordinate.getJSONArray(10))
+                // process sublist if 11 exists
+                break
+            case 1:
+                featureType = coordinate.getString(7)
+                println "1 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
+                // no subarrays
+                break
+            case 2:
+            case 3:
+                featureType = coordinate.getString(6)
+                println "2/3 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
+                // process array in 10
+                // process sublist if 11 exists
+                break
+            case 4:
+                println "not sure how to handle case 4 ${coordinate as JSON}"
+                break
+        }
+
+    }
+
+    def processExonArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, Integer padding = 0) {
+        println "processing exon array ${coordinate as  JSON}"
+        def classType = coordinate.get(0)
+
+        // then we assume that the rest are arrays if the first are . . and process them accordingly
+        if(classType instanceof JSONArray){
+            for(int i = 0 ; i < coordinate.size() ; i++){
+                println "subarray ${coordinate.get(i) as JSON}"
+                processExonArray(discontinuousProjection,coordinate.getJSONArray(i))
+            }
+            return
+        }
+        else{
+            // integer
+            classType = coordinate.getInt(0)
+        }
+        String featureType
+        switch (classType) {
+            case 0:
+                println "not sure if this will work . . check! ${coordinate.size()} > 9"
+                featureType = coordinate.getString(9)
+                if (coordinate.size() >= 10) {
+                    processExonArray(discontinuousProjection, coordinate.getJSONArray(10))
+                }
+                if (coordinate.size() >= 11) {
+                    JSONObject sublist = coordinate.getJSONObject(11)
+                    processHighLevelArray(discontinuousProjection, sublist.getJSONArray("Sublist"))
+                }
+                break
+            case 1:
+            case 2:
+                featureType = coordinate.getString(7)
+                break
+            case 3:
+                featureType = coordinate.getString(6)
+                break
+            case 4:
+                println "not sure how to handle case 4 ${coordinate as JSON}"
+                break
+        }
+
+        // TODO: or repeat region?
+        if (featureType && featureType == FeatureStringEnum.EXON.value) {
+            discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
+        }
+
+//        }
+
     }
 }
