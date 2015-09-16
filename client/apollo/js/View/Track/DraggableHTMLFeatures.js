@@ -42,6 +42,66 @@ var draggableTrack = declare( HTMLFeatureTrack,
     // so is dragging
     dragging: false,
 
+    requestFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
+        alert('requesting the feature detail 1') ;
+
+        xhr.post(context_path + "/sequence/lookupSequenceByNameAndOrganism/", {
+            data: JSON.stringify(request),
+            handleAs: "json"
+        }).then(function (response) {
+                if (response.error) {
+                    alert("Failed to subscribe to websocket, no seq/org id available");
+                    return;
+                }
+                if(typeof track.webapollo.organism == 'undefined'){
+                    alert('track not defined? ')
+                    track.webapollo.organism = response.organismId;
+                    alert('defined now? '+JSON.stringify(track.webapollo))
+                }
+                var container = dojo.create('div', {
+                    className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(),
+                    innerHTML: ''
+                });
+                var fmt = dojo.hitch( this, function( name, value, feature ) {
+                    name = Util.ucFirst( name.replace(/_/g,' ') );
+                    return this.renderDetailField(container, name, value, feature);
+                });
+                fmt( 'Name', f.get('name'), f );
+                fmt( 'Type', f.get('type'), f );
+                fmt( 'Score', f.get('score'), f );
+                fmt( 'Description', f.get('note'), f );
+                fmt(
+                    'Position',
+                    Util.assembleLocString({ start: f.get('start'),
+                        end: f.get('end'),
+                        ref: this.refSeq.name })
+                    + ({'1':' (+)', '-1': ' (-)', 0: ' (no strand)' }[f.get('strand')] || ''),
+                    f
+                );
+
+
+                if( f.get('seq') ) {
+                    fmt('Sequence and Quality', this._renderSeqQual( f ), f );
+                }
+
+                var additionalTags = array.filter(
+                    f.tags(), function(t) {
+                        return ! {name:1,score:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()];
+                    }
+                ).sort();
+
+                dojo.forEach( additionalTags, function(t) {
+                    fmt( t, f.get(t), f );
+                });
+
+                return container;
+            },
+            function () {
+                console.log("Received error in organism lookup, anonymous mode jbrowse");
+            });
+
+    },
+
     _defaultConfig: function() {
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
@@ -81,7 +141,29 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     // also, JBrowse only sets these events for features, and WebApollo needs them to trigger for subfeatures as well
                     // , mousedown: dojo.hitch( this, 'onFeatureMouseDown' ),
                     // , dblclick:  dojo.hitch( this, 'onFeatureDoubleClick' )
-                }
+                },
+                menuTemplate: [
+                    { label: 'Peruse the DNA ',
+                        title: '{type} {name}',
+                        action: 'contentDialog',
+                        iconClass: 'dijitIconTask',
+                        //content: dojo.hitch( this, 'defaultFeatureDetail' )
+                        content: dojo.hitch( this, 'requestFeatureDetail' )
+                    },
+                    // this should not change
+                    { label: function() {
+                        return 'Highlight this '
+                            +( this.feature && this.feature.get('type') ? this.feature.get('type')
+                                    : 'feature'
+                            );
+                    },
+                        action: function() {
+                            var loc = new Location({ feature: this.feature, tracks: [this.track] });
+                            this.track.browser.setHighlightAndRedraw(loc);
+                        },
+                        iconClass: 'dijitIconFilter'
+                    }
+                ]
             }
         );
     },
