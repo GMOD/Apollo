@@ -138,11 +138,11 @@ class ProjectionService {
      */
     def createExonLevelProjection(Organism organism, JSONArray tracksArray, Integer padding = 0) {
         // TODO: this is only here for debugging . .
-        projectionMap.clear()
+//        projectionMap.clear()
         long startTime = System.currentTimeMillis()
         for (int i = 0; i < tracksArray.size(); i++) {
             JSONObject trackObject = tracksArray.getJSONObject(i)
-            if (trackObject.containsKey("OGS") && trackObject.getBoolean("OGS") && !projectionMap.containsKey(trackObject.keys())) {
+            if (trackObject.containsKey("OGS") && trackObject.getBoolean("OGS") && !projectionMap.containsKey(trackObject.key)) {
                 println "tring to generate projection for ${trackObject.key}"
                 String jbrowseDirectory = organism.directory + "/tracks/" + trackObject.key
                 File trackDirectory = new File(jbrowseDirectory)
