@@ -107,19 +107,34 @@ public class DiscontinuousProjection extends AbstractProjection {
 
 //    private List<Coordinate> removeIntermediates()
 
+    /**
+     * Replace an existing coordinate with a new set (e.g., an overlap)
+     * @param coordinate
+     * @param min
+     * @param max
+     * @return
+     */
     private Coordinate replaceCoordinate(Coordinate coordinate, int min, int max) {
+//        println "replace coordinate ${coordinate.min}/${coordinate.max}->${min}/${max}"
         assert minMap.remove(coordinate.min) != null
         assert maxMap.remove(coordinate.max) != null
 
         Integer nextMin = minMap ? minMap.higherKey(coordinate.min) : null
 
-        while (nextMin && minMap && maxMap && nextMin < max) {
+        def doBreak = false
+        // we have to remove any overlapping elements here
+        while (nextMin && minMap && maxMap && nextMin < max && !doBreak) {
             Coordinate nextMinCoord = minMap.get(nextMin)
+//            println "nextMinCoord.max ${nextMinCoord.max} > ${min}"
             if (nextMinCoord.max > min) {
                 assert minMap.remove(nextMinCoord.min) != null
                 assert maxMap.remove(nextMinCoord.max) != null
             }
+            else{
+                doBreak = true
+            }
             nextMin = minMap.higherKey(coordinate.min)
+//            println "nextMin ${coordinate.min} -> higher key -> ${nextMin} < ${max} "
         }
         return addCoordinate(min, max)
     }
