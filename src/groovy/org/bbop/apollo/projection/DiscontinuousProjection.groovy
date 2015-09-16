@@ -393,4 +393,12 @@ public class DiscontinuousProjection extends AbstractProjection {
 
         return returnString
     }
+
+    Integer size() {
+        if(!minMap){
+            return 0
+        }
+        assert minMap.size()==maxMap.size()
+        return minMap.size()
+    }
 }

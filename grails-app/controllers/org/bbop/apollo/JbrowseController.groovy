@@ -5,6 +5,7 @@ import liquibase.util.file.FilenameUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousChunkProjector
+import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.ProjectionInterface
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -242,9 +243,10 @@ class JbrowseController {
                     // get the track from the json object
 
                     // TODO: it should look up the OGS track either default or variable
-                    ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
+                    DiscontinuousProjection projection = (DiscontinuousProjection) projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
 
                     if (projection) {
+                        println "found a projection ${projection.size()}"
                         JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
                         JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
                         for (int i = 0; i < coordinateJsonArray.size(); i++) {

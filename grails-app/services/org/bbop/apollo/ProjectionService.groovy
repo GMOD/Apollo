@@ -155,19 +155,13 @@ class ProjectionService {
                 Map<String, ProjectionInterface> sequenceProjectionMap = new HashMap<>()
 
                 for (File trackDataFile in files) {
-                    println "processing file ${trackDataFile}"
-
-                    if(trackDataFile.absolutePath.contains("Group10.19")){
-                        println "stopping to process"
-                    }
-//                    println "file ${trackDataFile.absolutePath}"
-
 //                    String sequenceFileName = trackDataFile.absolutePath.substring(trackDirectory.absolutePath.length(),trackDataFile.absolutePath.length()-"trackData.json".length()).replaceAll("/","")
                     String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
 
-//                    println "sequencefileName [${sequenceFileName}]"
-
                     JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
+                    if(sequenceFileName.contains("1.10")){
+                        println "traying to create a sequence for ${sequenceFileName} "
+                    }
 
                     // TODO: interpret the format properly
                     DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
@@ -177,30 +171,34 @@ class ProjectionService {
                         // TODO: this needs to be recursive
                         JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
 
-                        println "handling coord ${coordIndex}"
-                        processHighLevelArray(discontinuousProjection, coordinate)
+//                        println "handling coord ${coordIndex}"
 //
 //                        if (featureType && featureType == "exon") {
 //                            discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
 //                        }
 
-//                        if (coordinate.getInt(0) == 4) {
-//                            // projecess the file lf-${coordIndex} instead
-//                            File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
-//                            JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
-//
-//                            for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
-//                                JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
+                        if (coordinate.getInt(0) == 4) {
+                            // projecess the file lf-${coordIndex} instead
+                            File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
+                            JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
+
+                            for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
+                                JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
 //                                discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1) - padding, chunkArrayCoordinate.getInt(2) + padding)
-//                            }
-//
-//                        } else {
+                                processHighLevelArray(discontinuousProjection, chunkArrayCoordinate)
+                            }
+
+                        } else {
 //                            discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
-//                        }
+                            processHighLevelArray(discontinuousProjection, coordinate)
+                        }
                     }
 
-                    println "# of entries: ${discontinuousProjection.minMap.size()}"
+//                    println "# of entries: ${discontinuousProjection.minMap.size()}"
 
+                    if(sequenceFileName.contains("1.10")){
+                        println "putting map ${sequenceFileName} into ${discontinuousProjection.size()}"
+                    }
                     sequenceProjectionMap.put(sequenceFileName, discontinuousProjection)
                 }
 
