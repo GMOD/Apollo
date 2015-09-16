@@ -533,8 +533,8 @@ class JbrowseController {
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
 
         Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
-//        projectionService.createTranscriptProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),200)
-        projectionService.createExonLevelProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),20)
+//        projectionService.createTranscriptProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),50)
+        projectionService.createExonLevelProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),50)
 
 
 

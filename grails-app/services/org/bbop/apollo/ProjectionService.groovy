@@ -95,11 +95,11 @@ class ProjectionService {
 
                             for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
                                 JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-                                discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1) - padding, chunkArrayCoordinate.getInt(2) + padding)
+                                discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1), chunkArrayCoordinate.getInt(2) , padding)
                             }
 
                         } else {
-                            discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
+                            discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2),padding)
                         }
                     }
 
@@ -171,12 +171,6 @@ class ProjectionService {
                         // TODO: this needs to be recursive
                         JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
 
-//                        println "handling coord ${coordIndex}"
-//
-//                        if (featureType && featureType == "exon") {
-//                            discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
-//                        }
-
                         if (coordinate.getInt(0) == 4) {
                             // projecess the file lf-${coordIndex} instead
                             File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
@@ -184,13 +178,11 @@ class ProjectionService {
 
                             for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
                                 JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-//                                discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1) - padding, chunkArrayCoordinate.getInt(2) + padding)
-                                processHighLevelArray(discontinuousProjection, chunkArrayCoordinate)
+                                processHighLevelArray(discontinuousProjection, chunkArrayCoordinate,padding)
                             }
 
                         } else {
-//                            discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
-                            processHighLevelArray(discontinuousProjection, coordinate)
+                            processHighLevelArray(discontinuousProjection, coordinate,padding)
                         }
                     }
 
@@ -210,7 +202,7 @@ class ProjectionService {
         println "total time ${System.currentTimeMillis() - startTime}"
     }
 
-    def processHighLevelArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate) {
+    def processHighLevelArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate,Integer padding) {
 //                        // TODO: use enums to better track format
         int classType = coordinate.getInt(0)
         log.debug "processing high level array  ${coordinate as JSON}"
@@ -219,7 +211,7 @@ class ProjectionService {
             case 0:
                 featureType = coordinate.getString(9)
                 // process array in 10
-                processExonArray(discontinuousProjection, coordinate.getJSONArray(10))
+                processExonArray(discontinuousProjection, coordinate.getJSONArray(10),padding)
                 // process sublist if 11 exists
                 break
             case 1:
@@ -242,7 +234,7 @@ class ProjectionService {
 
     }
 
-    def processExonArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, Integer padding = 0) {
+    def processExonArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, Integer padding) {
         log.debug "processing exon array ${coordinate as  JSON}"
         def classType = coordinate.get(0)
 
@@ -250,7 +242,7 @@ class ProjectionService {
         if(classType instanceof JSONArray){
             for(int i = 0 ; i < coordinate.size() ; i++){
                 log.debug "subarray ${coordinate.get(i) as JSON}"
-                processExonArray(discontinuousProjection,coordinate.getJSONArray(i))
+                processExonArray(discontinuousProjection,coordinate.getJSONArray(i),padding)
             }
             return
         }
@@ -264,11 +256,11 @@ class ProjectionService {
                 log.debug "not sure if this will work . . check! ${coordinate.size()} > 9"
                 featureType = coordinate.getString(9)
                 if (coordinate.size() >= 10) {
-                    processExonArray(discontinuousProjection, coordinate.getJSONArray(10))
+                    processExonArray(discontinuousProjection, coordinate.getJSONArray(10),padding)
                 }
                 if (coordinate.size() >= 11) {
                     JSONObject sublist = coordinate.getJSONObject(11)
-                    processHighLevelArray(discontinuousProjection, sublist.getJSONArray("Sublist"))
+                    processHighLevelArray(discontinuousProjection, sublist.getJSONArray("Sublist"),padding)
                 }
                 break
             case 1:
@@ -285,7 +277,7 @@ class ProjectionService {
 
         // TODO: or repeat region?
         if (featureType && featureType == "exon") {
-            discontinuousProjection.addInterval(coordinate.getInt(1) - padding, coordinate.getInt(2) + padding)
+            discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2),padding)
         }
 
 //        }
