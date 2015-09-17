@@ -168,4 +168,10 @@ class TrackService {
         }
         return jsonObject.toString()
     }
+
+    JSONArray getTrackData(Sequence sequence, String trackName, String nameLookup) {
+        JSONArray jsonArray = new JSONArray()
+
+        return jsonArray
+    }
 }

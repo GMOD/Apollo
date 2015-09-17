@@ -13,11 +13,12 @@ define( [
             'jqueryui/draggable',
             'JBrowse/Util', 
             'JBrowse/Model/SimpleFeature', 
-            'WebApollo/SequenceOntologyUtils'
+            'WebApollo/SequenceOntologyUtils',
+            'dojo/request/xhr'
         ],
         function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, 
           dijitCheckedMenuItem, dijitMenuSeparator, dijitPopupMenuItem, dijitDialog, $, draggable, Util, 
-          SimpleFeature, SeqOnto ) {
+          SimpleFeature, SeqOnto,xhr ) {
 
 /*  Subclass of FeatureTrack that allows features to be selected,
     and dragged and dropped into the annotation track to create annotations.
@@ -34,6 +35,7 @@ define( [
  */
 
 var debugFrame = false;
+var context_path = "..";
 
 //var DraggableFeatureTrack = declare( HTMLFeatureTrack,
 var draggableTrack = declare( HTMLFeatureTrack,
@@ -44,17 +46,33 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
     requestFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
         alert('requesting the feature detail 1') ;
+        //alert(Object.keys(track));
+        //alert('track name: '+track.name);
+        //alert('track key: '+track.key);
+        //alert('track label: '+track.label);
+        //alert('track refSeq: '+track.refSeq);
+        //alert('track: '+JSON.stringify(track));
+        //alert('f: '+JSON.stringify(f));
+        //alert('div: '+JSON.stringify(div));
 
-        xhr.post(context_path + "/sequence/lookupSequenceByNameAndOrganism/", {
-            data: JSON.stringify(request),
+        var request = {
+          track: track.key
+           ,input: JSON.stringify(f)
+           ,organism: track.webapollo.organism
+        };
+
+        xhr.post(context_path + "/track/retrieve", {
+            data: request,
             handleAs: "json"
         }).then(function (response) {
+                alert('got a response');
+                alert(JSON.stringify(response));
                 if (response.error) {
                     alert("Failed to subscribe to websocket, no seq/org id available");
                     return;
                 }
                 if(typeof track.webapollo.organism == 'undefined'){
-                    alert('track not defined? ')
+                    alert('track not defined? ');
                     track.webapollo.organism = response.organismId;
                     alert('defined now? '+JSON.stringify(track.webapollo))
                 }
