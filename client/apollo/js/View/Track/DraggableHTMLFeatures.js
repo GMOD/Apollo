@@ -1,6 +1,8 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/dom-construct',
+            'dojo/dom-class',
             'JBrowse/View/Track/HTMLFeatures',
             'WebApollo/FeatureSelectionManager',
             'dijit/Menu',
@@ -11,14 +13,16 @@ define( [
             'dijit/Dialog',
             'jquery',
             'jqueryui/draggable',
-            'JBrowse/Util', 
-            'JBrowse/Model/SimpleFeature', 
+            'jqueryui/dialog',
+            'JBrowse/Util',
+            'JBrowse/Model/SimpleFeature',
             'WebApollo/SequenceOntologyUtils',
-            'dojo/request/xhr'
+            'dojo/request/xhr',
+            'JBrowse/View/Track/_FeatureDetailMixin'
         ],
-        function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, 
-          dijitCheckedMenuItem, dijitMenuSeparator, dijitPopupMenuItem, dijitDialog, $, draggable, Util, 
-          SimpleFeature, SeqOnto,xhr ) {
+        function( declare, array, domConstruct,domClass, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem,
+          dijitCheckedMenuItem, dijitMenuSeparator, dijitPopupMenuItem, dijitDialog, $, draggable,dialog, Util,
+          SimpleFeature, SeqOnto,xhr ,FeatureDetailMixin) {
 
 /*  Subclass of FeatureTrack that allows features to be selected,
     and dragged and dropped into the annotation track to create annotations.
@@ -38,85 +42,45 @@ var debugFrame = false;
 var context_path = "..";
 
 //var DraggableFeatureTrack = declare( HTMLFeatureTrack,
-var draggableTrack = declare( HTMLFeatureTrack,
-
+var draggableTrack = declare( [HTMLFeatureTrack,FeatureDetailMixin],
 {
     // so is dragging
     dragging: false,
 
-    requestFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ div ) {
-        alert('requesting the feature detail 1') ;
-        //alert(Object.keys(track));
-        //alert('track name: '+track.name);
-        //alert('track key: '+track.key);
-        //alert('track label: '+track.label);
-        //alert('track refSeq: '+track.refSeq);
-        //alert('track: '+JSON.stringify(track));
-        //alert('f: '+JSON.stringify(f));
-        //alert('div: '+JSON.stringify(div));
+    defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement **/ container) {
+        //requestFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement **/ container) {
+        container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(), innerHTML: '<h3>asdfasdfasdf</h3>' } );
 
         var request = {
           track: track.key
            ,input: JSON.stringify(f)
            ,organism: track.webapollo.organism
         };
-
-        xhr.post(context_path + "/track/retrieve", {
-            data: request,
-            handleAs: "json"
-        }).then(function (response) {
-                alert('got a response');
+        alert('created container');
+        container.then = function(){
+            xhr.post(context_path + "/track/retrieve", {
+                data: request,
+                handleAs: "json"
+            }).then(function (response) {
+                //alert('got a response');
                 alert(JSON.stringify(response));
                 if (response.error) {
                     alert("Failed to subscribe to websocket, no seq/org id available");
                     return;
                 }
                 if(typeof track.webapollo.organism == 'undefined'){
-                    alert('track not defined? ');
                     track.webapollo.organism = response.organismId;
-                    alert('defined now? '+JSON.stringify(track.webapollo))
                 }
-                var container = dojo.create('div', {
-                    className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(),
-                    innerHTML: ''
-                });
-                var fmt = dojo.hitch( this, function( name, value, feature ) {
-                    name = Util.ucFirst( name.replace(/_/g,' ') );
-                    return this.renderDetailField(container, name, value, feature);
-                });
-                fmt( 'Name', f.get('name'), f );
-                fmt( 'Type', f.get('type'), f );
-                fmt( 'Score', f.get('score'), f );
-                fmt( 'Description', f.get('note'), f );
-                fmt(
-                    'Position',
-                    Util.assembleLocString({ start: f.get('start'),
-                        end: f.get('end'),
-                        ref: this.refSeq.name })
-                    + ({'1':' (+)', '-1': ' (-)', 0: ' (no strand)' }[f.get('strand')] || ''),
-                    f
-                );
-
-
-                if( f.get('seq') ) {
-                    fmt('Sequence and Quality', this._renderSeqQual( f ), f );
-                }
-
-                var additionalTags = array.filter(
-                    f.tags(), function(t) {
-                        return ! {name:1,score:1,start:1,end:1,strand:1,note:1,subfeatures:1,type:1}[t.toLowerCase()];
-                    }
-                ).sort();
-
-                dojo.forEach( additionalTags, function(t) {
-                    fmt( t, f.get(t), f );
-                });
-
-                return container;
-            },
-            function () {
-                console.log("Received error in organism lookup, anonymous mode jbrowse");
+                //var trackDetails = response.trackDetails;
+                var coreDetails = dojo.create('div', { className: 'core' }, container );
+                coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
+                //var fmt = dojo.hitch( this, 'renderDetailField', coreDetails );
+                return coreDetails;
             });
+        };
+        alert('returned function');
+
+        return container ;
 
     },
 
@@ -126,35 +90,35 @@ var draggableTrack = declare( HTMLFeatureTrack,
             {
                 style: {
             // className: "{type}",   // feature classname gets set to feature.get('type')
-                    className: "container-16px", 
-                    renderClassName: "gray-center-30pct", 
-                    arrowheadClass: "webapollo-arrowhead", 
+                    className: "container-16px",
+                    renderClassName: "gray-center-30pct",
+                    arrowheadClass: "webapollo-arrowhead",
                     subfeatureClasses: {
-                        UTR: "webapollo-UTR",   
-                        CDS: "webapollo-CDS",   
-                        exon: "container-100pct", 
+                        UTR: "webapollo-UTR",
+                        CDS: "webapollo-CDS",
+                        exon: "container-100pct",
                         intron: null,
-                        wholeCDS: null, 
-                        start_codon: null, 
-                        stop_codon: null, 
+                        wholeCDS: null,
+                        start_codon: null,
+                        stop_codon: null,
                         match_part: "darkblue-80pct"
-                    }, 
+                    },
 
                     // renderClassName: 'DraggableFeatureTrack'  ???
-                    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
-                    minSubfeatureWidth: 1, 
+                    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn,
+                    minSubfeatureWidth: 1,
                     centerChildrenVertically: false
                 },
                 events: {
-                    // need to map click to a null-op, to override default JBrowse click behavior for click on features 
+                    // need to map click to a null-op, to override default JBrowse click behavior for click on features
                     //     (JBrowse default is feature detail popup)
                     click:     function(event) {
-                        // not quite a null-op, also need to suprress propagation of click recursively up through parent divs, 
+                        // not quite a null-op, also need to suprress propagation of click recursively up through parent divs,
                         //    in order to stop default JBrowse behavior for click on tracks (which is to recenter view at click point)
                         event.stopPropagation();
                     }
-                    // WebApollo can't set up mousedown --> onFeatureMouseDown() in config.events, 
-                    //     because dojo.on used by JBrowse config-based event setup doesn't play nice with 
+                    // WebApollo can't set up mousedown --> onFeatureMouseDown() in config.events,
+                    //     because dojo.on used by JBrowse config-based event setup doesn't play nice with
                     //     JQuery event retriggering via _mousedown() for feature drag bootstrapping
                     // also, JBrowse only sets these events for features, and WebApollo needs them to trigger for subfeatures as well
                     // , mousedown: dojo.hitch( this, 'onFeatureMouseDown' ),
@@ -165,8 +129,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         title: '{type} {name}',
                         action: 'contentDialog',
                         iconClass: 'dijitIconTask',
-                        //content: dojo.hitch( this, 'defaultFeatureDetail' )
-                        content: dojo.hitch( this, 'requestFeatureDetail' )
+                        content: dojo.hitch( this, 'defaultFeatureDetail' )
+                        //content: dojo.hitch( this, 'requestFeatureDetail' )
                     },
                     // this should not change
                     { label: function() {
@@ -201,7 +165,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // CSS class for selected features
         // override if want subclass to have different CSS class for selected features
         this.selectionClass = "selected-feature";
-        
+
         //  DraggableFeatureTrack.selectionManager.addListener(this);
 
         this.last_whitespace_mousedown_loc = null;
@@ -214,11 +178,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.verbose_drag = false;
         this.drag_enabled = true;
 
-        this.feature_context_menu = null; 
+        this.feature_context_menu = null;
 
-        /** hack to determine which tracks to apply edge matching to 
-            would rather do a check for whether track is instance of DraggableHTMLFeatures (or possibly HTMLFeatures), 
-                but use of dojo.declare() for classes means track object's class is actually base Object. 
+        /** hack to determine which tracks to apply edge matching to
+            would rather do a check for whether track is instance of DraggableHTMLFeatures (or possibly HTMLFeatures),
+                but use of dojo.declare() for classes means track object's class is actually base Object.
         */
         this.edge_matching_enabled = true;
     },
@@ -411,7 +375,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
     /**
      *  overriding renderFeature to add event handling for mouseover, mousedown, mouseup
      */
-    renderFeature: function(feature, uniqueId, block, scale, labelScale, descriptionScale, 
+    renderFeature: function(feature, uniqueId, block, scale, labelScale, descriptionScale,
                             containerStart, containerEnd, rclass, clsName ) {
         var featdiv = this.inherited( arguments );
         if( featdiv )  {  // just in case featDiv doesn't actually get created
@@ -471,11 +435,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
 
     /**
-     *  if feature has translated region (CDS, wholeCDS, start_codon, ???), 
-     *  reworks feature's subfeatures for more annotation-editing-friendly selection 
+     *  if feature has translated region (CDS, wholeCDS, start_codon, ???),
+     *  reworks feature's subfeatures for more annotation-editing-friendly selection
      *
      *  Assumes:
-     *      if translated, will either have 
+     *      if translated, will either have
      *           CDS-ish term for each coding segment
      *           wholeCDS from start of translation to end of translation (so already pre-processed)
      *           mutually exclusive (either have CDS, or wholeCDS, but not both)
@@ -487,7 +451,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
         var feat_type = feature.get('type');
 
-        // most very dense genomic feature tracks do not have CDS.  Trying to minimize overhead for that case -- 
+        // most very dense genomic feature tracks do not have CDS.  Trying to minimize overhead for that case --
         //    keep list of types that NEVER have CDS children (match, alignment, repeat, etc.)
         //    (WARNING in this case not sorting, but sorting (currently) only needed for features with CDS (for reading frame calcs))
         if (SeqOnto.neverHasCDS[feat_type])  {
@@ -497,15 +461,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var subfeats = feature.get('subfeatures');
 
         // var cds = subfeats.filter( function(feat) { return feat.get('type') === 'CDS'; } );
-        var cds = subfeats.filter( function(feat) { 
+        var cds = subfeats.filter( function(feat) {
             return SeqOnto.cdsTerms[feat.get('type')];
         } );
         var wholeCDS = subfeats.filter( function(feat) { return feat.get('type') === 'wholeCDS'; } );
-        
-        // most very dense genomic feature tracks do not have CDS.  Trying to minimize overhead for that case -- 
-        //    if no CDS, no wholeCDS, consider normalized 
+
+        // most very dense genomic feature tracks do not have CDS.  Trying to minimize overhead for that case --
+        //    if no CDS, no wholeCDS, consider normalized
         //    (WARNING in this case not sorting, but sorting (currently) only needed for features with CDS (for reading frame calcs))
-        // 
+        //
         if (cds.length === 0 && wholeCDS.length === 0)  {
             feature.normalized = true;
             return;
@@ -518,24 +482,24 @@ var draggableTrack = declare( HTMLFeatureTrack,
             feature.wholeCDS = wholeCDS[0];
             newsubs = subfeats.filter( function(feat) { return feat.get('type') !== 'wholeCDS'; } );
         }
-        
+
         // if has a CDS, remove CDS from subfeats and sort exons
         else if (cds.length > 0)  {
             cds.sort(this._subfeatSorter);
             var cdsmin = cds[0].get('start');
             var cdsmax = cds[cds.length-1].get('end');
-            feature.wholeCDS = new SimpleFeature({ parent: feature, 
-                                                   data: { start: cdsmin, end: cdsmax, type: 'wholeCDS', 
-                                                           strand: feature.get('strand') } 
+            feature.wholeCDS = new SimpleFeature({ parent: feature,
+                                                   data: { start: cdsmin, end: cdsmax, type: 'wholeCDS',
+                                                           strand: feature.get('strand') }
                                                  } );
             var hasExons = false;
-            for (var i=0; i<subfeats.length; i++)  { 
-                // if (subfeats[i].get('type') === 'exon')  { hasExons = true; break; } 
-                if (SeqOnto.exonTerms[subfeats[i].get('type')])  { hasExons = true; break; } 
+            for (var i=0; i<subfeats.length; i++)  {
+                // if (subfeats[i].get('type') === 'exon')  { hasExons = true; break; }
+                if (SeqOnto.exonTerms[subfeats[i].get('type')])  { hasExons = true; break; }
             }
             if (hasExons)  {
                 // filter out UTR and CDS
-                newsubs = subfeats.filter( function(feat) { 
+                newsubs = subfeats.filter( function(feat) {
                     var ftype = feat.get('type');
                     return (! (SeqOnto.utrTerms[ftype] || SeqOnto.cdsTerms[ftype]) );
                 } );
@@ -555,7 +519,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     var curStart = subfeat.get('start');
                     var curEnd = subfeat.get('end');
 
-                    if (SeqOnto.utrTerms[ftype] || SeqOnto.cdsTerms[ftype] ) {  
+                    if (SeqOnto.utrTerms[ftype] || SeqOnto.cdsTerms[ftype] ) {
                         if (! prevStart)  {  // first UTR/CDS, just initialize first exon
                             prevStart = subfeat.get('start');
                             prevEnd = subfeat.get('end');
@@ -567,10 +531,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             }
                             // not abutting, create previous exon and start new one
                             else  {
-                                var exon = new SimpleFeature({ parent: feature, 
-                                                               id: feature.id() + "-exon-" + exonCount++, 
-                                                               data: { start: prevStart, end: prevEnd, type: 'exon', 
-                                                                       strand: feature.get('strand')  } 
+                                var exon = new SimpleFeature({ parent: feature,
+                                                               id: feature.id() + "-exon-" + exonCount++,
+                                                               data: { start: prevStart, end: prevEnd, type: 'exon',
+                                                                       strand: feature.get('strand')  }
                                                              } );
                                 newsubs.push(exon);
                                 prevStart = curStart;
@@ -583,22 +547,22 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     }
                 }
                 // add last exon after exiting loop
-                var exon = new SimpleFeature({ parent: feature, 
-                                               id: feature.id() + "-exon-" + exonCount++, 
-                                               data: { start: prevStart, end: prevEnd, type: 'exon', 
-                                                       strand: feature.get('strand') } 
+                var exon = new SimpleFeature({ parent: feature,
+                                               id: feature.id() + "-exon-" + exonCount++,
+                                               data: { start: prevStart, end: prevEnd, type: 'exon',
+                                                       strand: feature.get('strand') }
                                              } );
                 newsubs.push(exon);
-                
+
             }
         }
         // ensure that subfeatures are sorted by ascending start (regardless of feature orientation)
         //    may want to revisit later and sort subfeatures of minus strand in descending order ??
         //       but if do this must make sure to change reading frame calcs to reflect this
-        newsubs.sort(this._subfeatSorter);  
+        newsubs.sort(this._subfeatSorter);
         feature.filteredsubs = newsubs;
         feature.normalized = true;
-    }, 
+    },
 
 
     /**
@@ -607,7 +571,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
     handleSubFeatures: function( feature, featDiv,
                                     displayStart, displayEnd, block )  {
 
-        var subfeats = feature.get('subfeatures');  
+        var subfeats = feature.get('subfeatures');
         if (! subfeats)  { return; }
 
         if (! feature.normalized )  {
@@ -702,9 +666,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
         //    if can't find, then default to parent feature class + "-UTR" or "-CDS"
         if( render ) {  // subfeatureClases defaults set in this._defaultConfig
             if (!UTRclass) {
-                UTRclass = this.config.style.subfeatureClasses["UTR"];  
+                UTRclass = this.config.style.subfeatureClasses["UTR"];
             }
-            CDSclass = this.config.style.subfeatureClasses["CDS"];  
+            CDSclass = this.config.style.subfeatureClasses["CDS"];
         }
 
         //    if ((subEnd <= displayStart) || (subStart >= displayEnd))  { return undefined; }
@@ -872,13 +836,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
      */
     onFeatureMouseDown: function(event) {
         // event.stopPropagation();
-        if( this.verbose_selection || this.verbose_drag ) { 
-            console.log("DFT.onFeatureMouseDown called"); 
+        if( this.verbose_selection || this.verbose_drag ) {
+            console.log("DFT.onFeatureMouseDown called");
         console.log("genome coord: " + this.getGenomeCoord(event));
         }
 
-        // drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5, 
-        //   but not with with JQuery 1.7+ strategy using _mouseDown(event), since _mouseDown call doesn't lead to onFeatureMouseDown() call 
+        // drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5,
+        //   but not with with JQuery 1.7+ strategy using _mouseDown(event), since _mouseDown call doesn't lead to onFeatureMouseDown() call
         // if (this.drag_create)  { this.drag_create = null; return; }
         this.handleFeatureSelection(event);
         if (this.drag_enabled)  {
@@ -953,8 +917,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
        }
     },
 
-    /* 
-     * WARNING: assumes one level (featdiv has feature) 
+    /*
+     * WARNING: assumes one level (featdiv has feature)
      *                  or two-level (featdiv has feature, subdivs have subfeature) feature hierarchy
      * attaching ghost to pinned AnnotTrack or SequenceTrack to ensure that stays on top
      */
@@ -964,7 +928,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         if (this.verbose_drag)  {  console.log("called handleFeatureDragSetup()"); console.log(featdiv); }
         var feat = featdiv.feature || featdiv.subfeature;
         var selected = this.selectionManager.isSelected( { feature: feat, track: ftrack });
-        // set all other tracks to standard track zIndex, 
+        // set all other tracks to standard track zIndex,
         // set this track to > than others to ensure ghost is drawn on top of all other tracks
   /*     ftrack.div.style.zIndex = 10;
         $(ftrack.gview.tracks).each( function(index, track)  {
@@ -977,12 +941,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
         /*
         // simple version for testing
         // (no multiselect ghosting, no appendTo redirection, no event retriggering for simultaneous select & drag)
-            if (selected)  {  
+            if (selected)  {
                 var $featdiv = $(featdiv);
-                $featdiv.draggable(   { 
-                helper: 'clone', 
+                $featdiv.draggable(   {
+                helper: 'clone',
                 opacity: 0.5,
-                axis: 'y', 
+                axis: 'y',
                 } );
             }
         */
@@ -1004,14 +968,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (! atrack) { atrack = ftrack.webapollo.getSequenceTrack();  }
                 var fblock = ftrack.getBlock(featdiv);
 
-                // append drag ghost to featdiv block's equivalent block in annotation track if present, 
-                //     else  append to equivalent block in sequence track if present, 
-                //     else append to featdiv's block 
+                // append drag ghost to featdiv block's equivalent block in annotation track if present,
+                //     else  append to equivalent block in sequence track if present,
+                //     else append to featdiv's block
                 var ablock = ( atrack ? atrack.getEquivalentBlock(fblock) : fblock);
 
                 $featdiv.draggable(   // draggable() adds "ui-draggable" class to div
                 {
-                    zIndex: 200, 
+                    zIndex: 200,
                     appendTo: ablock.domNode, // would default to featdiv's parent div
                     // custom helper for pseudo-multi-drag ("pseudo" because multidrag is visual only --
                     //      handling of draggable when dropped is already done through selection)
@@ -1029,16 +993,16 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         var $pfeatdiv;
                         // get top-level feature (assumes one or two-level feature hierarchy)
                         if (featdiv.subfeature) {
-                            $pfeatdiv = $(featdiv.parentNode); 
+                            $pfeatdiv = $(featdiv.parentNode);
                         }
                         else  {
                              $pfeatdiv = $(featdiv);
                         }
                         var $holder = $pfeatdiv.clone();
                         $holder.removeClass();
-                        // just want the shell of the top-level feature, so remove children 
+                        // just want the shell of the top-level feature, so remove children
                         //      (selected children will be added back in below)
-                        $holder.empty(); 
+                        $holder.empty();
                         $holder.addClass("custom-multifeature-draggable-helper");
                         var holder = $holder[0];
                         // var featdiv_copy = $featdiv_copy[0];
@@ -1091,15 +1055,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     },
                     opacity: 0.5,
                     axis: 'y'
-                    // drag_create setting in create() needed by older drag bootstrapping strategy with JQuery 1.5, 
+                    // drag_create setting in create() needed by older drag bootstrapping strategy with JQuery 1.5,
                     //     but not with different JQuery 1.7+ strategy
                     // , create: function(event, ui)  { ftrack.drag_create = true; }
                 } );
 
-                // Want to be able to both make feature draggable and initiate actual dragging with the same mousedown event 
+                // Want to be able to both make feature draggable and initiate actual dragging with the same mousedown event
                 // to do this need to retrigger/simulate the mousedown event again
                 // see http://bugs.jqueryui.com/ticket/3876 regarding switch from previous hacky approach using JQuery 1.5:
-                //       $featdiv.trigger(event) and ftrack.drag_create 
+                //       $featdiv.trigger(event) and ftrack.drag_create
                 // to new hacky approach using JQuery 1.7+:
                 //       data("draggable")._mouseDown(event);
                 // _mouseDown doesn't lead to another call to onFeatMouseDown, but does trigger the drag
@@ -1107,13 +1071,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 // see also http://stackoverflow.com/questions/9634639/why-does-this-break-in-jquery-1-7-x
                 //     for more explanation of event handling changes in JQuery 1.7
 
-                // _mouseDown(event) triggering boostrapping of feature drag 
-                // $featdiv.data("draggable")._mouseDown(event);  
+                // _mouseDown(event) triggering boostrapping of feature drag
+                // $featdiv.data("draggable")._mouseDown(event);
                 $featdiv.draggable().data("draggable")._mouseDown(event);
                 // $featdiv.trigger(event);
             }
         }
-    }, 
+    },
 
     /* given a feature or subfeature, return block that rendered it */
     getBlock: function( featdiv ) {
@@ -1123,7 +1087,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             fdiv = fdiv.parentNode;
         }
         return null;  // should never get here...
-    }, 
+    },
 
     getEquivalentBlock: function ( block ) {
         var startBase = block.startBase;
@@ -1135,7 +1099,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
         }
         return null;
-    }, 
+    },
 
     onFeatureDoubleClick: function( event )  {
         var ftrack = this;
@@ -1227,14 +1191,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
             return this.seqTrack;
         }
-    }, 
+    },
 
 
 /*
  *  for the input mouse event, returns genome position under mouse IN 1-BASED INTERBASE COORDINATES
- *  WARNING: returns base position relative to UI coordinate system 
+ *  WARNING: returns base position relative to UI coordinate system
  *       (which is 1-based interbase)
- *  But for most elements in genome view (features, graphs, etc.) the underlying data structures are 
+ *  But for most elements in genome view (features, graphs, etc.) the underlying data structures are
  *       in 0-base interbase coordinate system
  *  So if you want data structure coordinates, you need to do (getUiGenomeCoord() - 1)
  *       or use the convenience function getGenomeCoord()
@@ -1249,20 +1213,20 @@ var draggableTrack = declare( HTMLFeatureTrack,
  *         (currently JBrowse index.html page is not scrollable (JBrowse internal scrolling is NOT same as HTML page scrolling))
  */
 
-/*   
+/*
     getUiGenomeCoord: function(mouseEvent)  {
         return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
-    }, 
+    },
 */
 
 /**
  *  for the input mouse event, returns genome position under mouse IN 0-BASED INTERBASE COORDINATES
  *  WARNING:
- *  returns genome coord in 0-based interbase (which is how internal data structure represent coords), 
+ *  returns genome coord in 0-based interbase (which is how internal data structure represent coords),
  *       instead of 1-based interbase (which is how UI displays coordinates)
  *  if need display coordinates, use getUiGenomeCoord() directly instead
- *  
- *  otherwise same capability and assumptions as getUiGenomeCoord(): 
+ *
+ *  otherwise same capability and assumptions as getUiGenomeCoord():
  *  event can be on GenomeView.elem or any descendant DOM elements (track, block, feature divs, etc.)
  *  assumes:
  *      event is a mouse event (plain Javascript event or JQuery event)
@@ -1271,19 +1235,19 @@ var draggableTrack = declare( HTMLFeatureTrack,
  *      no border/margin/padding set on the doc <body> element  (see JQuery.offset() docs)
  *      if in IE<9, either page is not scrollable (in the HTML page sense) OR event is JQuery event
  *         (currently JBrowse index.html page is not scrollable (JBrowse internal scrolling is NOT same as HTML page scrolling))
- * 
+ *
  */
     getGenomeCoord: function(mouseEvent)  {
         return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
         //  return this.getUiGenomeCoord(mouseEvent) - 1;
     },
-    
+
     _makeFeatureContextMenu: function( featDiv, menuTemplate ) {
         var atrack = this.webapollo.getAnnotTrack();
 
         var menu = this.inherited(arguments);
         menu.addChild(new dijitMenuSeparator());
-        
+
         this.contextMenuItems = {};
 
         var createAnnotationMenu = new dijitMenu();
@@ -1376,20 +1340,20 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 atrack.createGenericOneLevelAnnotations(selFeats, "transposable_element", true);
             })
         }));
-        
+
         var createAnnotationMenuItem = new dijitPopupMenuItem( {
             label: "Create new annotation",
             popup: createAnnotationMenu
         } );
         this.contextMenuItems["create_annotation"] = createAnnotationMenuItem;
         menu.addChild(createAnnotationMenuItem);
-        
+
         dojo.connect(menu, "onOpen", dojo.hitch(this, function() {
             this.updateContextMenu();
         }));
-        
+
     },
-    
+
     updateContextMenu: function() {
         var atrack = this.webapollo.getAnnotTrack();
         if (!atrack || !atrack.isLoggedIn() || !atrack.hasWritePermission()) {

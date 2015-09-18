@@ -44,18 +44,36 @@ class TrackController {
 
             JSONObject rootElement = new JSONObject()
             rootElement.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
-            rootElement.put(FeatureStringEnum.SEQUENCE_NAME.value, sequenceName)
+            rootElement.put(FeatureStringEnum.SEQUENCE.value, sequenceName)
 
             Sequence sequence = permissionService.checkPermissions(rootElement, PermissionEnum.READ)
-//            String sequenceName = inputJson.getJSONArray(0).getString(5)
-//            String nameLookup = inputJson.getJSONArray(0).getString(6)
+
+            println "sequence ${sequence}"
+            assert sequence!=null
             assert sequence.name==sequenceName
 
 
             JSONArray returnData = trackService.getTrackData(sequence,trackName,nameLookup)
+            println "returnData ${returnData as JSON}"
 
-            render inputArray as JSONArray
-//            render returnData as JSON
+//            render inputArray as JSONArray
+            def responseObject = new JSONObject()
+            responseObject.organismId = sequence.organismId
+            responseObject.trackDetails = returnData
+
+            if(returnData.getInt(0)==0){
+                responseObject.start = returnData.getInt(1)
+                responseObject.end = returnData.getInt(2)
+                responseObject.strand = returnData.getInt(3)
+                responseObject.note = returnData.getString(4) // not sure if this is correct or not . . .
+                responseObject.seq = returnData.getString(5) // not sure if this is correct or not . . .
+                responseObject.name = returnData.getString(6)
+                responseObject.score = returnData.getDouble(7)
+                responseObject.type = returnData.getString(9)
+            }
+
+
+            render responseObject as JSON
 
 //            println "request JSON ${requestJson as JSON}"
 
@@ -66,7 +84,7 @@ class TrackController {
 //                log.error(error.error)
 //            }
         } catch (e) {
-            def error= [error: 'problem saving organism: '+e]
+            def error= [error: 'problem retrieving track: '+e]
             render error as JSON
             e.printStackTrace()
             log.error(error.error)

@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
 import org.apache.commons.io.filefilter.TrueFileFilter
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -180,36 +181,85 @@ class TrackService {
      * @return
      */
     JSONArray getTrackData(Sequence sequence, String trackName, String nameLookup) {
-        JSONArray jsonArray = new JSONArray()
         String jbrowseDirectory = sequence.organism.directory + "/tracks/" + trackName
         File trackDirectory = new File(jbrowseDirectory)
         println "track directory ${trackDirectory.absolutePath}"
-        File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
+        String sequenceDirectory = jbrowseDirectory + "/" + sequence.name
+        File trackDataFile = new File(sequenceDirectory+"/trackData.json")
+        assert trackDataFile.exists()
+//        File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
 //        String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
 ////                    println "sequencefileName [${sequenceFileName}]"
 //
-//        JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
-//        JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
-//        for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
-//            JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
-//            // TODO: use enums to better track format
-//            if (coordinate.getInt(0) == 4) {
-//                // projecess the file lf-${coordIndex} instead
-//                File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
-//                JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
-//
-//                for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
-//                    JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-//                    discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1), chunkArrayCoordinate.getInt(2) , padding)
-//                }
-//
-//            } else {
+        JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
+        JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+        for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
+            JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
+            // TODO: use enums to better track format
+            if (coordinate.getInt(0) == 4 || coordinate.getInt(0) == 3 ) {
+                // projecess the file lf-${coordIndex} instead
+                File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
+                JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
+
+                for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
+                    JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
+                    JSONArray returnArray = findCoordinateName(chunkArrayCoordinate,nameLookup)
+                    if(returnArray) return returnArray
+                }
+
+            } else {
+                JSONArray returnArray = findCoordinateName(coordinate,nameLookup)
+                if(returnArray) return returnArray
 //                discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2),padding)
-//            }
-//        }
+            }
+        }
 
 
 
-        return jsonArray
+        // return an empty array if not found
+        return new JSONArray()
+    }
+
+    JSONArray findCoordinateName(JSONArray coordinate, String name) {
+
+        int classType = coordinate.getInt(0)
+        for(int i = 0 ; i < coordinate.size() ; i++){
+            switch (classType){
+                case 0:
+                    if(coordinate.getString(6).toLowerCase().concat(name)){
+                        return coordinate
+                    }
+                    // search sublist
+                    if(coordinate.size()>10){
+                        JSONObject subList = coordinate.getJSONObject(11)
+                        JSONArray subArray = subList.getJSONArray("Sublist")
+                        if(subArray.getInt(0)==0){
+                            if(subArray.getString(6).toLowerCase().concat(name)){
+                                return subArray
+                            }
+                        }
+                    }
+                    break
+                case 1:
+                    if(coordinate.getString(8).toLowerCase().concat(name)){
+                        return coordinate
+                    }
+                    break
+                case 2:
+                case 3:
+                    if(coordinate.getString(8).toLowerCase().concat(name)){
+                        return coordinate
+                    }
+                    break
+                case 4:
+                    println "can not process case 4 ${coordinate as JSON}"
+                    break
+            }
+
+
+        }
+
+
+        return new JSONArray()
     }
 }
