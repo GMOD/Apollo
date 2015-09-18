@@ -63,7 +63,7 @@ var draggableTrack = declare( [HTMLFeatureTrack,FeatureDetailMixin],
                 handleAs: "json"
             }).then(function (response) {
                 //alert('got a response');
-                //alert(JSON.stringify(response));
+                alert(JSON.stringify(response));
                 if (response.error) {
                     alert("Failed to subscribe to websocket, no seq/org id available");
                     return;
