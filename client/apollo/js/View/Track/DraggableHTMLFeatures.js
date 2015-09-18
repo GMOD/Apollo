@@ -49,7 +49,7 @@ var draggableTrack = declare( [HTMLFeatureTrack,FeatureDetailMixin],
 
     defaultFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement **/ container) {
         //requestFeatureDetail: function( /** JBrowse.Track */ track, /** Object */ f, /** HTMLElement */ featDiv, /** HTMLElement **/ container) {
-        container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(), innerHTML: '<h3>asdfasdfasdf</h3>' } );
+        container = container || dojo.create('div', { className: 'detail feature-detail feature-detail-'+track.name.replace(/\s+/g,'_').toLowerCase(), innerHTML: '' } );
 
         var request = {
           track: track.key
@@ -73,6 +73,7 @@ var draggableTrack = declare( [HTMLFeatureTrack,FeatureDetailMixin],
                 }
                 //var trackDetails = response.trackDetails;
                 var coreDetails = dojo.create('div', { className: 'core' }, container );
+                alert(container.innerHTML);
                 coreDetails.innerHTML += '<h2 class="sectiontitle">Primary Data</h2>';
                 //var fmt = dojo.hitch( this, 'renderDetailField', coreDetails );
                 return coreDetails;
@@ -126,9 +127,14 @@ var draggableTrack = declare( [HTMLFeatureTrack,FeatureDetailMixin],
                 menuTemplate: [
                     { label: 'Peruse the DNA ',
                         title: '{type} {name}',
-                        action: 'contentDialog',
+                        action: 'xhrDialog',
                         iconClass: 'dijitIconTask',
-                        content: dojo.hitch( this, 'defaultFeatureDetail' )
+                        //content: dojo.hitch( this, 'defaultFeatureDetail' )
+                        url: context_path +"/track/featureDetail?type={type}&track={track}&name={name}&organism={organism}"
+                        //"url": "function(track,feature) { return
+                        //'http://www.example.com?refseq='+track.refSeq.name
+                        //+'&featurename='+feature.get('name')+'&start='+feature.get('start')+'&end='+feature.get('end'); }"
+//},
                         //content: dojo.hitch( this, 'requestFeatureDetail' )
                     },
                     // this should not change

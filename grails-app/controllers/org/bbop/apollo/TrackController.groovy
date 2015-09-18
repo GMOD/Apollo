@@ -16,6 +16,13 @@ class TrackController {
 
     }
 
+
+    def featureDetail(){
+        println "params ${params}"
+        // load HTML directly or use AngularJS plus what's below to map out
+        render(text: "<b>some xml</b>", contentType: "text/html", encoding: "UTF-8")
+//        Sequence sequence = permissionService.checkPermissions(rootElement, PermissionEnum.READ)
+    }
     /**
      *
      * Input is track key and projected input.
