@@ -56,14 +56,14 @@ var draggableTrack = declare( [HTMLFeatureTrack,FeatureDetailMixin],
            ,input: JSON.stringify(f)
            ,organism: track.webapollo.organism
         };
-        alert('created container');
+        //alert('created container');
         container.then = function(){
             xhr.post(context_path + "/track/retrieve", {
                 data: request,
                 handleAs: "json"
             }).then(function (response) {
                 //alert('got a response');
-                alert(JSON.stringify(response));
+                //alert(JSON.stringify(response));
                 if (response.error) {
                     alert("Failed to subscribe to websocket, no seq/org id available");
                     return;
@@ -78,7 +78,6 @@ var draggableTrack = declare( [HTMLFeatureTrack,FeatureDetailMixin],
                 return coreDetails;
             });
         };
-        alert('returned function');
 
         return container ;
 
