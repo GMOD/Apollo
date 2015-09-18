@@ -2,6 +2,9 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.filefilter.FileFilterUtils
+import org.apache.commons.io.filefilter.TrueFileFilter
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -169,8 +172,43 @@ class TrackService {
         return jsonObject.toString()
     }
 
+    /**
+     * For the track in question, grab the array that matches the top-level name.
+     * @param sequence
+     * @param trackName
+     * @param nameLookup
+     * @return
+     */
     JSONArray getTrackData(Sequence sequence, String trackName, String nameLookup) {
         JSONArray jsonArray = new JSONArray()
+        String jbrowseDirectory = sequence.organism.directory + "/tracks/" + trackName
+        File trackDirectory = new File(jbrowseDirectory)
+        println "track directory ${trackDirectory.absolutePath}"
+        File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
+//        String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
+////                    println "sequencefileName [${sequenceFileName}]"
+//
+//        JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
+//        JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+//        for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
+//            JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
+//            // TODO: use enums to better track format
+//            if (coordinate.getInt(0) == 4) {
+//                // projecess the file lf-${coordIndex} instead
+//                File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
+//                JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
+//
+//                for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
+//                    JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
+//                    discontinuousProjection.addInterval(chunkArrayCoordinate.getInt(1), chunkArrayCoordinate.getInt(2) , padding)
+//                }
+//
+//            } else {
+//                discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2),padding)
+//            }
+//        }
+
+
 
         return jsonArray
     }
