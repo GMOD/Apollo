@@ -131,7 +131,9 @@ var draggableTrack = declare( [HTMLFeatureTrack,FeatureDetailMixin],
                         iconClass: 'dijitIconTask',
                         //content: dojo.hitch( this, 'defaultFeatureDetail' ),
                         //url: context_path +"/track/featureDetail?type={type}&track={track}&name={name}&organism={organism}"
-                        url: "function(track,feature) { return context_path +'/track/featureDetail?track='+track.name + '?refseq='+track.refSeq.name +'&name='+feature.get('name')+'; }"
+                        url: function(track,feature) {
+                            return context_path +'/track/featureDetail?track='+track.name + '?refseq='+track.refSeq.name +'&name='+feature.get('name');
+                        }
                         //"content" : "function(track,feature,div) { return '<h2>{name}</h2><p>This is some test content about feature {name}!</p><p>This message brought to you by the number <span style=\"font-size: 300%\">'+Math.round(Math.random()*100)+'</span>.</p>
 
                         //content: dojo.hitch( this, 'requestFeatureDetail' )
