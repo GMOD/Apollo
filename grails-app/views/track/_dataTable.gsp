@@ -52,7 +52,8 @@
                 </td>
 
                 <td>
-                    ${JBrowseMapper.getSequence(data)}:${JBrowseMapper.getStart(data)}..${JBrowseMapper.getEnd(data)} (${JBrowseMapper.getStrand(data) > 0 ? '+' : '-'} strand)
+                    %{--${JBrowseMapper.getSequence(data)}:${JBrowseMapper.getStart(data)}..${JBrowseMapper.getEnd(data)} (${JBrowseMapper.getStrand(data) > 0 ? '+' : '-'} strand)--}%
+                    ${JBrowseMapper.getPosition(data)}
                 </td>
             </tr>
 
@@ -118,13 +119,13 @@
                 </table>
 
                 <div class="badge badge-alert">
-                    Region Sequence  <g:link action="download" class="fa fa-save">FASTA</g:link>
+                    %{--Region Sequence  <g:link action="download" controller="" class="fa fa-save">FASTA</g:link>--}%
+                    Region Sequence <a class="fa fa-download" href="#" onclick="saveTextAsFile('fasta-${JBrowseMapper.getPosition(data)}','${JBrowseMapper.getPosition(data)}.fa')">FASTA</a>
                 </div>
                 <br/>
-                <textarea>
-                    Load FASTA here . . .
-                </textarea>
-            </div>
+                <g:if test="${JBrowseMapper.getPosition(data)!=null}">
+                    <textarea id="fasta-${JBrowseMapper.getPosition(data)}" cols="120">${JBrowseMapper.getSequenceString(data,sequenceString,start,end)}</textarea>
+                </g:if>
         </div>
 
         <g:if test="${data.size() > 10}">
@@ -144,6 +145,3 @@
     </div>
 </div>
 
-<script>
-    window.style.width = "400px;"
-</script>

@@ -92,4 +92,24 @@ class JBrowseMapper {
         }
         return null
     }
+
+    static String getPosition(JSONArray data){
+        return "${getSequence(data)}:${getStart(data)}..${getEnd(data)} (${getStrand(data) > 0 ? '+' : '-'} strand)"
+    }
+
+    static String getSequenceString(JSONArray jsonArray, String sequenceString,Integer rootStart,Integer rootEnd) {
+        Integer start = getStart(jsonArray)
+        Integer end = getEnd(jsonArray)
+        String sequence = getSequence(jsonArray)
+        String type = getType(jsonArray)
+
+
+        Integer modifiedStart = start - rootStart
+        Integer modifiedEnd = end - rootStart
+
+        String header = ">${sequence} ${getPosition(jsonArray)} class=${type}\n"
+        String subString  = sequenceString.subSequence(modifiedStart,modifiedEnd)
+
+        return header + subString
+    }
 }

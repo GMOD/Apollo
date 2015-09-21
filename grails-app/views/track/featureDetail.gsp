@@ -16,6 +16,38 @@
     %{--<title>Track View Detail: ${track}:${sequence}:${name}</title>--}%
     <title>${track}:${sequence}:${name}</title>
     %{--<meta name="layout" content="main">--}%
+
+    <script type='text/javascript'>
+
+        function saveTextAsFile(sourceId,fileName) {
+            var textToWrite = document.getElementById(sourceId).value;
+            var textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
+//                        var fileNameToSaveAs = document.getElementById("inputFileNameToSaveAs").value;
+            var fileNameToSaveAs = fileName
+
+            var downloadLink = document.createElement("a");
+            downloadLink.download = fileNameToSaveAs;
+            downloadLink.innerHTML = "Download File";
+            if (window.webkitURL != null)
+            {
+                // Chrome allows the link to be clicked
+                // without actually adding it to the DOM.
+                downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+            }
+            else
+            {
+                // Firefox requires the link to be added to the DOM
+                // before it can be clicked.
+                downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                downloadLink.onclick = destroyClickedElement;
+                downloadLink.style.display = "none";
+                document.body.appendChild(downloadLink);
+            }
+
+            downloadLink.click();
+        }
+
+    </script>
 </head>
 
 <body>
@@ -25,7 +57,6 @@
     <h3>${track}:${sequence}:${name}</h3>
 
     <g:render template="dataTable" model="[data:data.trackDetails,offset:1]"/>
-
 
 </div>
 

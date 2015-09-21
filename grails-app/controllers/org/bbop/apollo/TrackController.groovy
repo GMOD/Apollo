@@ -4,6 +4,7 @@ import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -11,10 +12,7 @@ class TrackController {
 
     def permissionService
     def trackService
-
-    def findByName(String name){
-
-    }
+    def sequenceService
 
 
     def featureDetail(){
@@ -31,8 +29,12 @@ class TrackController {
 
         JSONObject jsonObject = retrieveSequence(sequence,trackName,name)
 
+        Integer start = jsonObject.getJSONArray("trackDetails").getInt(1)
+        Integer end = jsonObject.getJSONArray("trackDetails").getInt(2)
+        Strand strand = Strand.getStrandForValue(jsonObject.getJSONArray("trackDetails").getInt(3))
 
-        render view:"featureDetail"  , model:[name:params.name,track:params.track,sequence:params.sequence,organism:organism.id,data:jsonObject]
+        String sequenceString = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,start,end,strand)
+        render view:"featureDetail"  , model:[name:params.name,track:params.track,sequence:params.sequence,organism:organism.id,data:jsonObject,sequenceString:sequenceString,start:start,end:end]
     }
 
     def angularFeatureDetail(){
