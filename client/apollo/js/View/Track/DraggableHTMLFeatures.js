@@ -127,7 +127,8 @@ var draggableTrack = declare( [HTMLFeatureTrack,FeatureDetailMixin],
                 menuTemplate: [
                     { label: 'View Detail',
                         title: '{type} {name}',
-                        action: 'xhrDialog',
+                        //action: 'xhrDialog',
+                        action: 'iframeDialog',
                         iconClass: 'dijitIconTask',
                         //content: dojo.hitch( this, 'defaultFeatureDetail' ),
                         //url: context_path +"/track/featureDetail?type={type}&track={track}&name={name}&organism={organism}"
