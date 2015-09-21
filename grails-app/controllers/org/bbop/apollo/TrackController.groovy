@@ -18,11 +18,31 @@ class TrackController {
 
 
     def featureDetail(){
-        println "params ${params}"
-        // load HTML directly or use AngularJS plus what's below to map out
-        render(text: "<b>some xml</b>", contentType: "text/html", encoding: "UTF-8")
-//        Sequence sequence = permissionService.checkPermissions(rootElement, PermissionEnum.READ)
+        println "FD params ${params}"
+        JSONObject rootElement = new JSONObject()
+        rootElement.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
+        Organism organism = permissionService.checkPermissionsForOrganism(rootElement,PermissionEnum.READ)
+        println "load sequence ! params ${params}"
+        println "requestJSON ${request.JSON}"
+        String trackName = params.track
+        String name = params.name
+//        Organism organism = Organism.findById(params.organism)
+        Sequence sequence = Sequence.findByOrganismAndName(organism,params.sequence)
+
+        JSONObject jsonObject = retrieveSequence(sequence,trackName,name)
+
+
+        render view:"featureDetail"  , model:[name:params.name,track:params.track,sequence:params.sequence,organism:organism.id,data:jsonObject]
     }
+
+    def angularFeatureDetail(){
+        println "FD params ${params}"
+        JSONObject rootElement = new JSONObject()
+        rootElement.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
+        Organism organism = permissionService.checkPermissionsForOrganism(rootElement,PermissionEnum.READ)
+        render view:"angularFeatureDetail"  , model:[name:params.name,track:params.track,sequence:params.sequence,organism:organism.id]
+    }
+
     /**
      *
      * Input is track key and projected input.
@@ -59,43 +79,53 @@ class TrackController {
             assert sequence!=null
             assert sequence.name==sequenceName
 
-
-            JSONArray returnData = trackService.getTrackData(sequence,trackName,nameLookup)
-            println "returnData ${returnData as JSON}"
-
-//            render inputArray as JSONArray
-            def responseObject = new JSONObject()
-            responseObject.organismId = sequence.organismId
-            responseObject.trackDetails = returnData
-
-            if(returnData.getInt(0)==0){
-                responseObject.start = returnData.getInt(1)
-                responseObject.end = returnData.getInt(2)
-                responseObject.strand = returnData.getInt(3)
-                responseObject.note = returnData.getString(4) // not sure if this is correct or not . . .
-                responseObject.seq = returnData.getString(5) // not sure if this is correct or not . . .
-                responseObject.name = returnData.getString(6)
-                responseObject.score = returnData.getDouble(7)
-                responseObject.type = returnData.getString(9)
-            }
-
-
-            render responseObject as JSON
-
-//            println "request JSON ${requestJson as JSON}"
-
-
-//            else {
-//                def error= [error: 'not authorized to add organism']
-//                render error as JSON
-//                log.error(error.error)
-//            }
+            render retrieveSequence(sequence,trackName,nameLookup) as JSON
         } catch (e) {
             def error= [error: 'problem retrieving track: '+e]
             render error as JSON
             e.printStackTrace()
             log.error(error.error)
         }
+    }
 
+    /**
+     * Used by angular service.
+     * @return
+     */
+    def loadSequence(){
+//        JSONObject requestJson = request.JSON?:JSON.parse(params.data) as JSONObject
+        println "load sequence ! params ${params}"
+        println "requestJSON ${request.JSON}"
+        String trackName = params.track
+        String name = params.name
+        Organism organism = Organism.findById(params.organism)
+        Sequence sequence = Sequence.findByOrganismAndName(organism,params.sequence)
+
+        JSONObject jsonObject = retrieveSequence(sequence,trackName,name)
+        println "${jsonObject as JSON}"
+        render jsonObject as JSON
+    }
+
+    private JSONObject retrieveSequence(Sequence sequence,String trackName,String nameLookup){
+        JSONArray returnData = trackService.getTrackData(sequence,trackName,nameLookup)
+        println "returnData ${returnData as JSON}"
+
+//            render inputArray as JSONArray
+        def responseObject = new JSONObject()
+        responseObject.organismId = sequence.organismId
+        responseObject.trackDetails = returnData
+
+        if(returnData.getInt(0)==0){
+            responseObject.start = returnData.getInt(1)
+            responseObject.end = returnData.getInt(2)
+            responseObject.strand = returnData.getInt(3)
+            responseObject.note = returnData.getString(4) // not sure if this is correct or not . . .
+            responseObject.seq = returnData.getString(5) // not sure if this is correct or not . . .
+            responseObject.name = returnData.getString(6)
+            responseObject.score = returnData.getDouble(7)
+            responseObject.type = returnData.getString(9)
+        }
+
+        return responseObject
     }
 }

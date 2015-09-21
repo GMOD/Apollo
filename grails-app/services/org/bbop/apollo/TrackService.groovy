@@ -186,11 +186,10 @@ class TrackService {
         println "track directory ${trackDirectory.absolutePath}"
         String sequenceDirectory = jbrowseDirectory + "/" + sequence.name
         File trackDataFile = new File(sequenceDirectory+"/trackData.json")
+        println "track data file ${trackDataFile.absolutePath}"
         assert trackDataFile.exists()
-//        File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
-//        String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
-////                    println "sequencefileName [${sequenceFileName}]"
-//
+        println "looking up ${nameLookup}"
+
         JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
         JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
         for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
@@ -220,34 +219,43 @@ class TrackService {
         return new JSONArray()
     }
 
-    JSONArray findCoordinateName(JSONArray coordinate, String name) {
+    JSONArray findCoordinateName(JSONArray coordinate, String nameLookup) {
+        String name = nameLookup.toLowerCase()
 
         int classType = coordinate.getInt(0)
         for(int i = 0 ; i < coordinate.size() ; i++){
             switch (classType){
                 case 0:
-                    if(coordinate.getString(6).toLowerCase().concat(name)){
+                    if(coordinate.getString(6).toLowerCase().contains(name)){
                         return coordinate
                     }
                     // search sublist
-                    if(coordinate.size()>10){
+                    if(coordinate.size()>11){
+                        println "coordinate > 11 ${coordinate as JSON}"
                         JSONObject subList = coordinate.getJSONObject(11)
+//                        println "subList ${subList as JSON}"
+//                        JSONObject subOject = subList.getJSONObject("Sublist")
                         JSONArray subArray = subList.getJSONArray("Sublist")
-                        if(subArray.getInt(0)==0){
-                            if(subArray.getString(6).toLowerCase().concat(name)){
-                                return subArray
+                        for(int subIndex  = 0 ; subIndex < subArray.size() ; ++subIndex){
+                            println "subArray ${subArray as JSON}"
+
+                            JSONArray subSubArray = subArray.getJSONArray(subIndex)
+                            if(subSubArray.getInt(0)==0){
+                                if(subSubArray.getString(6).toLowerCase().contains(name)){
+                                    return subSubArray
+                                }
                             }
                         }
                     }
                     break
                 case 1:
-                    if(coordinate.getString(8).toLowerCase().concat(name)){
+                    if(coordinate.getString(8).toLowerCase().contains(name)){
                         return coordinate
                     }
                     break
                 case 2:
                 case 3:
-                    if(coordinate.getString(8).toLowerCase().concat(name)){
+                    if(coordinate.getString(8).toLowerCase().contains(name)){
                         return coordinate
                     }
                     break
@@ -260,6 +268,6 @@ class TrackService {
         }
 
 
-        return new JSONArray()
+        return null
     }
 }
