@@ -581,9 +581,7 @@ class DiscontinuousProjectionSpec extends Specification{
 
         when: "we add the other track and see what happens"
         track1.coordinateList.each {
-            println "adding track ${it}"
             projection.addInterval(it.min,it.max,1)
-            println "result: "+projection.minMap.values()
         }
 
         then: "we should have the appropriate combined values"
@@ -593,6 +591,28 @@ class DiscontinuousProjectionSpec extends Specification{
         assert projection.minMap.values().iterator().next().min==0
         assert projection.minMap.values().iterator().reverse().next().max==11
         assert projection.minMap.values().iterator().reverse().next().min==6
+
+        when: "when we clear it and add them in verse order"
+        projection.clear()
+        track1.coordinateList.each {
+            println "1 adding ${it}"
+            projection.addInterval(it.min,it.max,1)
+            println "1 result ${projection.minMap.values()}"
+        }
+        track2.coordinateList.each{
+            println "2 adding ${it}"
+            projection.addInterval(it.min,it.max,1)
+            println "2 result ${projection.minMap.values()}"
+        }
+
+        then: "we should get the same outcome"
+        projection.minMap.size()==2
+        projection.maxMap.size()==2
+        assert projection.minMap.values().iterator().next().max==5
+        assert projection.minMap.values().iterator().next().min==0
+        assert projection.minMap.values().iterator().reverse().next().max==11
+        assert projection.minMap.values().iterator().reverse().next().min==6
+
     }
 
 }

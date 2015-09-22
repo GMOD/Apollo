@@ -193,6 +193,10 @@ public class DiscontinuousProjection extends AbstractProjection {
         if (floorMinCoord == null && ceilMinCoord == null && floorMaxCoord != null && ceilMaxCoord != null) {
             return null
         }
+        // if we are right on the right edge
+        if (floorMinCoord == null && ceilMinCoord != null && floorMaxCoord != null && ceilMaxCoord != null) {
+            return null
+        }
         // if we are at the right edge
         if (floorMinCoord == null && ceilMinCoord == null && floorMaxCoord != null && ceilMaxCoord == null) {
             if (min > floorMaxKey) {
