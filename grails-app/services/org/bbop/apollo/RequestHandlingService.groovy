@@ -673,7 +673,9 @@ class RequestHandlingService {
             }
         }
 
-        returnObject.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptList))
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",transcriptService.convertTranscriptsToJSON(transcriptList),false)
+        returnObject.put(FeatureStringEnum.FEATURES.value, returnArray)
+
 
         if (!suppressEvents) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
