@@ -32,4 +32,6 @@ interface ProjectionInterface {
     Integer getLength()
 
     String projectSequence(String inputSequence,Integer minCoordinate,Integer maxCoordinate,Integer offset)
+
+    Integer clear() // remove coordinates
 }

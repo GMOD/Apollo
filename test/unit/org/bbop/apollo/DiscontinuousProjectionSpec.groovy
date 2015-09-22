@@ -523,4 +523,76 @@ class DiscontinuousProjectionSpec extends Specification{
 
     }
 
+    void "overlapping projections with padding should work fine"(){
+
+        given: "we have two sets of tracks that overlap"
+        Track track1 = new Track(length: 11)
+        track1.addCoordinate(2,4)
+        track1.addCoordinate(7,8)
+        track1.addCoordinate(9,10)
+        Track track2 = new Track(length: 7)
+        track2.addCoordinate(0,2)
+        track2.addCoordinate(3,4)
+//        track2.addCoordinate(5,6)
+        DiscontinuousProjection projection = new DiscontinuousProjection()
+
+        when: "we create a projection out of the first of them"
+        // we'll simuluate this with padding of 1
+        track1.coordinateList.each {
+            projection.addInterval(it.min,it.max,1)
+        }
+
+        then: "we should make sure that we can see the padding"
+        // 1-5, 6-9, 8-11  . . 1-5,6-11
+        projection.minMap.size()==2
+        projection.maxMap.size()==2
+
+        when: "when we clear"
+        projection.clear()
+
+        then: "we should not have any left"
+        assert projection.size()==0
+
+        when: "we add track 2 only"
+        track2.coordinateList.each {
+            projection.addInterval(it.min,it.max,1)
+        }
+
+        then: "we should have the correct number from track 2"
+        assert 1==projection.size()
+        projection.minMap.size()==1
+        projection.maxMap.size()==1
+        assert projection.minMap.values().iterator().next().max==5
+        assert projection.minMap.values().iterator().next().min==0
+
+        when: "when we do this again, but reverse we should have the same outcome"
+        projection.clear()
+        track2.coordinateList.reverse().each{
+            projection.addInterval(it.min,it.max,1)
+        }
+
+        then: "we should have the correct number from track 2"
+        assert 1==projection.size()
+        projection.minMap.size()==1
+        projection.maxMap.size()==1
+        assert projection.minMap.values().iterator().next().max==5
+        assert projection.minMap.values().iterator().next().min==0
+
+
+        when: "we add the other track and see what happens"
+        track1.coordinateList.each {
+            println "adding track ${it}"
+            projection.addInterval(it.min,it.max,1)
+            println "result: "+projection.minMap.values()
+        }
+
+        then: "we should have the appropriate combined values"
+        projection.minMap.size()==2
+        projection.maxMap.size()==2
+        assert projection.minMap.values().iterator().next().max==5
+        assert projection.minMap.values().iterator().next().min==0
+        assert projection.minMap.values().iterator().reverse().next().max==11
+        assert projection.minMap.values().iterator().reverse().next().min==6
+    }
+
 }

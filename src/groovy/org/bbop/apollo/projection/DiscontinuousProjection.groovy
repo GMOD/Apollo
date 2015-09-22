@@ -129,8 +129,7 @@ public class DiscontinuousProjection extends AbstractProjection {
             if (nextMinCoord.max > min) {
                 assert minMap.remove(nextMinCoord.min) != null
                 assert maxMap.remove(nextMinCoord.max) != null
-            }
-            else{
+            } else {
                 doBreak = true
             }
             nextMin = minMap.higherKey(coordinate.min)
@@ -139,12 +138,13 @@ public class DiscontinuousProjection extends AbstractProjection {
         return addCoordinate(min, max)
     }
 
-    def addInterval(int min, int max,Integer padding=0) {
-        if(padding > 0 ){
+    def addInterval(int min, int max, Integer padding = 0) {
+        if (padding > 0) {
             min -= padding
             max += padding
         }
         min = min < 0 ? 0 : min
+//        max = max > length ? length: max
         assert max >= min
 
         Integer floorMinKey = minMap.floorKey(min)
@@ -188,6 +188,17 @@ public class DiscontinuousProjection extends AbstractProjection {
         if (floorMinCoord == null && floorMaxCoord != null && ceilMinCoord != null && ceilMaxCoord == null) {
             assert floorMaxCoord == ceilMinCoord
             return replaceCoordinate(floorMaxCoord, Math.min(min, floorMaxCoord.min), Math.max(max, ceilMinCoord.max))
+        }
+        // if we are internal / in the middle
+        if (floorMinCoord == null && ceilMinCoord == null && floorMaxCoord != null && ceilMaxCoord != null) {
+            return null
+        }
+        // if we are at the right edge
+        if (floorMinCoord == null && ceilMinCoord == null && floorMaxCoord != null && ceilMaxCoord == null) {
+            if (min > floorMaxKey) {
+                return addCoordinate(min, max)
+            }
+            return replaceCoordinate(floorMaxCoord, floorMaxCoord.min, max)
         }
         // overlapping without?
         if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord != null && ceilMaxCoord != null) {
@@ -399,10 +410,19 @@ public class DiscontinuousProjection extends AbstractProjection {
     }
 
     Integer size() {
-        if(!minMap){
+        if (!minMap) {
             return 0
         }
-        assert minMap.size()==maxMap.size()
+        assert minMap.size() == maxMap.size()
         return minMap.size()
+    }
+
+    @Override
+    Integer clear() {
+        int returnValue = minMap.size()
+        assert returnValue == maxMap.size()
+        minMap.clear()
+        maxMap.clear()
+        return returnValue
     }
 }

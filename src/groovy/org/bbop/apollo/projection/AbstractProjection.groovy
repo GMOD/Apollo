@@ -32,4 +32,8 @@ abstract class AbstractProjection implements ProjectionInterface{
         return new Coordinate(min:projectReverseValue(min),max:projectReverseValue(max))
     }
 
+    @Override
+    Integer clear() {
+        0
+    }
 }
