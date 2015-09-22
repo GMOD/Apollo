@@ -301,6 +301,9 @@ class ProjectionService {
             projectFeaturesArray(inputFeaturesArray,projection,reverseProjection)
             println "converted ${inputFeaturesArray as JSON}"
         }
+        else{
+            println "no conversion?? "
+        }
         return inputFeaturesArray
     }
 
@@ -309,8 +312,8 @@ class ProjectionService {
         for(int i = 0 ; i < inputFeaturesArray.size() ;i++){
             JSONObject inputFeature = inputFeaturesArray.getJSONObject(i)
             projectFeature(inputFeature,projection,reverseProjection)
-            JSONArray childFeatures = inputFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
-            if(childFeatures){
+            if(inputFeature.has(FeatureStringEnum.CHILDREN.value)){
+                JSONArray childFeatures = inputFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
                 projectFeaturesArray(childFeatures,projection,reverseProjection)
             }
         }
@@ -324,9 +327,21 @@ class ProjectionService {
         Integer fmin = locationObject.getInt(FeatureStringEnum.FMIN.value)
         Integer fmax = locationObject.getInt(FeatureStringEnum.FMAX.value)
         Coordinate projectedCoordinate = reverseProjection ? projection.projectReverseCoordinate(fmin,fmax) : projection.projectCoordinate(fmin,fmax)
+        println "old values ${fmin}-${fmax}"
+        if(reverseProjection){
+            fmin = projection.projectReverseValue(fmin)
+            fmax = projection.projectReverseValue(fmax)
+        }
+        else{
+            fmin = projection.projectValue(fmin)
+            fmax = projection.projectValue(fmax)
+        }
+        println "new values ${fmin}-${fmax}"
         println "projected coordainte ${projectedCoordinate}"
-        locationObject.put(FeatureStringEnum.FMIN.value,projectedCoordinate.min)
-        locationObject.put(FeatureStringEnum.FMAX.value,projectedCoordinate.max)
+//        locationObject.put(FeatureStringEnum.FMIN.value,projectedCoordinate.min)
+//        locationObject.put(FeatureStringEnum.FMAX.value,projectedCoordinate.max)
+        locationObject.put(FeatureStringEnum.FMIN.value,fmin)
+        locationObject.put(FeatureStringEnum.FMAX.value,fmax)
         return inputFeature
     }
 }
