@@ -297,7 +297,6 @@ class ProjectionService {
         DiscontinuousProjection projection = (DiscontinuousProjection) getProjection(sequence.organism, referenceTrackName, sequence.name)
         println "trying to convert ${inputFeaturesArray as JSON}"
         if(projection){
-            println "foudn projection ${projection}"
             // process location . . .
             projectFeaturesArray(inputFeaturesArray,projection,reverseProjection)
             println "converted ${inputFeaturesArray as JSON}"
@@ -321,10 +320,11 @@ class ProjectionService {
     @NotTransactional
     JSONObject projectFeature(JSONObject inputFeature,DiscontinuousProjection projection,Boolean reverseProjection) {
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
+        println "loaction object ${locationObject as JSON}"
         Integer fmin = locationObject.getInt(FeatureStringEnum.FMIN.value)
         Integer fmax = locationObject.getInt(FeatureStringEnum.FMAX.value)
-        Coordinate projectedCoordinate = projection.projectReverseCoordinate(fmin,fmax)
-        projectedCoordinate = reverseProjection ? projection.projectReverseCoordinate(fmin,fmax) : projection.projectCoordinate(fmin,fmax)
+        Coordinate projectedCoordinate = reverseProjection ? projection.projectReverseCoordinate(fmin,fmax) : projection.projectCoordinate(fmin,fmax)
+        println "projected coordainte ${projectedCoordinate}"
         locationObject.put(FeatureStringEnum.FMIN.value,projectedCoordinate.min)
         locationObject.put(FeatureStringEnum.FMAX.value,projectedCoordinate.max)
         return inputFeature
