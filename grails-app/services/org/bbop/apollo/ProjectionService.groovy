@@ -293,37 +293,40 @@ class ProjectionService {
      * @return
      */
     @Transactional(readOnly = true)
-    JSONArray projectFeatures(Sequence sequence, String referenceTrackName, JSONArray inputFeaturesArray) {
+    JSONArray projectFeatures(Sequence sequence, String referenceTrackName, JSONArray inputFeaturesArray,Boolean reverseProjection) {
         DiscontinuousProjection projection = (DiscontinuousProjection) getProjection(sequence.organism, referenceTrackName, sequence.name)
         println "trying to convert ${inputFeaturesArray as JSON}"
         if(projection){
             println "foudn projection ${projection}"
             // process location . . .
-            projectFeaturesArray(inputFeaturesArray,projection)
+            projectFeaturesArray(inputFeaturesArray,projection,reverseProjection)
             println "converted ${inputFeaturesArray as JSON}"
         }
         return inputFeaturesArray
     }
 
-    JSONArray projectFeaturesArray(JSONArray inputFeaturesArray,DiscontinuousProjection projection) {
+    @NotTransactional
+    JSONArray projectFeaturesArray(JSONArray inputFeaturesArray,DiscontinuousProjection projection,Boolean reverseProjection) {
         for(int i = 0 ; i < inputFeaturesArray.size() ;i++){
             JSONObject inputFeature = inputFeaturesArray.getJSONObject(i)
-            projectFeature(inputFeature,projection)
+            projectFeature(inputFeature,projection,reverseProjection)
             JSONArray childFeatures = inputFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
             if(childFeatures){
-                projectFeaturesArray(childFeatures,projection)
+                projectFeaturesArray(childFeatures,projection,reverseProjection)
             }
         }
         return inputFeaturesArray
     }
 
-    JSONObject projectFeature(JSONObject inputFeature,DiscontinuousProjection projection) {
+    @NotTransactional
+    JSONObject projectFeature(JSONObject inputFeature,DiscontinuousProjection projection,Boolean reverseProjection) {
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
         Integer fmin = locationObject.getInt(FeatureStringEnum.FMIN.value)
         Integer fmax = locationObject.getInt(FeatureStringEnum.FMAX.value)
-        Coordinate reverseCoordinate = projection.projectReverseCoordinate(fmin,fmax)
-        locationObject.put(FeatureStringEnum.FMIN.value,reverseCoordinate.min)
-        locationObject.put(FeatureStringEnum.FMAX.value,reverseCoordinate.max)
+        Coordinate projectedCoordinate = projection.projectReverseCoordinate(fmin,fmax)
+        projectedCoordinate = reverseProjection ? projection.projectReverseCoordinate(fmin,fmax) : projection.projectCoordinate(fmin,fmax)
+        locationObject.put(FeatureStringEnum.FMIN.value,projectedCoordinate.min)
+        locationObject.put(FeatureStringEnum.FMAX.value,projectedCoordinate.max)
         return inputFeature
     }
 }

@@ -560,6 +560,9 @@ class RequestHandlingService {
             jsonFeatures.put(jsonObject)
         }
 
+
+        projectionService.projectFeatures(sequence,"",jsonFeatures,false)
+
         inputObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
         return inputObject
 
@@ -633,7 +636,7 @@ class RequestHandlingService {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         log.debug "sequence: ${sequence}"
         log.debug "organism: ${sequence.organism}"
-        featuresArray = projectionService.projectFeatures(sequence,"",featuresArray)
+        featuresArray = projectionService.projectFeatures(sequence,"",featuresArray,true)
         log.info "number of features: ${featuresArray?.size()}"
         boolean suppressHistory = false
         boolean suppressEvents = false
