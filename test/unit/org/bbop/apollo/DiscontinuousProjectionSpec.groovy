@@ -595,14 +595,10 @@ class DiscontinuousProjectionSpec extends Specification{
         when: "when we clear it and add them in verse order"
         projection.clear()
         track1.coordinateList.each {
-            println "1 adding ${it}"
             projection.addInterval(it.min,it.max,1)
-            println "1 result ${projection.minMap.values()}"
         }
         track2.coordinateList.each{
-            println "2 adding ${it}"
             projection.addInterval(it.min,it.max,1)
-            println "2 result ${projection.minMap.values()}"
         }
 
         then: "we should get the same outcome"
