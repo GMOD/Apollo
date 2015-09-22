@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
 import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.ProjectionInterface
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -282,5 +283,47 @@ class ProjectionService {
 
 //        }
 
+    }
+
+    /**
+     * Anything in this space is assumed to be visible
+     * @param sequence
+     * @param referenceTrackName
+     * @param inputFeaturesArray
+     * @return
+     */
+    @Transactional(readOnly = true)
+    JSONArray projectFeatures(Sequence sequence, String referenceTrackName, JSONArray inputFeaturesArray) {
+        DiscontinuousProjection projection = (DiscontinuousProjection) getProjection(sequence.organism, referenceTrackName, sequence.name)
+        println "trying to convert ${inputFeaturesArray as JSON}"
+        if(projection){
+            println "foudn projection ${projection}"
+            // process location . . .
+            projectFeaturesArray(inputFeaturesArray,projection)
+            println "converted ${inputFeaturesArray as JSON}"
+        }
+        return inputFeaturesArray
+    }
+
+    JSONArray projectFeaturesArray(JSONArray inputFeaturesArray,DiscontinuousProjection projection) {
+        for(int i = 0 ; i < inputFeaturesArray.size() ;i++){
+            JSONObject inputFeature = inputFeaturesArray.getJSONObject(i)
+            projectFeature(inputFeature,projection)
+            JSONArray childFeatures = inputFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
+            if(childFeatures){
+                projectFeaturesArray(childFeatures,projection)
+            }
+        }
+        return inputFeaturesArray
+    }
+
+    JSONObject projectFeature(JSONObject inputFeature,DiscontinuousProjection projection) {
+        JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
+        Integer fmin = locationObject.getInt(FeatureStringEnum.FMIN.value)
+        Integer fmax = locationObject.getInt(FeatureStringEnum.FMAX.value)
+        Coordinate reverseCoordinate = projection.projectReverseCoordinate(fmin,fmax)
+        locationObject.put(FeatureStringEnum.FMIN.value,reverseCoordinate.min)
+        locationObject.put(FeatureStringEnum.FMAX.value,reverseCoordinate.max)
+        return inputFeature
     }
 }

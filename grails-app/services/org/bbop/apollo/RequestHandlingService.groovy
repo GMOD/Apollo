@@ -40,6 +40,7 @@ class RequestHandlingService {
     def featurePropertyService
     def featureEventService
     def brokerMessagingTemplate
+    def projectionService
 
 
     public static List<String> viewableAnnotationFeatureList = [
@@ -632,6 +633,7 @@ class RequestHandlingService {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         log.debug "sequence: ${sequence}"
         log.debug "organism: ${sequence.organism}"
+        featuresArray = projectionService.projectFeatures(sequence,"",featuresArray)
         log.info "number of features: ${featuresArray?.size()}"
         boolean suppressHistory = false
         boolean suppressEvents = false
