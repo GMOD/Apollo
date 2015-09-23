@@ -293,13 +293,34 @@ public class DiscontinuousProjection extends AbstractProjection {
                 return null
             }
             // in the case they are in-between an existing scaffold
-            else if (floorMinCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord) {
+            else
+            if (floorMinCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord) {
+                return null
+            }
+            else
+            if (floorMinCoord == ceilMinCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord) {
+                return replaceCoordinate(floorMinCoord,min,ceilMaxCoord.max)
+            }
+            else
+            if (floorMaxCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMinCoord != ceilMinCoord) {
+                return replaceCoordinate(floorMinCoord,floorMinCoord.min,ceilMaxCoord.max)
+            }
+            else
+            if (floorMinCoord == floorMaxCoord && floorMaxCoord == ceilMinCoord && floorMinCoord != ceilMaxCoord) {
+//                return replaceCoordinate(floorMinCoord,floorMinCoord.min,ceilMaxCoord.max)
                 return null
             }
 
+
+//            println "all coordinates accounted for else ${min}/${max}"
+//            println "floorMinCoord ${floorMinCoord}"
+//            println "floorMaxCoord ${floorMaxCoord}"
+//            println "ceilMinCoord ${ceilMinCoord}"
+//            println "ceilMaxCoord ${ceilMaxCoord}"
             return addCoordinate(min, max)
 
         } else {
+            println "else else ${min}/${max}"
             return addCoordinate(min, max)
         }
 

@@ -844,7 +844,7 @@ class DiscontinuousProjectionSpec extends Specification {
 
 
         then: "we would expect 3 intervals"
-        assert projection.size()==3
+        assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
                 case 0: assert coordinate.min == 285235
@@ -864,10 +864,10 @@ class DiscontinuousProjectionSpec extends Specification {
         when: "you add additional intervals"
         projection.addInterval(285192, 286954)
         projection.addInterval(286965, 287209)
-        index =0
+        index = 0
 
         then: "you would expect the same, but modified"
-        assert projection.size()==3
+        assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
                 case 0: assert coordinate.min == 285192
@@ -888,7 +888,7 @@ class DiscontinuousProjectionSpec extends Specification {
         projection.addInterval(287225, 288061)
 
         then: "we have to see if its the right one"
-        assert projection.size()==3
+        assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
                 case 0: assert coordinate.min == 285192
@@ -907,6 +907,224 @@ class DiscontinuousProjectionSpec extends Specification {
 
     }
 
-    
+    /**
+     1764232,1764464
+     1764440,1764723
+     1764736,1764943
+     1764907,1765195
+     1765229,1765487
+     1765511,1765761
+     1765764,1766416
+     1764703,1765195
+     1765229,1766403
+     */
+    void "another set of overlap"() {
+        given: "a discontinuous projection"
+        DiscontinuousProjection projection = new DiscontinuousProjection()
+        int index = 0
+
+        when: "we add some projections"
+//        projection.addInterval(1762522,1762730)  // 1
+//        projection.addInterval(1762713,1762919)  // 1
+//        projection.addInterval(1762921,1763214)  // 2
+//        projection.addInterval(1763198,1763448)  // 2
+//        projection.addInterval(1763421,1763614)  // 2
+//        projection.addInterval(1763607,1763893)  // 2
+
+        projection.addInterval(1764232, 1764464)  // 0
+        projection.addInterval(1764440, 1764723)  // 0
+        projection.addInterval(1764736, 1764943)  // 1
+        projection.addInterval(1764907, 1765195)  // 1
+        projection.addInterval(1765229, 1765487)  // 2
+        projection.addInterval(1765511, 1765761)  // 3
+        projection.addInterval(1765764, 1766416)  // 4
+        index = 0
+
+        then: "we should see a few"
+        assert projection.size() == 5
+        for (Coordinate coordinate in projection.minMap.values()) {
+            switch (index) {
+                case 0: assert coordinate.min == 1764232
+                    assert coordinate.max == 1764723
+                    break
+                case 1: assert coordinate.min == 1764736
+                    assert coordinate.max == 1765195
+                    break
+                case 2: assert coordinate.min == 1765229
+                    assert coordinate.max == 1765487
+                    break
+                case 2: assert coordinate.min == 1765511
+                    assert coordinate.max == 1765761
+                    break
+                case 4: assert coordinate.min == 1765764
+                    assert coordinate.max == 1766416
+                    break
+            }
+            ++index
+        }
+
+
+        when: "we add an overlapping one"
+        projection.addInterval(1764703, 1765195)
+        index = 0
+
+
+        then: "it should overlap properly"
+        assert projection.size() == 4
+        for (Coordinate coordinate in projection.minMap.values()) {
+            switch (index) {
+                case 0: assert coordinate.min == 1764232
+                    assert coordinate.max == 1765195
+                    break
+                case 1: assert coordinate.min == 1765229
+                    assert coordinate.max == 1765487
+                    break
+                case 2: assert coordinate.min == 1765511
+                    assert coordinate.max == 1765761
+                    break
+                case 3: assert coordinate.min == 1765764
+                    assert coordinate.max == 1766416
+                    break
+            }
+            ++index
+        }
+
+        when: "we add the last one"
+        projection.addInterval(1765229, 1766403)
+        index = 0
+
+        then: "it should not blow up"
+        assert projection.size() == 2
+        for (Coordinate coordinate in projection.minMap.values()) {
+            switch (index) {
+                case 0: assert coordinate.min == 1764232
+                    assert coordinate.max == 1765195
+                    break
+                case 1: assert coordinate.min == 1765229
+                    assert coordinate.max == 1766416
+                    break
+            }
+            ++index
+        }
+
+    }
+
+    void "another overlap case"() {
+        given: "a discontinuous projection"
+        DiscontinuousProjection projection = new DiscontinuousProjection()
+        int index = 0
+
+        when: "we add some intervals"
+        projection.addInterval(322874, 323189) // 0
+        projection.addInterval(323171, 323490) // 0
+        projection.addInterval(323458, 323739) // 0
+        projection.addInterval(323719, 323996) // 0
+        projection.addInterval(323984, 324541) // 0
+        projection.addInterval(324636, 325100) // 1
+        projection.addInterval(325109, 325906) // 2
+        projection.addInterval(325883, 329527) // 2
+        index = 0
+
+
+        then: "we should see 1"
+        assert projection.size() == 3
+        for (Coordinate coordinate in projection.minMap.values()) {
+            switch (index) {
+                case 0: assert coordinate.min == 322874
+                    assert coordinate.max == 324541
+                    break
+                case 1: assert coordinate.min == 324636
+                    assert coordinate.max == 325100
+                    break
+                case 2: assert coordinate.min == 325109
+                    assert coordinate.max == 329527
+                    break
+            }
+            ++index
+        }
+
+        when: "we add the last one"
+        projection.addInterval(323453, 329527)
+        index = 0
+
+        then: "we should see the same one"
+        assert projection.size() == 1
+        for (Coordinate coordinate in projection.minMap.values()) {
+            switch (index) {
+                case 0: assert coordinate.min == 322874
+                    assert coordinate.max == 329527
+                    break
+            }
+            ++index
+        }
+
+    }
+
+    void "another overlap edgecase"(){
+
+        given: "a discontinuous projection"
+        DiscontinuousProjection projection = new DiscontinuousProjection()
+        int index = 0
+
+        when: "we add a series of intervals"
+        projection.addInterval(411456,411745) // 0
+        projection.addInterval(411775,411934) // 1
+        projection.addInterval(412094,412542) // 2
+        projection.addInterval(412570,412901) // 3
+        projection.addInterval(412977,414637) // 4
+        projection.addInterval(412312,412542) // 2
+        index = 0
+
+        then: "we should get 2"
+        assert projection.size() == 5
+        for (Coordinate coordinate in projection.minMap.values()) {
+            switch (index) {
+                case 0: assert coordinate.min == 411456
+                    assert coordinate.max == 411745
+                    break
+                case 1: assert coordinate.min == 411775
+                    assert coordinate.max == 411934
+                    break
+                case 2: assert coordinate.min == 412094
+                    assert coordinate.max == 412542
+                    break
+                case 3: assert coordinate.min == 412570
+                    assert coordinate.max == 412901
+                    break
+                case 4: assert coordinate.min == 412977
+                    assert coordinate.max == 414637
+                    break
+            }
+            ++index
+        }
+
+
+        when: "we add the last one"
+        projection.addInterval(412570,413980) // 1
+        index = 0
+
+        then: "we should get the proper solution"
+        assert projection.size() == 5
+        for (Coordinate coordinate in projection.minMap.values()) {
+            switch (index) {
+                case 0: assert coordinate.min == 411456
+                    assert coordinate.max == 411745
+                    break
+                case 1: assert coordinate.min == 411775
+                    assert coordinate.max == 411934
+                    break
+                case 2: assert coordinate.min == 412094
+                    assert coordinate.max == 412542
+                    break
+                case 3: assert coordinate.min == 412570
+                    assert coordinate.max == 412901
+                    break
+                case 4: assert coordinate.min == 412977
+                    assert coordinate.max == 414637
+                    break
+            }
+            ++index
+        }
+    }
 
 }
