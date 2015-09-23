@@ -239,10 +239,12 @@ public class DiscontinuousProjection extends AbstractProjection {
                     int newMax = max < ceilMaxCoord.min ? max : ceilMaxCoord.max
                     return replaceCoordinate(floorMinCoord, newMin, newMax)
                 }
-            } else if (floorMinCoord != floorMaxCoord && ceilMinCoord == ceilMaxCoord) {
+            }
+            else if (floorMinCoord != floorMaxCoord && ceilMinCoord == ceilMaxCoord) {
                 return replaceCoordinate(floorMinCoord, Math.min(min, floorMinCoord.min), Math.max(max, ceilMaxCoord.max))
-            } else
+            }
             // if we have coordinates on either side
+            else
             if (floorMinCoord == floorMaxCoord && ceilMinCoord == ceilMaxCoord && ceilMinCoord != floorMinCoord) {
                 // in-between all, so just add
                 if (min > floorMaxKey && max < ceilMinKey) {
@@ -260,6 +262,10 @@ public class DiscontinuousProjection extends AbstractProjection {
                     int newMax = max < ceilMaxCoord.min ? max : ceilMaxCoord.max
                     return replaceCoordinate(floorMinCoord, newMin, newMax)
                 }
+            }
+            // sitting on the right edge, internal
+            else if (floorMinCoord == floorMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord==ceilMaxCoord) {
+                return null
             }
             // in the case they are in-between an existing scaffold
             else if (floorMinCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord) {

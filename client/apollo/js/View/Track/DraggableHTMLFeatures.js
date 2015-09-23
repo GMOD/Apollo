@@ -1371,6 +1371,24 @@ var draggableTrack = declare( [HTMLFeatureTrack,FeatureDetailMixin],
         }
 
     },
+    // override getLayout to access addRect method
+    _getLayout: function () {
+        var thisB = this;
+        var browser = this.browser;
+        var layout = this.inherited(arguments);
+        var clabel = this.name + "-collapsed";
+        return declare.safeMixin(layout, {
+            addRect: function (id, left, right, height, data) {
+                var cm = thisB.collapsedMode || browser.cookie(clabel) == "true";
+                //store height for collapsed mode
+                if (cm) {
+                    var pHeight = Math.ceil(height / this.pitchY);
+                    this.pTotalHeight = Math.max(this.pTotalHeight || 0, pHeight);
+                }
+                return cm ? 0 : this.inherited(arguments);
+            }
+        });
+    },
     updateFeatureLabelPositions: function( coords ) {
         var showLabels=this.webapollo._showLabels;
         if( ! 'x' in coords )

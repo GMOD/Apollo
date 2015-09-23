@@ -621,7 +621,8 @@ class DiscontinuousProjectionSpec extends Specification {
      697283	697566	-37	3	283
      696108	696395	-1458	3	287
      */
-    void "Group 10.19 overlaps should produce a non-overlapping map"() {
+    void "Group overlaps should produce a nonoverlapping map"() {
+
         given: "a set of overlapping coordinates"
         DiscontinuousProjection projection = new DiscontinuousProjection()
 
@@ -652,9 +653,15 @@ class DiscontinuousProjectionSpec extends Specification {
         when: "we add the last one"
         projection.addInterval(696108, 696395)
 
-        then: "there should just be the 3"
-        assert  projection.size()==3
+        then: "there should just be the 4"
+        assert  projection.size()==4
 
+        when: "we add one of the LHS"
+        projection.addInterval(696071, 696390)
+
+
+        then: "should still be four"
+        assert  projection.size()==4
 
     }
 
