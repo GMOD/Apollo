@@ -320,7 +320,7 @@ public class DiscontinuousProjection extends AbstractProjection {
             return addCoordinate(min, max)
 
         } else {
-            println "else else ${min}/${max}"
+//            println "else else ${min}/${max}"
             return addCoordinate(min, max)
         }
 
