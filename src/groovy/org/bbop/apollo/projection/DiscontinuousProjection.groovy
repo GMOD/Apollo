@@ -179,7 +179,7 @@ public class DiscontinuousProjection extends AbstractProjection {
         } else
         // empty ceil / RHS side
         if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord == null && ceilMaxCoord == null) {
-            assert floorMinCoord == floorMaxCoord
+//            floorMinCoord == floorMaxCoord
             if (min > floorMaxCoord.max) {
                 return addCoordinate(min, max)
             }
@@ -200,8 +200,23 @@ public class DiscontinuousProjection extends AbstractProjection {
         if (floorMinCoord == null && ceilMinCoord == null && floorMaxCoord != null && ceilMaxCoord != null) {
             return null
         }
+        if (floorMinCoord != null && ceilMinCoord != null && floorMaxCoord != null && ceilMaxCoord == null) {
+            if(floorMinCoord==floorMaxCoord && floorMaxCoord == ceilMinCoord){
+                if(max > floorMaxCoord.max){
+                    replaceCoordinate(floorMinCoord,floorMinCoord.min,max)
+                }
+                println "not sure how to handle this piece "
+            }
+            return null
+        }
         // if we are right on the right edge
         if (floorMinCoord == null && ceilMinCoord != null && floorMaxCoord != null && ceilMaxCoord != null) {
+            if(floorMaxCoord==ceilMaxCoord && ceilMaxCoord==ceilMinCoord){
+               if(min < floorMaxCoord.min) {
+                   return replaceCoordinate(floorMaxCoord,min,floorMaxCoord.max)
+               }
+               return null
+            }
             return null
         }
         // if we are at the right edge

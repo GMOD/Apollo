@@ -706,7 +706,7 @@ class DiscontinuousProjectionSpec extends Specification {
 
         then: "we should have 4"
         assert projection.size() == 4
-        for(Coordinate coordinate in projection.minMap.values()){
+        for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
                 case 0: assert coordinate.min == 426970
                     assert coordinate.max == 427960
@@ -730,7 +730,7 @@ class DiscontinuousProjectionSpec extends Specification {
 
         then: "we should have 3"
         assert projection.size() == 3
-        for(Coordinate coordinate in projection.minMap.values()){
+        for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
                 case 0: assert coordinate.min == 426970
                     assert coordinate.max == 427960
@@ -752,7 +752,7 @@ class DiscontinuousProjectionSpec extends Specification {
 
         then: "we should be down to 3"
         assert projection.size() == 3
-        for(Coordinate coordinate in projection.minMap.values()){
+        for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
                 case 0: assert coordinate.min == 426970
                     assert coordinate.max == 427960
@@ -775,7 +775,7 @@ class DiscontinuousProjectionSpec extends Specification {
 
         then: "there should not be any change"
         assert projection.size() == 3
-        for(Coordinate coordinate in projection.minMap.values()){
+        for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
                 case 0: assert coordinate.min == 426970
                     assert coordinate.max == 427960
@@ -803,7 +803,7 @@ class DiscontinuousProjectionSpec extends Specification {
 
         then: "it should not blow up and we should have 2"
         assert projection.size() == 3
-        for(Coordinate coordinate in projection.minMap.values()){
+        for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
                 case 0: assert coordinate.min == 426970
                     assert coordinate.max == 427960
@@ -818,5 +818,95 @@ class DiscontinuousProjectionSpec extends Specification {
             ++index
         }
     }
+
+    /**
+     285235,285658
+     285628,285895
+     285887,286954
+     286965,287209
+     287225,287371
+     285192,286954
+     286965,287209
+     287225,288061
+     */
+    void "another overlapping case"() {
+        given: "a discontinuous projection"
+        DiscontinuousProjection projection = new DiscontinuousProjection()
+        int index = 0
+
+        when: "we add some normal intervals"
+        projection.addInterval(285235, 285658)
+        projection.addInterval(285628, 285895)
+        projection.addInterval(285887, 286954)
+        projection.addInterval(286965, 287209)
+        projection.addInterval(287225, 287371)
+        index = 0
+
+
+        then: "we would expect 3 intervals"
+        assert projection.size()==3
+        for (Coordinate coordinate in projection.minMap.values()) {
+            switch (index) {
+                case 0: assert coordinate.min == 285235
+                    assert coordinate.max == 286954
+                    break
+                case 1: assert coordinate.min == 286965
+                    assert coordinate.max == 287209
+                    break
+                case 2: assert coordinate.min == 287225
+                    assert coordinate.max == 287371
+                    break
+            }
+            ++index
+        }
+
+
+        when: "you add additional intervals"
+        projection.addInterval(285192, 286954)
+        projection.addInterval(286965, 287209)
+        index =0
+
+        then: "you would expect the same, but modified"
+        assert projection.size()==3
+        for (Coordinate coordinate in projection.minMap.values()) {
+            switch (index) {
+                case 0: assert coordinate.min == 285192
+                    assert coordinate.max == 286954
+                    break
+                case 1: assert coordinate.min == 286965
+                    assert coordinate.max == 287209
+                    break
+                case 2: assert coordinate.min == 287225
+                    assert coordinate.max == 287371
+                    break
+            }
+            ++index
+        }
+
+
+        when: "we add the last interval"
+        projection.addInterval(287225, 288061)
+
+        then: "we have to see if its the right one"
+        assert projection.size()==3
+        for (Coordinate coordinate in projection.minMap.values()) {
+            switch (index) {
+                case 0: assert coordinate.min == 285192
+                    assert coordinate.max == 286954
+                    break
+                case 1: assert coordinate.min == 286965
+                    assert coordinate.max == 287209
+                    break
+                case 2: assert coordinate.min == 287225
+                    assert coordinate.max == 288061
+                    break
+            }
+            ++index
+        }
+
+
+    }
+
+    
 
 }
