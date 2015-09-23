@@ -100,6 +100,12 @@ public class DiscontinuousProjection extends AbstractProjection {
 
     private Coordinate addCoordinate(int min, int max) {
         Coordinate coordinate = new Coordinate(min: min, max: max)
+        if(minMap.containsKey(min)&& !maxMap.containsKey(max)){
+            throw new RuntimeException("minKey is dupe and should be replaced ${min}::${max}")
+        }
+        if(!minMap.containsKey(min)&& maxMap.containsKey(max)){
+            throw new RuntimeException("maxKey is dupe and should be replaced ${min}::${max}")
+        }
         minMap.put(min, coordinate)
         maxMap.put(max, coordinate)
         return coordinate
@@ -144,6 +150,7 @@ public class DiscontinuousProjection extends AbstractProjection {
             max += padding
         }
         min = min < 0 ? 0 : min
+        println "${min},${max}"
 //        max = max > length ? length: max
         assert max >= min
 
@@ -264,17 +271,6 @@ public class DiscontinuousProjection extends AbstractProjection {
         } else {
             return addCoordinate(min, max)
         }
-
-//        if(max <= ceilMaxKey  && min >= floorMinKey){
-//            Coordinate minCoordinate = minMap.get(floorMinKey)
-//            Coordinate maxCoordinate = maxMap.get(ceilMaxKey)
-//
-//            if(minCoordinate==maxCoordinate){
-//                // we are a subset
-//                return
-//            }
-//
-//        }
 
 
     }
@@ -424,7 +420,7 @@ public class DiscontinuousProjection extends AbstractProjection {
     @Override
     Integer clear() {
         int returnValue = minMap.size()
-        assert returnValue == maxMap.size()
+//        assert returnValue == maxMap.size()
         minMap.clear()
         maxMap.clear()
         return returnValue

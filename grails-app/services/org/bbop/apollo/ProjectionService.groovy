@@ -139,7 +139,7 @@ class ProjectionService {
      */
     def createExonLevelProjection(Organism organism, JSONArray tracksArray, Integer padding = 0) {
         // TODO: this is only here for debugging . .
-//        projectionMap.clear()
+        projectionMap.clear()
         long startTime = System.currentTimeMillis()
         for (int i = 0; i < tracksArray.size(); i++) {
             JSONObject trackObject = tracksArray.getJSONObject(i)

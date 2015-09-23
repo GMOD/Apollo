@@ -14,7 +14,7 @@ import spock.lang.Specification
 /**
  * Created by Nathan Dunn on 8/14/15.
  */
-class DiscontinuousProjectionSpec extends Specification{
+class DiscontinuousProjectionSpec extends Specification {
 
     def setup() {
     }
@@ -28,8 +28,8 @@ class DiscontinuousProjectionSpec extends Specification{
         Track track1 = new Track()
 
         when: "we generate a duplicate projection"
-        track1.addCoordinate(4,12)
-        track1.addCoordinate(70,80)
+        track1.addCoordinate(4, 12)
+        track1.addCoordinate(70, 80)
         ProjectionInterface projectionTrack1To2 = new DuplicateTrackProjection()
         Track track2 = projectionTrack1To2.projectTrack(track1)
 
@@ -38,44 +38,44 @@ class DiscontinuousProjectionSpec extends Specification{
 
     }
 
-    void "confirm that we can generate a reverse projection"(){
+    void "confirm that we can generate a reverse projection"() {
         given:
         Track track1 = new Track(length: 100)
 
         when: "we generate a duplicate projection"
-        track1.addCoordinate(4,12)
-        track1.addCoordinate(70,80)
+        track1.addCoordinate(4, 12)
+        track1.addCoordinate(70, 80)
         ProjectionInterface projectionTrack1To2 = new ReverseProjection(track1)
         Track track2 = projectionTrack1To2.projectTrack(track1)
 
         then: "it should generate forward "
-        assert 99==projectionTrack1To2.projectValue(0)
-        assert 9==projectionTrack1To2.projectValue(90)
+        assert 99 == projectionTrack1To2.projectValue(0)
+        assert 9 == projectionTrack1To2.projectValue(90)
         assert !track1.equals(track2)
     }
 
-    void "create a discontinuous projection capable of appropriately "(){
+    void "create a discontinuous projection capable of appropriately "() {
 
         given:
         Track track1 = new Track(length: 11)
         DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
 
         when: "we generate a duplicate projection"
-        track1.addCoordinate(2,4)
-        track1.addCoordinate(7,8)
-        track1.addCoordinate(9,10)
+        track1.addCoordinate(2, 4)
+        track1.addCoordinate(7, 8)
+        track1.addCoordinate(9, 10)
         Track nullTrack = discontinuousProjection.projectTrack(track1)
 
         then: "with no map in the discontinuous projection, should return same"
-        for(i in 0..track1.length){
-            assert discontinuousProjection.projectValue(i)==i
+        for (i in 0..track1.length) {
+            assert discontinuousProjection.projectValue(i) == i
         }
-        assert nullTrack==track1
+        assert nullTrack == track1
 
         when: "we add some intervals"
-        discontinuousProjection.addInterval(2,4)
-        discontinuousProjection.addInterval(7,8)
-        discontinuousProjection.addInterval(9,10)
+        discontinuousProjection.addInterval(2, 4)
+        discontinuousProjection.addInterval(7, 8)
+        discontinuousProjection.addInterval(9, 10)
 
         then: "values should be mapped appropriately"
         assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(0)
@@ -91,21 +91,21 @@ class DiscontinuousProjectionSpec extends Specification{
         assert 6 == discontinuousProjection.projectValue(10)
 
         // in-phase
-        assert new Coordinate(min:1,max:2)== discontinuousProjection.projectCoordinate(3,4)
+        assert new Coordinate(min: 1, max: 2) == discontinuousProjection.projectCoordinate(3, 4)
         // right-edge
-        assert null== discontinuousProjection.projectCoordinate(4,5)
+        assert null == discontinuousProjection.projectCoordinate(4, 5)
         // left-edge
-        assert null== discontinuousProjection.projectCoordinate(1,2)
+        assert null == discontinuousProjection.projectCoordinate(1, 2)
         // right-edge overlap
-        assert new Coordinate(min:1,max:2)== discontinuousProjection.projectCoordinate(3,5)
+        assert new Coordinate(min: 1, max: 2) == discontinuousProjection.projectCoordinate(3, 5)
         // right-edge overlap . . . A-B?
-        assert new Coordinate(min:3,max:5)== discontinuousProjection.projectCoordinate(7,9)
+        assert new Coordinate(min: 3, max: 5) == discontinuousProjection.projectCoordinate(7, 9)
         // left-edge overlap
-        assert new Coordinate(min:3,max:4)== discontinuousProjection.projectCoordinate(6,8)
+        assert new Coordinate(min: 3, max: 4) == discontinuousProjection.projectCoordinate(6, 8)
         // AB overlap
-        assert new Coordinate(min:1,max:4)== discontinuousProjection.projectCoordinate(3,8)
+        assert new Coordinate(min: 1, max: 4) == discontinuousProjection.projectCoordinate(3, 8)
         // AC overlap
-        assert new Coordinate(min:1,max:6)== discontinuousProjection.projectCoordinate(3,10)
+        assert new Coordinate(min: 1, max: 6) == discontinuousProjection.projectCoordinate(3, 10)
 
         // test reverse values
         assert 2 == discontinuousProjection.projectReverseValue(0)
@@ -120,28 +120,28 @@ class DiscontinuousProjectionSpec extends Specification{
         Track trackOut = discontinuousProjection.projectTrack(track1)
 
         then: "it should properly projecto out the proper coordinates"
-        assert track1.coordinateList.size()==trackOut.coordinateList.size()
-        assert 0==trackOut.coordinateList.get(0).min  // 2
-        assert 2==trackOut.coordinateList.get(0).max  // 4
-        assert 3==trackOut.coordinateList.get(1).min  // 7
-        assert 4==trackOut.coordinateList.get(1).max  // 8
-        assert 5==trackOut.coordinateList.get(2).min  // 9
-        assert 6==trackOut.coordinateList.get(2).max  // 10
+        assert track1.coordinateList.size() == trackOut.coordinateList.size()
+        assert 0 == trackOut.coordinateList.get(0).min  // 2
+        assert 2 == trackOut.coordinateList.get(0).max  // 4
+        assert 3 == trackOut.coordinateList.get(1).min  // 7
+        assert 4 == trackOut.coordinateList.get(1).max  // 8
+        assert 5 == trackOut.coordinateList.get(2).min  // 9
+        assert 6 == trackOut.coordinateList.get(2).max  // 10
     }
 
-    void "try a difference discontinuous projection capable of reverse projection"(){
+    void "try a difference discontinuous projection capable of reverse projection"() {
 
         given:
         Track track1 = new Track(length: 10)
         DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
 
         when: "we generate a duplicate projection"
-        track1.addCoordinate(2,4)
-        track1.addCoordinate(7,8)
-        track1.addCoordinate(9,10)
-        discontinuousProjection.addInterval(0,2)
-        discontinuousProjection.addInterval(4,6)
-        discontinuousProjection.addInterval(8,9)
+        track1.addCoordinate(2, 4)
+        track1.addCoordinate(7, 8)
+        track1.addCoordinate(9, 10)
+        discontinuousProjection.addInterval(0, 2)
+        discontinuousProjection.addInterval(4, 6)
+        discontinuousProjection.addInterval(8, 9)
 
         then: "values should be mapped appropriately"
         assert 0 == discontinuousProjection.projectValue(0)
@@ -156,23 +156,22 @@ class DiscontinuousProjectionSpec extends Specification{
         assert 7 == discontinuousProjection.projectValue(9)
         assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(10)
 
-
         // in-phase
-        assert new Coordinate(min:3,max:4)== discontinuousProjection.projectCoordinate(4,5)
+        assert new Coordinate(min: 3, max: 4) == discontinuousProjection.projectCoordinate(4, 5)
         // right-edge
-        assert null== discontinuousProjection.projectCoordinate(2,3)
+        assert null == discontinuousProjection.projectCoordinate(2, 3)
         // left-edge
-        assert null== discontinuousProjection.projectCoordinate(3,4)
+        assert null == discontinuousProjection.projectCoordinate(3, 4)
         // right-edge overlap
-        assert new Coordinate(min:1,max:2)== discontinuousProjection.projectCoordinate(1,3)
+        assert new Coordinate(min: 1, max: 2) == discontinuousProjection.projectCoordinate(1, 3)
         // right-edge overlap
-        assert new Coordinate(min:3,max:4)== discontinuousProjection.projectCoordinate(4,5)
+        assert new Coordinate(min: 3, max: 4) == discontinuousProjection.projectCoordinate(4, 5)
         // left-edge overlap
-        assert new Coordinate(min:3,max:4)== discontinuousProjection.projectCoordinate(3,5)
+        assert new Coordinate(min: 3, max: 4) == discontinuousProjection.projectCoordinate(3, 5)
         // AB overlap
-        assert new Coordinate(min:1,max:4)== discontinuousProjection.projectCoordinate(1,5)
+        assert new Coordinate(min: 1, max: 4) == discontinuousProjection.projectCoordinate(1, 5)
         // AC overlap
-        assert new Coordinate(min:1,max:7)== discontinuousProjection.projectCoordinate(1,9)
+        assert new Coordinate(min: 1, max: 7) == discontinuousProjection.projectCoordinate(1, 9)
 
         // test reverse values
         assert 0 == discontinuousProjection.projectReverseValue(0)
@@ -188,27 +187,27 @@ class DiscontinuousProjectionSpec extends Specification{
         Track trackOut = discontinuousProjection.projectTrack(track1)
 
         then: "it should properly projecto out the proper coordinates"
-        assert track1.coordinateList.size()==trackOut.coordinateList.size()
-        assert 2==trackOut.coordinateList.get(0).min  // 2
-        assert 3==trackOut.coordinateList.get(0).max  // 4
-        assert -1==trackOut.coordinateList.get(1).min  // 7
-        assert 6==trackOut.coordinateList.get(1).max  // 8
-        assert 7==trackOut.coordinateList.get(2).min  // 9
-        assert -1==trackOut.coordinateList.get(2).max  // 10
+        assert track1.coordinateList.size() == trackOut.coordinateList.size()
+        assert 2 == trackOut.coordinateList.get(0).min  // 2
+        assert 3 == trackOut.coordinateList.get(0).max  // 4
+        assert -1 == trackOut.coordinateList.get(1).min  // 7
+        assert 6 == trackOut.coordinateList.get(1).max  // 8
+        assert 7 == trackOut.coordinateList.get(2).min  // 9
+        assert -1 == trackOut.coordinateList.get(2).max  // 10
 
     }
 
-    void "create discontinuous projection"(){
+    void "create discontinuous projection"() {
 
         given: "if we have two sets of tracks"
         Track track1 = new Track(length: 11)
-        track1.addCoordinate(2,4)
-        track1.addCoordinate(7,8)
-        track1.addCoordinate(9,10)
+        track1.addCoordinate(2, 4)
+        track1.addCoordinate(7, 8)
+        track1.addCoordinate(9, 10)
         Track track2 = new Track(length: 7)
-        track2.addCoordinate(0,2)
-        track2.addCoordinate(3,4)
-        track2.addCoordinate(5,6)
+        track2.addCoordinate(0, 2)
+        track2.addCoordinate(3, 4)
+        track2.addCoordinate(5, 6)
 
 
         when: "we create a projection from them"
@@ -217,103 +216,103 @@ class DiscontinuousProjectionSpec extends Specification{
 
 
         then: "if we create a track from that projection it should be an equivalent track"
-        assert track2==track3
+        assert track2 == track3
     }
 
-    void "when adding intervals overlapping intervals should merge"(){
+    void "when adding intervals overlapping intervals should merge"() {
 
         given: "some intervals"
         ProjectionInterface projection = new DiscontinuousProjection()
 
 
         when: "we add an interval to a null one"
-        projection.addInterval(45,55)
+        projection.addInterval(45, 55)
         Coordinate coordinate = projection.minMap.values().iterator().next()
 
         then: "it shows up"
-        projection.minMap.size()==1
-        projection.maxMap.size()==1
-        assert coordinate.min==45
-        assert coordinate.max==55
+        projection.minMap.size() == 1
+        projection.maxMap.size() == 1
+        assert coordinate.min == 45
+        assert coordinate.max == 55
 
-        when : "we add within that one"
-        projection.addInterval(47,53)
+        when: "we add within that one"
+        projection.addInterval(47, 53)
         coordinate = projection.minMap.values().iterator().next()
 
         then: "nothing happens"
-        projection.minMap.size()==1
-        projection.maxMap.size()==1
-        assert coordinate.min==45
-        assert coordinate.max==55
+        projection.minMap.size() == 1
+        projection.maxMap.size() == 1
+        assert coordinate.min == 45
+        assert coordinate.max == 55
 
         when: "we add a larger one over it"
-        projection.addInterval(40,60)
+        projection.addInterval(40, 60)
         coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge and expand on both sides"
-        projection.minMap.size()==1
-        projection.maxMap.size()==1
-        assert coordinate.min==40
-        assert coordinate.max==60
+        projection.minMap.size() == 1
+        projection.maxMap.size() == 1
+        assert coordinate.min == 40
+        assert coordinate.max == 60
 
 
         when: "we add to the continuous right edge"
-        projection.addInterval(60,65)
+        projection.addInterval(60, 65)
         coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge the two on the right edge"
-        projection.minMap.size()==1
-        projection.maxMap.size()==1
-        assert coordinate.min==40
-        assert coordinate.max==65
+        projection.minMap.size() == 1
+        projection.maxMap.size() == 1
+        assert coordinate.min == 40
+        assert coordinate.max == 65
 
         when: "we add to the continuous left edge"
-        projection.addInterval(35,40)
+        projection.addInterval(35, 40)
         coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge the two on the left edge"
-        projection.minMap.size()==1
-        projection.maxMap.size()==1
-        assert coordinate.min==35
-        assert coordinate.max==65
+        projection.minMap.size() == 1
+        projection.maxMap.size() == 1
+        assert coordinate.min == 35
+        assert coordinate.max == 65
 
         when: "we add to the continuous right overlap"
-        projection.addInterval(62,70)
+        projection.addInterval(62, 70)
         coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge the two on the right overlap"
-        projection.minMap.size()==1
-        projection.maxMap.size()==1
-        assert coordinate.min==35
-        assert coordinate.max==70
+        projection.minMap.size() == 1
+        projection.maxMap.size() == 1
+        assert coordinate.min == 35
+        assert coordinate.max == 70
 
         when: "we add to the continuous left overlap"
-        projection.addInterval(30,37)
+        projection.addInterval(30, 37)
         coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge the two on the left overlap"
-        projection.minMap.size()==1
-        projection.maxMap.size()==1
-        assert coordinate.min==30
-        assert coordinate.max==70
+        projection.minMap.size() == 1
+        projection.maxMap.size() == 1
+        assert coordinate.min == 30
+        assert coordinate.max == 70
 
         when: "we add another one to the left of all of the others"
-        projection.addInterval(10,15)
+        projection.addInterval(10, 15)
         Coordinate coordinate0 = projection.minMap.values().getAt(0)
         Coordinate coordinate1 = projection.minMap.values().getAt(1)
 
 
         then: "we see another one to the left"
-        projection.minMap.size()==2
-        projection.maxMap.size()==2
-        assert coordinate0.min==10
-        assert coordinate0.max==15
-        assert coordinate1.min==30
-        assert coordinate1.max==70
+        projection.minMap.size() == 2
+        projection.maxMap.size() == 2
+        assert coordinate0.min == 10
+        assert coordinate0.max == 15
+        assert coordinate1.min == 30
+        assert coordinate1.max == 70
 
 
         when: "we add another one to the right of all of the others"
-        projection.addInterval(80,85)
+        projection.addInterval(80, 85)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         Coordinate coordinate2 = projection.minMap.values().getAt(2)
@@ -321,39 +320,39 @@ class DiscontinuousProjectionSpec extends Specification{
 
 
         then: "we see another one to the right"
-        assert projection.minMap.size()==3
-        assert projection.maxMap.size()==3
-        assert coordinate0.min==10
-        assert coordinate0.max==15
-        assert coordinate1.min==30
-        assert coordinate1.max==70
-        assert coordinate2.min==80
-        assert coordinate2.max==85
+        assert projection.minMap.size() == 3
+        assert projection.maxMap.size() == 3
+        assert coordinate0.min == 10
+        assert coordinate0.max == 15
+        assert coordinate1.min == 30
+        assert coordinate1.max == 70
+        assert coordinate2.min == 80
+        assert coordinate2.max == 85
 
 
 
         when: "we add another one in the middle of all of the others"
-        projection.addInterval(75,77)
+        projection.addInterval(75, 77)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
         Coordinate coordinate3 = projection.minMap.values().getAt(3)
 
         then: "we see another one in the middle"
-        assert projection.minMap.size()==4
-        assert projection.maxMap.size()==4
-        assert coordinate0.min==10
-        assert coordinate0.max==15
-        assert coordinate1.min==30
-        assert coordinate1.max==70
-        assert coordinate2.min==75
-        assert coordinate2.max==77
-        assert coordinate3.min==80
-        assert coordinate3.max==85
+        assert projection.minMap.size() == 4
+        assert projection.maxMap.size() == 4
+        assert coordinate0.min == 10
+        assert coordinate0.max == 15
+        assert coordinate1.min == 30
+        assert coordinate1.max == 70
+        assert coordinate2.min == 75
+        assert coordinate2.max == 77
+        assert coordinate3.min == 80
+        assert coordinate3.max == 85
 
 
         when: "we add another one in the middle of all of the others again"
-        projection.addInterval(20,25)
+        projection.addInterval(20, 25)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
@@ -361,22 +360,22 @@ class DiscontinuousProjectionSpec extends Specification{
         Coordinate coordinate4 = projection.minMap.values().getAt(4)
 
         then: "we see another one in the middle"
-        assert projection.minMap.size()==5
-        assert projection.maxMap.size()==5
-        assert coordinate0.min==10
-        assert coordinate0.max==15
-        assert coordinate1.min==20
-        assert coordinate1.max==25
-        assert coordinate2.min==30
-        assert coordinate2.max==70
-        assert coordinate3.min==75
-        assert coordinate3.max==77
-        assert coordinate4.min==80
-        assert coordinate4.max==85
+        assert projection.minMap.size() == 5
+        assert projection.maxMap.size() == 5
+        assert coordinate0.min == 10
+        assert coordinate0.max == 15
+        assert coordinate1.min == 20
+        assert coordinate1.max == 25
+        assert coordinate2.min == 30
+        assert coordinate2.max == 70
+        assert coordinate3.min == 75
+        assert coordinate3.max == 77
+        assert coordinate4.min == 80
+        assert coordinate4.max == 85
 
 
         when: "we project outside of the center on both sides"
-        projection.addInterval(19,26)
+        projection.addInterval(19, 26)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
@@ -385,116 +384,116 @@ class DiscontinuousProjectionSpec extends Specification{
 
 
         then: "it should provide both on most sides"
-        assert projection.minMap.size()==5
-        assert projection.maxMap.size()==5
-        assert coordinate0.min==10
-        assert coordinate0.max==15
-        assert coordinate1.min==19
-        assert coordinate1.max==26
-        assert coordinate2.min==30
-        assert coordinate2.max==70
-        assert coordinate3.min==75
-        assert coordinate3.max==77
-        assert coordinate4.min==80
-        assert coordinate4.max==85
+        assert projection.minMap.size() == 5
+        assert projection.maxMap.size() == 5
+        assert coordinate0.min == 10
+        assert coordinate0.max == 15
+        assert coordinate1.min == 19
+        assert coordinate1.max == 26
+        assert coordinate2.min == 30
+        assert coordinate2.max == 70
+        assert coordinate3.min == 75
+        assert coordinate3.max == 77
+        assert coordinate4.min == 80
+        assert coordinate4.max == 85
 
 
         when: "we add another to overlap "
-        projection.addInterval(22,76)
+        projection.addInterval(22, 76)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
 
         then: "we merge overlapping ones"
-        assert projection.minMap.size()==3
-        assert projection.maxMap.size()==3
-        assert coordinate0.min==10
-        assert coordinate0.max==15
-        assert coordinate1.min==19
-        assert coordinate1.max==77
-        assert coordinate2.min==80
-        assert coordinate2.max==85
+        assert projection.minMap.size() == 3
+        assert projection.maxMap.size() == 3
+        assert coordinate0.min == 10
+        assert coordinate0.max == 15
+        assert coordinate1.min == 19
+        assert coordinate1.max == 77
+        assert coordinate2.min == 80
+        assert coordinate2.max == 85
 
         when: "we add LHS to center"
-        projection.addInterval(18,22)
+        projection.addInterval(18, 22)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
 
         then: "should extend center one to the left"
-        assert projection.minMap.size()==3
-        assert projection.maxMap.size()==3
-        assert coordinate0.min==10
-        assert coordinate0.max==15
-        assert coordinate1.min==18
-        assert coordinate1.max==77
-        assert coordinate2.min==80
-        assert coordinate2.max==85
+        assert projection.minMap.size() == 3
+        assert projection.maxMap.size() == 3
+        assert coordinate0.min == 10
+        assert coordinate0.max == 15
+        assert coordinate1.min == 18
+        assert coordinate1.max == 77
+        assert coordinate2.min == 80
+        assert coordinate2.max == 85
 
         when: "we add RHS to center"
-        projection.addInterval(76,78)
+        projection.addInterval(76, 78)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
 
         then: "should extend center one to the left"
-        assert projection.minMap.size()==3
-        assert projection.maxMap.size()==3
-        assert coordinate0.min==10
-        assert coordinate0.max==15
-        assert coordinate1.min==18
-        assert coordinate1.max==78
-        assert coordinate2.min==80
-        assert coordinate2.max==85
+        assert projection.minMap.size() == 3
+        assert projection.maxMap.size() == 3
+        assert coordinate0.min == 10
+        assert coordinate0.max == 15
+        assert coordinate1.min == 18
+        assert coordinate1.max == 78
+        assert coordinate2.min == 80
+        assert coordinate2.max == 85
 
 
 
         when: "we project in the center of the center"
-        projection.addInterval(30,40)
+        projection.addInterval(30, 40)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
 
 
         then: "nothing should happen"
-        assert projection.minMap.size()==3
-        assert projection.maxMap.size()==3
-        assert coordinate0.min==10
-        assert coordinate0.max==15
-        assert coordinate1.min==18
-        assert coordinate1.max==78
-        assert coordinate2.min==80
-        assert coordinate2.max==85
+        assert projection.minMap.size() == 3
+        assert projection.maxMap.size() == 3
+        assert coordinate0.min == 10
+        assert coordinate0.max == 15
+        assert coordinate1.min == 18
+        assert coordinate1.max == 78
+        assert coordinate2.min == 80
+        assert coordinate2.max == 85
 
     }
 
-    void "we should be able to project substring between projected coordinates"(){
+    void "we should be able to project substring between projected coordinates"() {
 
         given: "we have an unprojected and projected string"
         String unprojected = "ZZZZZZAAAYYYYYYYBBXXXXXXCCWW"
         String projected = "AAABBCC"
         Track track1 = new Track(length: 28)
-        track1.addCoordinate(6,8)
-        track1.addCoordinate(16,17)
-        track1.addCoordinate(24,25)
+        track1.addCoordinate(6, 8)
+        track1.addCoordinate(16, 17)
+        track1.addCoordinate(24, 25)
 
         when: "we add the appropriate intervals"
         DiscontinuousProjection projection = DiscontinuousProjectionFactory.getInstance().createProjection(track1)
         String projectedSequence = projection.projectSequence(unprojected)
 
         then: "make sure we have the same thing"
-        assert projected==projectedSequence
-        assert 7==projection.projectReverseValue(1)
-        assert 24==projection.projectReverseValue(5)
-        assert "ABBC"==projection.projectSequence(unprojected,8,24)
-        assert "AAABBC"==projection.projectSequence(unprojected,4,24)
-        assert "AAABBCC"==projection.projectSequence(unprojected,4,27)
-        assert ""==projection.projectSequence(unprojected,9,12)
-        assert "BB"==projection.projectSequence(unprojected,9,18)
-        assert "BB"==projection.projectSequence(unprojected,9,17)
-        assert "B"==projection.projectSequence(unprojected,9,16)
-        assert "B"==projection.projectSequence(unprojected,17,22)
-        assert "BC"==projection.projectSequence(unprojected,17,24)
+        assert projected == projectedSequence
+        assert 7 == projection.projectReverseValue(1)
+        assert 24 == projection.projectReverseValue(5)
+        assert "ABBC" == projection.projectSequence(unprojected, 8, 24)
+        assert "AAABBC" == projection.projectSequence(unprojected, 4, 24)
+        assert "AAABBCC" == projection.projectSequence(unprojected, 4, 27)
+        assert "" == projection.projectSequence(unprojected, 9, 12)
+        assert "BB" == projection.projectSequence(unprojected, 9, 18)
+        assert "BB" == projection.projectSequence(unprojected, 9, 17)
+        assert "B" == projection.projectSequence(unprojected, 9, 16)
+        assert "B" == projection.projectSequence(unprojected, 17, 22)
+        assert "BC" == projection.projectSequence(unprojected, 17, 24)
 
 //        when: "we project for a min / max "
 ////        projectedSequence = projection.projectSequence(unprojected,8,24)
@@ -505,13 +504,13 @@ class DiscontinuousProjectionSpec extends Specification{
 
     }
 
-    void "let us try to project sequence features again to make sure it works properly"(){
+    void "let us try to project sequence features again to make sure it works properly"() {
         given: "an input sequence"
         String inputSequence = "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRST"
         Track track1 = new Track(length: 72)
-        track1.addCoordinate(8,16)
-        track1.addCoordinate(24,32)
-        track1.addCoordinate(40,56)
+        track1.addCoordinate(8, 16)
+        track1.addCoordinate(24, 32)
+        track1.addCoordinate(40, 56)
 
 
         when: "we project a sequence"
@@ -519,95 +518,143 @@ class DiscontinuousProjectionSpec extends Specification{
         String projectedSequence = projection.projectSequence(inputSequence)
 
         then: "we should get back the projected sequence"
-        assert projectedSequence == inputSequence.substring(8,16+1) + inputSequence.substring(24,32+1) + inputSequence.substring(40,56+1)
+        assert projectedSequence == inputSequence.substring(8, 16 + 1) + inputSequence.substring(24, 32 + 1) + inputSequence.substring(40, 56 + 1)
 
     }
 
-    void "overlapping projections with padding should work fine"(){
+    void "overlapping projections with padding should work fine"() {
 
         given: "we have two sets of tracks that overlap"
         Track track1 = new Track(length: 11)
-        track1.addCoordinate(2,4)
-        track1.addCoordinate(7,8)
-        track1.addCoordinate(9,10)
+        track1.addCoordinate(2, 4)
+        track1.addCoordinate(7, 8)
+        track1.addCoordinate(9, 10)
         Track track2 = new Track(length: 7)
-        track2.addCoordinate(0,2)
-        track2.addCoordinate(3,4)
+        track2.addCoordinate(0, 2)
+        track2.addCoordinate(3, 4)
 //        track2.addCoordinate(5,6)
         DiscontinuousProjection projection = new DiscontinuousProjection()
 
         when: "we create a projection out of the first of them"
         // we'll simuluate this with padding of 1
         track1.coordinateList.each {
-            projection.addInterval(it.min,it.max,1)
+            projection.addInterval(it.min, it.max, 1)
         }
 
         then: "we should make sure that we can see the padding"
         // 1-5, 6-9, 8-11  . . 1-5,6-11
-        projection.minMap.size()==2
-        projection.maxMap.size()==2
+        projection.minMap.size() == 2
+        projection.maxMap.size() == 2
 
         when: "when we clear"
         projection.clear()
 
         then: "we should not have any left"
-        assert projection.size()==0
+        assert projection.size() == 0
 
         when: "we add track 2 only"
         track2.coordinateList.each {
-            projection.addInterval(it.min,it.max,1)
+            projection.addInterval(it.min, it.max, 1)
         }
 
         then: "we should have the correct number from track 2"
-        assert 1==projection.size()
-        projection.minMap.size()==1
-        projection.maxMap.size()==1
-        assert projection.minMap.values().iterator().next().max==5
-        assert projection.minMap.values().iterator().next().min==0
+        assert 1 == projection.size()
+        projection.minMap.size() == 1
+        projection.maxMap.size() == 1
+        assert projection.minMap.values().iterator().next().max == 5
+        assert projection.minMap.values().iterator().next().min == 0
 
         when: "when we do this again, but reverse we should have the same outcome"
         projection.clear()
-        track2.coordinateList.reverse().each{
-            projection.addInterval(it.min,it.max,1)
+        track2.coordinateList.reverse().each {
+            projection.addInterval(it.min, it.max, 1)
         }
 
         then: "we should have the correct number from track 2"
-        assert 1==projection.size()
-        projection.minMap.size()==1
-        projection.maxMap.size()==1
-        assert projection.minMap.values().iterator().next().max==5
-        assert projection.minMap.values().iterator().next().min==0
+        assert 1 == projection.size()
+        projection.minMap.size() == 1
+        projection.maxMap.size() == 1
+        assert projection.minMap.values().iterator().next().max == 5
+        assert projection.minMap.values().iterator().next().min == 0
 
 
         when: "we add the other track and see what happens"
         track1.coordinateList.each {
-            projection.addInterval(it.min,it.max,1)
+            projection.addInterval(it.min, it.max, 1)
         }
 
         then: "we should have the appropriate combined values"
-        projection.minMap.size()==2
-        projection.maxMap.size()==2
-        assert projection.minMap.values().iterator().next().max==5
-        assert projection.minMap.values().iterator().next().min==0
-        assert projection.minMap.values().iterator().reverse().next().max==11
-        assert projection.minMap.values().iterator().reverse().next().min==6
+        projection.minMap.size() == 2
+        projection.maxMap.size() == 2
+        assert projection.minMap.values().iterator().next().max == 5
+        assert projection.minMap.values().iterator().next().min == 0
+        assert projection.minMap.values().iterator().reverse().next().max == 11
+        assert projection.minMap.values().iterator().reverse().next().min == 6
 
         when: "when we clear it and add them in verse order"
         projection.clear()
         track1.coordinateList.each {
-            projection.addInterval(it.min,it.max,1)
+            projection.addInterval(it.min, it.max, 1)
         }
-        track2.coordinateList.each{
-            projection.addInterval(it.min,it.max,1)
+        track2.coordinateList.each {
+            projection.addInterval(it.min, it.max, 1)
         }
 
         then: "we should get the same outcome"
-        projection.minMap.size()==2
-        projection.maxMap.size()==2
-        assert projection.minMap.values().iterator().next().max==5
-        assert projection.minMap.values().iterator().next().min==0
-        assert projection.minMap.values().iterator().reverse().next().max==11
-        assert projection.minMap.values().iterator().reverse().next().min==6
+        projection.minMap.size() == 2
+        projection.maxMap.size() == 2
+        assert projection.minMap.values().iterator().next().max == 5
+        assert projection.minMap.values().iterator().next().min == 0
+        assert projection.minMap.values().iterator().reverse().next().max == 11
+        assert projection.minMap.values().iterator().reverse().next().min == 6
+
+    }
+
+    /**
+     * 694694	694915		1	221
+     694959	695222	44	2	263
+     695185	695546	-37	2	361
+     695511	695782	-35	2	271
+     695745	696068	-37	2	323
+     696071	696395	3	3	324
+     696559	697320	164	3	761
+     697283	697566	-37	3	283
+     696108	696395	-1458	3	287
+     */
+    void "Group 10.19 overlaps should produce a non-overlapping map"() {
+        given: "a set of overlapping coordinates"
+        DiscontinuousProjection projection = new DiscontinuousProjection()
+
+        when: "we add the overlapping coordinates"
+        projection.addInterval(694694, 694915)
+        projection.addInterval(694959, 695222)
+
+        then: "we should have 1"
+        assert  projection.size()==2
+
+        when: "we add some more overlapping ones"
+        projection.addInterval(695185, 695546)
+        projection.addInterval(695511, 695782)
+        projection.addInterval(695745, 696068)
+        projection.addInterval(696071, 696395)
+        projection.addInterval(696559, 697320)
+
+        then: "there should be 4 projections"
+        assert  projection.size()==4
+
+        when: "we add one more"
+        projection.addInterval(697283, 697566)
+
+
+        then: "4 again"
+        assert  projection.size()==4
+
+        when: "we add the last one"
+        projection.addInterval(696108, 696395)
+
+        then: "there should just be the 3"
+        assert  projection.size()==3
+
 
     }
 
