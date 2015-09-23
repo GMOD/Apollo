@@ -1389,6 +1389,37 @@ var draggableTrack = declare( [HTMLFeatureTrack,FeatureDetailMixin],
             }
         });
     },
+    _trackMenuOptions: function () {
+        var thisB = this;
+        var browser = this.browser;
+        var clabel = this.name + "-collapsed";
+        var options = this.inherited(arguments) || [];
+        //options = this.webapollo.removeItemWithLabel(options, "Pin to top");
+        //options = this.webapollo.removeItemWithLabel(options, "Delete track");
+
+        options.push({
+            label: "Collapsed view",
+            title: "Collapsed view",
+            type: 'dijit/CheckedMenuItem',
+            checked: !!('collapsedMode' in thisB ? thisB.collapsedMode : browser.cookie(clabel) == "true"),
+            onClick: function (event) {
+                thisB.collapsedMode = this.get("checked");
+                browser.cookie(clabel, this.get("checked") ? "true" : "false");
+                var temp = thisB.showLabels;
+                if (this.get("checked")) {
+                    thisB.showLabels = false;
+                }
+                else if (thisB.previouslyShowLabels) {
+                    thisB.showLabels = true;
+                }
+                thisB.previouslyShowLabels = temp;
+                delete thisB.trackMenu;
+                thisB.makeTrackMenu();
+                thisB.redraw();
+            }
+        });
+        return options;
+    },
     updateFeatureLabelPositions: function( coords ) {
         var showLabels=this.webapollo._showLabels;
         if( ! 'x' in coords )
