@@ -100,10 +100,10 @@ public class DiscontinuousProjection extends AbstractProjection {
 
     private Coordinate addCoordinate(int min, int max) {
         Coordinate coordinate = new Coordinate(min: min, max: max)
-        if(minMap.containsKey(min)&& !maxMap.containsKey(max)){
+        if (minMap.containsKey(min) && !maxMap.containsKey(max)) {
             throw new RuntimeException("minKey is dupe and should be replaced ${min}::${max}")
         }
-        if(!minMap.containsKey(min)&& maxMap.containsKey(max)){
+        if (!minMap.containsKey(min) && maxMap.containsKey(max)) {
             throw new RuntimeException("maxKey is dupe and should be replaced ${min}::${max}")
         }
         minMap.put(min, coordinate)
@@ -179,7 +179,7 @@ public class DiscontinuousProjection extends AbstractProjection {
         } else
         // empty ceil / RHS side
         if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord == null && ceilMaxCoord == null) {
-            assert ceilMinCoord == ceilMaxCoord
+            assert floorMinCoord == floorMaxCoord
             if (min > floorMaxCoord.max) {
                 return addCoordinate(min, max)
             }
@@ -211,6 +211,14 @@ public class DiscontinuousProjection extends AbstractProjection {
             }
             return replaceCoordinate(floorMaxCoord, floorMaxCoord.min, max)
         }
+        // if we are at the right edge
+        if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord == null && ceilMaxCoord != null && ceilMaxCoord == floorMinCoord) {
+            if (min > floorMinCoord.min && max < ceilMaxCoord.max) {
+                return null
+            }
+            println("Not sure what to do with this")
+            return null
+        }
         // overlapping without?
         if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord != null && ceilMaxCoord != null) {
             // this overlaps on both sides
@@ -239,13 +247,11 @@ public class DiscontinuousProjection extends AbstractProjection {
                     int newMax = max < ceilMaxCoord.min ? max : ceilMaxCoord.max
                     return replaceCoordinate(floorMinCoord, newMin, newMax)
                 }
-            }
-            else if (floorMinCoord != floorMaxCoord && ceilMinCoord == ceilMaxCoord) {
+            } else if (floorMinCoord != floorMaxCoord && ceilMinCoord == ceilMaxCoord) {
                 return replaceCoordinate(floorMinCoord, Math.min(min, floorMinCoord.min), Math.max(max, ceilMaxCoord.max))
             }
             // if we have coordinates on either side
-            else
-            if (floorMinCoord == floorMaxCoord && ceilMinCoord == ceilMaxCoord && ceilMinCoord != floorMinCoord) {
+            else if (floorMinCoord == floorMaxCoord && ceilMinCoord == ceilMaxCoord && ceilMinCoord != floorMinCoord) {
                 // in-between all, so just add
                 if (min > floorMaxKey && max < ceilMinKey) {
                     return addCoordinate(min, max)
@@ -257,6 +263,10 @@ public class DiscontinuousProjection extends AbstractProjection {
                 // putting on the RHS
                 else if (min < floorMaxCoord.max && max < ceilMaxCoord.min) {
                     return replaceCoordinate(floorMinCoord, floorMinCoord.min, max)
+                }
+                // bridging two intervals
+                else if (min > floorMinCoord.min && max < ceilMaxCoord.max && min < ceilMaxCoord.min && max > floorMinCoord.max) {
+                    return replaceCoordinate(floorMinCoord, floorMinCoord.min, ceilMaxCoord.max)
                 } else {
                     int newMin = min > floorMinCoord.max ? floorMinCoord.min : min
                     int newMax = max < ceilMaxCoord.min ? max : ceilMaxCoord.max
@@ -264,7 +274,7 @@ public class DiscontinuousProjection extends AbstractProjection {
                 }
             }
             // sitting on the right edge, internal
-            else if (floorMinCoord == floorMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord==ceilMaxCoord) {
+            else if (floorMinCoord == floorMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord == ceilMaxCoord) {
                 return null
             }
             // in the case they are in-between an existing scaffold
