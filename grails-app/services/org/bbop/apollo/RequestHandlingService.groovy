@@ -1513,6 +1513,7 @@ class RequestHandlingService {
         User user = permissionService.getCurrentUser(inputObject)
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        featuresArray = projectionService.projectFeatures(sequence,"",featuresArray,true)
         JSONObject returnObject = createJSONFeatureContainer()
 
         boolean suppressHistory = false
@@ -1576,6 +1577,10 @@ class RequestHandlingService {
                 returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
             }
         }
+
+
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",returnObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        returnObject.put(FeatureStringEnum.FEATURES.value,returnArray)
 
         if (!suppressEvents) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
