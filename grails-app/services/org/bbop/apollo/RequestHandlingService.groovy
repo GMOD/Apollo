@@ -1807,7 +1807,9 @@ class RequestHandlingService {
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         // TODO: project fmin only
-//        featuresArray = projectionService.projectFeatures(sequence,"",featuresArray,true)
+        println "making intron ${featuresArray as JSON}"
+        featuresArray = projectionService.projectFeatures(sequence,"",featuresArray,true)
+        println "converted -> ${featuresArray}"
 
         JSONObject jsonExon = featuresArray.getJSONObject(0)
         Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value))
@@ -1840,8 +1842,8 @@ class RequestHandlingService {
 
         featureEventService.addNewFeatureEvent(FeatureOperation.SPLIT_EXON, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonTranscript, newJsonObject, permissionService.getCurrentUser(inputObject))
 
-//        JSONArray returnArray = projectionService.projectFeatures(sequence,"",featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
-//        featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer

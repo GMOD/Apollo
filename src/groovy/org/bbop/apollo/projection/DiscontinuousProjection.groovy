@@ -150,7 +150,7 @@ public class DiscontinuousProjection extends AbstractProjection {
             max += padding
         }
         min = min < 0 ? 0 : min
-        println "${min},${max}"
+//        println "${min},${max}"
 //        max = max > length ? length: max
         assert max >= min
 

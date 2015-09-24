@@ -325,23 +325,21 @@ class ProjectionService {
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
         println "loaction object ${locationObject as JSON}"
         Integer fmin = locationObject.getInt(FeatureStringEnum.FMIN.value)
-        Integer fmax = locationObject.getInt(FeatureStringEnum.FMAX.value)
-        Coordinate projectedCoordinate = reverseProjection ? projection.projectReverseCoordinate(fmin,fmax) : projection.projectCoordinate(fmin,fmax)
+        Integer fmax = locationObject.has(FeatureStringEnum.FMAX.value) ? locationObject.getInt(FeatureStringEnum.FMAX.value) : null
         println "old values ${fmin}-${fmax}"
         if(reverseProjection){
             fmin = projection.projectReverseValue(fmin)
-            fmax = projection.projectReverseValue(fmax)
+            fmax = fmax ? projection.projectReverseValue(fmax) : null
         }
         else{
             fmin = projection.projectValue(fmin)
-            fmax = projection.projectValue(fmax)
+            fmax = fmax ? projection.projectValue(fmax) : null
         }
         println "new values ${fmin}-${fmax}"
-        println "projected coordainte ${projectedCoordinate}"
-//        locationObject.put(FeatureStringEnum.FMIN.value,projectedCoordinate.min)
-//        locationObject.put(FeatureStringEnum.FMAX.value,projectedCoordinate.max)
         locationObject.put(FeatureStringEnum.FMIN.value,fmin)
-        locationObject.put(FeatureStringEnum.FMAX.value,fmax)
+        if(fmax){
+            locationObject.put(FeatureStringEnum.FMAX.value,fmax)
+        }
         return inputFeature
     }
 }
