@@ -323,7 +323,7 @@ class ProjectionService {
     @NotTransactional
     JSONObject projectFeature(JSONObject inputFeature,DiscontinuousProjection projection,Boolean reverseProjection) {
         if(!inputFeature.has(FeatureStringEnum.LOCATION.value)) return inputFeature
-        
+
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
         println "loaction object ${locationObject as JSON}"
         Integer fmin = locationObject.has(FeatureStringEnum.FMIN.value) ? locationObject.getInt(FeatureStringEnum.FMIN.value) : null

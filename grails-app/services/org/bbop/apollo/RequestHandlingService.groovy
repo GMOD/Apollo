@@ -1458,6 +1458,8 @@ class RequestHandlingService {
 
         featureEventService.addNewFeatureEvent(FeatureOperation.MERGE_EXONS, transcriptService.getGene(transcript1).name, transcript1.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
 
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
@@ -2044,6 +2046,9 @@ class RequestHandlingService {
                     , permissionService.getCurrentUser(inputObject)
             )
         }
+//
+//        JSONArray returnArray = projectionService.projectFeatures(sequence,"",updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+//        updateContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         AnnotationEvent updateAnnotationEvent = new AnnotationEvent(
                 features: updateContainer
@@ -2118,6 +2123,12 @@ class RequestHandlingService {
         }
 
         deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(transcript2JSONObject);
+
+        JSONArray returnDeleteArray = projectionService.projectFeatures(sequence,"",deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        deleteFeatureContainer.put(FeatureStringEnum.FEATURES.value, returnDeleteArray)
+
+        JSONArray returnUpdateArray = projectionService.projectFeatures(sequence,"",updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, returnUpdateArray)
 
         AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
                 features: deleteFeatureContainer
