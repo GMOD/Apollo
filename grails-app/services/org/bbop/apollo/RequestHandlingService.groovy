@@ -853,6 +853,8 @@ class RequestHandlingService {
         }
 
 
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -898,7 +900,8 @@ class RequestHandlingService {
             featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
         }
 
-
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
