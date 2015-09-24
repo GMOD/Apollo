@@ -2003,6 +2003,10 @@ class RequestHandlingService {
             }
         }
 
+        // TODO: there is a bad mapping somewhere
+//        JSONArray returnArray = projectionService.projectFeatures(sequence,"",updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+//        updateContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
+
         // now we add history for each of the transcripts . . . it is history of 1 + 2
         Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value) ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value) : false
         if (!suppressHistory) {
