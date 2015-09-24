@@ -20,6 +20,7 @@ class FeatureEventService {
     def permissionService
     def featureService
     def requestHandlingService
+    def projectionService
 
     /**
      *
@@ -503,9 +504,13 @@ class FeatureEventService {
 //                }
                     log.debug "original command object = ${originalCommandObject as JSON}"
                     log.debug "final command object = ${addCommandObject as JSON}"
+                    JSONArray returnArray = projectionService.projectFeatures(sequence,"",addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+                    addCommandObject.put(FeatureStringEnum.FEATURES.value, returnArray)
 
                     returnObject = requestHandlingService.addTranscript(addCommandObject)
                 } else {
+                    JSONArray returnArray = projectionService.projectFeatures(sequence,"",addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+                    addCommandObject.put(FeatureStringEnum.FEATURES.value, returnArray)
                     returnObject = requestHandlingService.addFeature(addCommandObject)
                 }
 
