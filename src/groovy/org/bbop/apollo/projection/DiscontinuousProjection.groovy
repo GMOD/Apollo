@@ -150,7 +150,7 @@ public class DiscontinuousProjection extends AbstractProjection {
             max += padding
         }
         min = min < 0 ? 0 : min
-//        println "${min},${max}"
+        println "${min},${max}"
 //        max = max > length ? length: max
         assert max >= min
 
@@ -203,7 +203,7 @@ public class DiscontinuousProjection extends AbstractProjection {
         if (floorMinCoord != null && ceilMinCoord != null && floorMaxCoord != null && ceilMaxCoord == null) {
             if(floorMinCoord==floorMaxCoord && floorMaxCoord == ceilMinCoord){
                 if(max > floorMaxCoord.max){
-                    replaceCoordinate(floorMinCoord,floorMinCoord.min,max)
+                    return replaceCoordinate(floorMinCoord,floorMinCoord.min,max)
                 }
                 println "not sure how to handle this piece "
             }
@@ -215,8 +215,10 @@ public class DiscontinuousProjection extends AbstractProjection {
                if(min < floorMaxCoord.min) {
                    return replaceCoordinate(floorMaxCoord,min,floorMaxCoord.max)
                }
+                println "not sure how we got here"
                return null
             }
+            println "or here either"
             return null
         }
         // if we are at the right edge
@@ -228,7 +230,7 @@ public class DiscontinuousProjection extends AbstractProjection {
         }
         // if we are at the right edge
         if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord == null && ceilMaxCoord != null && ceilMaxCoord == floorMinCoord) {
-            if (min > floorMinCoord.min && max < ceilMaxCoord.max) {
+            if (min >= floorMinCoord.min && max <= ceilMaxCoord.max) {
                 return null
             }
             println("Not sure what to do with this")
