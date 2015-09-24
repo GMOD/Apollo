@@ -324,19 +324,21 @@ class ProjectionService {
     JSONObject projectFeature(JSONObject inputFeature,DiscontinuousProjection projection,Boolean reverseProjection) {
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
         println "loaction object ${locationObject as JSON}"
-        Integer fmin = locationObject.getInt(FeatureStringEnum.FMIN.value)
+        Integer fmin = locationObject.has(FeatureStringEnum.FMIN.value) ? locationObject.getInt(FeatureStringEnum.FMIN.value) : null
         Integer fmax = locationObject.has(FeatureStringEnum.FMAX.value) ? locationObject.getInt(FeatureStringEnum.FMAX.value) : null
         println "old values ${fmin}-${fmax}"
         if(reverseProjection){
-            fmin = projection.projectReverseValue(fmin)
+            fmin = fmin ? projection.projectReverseValue(fmin) : null
             fmax = fmax ? projection.projectReverseValue(fmax) : null
         }
         else{
-            fmin = projection.projectValue(fmin)
+            fmin = fmin ? projection.projectValue(fmin) : null
             fmax = fmax ? projection.projectValue(fmax) : null
         }
         println "new values ${fmin}-${fmax}"
-        locationObject.put(FeatureStringEnum.FMIN.value,fmin)
+        if(fmin){
+            locationObject.put(FeatureStringEnum.FMIN.value,fmin)
+        }
         if(fmax){
             locationObject.put(FeatureStringEnum.FMAX.value,fmax)
         }

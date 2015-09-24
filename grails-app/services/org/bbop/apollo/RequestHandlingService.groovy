@@ -699,10 +699,12 @@ class RequestHandlingService {
     @Timed
     JSONObject setTranslationStart(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        features = projectionService.projectFeatures(sequence,"",features,true)
+
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         boolean setStart = transcriptJSONObject.has(FeatureStringEnum.LOCATION.value);
         if (!setStart) {
@@ -720,6 +722,9 @@ class RequestHandlingService {
 
         featureEventService.addNewFeatureEvent(setStart ? FeatureOperation.SET_TRANSLATION_START : FeatureOperation.UNSET_TRANSLATION_START, gene.name, transcript.uniqueName, inputObject, transcriptJSONObject, newJSONObject, permissionService.getCurrentUser(inputObject))
         JSONObject featureContainer = createJSONFeatureContainer(newJSONObject);
+
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -739,11 +744,13 @@ class RequestHandlingService {
      */
     @Timed
     JSONObject setTranslationEnd(JSONObject inputObject) {
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        features = projectionService.projectFeatures(sequence,"",features,true)
+
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         boolean setEnd = transcriptJSONObject.has(FeatureStringEnum.LOCATION.value);
         if (!setEnd) {
@@ -762,6 +769,8 @@ class RequestHandlingService {
         featureEventService.addNewFeatureEvent(setEnd ? FeatureOperation.SET_TRANSLATION_END : FeatureOperation.UNSET_TRANSLATION_END, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, transcriptJSONObject, newJSONObject, permissionService.getCurrentUser(inputObject))
         JSONObject featureContainer = createJSONFeatureContainer(newJSONObject);
 
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -791,6 +800,14 @@ class RequestHandlingService {
 
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
 
+        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
+        featureEventService.addNewFeatureEvent(readThroughStopCodon ? FeatureOperation.SET_READTHROUGH_STOP_CODON : FeatureOperation.UNSET_READTHROUGH_STOP_CODON, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
+
+        JSONObject returnObject = createJSONFeatureContainer(newJsonObject);
+
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
+
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: featureContainer
@@ -799,10 +816,6 @@ class RequestHandlingService {
             )
             fireAnnotationEvent(annotationEvent)
         }
-        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
-        featureEventService.addNewFeatureEvent(readThroughStopCodon ? FeatureOperation.SET_READTHROUGH_STOP_CODON : FeatureOperation.UNSET_READTHROUGH_STOP_CODON, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
-
-        JSONObject returnObject = createJSONFeatureContainer(newJsonObject);
 
         return returnObject
     }
