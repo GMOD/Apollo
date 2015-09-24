@@ -929,6 +929,9 @@ class RequestHandlingService {
 
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
 
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
+
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: featureContainer
