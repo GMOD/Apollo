@@ -932,9 +932,9 @@ class RequestHandlingService {
      */
     @Timed
     JSONObject setExonBoundaries(JSONObject inputObject) {
-        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        features = projectionService.projectFeatures(sequence,"",features,true)
 
         JSONObject returnObject = createJSONFeatureContainer()
 
@@ -982,8 +982,10 @@ class RequestHandlingService {
             JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
             featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldTranscriptJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
-
         }
+
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",returnObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        returnObject.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: returnObject
@@ -999,9 +1001,9 @@ class RequestHandlingService {
 
     @Timed
     JSONObject setBoundaries(JSONObject inputObject) {
-        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        features = projectionService.projectFeatures(sequence,"",features,true)
 
         JSONObject returnObject = createJSONFeatureContainerFromFeatures()
 
@@ -1028,6 +1030,9 @@ class RequestHandlingService {
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonFeature);
             featureEventService.addNewFeatureEvent(FeatureOperation.SET_BOUNDARIES, feature.name, feature.uniqueName, inputObject, oldJsonFeature, newJsonFeature, permissionService.getCurrentUser(inputObject))
         }
+        
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",returnObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        returnObject.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: returnObject
