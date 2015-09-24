@@ -1985,6 +1985,10 @@ class RequestHandlingService {
                     addTranscriptFeaturesArray = new JSONArray()
                     addTranscriptFeaturesArray.add(featureService.convertFeatureToJSON(t))
                     addTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addTranscriptFeaturesArray)
+
+                    JSONArray returnArray = projectionService.projectFeatures(sequence,"",addTranscriptJSONObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+                    addTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, returnArray)
+
                     addTranscriptJSONObject.put("track", inputObject.track)
                     addTranscript(addTranscriptJSONObject)
                 }
@@ -1993,6 +1997,8 @@ class RequestHandlingService {
             addSplitTranscriptJSONObject = permissionService.copyUserName(inputObject, addSplitTranscriptJSONObject)
 
             // has to be added separately, which is what we wan to see
+            JSONArray splitArray = projectionService.projectFeatures(sequence,"",addSplitTranscriptJSONObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+            addSplitTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, splitArray)
             JSONObject returnAddTranscriptObject = addTranscript(addSplitTranscriptJSONObject).getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
 
             // we could suppress the history, but that screws up the naming . . . .
@@ -2035,9 +2041,6 @@ class RequestHandlingService {
             }
         }
 
-        // TODO: there is a bad mapping somewhere
-//        JSONArray returnArray = projectionService.projectFeatures(sequence,"",updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
-//        updateContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         // now we add history for each of the transcripts . . . it is history of 1 + 2
         Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value) ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value) : false
@@ -2051,8 +2054,11 @@ class RequestHandlingService {
             )
         }
 //
-//        JSONArray returnArray = projectionService.projectFeatures(sequence,"",updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
-//        updateContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
+        JSONArray updateArray = projectionService.projectFeatures(sequence,"",updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        updateContainer.put(FeatureStringEnum.FEATURES.value, updateArray)
+
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",returnContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        returnContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         AnnotationEvent updateAnnotationEvent = new AnnotationEvent(
                 features: updateContainer
