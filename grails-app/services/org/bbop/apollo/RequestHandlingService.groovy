@@ -578,6 +578,10 @@ class RequestHandlingService {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
+        features = projectionService.projectFeatures(sequence,"",features,true)
+
+        println "adding exon! ${features}"
+
         String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value);
         Transcript transcript = Transcript.findByUniqueName(uniqueName)
         JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript)
@@ -616,6 +620,9 @@ class RequestHandlingService {
         Gene gene = transcriptService.getGene(transcript)
 
         featureEventService.addNewFeatureEvent(FeatureOperation.ADD_EXON, gene.name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
+
+        JSONArray returnArray = projectionService.projectFeatures(sequence,"",returnObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        returnObject.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: returnObject
