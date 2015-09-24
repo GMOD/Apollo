@@ -1374,6 +1374,7 @@ class RequestHandlingService {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+//        features = projectionService.projectFeatures(sequence,"",features,true)
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
@@ -1390,6 +1391,8 @@ class RequestHandlingService {
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
         }
 
+        JSONArray jsonArray = projectionService.projectFeatures(sequence,"",featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+        featureContainer.put(FeatureStringEnum.FEATURES.value,jsonArray)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
