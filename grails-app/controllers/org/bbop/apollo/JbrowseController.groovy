@@ -6,6 +6,8 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousChunkProjector
 import org.bbop.apollo.projection.DiscontinuousProjection
+import org.bbop.apollo.projection.Location
+import org.bbop.apollo.projection.ProjectionDescription
 import org.bbop.apollo.projection.ProjectionInterface
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -534,8 +536,22 @@ class JbrowseController {
 
         Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
 //        projectionService.createTranscriptProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),50)
-        projectionService.createExonLevelProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),50)
 
+        // this comes from the
+        if(false){
+            ProjectionDescription projectionDescription = new ProjectionDescription()
+            projectionDescription.padding = 50
+            projectionDescription.featureNames = ["ALL"]
+            projectionDescription.referenceTracks = ["OGS-track"] // TODO: get the proper name from the UI
+            projectionDescription.type = "EXON"
+//        projectionDescription.sequenceList
+//        projectionService.getMultiSequenceProjection(projectionDescription)
+            List<Location> locationList = projectionService.extractExonLocations(currentOrganism,jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value))
+            projectionService.createMultiSequenceProjection(projectionDescription,locationList)
+        }
+        else{
+            projectionService.createExonLevelProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),50)
+        }
 
 
         if (currentOrganism != null) {

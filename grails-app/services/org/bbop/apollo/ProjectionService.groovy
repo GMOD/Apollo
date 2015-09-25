@@ -210,16 +210,6 @@ class ProjectionService {
         println "total time ${System.currentTimeMillis() - startTime}"
     }
 
-    /**
-     * Creates a
-     * @param locations   loc.min, loc.max, loc.seq
-     * @param sequenceOrder  seq.ord
-     */
-    MultiSequenceProjection createProjection(List<Location> locationList,ProjectionDescription descriptionObject){
-        // TODO: implmenent
-    }
-
-
 
     def processHighLevelArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate,Integer padding) {
 //                        // TODO: use enums to better track format
@@ -402,5 +392,160 @@ class ProjectionService {
 
 //        Map<ProjectionDescription, Map<ProjectionSequence,MultiSequenceProjection>> multiSequenceProjectionMap = new HashMap<>()
         multiSequenceProjectionMap.put(description,sequenceMap)
+    }
+
+    List<Location> extractHighLevelArrayLocations(DiscontinuousProjection discontinuousProjection , JSONArray coordinate,ProjectionDescription projectionDescription){
+//                        // TODO: use enums to better track format
+        int classType = coordinate.getInt(0)
+        log.debug "processing high level array  ${coordinate as JSON}"
+        String featureType
+        switch (classType) {
+            case 0:
+                featureType = coordinate.getString(9)
+                // process array in 10
+                extractExonArray(discontinuousProjection, coordinate.getJSONArray(10),projectionDescription.padding)
+                // process sublist if 11 exists
+                break
+            case 1:
+                featureType = coordinate.getString(7)
+                println "1 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
+                // no subarrays
+                break
+            case 2:
+            case 3:
+                featureType = coordinate.getString(6)
+                println "2/3 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
+                // process array in 10
+                // process sublist if 11 exists
+                break
+            case 4:
+                println "not sure how to handle case 4 ${coordinate as JSON}"
+                // ignore .  . . not an exon
+                break
+        }
+
+    }
+
+    List<Location> extractExonArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, ProjectionDescription projectionDescription) {
+        List<Location> locationList = new ArrayList<>()
+        log.debug "processing exon array ${coordinate as  JSON}"
+        def classType = coordinate.get(0)
+
+        // then we assume that the rest are arrays if the first are . . and process them accordingly
+        if(classType instanceof JSONArray){
+            for(int i = 0 ; i < coordinate.size() ; i++){
+                log.debug "subarray ${coordinate.get(i) as JSON}"
+                extractExonArray(discontinuousProjection,coordinate.getJSONArray(i),projectionDescription)
+            }
+            return
+        }
+        else{
+            // integer
+            classType = coordinate.getInt(0)
+        }
+        String featureType
+        switch (classType) {
+            case 0:
+                log.debug "not sure if this will work . . check! ${coordinate.size()} > 9"
+                featureType = coordinate.getString(9)
+                if (coordinate.size() >= 10) {
+                    extractExonArray(discontinuousProjection, coordinate.getJSONArray(10),projectionDescription)
+                }
+                if (coordinate.size() >= 11) {
+                    JSONObject sublist = coordinate.getJSONObject(11)
+                    extractHighLevelArrayLocations(discontinuousProjection, sublist.getJSONArray("Sublist"),projectionDescription)
+                }
+                break
+            case 1:
+            case 2:
+                featureType = coordinate.getString(7)
+                break
+            case 3:
+                featureType = coordinate.getString(6)
+                break
+            case 4:
+                println "not sure how to handle case 4 ${coordinate as JSON}"
+                break
+        }
+
+        // TODO: or repeat region?
+        if (featureType && featureType == "exon") {
+            discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2),projectionDescription.padding)
+        }
+
+        return  locationList
+    }
+
+    List<Location> extractExonLocations(Organism organism,JSONArray tracksArray,ProjectionDescription projectionDescription) {
+        List<Location> locationList = new ArrayList<>()
+
+        // TODO: this is only here for debugging . .
+//        projectionMap.clear()
+        long startTime = System.currentTimeMillis()
+        for (int i = 0; i < tracksArray.size(); i++) {
+            JSONObject trackObject = tracksArray.getJSONObject(i)
+            if (trackObject.containsKey("OGS") && trackObject.getBoolean("OGS") && !projectionMap.containsKey(trackObject.key)) {
+                println "tring to generate projection for ${trackObject.key}"
+                String jbrowseDirectory = organism.directory + "/tracks/" + trackObject.key
+                File trackDirectory = new File(jbrowseDirectory)
+                println "track directory ${trackDirectory.absolutePath}"
+
+                File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
+
+                println "# of files ${files.length}"
+
+                Map<String, ProjectionInterface> sequenceProjectionMap = new HashMap<>()
+
+                for (File trackDataFile in files) {
+//                    String sequenceFileName = trackDataFile.absolutePath.substring(trackDirectory.absolutePath.length(),trackDataFile.absolutePath.length()-"trackData.json".length()).replaceAll("/","")
+                    String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
+
+                    JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
+                    if(sequenceFileName.contains("1.10")){
+                        println "traying to create a sequence for ${sequenceFileName} "
+                    }
+
+                    // TODO: interpret the format properly
+                    DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
+                    JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+                    for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
+
+                        // TODO: this needs to be recursive
+                        JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
+
+                        if (coordinate.getInt(0) == 4) {
+                            // projecess the file lf-${coordIndex} instead
+                            File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
+                            JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
+
+                            for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
+                                JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
+                                locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection,chunkArrayCoordinate,projectionDescription.padding))
+//                                processHighLevelArray(discontinuousProjection, chunkArrayCoordinate,padding)
+                            }
+
+                        } else {
+                            locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection,coordinate,projectionDescription.padding))
+//                            processHighLevelArray(discontinuousProjection, coordinate,padding)
+                        }
+                    }
+
+//                    println "# of entries: ${discontinuousProjection.minMap.size()}"
+
+                    if(sequenceFileName.contains("1.10")){
+                        println "putting map ${sequenceFileName} into ${discontinuousProjection.size()}"
+                    }
+                    sequenceProjectionMap.put(sequenceFileName, discontinuousProjection)
+                }
+
+                println "final size: ${trackObject.key} -> ${sequenceProjectionMap.size()}"
+
+                projectionMap.put(trackObject.key, sequenceProjectionMap)
+            }
+        }
+        println "total time ${System.currentTimeMillis() - startTime}"
+
+
+        return locationList
     }
 }
