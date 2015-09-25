@@ -7,6 +7,8 @@ class Coordinate implements Comparable<Coordinate>{
 
     Integer min
     Integer max
+//    String sequence
+//    String organism
 
 
     @Override
@@ -40,6 +42,8 @@ class Coordinate implements Comparable<Coordinate>{
         return "Coordinate{" +
                 "min=" + min +
                 ", max=" + max +
+//                sequence ? ", sequence=" + sequence : "" +
+//                organism ? ", organism=" + organism : "" +
                 '}';
     }
 

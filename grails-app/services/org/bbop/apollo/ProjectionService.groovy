@@ -9,6 +9,9 @@ import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousProjection
+import org.bbop.apollo.projection.Location
+import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionDescription
 import org.bbop.apollo.projection.ProjectionInterface
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -202,6 +205,17 @@ class ProjectionService {
         }
         println "total time ${System.currentTimeMillis() - startTime}"
     }
+
+    /**
+     * Creates a
+     * @param locations   loc.min, loc.max, loc.seq
+     * @param sequenceOrder  seq.ord
+     */
+    MultiSequenceProjection createProjection(List<Location> locationList,ProjectionDescription descriptionObject){
+        // TODO: implmenent
+    }
+
+
 
     def processHighLevelArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate,Integer padding) {
 //                        // TODO: use enums to better track format
