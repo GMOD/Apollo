@@ -278,6 +278,9 @@ apollo {
         //['name':'GenSas2','link':'http://localhost/gensas2']
     ]
 
+    useMultiSequence = false
+//    useMultiSequence = true
+
     // comment out if you don't want this to be reported
     google_analytics = "UA-62921593-1"
 
@@ -289,5 +292,5 @@ auditLog {
     disabled = true
     //verbose = true // verbosely log all changed values to db
     logIds = true  // log db-ids of associated objects.
-
 }
+
