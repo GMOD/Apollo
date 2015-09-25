@@ -13,6 +13,7 @@ import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionDescription
 import org.bbop.apollo.projection.ProjectionInterface
+import org.bbop.apollo.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -24,6 +25,9 @@ class ProjectionService {
     // TODO: should also include organism at some point as well
     // TODO: just turn this into a cache file
     private Map<String, Map<String, ProjectionInterface>> projectionMap = new HashMap<>()
+
+    // description is how the projection was created
+    private Map<ProjectionDescription, Map<ProjectionSequence,MultiSequenceProjection>> multiSequenceProjectionMap = new HashMap<>()
 
     // TODO: should do an actual lookup / query in cache and DB
     @NotTransactional
@@ -359,5 +363,42 @@ class ProjectionService {
             locationObject.put(FeatureStringEnum.FMAX.value,fmax)
         }
         return inputFeature
+    }
+
+    @NotTransactional
+    MultiSequenceProjection getMultiSequenceProjection(ProjectionDescription description,ProjectionSequence projectionSequence ){
+        Map<ProjectionSequence,MultiSequenceProjection> projectionSequenceMap = multiSequenceProjectionMap.get(description)
+        if(!projectionSequenceMap) return null
+        MultiSequenceProjection multiSequenceProjection = projectionSequenceMap.get(projectionSequence)
+        return multiSequenceProjection
+    }
+
+
+    @NotTransactional
+    void createMultiSequenceProjection(ProjectionDescription description,List<Location> locationList){
+        TreeMap<ProjectionSequence,MultiSequenceProjection> sequenceMap= new TreeMap<>()
+
+        // if a projection only has a set of sequences . . .
+        List<ProjectionSequence> sequenceList = description.sequenceList
+        Boolean projectAll = sequenceList.size()==1 && sequenceList.iterator().next().name=="ALL"
+        // put only allowed sequences if restricted!
+        if(!projectAll){
+            sequenceList.each { sequenceMap.put(it,null) }
+        }
+
+        locationList.each { location ->
+            ProjectionSequence sequence = location.sequence
+            // only process allowed
+            if(!projectAll && !sequenceMap.containsKey(sequence)){ return }
+
+            MultiSequenceProjection multiSequenceProjection = sequenceMap.get(sequence)
+            if(multiSequenceProjection) multiSequenceProjection = new MultiSequenceProjection()
+
+
+            multiSequenceProjection.addLocation(location)
+        }
+
+//        Map<ProjectionDescription, Map<ProjectionSequence,MultiSequenceProjection>> multiSequenceProjectionMap = new HashMap<>()
+        multiSequenceProjectionMap.put(description,sequenceMap)
     }
 }

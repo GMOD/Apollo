@@ -8,5 +8,5 @@ class Location {
 
     Integer min
     Integer max
-    String sequence  // this might need to be the ID
+    ProjectionSequence sequence
 }

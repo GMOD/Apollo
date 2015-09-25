@@ -31,6 +31,15 @@ interface ProjectionInterface {
     Coordinate projectReverseCoordinate(int min, int max)
     Integer getLength()
 
+    /**
+     * This method projects a continuous sequence
+     *
+     * @param inputSequence
+     * @param minCoordinate
+     * @param maxCoordinate
+     * @param offset
+     * @return
+     */
     String projectSequence(String inputSequence,Integer minCoordinate,Integer maxCoordinate,Integer offset)
 
     Integer clear() // remove coordinates
