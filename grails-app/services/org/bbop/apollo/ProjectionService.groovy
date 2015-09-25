@@ -3,11 +3,11 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import groovy.transform.CompileStatic
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
 import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
@@ -388,7 +388,7 @@ class ProjectionService {
 
         // if a projection only has a set of sequences . . .
         List<ProjectionSequence> sequenceList = description.sequenceList
-        Boolean projectAll = sequenceList.size() == 1 && sequenceList.iterator().next().name == "ALL"
+        Boolean projectAll = sequenceList ? false : true
         // put only allowed sequences if restricted!
         if (!projectAll) {
             sequenceList.each { sequenceMap.put(it, null) }
@@ -423,7 +423,8 @@ class ProjectionService {
             case 0:
                 featureType = coordinate.getString(9)
                 // process array in 10
-                extractExonArray(discontinuousProjection, coordinate.getJSONArray(10), projectionDescription.padding)
+                List<Location> localExonArray = extractExonArray(discontinuousProjection, coordinate.getJSONArray(10), projectionDescription)
+                return localExonArray
                 // process sublist if 11 exists
                 break
             case 1:
@@ -444,6 +445,8 @@ class ProjectionService {
                 break
         }
 
+        return new ArrayList<Location>()
+
     }
 
     List<Location> extractExonArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, ProjectionDescription projectionDescription) {
@@ -455,9 +458,9 @@ class ProjectionService {
         if (classType instanceof JSONArray) {
             for (int i = 0; i < coordinate.size(); i++) {
                 log.debug "subarray ${coordinate.get(i) as JSON}"
-                extractExonArray(discontinuousProjection, coordinate.getJSONArray(i), projectionDescription)
+                locationList.addAll(extractExonArray(discontinuousProjection, coordinate.getJSONArray(i), projectionDescription))
             }
-            return
+            return locationList
         } else {
             // integer
             classType = coordinate.getInt(0)
@@ -468,11 +471,11 @@ class ProjectionService {
                 log.debug "not sure if this will work . . check! ${coordinate.size()} > 9"
                 featureType = coordinate.getString(9)
                 if (coordinate.size() >= 10) {
-                    extractExonArray(discontinuousProjection, coordinate.getJSONArray(10), projectionDescription)
+                    locationList.addAll(extractExonArray(discontinuousProjection, coordinate.getJSONArray(10), projectionDescription))
                 }
                 if (coordinate.size() >= 11) {
                     JSONObject sublist = coordinate.getJSONObject(11)
-                    extractHighLevelArrayLocations(discontinuousProjection, sublist.getJSONArray("Sublist"), projectionDescription)
+                    locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection, sublist.getJSONArray("Sublist"), projectionDescription))
                 }
                 break
             case 1:
@@ -489,7 +492,18 @@ class ProjectionService {
 
         // TODO: or repeat region?
         if (featureType && featureType == "exon") {
-            discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2), projectionDescription.padding)
+//            discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2), projectionDescription.padding)
+            ProjectionSequence projectionSequence1 = new ProjectionSequence(
+                    // tODO: add relevant sequence stuff, etc.
+            )
+            locationList.add(
+                    new Location(
+                            min: coordinate.getInt(1) - projectionDescription.padding
+                            , max: coordinate.getInt(2) + projectionDescription.padding
+                            , sequence: projectionSequence1
+                    )
+            )
+//                    coordinate.getInt(1), coordinate.getInt(2), projectionDescription.padding)
         }
 
         return locationList
@@ -539,12 +553,13 @@ class ProjectionService {
 
                             for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
                                 JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-                                locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection, chunkArrayCoordinate, projectionDescription.padding))
+                                locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection, chunkArrayCoordinate, projectionDescription))
 //                                processHighLevelArray(discontinuousProjection, chunkArrayCoordinate,padding)
                             }
 
                         } else {
-                            locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection, coordinate, projectionDescription.padding))
+                            List<Location> thisLocationList = extractHighLevelArrayLocations(discontinuousProjection, coordinate, projectionDescription)
+                            locationList.addAll(thisLocationList)
 //                            processHighLevelArray(discontinuousProjection, coordinate,padding)
                         }
                     }

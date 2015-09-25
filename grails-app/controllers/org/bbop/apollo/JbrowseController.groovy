@@ -547,7 +547,7 @@ class JbrowseController {
             projectionDescription.type = "EXON"
 //        projectionDescription.sequenceList
 //        projectionService.getMultiSequenceProjection(projectionDescription)
-            List<Location> locationList = projectionService.extractExonLocations(currentOrganism,jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value))
+            List<Location> locationList = projectionService.extractExonLocations(currentOrganism,jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),projectionDescription)
             projectionService.createMultiSequenceProjection(projectionDescription,locationList)
         }
         else{
