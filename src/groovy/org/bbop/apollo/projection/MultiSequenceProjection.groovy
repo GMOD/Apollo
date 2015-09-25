@@ -3,10 +3,10 @@ package org.bbop.apollo.projection
 /**
  * Created by nathandunn on 9/24/15.
  */
-class MultiSequenceProjection extends AbstractProjection{
+class MultiSequenceProjection extends DiscontinuousProjection{
 
+    // if a projection includes multiple sequences, this will include greater than one
     TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>()
-    // TODO: implmenent
 
     ProjectionSequence getProjectionSequence(Integer input) {
         for(ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()){
@@ -63,8 +63,26 @@ class MultiSequenceProjection extends AbstractProjection{
         return sequenceDiscontinuousProjectionMap.clear()
     }
 // here we are adding a location to project
-    def addLocation(Location location) {
+    def addLocation(ProjectionDescription projectionDescription,Location location) {
+        // if a single projection . . the default .. then assert that it is the same sequence / projection
+        ProjectionSequence projectionSequence = getProjectionSequence(location)
 
-
+        if(projectionSequence){
+            sequenceDiscontinuousProjectionMap.get(projectionSequence).addInterval(location.min,location.max,projectionDescription.padding)
+        }
     }
+
+
+    ProjectionSequence getProjectionSequence(Location location){
+        if(sequenceDiscontinuousProjectionMap.containsKey(location.sequence)){
+            // should be a pretty limited set
+            for(ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()){
+                if(projectionSequence.equals(location.sequence)){
+                    return projectionSequence
+                }
+            }
+        }
+        return null
+    }
+
 }

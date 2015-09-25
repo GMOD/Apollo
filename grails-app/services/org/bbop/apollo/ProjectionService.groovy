@@ -392,10 +392,12 @@ class ProjectionService {
             if(!projectAll && !sequenceMap.containsKey(sequence)){ return }
 
             MultiSequenceProjection multiSequenceProjection = sequenceMap.get(sequence)
-            if(multiSequenceProjection) multiSequenceProjection = new MultiSequenceProjection()
 
+            if(!multiSequenceProjection) {
+                multiSequenceProjection = new MultiSequenceProjection()
+            }
 
-            multiSequenceProjection.addLocation(location)
+            multiSequenceProjection.addLocation(description,location)
         }
 
 //        Map<ProjectionDescription, Map<ProjectionSequence,MultiSequenceProjection>> multiSequenceProjectionMap = new HashMap<>()
