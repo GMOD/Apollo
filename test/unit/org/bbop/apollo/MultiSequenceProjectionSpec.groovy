@@ -281,7 +281,6 @@ class MultiSequenceProjectionSpec extends Specification {
     void "Group overlaps should produce a nonoverlapping map"() {
 
         given: "a projection"
-        MultiSequenceProjection projection = new MultiSequenceProjection()
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
                 ,name: "Sequence1"
@@ -293,39 +292,40 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,type: "exon" // probably ignored here
                 ,padding: 0
         )
+        MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
 
         when: "we add the overlapping coordinates"
-        projection.addInterval(694694, 694915,sequence1,projectionDescription)
-        projection.addInterval(694959, 695222,sequence1,projectionDescription)
+        projection.addInterval(694694, 694915,sequence1)
+        projection.addInterval(694959, 695222,sequence1)
 
         then: "we should have 1"
         assert projection.size() == 2
 
         when: "we add some more overlapping ones"
-        projection.addInterval(695185, 695546,sequence1,projectionDescription)
-        projection.addInterval(695511, 695782,sequence1,projectionDescription)
-        projection.addInterval(695745, 696068,sequence1,projectionDescription)
-        projection.addInterval(696071, 696395,sequence1,projectionDescription)
-        projection.addInterval(696559, 697320,sequence1,projectionDescription)
+        projection.addInterval(695185, 695546,sequence1)
+        projection.addInterval(695511, 695782,sequence1)
+        projection.addInterval(695745, 696068,sequence1)
+        projection.addInterval(696071, 696395,sequence1)
+        projection.addInterval(696559, 697320,sequence1)
 
         then: "there should be 4 projections"
         assert projection.size() == 4
 
         when: "we add one more"
-        projection.addInterval(697283, 697566,sequence1,projectionDescription)
+        projection.addInterval(697283, 697566,sequence1)
 
 
         then: "4 again"
         assert projection.size() == 4
 
         when: "we add the last one"
-        projection.addInterval(696108, 696395,sequence1,projectionDescription)
+        projection.addInterval(696108, 696395,sequence1)
 
         then: "there should just be the 4"
         assert projection.size() == 4
 
         when: "we add one of the LHS"
-        projection.addInterval(696071, 696390,sequence1,projectionDescription)
+        projection.addInterval(696071, 696390,sequence1)
 
 
         then: "should still be four"
@@ -352,7 +352,6 @@ class MultiSequenceProjectionSpec extends Specification {
      */
     void "When an overlap is sort of out of order"() {
         given: "a projection"
-        MultiSequenceProjection projection = new MultiSequenceProjection()
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
                 ,name: "Sequence1"
@@ -364,22 +363,23 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,type: "exon" // probably ignored here
                 ,padding: 0
         )
+        MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
         int index = 0
 
         when: "we add the overlapping coordinates"
-        projection.addInterval(426970, 427288,sequence1,projectionDescription)
-        projection.addInterval(427273, 427960,sequence1,projectionDescription)
+        projection.addInterval(426970, 427288,sequence1)
+        projection.addInterval(427273, 427960,sequence1)
 
         then: "we should have 1"
         assert projection.size() == 1
 
         when: "when we add non-verlapping coordinates"
-        projection.addInterval(427987, 428349,sequence1,projectionDescription) // 2
-        projection.addInterval(428394, 428830,sequence1,projectionDescription) // 3
-        projection.addInterval(428905, 429123,sequence1,projectionDescription) // 4
-        projection.addInterval(429080, 429230,sequence1,projectionDescription) // 4
-        projection.addInterval(429198, 429434,sequence1,projectionDescription) // 4
-        projection.addInterval(429406, 429609,sequence1,projectionDescription) // 4
+        projection.addInterval(427987, 428349,sequence1) // 2
+        projection.addInterval(428394, 428830,sequence1) // 3
+        projection.addInterval(428905, 429123,sequence1) // 4
+        projection.addInterval(429080, 429230,sequence1) // 4
+        projection.addInterval(429198, 429434,sequence1) // 4
+        projection.addInterval(429406, 429609,sequence1) // 4
         index = 0
 
 
@@ -404,7 +404,7 @@ class MultiSequenceProjectionSpec extends Specification {
         }
 
         when: "we add anoverlapping one"
-        projection.addInterval(428187, 428534,sequence1,projectionDescription)
+        projection.addInterval(428187, 428534,sequence1)
         index = 0
 
         then: "we should have 3"
@@ -426,7 +426,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add the rest of them, they should continue to overlap"
-        projection.addInterval(428528, 428829,sequence1,projectionDescription)
+        projection.addInterval(428528, 428829,sequence1)
         index = 0
 
         then: "we should be down to 3"
@@ -448,8 +448,8 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add the rest"
-        projection.addInterval(428905, 429115,sequence1,projectionDescription)
-        projection.addInterval(429073, 429230,sequence1,projectionDescription)
+        projection.addInterval(428905, 429115,sequence1)
+        projection.addInterval(429073, 429230,sequence1)
         index = 0
 
         then: "there should not be any change"
@@ -471,14 +471,14 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add too more in-between"
-        projection.addInterval(429198, 429439,sequence1,projectionDescription)
-        projection.addInterval(429410, 429605,sequence1,projectionDescription)
+        projection.addInterval(429198, 429439,sequence1)
+        projection.addInterval(429410, 429605,sequence1)
 
         then: "we should still have 3"
         assert projection.size() == 3
 
         when: "we add this last one"
-        projection.addInterval(429597, 430007,sequence1,projectionDescription)
+        projection.addInterval(429597, 430007,sequence1)
 
         then: "it should not blow up and we should have 2"
         assert projection.size() == 3
@@ -510,7 +510,6 @@ class MultiSequenceProjectionSpec extends Specification {
      */
     void "another overlapping case"() {
         given: "a discontinuous projection"
-        MultiSequenceProjection projection = new MultiSequenceProjection()
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
                 ,name: "Sequence1"
@@ -522,14 +521,15 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,type: "exon" // probably ignored here
                 ,padding: 0
         )
+        MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
         int index = 0
 
         when: "we add some normal intervals"
-        projection.addInterval(285235, 285658,sequence1,projectionDescription)
-        projection.addInterval(285628, 285895,sequence1,projectionDescription)
-        projection.addInterval(285887, 286954,sequence1,projectionDescription)
-        projection.addInterval(286965, 287209,sequence1,projectionDescription)
-        projection.addInterval(287225, 287371,sequence1,projectionDescription)
+        projection.addInterval(285235, 285658,sequence1)
+        projection.addInterval(285628, 285895,sequence1)
+        projection.addInterval(285887, 286954,sequence1)
+        projection.addInterval(286965, 287209,sequence1)
+        projection.addInterval(287225, 287371,sequence1)
         index = 0
 
 
@@ -552,8 +552,8 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "you add additional intervals"
-        projection.addInterval(285192, 286954,sequence1,projectionDescription)
-        projection.addInterval(286965, 287209,sequence1,projectionDescription)
+        projection.addInterval(285192, 286954,sequence1)
+        projection.addInterval(286965, 287209,sequence1)
         index = 0
 
         then: "you would expect the same, but modified"
@@ -575,7 +575,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add the last interval"
-        projection.addInterval(287225, 288061,sequence1,projectionDescription)
+        projection.addInterval(287225, 288061,sequence1)
 
         then: "we have to see if its the right one"
         assert projection.size() == 3
@@ -610,7 +610,6 @@ class MultiSequenceProjectionSpec extends Specification {
      */
     void "another set of overlap"() {
         given: "a discontinuous projection"
-        MultiSequenceProjection projection = new MultiSequenceProjection()
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
                 ,name: "Sequence1"
@@ -622,16 +621,17 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,type: "exon" // probably ignored here
                 ,padding: 0
         )
+        MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
         int index = 0
 
         when: "we add some projections"
-        projection.addInterval(1764232, 1764464,sequence1,projectionDescription)  // 0
-        projection.addInterval(1764440, 1764723,sequence1,projectionDescription)  // 0
-        projection.addInterval(1764736, 1764943,sequence1,projectionDescription)  // 1
-        projection.addInterval(1764907, 1765195,sequence1,projectionDescription)  // 1
-        projection.addInterval(1765229, 1765487,sequence1,projectionDescription)  // 2
-        projection.addInterval(1765511, 1765761,sequence1,projectionDescription)  // 3
-        projection.addInterval(1765764, 1766416,sequence1,projectionDescription)  // 4
+        projection.addInterval(1764232, 1764464,sequence1)  // 0
+        projection.addInterval(1764440, 1764723,sequence1)  // 0
+        projection.addInterval(1764736, 1764943,sequence1)  // 1
+        projection.addInterval(1764907, 1765195,sequence1)  // 1
+        projection.addInterval(1765229, 1765487,sequence1)  // 2
+        projection.addInterval(1765511, 1765761,sequence1)  // 3
+        projection.addInterval(1765764, 1766416,sequence1)  // 4
         index = 0
 
         then: "we should see a few"
@@ -659,7 +659,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add an overlapping one"
-        projection.addInterval(1764703, 1765195,sequence1,projectionDescription)
+        projection.addInterval(1764703, 1765195,sequence1)
         index = 0
 
 
@@ -684,7 +684,7 @@ class MultiSequenceProjectionSpec extends Specification {
         }
 
         when: "we add the last one"
-        projection.addInterval(1765229, 1766403,sequence1,projectionDescription)
+        projection.addInterval(1765229, 1766403,sequence1)
         index = 0
 
         then: "it should not blow up"
@@ -705,7 +705,6 @@ class MultiSequenceProjectionSpec extends Specification {
 
     void "another overlap case"() {
         given: "a discontinuous projection"
-        MultiSequenceProjection projection = new MultiSequenceProjection()
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
                 ,name: "Sequence1"
@@ -717,17 +716,18 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,type: "exon" // probably ignored here
                 ,padding: 0
         )
+        MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
         int index = 0
 
         when: "we add some intervals"
-        projection.addInterval(322874, 323189,sequence1,projectionDescription) // 0
-        projection.addInterval(323171, 323490,sequence1,projectionDescription) // 0
-        projection.addInterval(323458, 323739,sequence1,projectionDescription) // 0
-        projection.addInterval(323719, 323996,sequence1,projectionDescription) // 0
-        projection.addInterval(323984, 324541,sequence1,projectionDescription) // 0
-        projection.addInterval(324636, 325100,sequence1,projectionDescription) // 1
-        projection.addInterval(325109, 325906,sequence1,projectionDescription) // 2
-        projection.addInterval(325883, 329527,sequence1,projectionDescription) // 2
+        projection.addInterval(322874, 323189,sequence1) // 0
+        projection.addInterval(323171, 323490,sequence1) // 0
+        projection.addInterval(323458, 323739,sequence1) // 0
+        projection.addInterval(323719, 323996,sequence1) // 0
+        projection.addInterval(323984, 324541,sequence1) // 0
+        projection.addInterval(324636, 325100,sequence1) // 1
+        projection.addInterval(325109, 325906,sequence1) // 2
+        projection.addInterval(325883, 329527,sequence1) // 2
         index = 0
 
 
@@ -749,7 +749,7 @@ class MultiSequenceProjectionSpec extends Specification {
         }
 
         when: "we add the last one"
-        projection.addInterval(323453, 329527,sequence1,projectionDescription)
+        projection.addInterval(323453, 329527,sequence1)
         index = 0
 
         then: "we should see the same one"
@@ -768,7 +768,6 @@ class MultiSequenceProjectionSpec extends Specification {
     void "another overlap edgecase"(){
 
         given: "a discontinuous projection"
-        MultiSequenceProjection projection = new MultiSequenceProjection()
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
                 ,name: "Sequence1"
@@ -780,15 +779,16 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,type: "exon" // probably ignored here
                 ,padding: 0
         )
+        MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
         int index = 0
 
         when: "we add a series of intervals"
-        projection.addInterval(411456,411745,sequence1,projectionDescription) // 0
-        projection.addInterval(411775,411934,sequence1,projectionDescription) // 1
-        projection.addInterval(412094,412542,sequence1,projectionDescription) // 2
-        projection.addInterval(412570,412901,sequence1,projectionDescription) // 3
-        projection.addInterval(412977,414637,sequence1,projectionDescription) // 4
-        projection.addInterval(412312,412542,sequence1,projectionDescription) // 2
+        projection.addInterval(411456,411745,sequence1) // 0
+        projection.addInterval(411775,411934,sequence1) // 1
+        projection.addInterval(412094,412542,sequence1) // 2
+        projection.addInterval(412570,412901,sequence1) // 3
+        projection.addInterval(412977,414637,sequence1) // 4
+        projection.addInterval(412312,412542,sequence1) // 2
         index = 0
 
         then: "we should get 2"
@@ -816,7 +816,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add the last one"
-        projection.addInterval(412570,413980,sequence1,projectionDescription) // 1
+        projection.addInterval(412570,413980,sequence1) // 1
         index = 0
 
         then: "we should get the proper solution"
@@ -864,7 +864,6 @@ class MultiSequenceProjectionSpec extends Specification {
     void "explicitly test multiple scaffolds"(){
 
         given: "a projection"
-        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         ProjectionSequence sequence1 = new ProjectionSequence(
                id: 1
                 ,name: "Sequence1"
@@ -881,6 +880,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,type: "exon" // probably ignored here
                 ,padding: 0
         )
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(projectionDescription: projectionDescription)
         Location location1 = new Location( min: 10 ,max: 12 ,sequence: sequence1 )
         Location location2 = new Location( min: 22 ,max: 25 ,sequence: sequence1 )
         Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )
@@ -889,10 +889,10 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we create some intervals for a few scaffolds"
-        multiSequenceProjection.addLocation(projectionDescription,location1)
-        multiSequenceProjection.addLocation(projectionDescription,location2)
-        multiSequenceProjection.addLocation(projectionDescription,location3)
-        multiSequenceProjection.addLocation(projectionDescription,location4)
+        multiSequenceProjection.addLocation(location1)
+        multiSequenceProjection.addLocation(location2)
+        multiSequenceProjection.addLocation(location3)
+        multiSequenceProjection.addLocation(location4)
         multiSequenceProjection.calculateOffsets()
         List<Coordinate> coordinateCollection = multiSequenceProjection.listCoordinates()
         List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.sequenceDiscontinuousProjectionMap.keySet() as List<ProjectionSequence>

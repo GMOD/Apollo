@@ -7,6 +7,7 @@ class MultiSequenceProjection extends DiscontinuousProjection{
 
     // if a projection includes multiple sequences, this will include greater than one
     TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>()
+    ProjectionDescription projectionDescription  // description of how this is generated
 
     ProjectionSequence getReverseProjectionSequence(Integer input) {
         for(ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()){
@@ -88,9 +89,9 @@ class MultiSequenceProjection extends DiscontinuousProjection{
         return coordinateList
     }
 
-    def addInterval(int min, int max, ProjectionSequence sequence,ProjectionDescription projectionDescription ){
+    def addInterval(int min, int max, ProjectionSequence sequence){
         Location location = new Location(min: min, max: max, sequence: sequence)
-        addLocation(projectionDescription,location)
+        addLocation(location)
     }
 
 
@@ -110,13 +111,13 @@ class MultiSequenceProjection extends DiscontinuousProjection{
         return sequenceDiscontinuousProjectionMap.clear()
     }
 // here we are adding a location to project
-    def addLocation(ProjectionDescription projectionDescription,Location location) {
+    def addLocation(Location location) {
         // if a single projection . . the default .. then assert that it is the same sequence / projection
         ProjectionSequence projectionSequence = getProjectionSequence(location)
         if(!projectionSequence){
             projectionSequence = location.sequence
 
-            Integer order = findSequenceOrder(projectionDescription,projectionSequence)
+            Integer order = findSequenceOrder(projectionSequence)
             projectionSequence.order = order
 
             DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
@@ -128,7 +129,7 @@ class MultiSequenceProjection extends DiscontinuousProjection{
         }
     }
 
-    Integer findSequenceOrder(ProjectionDescription projectionDescription, ProjectionSequence projectionSequence) {
+    Integer findSequenceOrder(ProjectionSequence projectionSequence) {
         List<ProjectionSequence> projectionSequenceList = projectionDescription.sequenceList
         int index =0
         for(ProjectionSequence projectionSequence1 in projectionSequenceList){

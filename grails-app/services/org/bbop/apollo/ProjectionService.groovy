@@ -3,7 +3,6 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import groovy.transform.CompileStatic
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
 import org.apache.commons.io.filefilter.TrueFileFilter
@@ -404,10 +403,10 @@ class ProjectionService {
             MultiSequenceProjection multiSequenceProjection = sequenceMap.get(sequence)
 
             if (!multiSequenceProjection) {
-                multiSequenceProjection = new MultiSequenceProjection()
+                multiSequenceProjection = new MultiSequenceProjection(projectionDescription: description)
             }
 
-            multiSequenceProjection.addLocation(description, location)
+            multiSequenceProjection.addLocation(location)
         }
 
 //        Map<ProjectionDescription, Map<ProjectionSequence,MultiSequenceProjection>> multiSequenceProjectionMap = new HashMap<>()
