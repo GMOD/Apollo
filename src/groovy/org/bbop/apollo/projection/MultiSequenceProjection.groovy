@@ -88,6 +88,12 @@ class MultiSequenceProjection extends DiscontinuousProjection{
         return coordinateList
     }
 
+    def addInterval(int min, int max, ProjectionSequence sequence,ProjectionDescription projectionDescription ){
+        Location location = new Location(min: min, max: max, sequence: sequence)
+        addLocation(projectionDescription,location)
+    }
+
+
     @Override
     Integer size() {
         Integer count = 0

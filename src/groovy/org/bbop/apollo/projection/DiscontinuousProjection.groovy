@@ -144,6 +144,7 @@ public class DiscontinuousProjection extends AbstractProjection {
         return addCoordinate(min, max)
     }
 
+
     def addInterval(int min, int max, Integer padding = 0) {
         if (padding > 0) {
             min -= padding
