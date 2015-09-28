@@ -777,4 +777,97 @@ class MultiSequenceProjectionSpec extends Specification {
         }
     }
 
+    /**
+     * map onto
+     * input:
+     * seq1 a = 10-12
+     * seq1 b = 22-25
+     * seq2 c = 23-27
+     * seq2 d = 60-63
+     *
+     * folded
+     * seq1 a = 0-2
+     * seq1 b = 3-6
+     * seq2 c = 7-11
+     * seq2 d = 12-15
+     *
+     * // lenghts + offsets should include buffers . . .
+     * seq1 . . offset = 0, length = 5 +1 = 6
+     * seq2 . . offset = 6 (6+1) = 7, length = 7 + 1 = 8
+     */
+    void "explicitly test multiple scaffolds"(){
+
+        given: "a projection"
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+        ProjectionSequence sequence1 = new ProjectionSequence(
+               id: 1
+                ,name: "Sequence1"
+                ,organism: "Human"
+        )// from 0-99
+        ProjectionSequence sequence2 = new ProjectionSequence(
+                id: 2
+                ,name: "Sequence2"
+                ,organism: "Human"
+        ) // from 100-200
+        ProjectionDescription projectionDescription = new ProjectionDescription(
+                referenceTracks: []
+                ,sequenceList: [sequence1,sequence2]
+                ,type: "exon" // probably ignored here
+                ,padding: 0
+        )
+        Location location1 = new Location( min: 10 ,max: 12 ,sequence: sequence1 )
+        Location location2 = new Location( min: 22 ,max: 25 ,sequence: sequence1 )
+        Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )
+        Location location4 = new Location( min: 60,max: 63,sequence: sequence2 )
+
+
+
+        when: "we create some intervals for a few scaffolds"
+        multiSequenceProjection.addLocation(projectionDescription,location1)
+        multiSequenceProjection.addLocation(projectionDescription,location2)
+        multiSequenceProjection.addLocation(projectionDescription,location3)
+        multiSequenceProjection.addLocation(projectionDescription,location4)
+        multiSequenceProjection.calculateOffsets()
+        List<Coordinate> coordinateCollection = multiSequenceProjection.listCoordinates()
+        List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.sequenceDiscontinuousProjectionMap.keySet() as List<ProjectionSequence>
+
+        then: "we should get a single projection of size 4"
+        assert multiSequenceProjection.size()==4
+        coordinateCollection.get(0).min==10
+        coordinateCollection.get(0).max==12
+        coordinateCollection.get(1).min==22
+        coordinateCollection.get(1).max==25
+        coordinateCollection.get(2).min==23
+        coordinateCollection.get(2).max==27
+        coordinateCollection.get(3).min==60
+        coordinateCollection.get(3).max==63
+        assert 0==projectionSequenceList.get(0).offset
+        assert 6==multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(0)).bufferedLength
+        assert 7==projectionSequenceList.get(1).offset
+        assert 8==multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(1)).bufferedLength
+        assert "Sequence1"==multiSequenceProjection.getProjectionSequence(10).name
+        assert "Sequence2"==multiSequenceProjection.getProjectionSequence(60+25).name
+        assert 7==multiSequenceProjection.getProjectionSequence(60+25).offset
+
+        assert 0==multiSequenceProjection.projectValue(10)
+        assert 2==multiSequenceProjection.projectValue(12)
+        assert 3==multiSequenceProjection.projectValue(22)
+        assert 6==multiSequenceProjection.projectValue(25)
+        assert 7==multiSequenceProjection.projectValue(25+23)
+        assert 11==multiSequenceProjection.projectValue(25+27)
+        assert 12==multiSequenceProjection.projectValue(25+60)
+        assert 15==multiSequenceProjection.projectValue(25+63)
+
+
+        assert 10==multiSequenceProjection.projectReverseValue(0)
+        assert 12==multiSequenceProjection.projectReverseValue(2)
+        assert 22==multiSequenceProjection.projectReverseValue(3)
+        assert 25==multiSequenceProjection.projectReverseValue(6)
+        assert 25+23==multiSequenceProjection.projectReverseValue(7)
+        assert 25+27==multiSequenceProjection.projectReverseValue(11)
+        assert 25+60==multiSequenceProjection.projectReverseValue(12)
+        assert 25+63==multiSequenceProjection.projectReverseValue(15)
+
+    }
+
 }

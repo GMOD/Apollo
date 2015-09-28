@@ -8,11 +8,31 @@ class MultiSequenceProjection extends DiscontinuousProjection{
     // if a projection includes multiple sequences, this will include greater than one
     TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>()
 
-    ProjectionSequence getProjectionSequence(Integer input) {
+    ProjectionSequence getReverseProjectionSequence(Integer input) {
         for(ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()){
-            if(input >= projectionSequence.offset && input <= sequenceDiscontinuousProjectionMap.get(projectionSequence).length){
+            if(input >= projectionSequence.offset && input <= projectionSequence.offset+sequenceDiscontinuousProjectionMap.get(projectionSequence).bufferedLength){
                 return projectionSequence
             }
+        }
+        return null
+    }
+
+    /**
+     * Find which sequence I am on by iterating over coordinates
+     * @param input
+     * @return
+     */
+    ProjectionSequence getProjectionSequence(Integer input) {
+
+        Integer offset = 0
+        for(projectionSequence in sequenceDiscontinuousProjectionMap.keySet()){
+            DiscontinuousProjection projection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
+            for(coordinate in projection.minMap.values()){
+                if(input >= coordinate.min+offset && input <= coordinate.max+offset) {
+                    return projectionSequence
+                }
+            }
+            offset += projection.minMap.values().last().max
         }
         return null
     }
@@ -21,14 +41,15 @@ class MultiSequenceProjection extends DiscontinuousProjection{
     Integer projectValue(Integer input) {
         ProjectionSequence projectionSequence = getProjectionSequence(input)
         if (!projectionSequence) return -1
-        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectValue(input - projectionSequence.offset)
+        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectValue(input - projectionSequence.originalOffset)  \
+        + projectionSequence.offset
     }
 
     @Override
     Integer projectReverseValue(Integer input) {
-        ProjectionSequence projectionSequence = getProjectionSequence(input)
+        ProjectionSequence projectionSequence = getReverseProjectionSequence(input)
         if (!projectionSequence) return -1
-        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectReverseValue(input - projectionSequence.offset)
+        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectReverseValue(input - projectionSequence.offset) + projectionSequence.originalOffset
     }
 
     @Override
@@ -58,6 +79,26 @@ class MultiSequenceProjection extends DiscontinuousProjection{
 //        return null
 //    }
 
+
+    List<Coordinate> listCoordinates(){
+        List<Coordinate> coordinateList = new ArrayList<>()
+        for(def projection in sequenceDiscontinuousProjectionMap.values()){
+            coordinateList.addAll(projection.minMap.values() as List<Coordinate>)
+        }
+        return coordinateList
+    }
+
+    @Override
+    Integer size() {
+        Integer count = 0
+
+        for(def projection in sequenceDiscontinuousProjectionMap.values()){
+            count += projection.size()
+        }
+
+        return count
+    }
+
     @Override
     Integer clear() {
         return sequenceDiscontinuousProjectionMap.clear()
@@ -66,12 +107,32 @@ class MultiSequenceProjection extends DiscontinuousProjection{
     def addLocation(ProjectionDescription projectionDescription,Location location) {
         // if a single projection . . the default .. then assert that it is the same sequence / projection
         ProjectionSequence projectionSequence = getProjectionSequence(location)
+        if(!projectionSequence){
+            projectionSequence = location.sequence
 
-        if(projectionSequence){
+            Integer order = findSequenceOrder(projectionDescription,projectionSequence)
+            projectionSequence.order = order
+
+            DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
+            discontinuousProjection.addInterval(location.min,location.max,projectionDescription.padding)
+            sequenceDiscontinuousProjectionMap.put(projectionSequence,discontinuousProjection)
+        }
+        else{
             sequenceDiscontinuousProjectionMap.get(projectionSequence).addInterval(location.min,location.max,projectionDescription.padding)
         }
     }
 
+    Integer findSequenceOrder(ProjectionDescription projectionDescription, ProjectionSequence projectionSequence) {
+        List<ProjectionSequence> projectionSequenceList = projectionDescription.sequenceList
+        int index =0
+        for(ProjectionSequence projectionSequence1 in projectionSequenceList){
+            if(projectionSequence1.id==projectionSequence.id){
+                return index
+            }
+            ++index
+        }
+        return -1
+    }
 
     ProjectionSequence getProjectionSequence(Location location){
         if(sequenceDiscontinuousProjectionMap.containsKey(location.sequence)){
@@ -85,4 +146,23 @@ class MultiSequenceProjection extends DiscontinuousProjection{
         return null
     }
 
+    /**
+     * This is done at the end to make offsets render properly
+     */
+    def calculateOffsets() {
+        Integer currentOrder = 0
+        Integer lastLength = 0
+        Integer originalLength = 0
+        sequenceDiscontinuousProjectionMap.keySet().each {
+            DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(it)
+            if(currentOrder>0){
+                it.offset = lastLength + 1
+                it.originalOffset = originalLength
+            }
+
+            lastLength += discontinuousProjection.bufferedLength
+            originalLength += discontinuousProjection.originalLength
+            ++currentOrder
+        }
+    }
 }

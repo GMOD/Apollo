@@ -384,6 +384,19 @@ public class DiscontinuousProjection extends AbstractProjection {
         if (newMin < 0 && newMax < 0) return null
     }
 
+    public Integer getOriginalLength() {
+        return maxMap.values().last().max
+    }
+
+    /**
+     * This allows for a space between each coordindate
+     * @param buffer
+     * @return
+     */
+    public Integer getBufferedLength(Integer buffer =1 ) {
+        return length + buffer*(size()-1)
+    }
+
     @Override
     public Integer getLength() {
         int returnValue = 0

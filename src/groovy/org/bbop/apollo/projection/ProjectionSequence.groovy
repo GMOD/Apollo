@@ -10,7 +10,8 @@ class ProjectionSequence implements Comparable<org.bbop.apollo.projection.Projec
     String organism
 
     Integer order  // what order this should be processed as
-    Integer offset // can shift a sequence anywhere
+    Integer offset  = 0
+    Integer originalOffset = 0 // original incoming coordinates
 
 
     boolean equals(o) {
@@ -40,6 +41,9 @@ class ProjectionSequence implements Comparable<org.bbop.apollo.projection.Projec
 
     @Override
     int compareTo(ProjectionSequence o) {
-        return order <=> o.order
+        id <=> o.id
+        name <=> o.name
+        order <=> o.order
+//        organism <=> o.organism
     }
 }
