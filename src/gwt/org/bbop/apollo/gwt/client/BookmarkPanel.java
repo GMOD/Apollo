@@ -186,7 +186,7 @@ public class BookmarkPanel extends Composite {
     public void save(ClickEvent clickEvent) {
         Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
         assert bookmarkInfoSet.size()==1;
-        Window.alert("widgets in: " + dragAndDropPanel.getWidgetCount());
+//        Window.alert("widgets in: " + dragAndDropPanel.getWidgetCount());
         BookmarkInfo bookmarkInfo = bookmarkInfoSet.iterator().next();
         JSONArray oldArray = bookmarkInfo.getSequenceList();
         Integer removing = oldArray.size() - dragAndDropPanel.getWidgetCount();
