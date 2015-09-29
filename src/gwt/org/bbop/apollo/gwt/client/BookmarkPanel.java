@@ -189,10 +189,44 @@ public class BookmarkPanel extends Composite {
         Window.alert("widgets in: " + dragAndDropPanel.getWidgetCount());
         BookmarkInfo bookmarkInfo = bookmarkInfoSet.iterator().next();
         JSONArray oldArray = bookmarkInfo.getSequenceList();
+        Integer removing = oldArray.size() - dragAndDropPanel.getWidgetCount();
+        if(removing>0){
+            Boolean doRemove= Window.confirm("Remove "+removing + " objects");
+            if(!doRemove) return ;
+        }
         JSONArray newArray = new JSONArray();
         for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
             Widget widget = dragAndDropPanel.getWidget(i);
+//            Window.alert(widget.getElement().toString());
+            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
+            if(groupName.contains("(")){
+                Integer startIndex = groupName.indexOf("(");
+                Integer endIndex = groupName.indexOf(")");
+                String featureString = groupName.substring(startIndex+1,endIndex-1);
+                groupName = groupName.substring(0,startIndex);
+//                Window.alert("group: " + groupName);
+//                Window.alert("feature: " + featureString);
+                JSONObject featureObject = new JSONObject();
+                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
+                JSONArray featuresArray = new JSONArray() ;
+                String[] features = featureString.split(",");
+                for(String feature : features){
+                    JSONObject fI = new JSONObject();
+                    fI.put(FeatureStringEnum.NAME.getValue(),new JSONString(feature));
+                    featuresArray.set(featuresArray.size(),fI) ;
+                }
+                featureObject.put(FeatureStringEnum.FEATURES.getValue(),featuresArray);
+
+                newArray.set(newArray.size(),featureObject);
+            }
+            else{
+                JSONObject featureObject = new JSONObject();
+                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
+                newArray.set(newArray.size(),featureObject);
+            }
+//            Window.alert(groupName);
         }
+        bookmarkInfo.setSequenceList(newArray);
 //        bookmarkInfoList.remove(boo)
         // reset the JSONArrya based on the widget order
 
