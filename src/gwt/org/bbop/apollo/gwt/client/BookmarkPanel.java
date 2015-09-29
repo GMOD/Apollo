@@ -6,6 +6,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -27,6 +28,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -176,6 +178,50 @@ public class BookmarkPanel extends Composite {
         for(BookmarkInfo bookmarkInfo : bookmarkInfoSet){
             bookmarkInfoList.add(bookmarkInfo.copy());
         }
+    }
+
+
+    @UiHandler("viewButton")
+    public void view(ClickEvent event){
+        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
+        JSONArray newArray = new JSONArray();
+        for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
+            Widget widget = dragAndDropPanel.getWidget(i);
+//            Window.alert(widget.getElement().toString());
+            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
+            if(groupName.contains("(")){
+                Integer startIndex = groupName.indexOf("(");
+                Integer endIndex = groupName.indexOf(")");
+                String featureString = groupName.substring(startIndex+1,endIndex-1);
+                groupName = groupName.substring(0,startIndex);
+//                Window.alert("group: " + groupName);
+//                Window.alert("feature: " + featureString);
+                JSONObject featureObject = new JSONObject();
+                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
+                JSONArray featuresArray = new JSONArray() ;
+                String[] features = featureString.split(",");
+                for(String feature : features){
+                    JSONObject fI = new JSONObject();
+                    fI.put(FeatureStringEnum.NAME.getValue(),new JSONString(feature));
+                    featuresArray.set(featuresArray.size(),fI) ;
+                }
+                featureObject.put(FeatureStringEnum.FEATURES.getValue(),featuresArray);
+
+                newArray.set(newArray.size(),featureObject);
+            }
+            else{
+                JSONObject featureObject = new JSONObject();
+                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
+                newArray.set(newArray.size(),featureObject);
+            }
+        }
+
+        JSONObject genomicObject = new JSONObject();
+        genomicObject.put("padding",new JSONString(foldPadding.getText()));
+        genomicObject.put("type",new JSONString(foldType.getSelectedValue()));
+        genomicObject.put("reference",new JSONString(referenceTrack.getText()));
+        genomicObject.put(FeatureStringEnum.SEQUENCE.getValue(),newArray);
+        MainPanel.getInstance().updateGenomicViewer(genomicObject);
     }
 
     /**

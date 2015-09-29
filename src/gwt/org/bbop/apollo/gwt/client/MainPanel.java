@@ -8,6 +8,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
@@ -37,6 +38,7 @@ import java.util.Map;
  * Created by Nathan Dunn on 12/18/14.
  */
 public class MainPanel extends Composite {
+
 
 
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
@@ -354,6 +356,34 @@ public class MainPanel extends Composite {
         final String finalString = trackListString;
 
         frame.setUrl(finalString);
+    }
+
+    /**
+     * In this case we add the following
+     * variables in are: padding, type, reference at the top level
+     *
+     * then a JSON Array "sequence" . . . which includes the entire sequence
+     * each sequence potentially has a features array . . of which each has a name
+     *
+     * URL should turn to:
+     * - reference-track=<Official OGS, etc.>
+     * - project=<none,exon,transcript>
+     * - paddding=<0-200>
+     * - sequences=[name1:[X1,X2],name2,name3:[X3]]   . . where X1, X2, etc. are features . . and not requried.
+     *
+     * These settings
+     */
+    public void updateGenomicViewer(JSONObject genomicObject) {
+
+//        String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
+//        trackListString += selectedSequence;
+//        trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
+//        trackListString += "&highlight=&tracklist=0";
+
+//        final String finalString = trackListString;
+
+//        frame.setUrl(finalString);
+
     }
 
     public static void updateGenomicViewer(boolean forceReload) {
