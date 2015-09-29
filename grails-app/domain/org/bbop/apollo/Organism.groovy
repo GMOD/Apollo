@@ -26,28 +26,30 @@ class Organism {
     String directory
 
     static hasMany = [
-        organismProperties: OrganismProperty
-        ,organismDBXrefs: OrganismDBXref
-        ,sequences: Sequence
-        ,userPermissions: UserOrganismPermission
-        ,groupPermissions: GroupOrganismPermission
+            organismProperties: OrganismProperty
+            , organismDBXrefs : OrganismDBXref
+            , sequences       : Sequence
+            , userPermissions : UserOrganismPermission
+            , groupPermissions: GroupOrganismPermission
     ]
 
-    public String getTrackList(){
-        if(!directory){
+    public String getTrackList() {
+        if (!directory) {
             return null
-        }
-        else{
+        } else {
             return directory + "/trackList.json"
         }
     }
 
-    public String getRefseqFile(){
-        if(!directory){
-          return null
-        }
-        else{
+    public String getRefseqFile() {
+        if (!directory) {
+            return null
+        } else {
             return directory + "/seq/refSeqs.json"
         }
+    }
+
+    static mapping = {
+        publicMode defaultValue: true
     }
 }
