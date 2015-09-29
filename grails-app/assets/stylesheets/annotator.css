@@ -188,3 +188,24 @@ h1 {
 }
 
 
+/* ------------ FlowPanelExample ------------ */
+.demo-FlowPanelExample-draggable {
+  padding: 0.1em;
+  margin: 0.1em;
+  border: 1px solid blue;
+  background-color: #B3FF87; /* bright green */
+}
+
+.demo-FlowPanelExample-draggable ,
+.demo-FlowPanelExample-draggable DIV {
+  display: inline;
+}
+
+.demo-FlowPanelExample-label {
+  font-size: 1.2em;
+  line-height: 1.3em;
+}
+
+.dragdrop-flow-panel-positioner {
+  color: blue;
+}

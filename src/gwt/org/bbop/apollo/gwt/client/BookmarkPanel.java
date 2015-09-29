@@ -1,5 +1,8 @@
 package org.bbop.apollo.gwt.client;
 
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.allen_sauer.gwt.dnd.client.drop.DropController;
+import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
@@ -64,7 +67,7 @@ public class BookmarkPanel extends Composite {
     DataGrid<BookmarkInfo> dataGrid = new DataGrid<BookmarkInfo>(1000, tablecss);
     @UiField
     SplitLayoutPanel layoutPanel;
-//    @UiField
+    //    @UiField
 //    Tree optionTree;
     @UiField
     ListBox foldType;
@@ -80,17 +83,21 @@ public class BookmarkPanel extends Composite {
     Button copyButton;
     @UiField
     Button applyButton;
+    @UiField
+    FlowPanel dragAndDropPanel;
+    @UiField
+    AbsolutePanel absolutePanel;
 
 
     public static ListDataProvider<BookmarkInfo> dataProvider = new ListDataProvider<>();
-//    private static List<BookmarkInfo> trackInfoList = new ArrayList<>();
+    //    private static List<BookmarkInfo> trackInfoList = new ArrayList<>();
     private static List<BookmarkInfo> bookmarkInfoList = dataProvider.getList();
     private MultiSelectionModel<BookmarkInfo> selectionModel = new MultiSelectionModel<BookmarkInfo>();
     private boolean trackSelectionFix; // this fixes the fact that firefox requires two clicks to select a CheckboxCell
 
     public BookmarkPanel() {
 //        exportStaticMethod();
-        trackSelectionFix=true;
+        trackSelectionFix = true;
 
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
@@ -105,11 +112,9 @@ public class BookmarkPanel extends Composite {
         referenceTrack.setText("Official Gene Set v3.2");
 
 
-
         // Set the message to display when the table is empty.
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
         dataGrid.setEmptyTableWidget(new Label("No bookmarks!"));
-
 
 
 //        Column<BookmarkInfo, Boolean> showColumn = new Column<BookmarkInfo, Boolean>(new CheckboxCell(true, false)) {
@@ -167,7 +172,6 @@ public class BookmarkPanel extends Composite {
         nameColumn.setSortable(true);
 
 
-
 //        dataGrid.addColumn(showColumn, "Show");
         dataGrid.addColumn(nameColumn, "Name");
 //        dataGrid.setColumnWidth(0, "10%");
@@ -209,7 +213,7 @@ public class BookmarkPanel extends Composite {
         });
 
 
-        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE,new OrganismChangeEventHandler(){
+        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent authenticationEvent) {
                 dataGrid.setLoadingIndicator(new Label("Loading..."));
@@ -229,18 +233,16 @@ public class BookmarkPanel extends Composite {
     }
 
     private void setBookmarkInfo(Set<BookmarkInfo> selectedObject) {
-        if(selectedObject.size()==0){
-            mergeButton.setText("Merge" );
+        if (selectedObject.size() == 0) {
+            mergeButton.setText("Merge");
             removeButton.setText("Remove ");
             applyButton.setText("Apply ");
             mergeButton.setEnabled(false);
             copyButton.setEnabled(false);
             removeButton.setEnabled(false);
             applyButton.setEnabled(false);
-        }
-        else
-        if(selectedObject.size()==1){
-            mergeButton.setText("Merge" );
+        } else if (selectedObject.size() == 1) {
+            mergeButton.setText("Merge");
             removeButton.setText("Remove");
             applyButton.setText("Apply");
             mergeButton.setEnabled(false);
@@ -249,7 +251,7 @@ public class BookmarkPanel extends Composite {
             applyButton.setEnabled(true);
         }
         // multiple
-        else{
+        else {
             mergeButton.setText("Merge: " + selectedObject.size());
             removeButton.setText("Remove: " + selectedObject.size());
             applyButton.setText("Apply: " + selectedObject.size());
@@ -259,6 +261,39 @@ public class BookmarkPanel extends Composite {
             applyButton.setEnabled(true);
         }
 
+        dragAndDropPanel.clear();
+
+//        AbsolutePanel boundaryPanel = new AbsolutePanel();
+//        boundaryPanel.addStyleName(CSS_DEMO_MAIN_BOUNDARY_PANEL);
+//        boundaryPanel.setPixelSize(900, 600);
+
+        PickupDragController dragController = new PickupDragController(absolutePanel,true);
+//        flowPanelDropTarget = new FlowPanel();
+//        flowPanelDropTarget.setWidth("400px");
+//        setWidget(flowPanelDropTarget);
+        FlowPanelDropController flowPanelDropController = new FlowPanelDropController(
+                dragAndDropPanel);
+        dragController.registerDropController(flowPanelDropController);
+
+        DropController pickupDropController = new FlowPanelDropController(dragAndDropPanel);
+        for (BookmarkInfo bookmarkInfo : selectedObject) {
+            FocusPanel focusPanel = new FocusPanel();
+//                focusPanel.setStyleName(CSS_DEMO_FLOW_PANEL_EXAMPLE_DRAGGABLE);
+
+            FlowPanel flowPanel = new FlowPanel();
+            focusPanel.setStyleName("demo-FlowPanelExample-draggable");
+            focusPanel.add(flowPanel);
+
+//            HTML label = new HTML("Draggable&nbsp;#" + i);
+            HTML label = new HTML(bookmarkInfo.getName());
+            label.setStyleName("demo-FlowPanelExample-label");
+            HTML spacer = new HTML(" ");
+//                label.addStyleName(CSS_DEMO_FLOW_PANEL_EXAMPLE_LABEL);
+            flowPanel.add(label);
+            flowPanel.add(spacer);
+            dragController.makeDraggable(focusPanel);
+            dragAndDropPanel.add(focusPanel);
+        }
 
     }
 
@@ -332,23 +367,23 @@ public class BookmarkPanel extends Composite {
     public void reload() {
 
         bookmarkInfoList.clear();
-        for(int i = 0 ; i < 50 ; i++){
+        for (int i = 0; i < 50; i++) {
             BookmarkInfo bookmarkInfo = new BookmarkInfo();
             JSONArray jsonArray = new JSONArray();
             JSONObject sequenceObject = new JSONObject();
-            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString("Group"+i%4));
-            if(i%2==0){
+            sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString("Group" + i % 4));
+            if (i % 2 == 0) {
                 // add a feature array sometimes
                 JSONArray featureArray = new JSONArray();
 
                 JSONObject featureObject = new JSONObject();
                 featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString("GA-1231A" + i));
-                featureArray.set(featureArray.size(),featureObject);
+                featureArray.set(featureArray.size(), featureObject);
 
 
                 sequenceObject.put(FeatureStringEnum.FEATURES.getValue(), featureArray);
             }
-            jsonArray.set(jsonArray.size(),sequenceObject);
+            jsonArray.set(jsonArray.size(), sequenceObject);
             bookmarkInfo.setSequenceList(jsonArray);
 
             bookmarkInfoList.add(bookmarkInfo);

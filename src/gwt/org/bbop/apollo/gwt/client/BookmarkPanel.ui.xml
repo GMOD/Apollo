@@ -31,7 +31,29 @@
             margin-bottom: 40px;
         }
 
-    </ui:style>
+        /* ------------ FlowPanelExample ------------ */
+        .demo-FlowPanelExample-draggable {
+            padding: 0.1em;
+            margin: 0.1em;
+            border: 1px solid blue;
+            background-color: #B3FF87; /* bright green */
+        }
+
+        .demo-FlowPanelExample-draggable,
+        .demo-FlowPanelExample-draggable DIV {
+            display: inline;
+        }
+
+        .demo-FlowPanelExample-label {
+            font-size: 1.2em;
+            line-height: 1.3em;
+        }
+
+        .dragdrop-flow-panel-positioner {
+            color: blue;
+        }
+
+        </ui:style>
     <gwt:SplitLayoutPanel ui:field="layoutPanel">
         <gwt:north size="90">
             <b:Container fluid="true" styleName="{style.northPanel}">
@@ -72,13 +94,16 @@
                 <gwt:north size="35">
                     <b:ButtonGroup>
                         <b:Button text="Merge" icon="LOCATION_ARROW" enabled="false" ui:field="mergeButton"/>
-                        <b:Button text="Copy" icon="COPY"  enabled="false" ui:field="copyButton"/>
-                        <b:Button text="Delete" icon="REMOVE"  enabled="false"  ui:field="removeButton"/>
-                        <b:Button text="Apply" icon="SAVE"  enabled="false"  ui:field="applyButton"/>
+                        <b:Button text="Copy" icon="COPY" enabled="false" ui:field="copyButton"/>
+                        <b:Button text="Delete" icon="REMOVE" enabled="false" ui:field="removeButton"/>
+                        <b:Button text="Apply" icon="SAVE" enabled="false" ui:field="applyButton"/>
                     </b:ButtonGroup>
                 </gwt:north>
                 <gwt:center>
-                    <gwt:HTML>Drag and Drop manual</gwt:HTML>
+                    <gwt:AbsolutePanel ui:field="absolutePanel" styleName="{style.dragdrop-flow-panel-positioner}">
+                        <gwt:FlowPanel ui:field="dragAndDropPanel"/>
+                    </gwt:AbsolutePanel>
+                    <!--<gwt:HTML>Drag and Drop manual</gwt:HTML>-->
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:south>
