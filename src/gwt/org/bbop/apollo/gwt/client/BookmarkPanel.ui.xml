@@ -25,11 +25,25 @@
             outline: none;
         }
 
+        .rowNorth {
+            /*padding-bottom: 10px;*/
+            /*padding-top: 10px;*/
+            margin-bottom: 40px;
+        }
+
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="layoutPanel">
-        <gwt:north size="80">
+        <gwt:north size="90">
             <b:Container fluid="true" styleName="{style.northPanel}">
-                <b:Row>
+                <b:Row styleName="{style.rowNorth}">
+                    <b:Column size="MD_2">
+                        <gwt:HTML>
+                            <b>Folding</b>
+                        </gwt:HTML>
+                    </b:Column>
+                    <b:Column size="MD_2">
+                        <b:ListBox ui:field="foldType"/>
+                    </b:Column>
                     <b:Column size="MD_2">
                         <gwt:HTML>Padding</gwt:HTML>
                     </b:Column>
@@ -37,17 +51,11 @@
                         <b:TextBox ui:field="foldPadding"/>
                     </b:Column>
                 </b:Row>
-                <b:Row>
-                    <b:Column size="MD_2">
-                        <gwt:HTML><b>Folding</b></gwt:HTML>
-                    </b:Column>
-                    <b:Column size="MD_2">
-                        <b:ListBox ui:field="foldType"/>
-                    </b:Column>
+                <b:Row styleName="{style.rowNorth}">
                     <b:Column size="MD_2">
                         <gwt:HTML>Reference</gwt:HTML>
                     </b:Column>
-                    <b:Column size="MD_2">
+                    <b:Column size="MD_6">
                         <b:TextBox ui:field="referenceTrack" enabled="false"/>
                     </b:Column>
                     <!--<b:Column size="MD_4" styleName="{style.widgetPanel}">-->
@@ -60,75 +68,19 @@
             <cellview:DataGrid ui:field="dataGrid" styleName="{style.cellTable}"/>
         </gwt:center>
         <gwt:south size="200">
-            <gwt:TabLayoutPanel barHeight="35">
-                <gwt:tab>
-                    <gwt:header>Details</gwt:header>
-                    <b:Container fluid="true" width="100%">
-                        <b:Row>
-                            <b:Column size="MD_3">
-                                <gwt:HTML text="Name" styleName="{style.tableKeyName}"/>
-                            </b:Column>
-                            <b:Column size="MD_4">
-                                <gwt:HTML ui:field="trackName"/>
-                            </b:Column>
-                        </b:Row>
-                        <b:Row>
-                            <b:Column size="MD_3">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Type
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_4">
-                                <gwt:HTML ui:field="trackType"/>
-                            </b:Column>
-                        </b:Row>
-                        <b:Row visible="true">
-                            <b:Column size="MD_3">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Configuration
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_7">
-                                <gwt:Tree ui:field="optionTree"/>
-                            </b:Column>
-                        </b:Row>
-
-                        <b:Row visible="false">
-                            <b:Column size="MD_3">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Feature Count
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_4">
-                                <gwt:HTML ui:field="trackCount"/>
-                            </b:Column>
-                        </b:Row>
-                        <b:Row visible="false">
-                            <b:Column size="MD_3">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Feature Density
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_4">
-                                <gwt:HTML ui:field="trackDensity"/>
-                            </b:Column>
-                        </b:Row>
-                    </b:Container>
-                </gwt:tab>
-                <!--<gwt:tab>-->
-                <!--<gwt:header>Configuration</gwt:header>-->
-                <!--<gwt:FlexTable ui:field="configurationTable"/>-->
-                <!--</gwt:tab>-->
-                <!--TODO: add back for 2.0-alpha2 or 2.1-->
-                <!--<gwt:tab>-->
-                <!--<gwt:header>Users</gwt:header>-->
-                <!--<gwt:HTML text="user permissions on table"/>-->
-                <!--</gwt:tab>-->
-                <!--<gwt:tab>-->
-                <!--<gwt:header>Groups</gwt:header>-->
-                <!--<gwt:HTML text="group permissions on table"/>-->
-                <!--</gwt:tab>-->
-            </gwt:TabLayoutPanel>
+            <gwt:DockLayoutPanel>
+                <gwt:north size="35">
+                    <b:ButtonGroup>
+                        <b:Button text="Merge" icon="LOCATION_ARROW" enabled="false" ui:field="mergeButton"/>
+                        <b:Button text="Copy" icon="COPY"  enabled="false" ui:field="copyButton"/>
+                        <b:Button text="Delete" icon="REMOVE"  enabled="false"  ui:field="removeButton"/>
+                        <b:Button text="Apply" icon="SAVE"  enabled="false"  ui:field="applyButton"/>
+                    </b:ButtonGroup>
+                </gwt:north>
+                <gwt:center>
+                    <gwt:HTML>Drag and Drop manual</gwt:HTML>
+                </gwt:center>
+            </gwt:DockLayoutPanel>
         </gwt:south>
 
     </gwt:SplitLayoutPanel>

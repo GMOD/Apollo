@@ -1,47 +1,64 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.user.client.Window;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+
+import java.util.List;
 
 /**
  * Created by Nathan Dunn on 12/18/14.
  */
 public class BookmarkInfo implements Comparable<BookmarkInfo> {
 
-    private String name;
-    private String label;
+//    private String name;
+    // should be sequence: All . .. or sequence: Feature . . . order is the sequence order
+    // features can not be re-ordered
+    private JSONArray sequenceList;
     private String type;
-    private Boolean visible;
-    private String urlTemplate ;
-
+//    private List<String> features;
+    private Integer padding ;
     private JSONObject payload ;
 
     public BookmarkInfo(){}
 
-
-    public BookmarkInfo(String name, String type, Boolean visible) {
-        this.name = name;
-        this.type = type;
-        this.visible = visible;
-    }
-
-    public BookmarkInfo(String name) {
-        this.name = name;
-        this.type = Math.random() > 0.5 ? "CanvasFeature" : "HTMLFeature";
-        this.visible = Math.random() > 0.5 ;
-
-    }
-
     @Override
     public int compareTo(BookmarkInfo o) {
-        return name.compareTo(o.name);
+        return getName().compareTo(o.getName());
     }
+//
+//    public String getName() {
+//        return name;
+//    }
+//
+//    public void setName(String name) {
+//        this.name = name;
+//    }
+    public String getName(){
+        String name = "" ;
+        for(int i = 0 ; i < sequenceList.size() ; i++){
+            JSONObject sequenceObject = sequenceList.get(i).isObject();
 
-    public String getName() {
-        return name;
-    }
+            name += sequenceObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
+            if(sequenceObject.containsKey(FeatureStringEnum.FEATURES.getValue())){
+                name += "(";
 
-    public void setName(String name) {
-        this.name = name;
+                JSONArray featuresArray = sequenceObject.get(FeatureStringEnum.FEATURES.getValue()).isArray();
+                for(int j = 0 ; j < featuresArray.size() ; j++){
+                    name += featuresArray.get(j).isObject().get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
+                    if(j < featuresArray.size()-1){
+                        name += "," ;
+                    }
+                }
+
+                name += ")";
+            }
+            if(i < sequenceList.size()-1){
+                name += "::";
+            }
+        }
+        return name ;
     }
 
     public String getType() {
@@ -52,35 +69,27 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         this.type = type;
     }
 
-    public Boolean getVisible() {
-        return visible;
-    }
-
-    public void setVisible(Boolean visible) {
-        this.visible = visible;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    public String getUrlTemplate() {
-        return urlTemplate;
-    }
-
-    public void setUrlTemplate(String urlTemplate) {
-        this.urlTemplate = urlTemplate;
-    }
-
     public JSONObject getPayload() {
         return payload;
     }
 
     public void setPayload(JSONObject payload) {
         this.payload = payload;
+    }
+
+    public JSONArray getSequenceList() {
+        return sequenceList;
+    }
+
+    public void setSequenceList(JSONArray sequenceList) {
+        this.sequenceList = sequenceList;
+    }
+
+    public Integer getPadding() {
+        return padding;
+    }
+
+    public void setPadding(Integer padding) {
+        this.padding = padding;
     }
 }

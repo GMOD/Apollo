@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
@@ -14,6 +15,7 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 /**
  * Created by Nathan Dunn on 1/9/15.
@@ -39,11 +41,25 @@ public class GeneDetailPanel extends Composite {
     TextBox sequenceField;
     @UiField
     TextBox userField;
+//    @UiField
+//    Button addExistingBookmark;
+    @UiField
+    Button addNewBookmark;
 
 
     public GeneDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
+
+    @UiHandler("addNewBookmark")
+    void addNewBookmark(ClickEvent clickEvent){
+        new InfoDialog("Added Bookmark","Added bookmark for "+nameField.getText(),true);
+    }
+
+//    @UiHandler("addExistingBookmark")
+//    void addExistingBookmark(ClickEvent clickEvent){
+//
+//    }
 
     @UiHandler("nameField")
     void handleNameChange(ChangeEvent e) {
