@@ -21,6 +21,7 @@ class Organism {
     String commonName;
     String comment;
     Boolean valid;
+    boolean publicMode;
     String blatdb;
     String directory
 
