@@ -94,9 +94,10 @@
                 <gwt:north size="35">
                     <b:ButtonGroup>
                         <b:Button text="Merge" icon="LOCATION_ARROW" enabled="false" ui:field="mergeButton"/>
-                        <b:Button text="Copy" icon="COPY" enabled="false" ui:field="copyButton"/>
+                        <b:Button text="Duplicate" icon="COPY" enabled="false" ui:field="copyButton"/>
                         <b:Button text="Delete" icon="REMOVE" enabled="false" ui:field="removeButton"/>
-                        <b:Button text="Apply" icon="SAVE" enabled="false" ui:field="applyButton"/>
+                        <b:Button text="Save" icon="SAVE" enabled="false" ui:field="saveButton"/>
+                        <b:Button text="View" icon="EYE" enabled="false" ui:field="viewButton"/>
                     </b:ButtonGroup>
                 </gwt:north>
                 <gwt:center>

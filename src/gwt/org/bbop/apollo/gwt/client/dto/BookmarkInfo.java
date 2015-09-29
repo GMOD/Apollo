@@ -92,4 +92,13 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
     public void setPadding(Integer padding) {
         this.padding = padding;
     }
+
+    public BookmarkInfo copy() {
+        BookmarkInfo bookmarkInfo = new BookmarkInfo();
+        bookmarkInfo.setPadding(padding);
+        bookmarkInfo.setPayload(payload);
+        bookmarkInfo.setSequenceList(sequenceList);
+        bookmarkInfo.setType(type);
+        return bookmarkInfo;
+    }
 }

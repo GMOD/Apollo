@@ -1,27 +1,19 @@
 package org.bbop.apollo.gwt.client;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
-import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
@@ -32,11 +24,9 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -83,11 +73,13 @@ public class BookmarkPanel extends Composite {
     @UiField
     Button copyButton;
     @UiField
-    Button applyButton;
+    Button saveButton;
     @UiField
     FlowPanel dragAndDropPanel;
     @UiField
     AbsolutePanel absolutePanel;
+    @UiField
+    Button viewButton;
 
 
     private PickupDragController dragController ;
@@ -178,6 +170,35 @@ public class BookmarkPanel extends Composite {
         dragAndDropPanel.clear();
     }
 
+    @UiHandler("copyButton")
+    public void copy(ClickEvent clickEvent) {
+        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
+        for(BookmarkInfo bookmarkInfo : bookmarkInfoSet){
+            bookmarkInfoList.add(bookmarkInfo.copy());
+        }
+    }
+
+    /**
+     * Typically just resaves the proper order
+     * @param clickEvent
+     */
+    @UiHandler("saveButton")
+    public void save(ClickEvent clickEvent) {
+        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
+        assert bookmarkInfoSet.size()==1;
+        Window.alert("widgets in: " + dragAndDropPanel.getWidgetCount());
+        BookmarkInfo bookmarkInfo = bookmarkInfoSet.iterator().next();
+        JSONArray oldArray = bookmarkInfo.getSequenceList();
+        JSONArray newArray = new JSONArray();
+        for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
+            Widget widget = dragAndDropPanel.getWidget(i);
+        }
+//        bookmarkInfoList.remove(boo)
+        // reset the JSONArrya based on the widget order
+
+        reload();
+    }
+
     @UiHandler("mergeButton")
     public void merge(ClickEvent clickEvent) {
         BookmarkInfo bookmarkInfo = new BookmarkInfo();
@@ -221,29 +242,37 @@ public class BookmarkPanel extends Composite {
         if (selectedObject.size() == 0) {
             mergeButton.setText("Merge");
             removeButton.setText("Remove ");
-            applyButton.setText("Apply ");
+            saveButton.setText("Save");
             mergeButton.setEnabled(false);
             copyButton.setEnabled(false);
             removeButton.setEnabled(false);
-            applyButton.setEnabled(false);
+            saveButton.setEnabled(false);
+            viewButton.setEnabled(false);
         } else if (selectedObject.size() == 1) {
             mergeButton.setText("Merge");
             removeButton.setText("Remove");
-            applyButton.setText("Apply");
+            saveButton.setText("Save");
             mergeButton.setEnabled(false);
             copyButton.setEnabled(true);
             removeButton.setEnabled(true);
-            applyButton.setEnabled(true);
+            if(selectedObject.iterator().next().getSequenceList().size()>1){
+                saveButton.setEnabled(true);
+            }
+            else{
+                saveButton.setEnabled(false);
+            }
+            viewButton.setEnabled(true);
         }
         // multiple
         else {
             mergeButton.setText("Merge: " + selectedObject.size());
             removeButton.setText("Remove: " + selectedObject.size());
-            applyButton.setText("Apply: " + selectedObject.size());
+            saveButton.setText("Save");
             mergeButton.setEnabled(true);
             copyButton.setEnabled(false);
             removeButton.setEnabled(true);
-            applyButton.setEnabled(true);
+            saveButton.setEnabled(false);
+            viewButton.setEnabled(true);
         }
 
         dragAndDropPanel.clear();
