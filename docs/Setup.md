@@ -45,7 +45,7 @@ Furthermore, the `apollo-config.groovy` has different groovy environments for te
 *Note:* to deploy on tomcat you *NEED* to have a configured `apollo-config.groovy` file copied to deploy to production.
 
 #### Configure for Docker:
-- Set up and export all of the environment variables you wish to configure. At bare minimum you will likely wish to set WEBAPOLLO_DB_USERNAME`, `WEBAPOLLO_DB_PASSWORD`, `WEBAPOLLO_DB_DRIVER`, `WEBAPOLLO_DB_DIALECT`, and `WEBAPOLLO_DB_URI`
+- Set up and export all of the environment variables you wish to configure. At bare minimum you will likely wish to set `WEBAPOLLO_DB_USERNAME`, `WEBAPOLLO_DB_PASSWORD`, `WEBAPOLLO_DB_DRIVER`, `WEBAPOLLO_DB_DIALECT`, and `WEBAPOLLO_DB_URI`
 - Create a new database in your chosen database backend and copy the sample-docker-apollo-config.groovy to apollo-config.groovy.
 
 ### Database schema
