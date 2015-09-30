@@ -23,15 +23,6 @@
     <b:Container fluid="true" styleName="{style.container}">
         <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
-                <b:ButtonGroup>
-                    <b:Button type="PRIMARY" icon="BOOKMARK" text="+" title="Add new bookmark" ui:field="addNewBookmark"/>
-                    <!--<b:Button type="PRIMARY" icon="BOOKMARK" title="Add to existing bookmark" ui:field="addExistingBookmark"/>-->
-                    <!--<b:Button type="PRIMARY" icon="BOOKMARK"/>-->
-                </b:ButtonGroup>
-            </b:Column>
-        </b:Row>
-        <b:Row styleName="{style.row}">
-            <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
                     <b:InputGroupAddon>Name</b:InputGroupAddon>
                     <b:TextBox autoComplete="false" ui:field="nameField"/>

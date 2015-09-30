@@ -11,6 +11,7 @@ import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -29,8 +30,10 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.*;
@@ -39,7 +42,8 @@ import org.bbop.apollo.gwt.client.WebApolloSimplePager;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
-import org.gwtbootstrap3.client.ui.Container;
+import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -93,11 +97,14 @@ public class AnnotatorPanel extends Composite {
     SplitLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
+    @UiField
+    static Button addNewBookmark;
 
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private static AsyncDataProvider<AnnotationInfo> dataProvider;
+    private static AnnotationInfo currentAnnotationInfo = null ;
     //    private static List<AnnotationInfo> annotationInfoList = new ArrayList<>();
     //    private static List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     private final Set<String> showingTranscripts = new HashSet<String>();
@@ -319,6 +326,12 @@ public class AnnotatorPanel extends Composite {
     }
 
 
+    @UiHandler("addNewBookmark")
+    void addNewBookmark(ClickEvent clickEvent){
+        new InfoDialog("Added Bookmark","Added bookmark for "+currentAnnotationInfo.getName(),true);
+    }
+
+
     private void initializeUsers() {
         userField.clear();
         userField.addItem("All Users", "");
@@ -360,6 +373,10 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
+        currentAnnotationInfo = annotationInfo ;
+        addNewBookmark.setEnabled(currentAnnotationInfo!=null);
+        if(currentAnnotationInfo==null) return ;
+
         String type = annotationInfo.getType();
         GWT.log("annotation type: " + type);
         geneDetailPanel.setVisible(false);
@@ -532,6 +549,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload() {
+        updateAnnotationInfo(null);
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 

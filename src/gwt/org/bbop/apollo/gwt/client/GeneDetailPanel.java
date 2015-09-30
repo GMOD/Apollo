@@ -41,25 +41,12 @@ public class GeneDetailPanel extends Composite {
     TextBox sequenceField;
     @UiField
     TextBox userField;
-//    @UiField
-//    Button addExistingBookmark;
-    @UiField
-    Button addNewBookmark;
 
 
     public GeneDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
-    @UiHandler("addNewBookmark")
-    void addNewBookmark(ClickEvent clickEvent){
-        new InfoDialog("Added Bookmark","Added bookmark for "+nameField.getText(),true);
-    }
-
-//    @UiHandler("addExistingBookmark")
-//    void addExistingBookmark(ClickEvent clickEvent){
-//
-//    }
 
     @UiHandler("nameField")
     void handleNameChange(ChangeEvent e) {

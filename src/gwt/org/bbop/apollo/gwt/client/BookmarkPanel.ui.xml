@@ -78,7 +78,8 @@
                         <gwt:HTML>Reference</gwt:HTML>
                     </b:Column>
                     <b:Column size="MD_6">
-                        <b:TextBox ui:field="referenceTrack" enabled="false"/>
+                        <!--<b:TextBox ui:field="referenceTrack" enabled="false"/>-->
+                        <b:ListBox ui:field="referenceTrack" enabled="true"/>
                     </b:Column>
                     <!--<b:Column size="MD_4" styleName="{style.widgetPanel}">-->
                     <!--<b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>-->

@@ -77,6 +77,8 @@ public class SequencePanel extends Composite {
     //    Button exportChadoButton;
     @UiField
     Button selectSelectedButton;
+    @UiField
+    Button bookmarkButton;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -124,8 +126,10 @@ public class SequencePanel extends Composite {
                 }
                 if (selectedSequenceInfo.size() > 0) {
                     exportSelectedButton.setText("Selected (" + selectedSequenceInfo.size() + ")");
+                    bookmarkButton.setEnabled(true);
                 } else {
                     exportSelectedButton.setText("Selected");
+                    bookmarkButton.setEnabled(false);
                 }
                 exportSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
 

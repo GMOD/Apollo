@@ -67,7 +67,7 @@ public class BookmarkPanel extends Composite {
     @UiField
     TextBox foldPadding;
     @UiField
-    TextBox referenceTrack;
+    org.gwtbootstrap3.client.ui.ListBox referenceTrack;
     @UiField
     Button mergeButton;
     @UiField
@@ -105,7 +105,7 @@ public class BookmarkPanel extends Composite {
 
         foldPadding.setText("50");
 
-        referenceTrack.setText("Official Gene Set v3.2");
+        referenceTrack.addItem("Official Gene Set v3.2");
 
 
         // Set the message to display when the table is empty.
@@ -219,7 +219,7 @@ public class BookmarkPanel extends Composite {
         JSONObject genomicObject = new JSONObject();
         genomicObject.put("padding",new JSONString(foldPadding.getText()));
         genomicObject.put("type",new JSONString(foldType.getSelectedValue()));
-        genomicObject.put("reference",new JSONString(referenceTrack.getText()));
+        genomicObject.put("reference",new JSONString(referenceTrack.getSelectedValue()));
         genomicObject.put(FeatureStringEnum.SEQUENCE.getValue(),newArray);
         MainPanel.getInstance().updateGenomicViewer(genomicObject);
     }
