@@ -1,7 +1,5 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -10,6 +8,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -20,6 +19,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.*;
+import org.bbop.apollo.gwt.client.dto.BookmarkInfo;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfoConverter;
@@ -27,6 +27,7 @@ import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
@@ -261,6 +262,25 @@ public class SequencePanel extends Composite {
                 }
         );
 
+    }
+
+    @UiHandler("bookmarkButton")
+    void addNewBookmark(ClickEvent clickEvent){
+        BookmarkInfo bookmarkInfo = new BookmarkInfo();
+        JSONArray sequenceArray = new JSONArray();
+        String name = "" ;
+        for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
+            bookmarkInfo.setPadding(50);
+            bookmarkInfo.setType("Exon");
+            JSONObject sequenceObject =new JSONObject();
+            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getName()));
+            sequenceArray.set(sequenceArray.size(),sequenceObject);
+            name += sequenceInfo.getName()+",";
+        }
+        name = name.substring(0,name.length()-1);
+        bookmarkInfo.setSequenceList(sequenceArray);
+        MainPanel.getInstance().addBookmark(bookmarkInfo);
+        new InfoDialog("Added Bookmark","Added bookmark for sequences "+name,true);
     }
 
     private void updatedExportSelectedButton() {

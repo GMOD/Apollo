@@ -38,6 +38,7 @@ import java.util.Set;
  * Created by Nathan Dunn on 12/16/14.
  */
 public class BookmarkPanel extends Composite {
+
     interface BookmarkUiBinder extends UiBinder<Widget, BookmarkPanel> {
     }
 
@@ -161,7 +162,7 @@ public class BookmarkPanel extends Composite {
             }
         });
 
-        stubBackingData(10);
+//        stubBackingData(10);
         reload();
 
     }
@@ -423,6 +424,11 @@ public class BookmarkPanel extends Composite {
     public void reload() {
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
         dataGrid.redraw();
+    }
+
+    public void addBookmark(BookmarkInfo bookmarkInfo) {
+        bookmarkInfoList.add(bookmarkInfo);
+        reload();
     }
 
 }

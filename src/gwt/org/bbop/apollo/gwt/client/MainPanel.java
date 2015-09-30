@@ -810,4 +810,8 @@ public class MainPanel extends Composite {
         this.organismInfoList = organismInfoList;
     }
 
+    public void addBookmark(BookmarkInfo bookmarkInfo){
+        bookmarkPanel.addBookmark(bookmarkInfo);
+    }
+
 }
