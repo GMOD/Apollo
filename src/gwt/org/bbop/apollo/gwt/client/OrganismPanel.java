@@ -34,6 +34,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.CheckBox;
 
 import java.util.Comparator;
 import java.util.List;
@@ -53,6 +54,8 @@ public class OrganismPanel extends Composite {
     TextBox organismName;
     @UiField
     TextBox blatdb;
+    @UiField
+    CheckBox publicMode;
     @UiField
     TextBox genus;
     @UiField
@@ -196,21 +199,20 @@ public class OrganismPanel extends Composite {
             setNoSelection();
             return;
         }
-        organismName.setEnabled(true);
-        blatdb.setEnabled(true);
-        genus.setEnabled(true);
-        species.setEnabled(true);
 
+        setTextEnabled(true);
+
+        GWT.log("loadOrganismInfo setValue "+organismInfo.getPublicMode());
         organismName.setText(organismInfo.getName());
         blatdb.setText(organismInfo.getBlatDb());
         genus.setText(organismInfo.getGenus());
         species.setText(organismInfo.getSpecies());
         sequenceFile.setText(organismInfo.getDirectory());
+        publicMode.setValue(organismInfo.getPublicMode());
 
         deleteButton.setVisible(true);
         sequenceFile.setEnabled(true);
         deleteButton.setEnabled(true);
-
     }
 
     private class UpdateInfoListCallback implements  RequestCallback {
@@ -284,12 +286,15 @@ public class OrganismPanel extends Composite {
             errorDialog.show();
             return ;
         }
+
+        GWT.log("handleSaveNewOrganism "+publicMode.getValue());
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
         organismInfo.setGenus(genus.getText());
         organismInfo.setSpecies(species.getText());
         organismInfo.setBlatDb(blatdb.getText());
+        organismInfo.setPublicMode(publicMode.getValue());
 
         createButton.setEnabled(false);
         createButton.setText("Processing");
@@ -336,7 +341,15 @@ public class OrganismPanel extends Composite {
             updateOrganismInfo();
         }
     }
-
+    @UiHandler("publicMode")
+    public void handlePublicModeChange(ChangeEvent changeEvent) {
+        GWT.log("Handling mode change "+publicMode.getValue());
+        if(singleSelectionModel.getSelectedObject()!=null) {
+            GWT.log("Handling mode not null "+publicMode.getValue());
+            singleSelectionModel.getSelectedObject().setPublicMode(publicMode.getValue());
+            updateOrganismInfo();
+        }
+    }
 
     @UiHandler("species")
     public void handleSpeciesChange(ChangeEvent changeEvent) {
@@ -414,6 +427,7 @@ public class OrganismPanel extends Composite {
         genus.setEnabled(enabled);
         species.setEnabled(enabled);
         blatdb.setEnabled(enabled);
+        publicMode.setEnabled(enabled);
     }
     //Utility function for clearing the textboxes ("")
     public void clearTextBoxes() {
@@ -422,6 +436,7 @@ public class OrganismPanel extends Composite {
         genus.setText("");
         species.setText("");
         blatdb.setText("");
+        publicMode.setValue(false);
     }
 
 
