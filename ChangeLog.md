@@ -3,7 +3,7 @@
 Features
 
 + Make the pagination for the annotator sidebar more intuitive by only loading the remainder of rows on the last page.
-
++ Add support for JBrowse tracks loaded with the --compress options in the data loading pipeline
 
 Bugfixes
 
