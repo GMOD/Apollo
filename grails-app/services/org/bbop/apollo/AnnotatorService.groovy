@@ -34,6 +34,7 @@ class AnnotatorService {
                         genus          : organism.genus,
                         species        : organism.species,
                         valid          : organism.valid,
+                        publicMode     : organism.publicMode,
                         currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
                 ] as JSONObject
                 organismArray.add(jsonObject)

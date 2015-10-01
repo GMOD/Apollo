@@ -44,9 +44,12 @@ public class OrganismInfoConverter {
         if (object.get("blatdb") != null && object.get("blatdb").isString() != null) {
             organismInfo.setBlatDb(object.get("blatdb").isString().stringValue());
         }
-        organismInfo.setCurrent(object.get("currentOrganism")!=null && object.get("currentOrganism").isBoolean().booleanValue());
-        organismInfo.setNumTracks(0);
+        if (object.get("publicMode") != null) {
 
+            GWT.log("convertFromJson publicMode "+object.get("publicMode")+" "+object.get("commonName"));
+            organismInfo.setPublicMode(object.get("publicMode").isBoolean().booleanValue());
+        }
+        organismInfo.setCurrent(object.get("currentOrganism") != null && object.get("currentOrganism").isBoolean().booleanValue());
         return organismInfo;
     }
 
@@ -62,7 +65,6 @@ public class OrganismInfoConverter {
     }
 
     /**
-     * // tODO: flesh out the rest
      * @param organismInfo
      * @return
      */
@@ -88,6 +90,10 @@ public class OrganismInfoConverter {
         if (organismInfo.getBlatDb() != null) {
             object.put("blatdb", new JSONString(organismInfo.getBlatDb()));
         }
+
+        GWT.log("convertOrganismInfoToJSONObject "+organismInfo.getPublicMode());
+        object.put("publicMode", JSONBoolean.getInstance(organismInfo.getPublicMode()));
+
         return object;
     }
 

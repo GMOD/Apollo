@@ -3,7 +3,9 @@
 Features
 
 + Make the pagination for the annotator sidebar more intuitive by only loading the remainder of rows on the last page.
-+ Add support for JBrowse tracks loaded with the --compress options in the data loading pipeline
++ Add support for JBrowse tracks loaded with the --compress options in the data loading pipeline (#517).
++ Add right-click option to CanvasFeatures tracks to "Create new annotation" (alternative to drag and drop) (#576).
++ Add an option for enabling/disabling the public JBrowse mode (#577).
 
 Bugfixes
 

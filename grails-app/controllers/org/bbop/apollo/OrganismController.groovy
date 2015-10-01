@@ -23,7 +23,7 @@ class OrganismController {
     def reportService
 
     def chooseOrganismForJbrowse(){
-        [organisms:Organism.listOrderByCommonName(),urlString:params.urlString]
+        [organisms:Organism.findAllByPublicMode(true,[sort: 'commonName', order: 'desc']),urlString:params.urlString]
     }
 
     @Transactional
@@ -55,6 +55,34 @@ class OrganismController {
         render findAllOrganisms()
     }
 
+    // webservice
+    @Transactional
+    def deleteOrganismFeatures() {
+        JSONObject organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
+        if (organismJson.username == "" || organismJson.organism == "" ||organismJson.password == "") {
+            def error = ['error' : 'Empty fields in request JSON']
+            render error as JSON
+            log.error(error.error)
+            return
+        }
+        try {
+            if (!permissionService.hasPermissions(organismJson, PermissionEnum.ADMINISTRATE)) {
+                def error= [error: 'not authorized to delete all features from organism']
+                log.error(error.error)
+                render error as JSON
+                return
+            }
+
+
+
+        }
+        catch(e){
+            def error= [error: 'problem saving organism: '+e]
+            render error as JSON
+            e.printStackTrace()
+            log.error(error.error)
+        }
+    }
 
     // webservice
     @Transactional
@@ -66,12 +94,14 @@ class OrganismController {
                     throw new Exception('empty fields detected')
                 }
 
+                log.debug "Adding ${organismJson.publicMode}"
                 Organism organism = new Organism(
                         commonName: organismJson.commonName
                         , directory: organismJson.directory
                         , blatdb: organismJson.blatdb
                         , species: organismJson.species
                         , genus: organismJson.genus
+                        , publicMode: organismJson.publicMode
                 )
                 log.debug "organism ${organism as JSON}"
 
@@ -173,11 +203,13 @@ class OrganismController {
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             Organism organism = Organism.findById(organismJson.id)
             if (organism) {
+                log.debug "Adding public mode ${organismJson.publicMode}"
                 organism.commonName = organismJson.name
                 organism.blatdb = organismJson.blatdb
                 organism.species = organismJson.species
                 organism.genus = organismJson.genus
                 organism.directory = organismJson.directory
+                organism.publicMode = organismJson.publicMode
 
                 if (checkOrganism(organism)) {
                     organism.save(flush: true, insert: false, failOnError: true)
@@ -214,6 +246,8 @@ class OrganismController {
             for (Organism organism in organismList) {
                 Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])[0] as Integer
                 Integer sequenceCount = Sequence.countByOrganism(organism)
+
+                log.debug "findAllOrganismsfindAllOrganisms ${organism.publicMode}"
                 JSONObject jsonObject = [
                         id             : organism.id,
                         commonName     : organism.commonName,
@@ -224,6 +258,7 @@ class OrganismController {
                         genus          : organism.genus,
                         species        : organism.species,
                         valid          : organism.valid,
+                        publicMode     : organism.publicMode,
                         currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
                 ] as JSONObject
                 jsonArray.add(jsonObject)
