@@ -251,11 +251,9 @@ define([
                     this.show();
                 }
                 else {
+                    this.hide();
                     if (this.browser.config.disableJBrowseMode) {
                         this.login();
-                    }
-                    else {
-                        this.hide();
                     }
                 }
 
