@@ -184,7 +184,7 @@ apollo {
     history_size = 0
     overlapper_class = "org.bbop.apollo.sequence.OrfOverlapper"
     track_name_comparator = "/config/track_name_comparator.js"
-    use_cds_for_new_transcripts = false
+    use_cds_for_new_transcripts = true
     feature_has_dbxrefs = true
     feature_has_attributes = true
     feature_has_pubmed_ids = true
