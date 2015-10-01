@@ -17,12 +17,13 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.*;
-import org.bbop.apollo.gwt.client.dto.BookmarkInfo;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfoConverter;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequence;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequenceList;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
@@ -30,7 +31,6 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 
@@ -267,14 +267,16 @@ public class SequencePanel extends Composite {
     @UiHandler("bookmarkButton")
     void addNewBookmark(ClickEvent clickEvent){
         BookmarkInfo bookmarkInfo = new BookmarkInfo();
-        JSONArray sequenceArray = new JSONArray();
+        BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
         String name = "" ;
         for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
             bookmarkInfo.setPadding(50);
             bookmarkInfo.setType("Exon");
-            JSONObject sequenceObject =new JSONObject();
-            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getName()));
-            sequenceArray.set(sequenceArray.size(),sequenceObject);
+            BookmarkSequence sequenceObject =new BookmarkSequence();
+            sequenceObject.setName(sequenceInfo.getName());
+//            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getName()));
+            sequenceArray.addSequence(sequenceObject);
+//            sequenceArray.set(sequenceArray.size(),sequenceObject);
             name += sequenceInfo.getName()+",";
         }
         name = name.substring(0,name.length()-1);

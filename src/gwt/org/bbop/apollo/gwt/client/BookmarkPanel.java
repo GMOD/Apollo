@@ -5,10 +5,9 @@ import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
+//import com.google.gwt.json.client.JSONArray;
+//import com.google.gwt.json.client.JSONObject;
+//import com.google.gwt.json.client.JSONString;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -20,7 +19,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.view.client.*;
-import org.bbop.apollo.gwt.client.dto.BookmarkInfo;
+import org.bbop.apollo.gwt.client.dto.bookmark.*;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -28,7 +27,6 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -184,45 +182,45 @@ public class BookmarkPanel extends Composite {
 
     @UiHandler("viewButton")
     public void view(ClickEvent event){
-        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
-        JSONArray newArray = new JSONArray();
-        for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
-            Widget widget = dragAndDropPanel.getWidget(i);
-//            Window.alert(widget.getElement().toString());
-            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
-            if(groupName.contains("(")){
-                Integer startIndex = groupName.indexOf("(");
-                Integer endIndex = groupName.indexOf(")");
-                String featureString = groupName.substring(startIndex+1,endIndex-1);
-                groupName = groupName.substring(0,startIndex);
-//                Window.alert("group: " + groupName);
-//                Window.alert("feature: " + featureString);
-                JSONObject featureObject = new JSONObject();
-                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
-                JSONArray featuresArray = new JSONArray() ;
-                String[] features = featureString.split(",");
-                for(String feature : features){
-                    JSONObject fI = new JSONObject();
-                    fI.put(FeatureStringEnum.NAME.getValue(),new JSONString(feature));
-                    featuresArray.set(featuresArray.size(),fI) ;
-                }
-                featureObject.put(FeatureStringEnum.FEATURES.getValue(),featuresArray);
-
-                newArray.set(newArray.size(),featureObject);
-            }
-            else{
-                JSONObject featureObject = new JSONObject();
-                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
-                newArray.set(newArray.size(),featureObject);
-            }
-        }
-
-        JSONObject genomicObject = new JSONObject();
-        genomicObject.put("padding",new JSONString(foldPadding.getText()));
-        genomicObject.put("type",new JSONString(foldType.getSelectedValue()));
-        genomicObject.put("reference",new JSONString(referenceTrack.getSelectedValue()));
-        genomicObject.put(FeatureStringEnum.SEQUENCE.getValue(),newArray);
-        MainPanel.getInstance().updateGenomicViewer(genomicObject);
+//        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
+//        JSONArray newArray = new JSONArray();
+//        for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
+//            Widget widget = dragAndDropPanel.getWidget(i);
+////            Window.alert(widget.getElement().toString());
+//            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
+//            if(groupName.contains("(")){
+//                Integer startIndex = groupName.indexOf("(");
+//                Integer endIndex = groupName.indexOf(")");
+//                String featureString = groupName.substring(startIndex+1,endIndex-1);
+//                groupName = groupName.substring(0,startIndex);
+////                Window.alert("group: " + groupName);
+////                Window.alert("feature: " + featureString);
+//                JSONObject featureObject = new JSONObject();
+//                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
+//                JSONArray featuresArray = new JSONArray() ;
+//                String[] features = featureString.split(",");
+//                for(String feature : features){
+//                    JSONObject fI = new JSONObject();
+//                    fI.put(FeatureStringEnum.NAME.getValue(),new JSONString(feature));
+//                    featuresArray.set(featuresArray.size(),fI) ;
+//                }
+//                featureObject.put(FeatureStringEnum.FEATURES.getValue(),featuresArray);
+//
+//                newArray.set(newArray.size(),featureObject);
+//            }
+//            else{
+//                JSONObject featureObject = new JSONObject();
+//                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
+//                newArray.set(newArray.size(),featureObject);
+//            }
+//        }
+//
+//        JSONObject genomicObject = new JSONObject();
+//        genomicObject.put("padding",new JSONString(foldPadding.getText()));
+//        genomicObject.put("type",new JSONString(foldType.getSelectedValue()));
+//        genomicObject.put("reference",new JSONString(referenceTrack.getSelectedValue()));
+//        genomicObject.put(FeatureStringEnum.SEQUENCE.getValue(),newArray);
+//        MainPanel.getInstance().updateGenomicViewer(genomicObject);
     }
 
     /**
@@ -235,13 +233,13 @@ public class BookmarkPanel extends Composite {
         assert bookmarkInfoSet.size()==1;
 //        Window.alert("widgets in: " + dragAndDropPanel.getWidgetCount());
         BookmarkInfo bookmarkInfo = bookmarkInfoSet.iterator().next();
-        JSONArray oldArray = bookmarkInfo.getSequenceList();
+        BookmarkSequenceList oldArray = bookmarkInfo.getSequenceList();
         Integer removing = oldArray.size() - dragAndDropPanel.getWidgetCount();
         if(removing>0){
             Boolean doRemove= Window.confirm("Remove "+removing + " objects");
             if(!doRemove) return ;
         }
-        JSONArray newArray = new JSONArray();
+        BookmarkSequenceList newArray = new BookmarkSequenceList();
         for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
             Widget widget = dragAndDropPanel.getWidget(i);
 //            Window.alert(widget.getElement().toString());
@@ -253,29 +251,32 @@ public class BookmarkPanel extends Composite {
                 groupName = groupName.substring(0,startIndex);
 //                Window.alert("group: " + groupName);
 //                Window.alert("feature: " + featureString);
-                JSONObject featureObject = new JSONObject();
-                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
-                JSONArray featuresArray = new JSONArray() ;
+//                JSONObject featureObject = new JSONObject();
+                BookmarkSequence sequenceFeature = new BookmarkSequence();
+                sequenceFeature.setName(groupName);
+                SequenceFeatureList featuresArray = new SequenceFeatureList() ;
                 String[] features = featureString.split(",");
                 for(String feature : features){
-                    JSONObject fI = new JSONObject();
-                    fI.put(FeatureStringEnum.NAME.getValue(),new JSONString(feature));
+                    SequenceFeatureInfo fI = new SequenceFeatureInfo();
+                    fI.setName(feature);
+//                    fI.put(FeatureStringEnum.NAME.getValue(),new JSONString(feature));
                     featuresArray.set(featuresArray.size(),fI) ;
                 }
-                featureObject.put(FeatureStringEnum.FEATURES.getValue(),featuresArray);
+                sequenceFeature.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
 
-                newArray.set(newArray.size(),featureObject);
+                newArray.addSequence(sequenceFeature);
+//                newArray.set(newArray.size(),featureObject);
             }
             else{
-                JSONObject featureObject = new JSONObject();
-                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
-                newArray.set(newArray.size(),featureObject);
+                BookmarkSequence bookmarkSequence = new BookmarkSequence();
+                bookmarkSequence.setName(groupName);
+//                JSONObject featureObject = new JSONObject();
+//                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
+//                newArray.set(newArray.size(),featureObject);
+                newArray.addSequence(bookmarkSequence);
             }
-//            Window.alert(groupName);
         }
         bookmarkInfo.setSequenceList(newArray);
-//        bookmarkInfoList.remove(boo)
-        // reset the JSONArrya based on the widget order
 
         reload();
     }
@@ -298,16 +299,16 @@ public class BookmarkPanel extends Composite {
 //                bookmarkInfo.setSequenceList(jsonArray);
 //            }
 //            else{
-            JSONArray sequence1 = bookmarkInfo.getSequenceList();
-            JSONArray sequence2 = bookmarkInfo1.getSequenceList();
+            BookmarkSequenceList sequence1 = bookmarkInfo.getSequenceList();
+            BookmarkSequenceList sequence2 = bookmarkInfo1.getSequenceList();
             if(sequence1==null){
                 sequence1 = sequence2 ;
             }
-            else{
-                // add all fo the elements between 1 and 2 and put back into 1
-                for (int i = 0; i < sequence2.size(); i++) {
-                    sequence1.set(sequence1.size(), sequence2.get(i));
-                }
+            if(sequence2==null){
+                sequence2 = sequence1;
+            }
+            if(sequence1!=null && sequence2!=null){
+                sequence1 = sequence1.merge(sequence2);
             }
 
             bookmarkInfo.setSequenceList(sequence1);
@@ -363,16 +364,26 @@ public class BookmarkPanel extends Composite {
         for (BookmarkInfo bookmarkInfo : selectedObject) {
 
 //            HTML label = new HTML("Draggable&nbsp;#" + i);
-            JSONArray sequenceArray = bookmarkInfo.getSequenceList();
+            BookmarkSequenceList sequenceArray = bookmarkInfo.getSequenceList();
             for(int i = 0 ; i < sequenceArray.size() ; i++){
-                JSONObject sequenceObject = sequenceArray.get(i).isObject();
-                String name = sequenceObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
-                if(sequenceObject.containsKey(FeatureStringEnum.FEATURES.getValue())){
-                    JSONArray featureArray = sequenceObject.get(FeatureStringEnum.FEATURES.getValue()).isArray();
-                    for(int j = 0 ; j < featureArray.size() ; j++){
-                        name += "("+featureArray.get(j).isObject().get(FeatureStringEnum.NAME.getValue()).isString().stringValue()+")";
-                    }
+                BookmarkSequence sequenceObject = sequenceArray.getSequence(i);
+//                String name = sequenceObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
+                String name = sequenceObject.getName();
+                SequenceFeatureList sequenceFeatureList = sequenceObject.getFeatures();
+                for(int j = 0 ; j < sequenceFeatureList.size() ; j++){
+                    SequenceFeatureInfo sequenceFeatureInfo = sequenceFeatureList.getFeature(j) ;
+                     name += "("+sequenceFeatureInfo.getName()+")";
+//                    for(int j = 0 ; j < featureArray.size() ; j++){
+//                        name += "("+featureArray.get(j).isObject().get(FeatureStringEnum.NAME.getValue()).isString().stringValue()+")";
+//                    }
+
                 }
+//                if(sequenceObject.containsKey(FeatureStringEnum.FEATURES.getValue())){
+//                    JSONArray featureArray = sequenceObject.get(FeatureStringEnum.FEATURES.getValue()).isArray();
+//                    for(int j = 0 ; j < featureArray.size() ; j++){
+//                        name += "("+featureArray.get(j).isObject().get(FeatureStringEnum.NAME.getValue()).isString().stringValue()+")";
+//                    }
+//                }
                 FocusPanel focusPanel = new FocusPanel();
 //                focusPanel.setStyleName(CSS_DEMO_FLOW_PANEL_EXAMPLE_DRAGGABLE);
 
@@ -395,31 +406,31 @@ public class BookmarkPanel extends Composite {
 
     }
 
-    private void stubBackingData(int number){
-//        bookmarkInfoList.clear();
-        for (int i = 0; i < number; i++) {
-            BookmarkInfo bookmarkInfo = new BookmarkInfo();
-            JSONArray jsonArray = new JSONArray();
-            JSONObject sequenceObject = new JSONObject();
-            sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString("Group" + i % 4));
-            if (i % 2 == 0) {
-                // add a feature array sometimes
-                JSONArray featureArray = new JSONArray();
-
-                JSONObject featureObject = new JSONObject();
-                featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString("GA-1231A" + i));
-                featureArray.set(featureArray.size(), featureObject);
-
-
-                sequenceObject.put(FeatureStringEnum.FEATURES.getValue(), featureArray);
-            }
-            jsonArray.set(jsonArray.size(), sequenceObject);
-            bookmarkInfo.setSequenceList(jsonArray);
-
-            bookmarkInfoList.add(bookmarkInfo);
-        }
-        reload();
-    }
+//    private void stubBackingData(int number){
+////        bookmarkInfoList.clear();
+//        for (int i = 0; i < number; i++) {
+//            BookmarkInfo bookmarkInfo = new BookmarkInfo();
+//            JSONArray jsonArray = new JSONArray();
+//            JSONObject sequenceObject = new JSONObject();
+//            sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString("Group" + i % 4));
+//            if (i % 2 == 0) {
+//                // add a feature array sometimes
+//                JSONArray featureArray = new JSONArray();
+//
+//                JSONObject featureObject = new JSONObject();
+//                featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString("GA-1231A" + i));
+//                featureArray.set(featureArray.size(), featureObject);
+//
+//
+//                sequenceObject.put(FeatureStringEnum.FEATURES.getValue(), featureArray);
+//            }
+//            jsonArray.set(jsonArray.size(), sequenceObject);
+//            bookmarkInfo.setSequenceList(jsonArray);
+//
+//            bookmarkInfoList.add(bookmarkInfo);
+//        }
+//        reload();
+//    }
 
     public void reload() {
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);

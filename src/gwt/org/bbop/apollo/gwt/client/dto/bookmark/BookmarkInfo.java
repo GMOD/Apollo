@@ -1,11 +1,6 @@
-package org.bbop.apollo.gwt.client.dto;
+package org.bbop.apollo.gwt.client.dto.bookmark;
 
-import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.user.client.Window;
-import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-
-import java.util.List;
 
 /**
  * Created by Nathan Dunn on 12/18/14.
@@ -15,7 +10,9 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
 //    private String name;
     // should be sequence: All . .. or sequence: Feature . . . order is the sequence order
     // features can not be re-ordered
-    private JSONArray sequenceList;
+//    private JSONArray sequenceList;
+    private BookmarkSequenceList sequenceList ;
+
     private String type;
 //    private List<String> features;
     private Integer padding ;
@@ -38,16 +35,19 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
     public String getName(){
         String name = "" ;
         for(int i = 0 ; i < sequenceList.size() ; i++){
-            JSONObject sequenceObject = sequenceList.get(i).isObject();
+//            JSONObject sequenceObject = sequenceList.get(i).isObject();
+            BookmarkSequence sequenceObject = sequenceList.getSequence(i);
 
-            name += sequenceObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
-            if(sequenceObject.containsKey(FeatureStringEnum.FEATURES.getValue())){
+            name += sequenceObject.getName();
+            SequenceFeatureList sequenceFeatureList = sequenceObject.getFeatures();
+
+            if(sequenceFeatureList !=null ){
                 name += "(";
 
-                JSONArray featuresArray = sequenceObject.get(FeatureStringEnum.FEATURES.getValue()).isArray();
-                for(int j = 0 ; j < featuresArray.size() ; j++){
-                    name += featuresArray.get(j).isObject().get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
-                    if(j < featuresArray.size()-1){
+//                JSONArray featuresArray = sequenceObject.get(FeatureStringEnum.FEATURES.getValue()).isArray();
+                for(int j = 0 ; j < sequenceFeatureList.size() ; j++){
+                    name += sequenceFeatureList.getFeature(j).getName();
+                    if(j < sequenceFeatureList.size()-1){
                         name += "," ;
                     }
                 }
@@ -77,11 +77,11 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         this.payload = payload;
     }
 
-    public JSONArray getSequenceList() {
+    public BookmarkSequenceList getSequenceList() {
         return sequenceList;
     }
 
-    public void setSequenceList(JSONArray sequenceList) {
+    public void setSequenceList(BookmarkSequenceList sequenceList) {
         this.sequenceList = sequenceList;
     }
 
