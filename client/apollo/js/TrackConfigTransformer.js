@@ -14,7 +14,11 @@ constructor: function( args )  {
     var browser=args.browser;
     this.overridePlugins=browser.config.overridePlugins;
     this.transformers["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
-        trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures"; 
+        trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures";
+    };
+
+    this.transformers["JBrowse/View/Track/CanvasFeatures"] = function(trackConfig) {
+        trackConfig.type = "WebApollo/View/Track/WebApolloCanvasFeatures";
     };
 
     this.transformers["JBrowse/View/Track/Sequence"] = function(trackConfig) {
