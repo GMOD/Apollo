@@ -144,7 +144,7 @@ class JbrowseController {
             } else if (fileName.endsWith(".tbi")) {
                 mimeType = "application/x-gzip";
             } else {
-                log.error("Could not get MIME type of " + fileName + " falling back to text/plain");
+                log.info("Could not get MIME type of " + fileName + " falling back to text/plain");
                 mimeType = "text/plain";
             }
             if(fileName.endsWith("jsonz")||fileName.endsWith("txtz")) {
