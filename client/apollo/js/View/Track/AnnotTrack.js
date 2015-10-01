@@ -251,7 +251,7 @@ define([
                     this.show();
                 }
                 else {
-                    if (this.config.disableJBrowseMode) {
+                    if (this.browser.config.disableJBrowseMode) {
                         this.login();
                     }
                     else {
@@ -4302,7 +4302,7 @@ define([
                             refreshOnShow: true,
                             executeScripts: true
                         });
-                        if (track.config.disableJBrowseMode) {
+                        if (track.browser.config.disableJBrowseMode) {
                             dialog.hide = function () {
                             };
                         }
