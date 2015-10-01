@@ -9,13 +9,22 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
  */
 public class BookmarkSequence extends JSONObject {
 
+    public BookmarkSequence(){ }
+
+    public BookmarkSequence(JSONObject jsonObject){
+        this.put(FeatureStringEnum.NAME.getValue(),new JSONString(jsonObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue()));
+        if(jsonObject.containsKey(FeatureStringEnum.FEATURES.getValue())){
+            this.put(FeatureStringEnum.FEATURES.getValue(),jsonObject.get(FeatureStringEnum.FEATURES.getValue()).isArray());
+        }
+    }
+
     public String getName() {
         return get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
     }
 
     public SequenceFeatureList getFeatures() {
         if(containsKey(FeatureStringEnum.FEATURES.getValue())){
-            return (SequenceFeatureList) get(FeatureStringEnum.FEATURES.getValue());
+            return new SequenceFeatureList(get(FeatureStringEnum.FEATURES.getValue()).isArray());
         }
         return null ;
     }

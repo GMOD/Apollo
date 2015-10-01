@@ -1,6 +1,7 @@
 package org.bbop.apollo.gwt.client.dto.bookmark;
 
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.user.client.Window;
 
 /**
  * Created by ndunn on 9/30/15.
@@ -9,7 +10,8 @@ public class BookmarkSequenceList extends JSONArray {
 
 
     public BookmarkSequence getSequence(int i) {
-        return (BookmarkSequence) get(i).isObject();
+        BookmarkSequence bookmarkSequence = new BookmarkSequence(get(i).isObject());
+        return bookmarkSequence;
     }
 
     public BookmarkSequenceList merge(BookmarkSequenceList sequence2) {

@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto.bookmark;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONObject;
 
 /**
@@ -35,7 +36,6 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
     public String getName(){
         String name = "" ;
         for(int i = 0 ; i < sequenceList.size() ; i++){
-//            JSONObject sequenceObject = sequenceList.get(i).isObject();
             BookmarkSequence sequenceObject = sequenceList.getSequence(i);
 
             name += sequenceObject.getName();
@@ -43,10 +43,9 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
 
             if(sequenceFeatureList !=null ){
                 name += "(";
-
-//                JSONArray featuresArray = sequenceObject.get(FeatureStringEnum.FEATURES.getValue()).isArray();
                 for(int j = 0 ; j < sequenceFeatureList.size() ; j++){
-                    name += sequenceFeatureList.getFeature(j).getName();
+                    SequenceFeatureInfo sequenceFeatureInfo = sequenceFeatureList.getFeature(j);
+                    name += sequenceFeatureInfo.getName();
                     if(j < sequenceFeatureList.size()-1){
                         name += "," ;
                     }

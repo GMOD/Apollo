@@ -322,7 +322,7 @@ public class BookmarkPanel extends Composite {
 
     private void setBookmarkInfo(Set<BookmarkInfo> selectedObject) {
         if (selectedObject.size() == 0) {
-            mergeButton.setText("Merge");
+            mergeButton.setText("Combine");
             removeButton.setText("Remove ");
             saveButton.setText("Save");
             mergeButton.setEnabled(false);
@@ -331,7 +331,7 @@ public class BookmarkPanel extends Composite {
             saveButton.setEnabled(false);
             viewButton.setEnabled(false);
         } else if (selectedObject.size() == 1) {
-            mergeButton.setText("Merge");
+            mergeButton.setText("Combine");
             removeButton.setText("Remove");
             saveButton.setText("Save");
             mergeButton.setEnabled(false);
@@ -347,7 +347,7 @@ public class BookmarkPanel extends Composite {
         }
         // multiple
         else {
-            mergeButton.setText("Merge: " + selectedObject.size());
+            mergeButton.setText("Combine: " + selectedObject.size());
             removeButton.setText("Remove: " + selectedObject.size());
             saveButton.setText("Save");
             mergeButton.setEnabled(true);
