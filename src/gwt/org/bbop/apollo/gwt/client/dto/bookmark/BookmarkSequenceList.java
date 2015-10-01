@@ -17,7 +17,6 @@ public class BookmarkSequenceList extends JSONArray {
     public BookmarkSequenceList merge(BookmarkSequenceList sequence2) {
         // add all fo the elements between 1 and 2 and put back into 1
         for (int i = 0; i < sequence2.size(); i++) {
-            Window.alert("sequence: "+i);
             set(size(), sequence2.getSequence(i));
         }
         return this;
