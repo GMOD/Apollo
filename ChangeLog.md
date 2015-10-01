@@ -3,12 +3,13 @@
 Features
 
 + Make the pagination for the annotator sidebar more intuitive by only loading the remainder of rows on the last page.
-
++ Add support for JBrowse tracks loaded with the --compress options in the data loading pipeline
 
 Bugfixes
 
 + Fixed the permissions to only allow the global admin role to create and delete organisms (#542).
 + Fixed an issue with jbrowse compatibility for certain refSeqs.json files not containing length.
++ Fixed the calculation of overlaps using OrfOverlapper (#558).
 
 ## 2.0.0
 

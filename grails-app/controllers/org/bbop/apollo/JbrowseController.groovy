@@ -30,36 +30,39 @@ class JbrowseController {
     def servletContext
     def projectionService
 
-    def indexRouter() {
+    def indexRouter(){
         log.debug "indexRouter ${params}"
 
         List<String> paramList = new ArrayList<>()
-        params.eachWithIndex { entry, int i ->
-            if (entry.key != "action" && entry.key != "controller") {
-                paramList.add(entry.key + "=" + entry.value)
+        params.eachWithIndex{ entry, int i ->
+            if(entry.key!="action" && entry.key!="controller"){
+                paramList.add(entry.key+"="+entry.value)
             }
         }
         String urlString = "/jbrowse/index.html?${paramList.join("&")}"
         // case 3 - validated login (just read from preferences, then
-        if (permissionService.currentUser && params.organism) {
+        if(permissionService.currentUser&&params.organism){
             Organism organism = Organism.findById(params.organism)
-            preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
+            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
         }
 
-        if (permissionService.currentUser) {
+        if(permissionService.currentUser) {
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
             render file.text
             return
         }
 
+
         // case 1 - anonymous login with organism ID, show organism
-        if (params.organism) {
+        if(params.organism){
             log.debug "organism ID specified: ${params.organism}"
 
             // set the organism
             Organism organism = Organism.findById(params.organism)
             def session = request.getSession(true)
-            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
+            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value,organism.commonName)
 
             // create an anonymous login
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
@@ -68,12 +71,12 @@ class JbrowseController {
         }
 
         // case 2 - anonymous login with-OUT organism ID, show organism list
-        forward(controller: "organism", action: "chooseOrganismForJbrowse", params: [urlString: urlString])
+        forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
     }
 
 
     private String getJBrowseDirectoryForSession() {
-        if (!permissionService.currentUser) {
+        if(!permissionService.currentUser){
             return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         }
 
@@ -87,16 +90,17 @@ class JbrowseController {
 
                 if (organism.sequences) {
                     User user = permissionService.currentUser
-                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
+                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user,organism)
                     Sequence sequence = organism?.sequences?.first()
-                    if (userOrganismPreference == null) {
+                    if(userOrganismPreference ==null){
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
-                                , organism: organism
-                                , sequence: sequence
-                                , currentOrganism: true
-                        ).save(insert: true, flush: true)
-                    } else {
+                                ,organism: organism
+                                ,sequence: sequence
+                                ,currentOrganism: true
+                        ).save(insert:true,flush:true)
+                    }
+                    else{
                         userOrganismPreference.sequence = sequence
                         userOrganismPreference.currentOrganism = true
                         userOrganismPreference.save()
@@ -114,11 +118,12 @@ class JbrowseController {
         return organismJBrowseDirectory
     }
 
+
+
     /**
      * Handles data directory serving for jbrowse
      */
     def data() {
-
         String dataDirectory = getJBrowseDirectoryForSession()
         String dataFileName = dataDirectory + "/" + params.path
         String fileName = FilenameUtils.getName(params.path)
@@ -149,11 +154,13 @@ class JbrowseController {
             } else if (fileName.endsWith(".tbi")) {
                 mimeType = "application/x-gzip";
             } else {
-                log.error("Could not get MIME type of " + fileName + " falling back to text/plain");
+                log.info("Could not get MIME type of " + fileName + " falling back to text/plain");
                 mimeType = "text/plain";
             }
+            if(fileName.endsWith("jsonz")||fileName.endsWith("txtz")) {
+                response.setHeader 'Content-Encoding', 'x-gzip'
+            }
         }
-
 
         if (isCacheableFile(fileName)) {
             String eTag = createHashFromFile(file);
@@ -207,9 +214,10 @@ class JbrowseController {
 
         }
 
-
         response.setContentType(mimeType);
         if (ranges.isEmpty() || ranges.get(0) == full) {
+            // Set content size
+            response.setContentLength((int) file.length());
 
             if (fileName.endsWith(".json") || params.format == "json") {
 //            [{"length":1382403,"name":"Group1.1","seqChunkSize":20000,"end":1382403,"start":0},{"length":1405242,"name":"Group1.10","seqChunkSize":20000,"end":1405242,"start":0},{"length":2557,"name":"Group1.11","seqChunkSize":20000,"end":2557,"start":0},
@@ -444,31 +452,32 @@ class JbrowseController {
             response.setHeader("Content-Length", String.valueOf(r.length));
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
 
-            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+            BufferedInputStream bis= new BufferedInputStream(new FileInputStream(file));
 
             OutputStream output = response.getOutputStream();
             byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-            long count = r.start;
+            long count=r.start;
             try {
 
                 // Copy single part range.
-                long ret = bis.skip(r.start);
-                if (ret != r.start) {
+                long ret=bis.skip(r.start);
+                if(ret != r.start) {
                     log.error("Failed to read range request!");
                     bis.close();
                     output.close();
                     return;
                 }
 
-                while (count < r.end) {
-                    int bret = bis.read(buf, 0, DEFAULT_BUFFER_SIZE);
-                    if (bret != -1) {
+                while (count<r.end) {
+                    int bret=bis.read(buf,0,DEFAULT_BUFFER_SIZE);
+                    if(bret!=-1) {
                         output.write(buf, 0, bret);
-                        count += bret;
-                    } else break;
+                        count+=bret;
+                    }
+                    else break;
                 }
 
-            } catch (Exception e) {
+            } catch(Exception e) {
                 log.error(e.message);
                 e.printStackTrace();
             }
@@ -534,7 +543,6 @@ class JbrowseController {
 
         // add datasets to the configuration
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
-
         Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
 //        projectionService.createTranscriptProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),50)
 
@@ -552,31 +560,41 @@ class JbrowseController {
             projectionService.createExonLevelProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),50)
         }
 
-
-        if (currentOrganism != null) {
-            jsonObject.put("dataset_id", currentOrganism.id)
+        if(currentOrganism!=null) {
+            jsonObject.put("dataset_id",currentOrganism.id)
         }
-        List<Organism> list = permissionService.getOrganismsForCurrentUser()
+        else {
+            id=request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
+            jsonObject.put("dataset_id",id);
+        }
+        List<Organism> list=permissionService.getOrganismsForCurrentUser()
         JSONObject organismObjectContainer = new JSONObject()
-        for (organism in list) {
+        for(organism in list) {
             JSONObject organismObject = new JSONObject()
-            organismObject.put("name", organism.commonName)
+            organismObject.put("name",organism.commonName)
             String url = "javascript:window.top.location.href = '../annotator/loadLink?"
             url += "organism=" + organism.getId();
             url += "&highlight=0";
             url += "&tracks='";
-            organismObject.put("url", url)
+            organismObject.put("url",url)
             organismObjectContainer.put(organism.id, organismObject)
         }
-        jsonObject.put("datasets", organismObjectContainer)
 
-        if (jsonObject.include == null) jsonObject.put("include", new JSONArray())
+        if(list.size()==0) {
+            JSONObject organismObject = new JSONObject()
+            organismObject.put("name",Organism.findById(id).commonName)
+            organismObject.put("url","#")
+            organismObjectContainer.put(id, organismObject)
+        }
+
+        jsonObject.put("datasets",organismObjectContainer)
+
+        if(jsonObject.include==null) jsonObject.put("include",new JSONArray())
         jsonObject.include.add("../plugins/WebApollo/json/annot.json")
 
         response.outputStream << jsonObject.toString()
         response.outputStream.close()
     }
-
 
     private static boolean isCacheableFile(String fileName) {
         if (fileName.endsWith(".txt")) return true;
