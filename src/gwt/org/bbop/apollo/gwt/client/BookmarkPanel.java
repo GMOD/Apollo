@@ -5,9 +5,12 @@ import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
-//import com.google.gwt.json.client.JSONArray;
-//import com.google.gwt.json.client.JSONObject;
-//import com.google.gwt.json.client.JSONString;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -23,6 +26,7 @@ import org.bbop.apollo.gwt.client.dto.bookmark.*;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -82,7 +86,7 @@ public class BookmarkPanel extends Composite {
     @UiField
     Button viewButton;
 
-
+    final LoadingDialog loadingDialog;
     private PickupDragController dragController ;
     public static ListDataProvider<BookmarkInfo> dataProvider = new ListDataProvider<>();
     private static List<BookmarkInfo> bookmarkInfoList = dataProvider.getList();
@@ -93,6 +97,8 @@ public class BookmarkPanel extends Composite {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
 
         initWidget(rootElement);
+
+        loadingDialog = new LoadingDialog("Processing ...",null, false);
 
         dragController = new PickupDragController(absolutePanel, true);
         FlowPanelDropController flowPanelDropController = new FlowPanelDropController( dragAndDropPanel);
@@ -160,8 +166,9 @@ public class BookmarkPanel extends Composite {
             }
         });
 
+
 //        stubBackingData(10);
-        reload();
+//        reload();
 
     }
 
@@ -402,6 +409,31 @@ public class BookmarkPanel extends Composite {
 
     }
 
+    private class UpdateBookmarksCallback implements RequestCallback{
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+            JSONArray jsonValue = JSONParser.parseStrict(response.getText()).isArray();
+            bookmarkInfoList.clear();
+
+            // add to bookmarkInfo list
+            for(int i = 0 ; i < jsonValue.size() ; i++){
+                JSONObject jsonObject = jsonValue.get(i).isObject() ;
+                BookmarkInfo bookmarkInfo = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(jsonObject);
+                bookmarkInfoList.add(bookmarkInfo);
+            }
+
+
+            reload();
+            loadingDialog.hide();
+        }
+
+        @Override
+        public void onError(Request request, Throwable exception) {
+            loadingDialog.hide();
+            new ErrorDialog("Error","There was an error: "+exception,true,true);
+        }
+    }
+
 //    private void stubBackingData(int number){
 ////        bookmarkInfoList.clear();
 //        for (int i = 0; i < number; i++) {
@@ -429,12 +461,14 @@ public class BookmarkPanel extends Composite {
 //    }
 
     public void reload() {
+        BookmarkRestService.loadBookmarks(new UpdateBookmarksCallback());
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
         dataGrid.redraw();
     }
 
-    public void addBookmark(BookmarkInfo bookmarkInfo) {
-        bookmarkInfoList.add(bookmarkInfo);
+    public void addBookmark(RequestCallback requestCallback,BookmarkInfo bookmarkInfo) {
+//        bookmarkInfoList.add(bookmarkInfo);
+        BookmarkRestService.addBookmark(requestCallback,bookmarkInfo);
         reload();
     }
 

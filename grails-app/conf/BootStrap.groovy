@@ -9,6 +9,7 @@ import org.bbop.apollo.Pseudogene
 import org.bbop.apollo.Role
 import org.bbop.apollo.Transcript
 import org.bbop.apollo.User
+import org.bbop.apollo.UserBookmark
 import org.bbop.apollo.UserService
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 
@@ -49,6 +50,16 @@ class BootStrap {
             returnArray['length'] = it?.length
             returnArray['start'] = it?.start
             returnArray['end'] = it.end
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(UserBookmark) {
+            def returnArray = [:]
+            returnArray['id'] = it?.id
+            returnArray['type'] = it?.type
+            returnArray['padding'] = it?.padding
+            returnArray['payload'] = it?.payload
+            returnArray['sequenceList'] = it?.sequenceList
             return returnArray
         }
 

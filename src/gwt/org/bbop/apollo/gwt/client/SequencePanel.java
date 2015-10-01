@@ -268,7 +268,7 @@ public class SequencePanel extends Composite {
     void addNewBookmark(ClickEvent clickEvent){
         BookmarkInfo bookmarkInfo = new BookmarkInfo();
         BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
-        String name = "" ;
+        final String name = "" ;
         for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
             bookmarkInfo.setPadding(50);
             bookmarkInfo.setType("Exon");
@@ -277,12 +277,28 @@ public class SequencePanel extends Composite {
 //            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getName()));
             sequenceArray.addSequence(sequenceObject);
 //            sequenceArray.set(sequenceArray.size(),sequenceObject);
-            name += sequenceInfo.getName()+",";
+            name.concat(sequenceInfo.getName()+",");
         }
-        name = name.substring(0,name.length()-1);
+//        name = name.substring(0,name.length()-1);
         bookmarkInfo.setSequenceList(sequenceArray);
-        MainPanel.getInstance().addBookmark(bookmarkInfo);
-        new InfoDialog("Added Bookmark","Added bookmark for sequences "+name,true);
+
+
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                new InfoDialog("Added Bookmark","Added bookmark for sequences "+name.substring(0,name.length()-1),true);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error adding bookmark: "+exception);
+            }
+        };
+
+        MainPanel.getInstance().addBookmark(requestCallback,bookmarkInfo);
+
+
     }
 
     private void updatedExportSelectedButton() {

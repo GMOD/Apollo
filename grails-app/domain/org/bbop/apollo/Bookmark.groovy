@@ -7,17 +7,17 @@ class Bookmark {
     String type
     Integer padding
     String payload
-    String sequenceJsonArray
+    String sequenceList
 
     static constraints = {
-        sequenceJsonArray nullable: false
+        sequenceList nullable: false
         type nullable: true
         padding nullable: true
         payload nullable: true
     }
 
     static mapping = {
-        sequenceJsonArray type: "text"
+        sequenceList type: "text"
         payload type: "text"
     }
 }

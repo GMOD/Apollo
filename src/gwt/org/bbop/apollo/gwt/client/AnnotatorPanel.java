@@ -36,6 +36,7 @@ import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.dto.bookmark.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
@@ -359,8 +360,21 @@ public class AnnotatorPanel extends Composite {
 //        }
 //        name = name.substring(0, name.length() - 1);
         bookmarkInfo.setSequenceList(sequenceArray);
-        MainPanel.getInstance().addBookmark(bookmarkInfo);
-        new InfoDialog("Added Bookmark", "Added bookmark for " + currentAnnotationInfo.getName(), true);
+
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                new InfoDialog("Added Bookmark", "Added bookmark for " + currentAnnotationInfo.getName(), true);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error adding bookmark: "+exception);
+            }
+        };
+
+        MainPanel.getInstance().addBookmark(requestCallback,bookmarkInfo);
     }
 
 

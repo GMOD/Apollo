@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client.dto.bookmark;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONValue;
 
 /**
  * Created by Nathan Dunn on 12/18/14.
@@ -18,6 +19,7 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
 //    private List<String> features;
     private Integer padding ;
     private JSONObject payload ;
+    private Long id;
 
     public BookmarkInfo(){}
 
@@ -99,5 +101,13 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         bookmarkInfo.setSequenceList(sequenceList);
         bookmarkInfo.setType(type);
         return bookmarkInfo;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
     }
 }
