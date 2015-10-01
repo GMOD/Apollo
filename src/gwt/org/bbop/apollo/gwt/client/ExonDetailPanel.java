@@ -4,7 +4,6 @@ import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -22,16 +21,14 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Container;
-import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -301,7 +298,7 @@ public class ExonDetailPanel extends Composite {
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
 //        sb.append("data=" + internalData.toString());
-        sb.append("data=" + AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
+        sb.append("data=" + AnnotationInfoConverter.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
         final AnnotationInfo updatedInfo = this.internalAnnotationInfo ;
         builder.setRequestData(sb.toString());
 //        enableFields(false);
@@ -369,7 +366,7 @@ public class ExonDetailPanel extends Composite {
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
-        sb.append("data=" + AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
+        sb.append("data=" + AnnotationInfoConverter.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
         final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
         builder.setRequestData(sb.toString());
         enableFields(false);
