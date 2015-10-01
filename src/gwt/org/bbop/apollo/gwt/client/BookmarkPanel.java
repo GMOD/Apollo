@@ -362,43 +362,26 @@ public class BookmarkPanel extends Composite {
 
         dragAndDropPanel.clear();
 
-
-//        DropController pickupDropController = new FlowPanelDropController(dragAndDropPanel);
         for (BookmarkInfo bookmarkInfo : selectedObject) {
 
-//            HTML label = new HTML("Draggable&nbsp;#" + i);
             BookmarkSequenceList sequenceArray = bookmarkInfo.getSequenceList();
             for(int i = 0 ; i < sequenceArray.size() ; i++){
                 BookmarkSequence sequenceObject = sequenceArray.getSequence(i);
-//                String name = sequenceObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
                 String name = sequenceObject.getName();
                 SequenceFeatureList sequenceFeatureList = sequenceObject.getFeatures();
-                for(int j = 0 ; j < sequenceFeatureList.size() ; j++){
+                for(int j = 0 ;sequenceFeatureList!=null &&  j < sequenceFeatureList.size() ; j++){
                     SequenceFeatureInfo sequenceFeatureInfo = sequenceFeatureList.getFeature(j) ;
                      name += "("+sequenceFeatureInfo.getName()+")";
-//                    for(int j = 0 ; j < featureArray.size() ; j++){
-//                        name += "("+featureArray.get(j).isObject().get(FeatureStringEnum.NAME.getValue()).isString().stringValue()+")";
-//                    }
-
                 }
-//                if(sequenceObject.containsKey(FeatureStringEnum.FEATURES.getValue())){
-//                    JSONArray featureArray = sequenceObject.get(FeatureStringEnum.FEATURES.getValue()).isArray();
-//                    for(int j = 0 ; j < featureArray.size() ; j++){
-//                        name += "("+featureArray.get(j).isObject().get(FeatureStringEnum.NAME.getValue()).isString().stringValue()+")";
-//                    }
-//                }
                 FocusPanel focusPanel = new FocusPanel();
-//                focusPanel.setStyleName(CSS_DEMO_FLOW_PANEL_EXAMPLE_DRAGGABLE);
 
                 FlowPanel flowPanel = new FlowPanel();
                 focusPanel.setStyleName("demo-FlowPanelExample-draggable");
                 focusPanel.add(flowPanel);
 
-//                HTML label = new HTML(bookmarkInfo.getName());
                 HTML label = new HTML(name);
                 label.setStyleName("demo-FlowPanelExample-label");
                 HTML spacer = new HTML(" ");
-//                label.addStyleName(CSS_DEMO_FLOW_PANEL_EXAMPLE_LABEL);
                 flowPanel.add(label);
                 flowPanel.add(spacer);
 
@@ -422,8 +405,6 @@ public class BookmarkPanel extends Composite {
                 bookmarkInfoList.add(bookmarkInfo);
             }
 
-
-            reload();
             loadingDialog.hide();
         }
 

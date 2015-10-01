@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client.dto.bookmark;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.Window;
 
 /**
  * Created by Nathan Dunn on 12/18/14.
