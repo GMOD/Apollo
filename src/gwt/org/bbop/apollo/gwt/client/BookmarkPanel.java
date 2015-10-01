@@ -283,36 +283,37 @@ public class BookmarkPanel extends Composite {
 
     @UiHandler("mergeButton")
     public void merge(ClickEvent clickEvent) {
+        Window.alert("trying to merge");
         BookmarkInfo bookmarkInfo = new BookmarkInfo();
         Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
         // merge rule 1 . . . take largest padding
         // merge rule 2 . . . take exon -> transcript -> none
         for (BookmarkInfo bookmarkInfo1 : bookmarkInfoSet) {
+            Window.alert("bookmark info: "+bookmarkInfo1.getName());
             Integer padding = bookmarkInfo.getPadding();
             String type = bookmarkInfo.getType();
             bookmarkInfo.setPadding(padding == null || bookmarkInfo1.getPadding() > padding ? bookmarkInfo1.getPadding() : padding);
             bookmarkInfo.setType(type == null ? bookmarkInfo1.getType() : type);
 
             // combine the JSONArray now
-//            JSONArray jsonArray = bookmarkInfo.getSequenceList();
-//            if(jsonArray==null){
-//                bookmarkInfo.setSequenceList(jsonArray);
-//            }
-//            else{
             BookmarkSequenceList sequence1 = bookmarkInfo.getSequenceList();
             BookmarkSequenceList sequence2 = bookmarkInfo1.getSequenceList();
             if(sequence1==null){
-                sequence1 = sequence2 ;
+//                sequence1 = sequence2 ;
+                bookmarkInfo.setSequenceList(sequence2);
             }
+            else
             if(sequence2==null){
-                sequence2 = sequence1;
+//                sequence2 = sequence1;
+                bookmarkInfo.setSequenceList(sequence1);
             }
-            if(sequence1!=null && sequence2!=null){
+            else{
                 sequence1 = sequence1.merge(sequence2);
+                bookmarkInfo.setSequenceList(sequence1);
             }
 
-            bookmarkInfo.setSequenceList(sequence1);
-//            }
+
+            Window.alert("END bookmark info: "+bookmarkInfo.getName());
 
         }
         bookmarkInfoList.removeAll(bookmarkInfoSet);
