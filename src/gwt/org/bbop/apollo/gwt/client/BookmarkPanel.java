@@ -174,7 +174,8 @@ public class BookmarkPanel extends Composite {
 
     @UiHandler("removeButton")
     public void remove(ClickEvent clickEvent) {
-        bookmarkInfoList.removeAll(selectionModel.getSelectedSet());
+        BookmarkRestService.removeBookmarks(new UpdateBookmarksCallback(),selectionModel.getSelectedSet());
+//        bookmarkInfoList.removeAll(selectionModel.getSelectedSet());
         dragAndDropPanel.clear();
     }
 
@@ -193,15 +194,12 @@ public class BookmarkPanel extends Composite {
 //        JSONArray newArray = new JSONArray();
 //        for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
 //            Widget widget = dragAndDropPanel.getWidget(i);
-////            Window.alert(widget.getElement().toString());
 //            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
 //            if(groupName.contains("(")){
 //                Integer startIndex = groupName.indexOf("(");
 //                Integer endIndex = groupName.indexOf(")");
 //                String featureString = groupName.substring(startIndex+1,endIndex-1);
 //                groupName = groupName.substring(0,startIndex);
-////                Window.alert("group: " + groupName);
-////                Window.alert("feature: " + featureString);
 //                JSONObject featureObject = new JSONObject();
 //                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
 //                JSONArray featuresArray = new JSONArray() ;
@@ -238,7 +236,6 @@ public class BookmarkPanel extends Composite {
     public void save(ClickEvent clickEvent) {
         Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
         assert bookmarkInfoSet.size()==1;
-//        Window.alert("widgets in: " + dragAndDropPanel.getWidgetCount());
         BookmarkInfo bookmarkInfo = bookmarkInfoSet.iterator().next();
         BookmarkSequenceList oldArray = bookmarkInfo.getSequenceList();
         Integer removing = oldArray.size() - dragAndDropPanel.getWidgetCount();
@@ -249,16 +246,12 @@ public class BookmarkPanel extends Composite {
         BookmarkSequenceList newArray = new BookmarkSequenceList();
         for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
             Widget widget = dragAndDropPanel.getWidget(i);
-//            Window.alert(widget.getElement().toString());
             String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
             if(groupName.contains("(")){
                 Integer startIndex = groupName.indexOf("(");
                 Integer endIndex = groupName.indexOf(")");
                 String featureString = groupName.substring(startIndex+1,endIndex-1);
                 groupName = groupName.substring(0,startIndex);
-//                Window.alert("group: " + groupName);
-//                Window.alert("feature: " + featureString);
-//                JSONObject featureObject = new JSONObject();
                 BookmarkSequence sequenceFeature = new BookmarkSequence();
                 sequenceFeature.setName(groupName);
                 SequenceFeatureList featuresArray = new SequenceFeatureList() ;
@@ -448,7 +441,6 @@ public class BookmarkPanel extends Composite {
     }
 
     public void addBookmark(RequestCallback requestCallback,BookmarkInfo bookmarkInfo) {
-//        bookmarkInfoList.add(bookmarkInfo);
         BookmarkRestService.addBookmark(requestCallback,bookmarkInfo);
         reload();
     }

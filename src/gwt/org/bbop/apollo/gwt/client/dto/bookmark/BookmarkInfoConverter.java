@@ -5,6 +5,9 @@ import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
+import java.awt.print.Book;
+import java.util.Set;
+
 /**
  * Created by nathandunn on 10/1/15.
  */
@@ -59,5 +62,16 @@ public class BookmarkInfoConverter {
             bookmarkSequenceList.addSequence(bookmarkSequence);
         }
         return bookmarkSequenceList;
+    }
+
+    // TODO:
+    public static JSONArray convertBookmarkInfoToJSONArray(Set<BookmarkInfo> selectedSet) {
+        JSONArray jsonArray = new JSONArray();
+
+        for(BookmarkInfo bookmarkInfo : selectedSet){
+            jsonArray.set(jsonArray.size(),convertBookmarkInfoToJSONObject(bookmarkInfo));
+        }
+
+        return jsonArray;
     }
 }

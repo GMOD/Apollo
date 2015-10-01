@@ -19,9 +19,7 @@ class BookmarkController {
         User user = permissionService.getCurrentUser(bookmarkJson)
         Organism organism = preferenceService.getCurrentOrganism(user)
 
-        def bookmarks = UserBookmark.findAllByUserAndOrganism(user,organism)
-
-        render bookmarks as JSON
+        render UserBookmark.findAllByUserAndOrganism(user,organism) as JSON
     }
 
     @Transactional
@@ -44,14 +42,24 @@ class BookmarkController {
         println "is valid ${userBookmark.validate()}"
 
 
-        render list() as JSON
+        render UserBookmark.findAllByUserAndOrganism(user,organism) as JSON
     }
 
     @Transactional
     def deleteBookmark() {
-        JSONObject bookmarkJson = (request.JSON ?: JSON.parse(params.data.toString())) as JSONObject
+        JSONArray bookmarkJson = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
+        User user = permissionService.getCurrentUser(new JSONObject())
+        Organism organism = preferenceService.getCurrentOrganism(user)
+        println "trying to delete bookmarkJSON ${bookmarkJson as JSON}"
+
+        def idList = []
+        for(int i = 0 ; i < bookmarkJson.size() ; i++){
+            idList.add(bookmarkJson.getJSONObject(i).id)
+        }
 
 
-        render list() as JSON
+        UserBookmark.deleteAll(UserBookmark.findAllByIdInList(idList))
+
+        render UserBookmark.findAllByUserAndOrganism(user,organism) as JSON
     }
 }
