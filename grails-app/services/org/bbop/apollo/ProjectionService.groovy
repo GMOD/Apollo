@@ -585,4 +585,14 @@ class ProjectionService {
 
         return locationList
     }
+
+
+    def getProjection(JSONArray bookmarkArray){
+
+
+        println "gettting projeciton "
+
+
+    }
+
 }

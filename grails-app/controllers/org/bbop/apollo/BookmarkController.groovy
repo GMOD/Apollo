@@ -12,7 +12,7 @@ class BookmarkController {
 
     def permissionService
     def preferenceService
-    def userService
+    def projectionService
 
     def list() {
         println "loading bookmark . . . "
@@ -21,6 +21,30 @@ class BookmarkController {
         Organism organism = preferenceService.getCurrentOrganism(user)
 
         render UserBookmark.findAllByUserAndOrganism(user,organism) as JSON
+    }
+
+    def getBookmark(){
+        JSONArray bookmarkArray = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
+        User user = permissionService.currentUser
+        Organism organism = preferenceService.getCurrentOrganism(user)
+
+//        // should just be an array of long's
+//        List<UserBookmark> bookmarkList = []
+//        List<Long> bookmarkList = []
+////
+//        for(int i = 0 ; i < bookmarkArray.size() ; i++){
+//            Long bookmarkId = bookmarkArray.getLong(i)
+////            UserBookmark userBookmark = UserBookmark.findById(bookmarkId)
+////            UserBookmark userBookmark = UserBookmark.findById(bookmarkId)
+//            bookmarkList.add(bookmarkId)
+//        }
+
+        projectionService.getProjection(bookmarkArray)
+
+//        JSONObject returnObject = new JSONObject()
+//        returnObject.bookmark = UUID.randomUUID().toString()
+
+        render bookmarkArray as JSON
     }
 
     @Transactional

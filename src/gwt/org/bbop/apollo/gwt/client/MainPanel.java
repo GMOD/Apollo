@@ -18,9 +18,11 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
+import org.bbop.apollo.UserBookmark;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
 import org.bbop.apollo.gwt.client.event.*;
+import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
@@ -327,6 +329,45 @@ public class MainPanel extends Composite {
     public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
         updateGenomicViewerForLocation(selectedSequence,minRegion,maxRegion,false);
     }
+
+    /**
+     * Need to preserver the order
+     * @param bookmarkList
+     */
+    public static void updateGenomicViewerForBookmark(List<Long> bookmarkList) {
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
+                String bookmarkValue = returnValue.get("bookmark").isString().stringValue();
+//                String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
+//                trackListString += selectedSequence;
+                String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?bookmark=";
+                // return a lookup hash or ID . . .
+                trackListString += bookmarkValue;
+                trackListString += "&highlight=&tracklist=0";
+
+                final String finalString = trackListString;
+
+                Window.alert("setting filan string: "+finalString);
+//                frame.setUrl(finalString);
+
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Problem viewing bookmarks: "+exception);
+            }
+        };
+
+        BookmarkRestService.getBookmarks(requestCallback,bookmarkList);
+
+//        List<UserBookmark> bookmarks = UserBookmark.findById(bookmarkList);
+        // create an orderd list of features / sequences
+
+    }
+
     /**
      * @param selectedSequence
      * @param minRegion

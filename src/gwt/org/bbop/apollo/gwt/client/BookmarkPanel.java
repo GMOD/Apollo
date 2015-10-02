@@ -199,7 +199,7 @@ public class BookmarkPanel extends Composite {
             bookmarkList.add(bookmarkInfo.getId());
         }
         Window.alert("viein g "+ bookmarkList);
-//        MainPanel.updateGenomicViewerForLocation(bookmarkList);
+        MainPanel.updateGenomicViewerForBookmark(bookmarkList);
 
 
 //        JSONArray newArray = new JSONArray();
