@@ -47,6 +47,10 @@ class ProjectionService {
     @NotTransactional
     ProjectionInterface getProjection(Organism organism, String trackName, String sequenceName) {
 
+        if (!grailsApplication.config.apollo.doProjection) {
+            return null
+        }
+
         if (grailsApplication.config.apollo.useMultiSequence) {
             Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
             ProjectionDescription projectionDescription = new ProjectionDescription(

@@ -278,6 +278,7 @@ apollo {
         //['name':'GenSas2','link':'http://localhost/gensas2']
     ]
 
+    doProjection = false
     useMultiSequence = false
 //    useMultiSequence = true
 
