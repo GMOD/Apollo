@@ -586,11 +586,22 @@ class ProjectionService {
         return locationList
     }
 
-
-    def getProjection(JSONArray bookmarkArray){
-
+/**
+ * TODO:
+ * looks up bookmarks based on Ids'
+ * Creates a "Projection Description" based on Id's . . .
+ * And caches it locally . . .
+ *
+ * TODO: all calls should use this method . .   which will return a projection
+ * (probably a MultiSequencProjection)
+ *
+ * @param bookmarkArray
+ * @return
+ */
+    ProjectionInterface getProjection(JSONArray bookmarkArray){
 
         println "gettting projeciton "
+
 
 
     }

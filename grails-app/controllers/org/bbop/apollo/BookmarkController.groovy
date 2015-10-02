@@ -39,6 +39,7 @@ class BookmarkController {
 //            bookmarkList.add(bookmarkId)
 //        }
 
+        // creates a projection based on the Bookmarks and caches them
         projectionService.getProjection(bookmarkArray)
 
 //        JSONObject returnObject = new JSONObject()
