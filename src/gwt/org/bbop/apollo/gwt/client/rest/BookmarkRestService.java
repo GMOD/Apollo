@@ -4,6 +4,9 @@ import com.google.gwt.http.client.RequestCallback;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfoConverter;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -16,13 +19,11 @@ public class BookmarkRestService {
         RestService.sendRequest(requestCallback, "bookmark/list");
     }
 
-
-    public static void addBookmark(RequestCallback requestCallback,BookmarkInfo bookmarkInfo) {
-        RestService.sendRequest(requestCallback, "bookmark/addBookmark", BookmarkInfoConverter.convertBookmarkInfoToJSONObject(bookmarkInfo));
+    public static void addBookmark(RequestCallback requestCallback,BookmarkInfo... bookmarkInfoCollection) {
+        RestService.sendRequest(requestCallback, "bookmark/addBookmark", BookmarkInfoConverter.convertBookmarkInfoToJSONArray(bookmarkInfoCollection));
     }
 
-    // TODO:
-    public static void removeBookmarks(RequestCallback requestCallback,Set<BookmarkInfo> selectedSet) {
-        RestService.sendRequest(requestCallback, "bookmark/deleteBookmark","data="+BookmarkInfoConverter.convertBookmarkInfoToJSONArray(selectedSet).toString());
+    public static void removeBookmarks(RequestCallback requestCallback,BookmarkInfo... selectedSet) {
+        RestService.sendRequest(requestCallback, "bookmark/deleteBookmark",BookmarkInfoConverter.convertBookmarkInfoToJSONArray(selectedSet));
     }
 }

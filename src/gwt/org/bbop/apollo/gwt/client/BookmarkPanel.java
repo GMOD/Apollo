@@ -31,9 +31,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -174,7 +172,7 @@ public class BookmarkPanel extends Composite {
 
     @UiHandler("removeButton")
     public void remove(ClickEvent clickEvent) {
-        BookmarkRestService.removeBookmarks(new UpdateBookmarksCallback(),selectionModel.getSelectedSet());
+        BookmarkRestService.removeBookmarks(new UpdateBookmarksCallback(),selectionModel.getSelectedSet().toArray(new BookmarkInfo[selectionModel.getSelectedSet().size()]));
 //        bookmarkInfoList.removeAll(selectionModel.getSelectedSet());
         dragAndDropPanel.clear();
     }
@@ -182,15 +180,28 @@ public class BookmarkPanel extends Composite {
     @UiHandler("copyButton")
     public void copy(ClickEvent clickEvent) {
         Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
+        BookmarkInfo[] bookmarkInfoCopy = new BookmarkInfo[bookmarkInfoSet.size()];
+        int index = 0 ;
         for(BookmarkInfo bookmarkInfo : bookmarkInfoSet){
-            bookmarkInfoList.add(bookmarkInfo.copy());
+//            bookmarkInfoCopy.add(bookmarkInfo.copy());
+            bookmarkInfoCopy[index++] = bookmarkInfo ;
         }
+        addBookmark(new UpdateBookmarksCallback(),bookmarkInfoCopy);
     }
 
 
     @UiHandler("viewButton")
     public void view(ClickEvent event){
-//        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
+        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
+        // it will be an ordered list of bookmarks ;
+        List<Long> bookmarkList = new ArrayList<>();
+        for(BookmarkInfo bookmarkInfo : bookmarkInfoSet){
+            bookmarkList.add(bookmarkInfo.getId());
+        }
+        Window.alert("viein g "+ bookmarkList);
+//        MainPanel.updateGenomicViewerForLocation(bookmarkList);
+
+
 //        JSONArray newArray = new JSONArray();
 //        for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
 //            Widget widget = dragAndDropPanel.getWidget(i);
@@ -408,40 +419,14 @@ public class BookmarkPanel extends Composite {
         }
     }
 
-//    private void stubBackingData(int number){
-////        bookmarkInfoList.clear();
-//        for (int i = 0; i < number; i++) {
-//            BookmarkInfo bookmarkInfo = new BookmarkInfo();
-//            JSONArray jsonArray = new JSONArray();
-//            JSONObject sequenceObject = new JSONObject();
-//            sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString("Group" + i % 4));
-//            if (i % 2 == 0) {
-//                // add a feature array sometimes
-//                JSONArray featureArray = new JSONArray();
-//
-//                JSONObject featureObject = new JSONObject();
-//                featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString("GA-1231A" + i));
-//                featureArray.set(featureArray.size(), featureObject);
-//
-//
-//                sequenceObject.put(FeatureStringEnum.FEATURES.getValue(), featureArray);
-//            }
-//            jsonArray.set(jsonArray.size(), sequenceObject);
-//            bookmarkInfo.setSequenceList(jsonArray);
-//
-//            bookmarkInfoList.add(bookmarkInfo);
-//        }
-//        reload();
-//    }
-
     public void reload() {
         BookmarkRestService.loadBookmarks(new UpdateBookmarksCallback());
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
         dataGrid.redraw();
     }
 
-    public void addBookmark(RequestCallback requestCallback,BookmarkInfo bookmarkInfo) {
-        BookmarkRestService.addBookmark(requestCallback,bookmarkInfo);
+    public void addBookmark(RequestCallback requestCallback,BookmarkInfo... bookmarkInfoCollection) {
+        BookmarkRestService.addBookmark(requestCallback,bookmarkInfoCollection);
         reload();
     }
 

@@ -12,6 +12,7 @@ class BookmarkController {
 
     def permissionService
     def preferenceService
+    def userService
 
     def list() {
         println "loading bookmark . . . "
@@ -24,22 +25,25 @@ class BookmarkController {
 
     @Transactional
     def addBookmark() {
-        JSONObject bookmarkJson = (request.JSON ?: JSON.parse(params.data.toString())) as JSONObject
-        User user = permissionService.getCurrentUser(bookmarkJson)
+        JSONArray bookmarkArray = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
+        User user = permissionService.currentUser
         Organism organism = preferenceService.getCurrentOrganism(user)
 
-        UserBookmark userBookmark = new UserBookmark(
-                id: bookmarkJson.id
-                , user: user
-                , type: bookmarkJson.type
-                , padding: bookmarkJson.padding
-                , payload: bookmarkJson.payload
-                , organism: organism
-                , sequenceList: (bookmarkJson.sequenceList as JSON).toString()
-        ).save()
+        for(int i = 0 ; i < bookmarkArray.size() ; i++){
+            JSONObject bookmarkJson = bookmarkArray.getJSONObject(i)
+            UserBookmark userBookmark = new UserBookmark(
+                    id: bookmarkJson.id
+                    , user: user
+                    , type: bookmarkJson.type
+                    , padding: bookmarkJson.padding
+                    , payload: bookmarkJson.payload
+                    , organism: organism
+                    , sequenceList: (bookmarkJson.sequenceList as JSON).toString()
+            ).save()
+//            println "output ${userBookmark as JSON}"
+//            println "is valid ${userBookmark.validate()}"
+        }
 
-        println "output ${userBookmark as JSON}"
-        println "is valid ${userBookmark.validate()}"
 
 
         render UserBookmark.findAllByUserAndOrganism(user,organism) as JSON

@@ -6,6 +6,7 @@ import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.awt.print.Book;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -65,7 +66,7 @@ public class BookmarkInfoConverter {
     }
 
     // TODO:
-    public static JSONArray convertBookmarkInfoToJSONArray(Set<BookmarkInfo> selectedSet) {
+    public static JSONArray convertBookmarkInfoToJSONArray(BookmarkInfo... selectedSet) {
         JSONArray jsonArray = new JSONArray();
 
         for(BookmarkInfo bookmarkInfo : selectedSet){
