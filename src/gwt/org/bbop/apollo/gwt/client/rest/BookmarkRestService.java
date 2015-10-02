@@ -29,11 +29,11 @@ public class BookmarkRestService {
         RestService.sendRequest(requestCallback, "bookmark/deleteBookmark",BookmarkInfoConverter.convertBookmarkInfoToJSONArray(selectedSet));
     }
 
-    public static void getBookmarks(RequestCallback requestCallback, List<Long> bookmarkList) {
-        JSONArray bookmarkInfoArray = new JSONArray();
-        for(Long id : bookmarkList){
-            bookmarkInfoArray.set(bookmarkInfoArray.size(),new JSONNumber(id));
-        }
-        RestService.sendRequest(requestCallback, "bookmark/getBookmark",bookmarkInfoArray);
+    public static void getBookmarks(RequestCallback requestCallback, BookmarkInfo bookmarkInfo) {
+//        JSONArray bookmarkInfoArray = new JSONArray();
+//        for(Long id : bookmarkList){
+//            bookmarkInfoArray.set(bookmarkInfoArray.size(),new JSONNumber(id));
+//        }
+        RestService.sendRequest(requestCallback, "bookmark/getBookmark",BookmarkInfoConverter.convertBookmarkInfoToJSONObject(bookmarkInfo));
     }
 }

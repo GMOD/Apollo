@@ -331,9 +331,9 @@ public class MainPanel extends Composite {
 
     /**
      * Need to preserver the order
-     * @param bookmarkList
+     * @param bookmarkInfo
      */
-    public static void updateGenomicViewerForBookmark(List<Long> bookmarkList) {
+    public static void updateGenomicViewerForBookmark(BookmarkInfo bookmarkInfo) {
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -360,7 +360,7 @@ public class MainPanel extends Composite {
             }
         };
 
-        BookmarkRestService.getBookmarks(requestCallback,bookmarkList);
+        BookmarkRestService.getBookmarks(requestCallback,bookmarkInfo);
 
 //        List<UserBookmark> bookmarks = UserBookmark.findById(bookmarkList);
         // create an orderd list of features / sequences
@@ -850,7 +850,7 @@ public class MainPanel extends Composite {
     }
 
     public void addBookmark(RequestCallback requestCallback,BookmarkInfo bookmarkInfo){
-        bookmarkPanel.addBookmark(requestCallback,bookmarkInfo);
+        bookmarkPanel.addBookmark(requestCallback, bookmarkInfo);
     }
 
 }

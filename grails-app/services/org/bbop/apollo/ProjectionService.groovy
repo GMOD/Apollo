@@ -598,12 +598,15 @@ class ProjectionService {
  * @param bookmarkArray
  * @return
  */
-    ProjectionInterface getProjection(JSONArray bookmarkArray){
+    ProjectionInterface getProjection(JSONObject bookmarkObject){
 
-        println "gettting projeciton "
+        println "gettting projeciton ${bookmarkObject}"
+        ProjectionDescription projectionDescription = new ProjectionDescription()
 
 
+//        projectionDescription.getSequenceList().iterator().next().
 
+        return null
     }
 
 }

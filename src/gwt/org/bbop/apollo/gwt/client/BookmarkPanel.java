@@ -195,11 +195,21 @@ public class BookmarkPanel extends Composite {
         Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
         // it will be an ordered list of bookmarks ;
         List<Long> bookmarkList = new ArrayList<>();
+        BookmarkInfo mergedBookmark = new BookmarkInfo();
         for(BookmarkInfo bookmarkInfo : bookmarkInfoSet){
-            bookmarkList.add(bookmarkInfo.getId());
+            if(mergedBookmark==null){
+                mergedBookmark = bookmarkInfo;
+            }
+            else{
+                mergedBookmark = bookmarkInfo.merge(bookmarkInfo);
+            }
         }
-        Window.alert("viein g "+ bookmarkList);
-        MainPanel.updateGenomicViewerForBookmark(bookmarkList);
+        Window.alert("viein g "+ mergedBookmark);
+
+        // merge the bookmark info's into a single one!
+
+
+        MainPanel.updateGenomicViewerForBookmark(mergedBookmark);
 
 
 //        JSONArray newArray = new JSONArray();

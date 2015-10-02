@@ -24,7 +24,7 @@ class BookmarkController {
     }
 
     def getBookmark(){
-        JSONArray bookmarkArray = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
+        JSONObject bookmarkObject = (request.JSON ?: JSON.parse(params.data.toString())) as JSONObject
         User user = permissionService.currentUser
         Organism organism = preferenceService.getCurrentOrganism(user)
 
@@ -40,12 +40,12 @@ class BookmarkController {
 //        }
 
         // creates a projection based on the Bookmarks and caches them
-        projectionService.getProjection(bookmarkArray)
+        projectionService.getProjection(bookmarkObject)
 
 //        JSONObject returnObject = new JSONObject()
 //        returnObject.bookmark = UUID.randomUUID().toString()
 
-        render bookmarkArray as JSON
+        render bookmarkObject as JSON
     }
 
     @Transactional
