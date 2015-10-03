@@ -546,7 +546,7 @@ class JbrowseController {
             if (grailsApplication.config.apollo.useMultiSequence) {
                 ProjectionDescription projectionDescription = new ProjectionDescription()
                 projectionDescription.padding = 50
-                projectionDescription.featureNames = ["ALL"]
+//                projectionDescription.featureNames = ["ALL"]
                 projectionDescription.referenceTracks = ["Official Gene Set v3.2"]
                 // TODO: get the proper name from the UI
                 projectionDescription.type = "EXON"

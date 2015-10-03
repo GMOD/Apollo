@@ -117,6 +117,19 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
 
         bookmarkInfoReturn.setPadding( bookmarkInfo.getPadding() > bookmarkInfoReturn.getPadding() ? bookmarkInfo.getPadding() : bookmarkInfoReturn.getPadding());
         // TODO: set payload when we have that
+        if(bookmarkInfoReturn.getPayload()==null){
+            bookmarkInfoReturn.setPayload(bookmarkInfo.getPayload());
+        }
+        else
+        if(bookmarkInfo.getPayload()==null){
+//            bookmarkInfoReturn.setPayload(bookmarkInfo.getPayload());
+        }
+        // if neither is null
+        else{
+            // TODO: merge teh payload
+
+        }
+//        bookmarkInfoReturn.setPayload();
 //        bookmarkInfo.setType(); // just take the one I guess
         BookmarkSequenceList bookmarkSequenceList = bookmarkInfo.getSequenceList();
         for(int i = 0 ; i < bookmarkSequenceList.size() ; i++){

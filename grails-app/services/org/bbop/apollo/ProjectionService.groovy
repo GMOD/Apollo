@@ -598,15 +598,49 @@ class ProjectionService {
  * @param bookmarkArray
  * @return
  */
-    ProjectionInterface getProjection(JSONObject bookmarkObject){
+    def getProjection(JSONObject bookmarkObject){
 
         println "gettting projeciton ${bookmarkObject}"
         ProjectionDescription projectionDescription = new ProjectionDescription()
 
+        projectionDescription.type = bookmarkObject.type
+        projectionDescription.padding = bookmarkObject.padding
+        // TODO: reference / ?
+        JSONArray bookmarkInfoSequenceList = bookmarkObject.sequenceList
+        List<ProjectionSequence> projectionSequenceList = new ArrayList<>()
+        for(int i = 0 ;  i < bookmarkInfoSequenceList.size() ; i++){
+           JSONObject bookmarkSequence = bookmarkInfoSequenceList.getJSONObject(i)
+            ProjectionSequence projectionSequence1 = new ProjectionSequence()
+            projectionSequence1.setOrder(i)
+            projectionSequence1.setName(bookmarkSequence.name)
+
+            JSONArray featureArray = bookmarkSequence.features
+            List<String> features = new ArrayList<>()
+            for(int j = 0 ; j < featureArray.size() ; j++){
+                features.add(featureArray.getString(j))
+            }
+            projectionSequence1.setFeatures(features)
+
+            projectionSequenceList.add(projectionSequence1)
+        }
+
+
+
+
+        if(!multiSequenceProjectionMap.containsKey(projectionDescription)){
+            // generate prorjent and pu
+            Map<ProjectionSequence,MultiSequenceProjection>  map = new HashMap<>()
+            // process some stuff
+
+            multiSequenceProjectionMap.put(projectionDescription,map)
+        }
+        return multiSequenceProjectionMap.get(projectionDescription)
+        // return with appropriate sequence if one . .
+
 
 //        projectionDescription.getSequenceList().iterator().next().
 
-        return null
+//        return null
     }
 
 }

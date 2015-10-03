@@ -12,6 +12,7 @@ class ProjectionSequence implements Comparable<org.bbop.apollo.projection.Projec
     Integer order  // what order this should be processed as
     Integer offset  = 0
     Integer originalOffset = 0 // original incoming coordinates
+    List<String> features // a list of Features  // dfeault is a single entry ALL . . if empty then all
 
 
     boolean equals(o) {
