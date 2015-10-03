@@ -107,24 +107,53 @@ class OverlapperService implements Overlapper{
     
     private boolean cdsOverlap(List<Exon> exons1, List<Exon> exons2, boolean checkStrand) {
         // implementation for determining isoforms based on CDS overlaps
+        // TODO The way cdsFrame is being calculated doesn't work for all cases
+
         CDS cds1 = transcriptService.getCDS( exonService.getTranscript(exons1.get(0)) )
         CDS cds2 = transcriptService.getCDS( exonService.getTranscript(exons2.get(0)) )
         ArrayList<CDSEntity> cdsEntitiesForTranscript1 = getCDSEntities(cds1, exons1)
         ArrayList<CDSEntity> cdsEntitiesForTranscript2 = getCDSEntities(cds2, exons2)
         int cds1UniversalFrame = 0
         int cds2UniversalFrame = 0
+        int cds1Frame = 0
+        int cds2Frame = 0
+        int cds1Length = 0
+        int cds2Length = 0
 
         for (int i = 0; i < cdsEntitiesForTranscript1.size(); i++) {
             CDSEntity c1 = cdsEntitiesForTranscript1.get(i)
-            cds1UniversalFrame = (cds1UniversalFrame + c1.length) % 3
+            cds1Length += c1.length
+            if (i == 0) {
+                cds1Frame = c1.strand == Strand.POSITIVE.value ? c1.fmin % 3 : (c1.fmax - 1) % 3
+            }
+            else {
+                if (cds1Frame == 0) {
+                    cds1Frame = c1.strand == Strand.POSITIVE.value ? c1.fmin % 3 : (c1.fmax - 1) % 3
+                }
+                else {
+                    cds1Frame = (3 - (cds1Length % 3)) % 3
+                }
+            }
             for (int j = 0; j < cdsEntitiesForTranscript2.size(); j++) {
                 CDSEntity c2 = cdsEntitiesForTranscript2.get(j)
-                cds2UniversalFrame = (cds2UniversalFrame + c2.length) % 3
+                cds2Length += c2.length
+                if (j == 0) {
+                    cds2Frame = c2.strand == Strand.POSITIVE.value ? c2.fmin % 3 : (c2.fmax - 1) % 3
+                }
+                else {
+                    if (cds2Frame == 0) {
+                        cds2Frame = c2.strand == Strand.POSITIVE.value ? c2.fmin % 3 : (c2.fmax - 1) % 3
+                    }
+                    else {
+                        cds2Frame = (3 - (cds2Length % 3)) % 3
+                    }
+
+                }
                 log.debug "Comparing CDSEntity ${c1.fmin}-${c1.fmax} to ${c2.fmin}-${c2.fmax}"
-                log.debug "CDS1 vs. CDS2 universal frame: ${cds1UniversalFrame} vs. ${cds2UniversalFrame}"
+                log.debug "CDS1 vs. CDS2 frame: ${cds1Frame} vs. ${cds2Frame}"
                 if (overlaps(c1,c2)) {
                     if (checkStrand) {
-                        if ((c1.strand == c2.strand) && (cds1UniversalFrame == cds2UniversalFrame)) {
+                        if ((c1.strand == c2.strand) && (cds1Frame == cds2Frame)) {
                             log.debug "Conditions met"
                             return true
                         }
