@@ -704,9 +704,12 @@ class RequestHandlingService {
             JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
             featureService.setTranslationStart(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMIN.value), true)
         }
+        
         transcript.save()
+        featureService.handleDynamicIsoformOverlap(transcript)
+        
         Gene gene = transcriptService.getGene(transcript)
-
+        
         JSONObject newJSONObject = featureService.convertFeatureToJSON(transcript, false)
 
         featureEventService.addNewFeatureEvent(setStart ? FeatureOperation.SET_TRANSLATION_START : FeatureOperation.UNSET_TRANSLATION_START, gene.name, transcript.uniqueName, inputObject, transcriptJSONObject, newJSONObject, permissionService.getCurrentUser(inputObject))
@@ -748,7 +751,8 @@ class RequestHandlingService {
             featureService.setTranslationEnd(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value))
         }
         transcript.save()
-
+        featureService.handleDynamicIsoformOverlap(transcript)
+        
         JSONObject newJSONObject = featureService.convertFeatureToJSON(transcript, false)
         featureEventService.addNewFeatureEvent(setEnd ? FeatureOperation.SET_TRANSLATION_END : FeatureOperation.UNSET_TRANSLATION_END, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, transcriptJSONObject, newJSONObject, permissionService.getCurrentUser(inputObject))
         JSONObject featureContainer = createJSONFeatureContainer(newJSONObject);
@@ -901,7 +905,8 @@ class RequestHandlingService {
         featureService.setLongestORF(transcript, false)
 
         transcript.save(flush: true, insert: false)
-
+        featureService.handleDynamicIsoformOverlap(transcript)
+        
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
 
         if (sequence) {
@@ -965,10 +970,8 @@ class RequestHandlingService {
             featureService.calculateCDS(transcript)
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
-            // TODO: re-enable
-//            featureService.handleIsoformOverlap(transcript);
-
             transcript.save()
+            featureService.handleDynamicIsoformOverlap(transcript);
 
             JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
@@ -1374,6 +1377,7 @@ class RequestHandlingService {
                 featureService.setLongestORF((Transcript) feature)
                 nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites((Transcript) feature)
                 featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON((Transcript) feature), permissionService.getCurrentUser(inputObject))
+                featureService.handleDynamicIsoformOverlap(feature)
             } else {
                 feature = featureService.flipStrand(feature)
                 featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, feature.name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON(feature), permissionService.getCurrentUser(inputObject))
@@ -1409,7 +1413,8 @@ class RequestHandlingService {
 
         transcript1.save(flush: true)
         exon1.save(flush: true)
-
+        featureService.handleDynamicIsoformOverlap(transcript1)
+        
         JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript1)
         JSONObject featureContainer = createJSONFeatureContainer(newJsonObject)
 
@@ -1446,7 +1451,7 @@ class RequestHandlingService {
 
         exon.save()
         transcript.save(flush: true)
-
+        featureService.handleDynamicIsoformOverlap(transcript)
 
         JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
         JSONObject featureContainer = createJSONFeatureContainer(newJsonObject);
@@ -1484,7 +1489,7 @@ class RequestHandlingService {
 
             exonService.deleteExon(transcript, exon);
         }
-
+        featureService.handleDynamicIsoformOverlap(transcript)
         Feature topLevelFeature = featureService.getTopLevelFeature(transcript)
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topLevelFeature))
 
@@ -1542,6 +1547,7 @@ class RequestHandlingService {
                     if (!(newFeature instanceof Pseudogene) && transcriptService.isProteinCoding(transcript)) {
                         if (!configWrapperService.useCDS() || transcriptService.getCDS(transcript) == null) {
                             featureService.calculateCDS(transcript);
+                            featureService.handleDynamicIsoformOverlap(transcript)
                         }
                     } else {
                         if (transcriptService.getCDS(transcript) != null) {
@@ -1809,6 +1815,7 @@ class RequestHandlingService {
         transcript.save(failOnError: true)
         exon.save(failOnError: true)
         splitExon.save(failOnError: true, flush: true)
+        featureService.handleDynamicIsoformOverlap(transcript)
 
         JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
         JSONObject featureContainer = createJSONFeatureContainer(newJsonObject)
@@ -2025,6 +2032,8 @@ class RequestHandlingService {
         featureService.calculateCDS(transcript1)
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1)
 
+        featureService.handleDynamicIsoformOverlap(transcript1)
+        
         Gene gene1 = transcriptService.getGene(transcript1)
 
         gene1 = gene1.refresh()
