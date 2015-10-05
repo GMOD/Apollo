@@ -27,6 +27,7 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
+import org.bbop.apollo.gwt.shared.BookmarkService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -193,23 +194,31 @@ public class BookmarkPanel extends Composite {
     @UiHandler("viewButton")
     public void view(ClickEvent event){
         Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
-        // it will be an ordered list of bookmarks ;
-        List<Long> bookmarkList = new ArrayList<>();
-        BookmarkInfo mergedBookmark = new BookmarkInfo();
-        for(BookmarkInfo bookmarkInfo : bookmarkInfoSet){
-            if(mergedBookmark==null){
-                mergedBookmark = bookmarkInfo;
-            }
-            else{
-                mergedBookmark = bookmarkInfo.merge(bookmarkInfo);
-            }
+        if(bookmarkInfoSet.size()==0){
+            Window.alert("You must select at least one bookmark to project");
+            return ;
         }
-        Window.alert("viein g "+ mergedBookmark);
+        String foldingType = foldType.getSelectedValue();
+//        if(foldingType.equals("None")){
+//            Window.alert("Must select a folding method");
+//            return ;
+//        }
+        Integer foldPaddingValue = Integer.parseInt(foldPadding.getText());
 
-        // merge the bookmark info's into a single one!
+        // it will be an ordered list of bookmarks ;
+        List<String> bookmarkList = new ArrayList<>();
 
+//        BookmarkInfo mergedBookmark = new BookmarkInfo();
+        for(BookmarkInfo bookmarkInfo : bookmarkInfoSet){
+            bookmarkList.add(bookmarkInfo.getName());
+        }
+//        Window.alert("viein g "+ mergedBookmark);
 
-        MainPanel.updateGenomicViewerForBookmark(mergedBookmark);
+        String mergedSequence = BookmarkService.getInstance().generateSequenceString(bookmarkList,foldingType,foldPaddingValue);
+        Window.alert(mergedSequence);
+
+        MainPanel.updateGenomicViewerForLocation(mergedSequence,-1,-1);
+//        MainPanel.updateGenomicViewerForBookmark(mergedBookmark);
 
 
 //        JSONArray newArray = new JSONArray();

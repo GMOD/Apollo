@@ -330,6 +330,8 @@ public class MainPanel extends Composite {
     }
 
     /**
+     * TODO: remove?
+     *
      * Need to preserver the order
      * @param bookmarkInfo
      */
