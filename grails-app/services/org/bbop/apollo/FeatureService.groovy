@@ -1865,13 +1865,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
         }
         else {
-            allSortedTranscripts = allTranscripts?.sort() { b, a -> a.featureLocation.fmax <=> b.featureLocation.fmax }
+            allSortedTranscripts = allTranscripts?.sort() { a, b -> b.featureLocation.fmax <=> a.featureLocation.fmax }
         }
-        // In an given scenario, all sorted transcripts should have the same parent indicating no changes to be made.
+        // In a normal scenario, all sorted transcripts should have the same parent indicating no changes to be made.
         // If there are transcripts that do overlap but do not have the same parent gene then these transcripts should 
         // be merged to the 5' most transcript's gene.
         // If there are transcripts that do not overlap but have the same parent gene then these transcripts should be 
         // given a new, de-novo gene.
+        log.debug "allSortedTranscripts:${allSortedTranscripts.name}"
         Transcript fivePrimeTranscript = allSortedTranscripts.get(0)
         Gene fivePrimeGene = transcriptService.getGene(fivePrimeTranscript)
         log.debug "5' Transcript: ${fivePrimeTranscript.name}"
@@ -1900,10 +1901,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             Gene mergedGene
             mergedGene = mergeGeneEntities(fivePrimeGene, genesToMerge.unique())
             for (Transcript eachTranscript in transcriptsToAssociate) {
-                featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(eachTranscript), eachTranscript)
+                Gene eachTranscriptParent = transcriptService.getGene(eachTranscript)
+                featureRelationshipService.removeFeatureRelationship(eachTranscriptParent, eachTranscript)
                 addTranscriptToGene(mergedGene, eachTranscript)
                 eachTranscript.name = nameService.generateUniqueName(eachTranscript, mergedGene.name)
                 eachTranscript.save()
+                if (eachTranscriptParent.parentFeatureRelationships.size() == 0) {
+                    eachTranscriptParent.delete()
+                }
             }
         }
         
@@ -1928,8 +1933,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                             fmax: firstTranscript.fmax,
                             strand: firstTranscript.strand,
                             sequence: firstTranscript.featureLocation.sequence,
-                            // TODO: copy over more properties
-                            
+                            //residueInfo: firstTranscript.featureLocation.residueInfo,
+                            //locgroup: firstTranscript.featureLocation.locgroup,
+                            //rank: firstTranscript.featureLocation.rank
                     ).save()
                     newGene.addToFeatureLocations(newGeneFeatureLocation)
                     featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(firstTranscript), firstTranscript)
@@ -1974,15 +1980,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         newFeatureLocation.fmin = fminList.min()
         newFeatureLocation.fmax = fmaxList.max()
         
-//        for (Gene gene in genes) {
-//            mainGene.addToFeatureDBXrefs(gene.featureDBXrefs)
-//            mainGene.addToFeatureGenotypes(gene.featureGenotypes)
-//            mainGene.addToFeaturePhenotypes(gene.featurePhenotypes)
-//            mainGene.addToFeaturePublications(gene.featurePublications)
-//            mainGene.addToFeatureProperties(gene.featureProperties)
-//            mainGene.addToFeatureSynonyms(gene.featureSynonyms)
-//            // TODO: Need to copy over other properties
-//        }
+        for (Gene gene in genes) {
+            gene.featureDBXrefs.each {mainGene.addToFeatureDBXrefs(it)}
+            gene.featureGenotypes.each {mainGene.addToFeatureGenotypes(it)}
+            gene.featurePhenotypes.each {mainGene.addToFeaturePhenotypes(it)}
+            gene.featurePublications.each {mainGene.addToFeaturePublications(it)}
+            gene.featureProperties.each {mainGene.addToFeatureProperties(it)}
+            gene.featureSynonyms.each {mainGene.addToFeatureSynonyms(it)}
+            gene.owners.each {mainGene.addToOwners(it)}
+            gene.synonyms.each {mainGene.addToSynonyms(it)}
+        }
+
         mainGene.save()
         return mainGene
     }
