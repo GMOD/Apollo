@@ -10,6 +10,7 @@ import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionDescription
 import org.bbop.apollo.projection.ProjectionInterface
+import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -236,14 +237,16 @@ class JbrowseController {
                     Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
                     println "refseq size ${refSeqJsonObject.size()}"
 
-                    Map<ProjectionDescription,MultiSequenceProjection> projection = null
-                    JSONArray projectedArray
+                    Map<ProjectionSequence,MultiSequenceProjection> projection = null
+                    JSONArray projectedArray = null
 
-                    if(refererLoc.startsWith("{proj")){
+                    refererLoc = URLDecoder.decode(refererLoc,"UTF-8")
+
+                    if(refererLoc.startsWith("{\"projection\":")){
 //                        {{proj:None},{padding:50},{sequences:[Group1.1(GB42145-RA)}]}%3A-1..-1
 //                        ProjectionDescription projectionDescription = new ProjectionDescription(refererLoc)
 //                        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
-                        JSONObject bookmarkJsonObject = JSON.parse(refererLoc)
+                        JSONObject bookmarkJsonObject = JSON.parse(refererLoc) as JSONObject
                         projection = projectionService.getProjection(bookmarkJsonObject)
                         projectedArray = new JSONArray()
                     }
@@ -257,12 +260,12 @@ class JbrowseController {
 //                            DiscontinuousProjection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
 //                        ProjectionInterface projection = projectionService.getProjection(currentOrganism, "", sequenceName)
                         // not projections for every sequence  . . .
-                        if (projection) {
-
-
-                            Integer projectedSequenceLength = projection.length
+                        if (projection && projectionService.containsSequence(projection,sequenceName,sequenceValue.id,currentOrganism)) {
+                            Integer projectedSequenceLength = projection.size()
                             sequenceValue.put("length", projectedSequenceLength)
                             sequenceValue.put("end", projectedSequenceLength)
+                            sequenceValue.put("name", refererLoc)
+                            projectedArray.add(sequenceValue)
                         }
                     }
 

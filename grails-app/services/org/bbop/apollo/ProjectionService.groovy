@@ -608,7 +608,7 @@ class ProjectionService {
         projectionDescription.type = bookmarkObject.projection
         projectionDescription.padding = bookmarkObject.padding
         // TODO: reference / ?
-        JSONArray bookmarkInfoSequenceList = bookmarkObject.sequenceList
+        JSONArray bookmarkInfoSequenceList = bookmarkObject.sequences
         List<ProjectionSequence> projectionSequenceList = new ArrayList<>()
         for(int i = 0 ;  i < bookmarkInfoSequenceList.size() ; i++){
            JSONObject bookmarkSequence = bookmarkInfoSequenceList.getJSONObject(i)
@@ -618,7 +618,7 @@ class ProjectionService {
 
             JSONArray featureArray = bookmarkSequence.features
             List<String> features = new ArrayList<>()
-            for(int j = 0 ; j < featureArray.size() ; j++){
+            for(int j = 0 ; featureArray!=null && j < featureArray.size() ; j++){
                 features.add(featureArray.getString(j))
             }
             projectionSequence1.setFeatures(features)
@@ -645,4 +645,14 @@ class ProjectionService {
 //        return null
     }
 
+    Boolean containsSequence(Map<ProjectionSequence, MultiSequenceProjection> projectionSequenceMultiSequenceProjectionMap, String sequenceName,Long sequenceId, Organism currentOrganism) {
+        ProjectionSequence projectionSequence = new ProjectionSequence(
+                id: sequenceId
+                ,name: sequenceName
+                ,organism: currentOrganism.commonName
+        )
+        // this guarantees that the query is local to the descrption
+        return projectionSequenceMultiSequenceProjectionMap.containsKey(projectionSequence)
+
+    }
 }
