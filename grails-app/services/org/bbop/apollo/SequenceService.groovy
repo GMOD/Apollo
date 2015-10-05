@@ -235,7 +235,7 @@ class SequenceService {
     
 
     String loadResidueForSequence(Sequence sequence, int chunkNumber) {
-        String filePath = sequence.sequenceDirectory + "/" + sequence.seqChunkPrefix + chunkNumber + ".txt"
+        String filePath = sequence.organism.directory + "/" + sequence.seqChunkPrefix + chunkNumber + (sequence.compressed?".txtz":".txt")
 
         return new File(filePath).getText().toUpperCase()
     }
