@@ -1931,6 +1931,7 @@ class RequestHandlingService {
                     addTranscriptFeaturesArray.add(featureService.convertFeatureToJSON(t))
                     addTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addTranscriptFeaturesArray)
                     addTranscriptJSONObject.put("track", inputObject.track)
+                    addTranscriptJSONObject.put(FeatureStringEnum.USERNAME.value, inputObject.getString(FeatureStringEnum.USERNAME.value))
                     addTranscript(addTranscriptJSONObject)
                 }
             }
