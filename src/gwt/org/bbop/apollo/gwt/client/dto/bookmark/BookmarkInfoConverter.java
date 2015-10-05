@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client.dto.bookmark;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
+import org.bbop.apollo.gwt.shared.BookmarkKeyEnum;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.awt.print.Book;
@@ -35,6 +36,19 @@ public class BookmarkInfoConverter {
         return jsonObject;
     }
 
+    public static JSONObject generateSequenceString(Set<BookmarkInfo> bookmarkInfoSet, String foldingType, Integer foldPaddingValue) {
+        // merge the bookmark info's into a single one!
+        // TODO: should be JSONObject / array?
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(BookmarkKeyEnum.PROJECTION.getValue(),new JSONString(foldingType));
+        jsonObject.put(BookmarkKeyEnum.PADDING.getValue(),new JSONNumber(foldPaddingValue));
+
+        JSONArray sequencesArray = BookmarkInfoConverter.convertBookmarkInfoToJSONArray(bookmarkInfoSet.toArray(new BookmarkInfo[bookmarkInfoSet.size()]));
+        jsonObject.put(BookmarkKeyEnum.SEQUENCES.getValue(),sequencesArray);
+
+
+        return jsonObject;
+    }
 
 
     public static BookmarkInfo convertJSONObjectToBookmarkInfo(JSONObject jsonObject) {

@@ -27,7 +27,6 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
-import org.bbop.apollo.gwt.shared.BookmarkService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -214,10 +213,10 @@ public class BookmarkPanel extends Composite {
         }
 //        Window.alert("viein g "+ mergedBookmark);
 
-        String mergedSequence = BookmarkService.getInstance().generateSequenceString(bookmarkList,foldingType,foldPaddingValue);
-        Window.alert(mergedSequence);
+        JSONObject mergedSequence = BookmarkInfoConverter.generateSequenceString(bookmarkInfoSet,foldingType,foldPaddingValue);
+        Window.alert(mergedSequence.toString());
 
-        MainPanel.updateGenomicViewerForLocation(mergedSequence,-1,-1);
+        MainPanel.updateGenomicViewerForLocation(mergedSequence.toString(),-1,-1);
 //        MainPanel.updateGenomicViewerForBookmark(mergedBookmark);
 
 

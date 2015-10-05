@@ -7,6 +7,7 @@ import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousChunkProjector
 import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.Location
+import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionDescription
 import org.bbop.apollo.projection.ProjectionInterface
 import org.bbop.apollo.sequence.Range
@@ -125,6 +126,16 @@ class JbrowseController {
         String fileName = FilenameUtils.getName(params.path)
         File file = new File(dataFileName);
 
+//        http://localhost:8080/apollo/jbrowse/index.html?loc=[proj=None,padding=50,sequences=[Group11.18::Group9.10,Group1.1(GB42145-RA)]]%3A-1..-1&highlight=&tracklist=0
+        String referer = request.getHeader("Referer")
+        int startIndex = referer.indexOf("?loc=")
+        int endIndex = referer.indexOf("&")
+        String refererLoc = referer.subSequence(startIndex+5,endIndex)
+        println "refererLoc ${refererLoc}"
+
+
+        println "Referer: ${request.getHeader("Referer")} for ${dataFileName}"
+
         log.debug "processing path ${params.path} -> ${dataFileName}"
 
         if (!file.exists()) {
@@ -213,33 +224,54 @@ class JbrowseController {
         response.setContentType(mimeType);
         if (ranges.isEmpty() || ranges.get(0) == full) {
             // Set content size
-            response.setContentLength((int) file.length());
+//            response.setContentLength((int) file.length());
 
             if (fileName.endsWith(".json") || params.format == "json") {
 //            [{"length":1382403,"name":"Group1.1","seqChunkSize":20000,"end":1382403,"start":0},{"length":1405242,"name":"Group1.10","seqChunkSize":20000,"end":1405242,"start":0},{"length":2557,"name":"Group1.11","seqChunkSize":20000,"end":2557,"start":0},
+                // this returns ALL of the sequences . . but if we project, we'll want to grab only certain ones
                 if (fileName.endsWith("refSeqs.json")) {
                     JSONArray refSeqJsonObject = new JSONArray(file.text)
                     // TODO: it should look up the OGS track either default or variable
-
 //                    if (projectionService.hasProjection(preferenceService.currentOrganismForCurrentUser,projectionService.getTrackName(file.absolutePath))) {
                     Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
                     println "refseq size ${refSeqJsonObject.size()}"
+
+                    Map<ProjectionDescription,MultiSequenceProjection> projection = null
+                    JSONArray projectedArray
+
+                    if(refererLoc.startsWith("{proj")){
+//                        {{proj:None},{padding:50},{sequences:[Group1.1(GB42145-RA)}]}%3A-1..-1
+//                        ProjectionDescription projectionDescription = new ProjectionDescription(refererLoc)
+//                        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+                        JSONObject bookmarkJsonObject = JSON.parse(refererLoc)
+                        projection = projectionService.getProjection(bookmarkJsonObject)
+                        projectedArray = new JSONArray()
+                    }
+
+
                     for (int i = 0; i < refSeqJsonObject.size(); i++) {
 
                         JSONObject sequenceValue = refSeqJsonObject.getJSONObject(i)
 
                         String sequenceName = sequenceValue.getString("name")
 //                            DiscontinuousProjection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
-                        ProjectionInterface projection = projectionService.getProjection(currentOrganism, "", sequenceName)
+//                        ProjectionInterface projection = projectionService.getProjection(currentOrganism, "", sequenceName)
                         // not projections for every sequence  . . .
                         if (projection) {
+
+
                             Integer projectedSequenceLength = projection.length
                             sequenceValue.put("length", projectedSequenceLength)
                             sequenceValue.put("end", projectedSequenceLength)
                         }
                     }
-//                    }
-                    response.outputStream << refSeqJsonObject.toString()
+
+                    if(projection){
+                        response.outputStream << projectedArray.toString()
+                    }
+                    else{
+                        response.outputStream << refSeqJsonObject.toString()
+                    }
                     return
                 } else if (fileName.endsWith("trackData.json")) {
                     // TODO: project trackData.json

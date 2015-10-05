@@ -592,8 +592,10 @@ class ProjectionService {
  * Creates a "Projection Description" based on Id's . . .
  * And caches it locally . . .
  *
- * TODO: all calls should use this method . .   which will return a projection
+ * TODO: remove this method?
  * (probably a MultiSequencProjection)
+ *
+ *  {{projection:None},{padding:50},{sequenceLists:[{name:'Group1.1',features:[GB42145-RA]}]}%3A-1..-1
  *
  * @param bookmarkArray
  * @return
@@ -603,7 +605,7 @@ class ProjectionService {
         println "gettting projeciton ${bookmarkObject}"
         ProjectionDescription projectionDescription = new ProjectionDescription()
 
-        projectionDescription.type = bookmarkObject.type
+        projectionDescription.type = bookmarkObject.projection
         projectionDescription.padding = bookmarkObject.padding
         // TODO: reference / ?
         JSONArray bookmarkInfoSequenceList = bookmarkObject.sequenceList
