@@ -9,6 +9,8 @@ import org.bbop.apollo.history.FeatureOperation
 import grails.util.Environment
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.plugins.metrics.groovy.Timed
+
 import static grails.async.Promises.*
 
 
@@ -208,6 +210,7 @@ class FeatureEventService {
     /**
      * For non-split , non-merge operations
      */
+    @Timed
     def addNewFeatureEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputCommand, JSONArray oldFeatureArray, JSONArray newFeatureArray, User user) {
 //        int updated = FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName", [uniqueName: uniqueName])
         List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName)
@@ -279,6 +282,7 @@ class FeatureEventService {
 //        return FeatureEvent.deleteAll(featureEventList.find().eac)
     }
 
+    @Timed
     List<List<FeatureEvent>> findAllPreviousFeatureEvents(FeatureEvent featureEvent) {
         List<List<FeatureEvent>> featureEventList = new ArrayList<>()
         Long parentId = featureEvent.parentId
@@ -317,6 +321,7 @@ class FeatureEventService {
      * @param featureEvent
      * @return
      */
+    @Timed
     List<List<FeatureEvent>> findAllFutureFeatureEvents(FeatureEvent featureEvent) {
         List<List<FeatureEvent>> featureEventList = new ArrayList<>()
 
@@ -354,6 +359,7 @@ class FeatureEventService {
     }
 
 
+    @Timed
     def addNewFeatureEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputCommand, JSONObject oldJsonObject, JSONObject newJsonObject, User user) {
         JSONArray newFeatureArray = new JSONArray()
         newFeatureArray.add(newJsonObject)
@@ -623,6 +629,7 @@ class FeatureEventService {
      * @param uniqueName
      * @return
      */
+    @Timed
     List<FeatureEvent> findCurrentFeatureEvent(String uniqueName) {
         List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true)
         if (featureEventList.size() != 1) {
