@@ -11,6 +11,7 @@ import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
+import groovy.json.JsonSlurper
 
 import java.util.zip.CRC32
 
@@ -255,78 +256,59 @@ class SequenceService {
         return tokens;
     }
 
-    private JSONArray convertJBrowseJSON(InputStream inputStream) throws IOException, JSONException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        StringBuilder buffer = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            buffer.append(line);
-        }
-        return new JSONArray(buffer.toString());
-    }
 
-    def loadRefSeqs(Organism organism ) {
+    def loadRefSeqs(Organism organism) {
         log.info "loading refseq ${organism.refseqFile}"
         organism.valid = false ;
         organism.save(flush: true, failOnError: true,insert:false)
 
         File refSeqsFile = new File(organism.refseqFile);
-        log.info " file exists ${refSeqsFile.exists()}"
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(refSeqsFile));
-        JSONArray refSeqs = convertJBrowseJSON(bufferedInputStream);
-        log.debug "refseq length ${refSeqs.size()}"
-        // delete all sequence for the organism
-        Sequence.deleteAll(Sequence.findAllByOrganism(organism))
-        for (int i = 0; i < refSeqs.length(); ++i) {
-            JSONObject refSeq = refSeqs.getJSONObject(i);
-            int length;
-            if(refSeq.has("length")) {
-                length = refSeq.getInt("length");
+        if(!refSeqsFile.exists()) {
+            def refSeqs=refSeqsFile.withReader { r ->
+                new JsonSlurper().parse( r )
             }
-            else {
-                //workaround for jbrowse refSeqs that have no length element
-                length = refSeq.getInt("end")-refSeq.getInt("start");
-            }
+            Sequence.deleteAll(Sequence.findAllByOrganism(organism))
+            refSeqs.each { refSeq ->
+                int length;
+                if(refSeq.has("length")) {
+                    length = refSeq.getInt("length");
+                }
+                else {
+                    //workaround for jbrowse refSeqs that have no length element
+                    length = refSeq.getInt("end")-refSeq.getInt("start");
+                }
 
-            String name = refSeq.getString("name");
-            String seqDir;
-            String seqChunkPrefix = "";
-            if (refSeq.has("seqDir")) {
-                seqDir = refSeqsFile.getParent() + "/" + refSeq.getString("seqDir");
-            }
-            else {
+                String name = refSeq.getString("name");
+
                 CRC32 crc = new CRC32();
                 crc.update(name.getBytes());
                 String hex = String.format("%08x", crc.getValue());
                 String []dirs = splitStringByNumberOfCharacters(hex, 3);
                 seqDir = String.format("%s/%s/%s/%s", refSeqsFile.getParent(), dirs[0], dirs[1], dirs[2]);
                 seqChunkPrefix = name + "-";
+
+
+                int seqChunkSize = refSeq.getInt("seqChunkSize");
+                int start = refSeq.getInt("start");
+                int end = refSeq.getInt("end");
+
+
+
+                Sequence sequence = new Sequence(
+                        organism: organism
+                        ,length: length
+                        ,seqChunkPrefix: seqChunkPrefix
+                        ,seqChunkSize: seqChunkSize
+                        ,start: start
+                        ,end: end
+                        ,name: name
+                ).save(failOnError: true)
             }
-            int seqChunkSize = refSeq.getInt("seqChunkSize");
-            int start = refSeq.getInt("start");
-            int end = refSeq.getInt("end");
 
-
-
-            Sequence sequence = new Sequence(
-                    organism: organism
-                    ,length: length
-                    ,refSeqFile: organism.refseqFile
-                    ,seqChunkPrefix: seqChunkPrefix
-                    ,seqChunkSize: seqChunkSize
-                    ,start: start
-                    ,end: end
-                    ,sequenceDirectory: seqDir
-                    ,name: name
-            ).save(failOnError: true)
-
+            organism.valid = true
+            organism.save(flush: true,insert:false,failOnError: true)
 
         }
-
-        organism.valid = true
-        organism.save(flush: true,insert:false,failOnError: true)
-
-        bufferedInputStream.close();
     }
 
     def setResiduesForFeature(SequenceAlteration sequenceAlteration, String residue) {

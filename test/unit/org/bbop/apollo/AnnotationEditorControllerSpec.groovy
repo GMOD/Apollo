@@ -32,13 +32,10 @@ class AnnotationEditorControllerSpec extends Specification {
         Sequence sequence = new Sequence(
 //                organism: organism
                 length: 3
-                ,refSeqFile: "adsf"
                 ,seqChunkPrefix: "asdf"
                 ,seqChunkSize: 3
                 ,start: 5
                 ,end: 8
-//                ,dataDirectory: "adsfads"
-                ,sequenceDirectory: "asdfadsf"
                 ,name: "chromosome7"
         ).save(failOnError: true)
 
