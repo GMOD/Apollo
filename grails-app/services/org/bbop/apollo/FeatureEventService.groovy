@@ -60,11 +60,13 @@ class FeatureEventService {
                                             , JSONObject commandObject, JSONObject oldFeatureObject
                                             , JSONArray newFeatureArray
                                             , User user) {
+        Map<String,Map<Long,FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName1)
+        featureEventMap.putAll(extractFeatureEventGroup(uniqueName1))
         List<FeatureEvent> featureEventList = new ArrayList<>()
         JSONArray oldFeatureArray = new JSONArray()
         oldFeatureArray.add(oldFeatureObject)
 
-        List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName1)
+        List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName1,featureEventMap)
         if (lastFeatureEventList.size() != 1) {
             throw new AnnotationException("Not one current feature event being split for: " + uniqueName1)
         }
@@ -74,7 +76,7 @@ class FeatureEventService {
         FeatureEvent lastFeatureEvent = lastFeatureEventList[0]
         lastFeatureEvent.current = false;
         lastFeatureEvent.save()
-        deleteFutureHistoryEvents(lastFeatureEvent)
+        deleteFutureHistoryEvents(lastFeatureEvent,featureEventMap)
 
         Date addDate = new Date()
 
@@ -142,15 +144,17 @@ class FeatureEventService {
     List<FeatureEvent> addMergeFeatureEvent(String geneName1, String uniqueName1, String geneName2, String uniqueName2, JSONObject commandObject, JSONArray oldFeatureArray, JSONObject newFeatureObject,
                                             User user) {
         List<FeatureEvent> featureEventList = new ArrayList<>()
+        Map<String,Map<Long,FeatureEvent>> featureEventMap1 = extractFeatureEventGroup(uniqueName1)
+        Map<String,Map<Long,FeatureEvent>> featureEventMap2 = extractFeatureEventGroup(uniqueName2)
 
-        List<FeatureEvent> lastFeatureEventLeftList = findCurrentFeatureEvent(uniqueName1)
+        List<FeatureEvent> lastFeatureEventLeftList = findCurrentFeatureEvent(uniqueName1,featureEventMap1)
         if (lastFeatureEventLeftList.size() != 1) {
             throw new AnnotationException("Not one current feature event being merged for: " + uniqueName1)
         }
         if (!lastFeatureEventLeftList) {
             throw new AnnotationException("Can not find original feature event to split for " + uniqueName1)
         }
-        List<FeatureEvent> lastFeatureEventRightList = findCurrentFeatureEvent(uniqueName2)
+        List<FeatureEvent> lastFeatureEventRightList = findCurrentFeatureEvent(uniqueName2,featureEventMap2)
         if (lastFeatureEventRightList.size() != 1) {
             throw new AnnotationException("Not one current feature event being merged for: " + uniqueName2)
         }
@@ -165,8 +169,9 @@ class FeatureEventService {
         lastFeatureEventRight.current = false;
         lastFeatureEventLeft.save()
         lastFeatureEventRight.save()
-        deleteFutureHistoryEvents(lastFeatureEventLeft)
-        deleteFutureHistoryEvents(lastFeatureEventRight)
+        featureEventMap1 = featureEventMap1.putAll(featureEventMap2)
+        deleteFutureHistoryEvents(lastFeatureEventLeft,featureEventMap1)
+        deleteFutureHistoryEvents(lastFeatureEventRight,featureEventMap1)
 
         Date addDate = new Date()
 
@@ -270,18 +275,20 @@ class FeatureEventService {
 
         featureEventMap.put(uniqueName,longFeatureEventMap)
 
-        List<String> uniqueNames = (List<String>) FeatureEvent.executeQuery("select distinct fe.uniqueName from FeatureEvent fe where fe.id in (:idsList) and uniqueName not in (:uniqueNames)",[idsList:idsToCollect,uniqueNames: featureEventMap.keySet()])
+        if(idsToCollect){
+            List<String> uniqueNames = (List<String>) FeatureEvent.executeQuery("select distinct fe.uniqueName from FeatureEvent fe where fe.id in (:idsList) and uniqueName not in (:uniqueNames)",[idsList:idsToCollect,uniqueNames: featureEventMap.keySet()])
 
-        uniqueNames.each{
-            featureEventMap.putAll(extractFeatureEventGroup(it,featureEventMap))
+            uniqueNames.each{
+                featureEventMap.putAll(extractFeatureEventGroup(it,featureEventMap))
+            }
         }
 
 
         return featureEventMap
     }
 
-    def setNotPreviousFutureHistoryEvents(FeatureEvent featureEvent) {
-        List<List<FeatureEvent>> featureEventList = findAllPreviousFeatureEvents(featureEvent)
+    def setNotPreviousFutureHistoryEvents(FeatureEvent featureEvent,Map<String,Map<Long,FeatureEvent>> featureEventMap) {
+        List<List<FeatureEvent>> featureEventList = findAllPreviousFeatureEvents(featureEvent,featureEventMap)
         featureEventList.each { array ->
             array.each {
                 if (it.current) {
@@ -292,8 +299,8 @@ class FeatureEventService {
         }
     }
 
-    def setNotCurrentFutureHistoryEvents(FeatureEvent featureEvent) {
-        List<List<FeatureEvent>> featureEventList = findAllFutureFeatureEvents(featureEvent)
+    def setNotCurrentFutureHistoryEvents(FeatureEvent featureEvent,Map<String,Map<Long,FeatureEvent>> featureEventMap) {
+        List<List<FeatureEvent>> featureEventList = findAllFutureFeatureEvents(featureEvent,featureEventMap)
         featureEventList.each { array ->
             array.each {
                 if (it.current) {
@@ -481,13 +488,13 @@ class FeatureEventService {
 
         if (!currentFeatureEvent) {
             log.warn "Did we forget to change the feature event?"
-            findCurrentFeatureEvent(uniqueName)
+//            findCurrentFeatureEvent(uniqueName,featureEventMap)
         }
-        setNotPreviousFutureHistoryEvents(currentFeatureEvent)
-        setNotCurrentFutureHistoryEvents(currentFeatureEvent)
+        setNotPreviousFutureHistoryEvents(currentFeatureEvent,featureEventMap)
+        setNotCurrentFutureHistoryEvents(currentFeatureEvent,featureEventMap)
 
 //        log.debug "updated is ${updated}"
-        def returnEvent = findCurrentFeatureEvent(currentFeatureEvent.uniqueName)
+        def returnEvent = findCurrentFeatureEvent(currentFeatureEvent.uniqueName,featureEventMap)
         return returnEvent
     }
 
@@ -643,8 +650,9 @@ class FeatureEventService {
      * @param uniqueName
      * @return
      */
-    int getCurrentFeatureEventIndex(String uniqueName) {
+    int getCurrentFeatureEventIndex(String uniqueName,Map<String,Map<Long,FeatureEvent>> featureEventMap=null) {
         List<FeatureEvent> currentFeatureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true, [sort: "dateCreated", order: "asc"])
+        featureEventMap = extractFeatureEventGroup(uniqueName)
         if (currentFeatureEventList.size() != 1) {
             throw new AnnotationException("Feature event list is the wrong size ${currentFeatureEventList?.size()}")
         }
@@ -654,7 +662,8 @@ class FeatureEventService {
         int index = -1
         while (currentFeatureEvent) {
             ++index
-            currentFeatureEvent = currentFeatureEvent.parentId ? FeatureEvent.findById(currentFeatureEvent.parentId) : null
+//            currentFeatureEvent = currentFeatureEvent.parentId ? FeatureEvent.findById(currentFeatureEvent.parentId) : null
+            currentFeatureEvent = currentFeatureEvent.parentId ? findFeatureEventFromMap(currentFeatureEvent.parentId,featureEventMap) : null
         }
         return index
     }
