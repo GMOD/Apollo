@@ -10,6 +10,7 @@ public enum BookmarkKeyEnum {
     ,PADDING
     ,BOOKMARKS
     ,SEQUENCES
+    ,REFERENCE_TRACK("referenceTrack")
     ,FEATURES
     ,PROJ_NONE("None")
     ,PROJ_EXON("Exon")

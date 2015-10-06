@@ -586,8 +586,8 @@ class ProjectionService {
         return locationList
     }
 
-    def getProjection(String putativeProjectionLoc){
-        if(putativeProjectionLoc.startsWith("{\"projection\":")){
+    def getProjection(String putativeProjectionLoc) {
+        if (putativeProjectionLoc.startsWith("{\"projection\":")) {
             JSONObject bookmarkJsonObject = JSON.parse(putativeProjectionLoc) as JSONObject
             return getProjection(bookmarkJsonObject)
         }
@@ -602,61 +602,58 @@ class ProjectionService {
  * TODO: remove this method?
  * (probably a MultiSequencProjection)
  *
- *  {{projection:None},{padding:50},{sequenceLists:[{name:'Group1.1',features:[GB42145-RA]}]}%3A-1..-1
+ *{{projection:None},{padding:50},{sequenceLists:[{name:'Group1.1',features:[GB42145-RA]}]}%3A-1..-1
  *
  * @param bookmarkArray
  * @return
  */
-    def getProjection(JSONObject bookmarkObject){
+    def getProjection(JSONObject bookmarkObject) {
 
         println "gettting projeciton ${bookmarkObject}"
         ProjectionDescription projectionDescription = new ProjectionDescription()
 
         projectionDescription.type = bookmarkObject.projection
         projectionDescription.padding = bookmarkObject.padding
+        projectionDescription.referenceTracks = [bookmarkObject.referenceTrack] as List<String>
+        projectionDescription.sequenceList = new ArrayList<>()
+
         // TODO: reference / ?
-        JSONArray bookmarkInfoSequenceList = bookmarkObject.sequences
-        List<ProjectionSequence> projectionSequenceList = new ArrayList<>()
-        for(int i = 0 ;  i < bookmarkInfoSequenceList.size() ; i++){
-           JSONObject bookmarkSequence = bookmarkInfoSequenceList.getJSONObject(i)
+        for (int i = 0; i < bookmarkObject.sequences.size(); i++) {
+            JSONObject bookmarkSequence = bookmarkObject.sequences.getJSONObject(i)
             ProjectionSequence projectionSequence1 = new ProjectionSequence()
             projectionSequence1.setOrder(i)
             projectionSequence1.setName(bookmarkSequence.name)
 
             JSONArray featureArray = bookmarkSequence.features
             List<String> features = new ArrayList<>()
-            for(int j = 0 ; featureArray!=null && j < featureArray.size() ; j++){
+            for (int j = 0; featureArray != null && j < featureArray.size(); j++) {
                 features.add(featureArray.getString(j))
             }
             projectionSequence1.setFeatures(features)
-
-            projectionSequenceList.add(projectionSequence1)
+            projectionDescription.sequenceList.add(projectionSequence1)
         }
 
 
-
-
-        if(!multiSequenceProjectionMap.containsKey(projectionDescription)){
+        if (!multiSequenceProjectionMap.containsKey(projectionDescription)) {
             // generate prorjent and pu
-            Map<ProjectionSequence,MultiSequenceProjection>  map = new HashMap<>()
+            Map<ProjectionSequence, MultiSequenceProjection> map = new HashMap<>()
             // process some stuff
 
-            multiSequenceProjectionMap.put(projectionDescription,map)
+            multiSequenceProjectionMap.put(projectionDescription, map)
         }
         return multiSequenceProjectionMap.get(projectionDescription)
         // return with appropriate sequence if one . .
-
 
 //        projectionDescription.getSequenceList().iterator().next().
 
 //        return null
     }
 
-    Boolean containsSequence(Map<ProjectionSequence, MultiSequenceProjection> projectionSequenceMultiSequenceProjectionMap, String sequenceName,Long sequenceId, Organism currentOrganism) {
+    Boolean containsSequence(Map<ProjectionSequence, MultiSequenceProjection> projectionSequenceMultiSequenceProjectionMap, String sequenceName, Long sequenceId, Organism currentOrganism) {
         ProjectionSequence projectionSequence = new ProjectionSequence(
                 id: sequenceId
-                ,name: sequenceName
-                ,organism: currentOrganism.commonName
+                , name: sequenceName
+                , organism: currentOrganism.commonName
         )
         // this guarantees that the query is local to the descrption
         return projectionSequenceMultiSequenceProjectionMap.containsKey(projectionSequence)

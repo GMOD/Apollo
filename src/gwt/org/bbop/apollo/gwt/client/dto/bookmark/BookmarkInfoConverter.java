@@ -36,12 +36,14 @@ public class BookmarkInfoConverter {
         return jsonObject;
     }
 
-    public static JSONObject generateSequenceString(Set<BookmarkInfo> bookmarkInfoSet, String foldingType, Integer foldPaddingValue) {
+    public static JSONObject generateSequenceString(Set<BookmarkInfo> bookmarkInfoSet, String foldingType, Integer foldPaddingValue,String referenceTrack) {
         // merge the bookmark info's into a single one!
         // TODO: should be JSONObject / array?
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(BookmarkKeyEnum.PROJECTION.getValue(),new JSONString(foldingType));
         jsonObject.put(BookmarkKeyEnum.PADDING.getValue(),new JSONNumber(foldPaddingValue));
+//        JSONArray referenceTracks = new JSONArray()
+        jsonObject.put(BookmarkKeyEnum.REFERENCE_TRACK.getValue(),new JSONString(referenceTrack));
 
 //        JSONArray bookmarksArray = BookmarkInfoConverter.convertBookmarkInfoToJSONArray(bookmarkInfoSet.toArray(new BookmarkInfo[bookmarkInfoSet.size()]));
 //        jsonObject.put(BookmarkKeyEnum.BOOKMARKS.getValue(),bookmarksArray);

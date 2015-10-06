@@ -203,6 +203,7 @@ public class BookmarkPanel extends Composite {
 //            return ;
 //        }
         Integer foldPaddingValue = Integer.parseInt(foldPadding.getText());
+        String referenceTrackString = referenceTrack.getSelectedValue() ;
 
         // it will be an ordered list of bookmarks ;
         List<String> bookmarkList = new ArrayList<>();
@@ -213,7 +214,7 @@ public class BookmarkPanel extends Composite {
         }
 //        Window.alert("viein g "+ mergedBookmark);
 
-        JSONObject mergedSequence = BookmarkInfoConverter.generateSequenceString(bookmarkInfoSet,foldingType,foldPaddingValue);
+        JSONObject mergedSequence = BookmarkInfoConverter.generateSequenceString(bookmarkInfoSet,foldingType,foldPaddingValue,referenceTrackString);
         Window.alert(mergedSequence.toString());
 
         MainPanel.updateGenomicViewerForLocation(mergedSequence.toString(),-1,-1);
