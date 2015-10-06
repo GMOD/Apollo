@@ -106,6 +106,12 @@ class MultiSequenceProjection extends DiscontinuousProjection{
         return count
     }
 
+    def addLocations(List<Location> locationList){
+        locationList.each {
+            addLocation(it)
+        }
+    }
+
     @Override
     Integer clear() {
         return sequenceDiscontinuousProjectionMap.clear()

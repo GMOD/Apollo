@@ -8,12 +8,14 @@ class Bookmark {
     Integer padding
     String payload
     String sequenceList
+    Organism organism
 
     static constraints = {
         sequenceList nullable: false
         type nullable: true
         padding nullable: true
         payload nullable: true
+        organism nullable: false
     }
 
     static mapping = {

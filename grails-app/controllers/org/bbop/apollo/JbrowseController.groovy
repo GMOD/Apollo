@@ -237,13 +237,9 @@ class JbrowseController {
                     Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
                     println "refseq size ${refSeqJsonObject.size()}"
 
-                    Map<ProjectionSequence,MultiSequenceProjection> projection = null
                     JSONArray projectedArray = null
-
                     refererLoc = URLDecoder.decode(refererLoc,"UTF-8")
-
-
-                    projection = projectionService.getProjection(refererLoc)
+                    Map<ProjectionSequence,MultiSequenceProjection> projection = projectionService.getProjection(refererLoc,currentOrganism)
                     if(projection){
 ////                        {{proj:None},{padding:50},{sequences:[Group1.1(GB42145-RA)}]}%3A-1..-1
 ////                        ProjectionDescription projectionDescription = new ProjectionDescription(refererLoc)

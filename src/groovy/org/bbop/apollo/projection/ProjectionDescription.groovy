@@ -12,6 +12,5 @@ class ProjectionDescription {
     List<ProjectionSequence> sequenceList // an ordered array of sequences or ALL . . .if empty then all
     String type
     Integer padding // the padding around the reference
-
-
+    String organism // name of the organism
 }

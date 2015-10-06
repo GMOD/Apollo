@@ -21,6 +21,7 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
     private Integer padding ;
     private JSONObject payload ;
     private Long id;
+    private String organismName ;
 
     public BookmarkInfo(){}
 
@@ -91,7 +92,17 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         return padding;
     }
 
+    public String getOrganismName() {
+        return organismName;
+    }
+
+    public void setOrganismName(String organismName) {
+        this.organismName = organismName;
+    }
+
     public void setPadding(Integer padding) {
+
+
         this.padding = padding;
     }
 
@@ -101,6 +112,7 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         bookmarkInfo.setPayload(payload);
         bookmarkInfo.setSequenceList(sequenceList);
         bookmarkInfo.setType(type);
+        bookmarkInfo.setOrganismName(organismName);
         return bookmarkInfo;
     }
 
@@ -127,8 +139,8 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         // if neither is null
         else{
             // TODO: merge teh payload
-
         }
+        // organism should be the same . . .
 //        bookmarkInfoReturn.setPayload();
 //        bookmarkInfo.setType(); // just take the one I guess
         BookmarkSequenceList bookmarkSequenceList = bookmarkInfo.getSequenceList();

@@ -40,6 +40,7 @@ class BookmarkController {
 //        }
 
         // creates a projection based on the Bookmarks and caches them
+        bookmarkObject.organism = organism.commonName
         projectionService.getProjection(bookmarkObject)
 
 //        JSONObject returnObject = new JSONObject()
