@@ -196,7 +196,7 @@ to the user annotation track. Let's say we want to load our `maker.gff` transcri
 ``` 
     tools/data/add_transcripts_from_gff3_to_annotations.pl \
         -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
-        -i scf1117875582023.gff -type mRNA
+        -i scf1117875582023.gff -t mRNA -o "name of organism"
 ```
 
 
@@ -209,7 +209,7 @@ Let's say we want to load `match` and `match_part` features as transcripts and e
 ``` 
     tools/data/add_transcripts_from_gff3_to_annotations.pl \
        -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
-       -i cf1117875582023gff -t match -e match_part
+       -i cf1117875582023gff -t match -e match_part -o "name of organism"
 ```
 
 
