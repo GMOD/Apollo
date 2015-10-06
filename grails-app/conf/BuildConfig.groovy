@@ -79,8 +79,8 @@ grails.project.dependency.resolution = {
         //compile 'org.biojava:biojava3-core:3.1.0'
 
 
-//        test "org.grails:grails-datastore-test-support:1.0-grails-2.4"
-        test 'org.grails:grails-datastore-gorm:3.1.5.RELEASE'
+        test "org.grails:grails-datastore-test-support:1.0.2-grails-2.4"
+        runtime 'org.grails:grails-datastore-gorm:3.1.5.RELEASE'
 
         test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
         test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
