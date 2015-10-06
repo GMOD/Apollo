@@ -212,7 +212,16 @@ class FeatureEventService {
      */
     @Timed
     def addNewFeatureEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputCommand, JSONArray oldFeatureArray, JSONArray newFeatureArray, User user) {
-//        int updated = FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName", [uniqueName: uniqueName])
+
+//        Map<String,Map<Long,FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
+//        featureEventMap.keySet().each{ key ->
+//            println "uniqueName key ${key}"
+//            featureEventMap.get(key).each { a,b->
+//                println "a: ${a}, b: ${b}"
+//            }
+//        }
+
+
         List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName)
         FeatureEvent lastFeatureEvent = null
         lastFeatureEventList?.each { a ->
@@ -248,6 +257,31 @@ class FeatureEventService {
         }
 
         return featureEvent
+    }
+
+    Map<String,Map<Long, FeatureEvent>> extractFeatureEventGroup(String uniqueName,Map<String,Map<Long,FeatureEvent>> featureEventMap = new HashMap<>()) {
+        def featureEvents = FeatureEvent.findAllByUniqueName(uniqueName)
+        Map<Long,FeatureEvent> longFeatureEventMap = new HashMap<>()
+        Set<Long> idsToCollect = new HashSet<>()
+        featureEvents.each {
+            longFeatureEventMap.put(it.id,it)
+            idsToCollect.add(it.childId)
+            idsToCollect.add(it.childSplitId)
+            idsToCollect.add(it.parentId)
+            idsToCollect.add(it.parentMergeId)
+            idsToCollect = idsToCollect - longFeatureEventMap.keySet()
+        }
+
+        featureEventMap.put(uniqueName,longFeatureEventMap)
+
+        List<String> uniqueNames = (List<String>) FeatureEvent.executeQuery("select distinct fe.uniqueName from FeatureEvent fe where fe.id in (:idsList) and uniqueName not in (:uniqueNames)",[idsList:idsToCollect,uniqueNames: featureEventMap.keySet()])
+
+        uniqueNames.each{
+            featureEventMap.putAll(extractFeatureEventGroup(it,featureEventMap))
+        }
+
+
+        return featureEventMap
     }
 
     def setNotPreviousFutureHistoryEvents(FeatureEvent featureEvent) {
