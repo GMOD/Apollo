@@ -8,6 +8,7 @@ public enum BookmarkKeyEnum {
 
     PROJECTION
     ,PADDING
+    ,BOOKMARKS
     ,SEQUENCES
     ,FEATURES
     ,PROJ_NONE("None")

@@ -43,11 +43,26 @@ public class BookmarkInfoConverter {
         jsonObject.put(BookmarkKeyEnum.PROJECTION.getValue(),new JSONString(foldingType));
         jsonObject.put(BookmarkKeyEnum.PADDING.getValue(),new JSONNumber(foldPaddingValue));
 
-        JSONArray sequencesArray = BookmarkInfoConverter.convertBookmarkInfoToJSONArray(bookmarkInfoSet.toArray(new BookmarkInfo[bookmarkInfoSet.size()]));
+//        JSONArray bookmarksArray = BookmarkInfoConverter.convertBookmarkInfoToJSONArray(bookmarkInfoSet.toArray(new BookmarkInfo[bookmarkInfoSet.size()]));
+//        jsonObject.put(BookmarkKeyEnum.BOOKMARKS.getValue(),bookmarksArray);
+
+        JSONArray sequencesArray = BookmarkInfoConverter.extractSequencesFromBookmarks(bookmarkInfoSet.toArray(new BookmarkInfo[bookmarkInfoSet.size()]));
         jsonObject.put(BookmarkKeyEnum.SEQUENCES.getValue(),sequencesArray);
 
-
         return jsonObject;
+    }
+
+    private static JSONArray extractSequencesFromBookmarks(BookmarkInfo[] bookmarkInfos) {
+        JSONArray returnArray = new JSONArray();
+
+        for(BookmarkInfo bookmarkInfo : bookmarkInfos){
+            JSONArray sequenceArray = convertJSONArrayToSequenceList(bookmarkInfo.getSequenceList()) ;
+            for(int i = 0 ; i < sequenceArray.size() ; i++){
+                returnArray.set(returnArray.size(),sequenceArray.get(i));
+            }
+        }
+
+        return returnArray;
     }
 
 

@@ -242,12 +242,13 @@ class JbrowseController {
 
                     refererLoc = URLDecoder.decode(refererLoc,"UTF-8")
 
-                    if(refererLoc.startsWith("{\"projection\":")){
-//                        {{proj:None},{padding:50},{sequences:[Group1.1(GB42145-RA)}]}%3A-1..-1
-//                        ProjectionDescription projectionDescription = new ProjectionDescription(refererLoc)
-//                        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
-                        JSONObject bookmarkJsonObject = JSON.parse(refererLoc) as JSONObject
-                        projection = projectionService.getProjection(bookmarkJsonObject)
+
+                    projection = projectionService.getProjection(refererLoc)
+                    if(projection){
+////                        {{proj:None},{padding:50},{sequences:[Group1.1(GB42145-RA)}]}%3A-1..-1
+////                        ProjectionDescription projectionDescription = new ProjectionDescription(refererLoc)
+////                        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+//                        JSONObject bookmarkJsonObject = JSON.parse(refererLoc) as JSONObject
                         projectedArray = new JSONArray()
                     }
 

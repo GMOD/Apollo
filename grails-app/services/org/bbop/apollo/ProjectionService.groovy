@@ -586,6 +586,13 @@ class ProjectionService {
         return locationList
     }
 
+    def getProjection(String putativeProjectionLoc){
+        if(putativeProjectionLoc.startsWith("{\"projection\":")){
+            JSONObject bookmarkJsonObject = JSON.parse(putativeProjectionLoc) as JSONObject
+            return getProjection(bookmarkJsonObject)
+        }
+    }
+
 /**
  * TODO:
  * looks up bookmarks based on Ids'
