@@ -276,7 +276,16 @@ class FeatureEventService {
         featureEventMap.put(uniqueName,longFeatureEventMap)
 
         if(idsToCollect){
-            List<String> uniqueNames = (List<String>) FeatureEvent.executeQuery("select distinct fe.uniqueName from FeatureEvent fe where fe.id in (:idsList) and uniqueName not in (:uniqueNames)",[idsList:idsToCollect,uniqueNames: featureEventMap.keySet()])
+
+//            List<String> uniqueNames = (List<String>) FeatureEvent.executeQuery("select distinct fe.uniqueName from FeatureEvent fe where fe.id in (:idsList) and uniqueName not in (:uniqueNames)",[idsList:idsToCollect,uniqueNames: featureEventMap.keySet()])
+            Collection<String> uniqueNames = FeatureEvent.withCriteria {
+                and{
+                    'in'("id",idsToCollect)
+                    not {
+                        'in'("uniqueName",featureEventMap.keySet())
+                    }
+                }
+            }.uniqueName.unique()
 
             uniqueNames.each{
                 featureEventMap.putAll(extractFeatureEventGroup(it,featureEventMap))
@@ -329,7 +338,8 @@ class FeatureEventService {
     }
 
     @Timed
-    List<List<FeatureEvent>> findAllPreviousFeatureEvents(FeatureEvent featureEvent,Map<String,Map<Long,FeatureEvent>> featureEventMap) {
+    List<List<FeatureEvent>> findAllPreviousFeatureEvents(FeatureEvent featureEvent,Map<String,Map<Long,FeatureEvent>> featureEventMap=null) {
+        featureEventMap = featureEventMap ?: extractFeatureEventGroup(featureEvent.uniqueName)
         List<List<FeatureEvent>> featureEventList = new ArrayList<>()
         Long parentId = featureEvent.parentId
 //        FeatureEvent parentFeatureEvent = parentId ? FeatureEvent.findById(parentId) : null
@@ -370,7 +380,8 @@ class FeatureEventService {
      * @return
      */
     @Timed
-    List<List<FeatureEvent>> findAllFutureFeatureEvents(FeatureEvent featureEvent,Map<String,Map<Long,FeatureEvent>> featureEventMap) {
+    List<List<FeatureEvent>> findAllFutureFeatureEvents(FeatureEvent featureEvent,Map<String,Map<Long,FeatureEvent>> featureEventMap=null) {
+        featureEventMap = featureEventMap ?: extractFeatureEventGroup(featureEvent.uniqueName)
         List<List<FeatureEvent>> featureEventList = new ArrayList<>()
 
         Long childId = featureEvent.childId
@@ -689,7 +700,8 @@ class FeatureEventService {
      * @return
      */
     @Timed
-    List<FeatureEvent> findCurrentFeatureEvent(String uniqueName,Map<String,Map<Long,FeatureEvent>> featureEventMap) {
+    List<FeatureEvent> findCurrentFeatureEvent(String uniqueName,Map<String,Map<Long,FeatureEvent>> featureEventMap = null ) {
+        featureEventMap = featureEventMap ?: extractFeatureEventGroup(uniqueName)
         List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true)
         if (featureEventList.size() != 1) {
             log.debug("No current feature events for ${uniqueName}: " + featureEventList.size())
