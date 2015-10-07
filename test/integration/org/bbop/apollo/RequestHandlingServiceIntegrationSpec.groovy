@@ -803,7 +803,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
         then: "we should see 1 gene, 2 transcripts, 5 exons, 2 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
         def allFeatures = Feature.all
-        assert Gene.count == 1
+        assert Gene.count == 2
         assert MRNA.count == 2
         assert Exon.count == 7
         assert CDS.count == 2
