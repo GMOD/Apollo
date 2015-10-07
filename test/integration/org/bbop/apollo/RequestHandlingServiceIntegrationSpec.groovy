@@ -15,19 +15,15 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         Organism organism = new Organism(
-                directory: "/tmp"
+                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
                 , commonName: "sampleAnimal"
         ).save(flush: true)
         Sequence sequence = new Sequence(
                 length: 1405242
-                , refSeqFile: "adsf"
-                , seqChunkPrefix: "Group1.10-"
                 , seqChunkSize: 20000
                 , start: 0
                 , organism: organism
                 , end: 1405242
-                // from (honeybee f78/c6f/0c
-                , sequenceDirectory: "test/integration/resources/sequences/honeybee-Group1.10/"
                 , name: "Group1.10"
         ).save()
 
