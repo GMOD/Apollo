@@ -236,7 +236,12 @@ class SequenceService {
     
 
     String loadResidueForSequence(Sequence sequence, int chunkNumber) {
-        String filePath = sequence.organism.directory + "/" + sequence.seqChunkPrefix + chunkNumber + (sequence.compressed?".txtz":".txt")
+        CRC32 crc = new CRC32();
+        crc.update(sequence.name.getBytes());
+        String hex = String.format("%08x", crc.getValue());
+        String []dirs = splitStringByNumberOfCharacters(hex, 3);
+        String seqDir = String.format("%s/seq/%s/%s/%s", sequence.organism.directory, dirs[0], dirs[1], dirs[2]);
+        String filePath = seqDir+ "/"+ sequence.name + "-" + chunkNumber + (sequence.compressed?".txtz":".txt")
 
         return new File(filePath).getText().toUpperCase()
     }
@@ -280,14 +285,6 @@ class SequenceService {
 
                 String name = refSeq.getString("name");
 
-                CRC32 crc = new CRC32();
-                crc.update(name.getBytes());
-                String hex = String.format("%08x", crc.getValue());
-                String []dirs = splitStringByNumberOfCharacters(hex, 3);
-                seqDir = String.format("%s/%s/%s/%s", refSeqsFile.getParent(), dirs[0], dirs[1], dirs[2]);
-                seqChunkPrefix = name + "-";
-
-
                 int seqChunkSize = refSeq.getInt("seqChunkSize");
                 int start = refSeq.getInt("start");
                 int end = refSeq.getInt("end");
@@ -297,7 +294,6 @@ class SequenceService {
                 Sequence sequence = new Sequence(
                         organism: organism
                         ,length: length
-                        ,seqChunkPrefix: seqChunkPrefix
                         ,seqChunkSize: seqChunkSize
                         ,start: start
                         ,end: end

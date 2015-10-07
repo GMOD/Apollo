@@ -36,7 +36,6 @@ class Sequence {
     // SourceFeature properties
     Integer length
     Integer seqChunkSize
-    String seqChunkPrefix
     Integer start
     Integer end
 }
