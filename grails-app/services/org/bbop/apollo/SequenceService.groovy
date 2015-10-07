@@ -241,7 +241,7 @@ class SequenceService {
         String hex = String.format("%08x", crc.getValue());
         String []dirs = splitStringByNumberOfCharacters(hex, 3);
         String seqDir = String.format("%s/seq/%s/%s/%s", sequence.organism.directory, dirs[0], dirs[1], dirs[2]);
-        String filePath = seqDir+ "/"+ sequence.name + "-" + chunkNumber + (sequence.compressed?".txtz":".txt")
+        String filePath = seqDir+ "/"+ sequence.name + "-" + chunkNumber + ".txt"
 
         return new File(filePath).getText().toUpperCase()
     }
@@ -268,36 +268,28 @@ class SequenceService {
         organism.save(flush: true, failOnError: true,insert:false)
 
         File refSeqsFile = new File(organism.refseqFile);
-        if(!refSeqsFile.exists()) {
+        if(refSeqsFile.exists()) {
             def refSeqs=refSeqsFile.withReader { r ->
                 new JsonSlurper().parse( r )
             }
+
             Sequence.deleteAll(Sequence.findAllByOrganism(organism))
             refSeqs.each { refSeq ->
                 int length;
-                if(refSeq.has("length")) {
-                    length = refSeq.getInt("length");
+                if(refSeq.length) {
+                    length = refSeq.length
                 }
                 else {
                     //workaround for jbrowse refSeqs that have no length element
-                    length = refSeq.getInt("end")-refSeq.getInt("start");
+                    length = refSeq.end-refSeq.start
                 }
-
-                String name = refSeq.getString("name");
-
-                int seqChunkSize = refSeq.getInt("seqChunkSize");
-                int start = refSeq.getInt("start");
-                int end = refSeq.getInt("end");
-
-
-
                 Sequence sequence = new Sequence(
                         organism: organism
                         ,length: length
-                        ,seqChunkSize: seqChunkSize
-                        ,start: start
-                        ,end: end
-                        ,name: name
+                        ,seqChunkSize: refSeq.seqChunkSize
+                        ,start: refSeq.start
+                        ,end: refSeq.end
+                        ,name: refSeq.name
                 ).save(failOnError: true)
             }
 

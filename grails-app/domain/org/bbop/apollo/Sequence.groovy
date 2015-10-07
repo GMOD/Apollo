@@ -31,7 +31,6 @@ class Sequence {
 
     String name
     Organism organism
-    boolean compressed
 
     // SourceFeature properties
     Integer length
