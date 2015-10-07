@@ -859,12 +859,23 @@ class RequestHandlingService {
                 exonService.setToDownstreamAcceptor(exon)
             }
 
-
             featureService.calculateCDS(transcript)
-
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
-
             transcript.save()
+            def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
+            if (transcriptsToUpdate.size() > 0) {
+                JSONObject updateFeatureContainer = createJSONFeatureContainer()
+                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+                if (sequence) {
+                    AnnotationEvent annotationEvent = new AnnotationEvent(
+                            features: updateFeatureContainer,
+                            sequence: sequence,
+                            operation: AnnotationEvent.Operation.UPDATE
+                    )
+                    fireAnnotationEvent(annotationEvent)
+                }
+            }
+
             JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
             transcriptArray.add(newJsonObject)
             featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
@@ -907,10 +918,22 @@ class RequestHandlingService {
 
 
             featureService.calculateCDS(transcript)
-
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
-
             transcript.save()
+            def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
+            if (transcriptsToUpdate.size() > 0) {
+                JSONObject updateFeatureContainer = createJSONFeatureContainer()
+                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+                if (sequence) {
+                    AnnotationEvent annotationEvent = new AnnotationEvent(
+                            features: updateFeatureContainer,
+                            sequence: sequence,
+                            operation: AnnotationEvent.Operation.UPDATE
+                    )
+                    fireAnnotationEvent(annotationEvent)
+                }
+            }
+            
             JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
             transcriptArray.add(newJsonObject)
             featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
