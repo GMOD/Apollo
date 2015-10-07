@@ -345,7 +345,7 @@ class FeatureEventService {
 //        FeatureEvent parentFeatureEvent = parentId ? FeatureEvent.findById(parentId) : null
         FeatureEvent parentFeatureEvent = parentId ? findFeatureEventFromMap(parentId,featureEventMap) : null
 
-        while (parentFeatureEvent) {
+        if(parentFeatureEvent) {
 
             List<FeatureEvent> featureArrayList = new ArrayList<>()
             featureArrayList.add(parentFeatureEvent)
@@ -362,9 +362,8 @@ class FeatureEventService {
             featureEventList.add(featureArrayList)
             featureEventList.addAll(findAllPreviousFeatureEvents(parentFeatureEvent,featureEventMap))
 
-
-            parentId = parentFeatureEvent.parentId
-            parentFeatureEvent = parentId ? findFeatureEventFromMap(parentId,featureEventMap) : null
+//            parentId = parentFeatureEvent.parentId
+//            parentFeatureEvent = parentId ? findFeatureEventFromMap(parentId,featureEventMap) : null
         }
 
         return featureEventList.sort(true) { a, b ->
@@ -387,7 +386,7 @@ class FeatureEventService {
         Long childId = featureEvent.childId
 //        FeatureEvent childFeatureEvent = childId ? FeatureEvent.findById(childId) : null
         FeatureEvent childFeatureEvent = childId ? findFeatureEventFromMap(childId,featureEventMap) : null
-        while (childFeatureEvent) {
+        if (childFeatureEvent) {
             List<FeatureEvent> featureArrayList = new ArrayList<>()
             featureArrayList.add(childFeatureEvent)
 
@@ -409,9 +408,9 @@ class FeatureEventService {
             featureEventList.addAll(findAllFutureFeatureEvents(childFeatureEvent,featureEventMap))
             featureEventList.add(featureArrayList)
 
-            childId = childFeatureEvent.childId
+//            childId = childFeatureEvent.childId
 //            childFeatureEvent = childId ? FeatureEvent.findById(childId) : null
-            childFeatureEvent = childId ? findFeatureEventFromMap(childId,featureEventMap) : null
+//            childFeatureEvent = childId ? findFeatureEventFromMap(childId,featureEventMap) : null
         }
 
         return featureEventList.sort(true) { a, b ->
