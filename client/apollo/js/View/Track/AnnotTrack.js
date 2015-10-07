@@ -5556,59 +5556,6 @@ define([
                 }
             },
 
-            // override getLayout to access addRect method
-            _getLayout: function () {
-                var thisB = this;
-                var browser = this.browser;
-                var layout = this.inherited(arguments);
-                var clabel = this.name + "-collapsed";
-                return declare.safeMixin(layout, {
-                    addRect: function (id, left, right, height, data) {
-                        var cm = thisB.collapsedMode || browser.cookie(clabel) == "true";
-                        //store height for collapsed mode
-                        if (cm) {
-                            var pHeight = Math.ceil(height / this.pitchY);
-                            this.pTotalHeight = Math.max(this.pTotalHeight || 0, pHeight);
-                        }
-                        return cm ? 0 : this.inherited(arguments);
-                    }
-                });
-            },
-
-            _trackMenuOptions: function () {
-                var thisB = this;
-                var browser = this.browser;
-                var clabel = this.name + "-collapsed";
-                var options = this.inherited(arguments) || [];
-                options = this.webapollo.removeItemWithLabel(options, "Pin to top");
-                options = this.webapollo.removeItemWithLabel(options, "Delete track");
-
-                options.push({
-                    label: "Collapsed view",
-                    title: "Collapsed view",
-                    type: 'dijit/CheckedMenuItem',
-                    checked: !!('collapsedMode' in thisB ? thisB.collapsedMode : browser.cookie(clabel) == "true"),
-                    onClick: function (event) {
-                        thisB.collapsedMode = this.get("checked");
-                        browser.cookie(clabel, this.get("checked") ? "true" : "false");
-                        var temp = thisB.showLabels;
-                        if (this.get("checked")) {
-                            thisB.showLabels = false;
-                        }
-                        else if (thisB.previouslyShowLabels) {
-                            thisB.showLabels = true;
-                        }
-                        thisB.previouslyShowLabels = temp;
-                        delete thisB.trackMenu;
-                        thisB.makeTrackMenu();
-                        thisB.redraw();
-                    }
-                });
-
-                return options;
-            },
-
-
             executeUpdateOperation: function (postData, loadCallback) {
                 console.log('connected and sending notifications');
                 this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));

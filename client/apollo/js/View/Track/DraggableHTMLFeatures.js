@@ -15,27 +15,24 @@ define( [
             'JBrowse/Model/SimpleFeature', 
             'WebApollo/SequenceOntologyUtils'
         ],
-        function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, 
-          dijitCheckedMenuItem, dijitMenuSeparator, dijitPopupMenuItem, dijitDialog, $, draggable, Util, 
-          SimpleFeature, SeqOnto ) {
-
-/*  Subclass of FeatureTrack that allows features to be selected,
-    and dragged and dropped into the annotation track to create annotations.
-
-    WARNING:
-    for selection to work for features that cross block boundaries, z-index of feature style MUST be set, and must be > 0
-    otherwise what happens is:
-          feature div inherits z-order from parent, so same z-order as block
-          so feature div pixels may extend into next block, but next block draws ON TOP OF IT (assuming next block added
-          to parent after current block).  So events over part of feature div that isn't within it's parent block will never
-          reach feature div but instead be triggered on next block
-    This issue will be more obvious if blocks have background color set since then not only will selection not work but
-       part of feature div that extends into next block won't even be visible, since next block background will render over it
- */
+    function( declare,
+        array,
+        HTMLFeatureTrack,
+        FeatureSelectionManager,
+        dijitMenu,
+        dijitMenuItem, 
+        dijitCheckedMenuItem,
+        dijitMenuSeparator,
+        dijitPopupMenuItem,
+        dijitDialog,
+        $,
+        draggable,
+        Util, 
+        SimpleFeature,
+        SeqOnto ) {
 
 var debugFrame = false;
 
-//var DraggableFeatureTrack = declare( HTMLFeatureTrack,
 var draggableTrack = declare( HTMLFeatureTrack,
 
 {
@@ -1290,6 +1287,56 @@ var draggableTrack = declare( HTMLFeatureTrack,
         
     },
     
+    // override getLayout to access addRect method
+    _getLayout: function () {
+        var thisB = this;
+        var browser = this.browser;
+        var layout = this.inherited(arguments);
+        var clabel = this.name + "-collapsed";
+        return declare.safeMixin(layout, {
+            addRect: function (id, left, right, height, data) {
+                var cm = thisB.collapsedMode || browser.cookie(clabel) == "true";
+                //store height for collapsed mode
+                if (cm) {
+                    var pHeight = Math.ceil(height / this.pitchY);
+                    this.pTotalHeight = Math.max(this.pTotalHeight || 0, pHeight);
+                }
+                return cm ? 0 : this.inherited(arguments);
+            }
+        });
+    },
+    _trackMenuOptions: function () {
+        var thisB = this;
+        var browser = this.browser;
+        var clabel = this.name + "-collapsed";
+        var options = this.inherited(arguments) || [];
+        options = this.webapollo.removeItemWithLabel(options, "Pin to top");
+        options = this.webapollo.removeItemWithLabel(options, "Delete track");
+
+        options.push({
+            label: "Collapsed view",
+            title: "Collapsed view",
+            type: 'dijit/CheckedMenuItem',
+            checked: !!('collapsedMode' in thisB ? thisB.collapsedMode : browser.cookie(clabel) == "true"),
+            onClick: function (event) {
+                thisB.collapsedMode = this.get("checked");
+                browser.cookie(clabel, this.get("checked") ? "true" : "false");
+                var temp = thisB.showLabels;
+                if (this.get("checked")) {
+                    thisB.showLabels = false;
+                }
+                else if (thisB.previouslyShowLabels) {
+                    thisB.showLabels = true;
+                }
+                thisB.previouslyShowLabels = temp;
+                delete thisB.trackMenu;
+                thisB.makeTrackMenu();
+                thisB.redraw();
+            }
+        });
+
+        return options;
+    },
     updateContextMenu: function() {
         var atrack = this.webapollo.getAnnotTrack();
         if (!atrack || !atrack.isLoggedIn() || !atrack.hasWritePermission()) {
@@ -1347,6 +1394,23 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
         return draggableTrack;
 });
+
+/*  Subclass of FeatureTrack that allows features to be selected,
+    and dragged and dropped into the annotation track to create annotations.
+
+    Note:
+    for selection to work for features that cross block boundaries, z-index of feature style MUST be set, and must be > 0
+    otherwise what happens is:
+          feature div inherits z-order from parent, so same z-order as block
+          so feature div pixels may extend into next block, but next block draws ON TOP OF IT (assuming next block added
+          to parent after current block).  So events over part of feature div that isn't within it's parent block will never
+          reach feature div but instead be triggered on next block
+    This issue will be more obvious if blocks have background color set since then not only will selection not work but
+       part of feature div that extends into next block won't even be visible, since next block background will render over it
+ */
+
+
+
 
  /*
    Copyright (c) 2010-2011 Berkeley Bioinformatics Open-source Projects & Lawrence Berkeley National Labs
