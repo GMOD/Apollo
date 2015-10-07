@@ -1881,6 +1881,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         ArrayList<Transcript> transcriptsToAssociate = new ArrayList<Transcript>()
         ArrayList<Gene> genesToMerge = new ArrayList<Gene>()
         ArrayList<Transcript> transcriptsToDissociate = new ArrayList<Transcript>()
+        ArrayList<Transcript> transcriptsToUpdate = new ArrayList<Transcript>()
         
         for (Transcript eachTranscript : allSortedTranscripts) {
             if (overlapperService.overlaps(eachTranscript, fivePrimeTranscript)) {
@@ -1897,6 +1898,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         log.debug "Transcripts to Associate: ${transcriptsToAssociate}"
         log.debug "Transcripts to Dissociate: ${transcriptsToDissociate}"
+        transcriptsToUpdate.addAll(transcriptsToAssociate)
+        transcriptsToUpdate.addAll(transcriptsToDissociate)
+
         if (transcriptsToAssociate.size() > 0) {
             Gene mergedGene
             mergedGene = mergeGeneEntities(fivePrimeGene, genesToMerge.unique())
@@ -1952,9 +1956,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
                 else {
                     println "ERROR: Left behind transcript: ${eachTranscript}"
+                    throw new AnnotationException()
                 }
             }
         }
+        return transcriptsToUpdate
     }
     
     def getTranscriptsWithOverlappingOrf(Transcript transcript) {
