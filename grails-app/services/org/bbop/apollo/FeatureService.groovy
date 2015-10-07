@@ -1896,6 +1896,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
         }
+
         log.debug "Transcripts to Associate: ${transcriptsToAssociate}"
         log.debug "Transcripts to Dissociate: ${transcriptsToDissociate}"
         transcriptsToUpdate.addAll(transcriptsToAssociate)
@@ -1911,6 +1912,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 eachTranscript.name = nameService.generateUniqueName(eachTranscript, mergedGene.name)
                 eachTranscript.save()
                 if (eachTranscriptParent.parentFeatureRelationships.size() == 0) {
+                    ArrayList<FeatureProperty> featureProperties = eachTranscriptParent.featureProperties
+                    for (FeatureProperty fp : featureProperties) {
+                        featurePropertyService.deleteProperty(eachTranscriptParent, fp)
+                    }
                     eachTranscriptParent.delete()
                 }
             }
@@ -1937,9 +1942,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                             fmax: firstTranscript.fmax,
                             strand: firstTranscript.strand,
                             sequence: firstTranscript.featureLocation.sequence,
-                            //residueInfo: firstTranscript.featureLocation.residueInfo,
-                            //locgroup: firstTranscript.featureLocation.locgroup,
-                            //rank: firstTranscript.featureLocation.rank
+                            residueInfo: firstTranscript.featureLocation.residueInfo,
+                            locgroup: firstTranscript.featureLocation.locgroup,
+                            rank: firstTranscript.featureLocation.rank
                     ).save()
                     newGene.addToFeatureLocations(newGeneFeatureLocation)
                     featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(firstTranscript), firstTranscript)
@@ -1955,8 +1960,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     firstTranscript.save()
                 }
                 else {
-                    println "ERROR: Left behind transcript: ${eachTranscript}"
-                    throw new AnnotationException()
+                    throw new AnnotationException("Left behind transcript that doesn't overlap with any other transcripts")
                 }
             }
         }
