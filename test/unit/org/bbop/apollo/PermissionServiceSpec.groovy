@@ -37,8 +37,8 @@ class PermissionServiceSpec extends Specification {
         user2.addToUserGroups(userGroup)
         
         Organism organism = new Organism(
-                commonName: "Perch"
-                ,directory: "asdf"
+                commonName: "Honeybee"
+                ,directory:  "test/integration/resources/sequences/honeybee-Group1.10/"
         ).save()
     }
 

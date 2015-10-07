@@ -17,12 +17,9 @@ class Gff3HandlerServiceSpec extends Specification {
     def setup() {
         Sequence refSequence = new Sequence(
                 length: 3
-                ,refSeqFile: "adsf"
-                ,seqChunkPrefix: "asdf"
                 ,seqChunkSize: 3
                 ,start: 5
                 ,end: 8
-                ,sequenceDirectory: "asdfadsf"
                 ,name: "Group-1.10"
         ).save()
     }
