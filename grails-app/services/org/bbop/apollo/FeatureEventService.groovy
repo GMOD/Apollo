@@ -1,6 +1,5 @@
 package org.bbop.apollo
 
-import grails.async.Promise
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
@@ -10,9 +9,6 @@ import grails.util.Environment
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
-
-import static grails.async.Promises.*
-
 
 /**
  */
@@ -64,11 +60,13 @@ class FeatureEventService {
                                             , JSONObject commandObject, JSONObject oldFeatureObject
                                             , JSONArray newFeatureArray
                                             , User user) {
+        Map<String,Map<Long,FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName1)
+        featureEventMap.putAll(extractFeatureEventGroup(uniqueName1))
         List<FeatureEvent> featureEventList = new ArrayList<>()
         JSONArray oldFeatureArray = new JSONArray()
         oldFeatureArray.add(oldFeatureObject)
 
-        List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName1)
+        List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName1,featureEventMap)
         if (lastFeatureEventList.size() != 1) {
             throw new AnnotationException("Not one current feature event being split for: " + uniqueName1)
         }
@@ -78,7 +76,7 @@ class FeatureEventService {
         FeatureEvent lastFeatureEvent = lastFeatureEventList[0]
         lastFeatureEvent.current = false;
         lastFeatureEvent.save()
-        deleteFutureHistoryEvents(lastFeatureEvent)
+        deleteFutureHistoryEvents(lastFeatureEvent,featureEventMap)
 
         Date addDate = new Date()
 
@@ -146,15 +144,17 @@ class FeatureEventService {
     List<FeatureEvent> addMergeFeatureEvent(String geneName1, String uniqueName1, String geneName2, String uniqueName2, JSONObject commandObject, JSONArray oldFeatureArray, JSONObject newFeatureObject,
                                             User user) {
         List<FeatureEvent> featureEventList = new ArrayList<>()
+        Map<String,Map<Long,FeatureEvent>> featureEventMap1 = extractFeatureEventGroup(uniqueName1)
+        Map<String,Map<Long,FeatureEvent>> featureEventMap2 = extractFeatureEventGroup(uniqueName2)
 
-        List<FeatureEvent> lastFeatureEventLeftList = findCurrentFeatureEvent(uniqueName1)
+        List<FeatureEvent> lastFeatureEventLeftList = findCurrentFeatureEvent(uniqueName1,featureEventMap1)
         if (lastFeatureEventLeftList.size() != 1) {
             throw new AnnotationException("Not one current feature event being merged for: " + uniqueName1)
         }
         if (!lastFeatureEventLeftList) {
             throw new AnnotationException("Can not find original feature event to split for " + uniqueName1)
         }
-        List<FeatureEvent> lastFeatureEventRightList = findCurrentFeatureEvent(uniqueName2)
+        List<FeatureEvent> lastFeatureEventRightList = findCurrentFeatureEvent(uniqueName2,featureEventMap2)
         if (lastFeatureEventRightList.size() != 1) {
             throw new AnnotationException("Not one current feature event being merged for: " + uniqueName2)
         }
@@ -169,8 +169,9 @@ class FeatureEventService {
         lastFeatureEventRight.current = false;
         lastFeatureEventLeft.save()
         lastFeatureEventRight.save()
-        deleteFutureHistoryEvents(lastFeatureEventLeft)
-        deleteFutureHistoryEvents(lastFeatureEventRight)
+        featureEventMap1 = featureEventMap1.putAll(featureEventMap2)
+        deleteFutureHistoryEvents(lastFeatureEventLeft,featureEventMap1)
+        deleteFutureHistoryEvents(lastFeatureEventRight,featureEventMap1)
 
         Date addDate = new Date()
 
@@ -213,7 +214,7 @@ class FeatureEventService {
     @Timed
     def addNewFeatureEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputCommand, JSONArray oldFeatureArray, JSONArray newFeatureArray, User user) {
 
-//        Map<String,Map<Long,FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
+        Map<String,Map<Long,FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
 //        featureEventMap.keySet().each{ key ->
 //            println "uniqueName key ${key}"
 //            featureEventMap.get(key).each { a,b->
@@ -222,7 +223,7 @@ class FeatureEventService {
 //        }
 
 
-        List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName)
+        List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName,featureEventMap)
         FeatureEvent lastFeatureEvent = null
         lastFeatureEventList?.each { a ->
             if (a.uniqueName == uniqueName) {
@@ -232,7 +233,7 @@ class FeatureEventService {
         if (lastFeatureEvent) {
             lastFeatureEvent.current = false;
             lastFeatureEvent.save()
-            deleteFutureHistoryEvents(lastFeatureEvent)
+            deleteFutureHistoryEvents(lastFeatureEvent,featureEventMap)
         }
 
         FeatureEvent featureEvent = new FeatureEvent(
@@ -274,18 +275,29 @@ class FeatureEventService {
 
         featureEventMap.put(uniqueName,longFeatureEventMap)
 
-        List<String> uniqueNames = (List<String>) FeatureEvent.executeQuery("select distinct fe.uniqueName from FeatureEvent fe where fe.id in (:idsList) and uniqueName not in (:uniqueNames)",[idsList:idsToCollect,uniqueNames: featureEventMap.keySet()])
+        if(idsToCollect){
 
-        uniqueNames.each{
-            featureEventMap.putAll(extractFeatureEventGroup(it,featureEventMap))
+//            List<String> uniqueNames = (List<String>) FeatureEvent.executeQuery("select distinct fe.uniqueName from FeatureEvent fe where fe.id in (:idsList) and uniqueName not in (:uniqueNames)",[idsList:idsToCollect,uniqueNames: featureEventMap.keySet()])
+            Collection<String> uniqueNames = FeatureEvent.withCriteria {
+                and{
+                    'in'("id",idsToCollect)
+                    not {
+                        'in'("uniqueName",featureEventMap.keySet())
+                    }
+                }
+            }.uniqueName.unique()
+
+            uniqueNames.each{
+                featureEventMap.putAll(extractFeatureEventGroup(it,featureEventMap))
+            }
         }
 
 
         return featureEventMap
     }
 
-    def setNotPreviousFutureHistoryEvents(FeatureEvent featureEvent) {
-        List<List<FeatureEvent>> featureEventList = findAllPreviousFeatureEvents(featureEvent)
+    def setNotPreviousFutureHistoryEvents(FeatureEvent featureEvent,Map<String,Map<Long,FeatureEvent>> featureEventMap) {
+        List<List<FeatureEvent>> featureEventList = findAllPreviousFeatureEvents(featureEvent,featureEventMap)
         featureEventList.each { array ->
             array.each {
                 if (it.current) {
@@ -296,8 +308,8 @@ class FeatureEventService {
         }
     }
 
-    def setNotCurrentFutureHistoryEvents(FeatureEvent featureEvent) {
-        List<List<FeatureEvent>> featureEventList = findAllFutureFeatureEvents(featureEvent)
+    def setNotCurrentFutureHistoryEvents(FeatureEvent featureEvent,Map<String,Map<Long,FeatureEvent>> featureEventMap) {
+        List<List<FeatureEvent>> featureEventList = findAllFutureFeatureEvents(featureEvent,featureEventMap)
         featureEventList.each { array ->
             array.each {
                 if (it.current) {
@@ -308,39 +320,50 @@ class FeatureEventService {
         }
     }
 
-    def deleteFutureHistoryEvents(FeatureEvent featureEvent) {
-        List<List<FeatureEvent>> featureEventList = findAllFutureFeatureEvents(featureEvent)
+    def deleteFutureHistoryEvents(FeatureEvent featureEvent,Map<String,Map<Long,FeatureEvent>> featureEventMap) {
+        List<List<FeatureEvent>> featureEventList = findAllFutureFeatureEvents(featureEvent,featureEventMap)
         int count = 0
         featureEventList.each { it.each { it.delete(); ++count } }
         return count
 //        return FeatureEvent.deleteAll(featureEventList.find().eac)
     }
 
+    FeatureEvent findFeatureEventFromMap(Long parentId,Map<String,Map<Long,FeatureEvent>> featureEventMap){
+        for(Map<Long,FeatureEvent> map in featureEventMap.values()){
+            if(map.containsKey(parentId)){
+                return map.get(parentId)
+            }
+        }
+        return null
+    }
+
     @Timed
-    List<List<FeatureEvent>> findAllPreviousFeatureEvents(FeatureEvent featureEvent) {
+    List<List<FeatureEvent>> findAllPreviousFeatureEvents(FeatureEvent featureEvent,Map<String,Map<Long,FeatureEvent>> featureEventMap=null) {
+        featureEventMap = featureEventMap ?: extractFeatureEventGroup(featureEvent.uniqueName)
         List<List<FeatureEvent>> featureEventList = new ArrayList<>()
         Long parentId = featureEvent.parentId
-        FeatureEvent parentFeatureEvent = parentId ? FeatureEvent.findById(parentId) : null
+//        FeatureEvent parentFeatureEvent = parentId ? FeatureEvent.findById(parentId) : null
+        FeatureEvent parentFeatureEvent = parentId ? findFeatureEventFromMap(parentId,featureEventMap) : null
 
-        while (parentFeatureEvent) {
+        if(parentFeatureEvent) {
 
             List<FeatureEvent> featureArrayList = new ArrayList<>()
             featureArrayList.add(parentFeatureEvent)
 
 
-            FeatureEvent parentMergeFeatureEvent = featureEvent.parentMergeId ? FeatureEvent.findById(featureEvent.parentMergeId) : null
+//            FeatureEvent parentMergeFeatureEvent = featureEvent.parentMergeId ? FeatureEvent.findById(featureEvent.parentMergeId) : null
+            FeatureEvent parentMergeFeatureEvent = featureEvent.parentMergeId ? findFeatureEventFromMap(featureEvent.parentMergeId,featureEventMap) : null
             if (parentMergeFeatureEvent) {
                 featureArrayList.add(parentMergeFeatureEvent)
-                featureEventList.addAll(findAllPreviousFeatureEvents(parentMergeFeatureEvent))
+                featureEventList.addAll(findAllPreviousFeatureEvents(parentMergeFeatureEvent,featureEventMap))
             }
 
 
             featureEventList.add(featureArrayList)
-            featureEventList.addAll(findAllPreviousFeatureEvents(parentFeatureEvent))
+            featureEventList.addAll(findAllPreviousFeatureEvents(parentFeatureEvent,featureEventMap))
 
-
-            parentId = parentFeatureEvent.parentId
-            parentFeatureEvent = parentId ? FeatureEvent.findById(parentId) : null
+//            parentId = parentFeatureEvent.parentId
+//            parentFeatureEvent = parentId ? findFeatureEventFromMap(parentId,featureEventMap) : null
         }
 
         return featureEventList.sort(true) { a, b ->
@@ -356,33 +379,38 @@ class FeatureEventService {
      * @return
      */
     @Timed
-    List<List<FeatureEvent>> findAllFutureFeatureEvents(FeatureEvent featureEvent) {
+    List<List<FeatureEvent>> findAllFutureFeatureEvents(FeatureEvent featureEvent,Map<String,Map<Long,FeatureEvent>> featureEventMap=null) {
+        featureEventMap = featureEventMap ?: extractFeatureEventGroup(featureEvent.uniqueName)
         List<List<FeatureEvent>> featureEventList = new ArrayList<>()
 
         Long childId = featureEvent.childId
-        FeatureEvent childFeatureEvent = childId ? FeatureEvent.findById(childId) : null
-        while (childFeatureEvent) {
+//        FeatureEvent childFeatureEvent = childId ? FeatureEvent.findById(childId) : null
+        FeatureEvent childFeatureEvent = childId ? findFeatureEventFromMap(childId,featureEventMap) : null
+        if (childFeatureEvent) {
             List<FeatureEvent> featureArrayList = new ArrayList<>()
             featureArrayList.add(childFeatureEvent)
 
-            FeatureEvent childSplitFeatureEvent = featureEvent.childSplitId ? FeatureEvent.findById(featureEvent.childSplitId) : null
+//            FeatureEvent childSplitFeatureEvent = featureEvent.childSplitId ? FeatureEvent.findById(featureEvent.childSplitId) : null
+            FeatureEvent childSplitFeatureEvent = featureEvent.childSplitId ? findFeatureEventFromMap(featureEvent.childSplitId,featureEventMap) : null
             if (childSplitFeatureEvent) {
                 featureArrayList.add(childSplitFeatureEvent)
-                featureEventList.addAll(findAllFutureFeatureEvents(childSplitFeatureEvent))
+                featureEventList.addAll(findAllFutureFeatureEvents(childSplitFeatureEvent,featureEventMap))
             }
 
             // if there is a parent merge . .  we just include that parent in the history (not everything)
             // we have to assume that there is a previous feature event (a merge can never be first)
-            FeatureEvent parentMergeFeatureEvent = featureEvent.parentMergeId ? FeatureEvent.findById(featureEvent.parentMergeId) : null
+//            FeatureEvent parentMergeFeatureEvent = featureEvent.parentMergeId ? FeatureEvent.findById(featureEvent.parentMergeId) : null
+            FeatureEvent parentMergeFeatureEvent = featureEvent.parentMergeId ? findFeatureEventFromMap(featureEvent.parentMergeId,featureEventMap) : null
             if (parentMergeFeatureEvent && featureEventList) {
                 featureEventList.get(featureEventList.size() - 1).add(parentMergeFeatureEvent)
             }
 
-            featureEventList.addAll(findAllFutureFeatureEvents(childFeatureEvent))
+            featureEventList.addAll(findAllFutureFeatureEvents(childFeatureEvent,featureEventMap))
             featureEventList.add(featureArrayList)
 
-            childId = childFeatureEvent.childId
-            childFeatureEvent = childId ? FeatureEvent.findById(childId) : null
+//            childId = childFeatureEvent.childId
+//            childFeatureEvent = childId ? FeatureEvent.findById(childId) : null
+//            childFeatureEvent = childId ? findFeatureEventFromMap(childId,featureEventMap) : null
         }
 
         return featureEventList.sort(true) { a, b ->
@@ -406,9 +434,9 @@ class FeatureEventService {
     /**
      * @deprecated
      */
-    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, Feature feature, JSONObject inputCommand, User user) {
-        return addNewFeatureEventWithUser(featureOperation, feature.name, feature.uniqueName, inputCommand, featureService.convertFeatureToJSON(feature), user)
-    }
+//    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, Feature feature, JSONObject inputCommand, User user) {
+//        return addNewFeatureEventWithUser(featureOperation, feature.name, feature.uniqueName, inputCommand, featureService.convertFeatureToJSON(feature), user)
+//    }
 
 //    def deleteHistoryAsync(String uniqueName) {
 //        Promise memberDeleteDeltas = task {
@@ -437,9 +465,12 @@ class FeatureEventService {
      * @return
      */
     List<FeatureEvent> setTransactionForFeature(String uniqueName, int currentIndex) {
+
+        Map<String,Map<Long,FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
+
         log.info "setting previous transaction for feature ${uniqueName} -> ${currentIndex}"
         log.info "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${currentIndex}"
-        List<List<FeatureEvent>> featureEventList = getHistory(uniqueName)
+        List<List<FeatureEvent>> featureEventList = getHistory(uniqueName,featureEventMap)
         FeatureEvent currentFeatureEvent = null
         for (int i = 0; i < featureEventList.size(); i++) {
             List<FeatureEvent> featureEventArray = featureEventList.get(i)
@@ -467,13 +498,13 @@ class FeatureEventService {
 
         if (!currentFeatureEvent) {
             log.warn "Did we forget to change the feature event?"
-            findCurrentFeatureEvent(uniqueName)
+//            findCurrentFeatureEvent(uniqueName,featureEventMap)
         }
-        setNotPreviousFutureHistoryEvents(currentFeatureEvent)
-        setNotCurrentFutureHistoryEvents(currentFeatureEvent)
+        setNotPreviousFutureHistoryEvents(currentFeatureEvent,featureEventMap)
+        setNotCurrentFutureHistoryEvents(currentFeatureEvent,featureEventMap)
 
 //        log.debug "updated is ${updated}"
-        def returnEvent = findCurrentFeatureEvent(currentFeatureEvent.uniqueName)
+        def returnEvent = findCurrentFeatureEvent(currentFeatureEvent.uniqueName,featureEventMap)
         return returnEvent
     }
 
@@ -565,8 +596,10 @@ class FeatureEventService {
 
     def deleteCurrentState(JSONObject inputObject, String uniqueName, List<String> newUniqueNames, Sequence sequence) {
 
+        Map<String,Map<Long,FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
+
         // need to get uniqueNames for EACH current featureEvent
-        for (FeatureEvent deleteFeatureEvent in findCurrentFeatureEvent(uniqueName)) {
+        for (FeatureEvent deleteFeatureEvent in findCurrentFeatureEvent(uniqueName,featureEventMap)) {
             JSONObject deleteCommandObject = new JSONObject()
             JSONArray featuresArray = new JSONArray()
             log.debug "delete feature event uniqueNamee: ${deleteFeatureEvent.uniqueName}"
@@ -627,8 +660,9 @@ class FeatureEventService {
      * @param uniqueName
      * @return
      */
-    int getCurrentFeatureEventIndex(String uniqueName) {
+    int getCurrentFeatureEventIndex(String uniqueName,Map<String,Map<Long,FeatureEvent>> featureEventMap=null) {
         List<FeatureEvent> currentFeatureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true, [sort: "dateCreated", order: "asc"])
+        featureEventMap = extractFeatureEventGroup(uniqueName)
         if (currentFeatureEventList.size() != 1) {
             throw new AnnotationException("Feature event list is the wrong size ${currentFeatureEventList?.size()}")
         }
@@ -638,7 +672,8 @@ class FeatureEventService {
         int index = -1
         while (currentFeatureEvent) {
             ++index
-            currentFeatureEvent = currentFeatureEvent.parentId ? FeatureEvent.findById(currentFeatureEvent.parentId) : null
+//            currentFeatureEvent = currentFeatureEvent.parentId ? FeatureEvent.findById(currentFeatureEvent.parentId) : null
+            currentFeatureEvent = currentFeatureEvent.parentId ? findFeatureEventFromMap(currentFeatureEvent.parentId,featureEventMap) : null
         }
         return index
     }
@@ -664,7 +699,8 @@ class FeatureEventService {
      * @return
      */
     @Timed
-    List<FeatureEvent> findCurrentFeatureEvent(String uniqueName) {
+    List<FeatureEvent> findCurrentFeatureEvent(String uniqueName,Map<String,Map<Long,FeatureEvent>> featureEventMap = null ) {
+        featureEventMap = featureEventMap ?: extractFeatureEventGroup(uniqueName)
         List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true)
         if (featureEventList.size() != 1) {
             log.debug("No current feature events for ${uniqueName}: " + featureEventList.size())
@@ -676,9 +712,9 @@ class FeatureEventService {
 
         // its okay if we grab either side of this array
         // just arbitrarily get the first one
-        List<List<FeatureEvent>> previousFeatureEvents = findAllPreviousFeatureEvents(currentFeatureEvent)
+        List<List<FeatureEvent>> previousFeatureEvents = findAllPreviousFeatureEvents(currentFeatureEvent,featureEventMap)
         if (!previousFeatureEvents) {
-            def futureEvents = findAllFutureFeatureEvents(featureEventList[0])
+            def futureEvents = findAllFutureFeatureEvents(featureEventList[0],featureEventMap)
             // if we have a future event and it is a merge, then we have multiple "current"
             if (futureEvents && futureEvents.get(0).get(0).parentMergeId) {
                 if (futureEvents.get(0).get(0).parentMergeId != currentFeatureEvent.id) {
@@ -707,7 +743,7 @@ class FeatureEventService {
 
         // an index of 1 is 1 in the future.  This returns exclusive future, so we need to
         // substract 1 from the index
-        def futureEvents = findAllFutureFeatureEvents(firstFeatureEvent)[index - 1]
+        def futureEvents = findAllFutureFeatureEvents(firstFeatureEvent,featureEventMap)[index - 1]
         return futureEvents
     }
 
@@ -719,8 +755,9 @@ class FeatureEventService {
      * @param uniqueName
      * @return
      */
-    List<List<FeatureEvent>> getHistory(String uniqueName) {
-        List<FeatureEvent> currentFeatureEvent = findCurrentFeatureEvent(uniqueName)
+    List<List<FeatureEvent>> getHistory(String uniqueName,Map<String,Map<Long,FeatureEvent>> featureEventMap = null ) {
+        featureEventMap = featureEventMap ?: extractFeatureEventGroup(uniqueName)
+        List<FeatureEvent> currentFeatureEvent = findCurrentFeatureEvent(uniqueName,featureEventMap)
 
         // if we revert a split or do a merge
         if (!currentFeatureEvent) return []
@@ -728,13 +765,13 @@ class FeatureEventService {
         List<List<FeatureEvent>> featureEvents = new ArrayList<>()
 
         for (FeatureEvent featureEvent in currentFeatureEvent) {
-            featureEvents.addAll(findAllPreviousFeatureEvents(featureEvent))
+            featureEvents.addAll(findAllPreviousFeatureEvents(featureEvent,featureEventMap))
         }
         featureEvents.add(currentFeatureEvent)
         // finding future events handles splits correctly, so we only need to manage this branch
         for (FeatureEvent featureEvent in currentFeatureEvent) {
             if (featureEvent.uniqueName == uniqueName) {
-                featureEvents.addAll(findAllFutureFeatureEvents(featureEvent))
+                featureEvents.addAll(findAllFutureFeatureEvents(featureEvent,featureEventMap))
             }
         }
 
