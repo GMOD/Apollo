@@ -93,6 +93,7 @@ grails.project.dependency.resolution = {
         build ":tomcat:7.0.55"
 
         // plugins for the compile step
+        compile ":rest-api-doc:0.6"
         compile ":scaffolding:2.1.2"
         compile ':cache:1.1.7'
         compile ':cache-ehcache:1.0.5'
@@ -116,8 +117,10 @@ grails.project.dependency.resolution = {
         runtime ":jquery-ui:1.10.4"
         runtime ":jquery:1.11.1"
 
+
+
         // https://github.com/groovydev/twitter-bootstrap-grails-plugin/blob/master/README.md
-        runtime ':twitter-bootstrap:3.3.1'
+        runtime ':twitter-bootstrap:3.3.2.1'
         //compile ":angularjs:1.0.0"
         //compile ":dojo:1.7.2.0"
         //compile ":platform-core:1.0.0"

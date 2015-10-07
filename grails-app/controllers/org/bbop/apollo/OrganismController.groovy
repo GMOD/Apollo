@@ -5,11 +5,18 @@ import grails.converters.JSON
 import org.bbop.apollo.report.OrganismSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.restapidoc.annotation.RestApi
+import org.restapidoc.annotation.RestApiMethod
+import org.restapidoc.annotation.RestApiParam
+import org.restapidoc.annotation.RestApiParams
+import org.restapidoc.pojo.RestApiParamType
+import org.restapidoc.pojo.RestApiVerb
 import org.springframework.http.HttpStatus
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 
+@RestApi(name = "Organism Services", description = "Methods for managing Organisms")
 @Transactional(readOnly = true)
 class OrganismController {
 
@@ -19,6 +26,7 @@ class OrganismController {
     def permissionService
     def requestHandlingService
     def preferenceService
+    def organismService
 
     def reportService
 
@@ -26,6 +34,12 @@ class OrganismController {
         [organisms:Organism.findAllByPublicMode(true,[sort: 'commonName', order: 'desc']),urlString:params.urlString]
     }
 
+    @RestApiMethod(description="Remove an organism",path="/deleteOrganism",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="email", paramType = RestApiParamType.QUERY)
+    ]
+    )
     @Transactional
     def deleteOrganism() {
         log.debug "DELETING ORGANISM params: ${params.data}"
@@ -56,6 +70,11 @@ class OrganismController {
     }
 
     // webservice
+    @RestApiMethod(description="Remove features from an organism",path="/deleteOrganismFeatures",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="email", paramType = RestApiParamType.QUERY)
+    ])
     @Transactional
     def deleteOrganismFeatures() {
         JSONObject organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
@@ -73,11 +92,22 @@ class OrganismController {
                 return
             }
 
+            Organism organism = Organism.findByCommonName(organismJson.organism)
+            if(!organism){
+                organism = Organism.findById(organismJson.organism)
+            }
+
+            if(!organism){
+                throw new Exception("Can not find organism for ${organismJson.organism} to remove features of")
+            }
+
+
+            organismService.deleteAllFeaturesForOrganism()
 
 
         }
         catch(e){
-            def error= [error: 'problem saving organism: '+e]
+            def error= [error: 'problem removing organism features for organism: '+e]
             render error as JSON
             e.printStackTrace()
             log.error(error.error)

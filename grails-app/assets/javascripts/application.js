@@ -7,6 +7,7 @@
 //
 //= require jquery
 //= require bootstrap
+//= require tree .
 //= require_self
 
 

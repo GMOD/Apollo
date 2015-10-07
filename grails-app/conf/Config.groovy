@@ -283,6 +283,14 @@ apollo {
 
 }
 
+grails.plugins.restapidoc.basePath = "http://localhost:8080/apollo"
+//grails.plugins.restapidoc.layout = "restapidoc_layout"
+//grails.plugins.restapidoc.layout = "main"
+
+
+//grails.plugins.twitterbootstrap.defaultBundle = false
+//grails.views.javascript.library="jquery"
+
 // from: http://grails.org/plugin/audit-logging
 auditLog {
     //note, this disables the audit log

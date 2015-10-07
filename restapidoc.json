@@ -1,0 +1,104 @@
+{
+   "basePath": "http://localhost:8080/apollo",
+   "apis": [{
+      "methods": [
+         {
+            "headers": [],
+            "bodyobject": {
+               "mapKeyObject": "",
+               "jsondocId": "6c6aa3de-be9e-4205-862b-49f32400831c",
+               "mapValueObject": "",
+               "map": "",
+               "object": "organism",
+               "multiple": "Unknow"
+            },
+            "jsondocId": "7d54dbe0-cb99-44df-ab00-df61a26308d8",
+            "consumes": ["application/json"],
+            "response": {
+               "mapKeyObject": "",
+               "jsondocId": "b83ad608-c97c-43a2-9bea-5a13ef045cb8",
+               "mapValueObject": "",
+               "object": "organism"
+            },
+            "pathparameters": [],
+            "apierrors": [],
+            "verb": "POST",
+            "description": "Remove an organism",
+            "queryparameters": [
+               {
+                  "jsondocId": "649ec682-61e0-43cb-b8e9-3f978a212d7e",
+                  "description": "",
+                  "name": "username",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "email"
+               },
+               {
+                  "jsondocId": "63fbda4a-b5ab-4d2f-8eb6-4bf486c5194e",
+                  "description": "",
+                  "name": "password",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "email"
+               }
+            ],
+            "path": "/deleteOrganism",
+            "produces": ["application/json"],
+            "methodName": "deleteOrganism"
+         },
+         {
+            "headers": [],
+            "bodyobject": {
+               "mapKeyObject": "",
+               "jsondocId": "028d4e1c-9d7c-4e10-b030-b75ee5ae9308",
+               "mapValueObject": "",
+               "map": "",
+               "object": "organism",
+               "multiple": "Unknow"
+            },
+            "jsondocId": "7743d2c5-7bd1-4b17-bbba-8b9d49de7157",
+            "consumes": ["application/json"],
+            "response": {
+               "mapKeyObject": "",
+               "jsondocId": "b590edfc-ebad-41d6-932a-4e3ac8c44e2e",
+               "mapValueObject": "",
+               "object": "organism"
+            },
+            "pathparameters": [],
+            "apierrors": [],
+            "verb": "POST",
+            "description": "Remove features from an organism",
+            "queryparameters": [
+               {
+                  "jsondocId": "2da00b4e-b6e6-4e5b-9521-f7d67a73e185",
+                  "description": "",
+                  "name": "username",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "email"
+               },
+               {
+                  "jsondocId": "2930f216-e4ac-4d0e-b630-27e23fc90882",
+                  "description": "",
+                  "name": "password",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "email"
+               }
+            ],
+            "path": "/deleteOrganismFeatures",
+            "produces": ["application/json"],
+            "methodName": "deleteOrganismFeatures"
+         }
+      ],
+      "jsondocId": "d29ae191-73ce-45c9-bbf0-0149f7b4a124",
+      "description": "Methods for managing Organisms",
+      "name": "Organism Services"
+   }],
+   "objects": [],
+   "version": "0.1.1"
+}
