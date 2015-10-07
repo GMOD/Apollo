@@ -34,7 +34,7 @@ class OrganismController {
         [organisms:Organism.findAllByPublicMode(true,[sort: 'commonName', order: 'desc']),urlString:params.urlString]
     }
 
-    @RestApiMethod(description="Remove an organism",path="/deleteOrganism",verb = RestApiVerb.POST)
+    @RestApiMethod(description="Remove an organism",path="/organism/deleteOrganism",verb = RestApiVerb.POST)
     @RestApiParams(params=[
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="email", paramType = RestApiParamType.QUERY)
@@ -70,7 +70,7 @@ class OrganismController {
     }
 
     // webservice
-    @RestApiMethod(description="Remove features from an organism",path="/deleteOrganismFeatures",verb = RestApiVerb.POST)
+    @RestApiMethod(description="Remove features from an organism",path="/organism/deleteOrganismFeatures",verb = RestApiVerb.POST)
     @RestApiParams(params=[
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="email", paramType = RestApiParamType.QUERY)

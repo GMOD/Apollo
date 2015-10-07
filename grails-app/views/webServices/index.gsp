@@ -49,33 +49,57 @@
                     </accordion-heading>
 
                     Methods: {{api.methods.length}}
-                    <ul>
-                        <li ng-repeat="method in api.methods">
-                            <div class="info">
-                                {{method.methodName}} {{method.description}}
-                            </div>
+                    <accordion>
+                        <accordion-group ng-repeat="method in api.methods" is-open="true">
 
-                            <div class="info">
-                                Consumes: {{method.consumes}} {{method.verb}}
+                            <accordion-heading>
+                                {{method.methodName}}
+                                <span class="small"> {{method.description}}</span>
 
-                                <ul>
-                                    <li ng-repeat="param in method.queryparameters">
-                                        {{param.name}}
+                            </accordion-heading>
+
+                            <table class="table table-condensed table-striped table-bordered">
+                                <tbody>
+                                <tr>
+                                    <th style="width:15%;">Path</th>
+                                    <td>{{method.path}}</td>
+                                </tr>
+                                <tr>
+                                    <th style="width:15%;">Description</th>
+                                    <td>{{method.description}}</td>
+                                </tr>
+                                <tr>
+                                    <th style="width:15%;">Method</th>
+                                    <td>{{method.consumes}} {{method.verb}}</td>
+                                </tr>
+                                <tr>
+                                    <th colspan="2">Parameters</th>
+                                </tr>
+                                <tr ng-repeat="param in method.queryparameters">
+                                    <td style="width:15%">
+                                        <code>
+                                            {{param.name}}
+                                        </code>
+                                    </td>
+                                    <td>
+                                        <span ng-show="param.required" class="badge badge-success">Required</span>
+                                        <span ng-hide="param.required" class="badge badge-info">Optional</span>
+                                        <span class="badge badge-important">{{param.type}}</span>
                                         {{param.description}}
-                                        {{param.required}}
-                                        {{param.type}}
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="response">
-                                Response {{method.produces}}
-                                %{--{{method.response}} --}%
-                            </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th colspan="2">Response</th>
+                                </tr>
+                                <tr>
+                                    <th style="width:15%;">Produces</th>
+                                    <td>{{method.produces}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
 
-                            <br/>
-                            %{--{{method}}--}%
-                        </li>
-                    </ul>
+                        </accordion-group>
+                    </accordion>
 
                 </accordion-group>
 
