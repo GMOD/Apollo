@@ -1,8 +1,8 @@
-## WebApollo Configuration
+## Apollo Configuration
 
 
-Web Apollo 2.0 includes some basic configuration parameters that are specified in configuration files. The most
-important parameters are the database parameters in order to get Web Apollo up and running. Other options besides the
+Apollo 2.0 includes some basic configuration parameters that are specified in configuration files. The most
+important parameters are the database parameters in order to get Apollo up and running. Other options besides the
 database parameters can be configured via the config files, but note that many parameters can also be configured via the
 web interface.
 
@@ -62,7 +62,7 @@ defined in the Config.groovy file:
     }
 ```
 
-These settings are essentially the same familiar parameters from a config.xml file from previous Web Apollo versions.
+These settings are essentially the same familiar parameters from a config.xml file from previous Apollo versions.
 The defaults are generally sufficient, but as noted above, you can override any particular parameter in your
 apollo-config.groovy file, e.g. you can add override configuration any given parameter as follows:
 
@@ -85,7 +85,7 @@ Canned comments are configured via the admin panel on the web interface.
 
 ### Search tools
 
-Web Apollo can be configured to work with sequence search tools. The tool UCSC BLAT is
+Apollo can be configured to work with sequence search tools. The tool UCSC BLAT is
 commonly used and can be easily configured via the config file, with the general parameters given as follows:
 
 ``` 
@@ -168,7 +168,7 @@ The default data adapters are configured by simple URL strings to the IOServiceC
 
 ### Supported annotation types
 
-Many configurations will require you to define which annotation types the configuration will apply to. Web Apollo
+Many configurations will require you to define which annotation types the configuration will apply to. Apollo
 supports the following "higher level" types (from the Sequence Ontology):
 
 * sequence:gene
@@ -189,7 +189,7 @@ supports the following "higher level" types (from the Sequence Ontology):
 
 Often time admins will put Apache or Nginx in front of a servlet container (e.g., Tomcat, Jetty).  This is not necessary, but it is a very standard configuration.  
 
-One thing to consider with this proxy setup is the websocket calls. We use the SockJS library, which will downgrade to long-polling if web sockets are not available, but since websockets are preferable, it helps to take some extra steps to ensure that the websocket calls are proxied or forwarded in some way too.
+One thing to consider with this proxy setup is the websocket calls. We use the SockJS library, which will downgrade to long-polling if websockets are not available, but since websockets are preferable, it helps to take some extra steps to ensure that the websocket calls are proxied or forwarded in some way too.
 
 
 #### Apache Proxy 
@@ -262,11 +262,11 @@ Your setup may vary, but setting the upgrade headers can be used for the websock
 
 There are several scripts for migrating from older instances. See the [migration guide](Migration.md) for details. Particular notes:
 
-Note: WebApollo 2.0 does not require using the `add-webapollo-plugin.pl` because the plugin is loaded implicitely by including the client/apollo/json/annot.json file at run time.
+Note: Apollo 2.0 does not require using the `add-webapollo-plugin.pl` because the plugin is loaded implicitely by including the client/apollo/json/annot.json file at run time.
 
 #### Upgrading existing JBrowse data stores
 
-It is not necessary to change your existing JBrowse data directories to use Web Apollo 2.0, you can just point to existing data directories from your previous instances.
+It is not necessary to change your existing JBrowse data directories to use Apollo 2.0, you can just point to existing data directories from your previous instances.
 
 #### Adding custom CSS for track styling for JBrowse
 

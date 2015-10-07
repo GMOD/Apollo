@@ -258,7 +258,6 @@ public class TrackPanel extends Composite {
         filteredTrackInfoList.clear();
         for (TrackInfo trackInfo : trackInfoList) {
             if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) &&
-                    trackInfo.getName().toLowerCase().contains(text.toLowerCase()) &&
                     !isReferenceSequence(trackInfo) &&
                     !isAnnotationTrack(trackInfo)) {
                 filteredTrackInfoList.add(trackInfo);

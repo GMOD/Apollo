@@ -316,6 +316,12 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("deleteButton")
     public void handleDeleteOrganism(ClickEvent clickEvent) {
+        OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
+        if(organismInfo==null) return ;
+        if(organismInfo.getNumFeatures()>0){
+            new ErrorDialog("Can Not Delete Organism '"+organismInfo.getName()+"'","Can not delete organism "+organismInfo.getName()+".  You remove "+singleSelectionModel.getSelectedObject().getNumFeatures() + " annotations first.  Please see the web services API in the help menu for more details on how to do this in bulk.",true,true);
+            return ;
+        }
         if(Window.confirm("Are you sure you want to delete "+singleSelectionModel.getSelectedObject().getName())){
             deleteButton.setEnabled(false);
             deleteButton.setText("Processing");
