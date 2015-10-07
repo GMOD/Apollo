@@ -11,6 +11,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
     def requestHandlingService
     def featureRelationshipService
+    def featurePropertyService
     def transcriptService
     def exonService
     def sequenceService
@@ -2361,5 +2362,101 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert Gene.count == 2
         assert MRNA.count == 2
     }
+    
+    void "when two transcripts become isoforms of each others, the properties of their respective parent gene should be preserved in the merged gene"() {
+
+        given: "Two transcripts that overlap but are not isoforms of each other"
+        String transcript1 = "{\"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":583280,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":577643},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40819-RA\",\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String transcript2 = "{\"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":576138,\"fmax\":576168},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":576138,\"fmax\":576168},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583194},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583554,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583194,\"fmax\":583554},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"5:geneid_mRNA_CM000054.5_467\",\"location\":{\"strand\":1,\"fmin\":576138,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String setTranslationStartForTranscript2 = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":582521}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+
+        //String setSymbolOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"symbol\":\"@SYMBOL_VALUE@\"}],\"track\":\"Group1.10\",\"operation\":\"set_symbol\",\"username\":\"demo@demo.com\"}"
+        //String setDescriptionOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"description\":\"@DESCRIPTION_VALUE@\"}],\"track\":\"Group1.10\",\"operation\":\"set_description\"}"
+        String addDbxrefOperation = "{\"features\":[{\"dbxrefs\":[{\"accession\":\"@XREF_ACCESSION@\",\"db\":\"@XREF_DB@\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"add_non_primary_dbxrefs\"}"
+        String addAttributeOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"non_reserved_properties\":[{\"tag\":\"@ATTRIBUTE_TAG@\",\"value\":\"@ATTRIBUTE_VALUE@\"}]}],\"track\":\"Group1.10\",\"operation\":\"add_non_reserved_properties\"}"
+        String addPublicationOperation = "{\"features\":[{\"dbxrefs\":[{\"accession\":\"@PUBMED_ACCESSION@\",\"db\":\"PMID\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"add_non_primary_dbxrefs\"}"
+        String addGeneOntologyOperation = "{\"features\":[{\"dbxrefs\":[{\"accession\":\"@GO_ACCESSION@\",\"db\":\"GO\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"add_non_primary_dbxrefs\"}"
+        String addCommentOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"comments\":[\"@COMMENT@\"]}],\"track\":\"Group1.10\",\"operation\":\"add_comments\"}"
+
+        when: "we add transcript1 and transcript2"
+        JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript1) as JSONObject).get("features")
+        JSONObject addTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript2) as JSONObject).get("features")
+
+        then:"we should see 2 Genes and 2 MRNAs"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        String transcript1UniqueName = addTranscript1ReturnObject.uniquename
+        String transcript2UniqueName = addTranscript2ReturnObject.uniquename
+        Gene initialGeneForTranscript1 = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
+        Gene initialGeneForTranscript2 = transcriptService.getGene(MRNA.findByUniqueName(transcript2UniqueName))
+
+        when: "we add properties to transcript1"
+        String addDbxref1ForTranscript1 = addDbxrefOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@XREF_DB@", "NCBI").replace("@XREF_ACCESSION@", "12937129")
+        String addDbxref2ForTranscript1 = addDbxrefOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@XREF_DB@", "Ensembl").replace("@XREF_ACCESSION@", "ENSG000000000213")
+        String addAttribute1ForTranscript1 = addAttributeOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@ATTRIBUTE_TAG@", "isPredicted").replace("@ATTRIBUTE_VALUE@", "true")
+        String addAttribute2ForTranscript1 = addAttributeOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@ATTRIBUTE_TAG@", "isProteinCoding").replace("@ATTRIBUTE_VALUE@", "true")
+        String addPublicationForTranscript1 = addPublicationOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@PUBMED_ACCESSION@", "8379243")
+        String addGeneOntologyForTranscript1 = addGeneOntologyOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@GO_ACCESSION@", "GO:1902009")
+        String addCommentForTranscript1 = addCommentOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@COMMENT", "This gene is a test gene and created solely for the purpose of this test")
+        
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addDbxref1ForTranscript1) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addDbxref2ForTranscript1) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addAttribute1ForTranscript1) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addAttribute2ForTranscript1) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addPublicationForTranscript1) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addGeneOntologyForTranscript1) as JSONObject)
+        requestHandlingService.addComments(JSON.parse(addCommentForTranscript1) as JSONObject)
+        
+        then: "we should have 3 FeatureProperty entities and 4 DBXref entities"
+        assert FeatureProperty.count == 3
+        assert DBXref.count == 4
+        
+        when: "we add properties to transcript2"
+        String addDbxref1ForTranscript2 = addDbxrefOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@XREF_DB@", "NCBI").replace("@XREF_ACCESSION@", "83924623")
+        String addDbxref2ForTranscript2 = addDbxrefOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@XREF_DB@", "Ensembl").replace("@XREF_ACCESSION@", "ENSG000000000112")
+        String addAttribute1ForTranscript2 = addAttributeOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@ATTRIBUTE_TAG@", "isAnnotated").replace("@ATTRIBUTE_VALUE@", "false")
+        String addAttribute2ForTranscript2 = addAttributeOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@ATTRIBUTE_TAG@", "isApproved").replace("@ATTRIBUTE_VALUE@", "false")
+        String addPublicationForTranscript2 = addPublicationOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@PUBMED_ACCESSION@", "8923422")
+        String addGeneOntologyForTranscript2 = addGeneOntologyOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@GO_ACCESSION@", "GO:0009372")
+        String addCommentForTranscript2 = addCommentOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@COMMENT", "This gene is a another test gene and created solely for the purpose of this test")
+
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addDbxref1ForTranscript2) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addDbxref2ForTranscript2) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addAttribute1ForTranscript2) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addAttribute2ForTranscript2) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addPublicationForTranscript2) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addGeneOntologyForTranscript2) as JSONObject)
+        requestHandlingService.addComments(JSON.parse(addCommentForTranscript2) as JSONObject)
+        
+        then: "we should have 6 FeatureProperty entities and 8 DBXref entities"
+        assert FeatureProperty.count == 6
+        assert DBXref.count == 8
+        def xRefInitialGeneForTranscript1 = initialGeneForTranscript1.getFeatureDBXrefs()
+        def fpInitialGeneForTranscript1 = initialGeneForTranscript1.getFeatureProperties()
+        def xRefInitialGeneForTranscript2 = initialGeneForTranscript2.getFeatureDBXrefs()
+        def fpInitialGeneForTranscript2 = initialGeneForTranscript2.getFeatureProperties()
+        def combinedxRefs = (xRefInitialGeneForTranscript1 + xRefInitialGeneForTranscript2).sort()
+        def combinedFeatureProperties = (fpInitialGeneForTranscript1 + fpInitialGeneForTranscript2).sort()
+        
+        when: "we set exon boundary of transcript2"
+        setTranslationStartForTranscript2 = setTranslationStartForTranscript2.replace("@UNIQUENAME@", transcript2UniqueName)
+        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript2) as JSONObject)
+        
+        then: "transcript1 and transcript2 should be isoforms of each other and they should have the same parent gene"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert FeatureProperty.count == 7
+        assert DBXref.count == 8
+        Gene finalGeneForTranscript1 = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
+        Gene finalGeneForTranscript2 = transcriptService.getGene(MRNA.findByUniqueName(transcript2UniqueName))
+        assert finalGeneForTranscript1.uniqueName == finalGeneForTranscript2.uniqueName
+        
+        then: "all properties of the parent gene for transcript2, before setTranslationStart, should now be properties of current shared gene"
+        def xRefForMergedGene = finalGeneForTranscript1.getFeatureDBXrefs()
+        def fpForMergedGene = finalGeneForTranscript1.getFeatureProperties()
+        assert combinedxRefs == xRefForMergedGene.sort()
+        assert combinedFeatureProperties == fpForMergedGene.sort()
+    }
+    
 
 }
