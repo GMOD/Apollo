@@ -6,17 +6,17 @@
             "headers": [],
             "bodyobject": {
                "mapKeyObject": "",
-               "jsondocId": "6c6aa3de-be9e-4205-862b-49f32400831c",
+               "jsondocId": "1d1043a9-c89c-4f98-813f-313626d6f26f",
                "mapValueObject": "",
                "map": "",
                "object": "organism",
                "multiple": "Unknow"
             },
-            "jsondocId": "7d54dbe0-cb99-44df-ab00-df61a26308d8",
+            "jsondocId": "5d112b22-9abc-4ebd-be84-b5ece9f951a4",
             "consumes": ["application/json"],
             "response": {
                "mapKeyObject": "",
-               "jsondocId": "b83ad608-c97c-43a2-9bea-5a13ef045cb8",
+               "jsondocId": "7a78f65c-5b30-4e23-a0a4-0da6ff275bb2",
                "mapValueObject": "",
                "object": "organism"
             },
@@ -26,7 +26,7 @@
             "description": "Remove an organism",
             "queryparameters": [
                {
-                  "jsondocId": "649ec682-61e0-43cb-b8e9-3f978a212d7e",
+                  "jsondocId": "ff020d51-7142-48d3-9481-5c83f97baee3",
                   "description": "",
                   "name": "username",
                   "allowedvalues": [],
@@ -35,16 +35,25 @@
                   "type": "email"
                },
                {
-                  "jsondocId": "63fbda4a-b5ab-4d2f-8eb6-4bf486c5194e",
+                  "jsondocId": "6ae2641d-c4ed-4418-83bc-d29bb0951aca",
                   "description": "",
                   "name": "password",
                   "allowedvalues": [],
                   "format": "",
                   "required": "true",
-                  "type": "email"
+                  "type": "password"
+               },
+               {
+                  "jsondocId": "0072ec71-0a84-426a-9da0-9539b953f487",
+                  "description": "Pass an Organism JSON object with an 'id' that corresponds to the id to delete",
+                  "name": "organism",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "json"
                }
             ],
-            "path": "/deleteOrganism",
+            "path": "/organism/deleteOrganism",
             "produces": ["application/json"],
             "methodName": "deleteOrganism"
          },
@@ -52,17 +61,17 @@
             "headers": [],
             "bodyobject": {
                "mapKeyObject": "",
-               "jsondocId": "028d4e1c-9d7c-4e10-b030-b75ee5ae9308",
+               "jsondocId": "afbc71bd-4eda-4c5e-9b75-f2c130bfd6c4",
                "mapValueObject": "",
                "map": "",
                "object": "organism",
                "multiple": "Unknow"
             },
-            "jsondocId": "7743d2c5-7bd1-4b17-bbba-8b9d49de7157",
+            "jsondocId": "7ad3b0fb-98aa-433a-ac62-b9c2c5f5c9df",
             "consumes": ["application/json"],
             "response": {
                "mapKeyObject": "",
-               "jsondocId": "b590edfc-ebad-41d6-932a-4e3ac8c44e2e",
+               "jsondocId": "0753fa21-0696-4d3c-b6ad-3efedca5c949",
                "mapValueObject": "",
                "object": "organism"
             },
@@ -72,7 +81,7 @@
             "description": "Remove features from an organism",
             "queryparameters": [
                {
-                  "jsondocId": "2da00b4e-b6e6-4e5b-9521-f7d67a73e185",
+                  "jsondocId": "82c6778c-09f3-43d0-8187-7510e0a1171f",
                   "description": "",
                   "name": "username",
                   "allowedvalues": [],
@@ -81,21 +90,241 @@
                   "type": "email"
                },
                {
-                  "jsondocId": "2930f216-e4ac-4d0e-b630-27e23fc90882",
+                  "jsondocId": "ad9969e0-5363-454e-a8e2-04b6e91e99fe",
                   "description": "",
                   "name": "password",
                   "allowedvalues": [],
                   "format": "",
                   "required": "true",
-                  "type": "email"
+                  "type": "password"
+               },
+               {
+                  "jsondocId": "7e6eca57-94f8-4961-8463-170470b44733",
+                  "description": "An organism json object that has an 'id' or 'commonName' parameter that corresponds to an organism.",
+                  "name": "organism",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "json"
                }
             ],
-            "path": "/deleteOrganismFeatures",
+            "path": "/organism/deleteOrganismFeatures",
             "produces": ["application/json"],
             "methodName": "deleteOrganismFeatures"
+         },
+         {
+            "headers": [],
+            "bodyobject": {
+               "mapKeyObject": "",
+               "jsondocId": "b462a3fc-8193-4244-8b05-e170cf174d6b",
+               "mapValueObject": "",
+               "map": "",
+               "object": "organism",
+               "multiple": "Unknow"
+            },
+            "jsondocId": "df46bd8d-1282-4394-87e1-35edf12c8014",
+            "consumes": ["application/json"],
+            "response": {
+               "mapKeyObject": "",
+               "jsondocId": "09f0ebd8-8d07-4bae-bb86-c93d96f2e0fc",
+               "mapValueObject": "",
+               "object": "organism"
+            },
+            "pathparameters": [],
+            "apierrors": [],
+            "verb": "POST",
+            "description": "Adds an organism returning a JSON array of all organisms",
+            "queryparameters": [
+               {
+                  "jsondocId": "8bd550b2-e93c-46e7-94e8-8f47cb9b7a61",
+                  "description": "",
+                  "name": "username",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "email"
+               },
+               {
+                  "jsondocId": "a0cf3f26-0e64-40af-a028-98d06e3b3f8d",
+                  "description": "",
+                  "name": "password",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "password"
+               },
+               {
+                  "jsondocId": "a994d9cf-22da-4455-a7f3-db279450cb0a",
+                  "description": "An organism json object with the properties 'commonName' (required),'directory' (required), 'blatdb', 'species','genus'",
+                  "name": "organism",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "json"
+               }
+            ],
+            "path": "/organism/addOrganism",
+            "produces": ["application/json"],
+            "methodName": "addOrganism"
+         },
+         {
+            "headers": [],
+            "bodyobject": {
+               "mapKeyObject": "",
+               "jsondocId": "aaa2855f-f20e-4aba-a79f-6e0a8e2a8d0c",
+               "mapValueObject": "",
+               "map": "",
+               "object": "organism",
+               "multiple": "Unknow"
+            },
+            "jsondocId": "4ffe85fc-6222-4ba6-8f37-c6e7353ec233",
+            "consumes": ["application/json"],
+            "response": {
+               "mapKeyObject": "",
+               "jsondocId": "b38eb366-8f3d-4ad1-bb45-c96fdb5baf51",
+               "mapValueObject": "",
+               "object": "organism"
+            },
+            "pathparameters": [],
+            "apierrors": [],
+            "verb": "POST",
+            "description": "Finds sequences for a given organism and returns a JSON object including the username, organism and a JSONArray of sequences",
+            "queryparameters": [
+               {
+                  "jsondocId": "9b0cdac1-9247-4327-a194-6d045858a5fe",
+                  "description": "",
+                  "name": "username",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "email"
+               },
+               {
+                  "jsondocId": "4fd2a45d-450e-40a5-a225-6c9ff2978990",
+                  "description": "",
+                  "name": "password",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "password"
+               },
+               {
+                  "jsondocId": "d8355058-6ba8-40a1-8094-1e4e32da7aa0",
+                  "description": "Common name for the organism",
+                  "name": "organism",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "string"
+               }
+            ],
+            "path": "/organism/getSequencesForOrganism",
+            "produces": ["application/json"],
+            "methodName": "getSequencesForOrganism"
+         },
+         {
+            "headers": [],
+            "bodyobject": {
+               "mapKeyObject": "",
+               "jsondocId": "534a92d6-2654-440c-9a80-42e87aefab96",
+               "mapValueObject": "",
+               "map": "",
+               "object": "organism",
+               "multiple": "Unknow"
+            },
+            "jsondocId": "d1a7e9a5-b942-4b53-a003-471b7298e7db",
+            "consumes": ["application/json"],
+            "response": {
+               "mapKeyObject": "",
+               "jsondocId": "015d79fa-5b0c-4e09-8c44-0baa3ef6867b",
+               "mapValueObject": "",
+               "object": "organism"
+            },
+            "pathparameters": [],
+            "apierrors": [],
+            "verb": "POST",
+            "description": "Adds an organism returning a JSON array of all organisms",
+            "queryparameters": [
+               {
+                  "jsondocId": "6301bcb6-2407-4918-aabd-754f961544d1",
+                  "description": "",
+                  "name": "username",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "email"
+               },
+               {
+                  "jsondocId": "73eea231-4713-4138-af89-6f50a97fc710",
+                  "description": "",
+                  "name": "password",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "password"
+               },
+               {
+                  "jsondocId": "4fecb00f-c74e-4e6b-b1e9-38ffc21679df",
+                  "description": "An organism json object with the properties: 'id' (required), 'commonName' (required),'directory' (required), 'blatdb', 'species','genus'",
+                  "name": "organism",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "json"
+               }
+            ],
+            "path": "/organism/updateOrganismInfo",
+            "produces": ["application/json"],
+            "methodName": "updateOrganismInfo"
+         },
+         {
+            "headers": [],
+            "bodyobject": {
+               "mapKeyObject": "",
+               "jsondocId": "cdcf7fc7-b98e-461a-bd68-19382c328695",
+               "mapValueObject": "",
+               "map": "",
+               "object": "organism",
+               "multiple": "Unknow"
+            },
+            "jsondocId": "857a8837-b3b4-48c2-99cf-43df0f66e14f",
+            "consumes": ["application/json"],
+            "response": {
+               "mapKeyObject": "",
+               "jsondocId": "1fa88688-c7b4-4124-96b3-2a140d502c5b",
+               "mapValueObject": "",
+               "object": "organism"
+            },
+            "pathparameters": [],
+            "apierrors": [],
+            "verb": "POST",
+            "description": "Returns a JSON array of all organisms",
+            "queryparameters": [
+               {
+                  "jsondocId": "b35de721-9432-4a10-a07b-a1d8f4709af9",
+                  "description": "",
+                  "name": "username",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "email"
+               },
+               {
+                  "jsondocId": "f7a5c994-4a08-4ecc-a0e7-0487929081b5",
+                  "description": "",
+                  "name": "password",
+                  "allowedvalues": [],
+                  "format": "",
+                  "required": "true",
+                  "type": "password"
+               }
+            ],
+            "path": "/organism/findAllOrganismso",
+            "produces": ["application/json"],
+            "methodName": "findAllOrganisms"
          }
       ],
-      "jsondocId": "d29ae191-73ce-45c9-bbf0-0149f7b4a124",
+      "jsondocId": "d255dd10-3a94-498b-bff1-a01a2795a710",
       "description": "Methods for managing Organisms",
       "name": "Organism Services"
    }],

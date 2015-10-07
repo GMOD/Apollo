@@ -28,11 +28,14 @@
         <div class="col-sm-offset-1" ng-controller="WebServicesController as ctrl"
              data-root-url="${application.contextPath}">
 
-            {{ctrl.rootUrl}}
-            Services: {{ctrl.apis.length}}
-
-            %{--<div class="jumbotron">--}%
-            %{--{{ctrl.apis}}--}%
+            %{--<div class="page-header">--}%
+            <div class="alert alert-warning">
+                <h3 style="display: inline;">BASE URL:
+                <a href="${request.secure ? 'https' : 'http'}://${request.serverName}${request.serverPort != 80 ? ":" + request.serverPort : ''}${request.contextPath}">
+                ${request.secure ? 'https' : 'http'}://${request.serverName}${request.serverPort != 80 ? ":" + request.serverPort : ''}${request.contextPath}
+                    </a>
+                </h3>
+            </div>
             %{--</div>--}%
 
 
@@ -48,13 +51,13 @@
 
                     </accordion-heading>
 
-                    Methods: {{api.methods.length}}
+                    %{--Methods: {{api.methods.length}}--}%
                     <accordion>
                         <accordion-group ng-repeat="method in api.methods" is-open="true">
 
                             <accordion-heading>
                                 {{method.methodName}}
-                                <span class="small"> {{method.description}}</span>
+                                <span class="small">{{method.description}}</span>
 
                             </accordion-heading>
 
