@@ -7,8 +7,8 @@
     <g:set var="entityName" value="${message(code: 'featureEvent.label', default: 'FeatureEvent')}"/>
     <title><g:message code="default.list.label" args="[entityName]"/></title>
     <asset:javascript src="vendor/angular-1.3.17.js"/>
-    <asset:javascript src="vendor/ui-bootstrap-custom-0.13.1.js"/>
-    <asset:javascript src="vendor/ui-bootstrap-custom-tpls-0.13.1.js"/>
+    <asset:javascript src="vendor/ui-bootstrap-custom-0.13.4.js"/>
+    <asset:javascript src="vendor/ui-bootstrap-custom-tpls-0.13.4.js"/>
     <asset:javascript src="ReportController.js"/>
 </head>
 
