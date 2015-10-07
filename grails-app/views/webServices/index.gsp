@@ -1,5 +1,3 @@
-<%@ page import="org.bbop.apollo.FeatureEvent" %>
-<%@ page import="org.bbop.apollo.history.FeatureEventView" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,6 +9,12 @@
     <asset:javascript src="vendor/angular-route.js"/>
     <asset:javascript src="vendor/ui-bootstrap-custom-0.13.1.js"/>
     <asset:javascript src="vendor/ui-bootstrap-custom-tpls-0.13.1.js"/>
+
+    %{--<asset:stylesheet src="bootstrap.css"/>--}%
+    %{--<asset:stylesheet src="bootstrap"/>--}%
+
+    %{--<asset:javascript src="application.js"/>--}%
+    %{--<asset:stylesheet src="application.css"/>--}%
 
     <asset:javascript src="WebServicesController.js"/>
 </head>
@@ -24,10 +28,9 @@
         <div class="message" role="status">${flash.message}</div>
     </g:if>
 
+    <div class="row" ng-app="WebServicesApp">
 
-    <section class="row" ng-app="WebServicesApp">
-
-        <div id="reportController" class="col-sm-offset-1" ng-controller="WebServicesController as ctrl"
+        <div class="col-sm-offset-1" ng-controller="WebServicesController as ctrl"
              data-root-url="${application.contextPath}">
 
             {{ctrl.rootUrl}}
@@ -36,6 +39,9 @@
             <div class="jumbotron">
             {{ctrl.apis}}
         </div>
+
+            <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+
 
 
             <ul>
@@ -69,7 +75,7 @@
                 </div>
             </accordian>
         </div>
-    </section>
+    </div>
 </div>
 
 </body>
