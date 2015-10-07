@@ -11,11 +11,10 @@ class OrganismControllerSpec extends Specification {
     def populateValidParams(params) {
         assert params != null
         // TODO: Populate valid properties like...
-        params["abbreviation"] = 'ZF'
-        params["genus"] = 'Danio'
-        params["species"] = 'rerio'
-        params["commonName"] = 'Zebrafish'
-        params["directory"] = '/opt/apollo/organism1/jbrowse/data'
+        params["genus"] = 'Apis'
+        params["species"] = 'mellifera'
+        params["commonName"] = 'Honeybee'
+        params["directory"] = 'test/integration/resources/sequences/honeybee-Group1.10/'
     }
 
 

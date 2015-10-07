@@ -13,12 +13,9 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
     def setup() {
         Sequence sequence = new Sequence(
                 length: 3
-                ,refSeqFile: "adsf"
-                ,seqChunkPrefix: "asdf"
                 ,seqChunkSize: 3
                 ,start: 5
                 ,end: 8
-                ,sequenceDirectory: "asdfadsf"
                 ,name: "Group1.10"
         ).save(failOnError: true)
     }
