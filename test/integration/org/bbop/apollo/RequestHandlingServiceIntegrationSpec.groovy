@@ -801,7 +801,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         JSONObject returnedAfterExonObject = requestHandlingService.mergeTranscripts(commandObject)
 
 
-        then: "we should see 1 gene, 2 transcripts, 5 exons, 2 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
+        then: "we should see 2 gene, 2 transcripts, 5 exons, 2 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
         def allFeatures = Feature.all
         assert Gene.count == 2
         assert MRNA.count == 2
@@ -812,7 +812,8 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
         when: "we get the transcripts and gene that should be left"
         MRNA bigMRNA = MRNA.findByName("GB40788-RA-00001")
-        MRNA undisturbedMRNA = MRNA.findByName("GB40787-RA-00002")
+        def remainingMRNA = MRNA.all - bigMRNA
+        MRNA undisturbedMRNA = remainingMRNA.get(0)
 
         then: "this one should be long-gone"
         assert undisturbedMRNA != null
