@@ -66,10 +66,12 @@
         <div class="message" role="status">${flash.message}</div>
     </g:if>
 
+
     <div class="row" ng-app="WebServicesApp">
 
         <div class="col-sm-offset-1" ng-controller="WebServicesController as ctrl"
              data-root-url="${application.contextPath}">
+
 
             %{--<div class="page-header">--}%
             <div class="alert alert-warning">
@@ -81,13 +83,17 @@
             </div>
             %{--</div>--}%
 
+            <div style="margin-bottom: 10px;">
+            <button ng-click="ctrl.expandAll=!ctrl.expandAll">Expand / Collapse All</button>
+            </div>
+            %{--<button ng-click="ctrl.expandAll=false">Collapse all</button>--}%
 
             %{--TODO: simulate formatting:--}%
             %{--http://loic911.github.io/restapidoc/demo/sample/demo.html?doc_url=http://loic911.github.io/restapidoc/demo/sample/restapidoc.json#--}%
             %{--http://loic911.github.io/restapidoc/#@RestApiResponseObject--}%
 
             <accordion ng-cloak>
-                <accordion-group ng-repeat="api in ctrl.apis" is-open="true">
+                <accordion-group ng-repeat="api in ctrl.apis" is-open="ctrl.expandAll">
                     <accordion-heading>
                         {{api.name}}
                         <span class="small">{{api.description}}</span>
@@ -96,7 +102,7 @@
 
                     %{--Methods: {{api.methods.length}}--}%
                     <accordion>
-                        <accordion-group ng-repeat="method in api.methods" is-open="true">
+                        <accordion-group ng-repeat="method in api.methods" is-open="ctrl.expandAll">
 
                             <accordion-heading>
                                 {{method.methodName}}

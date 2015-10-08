@@ -2,6 +2,7 @@ var app = angular.module('WebServicesApp', ['ui.bootstrap']);
 app.controller('WebServicesController', function ($scope, $http, $attrs) {
     var ctrl = this;
     ctrl.rootUrl = $attrs.rootUrl;
+    ctrl.expandAll = false ;
 
     ctrl.load = function () {
 
