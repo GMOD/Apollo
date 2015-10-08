@@ -5,11 +5,13 @@ import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
+import org.restapidoc.annotation.RestApi
 
 import java.util.zip.GZIPOutputStream
 import org.springframework.http.HttpStatus
 import org.bbop.apollo.gwt.shared.PermissionEnum
 
+@RestApi(name = "IO Services", description = "Methods for bulk importing and exporting sequence data")
 class IOServiceController extends AbstractApolloController {
     
     def sequenceService

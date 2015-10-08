@@ -7,8 +7,10 @@ import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.restapidoc.annotation.RestApi
 import org.springframework.http.HttpStatus
 
+@RestApi(name = "Group Services", description = "Methods for managing groups")
 class GroupController {
 
     def permissionService

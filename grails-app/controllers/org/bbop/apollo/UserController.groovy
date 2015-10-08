@@ -9,8 +9,11 @@ import org.bbop.apollo.report.AnnotatorSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.restapidoc.annotation.RestApi
 import org.springframework.http.HttpStatus;
 
+@RestApi(name = "User Services", description = "Methods for managing users")
+@Transactional(readOnly = true)
 class UserController {
 
     def permissionService

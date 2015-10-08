@@ -6,6 +6,7 @@ import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
 import org.grails.plugins.metrics.groovy.Timed
+import org.restapidoc.annotation.RestApi
 import org.springframework.http.HttpStatus
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -26,6 +27,7 @@ import org.springframework.messaging.handler.annotation.SendTo
 /**
  * From the AnnotationEditorService
  */
+@RestApi(name = "Annotation Services", description = "Methods for running the annotation engine")
 class AnnotationEditorController extends AbstractApolloController implements AnnotationListener {
 
 
