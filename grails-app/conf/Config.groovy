@@ -271,6 +271,7 @@ apollo {
             ,['label': "Report::Changes", 'link': "/featureEvent/changes/",'type':"report"]
             ,['label': "System Info", 'link': "/home/systemInfo/",'type':"report"]
             ,['label': "Performance Metrics", 'link': "/home/metrics/",'type':"report"]
+            ,['label': "WebServices", 'link': "/WebServices/",'type':"report"]
     ]
 
     // customize new tabs on the annotator panel with these links
