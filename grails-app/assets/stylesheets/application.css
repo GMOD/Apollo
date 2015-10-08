@@ -9,8 +9,9 @@
 *
 *= require main
 *= require mobile
-*= require_self
 *= require bootstrap
+*= require font-awesome.min.css
+*= require_self
 */
 
 .apollo-header{

@@ -5,11 +5,20 @@ import grails.converters.JSON
 import org.bbop.apollo.report.OrganismSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.restapidoc.annotation.RestApi
+import org.restapidoc.annotation.RestApiBodyObject
+import org.restapidoc.annotation.RestApiMethod
+import org.restapidoc.annotation.RestApiParam
+import org.restapidoc.annotation.RestApiParams
+import org.restapidoc.annotation.RestApiResponseObject
+import org.restapidoc.pojo.RestApiParamType
+import org.restapidoc.pojo.RestApiVerb
 import org.springframework.http.HttpStatus
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 
+@RestApi(name = "Organism Services", description = "Methods for managing Organisms")
 @Transactional(readOnly = true)
 class OrganismController {
 
@@ -19,6 +28,7 @@ class OrganismController {
     def permissionService
     def requestHandlingService
     def preferenceService
+    def organismService
 
     def reportService
 
@@ -26,6 +36,13 @@ class OrganismController {
         [organisms:Organism.findAllByPublicMode(true,[sort: 'commonName', order: 'desc']),urlString:params.urlString]
     }
 
+    @RestApiMethod(description="Remove an organism",path="/organism/deleteOrganism",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="organism", type="json", paramType = RestApiParamType.QUERY,description = "Pass an Organism JSON object with an 'id' that corresponds to the id to delete")
+    ]
+    )
     @Transactional
     def deleteOrganism() {
         log.debug "DELETING ORGANISM params: ${params.data}"
@@ -36,6 +53,9 @@ class OrganismController {
                 log.debug "organismJSON ${organismJson}"
                 log.debug "id: ${organismJson.id}"
                 Organism organism = Organism.findById(organismJson.id as Long)
+                if(!organism){
+                    organism = Organism.findByCommonName(organismJson.organism)
+                }
                 if (organism) {
                     UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
                     organism.delete()
@@ -55,7 +75,12 @@ class OrganismController {
         render findAllOrganisms()
     }
 
-    // webservice
+    @RestApiMethod(description="Remove features from an organism",path="/organism/deleteOrganismFeatures",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="organism", type="json", paramType = RestApiParamType.QUERY,description = "An organism json object that has an 'id' or 'commonName' parameter that corresponds to an organism.")
+    ])
     @Transactional
     def deleteOrganismFeatures() {
         JSONObject organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
@@ -73,18 +98,33 @@ class OrganismController {
                 return
             }
 
+            Organism organism = Organism.findById(organismJson.organism)
+            if(!organism){
+                organism = Organism.findByCommonName(organismJson.organism)
+            }
 
+            if(!organism){
+                throw new Exception("Can not find organism for ${organismJson.organism} to remove features of")
+            }
+
+
+            organismService.deleteAllFeaturesForOrganism(organism)
 
         }
         catch(e){
-            def error= [error: 'problem saving organism: '+e]
+            def error= [error: 'problem removing organism features for organism: '+e]
             render error as JSON
             e.printStackTrace()
             log.error(error.error)
         }
     }
 
-    // webservice
+    @RestApiMethod(description="Adds an organism returning a JSON array of all organisms",path="/organism/addOrganism",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="organism", type="json", paramType = RestApiParamType.QUERY,description = "An organism json object with the properties 'commonName' (required),'directory' (required), 'blatdb', 'species','genus'")
+    ])
     @Transactional
     def addOrganism() {
         JSONObject organismJson = request.JSON?:JSON.parse(params.data) as JSONObject
@@ -125,7 +165,12 @@ class OrganismController {
         }
     }
 
-    // webservice
+    @RestApiMethod(description="Finds sequences for a given organism and returns a JSON object including the username, organism and a JSONArray of sequences",path="/organism/getSequencesForOrganism",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "Common name for the organism")
+    ])
     def getSequencesForOrganism() {
         JSONObject organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
         if (organismJson.username == "" || organismJson.organism == "" ||organismJson.password == "") {
@@ -195,6 +240,12 @@ class OrganismController {
     }
 
 
+    @RestApiMethod(description="Adds an organism returning a JSON array of all organisms",path="/organism/updateOrganismInfo",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="organism", type="json", paramType = RestApiParamType.QUERY,description = "An organism json object with the properties: 'id' (required), 'commonName' (required),'directory' (required), 'blatdb', 'species','genus'")
+    ])
     @Transactional
     def updateOrganismInfo() {
         log.debug "updating organism info ${params}"
@@ -229,6 +280,11 @@ class OrganismController {
         }
     }
 
+    @RestApiMethod(description="Returns a JSON array of all organisms",path="/organism/findAllOrganismso",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+    ])
     def findAllOrganisms() {
         JSONObject organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
         try {
