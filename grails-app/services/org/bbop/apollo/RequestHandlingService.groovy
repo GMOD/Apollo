@@ -1818,7 +1818,9 @@ class RequestHandlingService {
             }
             if (!isUpdateOperation) {
                 log.debug "is not update operation "
-                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(new JSONObject().put(FeatureStringEnum.UNIQUENAME.value, uniqueName));
+                // when the line below is used, the client gives an error saying TypeError: Cannot read property 'fmin' of undefined(…)
+                // featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(new JSONObject().put(FeatureStringEnum.UNIQUENAME.value, uniqueName));
+                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
                 if (feature instanceof Transcript) {
                     Transcript transcript = (Transcript) feature;
                     Gene gene = transcriptService.getGene(transcript)
@@ -1851,7 +1853,6 @@ class RequestHandlingService {
                                     , sequence: sequence
                                     , operation: AnnotationEvent.Operation.UPDATE
                             )
-
                             fireAnnotationEvent(annotationEvent)
                         }
                     }
