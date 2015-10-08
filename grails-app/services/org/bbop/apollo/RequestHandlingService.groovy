@@ -710,7 +710,7 @@ class RequestHandlingService {
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
-            updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+            transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
             if (sequence) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer,
@@ -765,7 +765,7 @@ class RequestHandlingService {
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
-            updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+            transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
             if (sequence) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer,
@@ -809,7 +809,7 @@ class RequestHandlingService {
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
-            updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+            transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
             if (sequence) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer,
@@ -865,7 +865,7 @@ class RequestHandlingService {
             def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
             if (transcriptsToUpdate.size() > 0) {
                 JSONObject updateFeatureContainer = createJSONFeatureContainer()
-                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+                transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
                 if (sequence) {
                     AnnotationEvent annotationEvent = new AnnotationEvent(
                             features: updateFeatureContainer,
@@ -923,7 +923,7 @@ class RequestHandlingService {
             def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
             if (transcriptsToUpdate.size() > 0) {
                 JSONObject updateFeatureContainer = createJSONFeatureContainer()
-                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+                transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
                 if (sequence) {
                     AnnotationEvent annotationEvent = new AnnotationEvent(
                             features: updateFeatureContainer,
@@ -967,7 +967,7 @@ class RequestHandlingService {
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
-            updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+            transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
             if (sequence) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer,
@@ -1045,7 +1045,7 @@ class RequestHandlingService {
             def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
             if (transcriptsToUpdate.size() > 0) {
                 JSONObject updateFeatureContainer = createJSONFeatureContainer()
-                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+                transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
                 if (sequence) {
                     AnnotationEvent annotationEvent = new AnnotationEvent(
                             features: updateFeatureContainer,
@@ -1463,7 +1463,7 @@ class RequestHandlingService {
                 def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(feature)
                 if (transcriptsToUpdate.size() > 0) {
                     JSONObject updateFeatureContainer = createJSONFeatureContainer()
-                    updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+                    transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
                     if (sequence) {
                         AnnotationEvent annotationEvent = new AnnotationEvent(
                                 features: updateFeatureContainer,
@@ -1511,7 +1511,7 @@ class RequestHandlingService {
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript1)
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
-            updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+            transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
             if (sequence) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer,
@@ -1561,7 +1561,7 @@ class RequestHandlingService {
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
-            updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+            transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
             if (sequence) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer,
@@ -1611,7 +1611,7 @@ class RequestHandlingService {
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
-            updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+            transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
             if (sequence) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer,
@@ -1682,7 +1682,7 @@ class RequestHandlingService {
                             def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
                             if (transcriptsToUpdate.size() > 0) {
                                 JSONObject updateFeatureContainer = createJSONFeatureContainer()
-                                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+                                transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
                                 if (sequence) {
                                     AnnotationEvent annotationEvent = new AnnotationEvent(
                                             features: updateFeatureContainer,
@@ -1900,7 +1900,7 @@ class RequestHandlingService {
                     def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
                     if (transcriptsToUpdate.size() > 0) {
                         JSONObject updateFeatureContainer = createJSONFeatureContainer()
-                        updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+                        transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
                         if (sequence) {
                             AnnotationEvent annotationEvent = new AnnotationEvent(
                                     features: updateFeatureContainer,
@@ -1977,7 +1977,7 @@ class RequestHandlingService {
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
-            updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+            transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
             if (sequence) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer,
@@ -2207,7 +2207,7 @@ class RequestHandlingService {
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript1)
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
-            updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptsToUpdate))
+            transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
             if (sequence) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer,
@@ -2257,7 +2257,7 @@ class RequestHandlingService {
                 , sequence: sequence
                 , operation: AnnotationEvent.Operation.DELETE
         )
-
+        
         AnnotationEvent updateAnnotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
                 , sequence: sequence
