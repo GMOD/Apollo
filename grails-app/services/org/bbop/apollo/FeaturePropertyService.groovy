@@ -105,10 +105,8 @@ class FeaturePropertyService {
         }
     }
 
-
-    @NotTransactional
     def getNonReservedProperties(Feature feature) {
-        return FeatureProperty.findAllByFeature(feature).find(){
+        return FeatureProperty.findAllByFeature(feature).findAll(){
             return !nonReservedClasses.contains(it.cvTerm)
         }
     }
