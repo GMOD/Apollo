@@ -229,10 +229,10 @@ class PermissionService {
 
     public static String getSequenceNameFromInput(JSONObject inputObject) {
         String trackName = null
-        if (inputObject.has("sequence")) {
+        if (inputObject.has(FeatureStringEnum.SEQUENCE.value)) {
             trackName = inputObject.sequence
         }
-        if (inputObject.has("track")) {
+        if (inputObject.has(FeatureStringEnum.TRACK.value)) {
             trackName = inputObject.track
         }
         return trackName
