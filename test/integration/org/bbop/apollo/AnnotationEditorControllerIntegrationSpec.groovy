@@ -13,12 +13,9 @@ class AnnotationEditorControllerIntegrationSpec extends IntegrationSpec {
     def setup() {
         Sequence refSequence = new Sequence(
                 length: 1000
-                ,refSeqFile: "adsf"
-                ,seqChunkPrefix: "adsf"
                 ,seqChunkSize: 1000
                 ,start: 1
                 ,end: 1000
-                ,sequenceDirectory: "temp"
                 ,name: "chr1"
         ).save(failOnError: true)
         

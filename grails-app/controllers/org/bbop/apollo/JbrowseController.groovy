@@ -626,8 +626,8 @@ class JbrowseController {
     }
 
     private static boolean isCacheableFile(String fileName) {
-        if (fileName.endsWith(".txt")) return true;
-        if (fileName.endsWith(".json")) {
+        if (fileName.endsWith(".txt")||fileName.endsWith("txtz")) return true;
+        if (fileName.endsWith(".json")||fileName.endsWith("jsonz")) {
             String[] names = fileName.split("\\/");
             String requestName = names[names.length - 1];
             return requestName.startsWith("lf-");
