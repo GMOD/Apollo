@@ -105,12 +105,14 @@
 
                     %{--Methods: {{api.methods.length}}--}%
                     <accordion>
-                        <accordion-group ng-repeat="method in api.methods" >
+                        <accordion-group ng-repeat="method in api.methods" is-open="inner.open">
 
                             <accordion-heading>
                                 {{method.methodName}}
                                 <span class="small">{{method.description}}</span>
 
+                                <i class="pull-right glyphicon"
+                                   ng-class="{'glyphicon-chevron-down': inner.open, 'glyphicon-chevron-right': !inner.open}"></i>
                             </accordion-heading>
 
                             <table class="table table-condensed table-striped table-bordered">
