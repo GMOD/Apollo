@@ -85,8 +85,8 @@
                                         </code>
                                     </td>
                                     <td>
-                                        <span ng-show="param.required" class="badge badge-success">Required</span>
-                                        <span ng-hide="param.required" class="badge badge-info">Optional</span>
+                                        %{--<span ng-show="param.required" class="badge badge-success">Required</span>--}%
+                                        %{--<span ng-hide="param.required" class="badge badge-info">Optional</span>--}%
                                         <span class="badge badge-important">{{param.type}}</span>
                                         {{param.description}}
                                     </td>
