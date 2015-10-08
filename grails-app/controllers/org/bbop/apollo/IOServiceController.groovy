@@ -43,7 +43,7 @@ class IOServiceController extends AbstractApolloController {
         forward action: "${mappedAction}", params: params
     }
 
-    @RestApiMethod(description="Write out genomic data.  An example script is used in the <a href='https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/get_gff3.groovy'>get_gff3.groovy script</a>."
+    @RestApiMethod(description="Write out genomic data.  An example script is used in the https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/get_gff3.groovy"
             ,path="/ioService/write",verb = RestApiVerb.POST
     )
     @RestApiParams(params=[

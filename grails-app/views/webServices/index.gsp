@@ -3,6 +3,8 @@
 <head>
     <meta name="layout" content="main">
     <title>Apollo Web Service APIs</title>
+    <asset:javascript src="vendor/jquery-1.11.1.min.js"/>
+    <asset:javascript src="vendor/vendor/jquery-ui-1.11.2.custom/jquery-ui.min.js"/>
     <asset:javascript src="vendor/angular.min.js"/>
     <asset:javascript src="vendor/angular-strap.min.js"/>
     <asset:javascript src="vendor/angular-strap.tpl.min.js"/>
@@ -19,15 +21,13 @@
 <g:render template="../layouts/reportHeader"/>
 
 %{--<jumbotron>--}%
-<div class="page-header col-lg-offset-1">
+<div class="page-header" style="margin-left: 30px;">
     <h3>Web Service API</h3>
 
 
-    <h4>Examples</h4>
-
-    Here are a <a
-        href="https://github.com/GMOD/Apollo/tree/master/docs/web_services/examples">number of examples web services scripts</a> in different languages including shell, groovy (Java), and perl.
-
+    %{--<h4>Examples</h4>--}%
+    Here are a
+    <a href="https://github.com/GMOD/Apollo/tree/master/docs/web_services/examples">number of examples web services scripts</a> in different languages including shell, groovy (Java), and perl.
 
 
     %{--<h4>Notes about connecting to https</h4>--}%
@@ -44,7 +44,7 @@
         %{--<li>Use curl <a href=""></a></li>--}%
     %{--</ul>--}%
 
-    <h4></h4>
+    %{--<h4></h4>--}%
 </div>
 %{--The Apollo Web Service API is a JSON-based REST API to interact with the annotations and other services of Web Apollo. Both the request and response JSON objects can contain feature information that are based on the Chado schema. We use the web services API for several scripting examples and also use them in the Web Apollo JBrowse plugin, and this document provides details on the parameters for each API.--}%
 %{--What is the Web Service API?--}%
@@ -67,7 +67,7 @@
     </g:if>
 
 
-    <div class="row" ng-app="WebServicesApp">
+    <div ng-app="WebServicesApp">
 
         <div class="col-sm-offset-1" ng-controller="WebServicesController as ctrl"
              data-root-url="${application.contextPath}">
@@ -83,26 +83,29 @@
             </div>
             %{--</div>--}%
 
-            <div style="margin-bottom: 10px;">
-            <button ng-click="ctrl.expandAll=!ctrl.expandAll">Expand / Collapse All</button>
-            </div>
+            %{--<div style="margin-bottom: 10px;">--}%
+            %{--<button ng-click="$scope.accordion.firstGroupOpen = true;">Expand / Collapse All</button>--}%
+            %{--</div>--}%
             %{--<button ng-click="ctrl.expandAll=false">Collapse all</button>--}%
 
             %{--TODO: simulate formatting:--}%
             %{--http://loic911.github.io/restapidoc/demo/sample/demo.html?doc_url=http://loic911.github.io/restapidoc/demo/sample/restapidoc.json#--}%
             %{--http://loic911.github.io/restapidoc/#@RestApiResponseObject--}%
 
-            <accordion ng-cloak>
-                <accordion-group ng-repeat="api in ctrl.apis" is-open="ctrl.expandAll">
+            <accordion ng-cloak class="col-sm-11">
+                <accordion-group ng-repeat="api in ctrl.apis" is-open="status.open">
                     <accordion-heading>
                         {{api.name}}
                         <span class="small">{{api.description}}</span>
+
+                        <i class="pull-right glyphicon"
+                           ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
 
                     </accordion-heading>
 
                     %{--Methods: {{api.methods.length}}--}%
                     <accordion>
-                        <accordion-group ng-repeat="method in api.methods" is-open="ctrl.expandAll">
+                        <accordion-group ng-repeat="method in api.methods" >
 
                             <accordion-heading>
                                 {{method.methodName}}
