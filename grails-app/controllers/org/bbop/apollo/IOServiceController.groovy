@@ -6,6 +6,11 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
 import org.restapidoc.annotation.RestApi
+import org.restapidoc.annotation.RestApiMethod
+import org.restapidoc.annotation.RestApiParam
+import org.restapidoc.annotation.RestApiParams
+import org.restapidoc.pojo.RestApiParamType
+import org.restapidoc.pojo.RestApiVerb
 
 import java.util.zip.GZIPOutputStream
 import org.springframework.http.HttpStatus
@@ -38,6 +43,25 @@ class IOServiceController extends AbstractApolloController {
         forward action: "${mappedAction}", params: params
     }
 
+    @RestApiMethod(description="Write out genomic data.  An example script is used in the <a href='https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/get_gff3.groovy'>get_gff3.groovy script</a>."
+            ,path="/ioService/write",verb = RestApiVerb.POST
+    )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+
+            ,@RestApiParam(name="type", type="string", paramType = RestApiParamType.QUERY,description = "Type of export 'FASTA','GFF3'")
+
+
+            ,@RestApiParam(name="seqType", type="string", paramType = RestApiParamType.QUERY,description = "Type of output sequence 'peptide','cds','cdna','genomic'")
+            ,@RestApiParam(name="format", type="string", paramType = RestApiParamType.QUERY,description = "'gzip' or 'text'")
+            ,@RestApiParam(name="sequences", type="string", paramType = RestApiParamType.QUERY,description = "Names of references sequences to add.")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "Name of organism that sequences belong to.")
+            ,@RestApiParam(name="output", type="string", paramType = RestApiParamType.QUERY,description = "Output method 'file','text'")
+            ,@RestApiParam(name="exportAllSequences", type="boolean", paramType = RestApiParamType.QUERY,description = "Export all sequences for an organism (over-rides 'sequences')")
+            ,@RestApiParam(name="exportGff3Fasta", type="boolean", paramType = RestApiParamType.QUERY,description = "Export sequences when exporting gff3")
+    ]
+    )
     @Timed
     def write() {
         try {
@@ -146,6 +170,18 @@ class IOServiceController extends AbstractApolloController {
         }
     }
 
+    @RestApiMethod(description="This is used to retrieve the a download link once the write operation was initialized using output: file."
+            ,path="/ioService/download",verb = RestApiVerb.POST
+    )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="uuid", type="string", paramType = RestApiParamType.QUERY,description = "UUID that holds the key to the stored download.")
+//            ,@RestApiParam(name="type", type="string", paramType = RestApiParamType.QUERY,description = "Type of export 'FASTA','GFF3'")
+//            ,@RestApiParam(name="seqType", type="string", paramType = RestApiParamType.QUERY,description = "Type of output sequence 'peptide','cds','cdna','genomic'")
+            ,@RestApiParam(name="format", type="string", paramType = RestApiParamType.QUERY,description = "'gzip' or 'text'")
+    ]
+    )
     @Timed
     def download() {
         String uuid = params.uuid

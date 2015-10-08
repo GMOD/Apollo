@@ -18,6 +18,49 @@
 
 <g:render template="../layouts/reportHeader"/>
 
+%{--<jumbotron>--}%
+<div class="page-header col-lg-offset-1">
+    <h3>Web Service API</h3>
+
+
+    <h4>Examples</h4>
+
+    Here are a <a
+        href="https://github.com/GMOD/Apollo/tree/master/docs/web_services/examples">number of examples web services scripts</a> in different languages including shell, groovy (Java), and perl.
+
+
+
+    %{--<h4>Notes about connecting to https</h4>--}%
+
+    %{--TODO--}%
+    %{--<p>--}%
+        %{--It is advisable if sending out secure passwords over the global internet that you use https.--}%
+
+        %{--If you use https, you will need to either:--}%
+    %{--</p>--}%
+    %{--<ul>--}%
+        %{--<li>Add the web service to the CA Store <a href="">More info here.</a></li>--}%
+        %{--<li>Have the client okay specific server connections <a href=""></a></li>--}%
+        %{--<li>Use curl <a href=""></a></li>--}%
+    %{--</ul>--}%
+
+    <h4></h4>
+</div>
+%{--The Apollo Web Service API is a JSON-based REST API to interact with the annotations and other services of Web Apollo. Both the request and response JSON objects can contain feature information that are based on the Chado schema. We use the web services API for several scripting examples and also use them in the Web Apollo JBrowse plugin, and this document provides details on the parameters for each API.--}%
+%{--What is the Web Service API?--}%
+%{--For a given Web Apollo server url (e.g., https://localhost:8080/apollo or any other Web Apollo site on the web), the Web Service API allows us to make requests to the various "controllers" of the application and perform operations.--}%
+%{--The controllers that are available for Web Apollo include the AnnotationEditorController, the OrganismController, the IOServiceController for downloads of data, and the UserController for user management.--}%
+%{--Most API requests will take:--}%
+%{--<div class="">--}%
+%{--The proper url (e.g., to get features from the AnnotationEditorController, we can send requests to http://localhost/apollo/annotationEditor/getFeatures)--}%
+%{--username - an authorized user--}%
+%{--password - a password--}%
+%{--organism - (if applicable) the "common name" of the organism for the operation -- will also pull from the "user preferences" if none is specified.--}%
+%{--track/sequence - (if applicable) reference sequence name (shown in sequence panel / genomic browse)--}%
+%{--</div>--}%
+%{--uniquename - (if applicable) the uniquename is a UUID used to guarantee a unique ID--}%
+%{--</jumbotron>--}%
+
 <div id="list-featureEvent" class="content scaffold-list" role="main">
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
@@ -31,8 +74,8 @@
             %{--<div class="page-header">--}%
             <div class="alert alert-warning">
                 <h3 style="display: inline;">BASE URL:
-                <a href="${request.secure ? 'https' : 'http'}://${request.serverName}${request.serverPort != 80 ? ":" + request.serverPort : ''}${request.contextPath}">
-                ${request.secure ? 'https' : 'http'}://${request.serverName}${request.serverPort != 80 ? ":" + request.serverPort : ''}${request.contextPath}
+                    <a href="${request.secure ? 'https' : 'http'}://${request.serverName}${request.serverPort != 80 ? ":" + request.serverPort : ''}${request.contextPath}">
+                        ${request.secure ? 'https' : 'http'}://${request.serverName}${request.serverPort != 80 ? ":" + request.serverPort : ''}${request.contextPath}
                     </a>
                 </h3>
             </div>
