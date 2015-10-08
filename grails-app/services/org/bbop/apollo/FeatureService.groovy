@@ -1934,7 +1934,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     firstTranscript.owners.each {
                         newGene.addToOwners(it)
                     }
-                    newGene.save()
+                    newGene.save(flush: true)
                     
                     FeatureLocation newGeneFeatureLocation = new FeatureLocation(
                             feature: newGene,
@@ -1945,19 +1945,19 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                             residueInfo: firstTranscript.featureLocation.residueInfo,
                             locgroup: firstTranscript.featureLocation.locgroup,
                             rank: firstTranscript.featureLocation.rank
-                    ).save()
+                    ).save(flush: true)
                     newGene.addToFeatureLocations(newGeneFeatureLocation)
                     featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(firstTranscript), firstTranscript)
                     addTranscriptToGene(newGene, firstTranscript)
                     firstTranscript.name = nameService.generateUniqueName(firstTranscript, newGene.name)
-                    firstTranscript.save()
+                    firstTranscript.save(flush: true)
                     continue
                 }
                 if (overlapperService.overlaps(eachTranscript, firstTranscript)) {
                     featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(eachTranscript), eachTranscript)
                     addTranscriptToGene(transcriptService.getGene(firstTranscript), eachTranscript)
                     firstTranscript.name = nameService.generateUniqueName(firstTranscript, transcriptService.getGene(firstTranscript).name)
-                    firstTranscript.save()
+                    firstTranscript.save(flush: true)
                 }
                 else {
                     throw new AnnotationException("Left behind transcript that doesn't overlap with any other transcripts")
@@ -1989,7 +1989,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         FeatureLocation newFeatureLocation = mainGene.featureLocation
         newFeatureLocation.fmin = fminList.min()
         newFeatureLocation.fmax = fmaxList.max()
-        
+        newFeatureLocation.save(flush: true)
         for (Gene gene in genes) {
             gene.featureDBXrefs.each {mainGene.addToFeatureDBXrefs(it)}
             gene.featureGenotypes.each {mainGene.addToFeatureGenotypes(it)}
@@ -2001,7 +2001,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             gene.synonyms.each {mainGene.addToSynonyms(it)}
         }
 
-        mainGene.save()
+        mainGene.save(flush: true)
         return mainGene
     }
     
