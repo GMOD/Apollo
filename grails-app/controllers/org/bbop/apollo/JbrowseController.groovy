@@ -131,7 +131,7 @@ class JbrowseController {
         String referer = request.getHeader("Referer")
         int startIndex = referer.indexOf("?loc=")
         int endIndex = referer.indexOf("&")
-        String refererLoc = referer.subSequence(startIndex+5,endIndex)
+        String refererLoc = referer.subSequence(startIndex + 5, endIndex)
         println "refererLoc ${refererLoc}"
 
 
@@ -238,9 +238,10 @@ class JbrowseController {
                     println "refseq size ${refSeqJsonObject.size()}"
 
                     JSONArray projectedArray = null
-                    refererLoc = URLDecoder.decode(refererLoc,"UTF-8")
-                    Map<ProjectionSequence,MultiSequenceProjection> projection = projectionService.getProjection(refererLoc,currentOrganism)
-                    if(projection){
+                    refererLoc = URLDecoder.decode(refererLoc, "UTF-8")
+                    MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+                    if (projection) {
+                        println "found a projection ${projection}"
 ////                        {{proj:None},{padding:50},{sequences:[Group1.1(GB42145-RA)}]}%3A-1..-1
 ////                        ProjectionDescription projectionDescription = new ProjectionDescription(refererLoc)
 ////                        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
@@ -257,7 +258,8 @@ class JbrowseController {
 //                            DiscontinuousProjection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
 //                        ProjectionInterface projection = projectionService.getProjection(currentOrganism, "", sequenceName)
                         // not projections for every sequence  . . .
-                        if (projection && projectionService.containsSequence(projection,sequenceName,sequenceValue.id,currentOrganism)) {
+//                        if (projection && projectionService.containsSequence(projection,sequenceName,sequenceValue.id,currentOrganism)) {
+                        if (projection && projection.containsSequence(sequenceName, sequenceValue.id, currentOrganism)) {
                             Integer projectedSequenceLength = projection.size()
                             sequenceValue.put("length", projectedSequenceLength)
                             sequenceValue.put("end", projectedSequenceLength)
@@ -266,10 +268,9 @@ class JbrowseController {
                         }
                     }
 
-                    if(projection){
+                    if (projection) {
                         response.outputStream << projectedArray.toString()
-                    }
-                    else{
+                    } else {
                         response.outputStream << refSeqJsonObject.toString()
                     }
                     return
@@ -626,8 +627,8 @@ class JbrowseController {
     }
 
     private static boolean isCacheableFile(String fileName) {
-        if (fileName.endsWith(".txt")||fileName.endsWith("txtz")) return true;
-        if (fileName.endsWith(".json")||fileName.endsWith("jsonz")) {
+        if (fileName.endsWith(".txt") || fileName.endsWith("txtz")) return true;
+        if (fileName.endsWith(".json") || fileName.endsWith("jsonz")) {
             String[] names = fileName.split("\\/");
             String requestName = names[names.length - 1];
             return requestName.startsWith("lf-");

@@ -1,5 +1,7 @@
 package org.bbop.apollo.projection
 
+import org.bbop.apollo.Organism
+
 /**
  * Created by nathandunn on 9/24/15.
  */
@@ -177,5 +179,33 @@ class MultiSequenceProjection extends DiscontinuousProjection{
             originalLength += discontinuousProjection.originalLength
             ++currentOrder
         }
+    }
+
+    Boolean containsSequence(String sequenceName, Long sequenceId, Organism organism) {
+        for(ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()){
+            if(projectionSequence.name==sequenceName){
+                if(projectionSequence.organism && organism){
+                    if(projectionSequence.organism != organism.commonName){
+                        return false
+                    }
+                }
+                if(projectionSequence.id && sequenceId){
+                    if(projectionSequence.id != sequenceId){
+                        return false
+                    }
+                }
+                return true
+            }
+        }
+        return false
+    }
+
+
+    @Override
+    public String toString() {
+        return "MultiSequenceProjection{" +
+                "sequenceDiscontinuousProjectionMap=" + sequenceDiscontinuousProjectionMap +
+                ", projectionDescription=" + projectionDescription +
+                '}';
     }
 }
