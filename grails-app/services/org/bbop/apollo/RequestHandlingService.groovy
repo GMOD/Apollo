@@ -681,17 +681,11 @@ class RequestHandlingService {
             durationInMilliseconds = System.currentTimeMillis() - start;
             log.debug "transcriptlist add ${durationInMilliseconds}"
 
-            // https://github.com/GMOD/Apollo/issues/453
-            // enforce calculation for ALL created transcripts
-            // checking for overlapping Sequence Alterations
-//            List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin > :fmin and fl.fmax < :fmax and fl.sequence = :seqId", [seqId: transcript.featureLocation.sequence, fmin: transcript.featureLocation.fmin, fmax: transcript.featureLocation.fmax])
-//            if (sequenceAlterationList.size() > 0) {
             start = System.currentTimeMillis();
             featureService.setLongestORF(transcript)
             durationInMilliseconds = System.currentTimeMillis() - start;
             log.debug "setlongestorf ${durationInMilliseconds}"
 
-//            }
             start = System.currentTimeMillis();
             Gene gene = transcriptService.getGene(transcript)
             durationInMilliseconds = System.currentTimeMillis() - start;
@@ -700,8 +694,14 @@ class RequestHandlingService {
 
             start = System.currentTimeMillis();
             if (!suppressHistory) {
-//                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, transcript, inputObject, permissionService.getCurrentUser(inputObject))
-                featureEventService.addNewFeatureEventWithUser(FeatureOperation.ADD_TRANSCRIPT, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, featureService.convertFeatureToJSON(transcript), permissionService.getCurrentUser(inputObject))
+                featureEventService.addNewFeatureEventWithUser(
+                        FeatureOperation.ADD_TRANSCRIPT,
+                        transcriptService.getGene(transcript).name,
+                        transcript.uniqueName,
+                        inputObject,
+                        featureService.convertFeatureToJSON(transcript),
+                        permissionService.getCurrentUser(inputObject)
+                )
             }
             durationInMilliseconds = System.currentTimeMillis() - start;
             log.debug "addnewfeatureeventwithuser ${durationInMilliseconds}"

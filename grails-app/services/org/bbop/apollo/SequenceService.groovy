@@ -30,11 +30,13 @@ class SequenceService {
     }
 
     /**
-     * Get residues from sequence . . . could be multiple locations
+     * Get residues from feature by iterating over featureLocations
      * @param feature
      * @return
      */
     String getResiduesFromFeature(Feature feature ) {
+
+        log.debug "getResiduesFromFeature"
         List<FeatureLocation> featureLocationList = FeatureLocation.createCriteria().list {
             eq("feature",feature)
             order("fmin","asc")
