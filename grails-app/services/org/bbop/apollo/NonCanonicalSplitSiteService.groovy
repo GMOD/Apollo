@@ -256,7 +256,7 @@ class NonCanonicalSplitSiteService {
     }
 
     private NonCanonicalFivePrimeSpliceSite createNonCanonicalFivePrimeSpliceSite(Transcript transcript, int position) {
-        String uniqueName = transcript.getUniqueName() + "-non_canonical_five_prive_splice_site-" + position;
+        String uniqueName = transcript.getUniqueName() + "-non_canonical_five_prime_splice_site-" + position;
         NonCanonicalFivePrimeSpliceSite spliceSite = new NonCanonicalFivePrimeSpliceSite(
                 uniqueName: uniqueName
                 ,isAnalysis: transcript.isAnalysis

@@ -271,6 +271,7 @@ apollo {
             ,['label': "Report::Changes", 'link': "/featureEvent/changes/",'type':"report"]
             ,['label': "System Info", 'link': "/home/systemInfo/",'type':"report"]
             ,['label': "Performance Metrics", 'link': "/home/metrics/",'type':"report"]
+            ,['label': "WebServices", 'link': "/WebServices/",'type':"report"]
     ]
 
     // customize new tabs on the annotator panel with these links
@@ -286,6 +287,14 @@ apollo {
     google_analytics = "UA-62921593-1"
 
 }
+
+grails.plugins.restapidoc.basePath = "http://localhost:8080/apollo"
+//grails.plugins.restapidoc.layout = "restapidoc_layout"
+//grails.plugins.restapidoc.layout = "main"
+
+
+//grails.plugins.twitterbootstrap.defaultBundle = false
+//grails.views.javascript.library="jquery"
 
 // from: http://grails.org/plugin/audit-logging
 auditLog {

@@ -9,9 +9,9 @@
 *
 *= require main
 *= require mobile
-*= require_self
 *= require bootstrap
 *= require font-awesome.min.css
+*= require_self
 */
 
 .apollo-header{
@@ -20,5 +20,18 @@
 }
 
 .apollo-dropdown{
-   background-color: #396494;
+   background-color: #ddd;
 }
+
+
+.navbar {
+    margin-bottom: 0px;
+    min-height: 25px;
+}
+
+
+.btn {
+    padding: 3px;
+}
+
+

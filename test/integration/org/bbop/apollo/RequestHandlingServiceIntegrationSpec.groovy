@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.test.spock.IntegrationSpec
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -10,6 +11,8 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
     def requestHandlingService
     def featureRelationshipService
+    def featurePropertyService
+    def transcriptService
     def exonService
     def sequenceService
 
@@ -282,7 +285,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         given: "a input addTranscriptFeaturesArrayJSON string"
         String jsonString = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":219994,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40772-RA\",\"children\":[{\"location\":{\"fmin\":222109,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":219994,\"fmax\":220044,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":222081,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":219994,\"fmax\":222109,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
         String exonString = "{ \"track\": \"Group1.10\", \"features\": [ {\"uniquename\": \"@TRANSCRIPT_NAME@\"}, {\"location\":{\"fmin\":218197,\"fmax\":218447,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}], \"operation\": \"add_exon\" }"
-        String validExonString = "{\"features\":[{\"location\":{\"fmin\":218197,\"strand\":-1,\"fmax\":222245},\"parent_type\":{\"name\":\"gene\",\"cv\":{\"name\":\"sequence\"}},\"name\":\"GB40772-RA\",\"children\":[{\"location\":{\"fmin\":219994,\"strand\":-1,\"fmax\":222109},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"45F17D57F6025D3508087E86126E2285\",\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499882556,\"parent_id\":\"@TRANSCRIPT_NAME@\"},{\"location\":{\"fmin\":222081,\"strand\":-1,\"fmax\":222245},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"E7C8734B188875CEE3EC78690FE3F656\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499879959,\"parent_id\":\"@TRANSCRIPT_NAME@\"},{\"location\":{\"fmin\":218197,\"strand\":-1,\"fmax\":218447},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"uniquename\":\"5BD40EB6906EE9E744C099A3E9F84163\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499882554,\"parent_id\":\"@TRANSCRIPT_NAME@\"},{\"location\":{\"fmin\":218447,\"strand\":-1,\"fmax\":218447},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"@TRANSCRIPT_NAME@-non_canonical_three_prive_splice_site-218447\",\"type\":{\"name\":\"non_canonical_three_prime_splice_site\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499882557,\"parent_id\":\"@TRANSCRIPT_NAME@\"},{\"location\":{\"fmin\":219994,\"strand\":-1,\"fmax\":220044},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"380947D69FD4CBE555F9AC46596178CD\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499879958,\"parent_id\":\"@TRANSCRIPT_NAME@\"},{\"location\":{\"fmin\":219994,\"strand\":-1,\"fmax\":219994},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"@TRANSCRIPT_NAME@-non_canonical_five_prive_splice_site-219994\",\"type\":{\"name\":\"non_canonical_five_prime_splice_site\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499882556,\"parent_id\":\"@TRANSCRIPT_NAME@\"}],\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"@TRANSCRIPT_NAME@\",\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499882556,\"parent_id\":\"176745425D3DA350EEFBD5A150554210\"}]}"
+        String validExonString = "{\"features\":[{\"location\":{\"fmin\":218197,\"strand\":-1,\"fmax\":222245},\"parent_type\":{\"name\":\"gene\",\"cv\":{\"name\":\"sequence\"}},\"name\":\"GB40772-RA\",\"children\":[{\"location\":{\"fmin\":219994,\"strand\":-1,\"fmax\":222109},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"45F17D57F6025D3508087E86126E2285\",\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499882556,\"parent_id\":\"@TRANSCRIPT_NAME@\"},{\"location\":{\"fmin\":222081,\"strand\":-1,\"fmax\":222245},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"E7C8734B188875CEE3EC78690FE3F656\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499879959,\"parent_id\":\"@TRANSCRIPT_NAME@\"},{\"location\":{\"fmin\":218197,\"strand\":-1,\"fmax\":218447},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"uniquename\":\"5BD40EB6906EE9E744C099A3E9F84163\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499882554,\"parent_id\":\"@TRANSCRIPT_NAME@\"},{\"location\":{\"fmin\":218447,\"strand\":-1,\"fmax\":218447},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"@TRANSCRIPT_NAME@-non_canonical_three_prime_splice_site-218447\",\"type\":{\"name\":\"non_canonical_three_prime_splice_site\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499882557,\"parent_id\":\"@TRANSCRIPT_NAME@\"},{\"location\":{\"fmin\":219994,\"strand\":-1,\"fmax\":220044},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"380947D69FD4CBE555F9AC46596178CD\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499879958,\"parent_id\":\"@TRANSCRIPT_NAME@\"},{\"location\":{\"fmin\":219994,\"strand\":-1,\"fmax\":219994},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"@TRANSCRIPT_NAME@-non_canonical_five_prime_splice_site-219994\",\"type\":{\"name\":\"non_canonical_five_prime_splice_site\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499882556,\"parent_id\":\"@TRANSCRIPT_NAME@\"}],\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"@TRANSCRIPT_NAME@\",\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425499882556,\"parent_id\":\"176745425D3DA350EEFBD5A150554210\"}]}"
 
         when: "we parse the string"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
@@ -794,9 +797,9 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         JSONObject returnedAfterExonObject = requestHandlingService.mergeTranscripts(commandObject)
 
 
-        then: "we should see 1 gene, 2 transcripts, 5 exons, 2 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
+        then: "we should see 2 gene, 2 transcripts, 5 exons, 2 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
         def allFeatures = Feature.all
-        assert Gene.count == 1
+        assert Gene.count == 2
         assert MRNA.count == 2
         assert Exon.count == 7
         assert CDS.count == 2
@@ -805,7 +808,8 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
         when: "we get the transcripts and gene that should be left"
         MRNA bigMRNA = MRNA.findByName("GB40788-RA-00001")
-        MRNA undisturbedMRNA = MRNA.findByName("GB40787-RA-00002")
+        def remainingMRNA = MRNA.all - bigMRNA
+        MRNA undisturbedMRNA = remainingMRNA.get(0)
 
         then: "this one should be long-gone"
         assert undisturbedMRNA != null
@@ -2050,4 +2054,406 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert SequenceAlteration.count == 2
         assert Insertion.count == 2
     }
+
+    void "when a setTranslationStart action is performed on a transcript, there should be a check of overlapping isoforms"() {
+        
+        given: "Two transcripts having separate parent gene"
+        String transcript1 = "{\"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":958639,\"fmax\":959315},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":953072,\"fmax\":953075},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":949590,\"fmax\":950737},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":949590,\"fmax\":950830},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":951050,\"fmax\":951116},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":951349,\"fmax\":951703},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":952162,\"fmax\":952606},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":952865,\"fmax\":953075},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":958639,\"fmax\":959315},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":950737,\"fmax\":953072},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40735-RA\",\"location\":{\"strand\":-1,\"fmin\":949590,\"fmax\":959315},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String setTranslationStartForTranscript1 = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":959297}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String transcript2 = "{\"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":956828,\"fmax\":956837},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":958023,\"fmax\":958067},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":958639,\"fmax\":959315},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":958639,\"fmax\":958819},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":958023,\"fmax\":958067},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":956828,\"fmax\":956837},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":958897,\"fmax\":959315},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":958819,\"fmax\":958897},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"fgeneshpp_with_rnaseq_Group1.10_208_mRNA\",\"location\":{\"strand\":-1,\"fmin\":956828,\"fmax\":959315},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String setTranslationStartForTranscript2 = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":959297}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        
+        when: "we add transcript1"
+        JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript1) as JSONObject).get("features")
+        
+        then: "we should have 1 Gene and 1 MRNA"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        String transcript1UniqueName = addTranscript1ReturnObject.uniquename
+        CDS initialCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+        int initialCDSLength = initialCDS.featureLocation.fmax - initialCDS.featureLocation.fmin
+        
+        when: "we set translation start for transcript1"
+        setTranslationStartForTranscript1 = setTranslationStartForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
+        JSONObject setTranslationStartTranscript1ReturnObject  = requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript1) as JSONObject).get("features")
+        
+        then: "we should see a difference in CDS length for transcript1"
+        CDS alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+        int alteredCDSLength = alteredCDS.featureLocation.fmax - alteredCDS.featureLocation.fmin
+        assert initialCDSLength != alteredCDSLength
+        
+        when: "we add transcript2"
+        JSONObject addTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript2) as JSONObject).get("features")
+        
+        then: "we should have 2 Genes and 2 MRNAs"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        String transcript2Name = addTranscript2ReturnObject.name
+        String transcript2UniqueName = addTranscript2ReturnObject.uniquename
+        CDS initialCDS2 = transcriptService.getCDS(MRNA.findByUniqueName(transcript2UniqueName))
+        int initialCDSLength2 = initialCDS2.featureLocation.fmax - initialCDS2.featureLocation.fmin
+        
+        when: "we set translation start for transcript2"
+        setTranslationStartForTranscript2 = setTranslationStartForTranscript2.replace("@UNIQUENAME@", transcript2UniqueName)
+        JSONObject setTranslationStartTranscript2ReturnObject = requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript2) as JSONObject).get("features")
+        
+        then: "we should see a difference in CDS length for transcript2"
+        String transcript2ModifiedName = setTranslationStartTranscript2ReturnObject.name
+        CDS alteredCDS2 = transcriptService.getCDS(MRNA.findByUniqueName(transcript2UniqueName))
+        int alteredCDSLength2 = alteredCDS2.fmax - alteredCDS2.fmin
+        assert initialCDSLength2 != alteredCDSLength2
+        
+        then: "isoform overlap check should have occured, thus transcript1 and transcript2 shares the same parent"
+        Gene transcript1Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
+        Gene transcript2Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript2UniqueName))
+        assert transcript1Gene.uniqueName == transcript2Gene.uniqueName
+        
+        then: "Name for transcript2 should have changed, in light of the new CDS overlap"
+        assert transcript2Name != transcript2ModifiedName
+        
+        then: "the previous gene of transcript2 doesn't exist as it is deleted when it has no connected child features"
+        Gene.count == 1
+    }   
+    
+    void "when a setTranslationEnd action is performed on a transcript, there should be a check for overlapping isoforms"() {
+        
+        given: "two transcripts having separate parent gene"
+        String transcript1 = "{\"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":592678,\"fmax\":592731},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":588910},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":592526,\"fmax\":592731},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":592678},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40820-RA\",\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String setTranslationStartForTranscript1 = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":593550}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String setTranslationEndForTranscript1 = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmax\":593579}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_end\"}"
+        
+        String transcript2 = "{\"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":593733},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}],\"name\":\"au8.g307.t1\",\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":593733},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String setTranslationStartForTranscript2 = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":593508}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String setTranslationEndForTranscript2 = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmax\":593579}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_end\"}"
+        
+        when: "we add transcript1"
+        JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript1) as JSONObject).get("features")
+        
+        then: "we should have 1 Gene and 1 MRNA"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        String transcript1UniqueName = addTranscript1ReturnObject.uniquename
+        CDS initialCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+        int initialCDSLength = initialCDS.featureLocation.fmax - initialCDS.featureLocation.fmin
+        
+        when: "we set translation start and end for transcript1"
+        setTranslationStartForTranscript1 = setTranslationStartForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
+        setTranslationEndForTranscript1 = setTranslationEndForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
+        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript1) as JSONObject)
+        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationEndForTranscript1) as JSONObject)
+        
+        then: "we should see a difference in CDS length for transcript 1"
+        CDS alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+        int alteredCDSLength = alteredCDS.featureLocation.fmax - alteredCDS.featureLocation.fmin
+        assert initialCDSLength != alteredCDSLength
+        
+        when: "we add transcript2"
+        JSONObject addTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript2) as JSONObject).get("features")
+        
+        then: "we should have 2 Genes and 2 MRNAs"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        String transcript2Name = addTranscript2ReturnObject.name
+        String transcript2UniqueName = addTranscript2ReturnObject.uniquename
+        CDS transcript2InitialCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript2UniqueName))
+        int transcript2InitialCDSLength = transcript2InitialCDS.featureLocation.fmax - transcript2InitialCDS.featureLocation.fmin
+        
+        when: "we set translation start and end for transcript2"
+        setTranslationStartForTranscript2 = setTranslationStartForTranscript2.replace("@UNIQUENAME@", transcript2UniqueName)
+        setTranslationEndForTranscript2 = setTranslationEndForTranscript2.replace("@UNIQUENAME@", transcript2UniqueName)
+        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript2) as JSONObject)
+        JSONObject setTranslationEndTranscript2ReturnObject = requestHandlingService.setTranslationEnd(JSON.parse(setTranslationEndForTranscript2) as JSONObject).get("features")
+        
+        then: "isoform overlap check should have occured, thus transcript1 and transcript2 now share the same parent gene"
+        String transcript2ModifiedName = setTranslationEndTranscript2ReturnObject.name
+        Gene transcript1Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
+        Gene transcript2Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript2UniqueName))
+        assert transcript1Gene.uniqueName == transcript2Gene.uniqueName
+        
+        then: "Name for transcript2 should have changed, in light of the new CDS overlap"
+        assert transcript2Name != transcript2ModifiedName
+        
+        then: "the previous gene of transcript2 doesn't exist as it is deleted when it has no connected child features"
+        Gene.count == 1
+    }
+
+    void "when a setExonBoundaries action is performed on a transcript, there should be a check for overlapping isoforms"() {
+
+        given: "two transcripts that overlap but aren't isoforms of each other"
+        String transcript1 = "{\"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":775816,\"fmax\":776061},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":772054,\"fmax\":772102},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":772808,\"fmax\":772942},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":773319,\"fmax\":773539},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":773682,\"fmax\":773848},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":774138,\"fmax\":774504},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":774865,\"fmax\":775227},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":775543,\"fmax\":776061},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":772054,\"fmax\":775816},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40831-RA\",\"location\":{\"strand\":1,\"fmin\":772054,\"fmax\":776061},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String transcript2 = "{\"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":775543,\"fmax\":776363},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}],\"name\":\"au8.g323.t1\",\"location\":{\"strand\":1,\"fmin\":775543,\"fmax\":776363},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String setExonBoundary1ForTranscript2 = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":774048,\"fmax\":776363}}],\"track\":\"Group1.10\",\"operation\":\"set_exon_boundaries\"}"
+        String setExonBoundary2ForTranscript2 = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":774787,\"fmax\":776363}}],\"track\":\"Group1.10\",\"operation\":\"set_exon_boundaries\"}"
+        
+        when: "we add transcript1"
+        JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript1) as JSONObject).get("features")
+        
+        then: "we should have 1 Gene and 1 MRNA"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        String transcript1Name = addTranscript1ReturnObject.name
+        String transcript1UniqueName = addTranscript1ReturnObject.uniquename
+        
+        when: "we add transcript2"
+        JSONObject addTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript2) as JSONObject).get("features")
+        
+        then: "we should have 2 Gene and 2 MRNA"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        String transcript2Name = addTranscript2ReturnObject.name
+        String transcript2UniqueName = addTranscript2ReturnObject.uniquename
+        
+        when: "we set exon boundary of transcript2"
+        Exon exon = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0]
+        setExonBoundary1ForTranscript2 = setExonBoundary1ForTranscript2.replace("@UNIQUENAME@", exon.uniqueName)
+        JSONObject setExonBoundary1ForTranscript2ReturnObject = requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary1ForTranscript2) as JSONObject).get("features")
+        
+        then: "transcript2 should now be an isoform of transcript1 indicated by transcript1 and transcript2 having the same parent gene"
+        String modifiedTranscript2Name = setExonBoundary1ForTranscript2ReturnObject.name
+        String modifiedTranscript2UniqueName = setExonBoundary1ForTranscript2ReturnObject.uniquename
+        Gene transcript1Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
+        Gene transcript2Gene = transcriptService.getGene(MRNA.findByUniqueName(modifiedTranscript2UniqueName))
+        assert transcript1Gene.uniqueName == transcript2Gene.uniqueName
+        
+        then: "name for transcript2 changes to reflect its updated parent gene name as prefix"
+        Boolean sameBaseName = false
+        if (modifiedTranscript2Name.contains(transcript1Gene.name)) {sameBaseName = true}
+        assert sameBaseName
+        
+        when: "we set exon boundary of transcript2 again"
+        setExonBoundary2ForTranscript2 = setExonBoundary2ForTranscript2.replace("@UNIQUENAME@", exon.uniqueName)
+        JSONObject setExonBoundary2ForTranscript2ReturnObject = requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary2ForTranscript2) as JSONObject).get("features")
+        modifiedTranscript2Name = setExonBoundary2ForTranscript2ReturnObject.name
+        modifiedTranscript2UniqueName = setExonBoundary2ForTranscript2ReturnObject.uniquename
+        
+        then: "transcript2 should NOT be an isoform of transcript1"
+        Gene updatedTranscript1Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
+        Gene updatedTranscript2Gene = transcriptService.getGene(MRNA.findByUniqueName(modifiedTranscript2UniqueName))
+        assert updatedTranscript1Gene.uniqueName != updatedTranscript2Gene.uniqueName
+    }
+    
+    void "when a flipStrand action is performed on a transcript, there should be a check for overlapping isoforms"() {
+        
+        given: "A transcript"
+        String transcript = "{\"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String flipStrandForTranscript = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"flip_strand\"}"
+        
+        when: "we add the transcript"
+        JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript) as JSONObject).get("features")
+        
+        then: "we have 1 Gene and 1 MRNA"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        String transcript1Name = addTranscript1ReturnObject.name
+        String transcript1UniqueName = addTranscript1ReturnObject.uniquename
+        
+        when: "we move the transcript to oppposite strand"
+        String flipStrandForTranscript1 = flipStrandForTranscript.replace("@UNIQUENAME@", transcript1UniqueName)
+        JSONObject flipStrandForTranscript1ReturnObject = requestHandlingService.flipStrand(JSON.parse(flipStrandForTranscript1) as JSONObject).get("features")
+        
+        then: "the transcript should be on the negative strand"
+        String flippedTranscript1UniqueName = flipStrandForTranscript1ReturnObject.uniquename
+        assert MRNA.findByUniqueName(flippedTranscript1UniqueName).strand == Strand.NEGATIVE.value
+        
+        when: "we add the same transcript again"
+        JSONObject addTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript) as JSONObject).get("features")
+        
+        then: "we have 2 Genes and 2 MRNA"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        String transcript2Name = addTranscript2ReturnObject.name
+        String transcript2UniqueName = addTranscript2ReturnObject.uniquename
+        
+        when: "we move transcript2 to the opposite strand"
+        String flipStrandForTranscript2 = flipStrandForTranscript.replace("@UNIQUENAME@", transcript2UniqueName)
+        JSONObject flipStrandForTranscript2ReturnObject = requestHandlingService.flipStrand(JSON.parse(flipStrandForTranscript2)).get("features")
+        
+        then: "the transcript should be on the negative strand"
+        String flippedTranscript2UniqueName = flipStrandForTranscript2ReturnObject.uniquename
+        assert MRNA.findByUniqueName(flippedTranscript2UniqueName).strand == Strand.NEGATIVE.value
+        
+        then: "transcript2 is now an isoform of transcript1"
+        Gene transcript1Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
+        Gene transcript2Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript2UniqueName))
+        assert transcript1Gene.uniqueName == transcript2Gene.uniqueName
+    }
+    
+    void "when a mergeExons action is performed on a transcript, there should be a check for overlapping isoforms"() {
+        
+        given: "3 transcripts that overlap but aren't isoforms of each other"
+        String transcript = "{\"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":729928,\"fmax\":730010},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":730296,\"fmax\":730304},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":729928,\"fmax\":730304},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40827-RA\",\"location\":{\"strand\":1,\"fmin\":729928,\"fmax\":730304},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String mergeExons = "{\"features\":[{\"uniquename\":\"@UNIQUENAME1@\"},{\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\",\"operation\":\"merge_exons\"}"
+        
+        when: "we add transcript1"
+        JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript) as JSONObject).get("features")
+        
+        then: "we should have 1 Gene and 1 MRNA"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 2
+        String transcript1UniqueName = addTranscript1ReturnObject.uniquename
+        
+        when: "we merge exon 1 with exon2 of transcript1"
+        String exon1UniqueName = exonService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName))[0].uniqueName
+        String exon2UniqueName = exonService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName))[1].uniqueName
+        String mergeExonsForTranscript1 = mergeExons.replace("@UNIQUENAME1@", exon1UniqueName).replace("@UNIQUENAME2@", exon2UniqueName)
+        JSONObject mergeExonsForTranscript1ReturnObject = requestHandlingService.mergeExons(JSON.parse(mergeExonsForTranscript1) as JSONObject)
+        
+        then: "we have a transcript that has only 1 exon"
+        assert exonService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName)).size() == 1
+        
+        when: "now we add transcript2"
+        JSONObject addTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript) as JSONObject).get("features")
+        
+        then: "we should have 2 Genes and 2 MRNAs"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        assert Exon.count == 3
+        String transcript2UniqueName = addTranscript2ReturnObject.uniquename
+        
+        then: "even though transcript2 is the same as transcript1 (before merge), they are not considered as isoforms of each other"
+        Gene transcript1Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
+        Gene transcript2Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript2UniqueName))
+        assert transcript1Gene.uniqueName != transcript2Gene.uniqueName
+        
+        when: "we merge exon 1 with exon2 of transcript2"
+        exon1UniqueName = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0].uniqueName
+        exon2UniqueName = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[1].uniqueName
+        String mergeExonsForTranscript2 = mergeExons.replace("@UNIQUENAME1@", exon1UniqueName).replace("@UNIQUENAME2@", exon2UniqueName)
+        JSONObject mergeExonsForTranscript2ReturnObject = requestHandlingService.mergeExons(JSON.parse(mergeExonsForTranscript2) as JSONObject).get("features")
+        
+        then: "transcript2 should be an isoform of transcript1"
+        Gene updatedTranscript2Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript2UniqueName))
+        assert transcript1Gene.uniqueName == updatedTranscript2Gene.uniqueName
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert MRNA.count == 2
+    }
+    
+    void "when a deleteFeature action is performed on a transcript, there should be a check for overlapping isoforms"() {
+        
+        given: "two transcripts that are isoforms of each other"
+        String transcript1 = "{\"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":787455,\"fmax\":787740},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":871534,\"fmax\":871600},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":871708,\"fmax\":871861},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":873893,\"fmax\":874091},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":874214,\"fmax\":874252},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":874336,\"fmax\":874787},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":874910,\"fmax\":875076},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":787455,\"fmax\":788349},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":789768,\"fmax\":790242},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":791007,\"fmax\":792220},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":793652,\"fmax\":793876},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":806935,\"fmax\":807266},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":828378,\"fmax\":829272},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":847144,\"fmax\":847365},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":859150,\"fmax\":859261},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":871519,\"fmax\":871600},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":871708,\"fmax\":871861},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":873893,\"fmax\":874091},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":874214,\"fmax\":874252},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":874336,\"fmax\":874787},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":874910,\"fmax\":875076},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":787740,\"fmax\":871534},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"au8.g325.t1\",\"location\":{\"strand\":-1,\"fmin\":787455,\"fmax\":875076},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String transcript2 = "{\"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":845782,\"fmax\":845798},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":847144,\"fmax\":847278},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":845782,\"fmax\":847278},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40739-RA\",\"location\":{\"strand\":-1,\"fmin\":845782,\"fmax\":847278},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String deleteExon = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"delete_feature\"}"
+        
+        when: "we add transcript1 and transcript2"
+        JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript1) as JSONObject).get("features")
+        JSONObject addTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript2) as JSONObject).get("features")
+        
+        then: "we have 1 Gene and 2 MRNAs"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        String transcript1UniqueName = addTranscript1ReturnObject.uniquename
+        String transcript2UniqueName = addTranscript2ReturnObject.uniquename
+
+        when: "we delete the first exon of transcript2"
+        Exon firstExonOfTranscript2 = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0]
+        String deleteExonOfTranscript2 = deleteExon.replace("@UNIQUENAME@", firstExonOfTranscript2.uniqueName)
+        JSONObject deleteExonOfTranscript2ReturnObject = requestHandlingService.deleteFeature(JSON.parse(deleteExonOfTranscript2) as JSONObject).get("features")
+        
+        then: "transcript1 and transcript2 are no longer isoforms of each other"
+        Gene transcript1Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
+        Gene transcript2Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript2UniqueName))
+        assert transcript1Gene.uniqueName != transcript2Gene.uniqueName
+        assert Gene.count == 2
+        assert MRNA.count == 2
+    }
+    
+    void "when two transcripts become isoforms of each others, the properties of their respective parent gene should be preserved in the merged gene"() {
+
+        given: "Two transcripts that overlap but are not isoforms of each other"
+        String transcript1 = "{\"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":583280,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":577643},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40819-RA\",\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String transcript2 = "{\"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":576138,\"fmax\":576168},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":576138,\"fmax\":576168},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583194},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583554,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583194,\"fmax\":583554},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"5:geneid_mRNA_CM000054.5_467\",\"location\":{\"strand\":1,\"fmin\":576138,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String setTranslationStartForTranscript2 = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":582521}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+
+        //String setSymbolOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"symbol\":\"@SYMBOL_VALUE@\"}],\"track\":\"Group1.10\",\"operation\":\"set_symbol\",\"username\":\"demo@demo.com\"}"
+        //String setDescriptionOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"description\":\"@DESCRIPTION_VALUE@\"}],\"track\":\"Group1.10\",\"operation\":\"set_description\"}"
+        String addDbxrefOperation = "{\"features\":[{\"dbxrefs\":[{\"accession\":\"@XREF_ACCESSION@\",\"db\":\"@XREF_DB@\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"add_non_primary_dbxrefs\"}"
+        String addAttributeOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"non_reserved_properties\":[{\"tag\":\"@ATTRIBUTE_TAG@\",\"value\":\"@ATTRIBUTE_VALUE@\"}]}],\"track\":\"Group1.10\",\"operation\":\"add_non_reserved_properties\"}"
+        String addPublicationOperation = "{\"features\":[{\"dbxrefs\":[{\"accession\":\"@PUBMED_ACCESSION@\",\"db\":\"PMID\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"add_non_primary_dbxrefs\"}"
+        String addGeneOntologyOperation = "{\"features\":[{\"dbxrefs\":[{\"accession\":\"@GO_ACCESSION@\",\"db\":\"GO\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"add_non_primary_dbxrefs\"}"
+        String addCommentOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"comments\":[\"@COMMENT@\"]}],\"track\":\"Group1.10\",\"operation\":\"add_comments\"}"
+
+        when: "we add transcript1 and transcript2"
+        JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript1) as JSONObject).get("features")
+        JSONObject addTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript2) as JSONObject).get("features")
+
+        then:"we should see 2 Genes and 2 MRNAs"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        String transcript1UniqueName = addTranscript1ReturnObject.uniquename
+        String transcript2UniqueName = addTranscript2ReturnObject.uniquename
+        Gene initialGeneForTranscript1 = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
+        Gene initialGeneForTranscript2 = transcriptService.getGene(MRNA.findByUniqueName(transcript2UniqueName))
+
+        when: "we add properties to transcript1"
+        String addDbxref1ForTranscript1 = addDbxrefOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@XREF_DB@", "NCBI").replace("@XREF_ACCESSION@", "12937129")
+        String addDbxref2ForTranscript1 = addDbxrefOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@XREF_DB@", "Ensembl").replace("@XREF_ACCESSION@", "ENSG000000000213")
+        String addAttribute1ForTranscript1 = addAttributeOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@ATTRIBUTE_TAG@", "isPredicted").replace("@ATTRIBUTE_VALUE@", "true")
+        String addAttribute2ForTranscript1 = addAttributeOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@ATTRIBUTE_TAG@", "isProteinCoding").replace("@ATTRIBUTE_VALUE@", "true")
+        String addPublicationForTranscript1 = addPublicationOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@PUBMED_ACCESSION@", "8379243")
+        String addGeneOntologyForTranscript1 = addGeneOntologyOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@GO_ACCESSION@", "GO:1902009")
+        String addCommentForTranscript1 = addCommentOperation.replace("@UNIQUENAME@", initialGeneForTranscript1.uniqueName).replace("@COMMENT", "This gene is a test gene and created solely for the purpose of this test")
+        
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addDbxref1ForTranscript1) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addDbxref2ForTranscript1) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addAttribute1ForTranscript1) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addAttribute2ForTranscript1) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addPublicationForTranscript1) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addGeneOntologyForTranscript1) as JSONObject)
+        requestHandlingService.addComments(JSON.parse(addCommentForTranscript1) as JSONObject)
+        
+        then: "we should have 3 FeatureProperty entities and 4 DBXref entities"
+        assert FeatureProperty.count == 3
+        assert DBXref.count == 4
+        
+        when: "we add properties to transcript2"
+        String addDbxref1ForTranscript2 = addDbxrefOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@XREF_DB@", "NCBI").replace("@XREF_ACCESSION@", "83924623")
+        String addDbxref2ForTranscript2 = addDbxrefOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@XREF_DB@", "Ensembl").replace("@XREF_ACCESSION@", "ENSG000000000112")
+        String addAttribute1ForTranscript2 = addAttributeOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@ATTRIBUTE_TAG@", "isAnnotated").replace("@ATTRIBUTE_VALUE@", "false")
+        String addAttribute2ForTranscript2 = addAttributeOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@ATTRIBUTE_TAG@", "isApproved").replace("@ATTRIBUTE_VALUE@", "false")
+        String addPublicationForTranscript2 = addPublicationOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@PUBMED_ACCESSION@", "8923422")
+        String addGeneOntologyForTranscript2 = addGeneOntologyOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@GO_ACCESSION@", "GO:0009372")
+        String addCommentForTranscript2 = addCommentOperation.replace("@UNIQUENAME@", initialGeneForTranscript2.uniqueName).replace("@COMMENT", "This gene is a another test gene and created solely for the purpose of this test")
+
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addDbxref1ForTranscript2) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addDbxref2ForTranscript2) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addAttribute1ForTranscript2) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addAttribute2ForTranscript2) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addPublicationForTranscript2) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addGeneOntologyForTranscript2) as JSONObject)
+        requestHandlingService.addComments(JSON.parse(addCommentForTranscript2) as JSONObject)
+        
+        then: "we should have 6 FeatureProperty entities and 8 DBXref entities"
+        assert FeatureProperty.count == 6
+        assert DBXref.count == 8
+        def xRefInitialGeneForTranscript1 = initialGeneForTranscript1.getFeatureDBXrefs()
+        def fpInitialGeneForTranscript1 = initialGeneForTranscript1.getFeatureProperties()
+        def xRefInitialGeneForTranscript2 = initialGeneForTranscript2.getFeatureDBXrefs()
+        def fpInitialGeneForTranscript2 = initialGeneForTranscript2.getFeatureProperties()
+        def combinedxRefs = (xRefInitialGeneForTranscript1 + xRefInitialGeneForTranscript2).sort()
+        def combinedFeatureProperties = (fpInitialGeneForTranscript1 + fpInitialGeneForTranscript2).sort()
+        
+        when: "we set exon boundary of transcript2"
+        setTranslationStartForTranscript2 = setTranslationStartForTranscript2.replace("@UNIQUENAME@", transcript2UniqueName)
+        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript2) as JSONObject)
+        
+        then: "transcript1 and transcript2 should be isoforms of each other and they should have the same parent gene"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert FeatureProperty.count == 7
+        assert DBXref.count == 8
+        Gene finalGeneForTranscript1 = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
+        Gene finalGeneForTranscript2 = transcriptService.getGene(MRNA.findByUniqueName(transcript2UniqueName))
+        assert finalGeneForTranscript1.uniqueName == finalGeneForTranscript2.uniqueName
+        
+        then: "all properties of the parent gene for transcript2, before setTranslationStart, should now be properties of current shared gene"
+        def xRefForMergedGene = finalGeneForTranscript1.getFeatureDBXrefs()
+        def fpForMergedGene = finalGeneForTranscript1.getFeatureProperties()
+        assert combinedxRefs == xRefForMergedGene.sort()
+        assert combinedFeatureProperties == fpForMergedGene.sort()
+    }
+    
+
 }

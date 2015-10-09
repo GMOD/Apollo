@@ -26,8 +26,8 @@ class UrlMappings {
         "/ProxyService"(controller:"ncbiProxyService",action: "index",params:params)
         "/IOService"(controller:"IOService",action: "handleOperation",params:params)
         "/IOService/download"(controller:"IOService",action: "download", params:params)
-        "/jbrowse/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
-        "/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
+        "/web_services/api"(controller:"webServices",action: "index", params:params)
+        "/jbrowse/web_services/api"(controller:"webServices",action: "index", params:params)
 
         // add other types
         "/bigwig/stats/global"(controller: "bigwig",action: "global")
@@ -35,5 +35,6 @@ class UrlMappings {
         "/bigwig/stats/regionFeatureDensities"(controller: "bigwig",action: "regionFeatureDensities")
         "/bigwig/features/${sequenceName}"(controller: "bigwig",action: "features",params:params,sequenceName:sequenceName)
 
+//        "/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
     }
 }
