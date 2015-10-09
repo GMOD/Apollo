@@ -68,7 +68,6 @@ class FeatureEventService {
         oldFeatureArray.add(oldFeatureObject)
 
         List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName1,featureEventMap)
-//        println "last feature vent list ${lastFeatureEventList.size()}"
         if (lastFeatureEventList.size() != 1) {
             throw new AnnotationException("Not one current feature event being split for: " + uniqueName1)
         }
@@ -158,7 +157,6 @@ class FeatureEventService {
             throw new AnnotationException("Can not find original feature event to split for " + uniqueName1)
         }
         List<FeatureEvent> lastFeatureEventRightList = findCurrentFeatureEvent(uniqueName2,featureEventMap2)
-//        println "adding merged feature events RIGHT ${lastFeatureEventLeftList}"
 //        if (lastFeatureEventRightList.size() != 1) {
 //            throw new AnnotationException("Not one current feature event being merged for: " + uniqueName2)
 //        }
@@ -219,12 +217,6 @@ class FeatureEventService {
     def addNewFeatureEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputCommand, JSONArray oldFeatureArray, JSONArray newFeatureArray, User user) {
 
         Map<String,Map<Long,FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
-//        featureEventMap.keySet().each{ key ->
-//            println "uniqueName key ${key}"
-//            featureEventMap.get(key).each { a,b->
-//                println "a: ${a}, b: ${b}"
-//            }
-//        }
 
 
         List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName,featureEventMap)
