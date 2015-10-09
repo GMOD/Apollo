@@ -1,9 +1,5 @@
 package org.bbop.apollo
 
-/**
- * Converted
- * Chado?
- */
 class Feature implements Ontological{
 
     static auditable = true
@@ -25,16 +21,16 @@ class Feature implements Ontological{
 
     String symbol
     String description
-    DBXref dbxref;
-    String name;
-    String uniqueName;
-    Integer sequenceLength;
-    String md5checksum;
+    DBXref dbxref
+    String name
+    String uniqueName
+    Integer sequenceLength
+    String md5checksum
     Status status
-    boolean isAnalysis;
-    boolean isObsolete;
-    Date dateCreated;
-    Date lastUpdated ;
+    boolean isAnalysis
+    boolean isObsolete
+    Date dateCreated
+    Date lastUpdated
 
     static hasMany = [
             featureLocations: FeatureLocation
