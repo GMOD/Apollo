@@ -962,7 +962,6 @@ class FeatureService {
 
         if (transcript instanceof MRNA) {
             CDS cds = transcriptService.getCDS(transcript)
-//        boolean needCdsIndex = cds == null;
             if (cds == null) {
                 cds = transcriptService.createCDS(transcript);
                 transcriptService.setCDS(transcript, cds);
@@ -1476,7 +1475,7 @@ class FeatureService {
             jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
 
             long durationInMilliseconds = System.currentTimeMillis()-start;
-            //log.debug "owner ${durationInMilliseconds}"
+            log.debug "owner ${durationInMilliseconds}"
 
             start = System.currentTimeMillis();
             if (gsolFeature.featureLocation) {
@@ -1485,10 +1484,9 @@ class FeatureService {
             }
 
             durationInMilliseconds = System.currentTimeMillis()-start;
-            //log.debug "sequencename ${durationInMilliseconds}"
+            log.debug "get sequencename ${durationInMilliseconds}"
 
 
-            start = System.currentTimeMillis();
 
             // TODO: move this to a configurable place or in another method to process afterwards
 //            List<String> errorList = new ArrayList<>()
@@ -1500,7 +1498,6 @@ class FeatureService {
 //            }
 //            jsonFeature.put(FeatureStringEnum.NOTES.value, notesArray)
 //            durationInMilliseconds = System.currentTimeMillis()-start;
-            //log.debug "notes ${durationInMilliseconds}"
 
 
 
@@ -1510,7 +1507,7 @@ class FeatureService {
 
 
             durationInMilliseconds = System.currentTimeMillis()-start;
-            //log.debug "childfeat ${durationInMilliseconds}"
+            log.debug "childfeat ${durationInMilliseconds}"
             if (childFeatures) {
                 JSONArray children = new JSONArray();
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
@@ -1528,7 +1525,7 @@ class FeatureService {
             List<Feature> parentFeatures = featureRelationshipService.getParentsForFeature(gsolFeature)
 
             durationInMilliseconds = System.currentTimeMillis()-start;
-            //log.debug "parents ${durationInMilliseconds}"
+            log.debug "parents ${durationInMilliseconds}"
             if (parentFeatures?.size() == 1) {
                 Feature parent = parentFeatures.iterator().next();
                 jsonFeature.put(FeatureStringEnum.PARENT_ID.value, parent.getUniqueName());
@@ -1547,7 +1544,7 @@ class FeatureService {
             }
 
             durationInMilliseconds = System.currentTimeMillis()-start;
-            //log.debug "featloc ${durationInMilliseconds}"
+            log.debug "featloc ${durationInMilliseconds}"
 
 
             if (gsolFeature instanceof SequenceAlteration) {
