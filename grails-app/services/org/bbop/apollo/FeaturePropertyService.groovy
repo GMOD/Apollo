@@ -2,7 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import grails.transaction.NotTransactional
-@Transactional(readOnly = true)
+
 class FeaturePropertyService {
 
 
@@ -105,10 +105,9 @@ class FeaturePropertyService {
         }
     }
 
-
-    @NotTransactional
+    @Transactional
     def getNonReservedProperties(Feature feature) {
-        return FeatureProperty.findAllByFeature(feature).find(){
+        return FeatureProperty.findAllByFeature(feature).findAll(){
             return !nonReservedClasses.contains(it.cvTerm)
         }
     }

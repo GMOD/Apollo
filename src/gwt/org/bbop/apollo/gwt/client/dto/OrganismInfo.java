@@ -25,9 +25,10 @@ public class OrganismInfo implements HasJSON{
 
     private Integer numFeatures ;
     private Integer numSequences;
-    private Integer numTracks;
     private Boolean valid ;
     private Boolean current;
+    private boolean publicMode;
+
 
     public OrganismInfo(){
 
@@ -44,6 +45,14 @@ public class OrganismInfo implements HasJSON{
 
     public void setBlatDb(String blatdb) {
         this.blatdb = blatdb;
+    }
+
+    public boolean getPublicMode() {
+        return publicMode;
+    }
+
+    public void setPublicMode(boolean pm) {
+        this.publicMode=pm;
     }
 
     public String getGenus() {
@@ -92,14 +101,6 @@ public class OrganismInfo implements HasJSON{
 
     public void setNumSequences(Integer numSequences) {
         this.numSequences = numSequences;
-    }
-
-    public Integer getNumTracks() {
-        return numTracks;
-    }
-
-    public void setNumTracks(Integer numTracks) {
-        this.numTracks = numTracks;
     }
 
     public String getDirectory() {
@@ -154,6 +155,8 @@ public class OrganismInfo implements HasJSON{
             payload.put("valid",JSONBoolean.getInstance(valid));
         }
 
+        GWT.log("toJSON publicMode "+publicMode);
+        payload.put("publicMode",JSONBoolean.getInstance(publicMode));
         return payload;
     }
 

@@ -9,12 +9,9 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
     def setup() {
         Sequence refSequence = new Sequence(
                 length: 3000000
-                ,refSeqFile: "adsf"
-                ,seqChunkPrefix: "asdf"
                 ,seqChunkSize: 3000000
                 ,start: 1
                 ,end: 3000000
-                ,sequenceDirectory: "asdfadsf"
                 ,name: "Group-1.10"
         ).save()
     }

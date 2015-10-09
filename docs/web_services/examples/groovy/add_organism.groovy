@@ -7,17 +7,21 @@ import groovyx.net.http.RESTClient
 import org.json.JSONObject
 
 
-String usageString = "add_organism.groovy <options>" +
+String usageString = "add_organism.groovy <options>\n" +
         "Example: " +
-        "./add_organism.groovy -name LargeBees -url http://localhost:8080/apollo/ -directory /opt/apollo/yeast -username ndunn@me.com -password supersecret"
+        "./add_organism.groovy -name LargeBees -url http://localhost:8080/apollo/ -directory /opt/apollo/yeast -public\n"+
+        "which would prompt for user/pass\n"+
+        "-or-\n"+
+        "./add_organism.groovy -name LargeBees -url http://localhost:8080/apollo/ -directory /opt/apollo/yeast -username user@site.com -password secret -public"
 
-def cli = new CliBuilder(usage: 'add_organism.groovy <options>')
+def cli = new CliBuilder(usage: usageString)
 cli.setStopAtNonOption(true)
 cli.url('URL to WebApollo instance', required: true, args: 1)
 cli.name('organism common name', required: true, args: 1)
 cli.directory('jbrowse data directory', required: true, args: 1)
 cli.blatdb('blatdb directory', args: 1)
 cli.genus('genus', args: 1)
+cli.public('public', args: 0)
 cli.species('species', args: 1)
 cli.username('username', required: false, args: 1)
 cli.password('password', required: false, args: 1)
@@ -47,6 +51,8 @@ try {
 
 URL url = new URL(options.url)
 
+
+
 def argumentsArray = [
         commonName: options.name,
         directory : options.directory,
@@ -54,7 +60,8 @@ def argumentsArray = [
         password  : admin_password,
         blatdb    : options.blatdb ?: null,
         genus     : options.genus ?: null,
-        species   : options.species ?: null
+        species   : options.species ?: null,
+        publicMode: options.public
 ]
 
 println "arguments array = ${argumentsArray}"

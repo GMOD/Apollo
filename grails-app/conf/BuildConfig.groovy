@@ -79,7 +79,9 @@ grails.project.dependency.resolution = {
         //compile 'org.biojava:biojava3-core:3.1.0'
 
 
-        test "org.grails:grails-datastore-test-support:1.0-grails-2.4"
+        test "org.grails:grails-datastore-test-support:1.0.2-grails-2.4"
+        runtime 'org.grails:grails-datastore-gorm:3.1.5.RELEASE'
+
         test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
         test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
         test "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
@@ -93,6 +95,7 @@ grails.project.dependency.resolution = {
         build ":tomcat:7.0.55"
 
         // plugins for the compile step
+        compile ":rest-api-doc:0.6"
         compile ":scaffolding:2.1.2"
         compile ':cache:1.1.7'
         compile ':cache-ehcache:1.0.5'
@@ -116,8 +119,10 @@ grails.project.dependency.resolution = {
         runtime ":jquery-ui:1.10.4"
         runtime ":jquery:1.11.1"
 
+
+
         // https://github.com/groovydev/twitter-bootstrap-grails-plugin/blob/master/README.md
-        runtime ':twitter-bootstrap:3.3.1'
+        runtime ':twitter-bootstrap:3.3.4'
         //compile ":angularjs:1.0.0"
         //compile ":dojo:1.7.2.0"
         //compile ":platform-core:1.0.0"

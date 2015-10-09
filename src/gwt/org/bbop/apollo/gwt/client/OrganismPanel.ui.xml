@@ -93,6 +93,7 @@
                                 <b:Button ui:field="deleteButton" text="Delete Organism" visible="false"/>
                                 <b:Button ui:field="createButton" text="Save New Organism" visible="false"/>
                                 <b:Button ui:field="cancelButton" text="Cancel" visible="false"/>
+                                <b:CheckBox ui:field="publicMode" text="Public" enabled="true" />
                             </b:Column>
                         </b:Row>
                     </b:Container>

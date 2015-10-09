@@ -53,8 +53,8 @@ class FeatureEventController {
         Feature.findAllByUniqueNameInList(featureEventList.keySet() as List).each {
             features.put(it.uniqueName, it)
         }
-        println "featureEventList + ${featureEventList.size()}"
-        println "features+ ${features.size()}"
+        log.debug "featureEventList + ${featureEventList.size()}"
+        log.debug "features+ ${features.size()}"
         assert featureEventList.size() >= features.size()
 
         List<FeatureEventView> featureEventViewList = new ArrayList<>()
@@ -72,7 +72,7 @@ class FeatureEventController {
                 featureEventViewList.add(featureEventView)
             }
         }
-        println "featureEventViewList + ${featureEventViewList.size()}"
+        log.debug "featureEventViewList + ${featureEventViewList.size()}"
 
         render view: "changes", model: [featureEventViewList: featureEventViewList, featureEventInstanceCount: FeatureEvent.count()]
     }

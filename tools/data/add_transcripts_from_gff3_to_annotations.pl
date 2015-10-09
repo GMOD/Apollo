@@ -132,6 +132,7 @@ usage: $progname
     [--property_type_out|-S <feature property type used in server>]
     [--track_prefix|-P <annotation track prefix>]
     [--input|-i <GFF3 file>]
+    [--organism|-o <the name field used for your organism in WA2>]
     [--success_log|-l <success log file>]
     [--error_log|-L <error log file>]
     [--skip|-s <skip id file>]

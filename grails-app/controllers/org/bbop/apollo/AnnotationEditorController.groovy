@@ -6,6 +6,12 @@ import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
 import org.grails.plugins.metrics.groovy.Timed
+import org.restapidoc.annotation.RestApi
+import org.restapidoc.annotation.RestApiMethod
+import org.restapidoc.annotation.RestApiParam
+import org.restapidoc.annotation.RestApiParams
+import org.restapidoc.pojo.RestApiParamType
+import org.restapidoc.pojo.RestApiVerb
 import org.springframework.http.HttpStatus
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -26,6 +32,7 @@ import org.springframework.messaging.handler.annotation.SendTo
 /**
  * From the AnnotationEditorService
  */
+@RestApi(name = "Annotation Services", description = "Methods for running the annotation engine")
 class AnnotationEditorController extends AbstractApolloController implements AnnotationListener {
 
 
@@ -180,6 +187,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    @RestApiMethod(description="Add non-coding genomic feature" ,path="/annotationEditor/addFeature",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="suppressHistory", type="boolean", paramType = RestApiParamType.QUERY,description = "Suppress the history of this operation")
+            ,@RestApiParam(name="suppressEvents", type="boolean", paramType = RestApiParamType.QUERY,description = "Suppress instant update of the user interface")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of JSON feature objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy")
+    ] )
     def addFeature() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -189,6 +206,17 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Set exon feature boundaries" ,path="/annotationEditor/setExonBoundaries",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="suppressHistory", type="boolean", paramType = RestApiParamType.QUERY,description = "Suppress the history of this operation")
+            ,@RestApiParam(name="suppressEvents", type="boolean", paramType = RestApiParamType.QUERY,description = "Suppress instant update of the user interface")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of JSON feature objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy")
+    ]
+    )
     def setExonBoundaries() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -199,6 +227,18 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    @RestApiMethod(description="Add an exon" ,path="/annotationEditor/addExon",verb = RestApiVerb.POST
+    )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="suppressHistory", type="boolean", paramType = RestApiParamType.QUERY,description = "Suppress the history of this operation")
+            ,@RestApiParam(name="suppressEvents", type="boolean", paramType = RestApiParamType.QUERY,description = "Suppress instant update of the user interface")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of JSON feature objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy")
+    ]
+    )
     def addExon() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -209,6 +249,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    @RestApiMethod(description="Add comments" ,path="/annotationEditor/addComments",verb = RestApiVerb.POST
+    )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of JSON feature objects ('uniquename' required) that include an added 'comments' JSONArray described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy")
+    ]
+    )
     def addComments() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         println inputObject.toString()
@@ -219,6 +269,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Delete comments" ,path="/annotationEditor/deleteComments",verb = RestApiVerb.POST
+    )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of JSON feature objects ('uniquename' required) that include an added 'comments' JSONArray described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy")
+    ]
+    )
     def deleteComments() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -229,6 +289,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    @RestApiMethod(description="Update comments" ,path="/annotationEditor/updateComments",verb = RestApiVerb.POST
+    )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of JSON feature objects ('uniquename' required) that include an added 'old_comments','new_comments' JSONArray described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy")
+    ]
+    )
     def updateComments() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -239,6 +309,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    @RestApiMethod(description="Get comments" ,path="/annotationEditor/getComments",verb = RestApiVerb.POST
+    )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of JSON feature objects ('uniquename' required) JSONArray described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy")
+    ]
+    )
     def getComments() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
@@ -248,6 +328,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Add transcript" ,path="/annotationEditor/addTranscript",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="suppressHistory", type="boolean", paramType = RestApiParamType.QUERY,description = "Suppress the history of this operation")
+            ,@RestApiParam(name="suppressEvents", type="boolean", paramType = RestApiParamType.QUERY,description = "Suppress instant update of the user interface")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of JSON feature objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy")
+    ] )
     def addTranscript() {
         try {
             log.debug "addTranscript ${params}"
@@ -264,6 +354,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Duplicate transcript" ,path="/annotationEditor/duplicateTranscript",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="suppressHistory", type="boolean", paramType = RestApiParamType.QUERY,description = "Suppress the history of this operation")
+            ,@RestApiParam(name="suppressEvents", type="boolean", paramType = RestApiParamType.QUERY,description = "Suppress instant update of the user interface")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing a single JSONObject feature that contains 'uniquename'")
+    ] )
     def duplicateTranscript() {
         log.debug "duplicateTranscript ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -274,6 +374,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Set translation start" ,path="/annotationEditor/setTranslationStart",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing a single JSONObject feature that contains {'uniquename':'ABCD-1234','location':{'fmin':12}}")
+    ] )
     def setTranslationStart() {
         log.debug "setTranslationStart ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -284,6 +392,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Set translation end" ,path="/annotationEditor/setTranslationEnd",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing a single JSONObject feature that contains {'uniquename':'ABCD-1234','location':{'fmax':12}}")
+    ] )
     def setTranslationEnd() {
         log.debug "setTranslationEnd ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -294,6 +410,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Set longest ORF" ,path="/annotationEditor/setLongestOrf",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing a single JSONObject feature that contains {'uniquename':'ABCD-1234'}")
+    ] )
     def setLongestOrf() {
         log.debug "setLongestORF ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -304,6 +428,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Set boundaries of genomic feature" ,path="/annotationEditor/setBoundaries",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing feature objects with the location object defined {'uniquename':'ABCD-1234','location':{'fmin':2,'fmax':12}}")
+    ] )
     def setBoundaries() {
         log.debug "setBoundaries ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -314,9 +446,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    /**
-     * @return
-     */
+    @RestApiMethod(description="Get all annotated features for a sequence" ,path="/annotationEditor/getFeatures",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+    ] )
     def getFeatures() {
         JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         try {
@@ -407,6 +543,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    @RestApiMethod(description="Get sequence alterations for a given sequence" ,path="/annotationEditor/getSequenceAlterations",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+    ] )
     @Timed
     def getSequenceAlterations() {
         JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -463,8 +606,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    @RestApiMethod(description="Set description for a feature" ,path="/annotationEditor/setDescription",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','description':'some descriptive test'}")
+    ] )
     def setDescription() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setDescription(inputObject)
         } else {
@@ -472,15 +623,31 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Set symbol of a feature" ,path="/annotationEditor/setSymbol",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','symbol':'Pax6a'}")
+    ] )
     def setSymbol() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setSymbol(inputObject)
         } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
-    
+
+    @RestApiMethod(description="Set status of a feature" ,path="/annotationEditor/setStatus",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','status':'existing-status-string'}.  Available status found here: /availableStatus/ ")
+    ] )
     def setStatus() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -489,7 +656,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             render status: HttpStatus.UNAUTHORIZED
         }
     }
-    
+
+    @RestApiMethod(description="Add attribute (key,value pair) to feature" ,path="/annotationEditor/addAttribute",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','non_reserved_properties':[{'tag':'clockwark','value':'orange'},{'tag':'color','value':'purple'}]}.  Available status found here: /availableStatus/ ")
+    ] )
     def addAttribute() {
         println("PARAMS: " + params.data)
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -499,9 +674,17 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             render status: HttpStatus.UNAUTHORIZED
         }
     }
-    
+
+    @RestApiMethod(description="Set readthrough stop codon" ,path="/annotationEditor/setReadthroughStopCodon",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with one feature object {'uniquename':'ABCD-1234'}")
+    ] )
     def setReadthroughStopCodon() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setReadthroughStopCodon(inputObject)
         } else {
@@ -509,6 +692,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Add sequence alteration" ,path="/annotationEditor/addSequenceAlteration",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with Sequence Alteration (Insertion, Deletion, Substituion) objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/")
+    ] )
     def addSequenceAlteration() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -518,6 +709,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Delete sequence alteration" ,path="/annotationEditor/deleteSequenceAlteration",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with Sequence Alteration identified by unique names {'uniquename':'ABC123'}")
+    ] )
     def deleteSequenceAlteration() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -527,6 +726,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Flip strand" ,path="/annotationEditor/flipStrand",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with with objects of features defined as {'uniquename':'ABC123'}")
+    ] )
     def flipStrand() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -536,6 +743,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Merge exons" ,path="/annotationEditor/mergeExons",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with with two objects of referred to as defined as {'uniquename':'ABC123'}")
+    ] )
     def mergeExons() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -545,6 +760,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Split exons" ,path="/annotationEditor/splitExon",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing feature objects with the location object defined {'uniquename':'ABCD-1234','location':{'fmin':2,'fmax':12}}")
+    ] )
     def splitExon() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -555,6 +778,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    @RestApiMethod(description="Delete feature" ,path="/annotationEditor/deleteFeature",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of features objects to delete defined by unique name {'uniquename':'ABC123'}")
+    ] )
     def deleteFeature() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -564,6 +795,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Delete exons" ,path="/annotationEditor/deleteExon",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of features objects, where the first is the parent transcript and the remaining are exons all defined by a unique name {'uniquename':'ABC123'}")
+    ] )
     def deleteExon() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -573,6 +812,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Make intron" ,path="/annotationEditor/makeIntron",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing a single JSONObject feature that contains {'uniquename':'ABCD-1234','location':{'fmin':12}}")
+    ] )
     def makeIntron() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -582,6 +829,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Split transcript" ,path="/annotationEditor/splitTranscript",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with with two exon objects referred to their unique names {'uniquename':'ABC123'}")
+    ] )
     def splitTranscript() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -591,6 +846,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Merge transcripts" ,path="/annotationEditor/mergeTranscripts",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with with two transcript objects referred to their unique names {'uniquename':'ABC123'}")
+    ] )
     def mergeTranscripts() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -600,9 +863,17 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description="Get sequences for features" ,path="/annotationEditor/getSequences",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of features objects to export defined by a unique name {'uniquename':'ABC123'}")
+    ] )
     def getSequence() {
         log.debug "getSequence ${params.data}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -613,6 +884,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render featureContainer
     }
 
+    @RestApiMethod(description="Get sequences search tools" ,path="/annotationEditor/getSequenceSearchTools")
     def getSequenceSearchTools() {
         log.debug "getSequenceSearchTools ${params.data}"
         def set=configWrapperService.getSequenceSearchTools()
@@ -621,9 +893,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render jre as JSON
     }
 
+    @RestApiMethod(description="Get canned comments" ,path="/annotationEditor/getCannedComments",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+    ] )
     def getCannedComments() {
         log.debug "sequenceSearch ${params.data}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -631,9 +908,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render CannedComment.listOrderByComment() as JSON
     }
 
+    @RestApiMethod(description="Search sequences" ,path="/annotationEditor/searchSequences",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="search", type="JSONObject", paramType = RestApiParamType.QUERY,description = "{'key':'blat','residues':'ATACTAGAGATAC':'database_id':'abc123'}")
+    ] )
     def searchSequence() {
         log.debug "sequenceSearch ${params.data}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -644,9 +927,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    @RestApiMethod(description="Get gff3" ,path="/annotationEditor/getGff3",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of features objects to export defined by a unique name {'uniquename':'ABC123'}")
+    ] )
     def getGff3() {
         log.debug "getGff3 ${params.data}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
             render status: HttpStatus.UNAUTHORIZED
             return

@@ -66,7 +66,6 @@
          },
          "key" : "User-created Annotations",
          "storeClass" : "WebApollo/Store/SeqFeature/ScratchPad",
-         "disableJBrowseMode" : false,
          "maxHeight" : 600,
          "phase" : 0,
          "compress" : 0,

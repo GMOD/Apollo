@@ -15,6 +15,7 @@ function usage(){
     echo "compile:          Compiled the build.";
     echo "clean:            Removes class files.";
     echo "clean-all:        Removes class files and jbrowse files.";
+    echo "create-rest-doc:  Recreates REST documentation.";
     echo "help:             This message.";
 };
 
@@ -126,6 +127,9 @@ elif [[ $1 == "release" ]];then
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
     ant gwtc && grails compile
+elif [[ $1 == "create-rest-doc" ]];then
+    # should call the copy target first
+    grails rest-api-doc
 elif [[ $1 == "clean-all" ]];then
     # should call the copy target first
     rm -rf bin

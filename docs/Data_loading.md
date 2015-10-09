@@ -18,15 +18,17 @@ Note: the output directory is used later when we load the organism into the brow
 
 ### flatfile-to-json.pl
 
-The flatfile-to-json.pl script can be used to setup a GFF3 tracks with flexible feature types. Here, we'll start off by loading data from the MAKER generated GFF for the Pythium ultimum data. The simplest loading command specifies a --trackLabel, the --type of feature to load, the --gff file and the --out directory.
+The flatfile-to-json.pl script can be used to load GFF3 files and you can customize the feature types. Here, we'll start off by loading data from the MAKER GFF for the Pythium ultimum data. The simplest loading command specifies a --trackLabel, the --type of feature to load, the --gff file and the --out directory.
 
 ``` 
     bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type mRNA --trackLabel MAKER --out /opt/apollo/data
 ```
  
-Note: you can also use simple scripts like `bin/maker2jbrowse` to expedite loading of MAKER data.
+Note: you can also use the command `bin/maker2jbrowse` for loading the MAKER data.
 
 Also see the section [Customizing features](Data_loading.md#customizing-features) section for more information on customizing the CSS styles of the Web Apollo 2.0 features.
+
+Note: WebApollo uses features that are loaded at the "transcript" level. If your GFF3 has "gene" features with "transcript"/"mRNA" child features, make sure that you use the argument --type mRNA or --type transcript.
 
 
 ### generate-names.pl
@@ -194,7 +196,7 @@ to the user annotation track. Let's say we want to load our `maker.gff` transcri
 ``` 
     tools/data/add_transcripts_from_gff3_to_annotations.pl \
         -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
-        -i scf1117875582023.gff -type mRNA
+        -i scf1117875582023.gff -t mRNA -o "name of organism"
 ```
 
 
@@ -207,7 +209,7 @@ Let's say we want to load `match` and `match_part` features as transcripts and e
 ``` 
     tools/data/add_transcripts_from_gff3_to_annotations.pl \
        -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
-       -i cf1117875582023gff -t match -e match_part
+       -i cf1117875582023gff -t match -e match_part -o "name of organism"
 ```
 
 

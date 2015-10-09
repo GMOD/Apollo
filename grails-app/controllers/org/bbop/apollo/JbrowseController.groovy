@@ -53,6 +53,8 @@ class JbrowseController {
             Organism organism = Organism.findById(params.organism)
             def session = request.getSession(true)
             session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
+            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value,organism.commonName)
 
             // create an anonymous login
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
@@ -142,10 +144,15 @@ class JbrowseController {
             } else if (fileName.endsWith(".tbi")) {
                 mimeType = "application/x-gzip";
             } else {
-                log.error("Could not get MIME type of " + fileName + " falling back to text/plain");
+                log.info("Could not get MIME type of " + fileName + " falling back to text/plain");
                 mimeType = "text/plain";
             }
+            if(fileName.endsWith("jsonz")||fileName.endsWith("txtz")) {
+                response.setHeader 'Content-Encoding', 'x-gzip'
+            }
         }
+
+
 
         if (isCacheableFile(fileName)) {
             String eTag = createHashFromFile(file);
@@ -266,6 +273,7 @@ class JbrowseController {
         File file = new File(absoluteFilePath);
         def mimeType = "application/json";
         response.setContentType(mimeType);
+        int id
 
         if (!file.exists()) {
             log.warn("Could not get for name and path: ${absoluteFilePath}");
@@ -280,6 +288,11 @@ class JbrowseController {
         if(currentOrganism!=null) {
             jsonObject.put("dataset_id",currentOrganism.id)
         }
+
+        else {
+            id=request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
+            jsonObject.put("dataset_id",id);
+        }
         List<Organism> list=permissionService.getOrganismsForCurrentUser()
         JSONObject organismObjectContainer = new JSONObject()
         for(organism in list) {
@@ -292,6 +305,14 @@ class JbrowseController {
             organismObject.put("url",url)
             organismObjectContainer.put(organism.id, organismObject)
         }
+
+        if(list.size()==0) {
+            JSONObject organismObject = new JSONObject()
+            organismObject.put("name",Organism.findById(id).commonName)
+            organismObject.put("url","#")
+            organismObjectContainer.put(id, organismObject)
+        }
+
         jsonObject.put("datasets",organismObjectContainer)
 
         if(jsonObject.include==null) jsonObject.put("include",new JSONArray())
@@ -302,8 +323,8 @@ class JbrowseController {
     }
 
     private static boolean isCacheableFile(String fileName) {
-        if (fileName.endsWith(".txt")) return true;
-        if (fileName.endsWith(".json")) {
+        if (fileName.endsWith(".txt")||fileName.endsWith("txtz")) return true;
+        if (fileName.endsWith(".json")||fileName.endsWith("jsonz")) {
             String[] names = fileName.split("\\/");
             String requestName = names[names.length - 1];
             return requestName.startsWith("lf-");

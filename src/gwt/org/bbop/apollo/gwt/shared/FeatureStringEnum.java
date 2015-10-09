@@ -103,6 +103,7 @@ public enum FeatureStringEnum {
         EXPORT_PARENT("Parent"),
         ORGANISM_JBROWSE_DIRECTORY("organismJBrowseDirectory"),
         ORGANISM_ID("organismId"),
+        ORGANISM_NAME("commonName"),
         SEQUENCE_NAME("sequenceName"),
         DEFAULT_SEQUENCE_NAME("defaultSequenceName"),
         PERMISSIONS,

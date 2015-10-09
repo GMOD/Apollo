@@ -7,6 +7,7 @@
 //
 //= require jquery
 //= require bootstrap
+//= require vendor/bootstrap-datepicker.js
 //= require_self
 
 

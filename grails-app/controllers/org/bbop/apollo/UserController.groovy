@@ -5,12 +5,19 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.converters.JSON
 import org.apache.shiro.crypto.hash.Sha256Hash
-import org.bbop.apollo.report.AnnotatorSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.restapidoc.annotation.RestApi
+import org.restapidoc.annotation.RestApiMethod
+import org.restapidoc.annotation.RestApiParam
+import org.restapidoc.annotation.RestApiParams
+import org.restapidoc.pojo.RestApiParamType
+import org.restapidoc.pojo.RestApiVerb
 import org.springframework.http.HttpStatus;
 
+@RestApi(name = "User Services", description = "Methods for managing users")
+@Transactional(readOnly = true)
 class UserController {
 
     def permissionService
@@ -138,7 +145,14 @@ class UserController {
     }
 
 
-    //webservice
+    @RestApiMethod(description="Add user to group",path="/user/addUserToGroup",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="group", type="string", paramType = RestApiParamType.QUERY,description = "Group name")
+            ,@RestApiParam(name="user", type="long", paramType = RestApiParamType.QUERY,description = "User id")
+    ]
+    )
     @Transactional
     def addUserToGroup() {
         log.debug "adding user to group ${request.JSON} -> ${params}"
@@ -154,7 +168,14 @@ class UserController {
         render new JSONObject() as JSON
     }
 
-    //webservice
+    @RestApiMethod(description="Remove user from group",path="/user/removeUserFromGroup",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="group", type="string", paramType = RestApiParamType.QUERY,description = "Group name")
+            ,@RestApiParam(name="user", type="long", paramType = RestApiParamType.QUERY,description = "User id")
+    ]
+    )
     @Transactional
     def removeUserFromGroup() {
         log.debug "removing user from group ${request.JSON} -> ${params}"
@@ -170,7 +191,16 @@ class UserController {
         render new JSONObject() as JSON
     }
 
-    //webservice
+    @RestApiMethod(description="Create user",path="/user/createUser",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="email", type="email", paramType = RestApiParamType.QUERY,description = "Email of the user to add")
+            ,@RestApiParam(name="firstName", type="string", paramType = RestApiParamType.QUERY,description = "First name of user to add")
+            ,@RestApiParam(name="lastName", type="string", paramType = RestApiParamType.QUERY,description = "Last name of user to add")
+            ,@RestApiParam(name="newPassword", type="string", paramType = RestApiParamType.QUERY,description = "Password of user to add")
+    ]
+    )
     @Transactional
     def createUser() {
         try {
@@ -212,7 +242,14 @@ class UserController {
 
     }
 
-    //webservice
+    @RestApiMethod(description="Delete user",path="/user/deleteUser",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="userId", type="long", paramType = RestApiParamType.QUERY,description = "User ID to delete")
+            ,@RestApiParam(name="userToDelete", type="email", paramType = RestApiParamType.QUERY,description = "Username (email) to delete")
+    ]
+    )
     @Transactional
     def deleteUser() {
         try {
@@ -244,7 +281,17 @@ class UserController {
         }
     }
 
-    // webservice
+    @RestApiMethod(description="Update user",path="/user/updateUser",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="userId", type="long", paramType = RestApiParamType.QUERY,description = "User ID to update")
+            ,@RestApiParam(name="email", type="email", paramType = RestApiParamType.QUERY,description = "Email of the user to update")
+            ,@RestApiParam(name="firstName", type="string", paramType = RestApiParamType.QUERY,description = "First name of user to update")
+            ,@RestApiParam(name="lastName", type="string", paramType = RestApiParamType.QUERY,description = "Last name of user to update")
+            ,@RestApiParam(name="newPassword", type="string", paramType = RestApiParamType.QUERY,description = "Password of user to update")
+    ]
+    )
     @Transactional
     def updateUser() {
         try {
@@ -297,7 +344,22 @@ class UserController {
      * Only changing one of the boolean permissions
      * @return
      */
-    // webservice
+    @RestApiMethod(description="Update organism permissions",path="/user/updateOrganismPermission",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+
+            ,@RestApiParam(name="userId", type="long", paramType = RestApiParamType.QUERY,description = "User ID to modify permissions for")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "Name of organism to update")
+            ,@RestApiParam(name="id", type="long", paramType = RestApiParamType.QUERY,description = "Permission ID to update (can get from userId/organism instead)")
+
+
+            ,@RestApiParam(name="administrate", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has administrative privileges for the organism")
+            ,@RestApiParam(name="write", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has write privileges for the organism")
+            ,@RestApiParam(name="export", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has export privileges for the organism")
+            ,@RestApiParam(name="read", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has read privileges for the organism")
+    ]
+    )
     @Transactional
     def updateOrganismPermission() {
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject

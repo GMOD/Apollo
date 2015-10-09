@@ -76,6 +76,9 @@
 %{--<nav:secondary/>--}%
 
 <g:layoutBody/>
+%{--bootstrap--}%
+<asset:javascript src="restapidoc/restapidoc.js"/>
+
 
 <div class="footer" role="contentinfo"></div>
 
