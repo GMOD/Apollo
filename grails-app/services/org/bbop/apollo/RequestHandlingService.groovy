@@ -629,10 +629,20 @@ class RequestHandlingService {
         JSONObject returnObject = createJSONFeatureContainer()
 
         log.info "addTranscript ${inputObject?.size()}"
+        long start = System.currentTimeMillis();
+
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        long durationInMilliseconds = System.currentTimeMillis() - start;
+        log.debug "selecting features all ${durationInMilliseconds}"
+
+
+
         log.debug "sequence: ${sequence}"
         log.debug "organism: ${sequence.organism}"
         log.info "number of features: ${featuresArray?.size()}"
+
+
+        start = System.currentTimeMillis();
         boolean suppressHistory = false
         boolean suppressEvents = false
         if (inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
@@ -641,31 +651,60 @@ class RequestHandlingService {
         if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {
             suppressEvents = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_EVENTS.value)
         }
+        durationInMilliseconds = System.currentTimeMillis() - start;
+        log.debug "selecting features all ${durationInMilliseconds}"
+
 
         List<Transcript> transcriptList = new ArrayList<>()
         for (int i = 0; i < featuresArray.size(); i++) {
+
+
+
+            start = System.currentTimeMillis();
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
             jsonTranscript = permissionService.copyUserName(inputObject, jsonTranscript)
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "copyusername ${durationInMilliseconds}"
+            start = System.currentTimeMillis();
             Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence, suppressHistory)
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "generateTranscript ${durationInMilliseconds}"
 
+            start = System.currentTimeMillis();
             // should automatically write to history
             transcript.save(flush: true)
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "transcript save ${durationInMilliseconds}"
+
+            start = System.currentTimeMillis();
             transcriptList.add(transcript)
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "transcriptlist add ${durationInMilliseconds}"
 
             // https://github.com/GMOD/Apollo/issues/453
             // enforce calculation for ALL created transcripts
             // checking for overlapping Sequence Alterations
 //            List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin > :fmin and fl.fmax < :fmax and fl.sequence = :seqId", [seqId: transcript.featureLocation.sequence, fmin: transcript.featureLocation.fmin, fmax: transcript.featureLocation.fmax])
 //            if (sequenceAlterationList.size() > 0) {
+            start = System.currentTimeMillis();
             featureService.setLongestORF(transcript)
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "setlongestorf ${durationInMilliseconds}"
+
 //            }
+            start = System.currentTimeMillis();
             Gene gene = transcriptService.getGene(transcript)
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "getgene ${durationInMilliseconds}"
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
 
+            start = System.currentTimeMillis();
             if (!suppressHistory) {
 //                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, transcript, inputObject, permissionService.getCurrentUser(inputObject))
                 featureEventService.addNewFeatureEventWithUser(FeatureOperation.ADD_TRANSCRIPT, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, featureService.convertFeatureToJSON(transcript), permissionService.getCurrentUser(inputObject))
             }
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "addnewfeatureeventwithuser ${durationInMilliseconds}"
         }
 
         returnObject.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptList))
@@ -1503,7 +1542,17 @@ class RequestHandlingService {
     def addFeature(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         log.debug "adding sequence with found sequence ${sequence}"
+
+
+
+
+        log.info "addTranscript ${inputObject?.size()}"
+        long start = System.currentTimeMillis();
+
         User user = permissionService.getCurrentUser(inputObject)
+
+        long durationInMilliseconds = System.currentTimeMillis() - start;
+        log.debug "getCurrentUser ${durationInMilliseconds}"
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnObject = createJSONFeatureContainer()
@@ -1526,19 +1575,41 @@ class RequestHandlingService {
                     jsonFeature.put(FeatureStringEnum.NAME.value, childArray.getJSONObject(0).getString(FeatureStringEnum.NAME.value))
                 }
             }
+
+            start = System.currentTimeMillis();
             Feature newFeature = featureService.convertJSONToFeature(jsonFeature, sequence)
+
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "convertJSONToFeature ${durationInMilliseconds}"
+
             String principalName = newFeature.name
             log.debug "principal name ${principalName}"
+            start = System.currentTimeMillis();
             if (!suppressHistory) {
                 newFeature.name = nameService.generateUniqueName(newFeature, newFeature.name)
             }
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "generateUniqueName ${durationInMilliseconds}"
+
+            start = System.currentTimeMillis();
             featureService.updateNewGsolFeatureAttributes(newFeature, sequence)
             featureService.addFeature(newFeature)
+
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "addFeature ${durationInMilliseconds}"
+
+            start = System.currentTimeMillis();
             newFeature.addToOwners(user)
             newFeature.save(insert: true, flush: true)
 
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "newFeature.save ${durationInMilliseconds}"
+
             if (newFeature instanceof Gene) {
                 for (Transcript transcript : transcriptService.getTranscripts((Gene) newFeature)) {
+
+
+                    start = System.currentTimeMillis();
                     if (!(newFeature instanceof Pseudogene) && transcriptService.isProteinCoding(transcript)) {
                         if (!configWrapperService.useCDS() || transcriptService.getCDS(transcript) == null) {
                             featureService.calculateCDS(transcript);
@@ -1548,6 +1619,11 @@ class RequestHandlingService {
                             featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
                         }
                     }
+
+                    durationInMilliseconds = System.currentTimeMillis() - start;
+                    log.debug "useCDS/getCDS ${durationInMilliseconds}"
+
+                    start = System.currentTimeMillis();
                     nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
                     if (!suppressHistory) {
                         transcript.name = nameService.generateUniqueName(transcript, newFeature.name)
@@ -1555,7 +1631,18 @@ class RequestHandlingService {
                     }
                     transcript.addToOwners(user)
 
+
+                    durationInMilliseconds = System.currentTimeMillis() - start;
+                    log.debug "nonCanonicalSplice ${durationInMilliseconds}"
+
+
+                    start = System.currentTimeMillis();
                     JSONObject jsonObject = featureService.convertFeatureToJSON(transcript)
+
+
+                    durationInMilliseconds = System.currentTimeMillis() - start;
+                    log.debug "convertFeatureToJSON ${durationInMilliseconds}"
+
                     if (!suppressHistory) {
                         featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, jsonObject, user)
                     }

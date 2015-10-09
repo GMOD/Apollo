@@ -41,8 +41,10 @@ class SequenceService {
         }
         String returnResidue = ""
 
+        FeatureLocation loc=feature.featureLocation
+        String residues=getResidueFromFeatureLocation(loc);
         for(FeatureLocation featureLocation in featureLocationList){
-            returnResidue += getResidueFromFeatureLocation(featureLocation)
+            returnResidue+=residues.substring(featureLocation.fmin-loc.fmin,featureLocation.fmax-loc.fmin)
         }
         
         if(featureLocationList.first().strand==Strand.NEGATIVE.value){
@@ -195,11 +197,14 @@ class SequenceService {
         int startChunkNumber = fmin / sequence.seqChunkSize;
         int endChunkNumber = (fmax - 1 ) / sequence.seqChunkSize;
 
+        long start = System.currentTimeMillis();
 
         for(i in startChunkNumber..endChunkNumber) {
             sequenceString.append(loadResidueForSequence(sequence,i))
         }
 
+        long durationInMilliseconds = System.currentTimeMillis() - start;
+        log.debug "getRawResiduesFromSequence ${durationInMilliseconds}"
         int startPosition = fmin - (startChunkNumber * sequence.seqChunkSize);
 
         return sequenceString.substring(startPosition,startPosition + (fmax-fmin))
