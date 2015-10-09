@@ -40,11 +40,11 @@ class OverlapperService implements Overlapper{
         long start = System.currentTimeMillis();
         for (Transcript geneTranscript : transcriptService.getTranscripts(gene)) {
             if (overlapsOrf(transcript, geneTranscript)) {
-                println "@Duration for cdsOverlap: ${System.currentTimeMillis() - start}"
+                log.debug "@Duration for cdsOverlap: ${System.currentTimeMillis() - start}"
                 return true;
             }
         }
-        println "@Duration for cdsOverlap: ${System.currentTimeMillis() - start}"
+        log.debug "@Duration for cdsOverlap: ${System.currentTimeMillis() - start}"
         return false;
     }
 
