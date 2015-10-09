@@ -33,6 +33,7 @@ class FeatureService {
     def cdsService
     def nonCanonicalSplitSiteService
     def featureRelationshipService
+    def featurePropertyService
     def sequenceService
     def permissionService
     def overlapperService
@@ -77,15 +78,16 @@ class FeatureService {
      * @return Collection of Feature objects that overlap the FeatureLocation
      */
     public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands = true) {
-
         if(compareStrands){
-            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and fl.strand = :strand and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax ))",[fmin:location.fmin,fmax:location.fmax,strand:location.strand,sequence:location.sequence])
+            //Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and fl.strand = :strand and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax ))",[fmin:location.fmin,fmax:location.fmax,strand:location.strand,sequence:location.sequence])
+            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and fl.strand = :strand and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax))",[fmin:location.fmin,fmax:location.fmax,strand:location.strand,sequence:location.sequence])
         }
         else{
-            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax ))",[fmin:location.fmin,fmax:location.fmax,sequence:location.sequence])
+            //Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax ))",[fmin:location.fmin,fmax:location.fmax,sequence:location.sequence])
+            Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax))",[fmin:location.fmin,fmax:location.fmax,sequence:location.sequence])
         }
     }
-
+    
     @Transactional
     void updateNewGsolFeatureAttributes(Feature gsolFeature, Sequence sequence = null) {
 
@@ -158,6 +160,7 @@ class FeatureService {
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll(){
                 it instanceof Gene
             }
+            
             log.debug "overlapping features: ${overlappingFeatures.size()}"
             for (Feature feature : overlappingFeatures) {
                 log.debug "evaluating overlap of feature ${feature.name}"
@@ -1850,7 +1853,158 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             leftBehindTranscripts = leftBehindTranscripts - overlappingTranscripts
         }
     }
+    
+    @Transactional
+    def handleDynamicIsoformOverlap(Transcript transcript) {
+        // Get all transcripts that overlap transcript and verify if they have the proper parent gene assigned
+        ArrayList<Transcript> allOverlappingTranscripts = getTranscriptsWithOverlappingOrf(transcript)
+        ArrayList<Transcript> allTranscriptsForCurrentGene = transcriptService.getTranscripts(transcriptService.getGene(transcript))
+        ArrayList<Transcript> allTranscripts = (allOverlappingTranscripts + allTranscriptsForCurrentGene).unique()
+        ArrayList<Transcript> allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
+        if (transcript.strand == Strand.POSITIVE.value) {
+            allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
+        }
+        else {
+            allSortedTranscripts = allTranscripts?.sort() { a, b -> b.featureLocation.fmax <=> a.featureLocation.fmax }
+        }
+        // In a normal scenario, all sorted transcripts should have the same parent indicating no changes to be made.
+        // If there are transcripts that do overlap but do not have the same parent gene then these transcripts should 
+        // be merged to the 5' most transcript's gene.
+        // If there are transcripts that do not overlap but have the same parent gene then these transcripts should be 
+        // given a new, de-novo gene.
+        log.debug "allSortedTranscripts:${allSortedTranscripts.name}"
+        Transcript fivePrimeTranscript = allSortedTranscripts.get(0)
+        Gene fivePrimeGene = transcriptService.getGene(fivePrimeTranscript)
+        log.debug "5' Transcript: ${fivePrimeTranscript.name}"
+        log.debug "5' Gene: ${fivePrimeGene.name}"
+        allSortedTranscripts.remove(0)
+        ArrayList<Transcript> transcriptsToAssociate = new ArrayList<Transcript>()
+        ArrayList<Gene> genesToMerge = new ArrayList<Gene>()
+        ArrayList<Transcript> transcriptsToDissociate = new ArrayList<Transcript>()
+        ArrayList<Transcript> transcriptsToUpdate = new ArrayList<Transcript>()
+        
+        for (Transcript eachTranscript : allSortedTranscripts) {
+            if (overlapperService.overlaps(eachTranscript, fivePrimeTranscript)) {
+                if (transcriptService.getGene(eachTranscript).uniqueName != fivePrimeGene.uniqueName) {
+                    transcriptsToAssociate.add(eachTranscript) 
+                    genesToMerge.add(transcriptService.getGene(eachTranscript))
+                }
+            }
+            else {
+                if (transcriptService.getGene(eachTranscript).uniqueName == fivePrimeGene.uniqueName) {
+                    transcriptsToDissociate.add(eachTranscript)
+                }
+            }
+        }
 
+        log.debug "Transcripts to Associate: ${transcriptsToAssociate}"
+        log.debug "Transcripts to Dissociate: ${transcriptsToDissociate}"
+        transcriptsToUpdate.addAll(transcriptsToAssociate)
+        transcriptsToUpdate.addAll(transcriptsToDissociate)
+
+        if (transcriptsToAssociate.size() > 0) {
+            Gene mergedGene
+            mergedGene = mergeGeneEntities(fivePrimeGene, genesToMerge.unique())
+            for (Transcript eachTranscript in transcriptsToAssociate) {
+                Gene eachTranscriptParent = transcriptService.getGene(eachTranscript)
+                featureRelationshipService.removeFeatureRelationship(eachTranscriptParent, eachTranscript)
+                addTranscriptToGene(mergedGene, eachTranscript)
+                eachTranscript.name = nameService.generateUniqueName(eachTranscript, mergedGene.name)
+                eachTranscript.save()
+                if (eachTranscriptParent.parentFeatureRelationships.size() == 0) {
+                    ArrayList<FeatureProperty> featureProperties = eachTranscriptParent.featureProperties
+                    for (FeatureProperty fp : featureProperties) {
+                        featurePropertyService.deleteProperty(eachTranscriptParent, fp)
+                    }
+                    eachTranscriptParent.delete()
+                }
+            }
+        }
+        
+        if (transcriptsToDissociate.size() > 0) {
+            Transcript firstTranscript = null
+            for (Transcript eachTranscript in transcriptsToDissociate) {
+                if (firstTranscript == null) {
+                    firstTranscript = eachTranscript
+                    Gene newGene = new Gene(
+                            uniqueName: nameService.generateUniqueName(),
+                            name: nameService.generateUniqueName(fivePrimeGene)
+                    )
+
+                    firstTranscript.owners.each {
+                        newGene.addToOwners(it)
+                    }
+                    newGene.save(flush: true)
+                    
+                    FeatureLocation newGeneFeatureLocation = new FeatureLocation(
+                            feature: newGene,
+                            fmin: firstTranscript.fmin,
+                            fmax: firstTranscript.fmax,
+                            strand: firstTranscript.strand,
+                            sequence: firstTranscript.featureLocation.sequence,
+                            residueInfo: firstTranscript.featureLocation.residueInfo,
+                            locgroup: firstTranscript.featureLocation.locgroup,
+                            rank: firstTranscript.featureLocation.rank
+                    ).save(flush: true)
+                    newGene.addToFeatureLocations(newGeneFeatureLocation)
+                    featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(firstTranscript), firstTranscript)
+                    addTranscriptToGene(newGene, firstTranscript)
+                    firstTranscript.name = nameService.generateUniqueName(firstTranscript, newGene.name)
+                    firstTranscript.save(flush: true)
+                    continue
+                }
+                if (overlapperService.overlaps(eachTranscript, firstTranscript)) {
+                    featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(eachTranscript), eachTranscript)
+                    addTranscriptToGene(transcriptService.getGene(firstTranscript), eachTranscript)
+                    firstTranscript.name = nameService.generateUniqueName(firstTranscript, transcriptService.getGene(firstTranscript).name)
+                    firstTranscript.save(flush: true)
+                }
+                else {
+                    throw new AnnotationException("Left behind transcript that doesn't overlap with any other transcripts")
+                }
+            }
+        }
+        return transcriptsToUpdate
+    }
+    
+    def getTranscriptsWithOverlappingOrf(Transcript transcript) {
+        ArrayList<Transcript> overlappingTranscripts = getOverlappingTranscripts(transcript.featureLocation)
+        overlappingTranscripts.remove(transcript) // removing itself
+        ArrayList<Transcript> transcriptsWithOverlappingOrf = new ArrayList<Transcript>()
+        for (Transcript eachTranscript in overlappingTranscripts) {
+            if (overlapperService.overlaps(eachTranscript, transcript)) {
+                transcriptsWithOverlappingOrf.add(eachTranscript)
+            }
+        }
+        return transcriptsWithOverlappingOrf
+    }
+    
+    @Transactional
+    def mergeGeneEntities(Gene mainGene, ArrayList<Gene> genes) {
+        def fminList = genes.featureLocation.fmin
+        def fmaxList = genes.featureLocation.fmax
+        fminList.add(mainGene.fmin)
+        fmaxList.add(mainGene.fmax)
+        
+        FeatureLocation newFeatureLocation = mainGene.featureLocation
+        newFeatureLocation.fmin = fminList.min()
+        newFeatureLocation.fmax = fmaxList.max()
+        newFeatureLocation.save(flush: true)
+        for (Gene gene in genes) {
+            gene.featureDBXrefs.each {mainGene.addToFeatureDBXrefs(it)}
+            gene.featureGenotypes.each {mainGene.addToFeatureGenotypes(it)}
+            gene.featurePhenotypes.each {mainGene.addToFeaturePhenotypes(it)}
+            gene.featurePublications.each {mainGene.addToFeaturePublications(it)}
+            gene.featureProperties.each {mainGene.addToFeatureProperties(it)}
+            gene.featureSynonyms.each {mainGene.addToFeatureSynonyms(it)}
+            gene.owners.each {mainGene.addToOwners(it)}
+            gene.synonyms.each {mainGene.addToSynonyms(it)}
+        }
+
+        mainGene.save(flush: true)
+        return mainGene
+    }
+    
     private class SequenceAlterationInContextPositionComparator<SequenceAlterationInContext> implements Comparator<SequenceAlterationInContext> {
         public int compare(SequenceAlterationInContext obj1, SequenceAlterationInContext obj2) {
             return obj1.fmin - obj2.fmin
