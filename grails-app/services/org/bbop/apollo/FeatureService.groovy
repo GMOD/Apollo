@@ -17,12 +17,6 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
 
 
-/**
- * taken from AbstractBioFeature
- */
-//@GrailsCompileStatic
-@Transactional(readOnly = true)
-//@CompileStatic
 class FeatureService {
 
 
@@ -95,9 +89,6 @@ class FeatureService {
             gsolFeature.getFeatureLocations().iterator().next().sequence = sequence;
         }
 
-        // TODO: this may be a mistake, is different than the original code
-        // you are iterating through all of the children in order to set the SourceFeature and analysis
-        // for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
         for (FeatureRelationship fr : gsolFeature.getParentFeatureRelationships()) {
             updateNewGsolFeatureAttributes(fr.getChildFeature(), sequence);
         }
@@ -109,31 +100,34 @@ class FeatureService {
         feature.addToOwners(owner)
     }
 
-    /**
-     * From Gene.addTranscript
-     * @return
-     */
 
     @Timed
     @Transactional
     def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory) {
-        Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
+        Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ?
+                (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         log.debug "JSON transcript ${jsonTranscript}"
         log.debug "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
         log.debug "gene ${gene}"
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
+        long start
+        long durationInMilliseconds
 
         User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
+            start = System.currentTimeMillis();
             log.debug "has gene: ${gene}"
             transcript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
             }
-
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "generateTrans::convertJSONToFeature ${durationInMilliseconds}"
             //this one is working, but was marked as needing improvement
+
+            start = System.currentTimeMillis();
             if (grails.util.Environment.current != grails.util.Environment.TEST) {
                 log.debug "setting owner for gene and transcript per: ${permissionService.getCurrentUser(jsonTranscript)}"
                 if (owner) {
@@ -142,16 +136,29 @@ class FeatureService {
                     log.error("Unable to find valid user to set on transcript!" + jsonTranscript)
                 }
             }
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "generateTrans::setOwner ${durationInMilliseconds}"
 
+            start = System.currentTimeMillis();
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
             }
-
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "generateTrans::calculateCDS ${durationInMilliseconds}"
+            start = System.currentTimeMillis();
             addTranscriptToGene(gene, transcript);
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "generateTrans::addTranscriptToGene ${durationInMilliseconds}"
+            start = System.currentTimeMillis();
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "generateTrans::findNonCanonicalAcceptorDonorSpliceSites ${durationInMilliseconds}"
+            start = System.currentTimeMillis();
             if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "generateTrans::generateUniqueName ${durationInMilliseconds}"
         } else {
             log.debug "no gene given"
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
@@ -211,8 +218,6 @@ class FeatureService {
             JSONObject jsonGene = new JSONObject();
             jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript));
             jsonGene.put(FeatureStringEnum.LOCATION.value, jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value));
-            // TODO: review
-//            String cvTermString = isPseudogene ? FeatureStringEnum.PSEUDOGENE.value : FeatureStringEnum.GENE.value
             String cvTermString = FeatureStringEnum.GENE.value
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
             String geneName
@@ -220,11 +225,9 @@ class FeatureService {
                 geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
             }
             else{
-//                geneName = nameService.makeUniqueFeatureName(sequence.organism, sequence.name, new LetterPaddingStrategy(), false)
                 geneName = nameService.makeUniqueGeneName(sequence.organism, sequence.name, false)
             }
             if (!suppressHistory) {
-//                geneName = nameService.makeUniqueFeatureName(sequence.organism, geneName, new LetterPaddingStrategy(), true)
                 geneName = nameService.makeUniqueGeneName(sequence.organism, geneName, true)
             }
             // set back to the original gene name
@@ -339,11 +342,9 @@ class FeatureService {
 
         updateGeneBoundaries(gene);
 
-//        getSession().indexFeature(transcript);
-
         // event fire
-//        TODO: determine event model?
-//        fireAnnotationChangeEvent(transcript, gene, AnnotationChangeEvent.Operation.ADD);
+        //        TODO: determine event model?
+        //        fireAnnotationChangeEvent(transcript, gene, AnnotationChangeEvent.Operation.ADD);
     }
 
     /**
@@ -380,11 +381,11 @@ class FeatureService {
         }
     }
 
-/** Checks whether this AbstractSimpleLocationBioFeature is adjacent to the FeatureLocation.
- *
- * @param location - FeatureLocation to check adjacency against
- * @return true if there is adjacency
- */
+    /** Checks whether this AbstractSimpleLocationBioFeature is adjacent to the FeatureLocation.
+     *
+     * @param location - FeatureLocation to check adjacency against
+     * @return true if there is adjacency
+     */
     public boolean isAdjacentTo(FeatureLocation leftLocation, FeatureLocation location) {
         return isAdjacentTo(leftLocation, location, true);
     }
@@ -400,9 +401,7 @@ class FeatureService {
         int otherFmax = rightFeatureLocation.getFmax();
         int otherStrand = rightFeatureLocation.getStrand();
         boolean strandsOverlap = compareStrands ? thisStrand == otherStrand : true;
-        if (strandsOverlap &&
-                (thisFmax == otherFmin ||
-                        thisFmin == otherFmax)) {
+        if (strandsOverlap &&(thisFmax == otherFmin || thisFmin == otherFmax)) {
             return true;
         }
         return false;
@@ -411,13 +410,7 @@ class FeatureService {
 
     @Transactional
     def calculateCDS(Transcript transcript) {
-        // NOTE: isPseudogene call seemed redundant with isProtenCoding
         calculateCDS(transcript, false)
-//        if (transcriptService.isProteinCoding(transcript) && (transcriptService.getGene(transcript) == null)) {
-////            calculateCDS(editor, transcript, transcript.getCDS() != null ? transcript.getCDS().getStopCodonReadThrough() != null : false);
-////            calculateCDS(transcript, transcript.getCDS() != null ? transcript.getCDS().getStopCodonReadThrough() != null : false);
-//            calculateCDS(transcript, transcriptService.getCDS(transcript) != null ? transcriptService.getStopCodonReadThrough(transcript) != null : false);
-//        }
     }
 
     @Timed
@@ -443,13 +436,13 @@ class FeatureService {
         }
     }
 
-/**
- * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
- * Calls setLongestORF(Transcript, TranslationTable, boolean) with the translation table and whether partial
- * ORF calculation extensions are allowed from the configuration associated with this editor.
- *
- * @param transcript - Transcript to set the longest ORF to
- */
+    /**
+     * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
+     * Calls setLongestORF(Transcript, TranslationTable, boolean) with the translation table and whether partial
+     * ORF calculation extensions are allowed from the configuration associated with this editor.
+     *
+     * @param transcript - Transcript to set the longest ORF to
+     */
     @Transactional
     public void setLongestORF(Transcript transcript, boolean readThroughStopCodon) {
         log.debug "setLongestORF(transcript,readThroughStopCodon) ${transcript} ${readThroughStopCodon}"
@@ -462,42 +455,42 @@ class FeatureService {
         setLongestORF(transcript, false);
     }
 
-/**
- * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
- * Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation start in
- * @param translationStart - Coordinate of the start of translation
- */
+    /**
+     * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+     * Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript - Transcript to set the translation start in
+     * @param translationStart - Coordinate of the start of translation
+     */
     @Transactional
     public void setTranslationStart(Transcript transcript, int translationStart) {
         log.debug "setTranslationStart"
         setTranslationStart(transcript, translationStart, false);
     }
 
-/**
- * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
- * Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation start in
- * @param translationStart - Coordinate of the start of translation
- * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
- */
+    /**
+     * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+     * Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript - Transcript to set the translation start in
+     * @param translationStart - Coordinate of the start of translation
+     * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
+     */
     @Transactional
     public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd) {
         log.debug "setTranslationStart(transcript,translationStart,translationEnd)"
         setTranslationStart(transcript, translationStart, setTranslationEnd, false);
     }
 
-/**
- * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
- * Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation start in
- * @param translationStart - Coordinate of the start of translation
- * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
- * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
- */
+    /**
+     * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+     * Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript - Transcript to set the translation start in
+     * @param translationStart - Coordinate of the start of translation
+     * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
+     * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
+     */
     @Transactional
     public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, boolean readThroughStopCodon) {
         log.debug "setTranslationStart(transcript,translationStart,translationEnd,readThroughStopCodon)"
@@ -591,34 +584,31 @@ class FeatureService {
     }
 
 
-/**
- * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
- * Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation start in
- * @param translationStart - Coordinate of the start of translation
- * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
- * @param translationTable - Translation table that defines the codon translation
- * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
- */
+    /**
+     * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+     * Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript - Transcript to set the translation start in
+     * @param translationStart - Coordinate of the start of translation
+     * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
+     * @param translationTable - Translation table that defines the codon translation
+     * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
+     */
     @Transactional
     public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, TranslationTable translationTable, boolean readThroughStopCodon) {
         CDS cds = transcriptService.getCDS(transcript);
         if (cds == null) {
             cds = transcriptService.createCDS(transcript);
             featureRelationshipService.addChildFeature(transcript, cds)
-//            transcript.setCDS(cds);
         }
-        FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
+        FeatureLocation transcriptFeatureLocation = transcript.featureLocation
         if (transcriptFeatureLocation.strand == Strand.NEGATIVE.value) {
             setFmax(cds, translationStart + 1);
         } else {
             setFmin(cds, translationStart);
         }
         cdsService.setManuallySetTranslationStart(cds, true);
-//        cds.deleteStopCodonReadThrough();
         cdsService.deleteStopCodonReadThrough(cds);
-//        featureRelationshipService.deleteRelationships()
 
         if (setTranslationEnd && translationTable != null) {
             String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
@@ -634,12 +624,10 @@ class FeatureService {
 
                 if (translationTable.getStopCodons().contains(codon)) {
                     if (readThroughStopCodon && ++stopCodonCount < 2) {
-//                        StopCodonReadThrough stopCodonReadThrough = cdsService.getStopCodonReadThrough(cds);
                         StopCodonReadThrough stopCodonReadThrough = (StopCodonReadThrough) featureRelationshipService.getChildForFeature(cds, StopCodonReadThrough.ontologyId)
                         if (stopCodonReadThrough == null) {
                             stopCodonReadThrough = cdsService.createStopCodonReadThrough(cds);
                             cdsService.setStopCodonReadThrough(cds, stopCodonReadThrough)
-//                            cds.setStopCodonReadThrough(stopCodonReadThrough);
                             if (cds.strand == Strand.NEGATIVE.value) {
                                 stopCodonReadThrough.featureLocation.setFmin(convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2));
                                 stopCodonReadThrough.featureLocation.setFmax(convertModifiedLocalCoordinateToSourceCoordinate(transcript, i) + 1);
@@ -672,45 +660,16 @@ class FeatureService {
         transcript.setLastUpdated(date);
 
         // event fire
-//        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-
+        //fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
     }
 
-/** Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
- *  Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation start in
- * @param translationEnd - Coordinate of the end of translation
- */
-/*
-public void setTranslationEnd(Transcript transcript, int translationEnd) {
-    CDS cds = transcript.getCDS();
-    if (cds == null) {
-        cds = createCDS(transcript);
-        transcript.setCDS(cds);
-    }
-    if (transcript.getStrand() == -1) {
-        cds.setFmin(translationEnd + 1);
-    }
-    else {
-        cds.setFmax(translationEnd);
-    }
-    setManuallySetTranslationEnd(cds, true);
-    cds.deleteStopCodonReadThrough();
-
-    // event fire
-    fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-
-}
-*/
-
-/**
- * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
- * Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation end in
- * @param translationEnd - Coordinate of the end of translation
- */
+    /**
+     * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
+     * Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript - Transcript to set the translation end in
+     * @param translationEnd - Coordinate of the end of translation
+     */
     @Transactional
     public void setTranslationEnd(Transcript transcript, int translationEnd) {
         setTranslationEnd(transcript, translationEnd, false);
@@ -878,6 +837,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     List<SequenceAlteration> getFrameshiftsAsAlterations(Transcript transcript) {
+        log.debug "getFrameshiftsAsAlterations"
         List<SequenceAlteration> frameshifts = new ArrayList<SequenceAlteration>();
         CDS cds = transcriptService.getCDS(transcript);
         if (cds == null) {
@@ -1350,7 +1310,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     @Transactional
     def setFmax(Feature feature, int fmax) {
-        feature.getFeatureLocation().setFmax(fmax);
+        feature.featureLocation.setFmax(fmax);
     }
 
     /** Convert source feature coordinate to local coordinate.
@@ -1359,7 +1319,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @return Local coordinate, -1 if source coordinate is <= fmin or >= fmax
      */
     public int convertSourceCoordinateToLocalCoordinate(Feature feature, int sourceCoordinate) {
-        FeatureLocation featureLocation = FeatureLocation.findByFeature(feature)
+        FeatureLocation featureLocation = feature.featureLocation
         return convertSourceCoordinateToLocalCoordinate(featureLocation.fmin,featureLocation.fmax,Strand.getStrandForValue(featureLocation.strand),sourceCoordinate)
     }
 
