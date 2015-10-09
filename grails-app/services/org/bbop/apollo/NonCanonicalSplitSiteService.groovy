@@ -9,85 +9,29 @@ import org.grails.plugins.metrics.groovy.Timed
 @Transactional
 class NonCanonicalSplitSiteService {
 
-//    CvTermService cvTermService
     def featureRelationshipService
     def exonService
     def featureService
     def sequenceService
-//    def nameService
 
-    /** Delete an non canonical 5' splice site.  Deletes both the transcript -> non canonical 5' splice site and
-     *  non canonical 5' splice site -> transcript relationships.
-     *
+    /** Delete an non canonical 5' splice site.
+     * @param transcript - associated transcript
      * @param nonCanonicalFivePrimeSpliceSite - NonCanonicalFivePrimeSpliceSite to be deleted
      */
     public void deleteNonCanonicalFivePrimeSpliceSite(Transcript transcript, NonCanonicalFivePrimeSpliceSite nonCanonicalFivePrimeSpliceSite) {
-//        CVTerm partOfCvterms = cvTermService.partOf
-//        CVTerm nonCanonicalFivePrimeSpliceSiteCvterms = cvTermService.getTerm(FeatureStringEnum.NONCANONICALFIVEPRIMESPLICESITE)
-//        CVTerm transcriptCvTerm = cvTermService.transcript
-//        Collection<CVTerm> nonCanonicalFivePrimeSpliceSiteCvterms = conf.getCVTermsForClass("NonCanonicalFivePrimeSpliceSite");
-
         featureRelationshipService.deleteChildrenForTypes(transcript,NonCanonicalFivePrimeSpliceSite.ontologyId)
         featureRelationshipService.deleteParentForTypes(nonCanonicalFivePrimeSpliceSite,Transcript.ontologyId)
         nonCanonicalFivePrimeSpliceSite.delete()
-
-//        // delete transcript -> non canonical 5' splice site child relationship
-//        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
-//            if (partOfCvterms == fr.type
-//                    && nonCanonicalFivePrimeSpliceSiteCvterms == fr.childFeature.type
-//                    && fr.getSubjectFeature().equals(nonCanonicalFivePrimeSpliceSite)) {
-//                boolean ok = transcript.getChildFeatureRelationships().remove(fr);
-////                break;
-//            }
-//        }
-//
-//
-//        // delete transcript -> non canonical 5' splice site parent relationship
-//        for (FeatureRelationship fr : nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships()) {
-//            if (partOfCvterms == fr.type
-//                    && transcriptCvTerm == fr.parentFeature.type
-//                    && fr.childFeature == nonCanonicalFivePrimeSpliceSite) {
-//                boolean ok = nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships().remove(fr);
-//            }
-//        }
-
     }
 
     public void deleteNonCanonicalThreePrimeSpliceSite(Transcript transcript, NonCanonicalThreePrimeSpliceSite nonCanonicalThreePrimeSpliceSite) {
-//        CVTerm partOfCvterms = cvTermService.partOf
-//        CVTerm nonCanonicalFivePrimeSpliceSiteCvterms = cvTermService.getTerm(FeatureStringEnum.NONCANONICALFIVEPRIMESPLICESITE)
-//        CVTerm transcriptCvTerm = cvTermService.transcript
-//        Collection<CVTerm> nonCanonicalFivePrimeSpliceSiteCvterms = conf.getCVTermsForClass("NonCanonicalFivePrimeSpliceSite");
 
         featureRelationshipService.deleteChildrenForTypes(transcript,NonCanonicalThreePrimeSpliceSite.ontologyId)
         featureRelationshipService.deleteParentForTypes(nonCanonicalThreePrimeSpliceSite,Transcript.ontologyId)
         nonCanonicalThreePrimeSpliceSite.delete()
-
-//        // delete transcript -> non canonical 5' splice site child relationship
-//        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
-//            if (partOfCvterms == fr.type
-//                    && nonCanonicalFivePrimeSpliceSiteCvterms == fr.childFeature.type
-//                    && fr.getSubjectFeature().equals(nonCanonicalFivePrimeSpliceSite)) {
-//                boolean ok = transcript.getChildFeatureRelationships().remove(fr);
-////                break;
-//            }
-//        }
-//
-//
-//        // delete transcript -> non canonical 5' splice site parent relationship
-//        for (FeatureRelationship fr : nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships()) {
-//            if (partOfCvterms == fr.type
-//                    && transcriptCvTerm == fr.parentFeature.type
-//                    && fr.childFeature == nonCanonicalFivePrimeSpliceSite) {
-//                boolean ok = nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships().remove(fr);
-//            }
-//        }
-
     }
 
-    /** Delete all non canonical 5' splice site.  Deletes all transcript -> non canonical 5' splice sites and
-     *  non canonical 5' splice sites -> transcript relationships.
-     *
+    /** Delete all non canonical 5' splice site.
      */
     public void deleteAllNonCanonicalFivePrimeSpliceSites(Transcript transcript) {
         for (NonCanonicalFivePrimeSpliceSite spliceSite : getNonCanonicalFivePrimeSpliceSites(transcript)) {
@@ -112,7 +56,6 @@ class NonCanonicalSplitSiteService {
      * @return Collection of non canonical 3' splice sites associated with this transcript
      */
     public Collection<NonCanonicalThreePrimeSpliceSite> getNonCanonicalThreePrimeSpliceSites(Transcript transcript) {
-//        return (Collection<NonCanonicalThreePrimeSpliceSite>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript,FeatureStringEnum.NONCANONICALTHREEPRIMESPLICESITE)
         return (Collection<NonCanonicalThreePrimeSpliceSite>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript,NonCanonicalThreePrimeSpliceSite.ontologyId)
     }
 
@@ -122,7 +65,6 @@ class NonCanonicalSplitSiteService {
      */
     public void deleteAllNonCanonicalThreePrimeSpliceSites(Transcript transcript) {
         for (NonCanonicalThreePrimeSpliceSite spliceSite : getNonCanonicalThreePrimeSpliceSites(transcript)) {
-//            featureRelationshipService.deleteRelationships(transcript,NonCanonicalThreePrimeSpliceSite.ontologyId,Transcript.ontologyId)
             deleteNonCanonicalThreePrimeSpliceSite(transcript,spliceSite)
         }
     }
@@ -225,14 +167,11 @@ class NonCanonicalSplitSiteService {
      * @param nonCanonicalFivePrimeSpliceSite - Non canonical 5' splice site to be added
      */
     public void addNonCanonicalFivePrimeSpliceSite(Transcript transcript,NonCanonicalFivePrimeSpliceSite nonCanonicalFivePrimeSpliceSite) {
-//        CVTerm partOfCvterm = cvTermService.partOf
 
         // add non canonical 5' splice site
         FeatureRelationship fr = new FeatureRelationship(
-//                type: cvTermService.partOf
                 parentFeature: transcript
                 , childFeature: nonCanonicalFivePrimeSpliceSite
-                ,rank:0 // TODO: Do we need to rank the order of any other transcripts?
         ).save();
         transcript.addToParentFeatureRelationships(fr);
         nonCanonicalFivePrimeSpliceSite.addToChildFeatureRelationships(fr);
@@ -246,10 +185,8 @@ class NonCanonicalSplitSiteService {
 
         // add non canonical 3' splice site
         FeatureRelationship fr = new FeatureRelationship(
-//                type: cvTermService.partOf
                 parentFeature: transcript
                 , childFeature: nonCanonicalThreePrimeSpliceSite
-                ,rank:0 // TODO: Do we need to rank the order of any other transcripts?
         ).save();
         transcript.addToParentFeatureRelationships(fr);
         nonCanonicalThreePrimeSpliceSite.addToChildFeatureRelationships(fr);
@@ -275,13 +212,12 @@ class NonCanonicalSplitSiteService {
 
 
     private NonCanonicalThreePrimeSpliceSite createNonCanonicalThreePrimeSpliceSite(Transcript transcript, int position) {
-        String uniqueName = transcript.getUniqueName() + "-non_canonical_three_prive_splice_site-" + position;
+        String uniqueName = transcript.getUniqueName() + "-non_canonical_three_prime_splice_site-" + position;
         NonCanonicalThreePrimeSpliceSite spliceSite = new NonCanonicalThreePrimeSpliceSite(
                 uniqueName: uniqueName
                 ,name: uniqueName
                 ,isAnalysis: transcript.isAnalysis
                 ,isObsolete: transcript.isObsolete
-//                ,timeAccessioned: new Date()
         ).save()
         spliceSite.addToFeatureLocations(new FeatureLocation(
                 strand: transcript.strand
@@ -290,44 +226,8 @@ class NonCanonicalSplitSiteService {
                 ,fmax: position
                 ,feature: spliceSite
         ).save());
-//        spliceSite.setFeatureLocation(new FeatureLocation());
-//        spliceSite.featureLocation.setStrand(transcript.getStrand());
-//        spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
-//        spliceSite.featureLocation.setFmin(position);
-//        spliceSite.featureLocation.setFmax(position);
-//        spliceSite.setLastUpdated(new Date());
+
         return spliceSite;
     }
 
-    private static FlankingRegion createFlankingRegion(Sequence sequence, int fmin, int fmax,Strand strand) {
-//        FlankingRegion flankingRegion = new FlankingRegion();
-//        flankingRegion.setIsAnalysis(false)
-//        flankingRegion.setIsObsolete(false)
-//        flankingRegion.setName(nameService.generateUniqueName())
-//        flankingRegion.setUniqueName(flankingRegion.name)
-//        flankingRegion.save()
-
-//        flankingRegion.addToFeatureLocations(new FeatureLocation(
-//                strand: feature.strand
-//                ,sequence: feature.featureLocation.sequence
-//                ,fmin: fmin
-//                ,fmax: fmax
-//                ,feature: flankingRegion
-//        ).save());
-
-//        flankingRegion.add(new FeatureLocation());
-//        flankingRegion.getFeatureLocation().setSourceFeature(feature.getFeatureLocation().getSourceFeature());
-//        flankingRegion.featureLocation.setStrand(feature.getStrand());
-//        flankingRegion.featureLocation.setFmin(fmin);
-//        flankingRegion.featureLocation.setFmax(fmax);
-        FlankingRegion flankingRegion = new FlankingRegion(
-                sequence: sequence
-                ,fmin: fmin
-                ,fmax: fmax
-                ,strand: strand
-        )
-
-
-        return flankingRegion;
-    }
 }
