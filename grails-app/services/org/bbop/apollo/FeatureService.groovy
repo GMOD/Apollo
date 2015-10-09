@@ -267,7 +267,7 @@ class FeatureService {
 
     }
 
-// TODO: this is kind of a hack for now
+    // TODO: this is kind of a hack for now
     JSONObject convertCVTermToJSON(String cv, String cvTerm) {
         JSONObject jsonCVTerm = new JSONObject();
         JSONObject jsonCV = new JSONObject();
@@ -2213,13 +2213,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     /* convert an input local coordinate to a local coordinate that incorporates sequence alterations */
 
     public int convertSourceToModifiedLocalCoordinate(Feature feature, Integer localCoordinate,List<SequenceAlteration> alterations = new ArrayList<>()) {
-        log.debug "convertSourceToModifiedLocalCoordinate"
-
         if (alterations.size() == 0) {
-            log.debug "No alterations returning ${localCoordinate}"
             return localCoordinate
         }
-
 
         Collections.sort(alterations, new FeaturePositionComparator<SequenceAlteration>());
         if (feature.getFeatureLocation().getStrand() == -1) {
@@ -2234,7 +2230,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             int coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.fmin);
 
 
-            //getAllSequenceAlterationsForFeature returns alterations over entire scaffold?!
+            //getAllSequenceAlterationsForFeature returns alterations over entire scaffold so do range select
             if(alteration.fmin<=feature.fmin || alteration.fmax> feature.fmax) {
                 log.debug "SKIPPING ${coordinateInContext}"
                 continue

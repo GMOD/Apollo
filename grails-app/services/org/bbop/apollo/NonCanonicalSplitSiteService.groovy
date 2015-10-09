@@ -118,7 +118,7 @@ class NonCanonicalSplitSiteService {
                     if(local1>=0&&local2 < residues.length()) {
                         String acceptorSpliceSiteSequence = residues.substring(local1,local2)
                         acceptorSpliceSiteSequence=transcript.getStrand()==-1?acceptorSpliceSiteSequence.reverse():acceptorSpliceSiteSequence
-                        log.debug "acceptor ${local1} ${local2} ${acceptorSpliceSiteSequence} ${acceptor}"
+                        //log.debug "acceptor ${local1} ${local2} ${acceptorSpliceSiteSequence} ${acceptor}"
                         if(acceptorSpliceSiteSequence==acceptor)
                             validThreePrimeSplice=true
                         else
@@ -128,7 +128,7 @@ class NonCanonicalSplitSiteService {
                     if(local3>=0&&local4<residues.length()) {
                         String donorSpliceSiteSequence = residues.substring(local3,local4)
                         donorSpliceSiteSequence=transcript.getStrand()==-1?donorSpliceSiteSequence.reverse():donorSpliceSiteSequence
-                        log.debug "donor ${local3} ${local4} ${donorSpliceSiteSequence} ${donor}"
+                        //log.debug "donor ${local3} ${local4} ${donorSpliceSiteSequence} ${donor}"
                         if(donorSpliceSiteSequence==donor)
                             validFivePrimeSplice=true
                         else
@@ -138,12 +138,12 @@ class NonCanonicalSplitSiteService {
             }
             if (!validFivePrimeSplice && fivePrimeSpliceSitePosition != -1) {
                 def loc=fivePrimeSpliceSitePosition+transcript.fmin
-                log.debug "adding a noncanonical five prime splice site at ${fivePrimeSpliceSitePosition} ${loc}"
+                //log.debug "adding a noncanonical five prime splice site at ${fivePrimeSpliceSitePosition} ${loc}"
                 addNonCanonicalFivePrimeSpliceSite(transcript,createNonCanonicalFivePrimeSpliceSite(transcript, loc));
             }
             if (!validThreePrimeSplice && threePrimeSpliceSitePosition != -1) {
                 def loc=threePrimeSpliceSitePosition+transcript.fmin
-                log.debug "adding a noncanonical three prime splice site at ${threePrimeSpliceSitePosition} ${loc}"
+                //log.debug "adding a noncanonical three prime splice site at ${threePrimeSpliceSitePosition} ${loc}"
                 addNonCanonicalThreePrimeSpliceSite(transcript,createNonCanonicalThreePrimeSpliceSite(transcript, loc));
             }
         }
