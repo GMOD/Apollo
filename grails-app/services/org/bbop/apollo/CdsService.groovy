@@ -132,14 +132,14 @@ class CdsService {
         cds.save(flush: true,failOnError: true)
 
     }
-    
     def getResiduesFromCDS(CDS cds) {
         // New implementation that infers CDS based on overlapping exons
         Transcript transcript = transcriptService.getTranscript(cds)
-        List <Exon> exons = exonService.getSortedExons(transcript)
+        List<Exon> exons = exonService.getSortedExons(transcript)
+        int length = 0
         String residues = ""
-        for(Exon exon : exons) {
-            if (!overlapperService.overlaps(exon,cds)) {
+        for (Exon exon : exons) {
+            if (!overlapperService.overlaps(exon, cds)) {
                 continue
             }
             int fmin = exon.fmin < cds.fmin ? cds.fmin : exon.fmin
@@ -149,8 +149,7 @@ class CdsService {
             if (cds.getFeatureLocation().strand == Strand.NEGATIVE.value) {
                 localEnd = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmin) + 1
                 localStart = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmax) + 1
-            } 
-            else {
+            } else {
                 localStart = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmin)
                 localEnd = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmax)
             }
@@ -158,4 +157,31 @@ class CdsService {
         }
         return residues
     }
+//    def getResiduesFromCDS(CDS cds) {
+//        // New implementation that infers CDS based on overlapping exons
+//        log.debug "getResiduesFromCDS"
+//        Transcript transcript = transcriptService.getTranscript(cds)
+//        List <Exon> exons = exonService.getSortedExons(transcript)
+//        String returnResidues = ""
+//        String residues=sequenceService.getResidueFromFeatureLocation(transcript.featureLocation)
+//        for(Exon exon : exons) {
+//            if (!overlapperService.overlaps(exon,cds)) {
+//                continue
+//            }
+//            int fmin = exon.fmin < cds.fmin ? cds.fmin : exon.fmin
+//            int fmax = exon.fmax > cds.fmax ? cds.fmax : exon.fmax
+//            int localStart
+//            int localEnd
+//            if (cds.getFeatureLocation().strand == Strand.NEGATIVE.value) {
+//                localEnd = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmin) + 1
+//                localStart = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmax) + 1
+//            }
+//            else {
+//                localStart = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmin)
+//                localEnd = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmax)
+//            }
+//            returnResidues += residues.substring(exon.fmin-transcript.fmin+localStart, exon.fmin-transcript.fmin+localEnd)
+//        }
+//        return returnResidues
+//    }
 }
