@@ -9,7 +9,6 @@ import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import groovy.json.JsonSlurper
 
@@ -25,7 +24,6 @@ class SequenceService {
     def exonService
     def cdsService
     def gff3HandlerService
-    def overlapperService
 
     List<FeatureLocation> getFeatureLocations(Sequence sequence){
         FeatureLocation.findAllBySequence(sequence)
@@ -151,17 +149,10 @@ class SequenceService {
             }
         }
         int currentOffset = 0;
-        // TODO: refactor with getResidues in FeatureService so we are calling a similar method
         for (SequenceAlterationInContext sequenceAlteration in sequenceAlterationsInContextList.sort() { a,b ->
                  a.fmin <=> b.fmin
         }){
             int localCoordinate = featureService.convertSourceCoordinateToLocalCoordinate(fmin,fmax,strand, sequenceAlteration.fmin);
-            // Commented out since check for overlap is done beforehand
-//            if(!overlapperService.overlaps(fmin,fmax,sequenceAlteration.fmin,sequenceAlteration.fmax)){
-//                continue
-//            }
-
-            // TODO: is this correct?
             String sequenceAlterationResidues = sequenceAlteration.alterationResidue
             int alterationLength = sequenceAlteration.alterationResidue.length()
             if (strand == Strand.NEGATIVE) {
@@ -204,31 +195,16 @@ class SequenceService {
         int startChunkNumber = fmin / sequence.seqChunkSize;
         int endChunkNumber = (fmax - 1 ) / sequence.seqChunkSize;
 
-        for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
-            SequenceChunk sequenceChunk = getSequenceChunkForChunk(sequence,i)
-            sequenceString.append(sequenceChunk.residue)
-        }
 
+        for(i in startChunkNumber..endChunkNumber) {
+            sequenceString.append(loadResidueForSequence(sequence,i))
+        }
 
         int startPosition = fmin - (startChunkNumber * sequence.seqChunkSize);
 
         return sequenceString.substring(startPosition,startPosition + (fmax-fmin))
     }
 
-    SequenceChunk getSequenceChunkForChunk(Sequence sequence, int i) {
-        SequenceChunk sequenceChunk = SequenceChunk.findBySequenceAndChunkNumber(sequence,i)
-        if(!sequenceChunk){
-            String residue = loadResidueForSequence(sequence,i)
-            log.debug "RESIDUE load: ${residue?.size()}"
-            sequenceChunk = new SequenceChunk(
-                    sequence: sequence
-                    ,chunkNumber: i
-                    ,residue: residue
-            ).save(flush:true)
-        }
-        log.debug "RESIDUE loaded from DB: ${sequenceChunk.residue?.size()}"
-        return sequenceChunk
-    }
 
     private static String generatorSampleDNA(int size){
         return RandomStringUtils.random(size,['A','T','C','G'] as char[])

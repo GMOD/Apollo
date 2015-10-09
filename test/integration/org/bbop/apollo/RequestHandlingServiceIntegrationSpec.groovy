@@ -31,16 +31,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
     }
 
     def cleanup() {
-//        Sequence.deleteAll(Sequence.all)
-//        Feature.withTransaction {
-//            FeatureLocation.executeUpdate("delete from FeatureLocation ")
-//            FeatureRelationship.executeUpdate("delete from FeatureRelationship ")
-//            Feature.executeUpdate("delete from Feature ")
-//            SequenceChunk.executeUpdate("delete from SequenceChunk ")
-//            Sequence.first().sequenceChunks?.clear()
-//            Sequence.first().save(flush: true )
-////            Sequence.executeUpdate("delete from Sequence ")
-//        }
+
 ////
 ////        assert Sequence.count == 0
 //        assert Feature.count == 0

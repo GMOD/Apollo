@@ -15,7 +15,6 @@ class Sequence {
     // feature locations instead of features
     static hasMany = [
         featureLocations: FeatureLocation,
-        sequenceChunks: SequenceChunk
     ]
 
     static mapping = {
@@ -23,7 +22,6 @@ class Sequence {
         end column: 'sequence_end'
         start column: 'sequence_start'
         featureLocations cascade: 'all-delete-orphan'
-        sequenceChunks cascade: 'all-delete-orphan'
     }
 
     static belongsTo = [Organism]
