@@ -56,17 +56,19 @@ class FeatureEventService {
      * @param user
      * @return
      */
+    @Timed
     List<FeatureEvent> addSplitFeatureEvent(String name1, String uniqueName1, String name2, String uniqueName2
                                             , JSONObject commandObject, JSONObject oldFeatureObject
                                             , JSONArray newFeatureArray
-                                            , User user) {
+                                            , User user){
         Map<String,Map<Long,FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName1)
-        featureEventMap.putAll(extractFeatureEventGroup(uniqueName1))
+        featureEventMap.putAll(extractFeatureEventGroup(uniqueName2))
         List<FeatureEvent> featureEventList = new ArrayList<>()
         JSONArray oldFeatureArray = new JSONArray()
         oldFeatureArray.add(oldFeatureObject)
 
         List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName1,featureEventMap)
+//        println "last feature vent list ${lastFeatureEventList.size()}"
         if (lastFeatureEventList.size() != 1) {
             throw new AnnotationException("Not one current feature event being split for: " + uniqueName1)
         }
@@ -141,6 +143,7 @@ class FeatureEventService {
      * @param user
      * @return
      */
+    @Timed
     List<FeatureEvent> addMergeFeatureEvent(String geneName1, String uniqueName1, String geneName2, String uniqueName2, JSONObject commandObject, JSONArray oldFeatureArray, JSONObject newFeatureObject,
                                             User user) {
         List<FeatureEvent> featureEventList = new ArrayList<>()
@@ -148,16 +151,17 @@ class FeatureEventService {
         Map<String,Map<Long,FeatureEvent>> featureEventMap2 = extractFeatureEventGroup(uniqueName2)
 
         List<FeatureEvent> lastFeatureEventLeftList = findCurrentFeatureEvent(uniqueName1,featureEventMap1)
-        if (lastFeatureEventLeftList.size() != 1) {
-            throw new AnnotationException("Not one current feature event being merged for: " + uniqueName1)
-        }
+//        if (lastFeatureEventLeftList.size() != 2) {
+//            throw new AnnotationException("Not two current feature event being merged for: " + uniqueName1)
+//        }
         if (!lastFeatureEventLeftList) {
             throw new AnnotationException("Can not find original feature event to split for " + uniqueName1)
         }
         List<FeatureEvent> lastFeatureEventRightList = findCurrentFeatureEvent(uniqueName2,featureEventMap2)
-        if (lastFeatureEventRightList.size() != 1) {
-            throw new AnnotationException("Not one current feature event being merged for: " + uniqueName2)
-        }
+//        println "adding merged feature events RIGHT ${lastFeatureEventLeftList}"
+//        if (lastFeatureEventRightList.size() != 1) {
+//            throw new AnnotationException("Not one current feature event being merged for: " + uniqueName2)
+//        }
         if (!lastFeatureEventRightList) {
             throw new AnnotationException("Can not find original feature event to split for " + uniqueName2)
         }
@@ -431,9 +435,9 @@ class FeatureEventService {
         return addNewFeatureEvent(featureOperation, name, uniqueName, inputCommand, oldFeatureArray, newFeatureArray, user)
     }
 
-    /**
-     * @deprecated
-     */
+//    /**
+//     * @deprecated
+//     */
 //    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, Feature feature, JSONObject inputCommand, User user) {
 //        return addNewFeatureEventWithUser(featureOperation, feature.name, feature.uniqueName, inputCommand, featureService.convertFeatureToJSON(feature), user)
 //    }
