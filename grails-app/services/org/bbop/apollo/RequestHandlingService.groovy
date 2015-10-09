@@ -2248,14 +2248,14 @@ class RequestHandlingService {
             oldJsonArray.add(jsonTranscript1)
             oldJsonArray.add(jsonTranscript2)
             try {
-                println "trying to add history"
+                log.debug "trying to add history"
                 featureEventService.addMergeFeatureEvent(gene1Name, transcript1UniqueName
                         , gene2Name, transcript2UniqueName
                         , inputObject, oldJsonArray
                         , updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
                         , permissionService.getCurrentUser(inputObject)
                 )
-                println "ADDED history"
+                log.debug "ADDED history"
             } catch (e) {
                 log.error " There was a problem adding history for this merge event ${e}"
             }
