@@ -390,9 +390,16 @@ public class MainPanel extends Composite {
 
 
         String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
-        trackListString += selectedSequence;
-        trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
+        if(selectedSequence.startsWith("{")){
+             trackListString += URL.encodeQueryString(selectedSequence);
+        }
+        else{
+            trackListString += selectedSequence;
+            trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
+        }
         trackListString += "&highlight=&tracklist=0";
+
+        Window.alert(trackListString);
 
         final String finalString = trackListString;
 
