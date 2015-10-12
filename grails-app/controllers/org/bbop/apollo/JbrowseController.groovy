@@ -10,6 +10,7 @@ import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionDescription
 import org.bbop.apollo.projection.ProjectionInterface
+import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -236,34 +237,37 @@ class JbrowseController {
                     Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
                     println "refseq size ${refSeqJsonObject.size()}"
 
-                    JSONArray projectedArray = null
+                    JSONArray projectedArray = new JSONArray()
                     refererLoc = URLDecoder.decode(refererLoc, "UTF-8")
                     MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
-                    if (projection) {
-                        println "found a projection ${projection}"
-////                        {{proj:None},{padding:50},{sequences:[Group1.1(GB42145-RA)}]}%3A-1..-1
-////                        ProjectionDescription projectionDescription = new ProjectionDescription(refererLoc)
-////                        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
-//                        JSONObject bookmarkJsonObject = JSON.parse(refererLoc) as JSONObject
-                        projectedArray = new JSONArray()
-                    }
-
 
                     for (int i = 0; i < refSeqJsonObject.size(); i++) {
 
                         JSONObject sequenceValue = refSeqJsonObject.getJSONObject(i)
 
                         String sequenceName = sequenceValue.getString("name")
-//                            DiscontinuousProjection projection = projectionMap.values()?.iterator()?.next()?.get(sequenceName)
-//                        ProjectionInterface projection = projectionService.getProjection(currentOrganism, "", sequenceName)
-                        // not projections for every sequence  . . .
-//                        if (projection && projectionService.containsSequence(projection,sequenceName,sequenceValue.id,currentOrganism)) {
                         if (projection && projection.containsSequence(sequenceName, sequenceValue.id, currentOrganism)) {
-                            Integer projectedSequenceLength = projection.size()
+                            println "doing refseq.json . . . projectiong sequence . . . "
+                            println "input sequence ${sequenceValue as JSON}"
+//                            ProjectionSequence projectionSequence = new ProjectionSequence(
+//                                    organism: currentOrganism.abbreviation
+//                                    ,id: sequenceValue.id
+//                                    ,name: sequenceName
+//                            )
+//                            Location inputLocation = new Location(min:0,max:sequenceValue.end,sequence: projectionSequence)
+                            // only need the end name
+                            // we just on the projectionsequence here . . .. . Initially,
+//                            ProjectionSequence projectionSequence = projection.getProjectionSequence(sequenceName)
+//                            Integer
+
+
+                            Integer projectedSequenceLength = projection.findProjectSequenceLength(sequenceName)
                             sequenceValue.put("length", projectedSequenceLength)
                             sequenceValue.put("end", projectedSequenceLength)
                             sequenceValue.put("name", refererLoc)
+                            println "output sequence ${sequenceValue as JSON}"
                             projectedArray.add(sequenceValue)
+                            println "final array ${projectedArray as JSON}"
                         }
                     }
 

@@ -41,8 +41,19 @@ abstract class AbstractApolloController {
         for (p in params) {
             String key = p.key
             if (key.contains("operation")) {
+//                {"track":"Group9.10","operation":"get_translation_table"}
+                if(key.contains("\"{\"projection")){
+                    key = fixProjectionJson(key)
+                }
+//                { "track": "{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}", "operation": "get_user_permission" }
                 return (JSONObject) JSON.parse(key)
             }
         }
+    }
+
+    String fixProjectionJson(String s) {
+        s = s.replaceAll("\"\\{\"projection","\\{\"projection")
+        s = s.replaceAll("\\}\", \"operation\"","\\}, \"operation\"")
+//        s = s.replaceAll("\"{\"projection","{\"projection")
     }
 }
