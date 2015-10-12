@@ -2225,13 +2225,17 @@ class RequestHandlingService {
         // now we add history for each of the transcripts . . . it is history of 1 + 2
         Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value) ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value) : false
         if (!suppressHistory) {
-            featureEventService.addSplitFeatureEvent(transcriptService.getGene(transcript1).name, transcript1.uniqueName
-                    , gene2Name, transcript2UniqueName
-                    , inputObject
-                    , featureService.convertFeatureToJSON(transcript1)
-                    , updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
-                    , permissionService.getCurrentUser(inputObject)
-            )
+            try {
+                featureEventService.addSplitFeatureEvent(transcriptService.getGene(transcript1).name, transcript1.uniqueName
+                        , gene2Name, transcript2UniqueName
+                        , inputObject
+                        , featureService.convertFeatureToJSON(transcript1)
+                        , updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
+                        , permissionService.getCurrentUser(inputObject)
+                )
+            } catch (e) {
+                log.error "There was an error adding history ${e}"
+            }
         }
 //
         JSONArray updateArray = projectionService.projectFeatures(sequence,"",updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value),false)
@@ -2318,12 +2322,18 @@ class RequestHandlingService {
             JSONArray oldJsonArray = new JSONArray()
             oldJsonArray.add(jsonTranscript1)
             oldJsonArray.add(jsonTranscript2)
-            featureEventService.addMergeFeatureEvent(gene1Name, transcript1UniqueName
-                    , gene2Name, transcript2UniqueName
-                    , inputObject, oldJsonArray
-                    , updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
-                    , permissionService.getCurrentUser(inputObject)
-            )
+            try {
+                log.debug "trying to add history"
+                featureEventService.addMergeFeatureEvent(gene1Name, transcript1UniqueName
+                        , gene2Name, transcript2UniqueName
+                        , inputObject, oldJsonArray
+                        , updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
+                        , permissionService.getCurrentUser(inputObject)
+                )
+                log.debug "ADDED history"
+            } catch (e) {
+                log.error " There was a problem adding history for this merge event ${e}"
+            }
         }
 
         deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(transcript2JSONObject);
