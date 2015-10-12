@@ -1,8 +1,6 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import org.gwtbootstrap3.client.ui.Modal;
 import org.gwtbootstrap3.client.ui.ModalBody;
 import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
@@ -10,26 +8,26 @@ import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 /**
  * Created by ndunn on 4/30/15.
  */
-public class LoadingDialog extends Modal{
+public class LinkDialog extends Modal{
 
-    private Boolean showOnBuild = true ;
+//    private Boolean showOnBuild = true ;
 
-    public LoadingDialog(boolean showOnConstruct){
-        this("Loading ...",null,showOnConstruct);
-    }
+//    public LinkDialog(boolean showOnConstruct){
+//        this("Loading ...",null,showOnConstruct);
+//    }
+//
+//    public LinkDialog(){
+//        this("Loading ...",null,true);
+//    }
 
-    public LoadingDialog(){
-        this("Loading ...",null,true);
-    }
+//    public LinkDialog(String title){
+//        this(title,null,true);
+//
+//    }
 
-
-    public LoadingDialog(String title){
-        this(title,null,true);
-
-    }
-    public LoadingDialog(String title,String message,Boolean showOnConstruct){
+    public LinkDialog(String title, String message, Boolean showOnConstruct){
         setTitle(title);
-        setClosable(false);
+        setClosable(true);
         setFade(true);
         setDataBackdrop(ModalBackdrop.STATIC);
 

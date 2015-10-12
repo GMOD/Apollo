@@ -104,10 +104,6 @@ public class MainPanel extends Composite {
     ListBox organismListBox;
     @UiField(provided = true)
     static SuggestBox sequenceSuggestBox;
-    @UiField
-    HTML linkUrl;
-    @UiField
-    FlowPanel linkPanel;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
@@ -571,27 +567,45 @@ public class MainPanel extends Composite {
         annotrackFunctionMap.put(name, javaScriptObject);
     }
 
-    @UiHandler("closeUrlButton")
-    public void closeUrl(ClickEvent clickEvent) {
-        closeLink();
-    }
-
-    public void closeLink() {
-        linkPanel.setVisible(false);
-        mainSplitPanel.setWidgetSize(linkPanel, 0);
-        mainSplitPanel.animate(100);
-    }
 
     @UiHandler("generateLink")
     public void toggleLink(ClickEvent clickEvent) {
-        if (linkPanel.isVisible()) {
-            closeLink();
-        } else {
-            generateLink();
-        }
+        String text = "";
+        String publicUrl = generatePublicUrl();
+        String apolloUrl = generateApolloUrl();
+        text +="<ul>";
+        text +="<li>";
+        text += "Public URL: <a href='"+publicUrl+"'>"+publicUrl+"</a>";
+        text +="</li>";
+        text +="<li>";
+        text += "Apollo URL: <a href='"+apolloUrl+"'>"+apolloUrl+"</a>";
+        text +="</li>";
+        text +="</ul>";
+        new LinkDialog("Links to this Location",text,true);
     }
 
-    public void generateLink() {
+    public String generatePublicUrl(){
+        String url2 = Annotator.getRootUrl();
+        url2 += "jbrowse/index.html";
+        if (currentStartBp != null) {
+            url2 += "?loc=" + currentSequence.getName() + ":" + currentStartBp + ".." + currentEndBp;
+        } else {
+            url2 += "?loc=" + currentSequence.getName() + ":" + currentSequence.getStart() + ".." + currentSequence.getEnd();
+        }
+        url2 += "&organism=" + currentOrganism.getId();
+        url2 += "&tracks=";
+
+        List<String> trackList = trackPanel.getTrackList();
+        for (int i = 0; i < trackList.size(); i++) {
+            url2 += trackList.get(i);
+            if (i < trackList.size() - 1) {
+                url2 += ",";
+            }
+        }
+        return url2 ;
+    }
+
+    public String generateApolloUrl(){
         String url = Annotator.getRootUrl();
         url += "annotator/loadLink";
         if (currentStartBp != null) {
@@ -609,28 +623,9 @@ public class MainPanel extends Composite {
                 url += ",";
             }
         }
-        String url2 = Annotator.getRootUrl();
-        url2 += "jbrowse/index.html";
-        if (currentStartBp != null) {
-            url2 += "?loc=" + currentSequence.getName() + ":" + currentStartBp + ".." + currentEndBp;
-        } else {
-            url2 += "?loc=" + currentSequence.getName() + ":" + currentSequence.getStart() + ".." + currentSequence.getEnd();
-        }
-        url2 += "&organism=" + currentOrganism.getId();
-        url2 += "&tracks=";
-
-        trackList = trackPanel.getTrackList();
-        for (int i = 0; i < trackList.size(); i++) {
-            url2 += trackList.get(i);
-            if (i < trackList.size() - 1) {
-                url2 += ",";
-            }
-        }
-        linkUrl.setHTML("Annotator link: " + url + "<br />Public link: " + url2);
-        linkPanel.setVisible(true);
-        mainSplitPanel.setWidgetSize(linkPanel, 50);
-        mainSplitPanel.animate(100);
+        return url ;
     }
+
 
     @UiHandler("logoutButton")
     public void logout(ClickEvent clickEvent) {
