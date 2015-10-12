@@ -114,6 +114,8 @@ public enum FeatureStringEnum {
         USER_ID("userId"),
         LOCKED,
         HISTORY,
+        DOCK_OPEN("dockOpen"),
+        DOCK_WIDTH("dockWidth"),
         ;
 
 

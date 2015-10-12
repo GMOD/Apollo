@@ -11,6 +11,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -25,14 +26,15 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.client.ui.SuggestBox;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 /**
  * Created by ndunn on 12/18/14.
  */
@@ -63,6 +65,7 @@ public class MainPanel extends Composite {
     private int maxUsernameLength = 15;
     private static final double UPDATE_DIFFERENCE_BUFFER = 0.3;
     private static final double GENE_VIEW_BUFFER = 0.4;
+    private Storage preferenceStore = Storage.getLocalStorageIfSupported();
 
 
     @UiField
@@ -83,7 +86,7 @@ public class MainPanel extends Composite {
     static GroupPanel userGroupPanel;
     @UiField
     static DockLayoutPanel eastDockPanel;
-    @UiField
+    @UiField(provided = true)
     static SplitLayoutPanel mainSplitPanel;
     @UiField
     static TabLayoutPanel detailTabs;
@@ -120,6 +123,15 @@ public class MainPanel extends Composite {
     MainPanel() {
         instance = this;
         sequenceSuggestBox = new SuggestBox(sequenceOracle);
+
+        mainSplitPanel = new SplitLayoutPanel() {
+            @Override
+            public void onResize() {
+                super.onResize();
+                setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(),mainSplitPanel.getWidgetSize(eastDockPanel));
+            }
+        };
+
         exportStaticMethod();
 
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -150,6 +162,30 @@ public class MainPanel extends Composite {
         });
 
 
+        try {
+            String dockOpen = getPreference(FeatureStringEnum.DOCK_OPEN.getValue());
+            if (dockOpen != null) {
+                Boolean setDockOpen = Boolean.valueOf(dockOpen);
+                toggleOpen = !setDockOpen;
+                toggleOpen();
+            }
+        } catch (Exception e) {
+            GWT.log("Error setting preference: "+e.fillInStackTrace().toString());
+            setPreference(FeatureStringEnum.DOCK_OPEN.getValue(),true);
+        }
+
+
+        try {
+            String dockWidth = getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
+            if(dockWidth!=null && toggleOpen){
+                Integer dockWidthInt = Integer.parseInt(dockWidth);
+                mainSplitPanel.setWidgetSize(eastDockPanel,dockWidthInt);
+            }
+        } catch (NumberFormatException e) {
+            GWT.log("Error setting preference: "+e.fillInStackTrace().toString());
+            setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(),600);
+        }
+
         loginUser();
     }
 
@@ -162,8 +198,8 @@ public class MainPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                currentStartBp = start ;
-                currentEndBp = end ;
+                currentStartBp = start;
+                currentEndBp = end;
                 handlingNavEvent = false;
             }
 
@@ -280,7 +316,7 @@ public class MainPanel extends Composite {
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
 
-                        new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, false,true);
+                        new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, false, true);
                     } else {
                         getAppState();
                         logoutButton.setVisible(true);
@@ -322,16 +358,17 @@ public class MainPanel extends Composite {
     }
 
     public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
-        updateGenomicViewerForLocation(selectedSequence,minRegion,maxRegion,false);
+        updateGenomicViewerForLocation(selectedSequence, minRegion, maxRegion, false);
     }
+
     /**
      * @param selectedSequence
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion,boolean forceReload) {
+    public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion, boolean forceReload) {
 
-        if (!forceReload && currentSequence!=null && currentSequence.getName().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
+        if (!forceReload && currentSequence != null && currentSequence.getName().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
             int oldLength = maxRegion - minRegion;
             double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
             double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) oldLength;
@@ -356,9 +393,9 @@ public class MainPanel extends Composite {
 
     public static void updateGenomicViewer(boolean forceReload) {
         if (currentStartBp != null && currentEndBp != null) {
-            updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp,forceReload);
+            updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp, forceReload);
         } else {
-            updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStart(), currentSequence.getEnd(),forceReload);
+            updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStart(), currentSequence.getEnd(), forceReload);
         }
     }
 
@@ -487,7 +524,14 @@ public class MainPanel extends Composite {
     }
 
     private void openPanel() {
-        mainSplitPanel.setWidgetSize(eastDockPanel, 550);
+        String dockWidth = getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
+        if(dockWidth!=null){
+            Integer dockWidthInt = Integer.parseInt(dockWidth);
+            mainSplitPanel.setWidgetSize(eastDockPanel,dockWidthInt);
+        }
+        else{
+            mainSplitPanel.setWidgetSize(eastDockPanel, 550);
+        }
         dockOpenClose.setIcon(IconType.CARET_RIGHT);
     }
 
@@ -505,6 +549,21 @@ public class MainPanel extends Composite {
         mainSplitPanel.animate(400);
 
         toggleOpen = !toggleOpen;
+        setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
+    }
+
+    private void setPreference(String key, Object value) {
+        if (preferenceStore != null) {
+            preferenceStore.setItem(key, value.toString());
+        }
+    }
+
+    private String getPreference(String key) {
+        if (preferenceStore != null) {
+            String returnValue = preferenceStore.getItem(key);
+            return returnValue;
+        }
+        return null;
     }
 
 
@@ -567,7 +626,7 @@ public class MainPanel extends Composite {
                 url2 += ",";
             }
         }
-        linkUrl.setHTML("Annotator link: "+url+"<br />Public link: "+url2);
+        linkUrl.setHTML("Annotator link: " + url + "<br />Public link: " + url2);
         linkPanel.setVisible(true);
         mainSplitPanel.setWidgetSize(linkPanel, 50);
         mainSplitPanel.animate(100);
@@ -688,22 +747,22 @@ public class MainPanel extends Composite {
     }
 
 
-    public static String getCurrentSequenceAsJson(){
-        if(currentSequence==null){
+    public static String getCurrentSequenceAsJson() {
+        if (currentSequence == null) {
             return "{}";
         }
         return currentSequence.toJSON().toString();
     }
 
-    public static String getCurrentUserAsJson(){
-        if(currentUser==null){
+    public static String getCurrentUserAsJson() {
+        if (currentUser == null) {
             return "{}";
         }
         return currentUser.getJSONWithoutPassword().toString();
     }
 
-    public static String getCurrentOrganismAsJson(){
-        if(currentOrganism==null){
+    public static String getCurrentOrganismAsJson() {
+        if (currentOrganism == null) {
             return "{}";
         }
         return currentOrganism.toJSON().toString();
