@@ -7,6 +7,8 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.DragEndEvent;
 import com.google.gwt.event.dom.client.DragEndHandler;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
@@ -89,7 +91,7 @@ public class MainPanel extends Composite {
     static GroupPanel userGroupPanel;
     @UiField
     static DockLayoutPanel eastDockPanel;
-    @UiField
+    @UiField(provided = true)
     static SplitLayoutPanel mainSplitPanel;
     @UiField
     static TabLayoutPanel detailTabs;
@@ -126,6 +128,15 @@ public class MainPanel extends Composite {
     MainPanel() {
         instance = this;
         sequenceSuggestBox = new SuggestBox(sequenceOracle);
+
+        mainSplitPanel = new SplitLayoutPanel() {
+            @Override
+            public void onResize() {
+                super.onResize();
+                setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(),mainSplitPanel.getWidgetSize(eastDockPanel));
+            }
+        };
+
         exportStaticMethod();
 
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -155,16 +166,30 @@ public class MainPanel extends Composite {
             }
         });
 
-        String dockOpen = getPreference(FeatureStringEnum.DOCK_OPEN.getValue());
-        if (dockOpen != null) {
-            Boolean setDockOpen = Boolean.valueOf(dockOpen);
-            // we set the reverse and it reversed it
-            toggleOpen = !setDockOpen;
-            toggleOpen();
-        }
-        
 
-        String dockWidth = getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
+        try {
+            String dockOpen = getPreference(FeatureStringEnum.DOCK_OPEN.getValue());
+            if (dockOpen != null) {
+                Boolean setDockOpen = Boolean.valueOf(dockOpen);
+                toggleOpen = !setDockOpen;
+                toggleOpen();
+            }
+        } catch (Exception e) {
+            GWT.log("Error setting preference: "+e.fillInStackTrace().toString());
+            setPreference(FeatureStringEnum.DOCK_OPEN.getValue(),true);
+        }
+
+
+        try {
+            String dockWidth = getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
+            if(dockWidth!=null){
+                Integer dockWidthInt = Integer.parseInt(dockWidth);
+                mainSplitPanel.setWidgetSize(eastDockPanel,dockWidthInt);
+            }
+        } catch (NumberFormatException e) {
+            GWT.log("Error setting preference: "+e.fillInStackTrace().toString());
+            setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(),600);
+        }
 
         loginUser();
     }
