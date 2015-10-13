@@ -491,7 +491,7 @@ class TrackService {
             def ncListArray = secondNcListArray.get(i)
             if (ncListArray instanceof JSONArray) {
                 nudgeJsonArray(ncListArray, endSize)
-                firstNcListArray.addAll(ncListArray)
+                firstNcListArray.add(ncListArray)
             }
         }
 
