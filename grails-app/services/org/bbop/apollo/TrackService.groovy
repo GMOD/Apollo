@@ -2,9 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import org.apache.commons.io.FileUtils
-import org.apache.commons.io.filefilter.FileFilterUtils
-import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.MultiSequenceProjection
@@ -417,9 +414,9 @@ class TrackService {
         JSONObject firstStat = first.getJSONArray("stats").getJSONObject(0)
         JSONObject secondStat = second.getJSONArray("stats").getJSONObject(0)
         Integer firstMax = firstStat.getInt("max")
-        Integer secondMax = firstStat.getInt("max")
+        Integer secondMax = secondStat.getInt("max")
         Integer firstMean = firstStat.getInt("mean")
-        Integer secondMean = firstStat.getInt("mean")
+        Integer secondMean = secondStat.getInt("mean")
         firstStat.put("max", Math.max(firstMax, secondMax))
         firstStat.put("max", Math.max(firstMax, secondMax))
         // not exactly right . . but would need to be re-aculcated thought evertying likely otherwise
@@ -431,18 +428,18 @@ class TrackService {
         JSONObject firstMeta = first.getJSONArray("meta").getJSONObject(0)
         JSONObject firstArrayParams = firstMeta.getJSONObject("arrayParams")
         JSONObject secondMeta = second.getJSONArray("meta").getJSONObject(0)
-        JSONObject secondArrayParams = firstMeta.getJSONObject("arrayParams")
-        firstArrayParams.put("length", Math.max(firstArrayParams.getInt("length"), firstArrayParams.getInt("length")))
+        JSONObject secondArrayParams = secondMeta.getJSONObject("arrayParams")
+        firstArrayParams.put("length", Math.max(firstArrayParams.getInt("length"), secondArrayParams.getInt("length")))
 
         return first
     }
 
-    JSONArray nudgeJsonArray(JSONArray coordinate, Integer nudgeAmount) {
+    JSONArray nudgeNcListArray(JSONArray coordinate, Integer nudgeAmount) {
         // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
         for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
             def subArray = coordinate.get(subIndex)
             if (subArray instanceof JSONArray) {
-                nudgeJsonArray(subArray, nudgeAmount)
+                nudgeNcListArray(subArray, nudgeAmount)
             }
         }
 
@@ -490,7 +487,7 @@ class TrackService {
         for (int i = 0; i < secondNcListArray.size(); i++) {
             def ncListArray = secondNcListArray.get(i)
             if (ncListArray instanceof JSONArray) {
-                nudgeJsonArray(ncListArray, endSize)
+                nudgeNcListArray(ncListArray, endSize)
                 firstNcListArray.add(ncListArray)
             }
         }
