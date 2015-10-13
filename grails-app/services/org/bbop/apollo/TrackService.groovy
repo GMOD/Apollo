@@ -356,7 +356,7 @@ class TrackService {
             } else {
                 log.error("Invalid mapping of coordinate ${coordinate} -> ${newCoordinate}")
                 coordinate.set(1, -1)
-                coordinatgge.set(2, -1)
+                coordinate.set(2, -1)
             }
         }
 
@@ -375,17 +375,24 @@ class TrackService {
 
         JSONObject finalObject = null
         int endSize = 0
-        for(JSONObject jsonObject in trackList){
-            if(finalObject==null){
+        for (JSONObject jsonObject in trackList) {
+            if (finalObject == null) {
                 finalObject = jsonObject
                 // get endSize
-            }
-            else{
+                endSize = jsonObject.intervals.maxEnd
+            } else {
                 // ignore formatVersion
                 // add featureCount
+                finalObject.featureCount = finalObject.featureCount + jsonObject.featureCount
+
                 // somehow add histograms together
+                finalObject.histograms = mergeHistograms(finalObject.histograms, jsonObject.histograms)
+
                 // add intervals together starting at end and adding
+                finalObject.intervals = mergeIntervals(finalObject.intervals, jsonObject.intervals, endSize)
+
                 // get endSize
+                endSize = jsonObject.intervals.maxEnd
             }
         }
 
@@ -393,4 +400,102 @@ class TrackService {
         return finalObject
     }
 
+    /**
+     * "histograms": * {* "stats":
+     * [{"max": 4,
+     "basesPerBin": "200000",
+     "mean": 3}],
+     "meta":
+     [{"arrayParams": {"chunkSize": 10000,
+     "length": 3,
+     "urlTemplate": "hist-200000-{Chunk}.json"},
+     "basesPerBin": "200000"}]}* @param o
+     * @param o
+     */
+    JSONObject mergeHistograms(JSONObject first, JSONObject second) {
+        // for stats . . just always take the higher between the two
+        JSONObject firstStat = first.getJSONArray("stats").getJSONObject(0)
+        JSONObject secondStat = second.getJSONArray("stats").getJSONObject(0)
+        Integer firstMax = firstStat.getInt("max")
+        Integer secondMax = firstStat.getInt("max")
+        Integer firstMean = firstStat.getInt("mean")
+        Integer secondMean = firstStat.getInt("mean")
+        firstStat.put("max", Math.max(firstMax, secondMax))
+        firstStat.put("max", Math.max(firstMax, secondMax))
+        // not exactly right . . but would need to be re-aculcated thought evertying likely otherwise
+        firstStat.put("mean", Math.max(firstMean, secondMean))
+        firstStat.put("mean", Math.max(firstMean, secondMean))
+
+        // for meta . . add length, but everything else should stay the same
+
+        JSONObject firstMeta = first.getJSONArray("meta").getJSONObject(0)
+        JSONObject firstArrayParams = firstMeta.getJSONObject("arrayParams")
+        JSONObject secondMeta = second.getJSONArray("meta").getJSONObject(0)
+        JSONObject secondArrayParams = firstMeta.getJSONObject("arrayParams")
+        firstArrayParams.put("length", Math.max(firstArrayParams.getInt("length"), firstArrayParams.getInt("length")))
+
+        return first
+    }
+
+    JSONArray nudgeJsonArray(JSONArray coordinate, Integer nudgeAmount) {
+        // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
+        for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
+            def subArray = coordinate.get(subIndex)
+            if (subArray instanceof JSONArray) {
+                nudgeJsonArray(subArray, nudgeAmount)
+            }
+        }
+
+        if (coordinate.size() >= 3
+                && coordinate.get(0) instanceof Integer
+                && coordinate.get(1) instanceof Integer
+                && coordinate.get(2) instanceof Integer
+        ) {
+            coordinate.set(1, coordinate.getInt(1) + nudgeAmount)
+            coordinate.set(2, coordinate.getInt(2) + nudgeAmount)
+        }
+
+        return coordinate
+    }
+
+    /**
+     * count,
+     * minStart,(add from the end of the previous one [endSize])
+     * maxEnd, (add endSize to this like minStart)
+     * lazyClass (just always take the largest between the two)
+     * nclist (append the arrays . . . but add the previous endSize)
+     * @param first
+     * @param second
+     * @return
+     */
+    JSONObject mergeIntervals(JSONObject first, JSONObject second, int endSize) {
+        first.put("minStart", first.getInt("minStart") + endSize)
+        first.put("maxEnd", first.getInt("maxEnd") + endSize)
+        first.put("count", first.getInt("count") + second.getInt("count"))
+
+        // we'll assume that the first and second are consistent ..
+        // except that sometimes there is more in onne than the other
+        // and we should tkae the largest between the two
+        JSONArray firstClassesArray = first.getJSONArray("classes")
+        JSONArray secondClassesArray = second.getJSONArray("classes")
+        if (secondClassesArray.size() > firstClassesArray.size()) {
+            first.put("classes", secondClassesArray)
+            first.put("lazyClass", second.getInt("lazyClass"))
+        }
+
+        // add the second to the first with endSize added
+        JSONArray firstNcListArray = first.getJSONArray("nclist")
+        JSONArray secondNcListArray = second.getJSONArray("nclist")
+
+        for (int i = 0; i < secondNcListArray.size(); i++) {
+            def ncListArray = secondNcListArray.get(i)
+            if (ncListArray instanceof JSONArray) {
+                nudgeJsonArray(ncListArray, endSize)
+                firstNcListArray.addAll(ncListArray)
+            }
+        }
+
+
+        return first
+    }
 }
