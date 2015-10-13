@@ -215,7 +215,7 @@ public class BookmarkPanel extends Composite {
 //        Window.alert("viein g "+ mergedBookmark);
 
         JSONObject mergedSequence = BookmarkInfoConverter.generateSequenceString(bookmarkInfoSet,foldingType,foldPaddingValue,referenceTrackString);
-        Window.alert(mergedSequence.toString());
+//        Window.alert(mergedSequence.toString());
 
         MainPanel.updateGenomicViewerForLocation(mergedSequence.toString(),-1,-1);
 //        MainPanel.updateGenomicViewerForBookmark(mergedBookmark);

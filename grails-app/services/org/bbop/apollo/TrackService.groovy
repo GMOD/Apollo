@@ -6,18 +6,19 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
 import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.Coordinate
+import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionInterface
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
 class TrackService {
 
-    def serviceMethod() {
-
-    }
-
 
     public static String TRACK_NAME_SPLITTER = "::"
+
+    def projectionService
 
     String getTracks(User user, Organism organism) {
         String trackList = ""
@@ -38,6 +39,7 @@ class TrackService {
         }
         return trackList.trim()
     }
+
     String getTrackPermissions(UserGroup userGroup, Organism organism) {
         JSONArray jsonArray = new JSONArray()
         for (GroupPermission groupPermission in GroupPermission.findAllByGroupAndOrganism(userGroup, organism)) {
@@ -164,7 +166,6 @@ class TrackService {
     }
 
 
-
     private String convertHashMapToJsonString(Map map) {
         JSONObject jsonObject = new JSONObject()
         map.keySet().each {
@@ -185,7 +186,7 @@ class TrackService {
         File trackDirectory = new File(jbrowseDirectory)
         println "track directory ${trackDirectory.absolutePath}"
         String sequenceDirectory = jbrowseDirectory + "/" + sequence.name
-        File trackDataFile = new File(sequenceDirectory+"/trackData.json")
+        File trackDataFile = new File(sequenceDirectory + "/trackData.json")
         println "track data file ${trackDataFile.absolutePath}"
         assert trackDataFile.exists()
         println "looking up ${nameLookup}"
@@ -195,25 +196,23 @@ class TrackService {
         for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
             JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
             // TODO: use enums to better track format
-            if (coordinate.getInt(0) == 4 || coordinate.getInt(0) == 3 ) {
+            if (coordinate.getInt(0) == 4 || coordinate.getInt(0) == 3) {
                 // projecess the file lf-${coordIndex} instead
                 File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
                 JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
 
                 for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
                     JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-                    JSONArray returnArray = findCoordinateName(chunkArrayCoordinate,nameLookup)
-                    if(returnArray) return returnArray
+                    JSONArray returnArray = findCoordinateName(chunkArrayCoordinate, nameLookup)
+                    if (returnArray) return returnArray
                 }
 
             } else {
-                JSONArray returnArray = findCoordinateName(coordinate,nameLookup)
-                if(returnArray) return returnArray
+                JSONArray returnArray = findCoordinateName(coordinate, nameLookup)
+                if (returnArray) return returnArray
 //                discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2),padding)
             }
         }
-
-
 
         // return an empty array if not found
         return new JSONArray()
@@ -223,25 +222,25 @@ class TrackService {
         String name = nameLookup.toLowerCase()
 
         int classType = coordinate.getInt(0)
-        for(int i = 0 ; i < coordinate.size() ; i++){
-            switch (classType){
+        for (int i = 0; i < coordinate.size(); i++) {
+            switch (classType) {
                 case 0:
-                    if(coordinate.getString(6).toLowerCase().contains(name)){
+                    if (coordinate.getString(6).toLowerCase().contains(name)) {
                         return coordinate
                     }
                     // search sublist
-                    if(coordinate.size()>11){
+                    if (coordinate.size() > 11) {
                         println "coordinate > 11 ${coordinate as JSON}"
                         JSONObject subList = coordinate.getJSONObject(11)
 //                        println "subList ${subList as JSON}"
 //                        JSONObject subOject = subList.getJSONObject("Sublist")
                         JSONArray subArray = subList.getJSONArray("Sublist")
-                        for(int subIndex  = 0 ; subIndex < subArray.size() ; ++subIndex){
+                        for (int subIndex = 0; subIndex < subArray.size(); ++subIndex) {
                             println "subArray ${subArray as JSON}"
 
                             JSONArray subSubArray = subArray.getJSONArray(subIndex)
-                            if(subSubArray.getInt(0)==0){
-                                if(subSubArray.getString(6).toLowerCase().contains(name)){
+                            if (subSubArray.getInt(0) == 0) {
+                                if (subSubArray.getString(6).toLowerCase().contains(name)) {
                                     return subSubArray
                                 }
                             }
@@ -249,13 +248,13 @@ class TrackService {
                     }
                     break
                 case 1:
-                    if(coordinate.getString(8).toLowerCase().contains(name)){
+                    if (coordinate.getString(8).toLowerCase().contains(name)) {
                         return coordinate
                     }
                     break
                 case 2:
                 case 3:
-                    if(coordinate.getString(8).toLowerCase().contains(name)){
+                    if (coordinate.getString(8).toLowerCase().contains(name)) {
                         return coordinate
                     }
                     break
@@ -270,4 +269,128 @@ class TrackService {
 
         return null
     }
+
+
+    def String getSequencePathName(String inputName) {
+        if (inputName.contains("/")) {
+            String[] tokens = inputName.split("/")
+            // the sequence path should be the second to the last one
+            return tokens.length >= 2 ? tokens[tokens.length - 2] : null
+        }
+        return null
+    }
+
+    // replace index - 2 with sequenceName
+    String generateTrackNameForSequence(String inputName, String sequenceName) {
+        if (inputName.contains("/")) {
+            String[] tokens = inputName.split("/")
+            // the sequence path should be the second to the last one
+            if (tokens.length >= 2) {
+                tokens[tokens.length - 2] = sequenceName
+                return tokens.join("/")
+            }
+        }
+        return null
+    }
+
+    def String getTrackPathName(String inputName) {
+        if (inputName.contains("/")) {
+            String[] tokens = inputName.split("/")
+            // the sequence path should be the second to the last one
+            return tokens.length >= 3 ? tokens[tokens.length - 3] : null
+        }
+        return null
+    }
+
+    def JSONObject loadTrackData(String path, String refererLoc, Organism currentOrganism) {
+        File file = new File(path)
+        JSONObject trackDataJsonObject = new JSONObject(file.text)
+        String sequenceName = projectionService.getSequenceName(file.absolutePath)
+        // get the track from the json object
+
+        // TODO: it should look up the OGS track either default or variable
+//        JSONArray projectedArray = new JSONArray()
+        MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+
+        if (projection && projection.containsSequence(sequenceName, currentOrganism)) {
+//                    if (projection) {
+            println "found a projection ${projection.size()}"
+            JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
+            JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
+            for (int i = 0; i < coordinateJsonArray.size(); i++) {
+                JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
+                projectJsonArray(projection, coordinate)
+            }
+        }
+        return trackDataJsonObject
+    }
+
+
+    JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate) {
+
+        // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
+        for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
+            def subArray = coordinate.get(subIndex)
+//            if(subArray?.size()>4 && (0..5).contains(subArray.getInt(0)) ){
+            if (subArray instanceof JSONArray) {
+//                println "rewriting subArray ${subArray}"
+                projectJsonArray(projection, subArray)
+            }
+//            else{
+//                println "not rewriting ${coordinate.get(subIndex)}"
+//            }
+//            }
+        }
+
+        if (coordinate.size() >= 3
+                && coordinate.get(0) instanceof Integer
+                && coordinate.get(1) instanceof Integer
+                && coordinate.get(2) instanceof Integer
+        ) {
+            Integer oldMin = coordinate.getInt(1)
+            Integer oldMax = coordinate.getInt(2)
+            Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax)
+            if (newCoordinate && newCoordinate.isValid()) {
+                coordinate.set(1, newCoordinate.min)
+                coordinate.set(2, newCoordinate.max)
+            } else {
+                log.error("Invalid mapping of coordinate ${coordinate} -> ${newCoordinate}")
+                coordinate.set(1, -1)
+                coordinatgge.set(2, -1)
+            }
+        }
+
+        return coordinate
+    }
+
+    /**
+     * merge trackData.json objects from different sequence sources . . .
+     *
+     * 1 - assume already projected
+     * 2 - assume in the correct order
+     * @param mergeTrackObject
+     * @return
+     */
+    def JSONObject mergeTrackObject(List<JSONObject> trackList) {
+
+        JSONObject finalObject = null
+        int endSize = 0
+        for(JSONObject jsonObject in trackList){
+            if(finalObject==null){
+                finalObject = jsonObject
+                // get endSize
+            }
+            else{
+                // ignore formatVersion
+                // add featureCount
+                // somehow add histograms together
+                // add intervals together starting at end and adding
+                // get endSize
+            }
+        }
+
+
+        return finalObject
+    }
+
 }

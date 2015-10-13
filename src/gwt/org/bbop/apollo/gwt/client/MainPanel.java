@@ -431,7 +431,7 @@ public class MainPanel extends Composite {
         }
         trackListString += "&highlight=&tracklist=0";
 
-        Window.alert(trackListString);
+//        Window.alert(trackListString);
 
         final String finalString = trackListString;
 

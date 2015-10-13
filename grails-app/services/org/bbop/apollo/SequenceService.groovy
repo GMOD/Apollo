@@ -25,11 +25,10 @@ class SequenceService {
     def exonService
     def cdsService
     def gff3HandlerService
-    def overlapperService
 
-    List<FeatureLocation> getFeatureLocations(Sequence sequence){
-        FeatureLocation.findAllBySequence(sequence)
-    }
+//    List<FeatureLocation> getFeatureLocations(Sequence sequence){
+//        FeatureLocation.findAllBySequence(sequence)
+//    }
 
     /**
      * Get residues from sequence . . . could be multiple locations

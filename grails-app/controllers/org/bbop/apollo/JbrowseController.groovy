@@ -3,14 +3,11 @@ package org.bbop.apollo
 import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousChunkProjector
-import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionDescription
 import org.bbop.apollo.projection.ProjectionInterface
-import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -31,6 +28,7 @@ class JbrowseController {
     def preferenceService
     def servletContext
     def projectionService
+    def trackService
 
     def indexRouter() {
         log.debug "indexRouter ${params}"
@@ -118,24 +116,62 @@ class JbrowseController {
         return organismJBrowseDirectory
     }
 
+
     /**
      * Handles data directory serving for jbrowse
      */
     def data() {
+        Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
         String dataDirectory = getJBrowseDirectoryForSession()
         String dataFileName = dataDirectory + "/" + params.path
         String fileName = FilenameUtils.getName(params.path)
-        File file = new File(dataFileName);
 
-//        http://localhost:8080/apollo/jbrowse/index.html?loc=[proj=None,padding=50,sequences=[Group11.18::Group9.10,Group1.1(GB42145-RA)]]%3A-1..-1&highlight=&tracklist=0
         String referer = request.getHeader("Referer")
         int startIndex = referer.indexOf("?loc=")
         int endIndex = referer.indexOf("&")
         String refererLoc = referer.subSequence(startIndex + 5, endIndex)
-        println "refererLoc ${refererLoc}"
+        refererLoc = URLDecoder.decode(refererLoc, "UTF-8")
 
+        String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
+        println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
+//        String putativeTrackPathName = getTrackPathName(dataFileName)
+//        /opt/apollo/honeybee/data//tracks/Official Gene Set v3.2/{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}/trackData.json
+        if (putativeSequencePathName.contains("projection")) {
+            if (fileName.endsWith("trackData.json")) {
+                JSONObject projectionSequenceObject = JSON.parse(putativeSequencePathName)
+                JSONArray sequenceArray = projectionSequenceObject.getJSONArray("sequences")
+                List<String> sequenceStrings = new ArrayList<>()
+//                "sequences":[{"n
+                for (int i = 0; i < sequenceArray.size(); i++) {
+                    JSONObject sequenceObject = sequenceArray.getJSONObject(i)
+                    sequenceStrings.add(sequenceObject.name)
+                }
 
-        println "Referer: ${request.getHeader("Referer")} for ${dataFileName}"
+                List<JSONObject> trackObjectList = new ArrayList<>()
+
+                for (sequence in sequenceStrings) {
+                    // next we want to load tracks from the REAL paths . .  .
+//                    String sequencePathName = dataFileName.replaceAll(putativeSequencePathName, sequence)
+                    String sequencePathName = trackService.generateTrackNameForSequence(dataFileName,sequence)
+                    // this loads PROJECTED
+                    JSONObject trackObject = trackService.loadTrackData(sequencePathName,refererLoc,currentOrganism)
+                    trackObjectList.add(trackObject)
+                }
+
+                JSONObject trackObject = trackService.mergeTrackObject(trackObjectList)
+                response.outputStream << trackObject.toString()
+                return
+            }
+        }
+        // 1 - if endsWith trackData and the "sequence" contains a projection then
+//        if(fileName.endsWith("trackData.json"))
+        //  a - extract the trackData (refactor into its own method)
+        //  b - merge them together
+        //  c - return that
+
+        File file = new File(dataFileName);
+
+//        http://localhost:8080/apollo/jbrowse/index.html?loc=[proj=None,padding=50,sequences=[Group11.18::Group9.10,Group1.1(GB42145-RA)]]%3A-1..-1&highlight=&tracklist=0
 
         log.debug "processing path ${params.path} -> ${dataFileName}"
 
@@ -234,11 +270,9 @@ class JbrowseController {
                     JSONArray refSeqJsonObject = new JSONArray(file.text)
                     // TODO: it should look up the OGS track either default or variable
 //                    if (projectionService.hasProjection(preferenceService.currentOrganismForCurrentUser,projectionService.getTrackName(file.absolutePath))) {
-                    Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
                     println "refseq size ${refSeqJsonObject.size()}"
 
                     JSONArray projectedArray = new JSONArray()
-                    refererLoc = URLDecoder.decode(refererLoc, "UTF-8")
                     MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
                     for (int i = 0; i < refSeqJsonObject.size(); i++) {
@@ -247,27 +281,14 @@ class JbrowseController {
 
                         String sequenceName = sequenceValue.getString("name")
                         if (projection && projection.containsSequence(sequenceName, sequenceValue.id, currentOrganism)) {
-                            println "doing refseq.json . . . projectiong sequence . . . "
-                            println "input sequence ${sequenceValue as JSON}"
-//                            ProjectionSequence projectionSequence = new ProjectionSequence(
-//                                    organism: currentOrganism.abbreviation
-//                                    ,id: sequenceValue.id
-//                                    ,name: sequenceName
-//                            )
-//                            Location inputLocation = new Location(min:0,max:sequenceValue.end,sequence: projectionSequence)
-                            // only need the end name
-                            // we just on the projectionsequence here . . .. . Initially,
-//                            ProjectionSequence projectionSequence = projection.getProjectionSequence(sequenceName)
-//                            Integer
-
-
+                            log.debug "input sequence ${sequenceValue as JSON}"
                             Integer projectedSequenceLength = projection.findProjectSequenceLength(sequenceName)
                             sequenceValue.put("length", projectedSequenceLength)
                             sequenceValue.put("end", projectedSequenceLength)
                             sequenceValue.put("name", refererLoc)
-                            println "output sequence ${sequenceValue as JSON}"
+                            log.debug "output sequence ${sequenceValue as JSON}"
                             projectedArray.add(sequenceValue)
-                            println "final array ${projectedArray as JSON}"
+                            log.debug "final array ${projectedArray as JSON}"
                         }
                     }
 
@@ -279,26 +300,14 @@ class JbrowseController {
                     return
                 } else if (fileName.endsWith("trackData.json")) {
                     // TODO: project trackData.json
+                    // if we are a projection, then we are going to want to merge multiple sequences
+                    // into a single trackData.json
+                    println "trying to get trackData for ${file.absolutePath}"
                     println "fileNAme is NOT lf-type ${fileName}"
                     // transform 2nd and 3rd array object in intervals/ncList
-                    JSONObject trackDataJsonObject = new JSONObject(file.text)
-                    String sequenceName = projectionService.getSequenceName(file.absolutePath)
-                    // get the track from the json object
-
-                    // TODO: it should look up the OGS track either default or variable
-                    DiscontinuousProjection projection = (DiscontinuousProjection) projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
-
-                    if (projection) {
-                        println "found a projection ${projection.size()}"
-                        JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
-                        JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
-                        for (int i = 0; i < coordinateJsonArray.size(); i++) {
-                            JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
-                            projectJsonArray(projection, coordinate)
-                        }
-                    }
-
+                    JSONObject trackDataJsonObject = trackService.loadTrackData(file.absolutePath,refererLoc,currentOrganism)
                     response.outputStream << trackDataJsonObject.toString()
+
                     return
                 } else if (fileName.startsWith("lf-")) {
                     // TODO: project trackData.json
@@ -315,7 +324,7 @@ class JbrowseController {
                         for (int i = 0; i < trackDataJsonObject.size(); i++) {
                             JSONArray coordinate = trackDataJsonObject.getJSONArray(i)
 //                            println "lf-from ${coordinate as JSON}"
-                            projectJsonArray(projection, coordinate)
+                            trackService.projectJsonArray(projection, coordinate)
 //                            println "lf-to ${coordinate as JSON}"
                         }
                     }
@@ -521,42 +530,6 @@ class JbrowseController {
     }
 
 
-    private JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate) {
-
-        // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
-        for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
-            def subArray = coordinate.get(subIndex)
-//            if(subArray?.size()>4 && (0..5).contains(subArray.getInt(0)) ){
-            if (subArray instanceof JSONArray) {
-//                println "rewriting subArray ${subArray}"
-                projectJsonArray(projection, subArray)
-            }
-//            else{
-//                println "not rewriting ${coordinate.get(subIndex)}"
-//            }
-//            }
-        }
-
-        if (coordinate.size() >= 3
-                && coordinate.get(0) instanceof Integer
-                && coordinate.get(1) instanceof Integer
-                && coordinate.get(2) instanceof Integer
-        ) {
-            Integer oldMin = coordinate.getInt(1)
-            Integer oldMax = coordinate.getInt(2)
-            Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax)
-            if (newCoordinate && newCoordinate.isValid()) {
-                coordinate.set(1, newCoordinate.min)
-                coordinate.set(2, newCoordinate.max)
-            } else {
-                log.error("Invalid mapping of coordinate ${coordinate} -> ${newCoordinate}")
-                coordinate.set(1, -1)
-                coordinate.set(2, -1)
-            }
-        }
-
-        return coordinate
-    }
 
     def trackList() {
         String dataDirectory = getJBrowseDirectoryForSession()

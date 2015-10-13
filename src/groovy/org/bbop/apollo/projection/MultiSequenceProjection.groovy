@@ -180,6 +180,10 @@ class MultiSequenceProjection extends DiscontinuousProjection {
         }
     }
 
+    Boolean containsSequence(String sequenceName, Organism organism) {
+        return containsSequence(sequenceName,null,organism)
+    }
+
     Boolean containsSequence(String sequenceName, Long sequenceId, Organism organism) {
         for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
             if (projectionSequence.name == sequenceName) {
