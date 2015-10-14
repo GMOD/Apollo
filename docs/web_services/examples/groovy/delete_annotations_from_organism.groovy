@@ -9,9 +9,10 @@ import groovyx.net.http.RESTClient
 @Grab(group = 'org.apache.commons', module = 'commons-lang3', version = '3.0')
 
 String usageString = "\nUSAGE: delete_annotations_from_organism.groovy <options>\n" +
-        "Example:\n" +
+        "Example (will prompt if 'adminusername' and 'adminpassword' are not provided):\n" +
         "./delete_annotations_from_organism.groovy -organismname organism_name -destinationurl http://localhost:8080/WebApollo2\n" +
         "./delete_annotations_from_organism.groovy -organismid 123 -destinationurl http://localhost:8080/WebApollo2"
+        "./delete_annotations_from_organism.groovy -organismid 123 -destinationurl http://localhost:8080/WebApollo2 -adminusername bob@gov.com -adminpassword demo"
 
 def cli = new CliBuilder(usage: 'delete_annotations_from_organism.groovy')
 cli.setStopAtNonOption(true)
