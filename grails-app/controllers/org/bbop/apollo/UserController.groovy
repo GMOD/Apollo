@@ -363,7 +363,7 @@ class UserController {
     @Transactional
     def updateOrganismPermission() {
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-        if(!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
+        if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
             render status: HttpStatus.UNAUTHORIZED
             return
         }
