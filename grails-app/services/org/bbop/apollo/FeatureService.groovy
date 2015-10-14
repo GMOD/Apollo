@@ -1237,7 +1237,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case CDS.ontologyId: return new CDS()
             case Intron.ontologyId: return new Intron()
             case Gene.ontologyId: return new Gene()
-            case AlternativeLoci.ontologyId: return new AlternativeLoci()
             case Pseudogene.ontologyId: return new Pseudogene()
             case Transcript.ontologyId: return new Transcript()
             case TransposableElement.ontologyId: return new TransposableElement()
