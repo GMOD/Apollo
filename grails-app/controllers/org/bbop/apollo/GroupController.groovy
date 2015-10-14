@@ -256,12 +256,10 @@ class GroupController {
         UserGroup group
         if(dataObject.groupId){
             group = UserGroup.findById(dataObject.groupId)
-            println "have a group ID . . . ${group}"
         }
 
         if(!group){
             group = UserGroup.findByName(dataObject.name)
-            println "have a group name ${dataObject.name} -> . . . ${group}"
         }
         if(!group){
             JSONObject jsonObject = new JSONObject()
