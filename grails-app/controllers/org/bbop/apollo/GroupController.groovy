@@ -230,7 +230,7 @@ class GroupController {
     @RestApiParams(params=[
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="id", type="long", paramType = RestApiParamType.QUERY,description = "Group ID to modify permissions for")
+            ,@RestApiParam(name="groupId", type="long", paramType = RestApiParamType.QUERY,description = "Group ID to modify permissions for")
             ,@RestApiParam(name="name", type="string", paramType = RestApiParamType.QUERY,description = "Group name to modify permissions for")
             ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "Organism common name")
 
