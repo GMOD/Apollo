@@ -35,6 +35,8 @@ import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.CheckBox;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.Comparator;
 import java.util.List;
@@ -322,13 +324,18 @@ public class OrganismPanel extends Composite {
             new ErrorDialog("Can Not Delete Organism '"+organismInfo.getName()+"'","Can not delete organism "+organismInfo.getName()+".  You remove "+singleSelectionModel.getSelectedObject().getNumFeatures() + " annotations first.  Please see the web services API in the help menu for more details on how to do this in bulk.",true,true);
             return ;
         }
-        if(Window.confirm("Are you sure you want to delete "+singleSelectionModel.getSelectedObject().getName())){
-            deleteButton.setEnabled(false);
-            deleteButton.setText("Processing");
-            savingNewOrganism=true;
-            OrganismRestService.deleteOrganism(new UpdateInfoListCallback(), singleSelectionModel.getSelectedObject());
-            loadingDialog.show();
-        }
+        Bootbox.confirm("Are you sure you want to delete organism "+singleSelectionModel.getSelectedObject().getName()+"?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if (result) {
+                    deleteButton.setEnabled(false);
+                    deleteButton.setText("Processing");
+                    savingNewOrganism = true;
+                    OrganismRestService.deleteOrganism(new UpdateInfoListCallback(), singleSelectionModel.getSelectedObject());
+                    loadingDialog.show();
+                }
+            }
+        });
     }
 
 

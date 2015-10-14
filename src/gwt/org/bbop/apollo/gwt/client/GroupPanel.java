@@ -31,6 +31,8 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GroupRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -153,11 +155,16 @@ public class GroupPanel extends Composite {
 
     @UiHandler("deleteButton")
     public void deleteGroup(ClickEvent clickEvent) {
-        if (Window.confirm("Delete group " + selectedGroupInfo.getName() + "?")) {
-            GroupRestService.deleteGroup(selectedGroupInfo);
-            selectionModel.clear();
+        Bootbox.confirm("Delete group "+selectedGroupInfo.getName()+"?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if(result){
+                    GroupRestService.deleteGroup(selectedGroupInfo);
+                    selectionModel.clear();
+                }
+            }
+        });
         }
-    }
 
 
     private GroupInfo getGroupFromUI() {

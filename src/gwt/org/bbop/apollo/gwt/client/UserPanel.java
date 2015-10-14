@@ -34,6 +34,8 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -393,11 +395,16 @@ public class UserPanel extends Composite {
 
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent) {
-        if (Window.confirm("Delete user " + selectedUserInfo.getName() + "?")) {
-            UserRestService.deleteUser(userInfoList, selectedUserInfo);
-            selectedUserInfo = null;
-            updateUserInfo();
-        }
+        Bootbox.confirm("Delete user " + selectedUserInfo.getName() + "?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if (result) {
+                    UserRestService.deleteUser(userInfoList, selectedUserInfo);
+                    selectedUserInfo = null;
+                    updateUserInfo();
+                }
+            }
+        });
     }
 
     @UiHandler(value = {"nameSearchBox"})
