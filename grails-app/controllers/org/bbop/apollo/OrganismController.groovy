@@ -98,18 +98,18 @@ class OrganismController {
                 return
             }
 
-            Organism organism = Organism.findById(organismJson.organism)
+            Organism organism = Organism.findByCommonName(organismJson.organism)
+
             if(!organism){
-                organism = Organism.findByCommonName(organismJson.organism)
+                organism = Organism.findById(organismJson.organism)
             }
 
             if(!organism){
                 throw new Exception("Can not find organism for ${organismJson.organism} to remove features of")
             }
 
-
             organismService.deleteAllFeaturesForOrganism(organism)
-
+            render [:] as JSON
         }
         catch(e){
             def error= [error: 'problem removing organism features for organism: '+e]
