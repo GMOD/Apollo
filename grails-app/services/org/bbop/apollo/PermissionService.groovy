@@ -388,7 +388,6 @@ class PermissionService {
     Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
         String trackName = getSequenceNameFromInput(inputObject)
-        log.debug "track from input '${trackName}'"
 
         // this is for testing only
         if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
@@ -402,8 +401,6 @@ class PermissionService {
 
 
         Sequence sequence = Sequence.findByNameAndOrganism(trackName,organism)
-        log.debug "checkPermissions ${sequence} - ${trackName} - ${organism}"
-
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
