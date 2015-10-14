@@ -1,9 +1,5 @@
 package org.bbop.apollo
 
-/**
- * Converted
- * Chado?
- */
 class Feature implements Ontological{
 
     static auditable = true
@@ -130,13 +126,6 @@ class Feature implements Ontological{
     public FeatureLocation getFeatureLocation() {
         Collection<FeatureLocation> locs = getFeatureLocations();
         return locs?.first()
-//        if (locs != null) {
-//            Iterator<FeatureLocation> i = locs.iterator();
-//            if (i.hasNext()) {
-//                return i.next();
-//            }
-//        }
-//        return null;
     }
 
 

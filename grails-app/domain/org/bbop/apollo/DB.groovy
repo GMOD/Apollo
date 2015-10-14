@@ -1,9 +1,5 @@
 package org.bbop.apollo
 
-/**
- * Converted
- * Chado?
- */
 class DB {
 
     static constraints = {
@@ -13,7 +9,6 @@ class DB {
         description nullable: true
     }
 
-//     Integer dbId;
      String name;
      String description;
      String urlPrefix;

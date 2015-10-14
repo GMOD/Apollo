@@ -1,9 +1,5 @@
 package org.bbop.apollo
 
-/**
- * Converted
- * Chado?
- */
 class Publication {
 
     static constraints = {
