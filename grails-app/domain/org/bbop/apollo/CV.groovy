@@ -1,9 +1,4 @@
 package org.bbop.apollo
-
-/**
- * Converted
- * Chado?
- */
 class CV {
 
     static constraints = {

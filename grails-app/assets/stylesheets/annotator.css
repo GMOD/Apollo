@@ -31,7 +31,6 @@ h1 {
   color: red;
 }
 
-/** Set ids using widget.getElement().setId("idOfElement") */
 #closeButton {
   margin: 15px 6px 6px;
 }
@@ -40,26 +39,19 @@ h1 {
   background-color: #cccccc;
   width: 100%;
   border-top: 0;
-  /*display: inline-block;*/
 }
 
 .details-button{
-  /*width: 10px;*/
   display: inline-table;
   cursor: pointer;
-  /*border-top: 0;*/
 }
 
 .details-header-title{
-  /*background-color: #808080;*/
   font-size: larger;
   width: 20%;
-  /*margin-top: 5px;*/
   margin-left: 10px;
   text-align: left;
   font-weight: 200;
-  /*width: 100%;*/
-  /*border: solid;*/
   display: inline-table;
 }
 
@@ -67,25 +59,15 @@ h1 {
   font-size: large;
   font-weight: bolder;
   background-color: #808080;
-  /*font-style: oblique;*/
 }
 
 .detail-table-header1 {
-  /*font-size: large;*/
   font-weight: bolder;
-  /*color: slategray;*/
-  /*font-size: large;*/
-  /*background-color: #808080;*/
-  /*font-style: oblique;*/
 }
 
 .detail-table-cell{
-  /*font-size: large;*/
   align-content: center;
   text-align: center;
-  /*background-color: #808080;*/
-  /*color: blue;*/
-  /*font-style: oblique;*/
 }
 
 
@@ -102,76 +84,22 @@ h1 {
   color: green;
 }
 
-/*.dataGridCell2{*/
-  /*outline: none; !important;*/
-/*}*/
-
-/*.cellTableSelectedRowCell {*/
-  /*border: selectionBorderWidth solid #628cd5;*/
-/*}*/
-
-/***/
- /** The keyboard selected cell is visible over selection.*/
- /**/
-/*.cellTableKeyboardSelectedCell {*/
-  /*border: selectionBorderWidth solid #d7dde8;*/
-/*}*/
-
-/*.dataGridSelectedRowCell {*/
-
-/*}*/
-/*.tableCheckBox{*/
-  /*padding: 0;*/
-  /*margin: 0;*/
-/*}*/
-
 
 .gwt-Tree {
 
 }
-/*.gwt-TreeItem {*/
-
-/*}*/
-
-/**
- * Applied to the Tree.
- */
-/*.gwt-Tree {*/
-  /*background: white;*/
-/*}*/
-
-/*.gwt-TreeItem-wrapper {*/
-  /*margin: 0px 0px 0px 20px;  // Indentation*/
-/*}*/
-
 .gwt-TreeItem {
-  /*padding: 0px;*/
-  /*margin: 0px;*/
-  /*border: 1px solid white;*/
-  /*white-space: nowrap;*/
   cursor: hand;
   cursor: pointer;
 }
 
-/*.gwt-TreeItem-hovering {*/
-  /*color: blue;*/
-/*}*/
-
 
 .gwt-TreeItem-selected {
-  /*color: darkkhaki;*/
     color: black;
     font-weight: bolder;
-  /*font-size: 120%;*/
-  background-color: darkkhaki; !important;
-  /*color: darkkhaki;*/
+    background-color: darkkhaki;
 }
 
-/*.gwt-TreeItem-selected {*/
-  /*background-color: darkkhaki;*/
-  /*background: #93c2f1 url(images/bg_listgradient.gif) repeat-x;*/
-  /*border: 1px dotted #888;*/
-/*}*/
 
 .dropdown-menu{
   width: 80px;

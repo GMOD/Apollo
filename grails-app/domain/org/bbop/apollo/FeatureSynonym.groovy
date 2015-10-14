@@ -1,16 +1,11 @@
 package org.bbop.apollo
 
 
-/**
- * Converted
- * Chado?
- */
 class FeatureSynonym {
 
     static constraints = {
     }
 
-//    Integer featureSynonymId;
     Publication publication;
     Feature feature;
     Synonym synonym;

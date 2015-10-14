@@ -1,16 +1,11 @@
 package org.bbop.apollo
 
 
-/**
- * Converted
- * Chado?
- */
 class FeatureCVTerm {
 
     static constraints = {
     }
 
-//    Integer featureCVTermId;
     Publication publication;
     Feature feature;
     CVTerm cvterm;
@@ -18,7 +13,6 @@ class FeatureCVTerm {
     int rank;
 
     static hasMany = [
-//            featureCVTermProperties : CVTermProperty
             featureCVTermPublications: Publication
             ,featureCVTermDBXrefs: DBXref
     ]
@@ -36,16 +30,10 @@ class FeatureCVTerm {
 
     public int hashCode() {
         int result = 17;
-
-
         result = 37 * result + ( getPublication() == null ? 0 : this.getPublication().hashCode() );
         result = 37 * result + ( getFeature() == null ? 0 : this.getFeature().hashCode() );
         result = 37 * result + ( getCvterm() == null ? 0 : this.getCvterm().hashCode() );
-
         result = 37 * result + this.getRank();
-
-
-
         return result;
     }
 
@@ -56,7 +44,6 @@ class FeatureCVTerm {
         cloned.cvterm = this.cvterm;
         cloned.isNot = this.isNot;
         cloned.rank = this.rank;
-//        cloned.cv= this.featureCVTermProperties;
         cloned.featureCVTermPublications = this.featureCVTermPublications;
         cloned.featureCVTermDBXrefs = this.featureCVTermDBXrefs;
         return cloned;

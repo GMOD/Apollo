@@ -1,15 +1,9 @@
 package org.bbop.apollo
 
-/**
- * Converted
- * Chado?
- */
 class CVTerm {
 
     static constraints = {
     }
-
-//    Integer cvtermId;
     CV cv;
     DBXref dbxref;
     String name;
