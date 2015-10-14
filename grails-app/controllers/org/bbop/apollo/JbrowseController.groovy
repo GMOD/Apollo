@@ -287,7 +287,7 @@ class JbrowseController {
                             sequenceValue.put("end", projectedSequenceLength)
                             sequenceValue.put("name", refererLoc)
                             log.debug "output sequence ${sequenceValue as JSON}"
-                            projectedArray.add(sequenceValue)
+                            projectedArray = trackService.mergeRefseqProjections(projectedArray,sequenceValue)
                             log.debug "final array ${projectedArray as JSON}"
                         }
                     }
