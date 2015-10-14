@@ -130,13 +130,6 @@ class Feature implements Ontological{
     public FeatureLocation getFeatureLocation() {
         Collection<FeatureLocation> locs = getFeatureLocations();
         return locs?.first()
-//        if (locs != null) {
-//            Iterator<FeatureLocation> i = locs.iterator();
-//            if (i.hasNext()) {
-//                return i.next();
-//            }
-//        }
-//        return null;
     }
 
 
