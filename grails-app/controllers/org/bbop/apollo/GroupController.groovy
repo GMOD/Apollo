@@ -253,7 +253,10 @@ class GroupController {
         GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findById(dataObject.id)
 
 
-        UserGroup group = UserGroup.findById(dataObject.groupId)
+        UserGroup group
+        if(dataObject.groupId){
+            group = UserGroup.findById(dataObject.groupId)
+        }
 
         if(!group){
             group = UserGroup.findByName(dataObject.name)

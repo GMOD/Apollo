@@ -11,16 +11,16 @@ import groovyx.net.http.RESTClient
 String usageString = "\nUSAGE: alter_user_groups_and_permissions.groovy <options>\n" +
         "Example:\n" +
         "./alter_user_groups_and_permissions.groovy -inputfile user_to_permissions.csv -destinationurl http://localhost:8080/WebApollo2/\n" +
-        "./alter_user_groups_and_permissions.groovy -userid 105 -organism organism_name -permission READ:WRITE -destinationurl http://localhost:8080/WebApollo2/\n" +
-        "./alter_user_groups_and_permissions.groovy -userid 105 -addToGroup group1 -removeFromGroup group2:group3 -destinationurl http://localhost:8080/WebApollo2/\n" +
-        "./alter_user_groups_and_permissions.groovy -userid 105 -organism organism_name -permission READ:WRITE -addToGroup group1 -removeFromGroup group2 -destinationurl http://localhost:8080/WebApollo2/"
+        "./alter_user_groups_and_permissions.groovy -user test@admin.gov -organism organism_name -permission READ:WRITE -destinationurl http://localhost:8080/WebApollo2/\n" +
+        "./alter_user_groups_and_permissions.groovy -user test@admin.gov -addToGroup group1 -removeFromGroup group2:group3 -destinationurl http://localhost:8080/WebApollo2/\n" +
+        "./alter_user_groups_and_permissions.groovy -user test@admin.gov -organism organism_name -permission READ:WRITE -addToGroup group1 -removeFromGroup group2 -destinationurl http://localhost:8080/WebApollo2/"
 
 def cli = new CliBuilder(usage: 'alter_user_groups_and_permissions.groovy')
 cli.setStopAtNonOption(true)
-cli.inputfile('CSV file with format <userid>,<organism>,<permissions>,<groups to add user to>,<groups to remove user from>', required: false, args: 1)
-cli.userid('userId for a user', required: false, args: 1)
+cli.inputfile('CSV file with format <username/email>,<organism>,<permissions>,<groups to add user to>,<groups to remove user from>', required: false, args: 1)
+cli.user('email/username for a user', required: false, args: 1)
 cli.organism('Organism for which permissions have to be altered for username', required: false, args: 1)
-cli.permission('Permission(s) to be granted for username on organism, separated by \':\'', required: false, args: 1)
+cli.permission('Permission(s) to be granted for username on organism, separated by \':\'.  They can be READ, WRITE, EXPORT, ADMINISTRATE', required: false, args: 1)
 cli.addToGroup('Add user to group(s), separated by \':\'', required: false, args: 1)
 cli.removeFromGroup('Remove user from group(s), separated by \':\'', required: false, args: 1)
 cli.destinationurl('WebApollo URL', required: true, args: 1)
@@ -38,12 +38,12 @@ try {
         println "NOTE: Requires destination URL\n" + usageString
         return
     }
-    if (!options?.inputfile && !options?.userid) {
-        println "NOTE: Requires a CSV as inputfile\nOR\n userid, organism and permission as arguments\nOR\n userid, addToGroup, removeFromGroup\n" + usageString
+    if (!options?.inputfile && !options?.user) {
+        println "NOTE: Requires a CSV as inputfile\nOR\n user, organism and permission as arguments\nOR\n user, addToGroup, removeFromGroup\n" + usageString
         return
     }
-    if (options?.inputfile && options?.userid) {
-        println "NOTE: Requires a CSV as inputfile\nOR\n userid, organism and permission as arguments\nOR\n userid, addToGroup, removeFromGroup\n" + usageString
+    if (options?.inputfile && options?.user) {
+        println "NOTE: Requires a CSV as inputfile\nOR\n user, organism and permission as arguments\nOR\n user, addToGroup, removeFromGroup\n" + usageString
         return
     }
     if (options?.permission && !options?.organism) {
@@ -82,7 +82,7 @@ else {
         else if (it == 'READ') {userObject.READ = true}
         else if (it == 'WRITE') {userObject.WRITE = true}
     }
-    userPermissionMap.put(options.userid, userObject)
+    userPermissionMap.put(options.user, userObject)
 }
 
 def s=options.destinationurl
@@ -96,28 +96,28 @@ String updateOrganismPermissionPath = "${url.path}/user/updateOrganismPermission
 String addUserToGroupPath = "${url.path}/user/addUserToGroup"
 String removeUserFromGroupPath = "${url.path}/user/removeUserFromGroup"
 
-for (userId in userPermissionMap.keySet()) {
-    println "Processing userid: ${userId}"
-    JSONObject userIdObject = userPermissionMap.get(userId) as JSONObject
+for (user in userPermissionMap.keySet()) {
+    println "Processing user: ${user}"
+    JSONObject userObject = userPermissionMap.get(user) as JSONObject
     if ((options?.permission && !options?.inputfile) || (!options?.permission && options?.inputfile)) {
-        updateOrganismPermission(userId, userIdObject, updateOrganismPermissionPath, client, admin_username, admin_password)
+        updateOrganismPermission(user, userObject, updateOrganismPermissionPath, client, admin_username, admin_password)
     }
     if ((options?.addToGroup && !options?.inputfile) || (!options?.addToGroup && options?.inputfile)) {
-        addUserToGroup(userId, userIdObject, addUserToGroupPath, client, admin_username, admin_password)
+        addUserToGroup(user, userObject, addUserToGroupPath, client, admin_username, admin_password)
     }
     if ((options?.removeFromGroup && !options?.inputfile) || (!options?.removeFromGroup && options?.inputfile)) {
-        removeUserFromGroup(userId, userIdObject, removeUserFromGroupPath, client, admin_username, admin_password)
+        removeUserFromGroup(user, userObject, removeUserFromGroupPath, client, admin_username, admin_password)
     }
 }
 
-def updateOrganismPermission(String userId, JSONObject userIdObject, String path, RESTClient client, String username, String password) {
+def updateOrganismPermission(String user, JSONObject userObject, String path, RESTClient client, String username, String password) {
     def userArgument = [
-            userId: userId,
-            organism: userIdObject.organism,
-            ADMINISTRATE: userIdObject.ADMINISTRATE,
-            EXPORT: userIdObject.EXPORT,
-            READ: userIdObject.READ,
-            WRITE: userIdObject.WRITE,
+            user: user,
+            organism: userObject.organism,
+            ADMINISTRATE: userObject.ADMINISTRATE,
+            EXPORT: userObject.EXPORT,
+            READ: userObject.READ,
+            WRITE: userObject.WRITE,
             username: username,
             password: password
     ]
@@ -128,16 +128,16 @@ def updateOrganismPermission(String userId, JSONObject userIdObject, String path
     )
     
     if (response.data.error) {
-        println "Error while altering permissions for userId: ${userId}\n${response.data.error}"
+        println "Error while altering permissions for user: ${user}\n${response.data.error}"
     }
     assert response.status == 200
 }
 
-def addUserToGroup(String userId, JSONObject userIdObject, String path, RESTClient client, String username, String password) {
-    for (String group : userIdObject.addtogroup) {
+def addUserToGroup(String user, JSONObject userObject, String path, RESTClient client, String username, String password) {
+    for (String group : userObject.addtogroup) {
         if (group == '' || group == null) {continue}
         def userArgument = [
-                userId: userId,
+                user: user,
                 group: group,
                 username: username,
                 password: password
@@ -150,17 +150,17 @@ def addUserToGroup(String userId, JSONObject userIdObject, String path, RESTClie
         )
         
         if (response.data.error) {
-            println "Error while adding userId ${user.userId} to group ${group}\n${response.data.error}"
+            println "Error while adding user ${user.user} to group ${group}\n${response.data.error}"
         }
         assert response.status == 200
     }
 }
 
-def removeUserFromGroup(String userId, JSONObject userIdObject, String path, RESTClient client, String username, String password) {
-    for (String group : userIdObject.removefromgroup) {
+def removeUserFromGroup(String user, JSONObject userObject, String path, RESTClient client, String username, String password) {
+    for (String group : userObject.removefromgroup) {
         if (group == '' || group == null) {continue}
         def userArgument = [
-                userId: userId,
+                user: user,
                 group: group,
                 username: username,
                 password: password
@@ -173,7 +173,7 @@ def removeUserFromGroup(String userId, JSONObject userIdObject, String path, RES
         )
 
         if (response.data.error) {
-            println "Error while removing userId ${user.userId} from group ${group}\n${response.data.error}"
+            println "Error while removing user ${user.user} from group ${group}\n${response.data.error}"
         }
         assert response.status == 200
     }
@@ -191,36 +191,36 @@ def parseInputFile(String inputFile) {
         userPermissionObject.EXPORT = false
         userPermissionObject.READ = false
         userPermissionObject.WRITE = false
-        String userId = fields[0]
-        if (permissionMap.containsKey(userId)) {
-            println "Duplicate entries for userId: ${userId}"
+        String userName = fields[0]
+        if (permissionMap.containsKey(userName)) {
+            println "Duplicate entries for user: ${userName}"
         }
         else {
-            permissionMap.put(userId, userPermissionObject)
+            permissionMap.put(userName, userPermissionObject)
         }
         String organism = fields[1]
         def permissionArray = fields[2].split(':')
         permissionArray.each { 
             if (it == 'ADMINISTRATE') {
-                permissionMap.get(userId).ADMINISTRATE = true
+                permissionMap.get(userName).ADMINISTRATE = true
             }
             else if (it == 'EXPORT') {
-                permissionMap.get(userId).EXPORT = true
+                permissionMap.get(userName).EXPORT = true
             }
             else if (it == 'READ') {
-                permissionMap.get(userId).READ = true
+                permissionMap.get(userName).READ = true
             }
             else if (it == 'WRITE') {
-                permissionMap.get(userId).WRITE = true
+                permissionMap.get(userName).WRITE = true
             }
             else {
-                println "Unrecognized permission found for userId: ${userId}"
+                println "Unrecognized permission found for user: ${userName}"
                 System.exit(1)
             }
         }
-        permissionMap.get(userId).organism = organism
-        permissionMap.get(userId).addtogroup = fields[3].split(':')
-        permissionMap.get(userId).removefromgroup = fields[4].split(':')
+        permissionMap.get(userName).organism = organism
+        permissionMap.get(userName).addtogroup = fields[3].split(':')
+        permissionMap.get(userName).removefromgroup = fields[4].split(':')
     }
     return permissionMap
 }
