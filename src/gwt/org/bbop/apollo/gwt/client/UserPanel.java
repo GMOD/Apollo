@@ -442,7 +442,10 @@ public class UserPanel extends Composite {
 
     private void updateUserInfo() {
         passwordTextBox.setText("");
+        groupTable.removeAllRows();
         if (selectedUserInfo == null) {
+            addGroupButton.setEnabled(false);
+            addGroupButton.setColor("gray");
             firstName.setText("");
             lastName.setText("");
             email.setText("");
@@ -469,6 +472,8 @@ public class UserPanel extends Composite {
             }
 
         } else {
+            addGroupButton.setEnabled(true);
+            addGroupButton.setColor("blue");
             firstName.setText(selectedUserInfo.getFirstName());
             lastName.setText(selectedUserInfo.getLastName());
             email.setText(selectedUserInfo.getEmail());
@@ -494,7 +499,6 @@ public class UserPanel extends Composite {
             // if user is admin, but not self, then make editable
             roleList.setEnabled(currentUser.getRole().equalsIgnoreCase("admin") && currentUser.getUserId() != selectedUserInfo.getUserId());
 
-            groupTable.removeAllRows();
             List<String> groupList = selectedUserInfo.getGroupList();
             for (String group : groupList) {
                 addGroupToUi(group);

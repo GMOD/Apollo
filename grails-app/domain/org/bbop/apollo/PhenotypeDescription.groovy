@@ -1,9 +1,5 @@
 package org.bbop.apollo
 
-/**
- * Converted
- * Chado?
- */
 class PhenotypeDescription {
 
     static constraints = {

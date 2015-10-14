@@ -1,9 +1,5 @@
 package org.bbop.apollo
 
-/**
- * Converted
- * Chado?
- */
 class FeatureProperty implements Ontological{
 
     static auditable =  true
@@ -33,39 +29,13 @@ class FeatureProperty implements Ontological{
     static belongsTo = [
             Feature
     ]
-
-//    void addFeature(Feature feature){
-//        features.add(feature)
-//    }
-//
-//    Feature getSingleFeature(){
-//            return features?.iterator()?.next()
-//    }
-
     public boolean equals(Object other) {
-//        if ( (this == other ) ) return true;
-//        if ( (other == null ) ) return false;
         if ( !(other instanceof FeatureProperty) ) return false;
         FeatureProperty castOther = ( FeatureProperty ) other;
 
         if(castOther?.id == this?.id) return true
-//        if(castOther.ontologyId != this.ontologyId) return false
         if(castOther?.rank != this?.rank) return false
         if(castOther?.value != this?.value) return false
-
-//        if(castOther?.features?.size() != this?.features?.size()) return false
-//
-//        // iterate over them
-//        for(Feature feature in castOther?.features){
-//            if(this.features)
-//        }
-
-
-//        return ( (this.getType()==castOther.getType())
-//                || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ))    \
-//        && ( (this.getFeatures()==castOther.getFeatures())   \
-//                || ( this.getFeatures()!=null && castOther.getFeatures()!=null && this.getFeatures().equals(castOther.getFeatures()) ) )   \
-//                (this.getRank()==castOther.getRank());
     }
 
     public int hashCode() {
@@ -80,27 +50,4 @@ class FeatureProperty implements Ontological{
         return result;
     }
 
-//    public FeatureProperty generateClone() {
-//        FeatureProperty cloned = new FeatureProperty();
-//        cloned.type = this.type;
-//        cloned.features = this.features;
-//        cloned.value = this.value;
-//        cloned.rank = this.rank;
-//        cloned.featurePropertyPublications = this.featurePropertyPublications;
-//        return cloned;
-//    }
-
-//    String getValue(){
-//        if(value.contains(TAG_VALUE_DELIMITER)){
-//            return value.split(TAG_VALUE_DELIMITER)[1]
-//        }
-//        return value
-//    }
-//
-//    String getTag() {
-//        if(value.contains(TAG_VALUE_DELIMITER)){
-//            return value.split(TAG_VALUE_DELIMITER)[0]
-//        }
-//        return ""
-//    }
 }

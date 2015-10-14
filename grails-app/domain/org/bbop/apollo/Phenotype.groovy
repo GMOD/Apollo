@@ -1,15 +1,9 @@
 package org.bbop.apollo
-
-/**
- * Converted
- * Chado?
- */
 class Phenotype {
 
     static constraints = {
     }
 
-//    Integer phenotypeId;
     CVTerm attribute;
     CVTerm cvalue;
     CVTerm assay;

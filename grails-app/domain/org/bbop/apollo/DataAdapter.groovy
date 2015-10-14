@@ -37,8 +37,4 @@ class DataAdapter {
     static mapping = {
         key column: "data_adapter_key"
     }
-
-
-    // chado //
-//    String hibernateConfig
 }

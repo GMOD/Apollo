@@ -4,11 +4,8 @@ apollo.i*
 *.swo
 target/**
 config.properties
-src/main/webapp/config.properties
-src/main/webapp/config.xml
 config.xml
 blat_config.xml
-src/main/webapp/jbrowse/
 .project
 .classpath
 *.iml

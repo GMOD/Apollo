@@ -39,10 +39,6 @@ public class ExportEvent extends GwtEvent<ExportEventHandler> {
         handler.onExport(this);
     }
 
-    //    public SequenceLoadEvent(OrganismInfo organismInfo,SequenceInfo sequenceInfo){
-//        this.organismInfo = organismInfo ;
-//        this.sequenceInfo = sequenceInfo ;
-//    }
 
     public ExportEvent(Action action,Flavor flavor,OrganismInfo organismInfo,List<SequenceInfo> sequenceInfoList) {
         this.thisAction = action;
