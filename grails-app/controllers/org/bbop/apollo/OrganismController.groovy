@@ -45,13 +45,12 @@ class OrganismController {
     )
     @Transactional
     def deleteOrganism() {
-        log.debug "DELETING ORGANISM params: ${params.data}"
-        JSONObject organismJson = (request.JSON?:JSON.parse(params.data.toString())) as JSONObject
         try {
+            JSONObject organismJson = (request.JSON?:JSON.parse(params.data.toString())) as JSONObject
+            log.debug "deleteOrganism ${organismJson}"
             if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
 
-                log.debug "organismJSON ${organismJson}"
-                log.debug "id: ${organismJson.id}"
+                log.debug "organism ID: ${organismJson.id}"
                 Organism organism = Organism.findById(organismJson.id as Long)
                 if(!organism){
                     organism = Organism.findByCommonName(organismJson.organism)
@@ -60,19 +59,20 @@ class OrganismController {
                     UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
                     organism.delete()
                 }
+                log.debug "Success deleting organism: ${organismJson.id}"
+                render findAllOrganisms()
             }
             else {
                 def error= [error: 'not authorized to delete organism']
-                render error as JSON
                 log.error(error.error)
+                render error as JSON
             }
         }
         catch(Exception e) {
             def error= [error: 'problem deleting organism: '+e]
-            render error as JSON
             log.error(error.error)
+            render error as JSON
         }
-        render findAllOrganisms()
     }
 
     @RestApiMethod(description="Remove features from an organism",path="/organism/deleteOrganismFeatures",verb = RestApiVerb.POST)
