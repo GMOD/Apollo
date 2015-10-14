@@ -373,10 +373,8 @@ class UserController {
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findById(dataObject.id)
 
 
-        User user
-        if (dataObject.userId) {
-            user = User.findById(dataObject.userId)
-        }
+        User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
+
         Organism organism = Organism.findByCommonName(dataObject.organism)
         log.debug "found ${userOrganismPermission}"
         if (!userOrganismPermission) {
@@ -386,7 +384,7 @@ class UserController {
         if (!userOrganismPermission) {
             log.debug "creating new permissions! "
             userOrganismPermission = new UserOrganismPermission(
-                    user: User.findById(dataObject.userId)
+                    user: user
                     , organism: Organism.findByCommonName(dataObject.organism)
                     , permissions: "[]"
             ).save(insert: true)
