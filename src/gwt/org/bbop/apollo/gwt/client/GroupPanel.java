@@ -64,6 +64,13 @@ public class GroupPanel extends Composite {
     WebApolloSimplePager organismPager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField(provided = true)
     DataGrid<GroupOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4, tablecss);
+    @UiField
+    TextBox createGroupField;
+    @UiField
+    Button saveButton;
+    @UiField
+    Button cancelButton;
+
     private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
     private List<GroupInfo> groupInfoList = dataProvider.getList();
     private SingleSelectionModel<GroupInfo> selectionModel = new SingleSelectionModel<>();
@@ -77,7 +84,6 @@ public class GroupPanel extends Composite {
 
     public GroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-
 
         TextColumn<GroupInfo> firstNameColumn = new TextColumn<GroupInfo>() {
             @Override
@@ -140,11 +146,12 @@ public class GroupPanel extends Composite {
                         reload();
                         break;
                     case ADD_GROUP:
+                    case REMOVE_GROUP:
                         selectedGroupInfo = null;
                         selectionModel.clear();
                         setSelectedGroup();
                         reload();
-                        createButton.setEnabled(true);
+                        cancelAddState();
                         break;
                 }
             }
@@ -184,13 +191,55 @@ public class GroupPanel extends Composite {
 
     }
 
+    @UiHandler("cancelButton")
+    public void cancelNewGroup(ClickEvent clickEvent) {
+        cancelAddState();
+    }
+
+    @UiHandler("saveButton")
+    public void saveNewGroup(ClickEvent clickEvent) {
+        String groupName = createGroupField.getText().trim();
+        if(validateName(groupName)){
+            GroupInfo groupInfo = new GroupInfo();
+            groupInfo.setName(groupName);
+            GroupRestService.addNewGroup(groupInfo);
+        }
+    }
+
+    void cancelAddState(){
+        createButton.setVisible(true);
+        createGroupField.setVisible(false);
+        saveButton.setVisible(false);
+        cancelButton.setVisible(false);
+        createGroupField.setText("");
+    }
+
+    void setAddState(){
+        createButton.setVisible(false);
+        createGroupField.setVisible(true);
+        saveButton.setVisible(true);
+        cancelButton.setVisible(true);
+        createGroupField.setText("");
+    }
+
     @UiHandler("createButton")
     public void createGroup(ClickEvent clickEvent) {
-        GroupInfo groupInfo = getGroupFromUI();
+        setAddState();
+    }
 
-        if (groupInfo == null) return;
+    private Boolean validateName(String groupName) {
+        if (groupName.length() < 3) {
+            Window.alert("Group must be at least 3 characters long");
+            return false;
+        }
+        for(GroupInfo groupInfo : groupInfoList){
+            if(groupName.equals(groupInfo.getName())){
+                Window.alert("Group name must be unique");
+                return false;
+            }
+        }
 
-        GroupRestService.addNewGroup(groupInfo);
+        return true ;
     }
 
     @UiHandler("name")
