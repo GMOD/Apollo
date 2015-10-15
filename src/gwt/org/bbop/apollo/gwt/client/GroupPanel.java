@@ -6,6 +6,7 @@ import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -20,7 +21,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.bbop.apollo.gwt.client.WebApolloSimplePager;
 import org.bbop.apollo.gwt.client.dto.GroupInfo;
 import org.bbop.apollo.gwt.client.dto.GroupOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
@@ -70,6 +70,10 @@ public class GroupPanel extends Composite {
     Button saveButton;
     @UiField
     Button cancelButton;
+    @UiField
+    Button updateButton;
+    @UiField
+    Button cancelUpdateButton;
 
     private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
     private List<GroupInfo> groupInfoList = dataProvider.getList();
@@ -160,9 +164,10 @@ public class GroupPanel extends Composite {
         GroupRestService.loadGroups(groupInfoList);
     }
 
+
     @UiHandler("deleteButton")
     public void deleteGroup(ClickEvent clickEvent) {
-        Bootbox.confirm("Delete group "+selectedGroupInfo.getName()+"?", new ConfirmCallback() {
+        Bootbox.confirm("Delete group '"+selectedGroupInfo.getName()+"'?", new ConfirmCallback() {
             @Override
             public void callback(boolean result) {
                 if(result){
@@ -242,12 +247,31 @@ public class GroupPanel extends Composite {
         return true ;
     }
 
-    @UiHandler("name")
-    public void handleNameChange(ChangeEvent changeEvent) {
+    @UiHandler("updateButton")
+    public void updateGroupName(ClickEvent clickEvent){
         if (selectedGroupInfo != null && selectedGroupInfo.getId() != null) {
-            selectedGroupInfo.setName(name.getText());
-            GroupRestService.updateGroup(selectedGroupInfo);
+            String groupName = name.getText().trim();
+            if(validateName(groupName)){
+                selectedGroupInfo.setName(groupName);
+                Window.alert("Saving Group '"+groupName+"'");
+                GroupRestService.updateGroup(selectedGroupInfo);
+            }
         }
+    }
+
+    @UiHandler("cancelUpdateButton")
+    public void cancelUpdateGroupName(ClickEvent clickEvent){
+        name.setText(selectedGroupInfo.getName());
+        handleNameChange(null);
+    }
+
+    @UiHandler("name")
+    public void handleNameChange(KeyUpEvent changeEvent) {
+        String newName = name.getText().trim();
+        String originalName = selectedGroupInfo.getName();
+
+        updateButton.setEnabled(newName.length() >= 3 && !newName.equals(originalName));
+
     }
 
     private void setSelectedGroup() {
@@ -282,16 +306,18 @@ public class GroupPanel extends Composite {
                     }
                 }
             }
+            userDetailTab.setVisible(true);
         } else {
             name.setText("");
             deleteButton.setVisible(false);
             userData.removeAllRows();
+            userDetailTab.setVisible(false);
         }
     }
 
     public void reload() {
         GroupRestService.loadGroups(groupInfoList);
-        dataGrid.redraw();
+//        dataGrid.redraw();
     }
 
 

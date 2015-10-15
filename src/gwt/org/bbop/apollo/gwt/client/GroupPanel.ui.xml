@@ -14,6 +14,7 @@
 
         .tableKeyName {
             font-weight: bolder;
+            margin-top: 5px;
         }
 
         .center-table {
@@ -42,7 +43,9 @@
             /*margin: 5px;*/
         }
 
-    </ui:style>
+        .removeButton {
+            padding: 10px;
+        }</ui:style>
     <gwt:SplitLayoutPanel>
 
         <gwt:north size="60">
@@ -65,7 +68,7 @@
             <cellview:DataGrid ui:field="dataGrid" styleName="{style.trackTable}"/>
         </gwt:center>
         <gwt:south size="200">
-            <gwt:TabLayoutPanel barHeight="35" ui:field="userDetailTab">
+            <gwt:TabLayoutPanel barHeight="35" ui:field="userDetailTab" visible="false">
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
                     <b:Container fluid="true" width="100%">
@@ -76,12 +79,20 @@
                             <b:Column size="MD_4">
                                 <b:TextBox ui:field="name"/>
                             </b:Column>
-                            <b:Column size="MD_1">
-                                <b:Button ui:field="deleteButton" icon="REMOVE" color="RED" visible="false"/>
+                            <b:Column size="MD_2">
+                                <b:Button ui:field="updateButton" icon="SAVE" type="PRIMARY" enabled="false">Save
+                                </b:Button>
                             </b:Column>
-                            <!--<b:Column size="MD_1">-->
-                            <!--<b:Button ui:field="createButton" icon="PLUS" color="BLUE"/>-->
-                            <!--</b:Column>-->
+                            <b:Column size="MD_2">
+                                <b:Button ui:field="cancelUpdateButton" enabled="true">Reset</b:Button>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row styleName="{style.removeButton}">
+                            <b:Column size="MD_1">
+                                <b:Button ui:field="deleteButton" icon="WARNING" type="DANGER" visible="false">Remove
+                                    Group
+                                </b:Button>
+                            </b:Column>
                         </b:Row>
                         <b:Row>
                             <b:Column size="MD_6" styleName="{style.paddedTable}">
