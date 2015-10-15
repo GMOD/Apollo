@@ -35,7 +35,7 @@
 
         .groupList td {
             padding-right: 5px;
-            padding-top: 5px;
+            /*padding-top: 5px;*/
         }
 
         .pager {
@@ -119,11 +119,19 @@
                     <gwt:header>Groups</gwt:header>
                     <b:Container>
                         <b:Row>
+                            <b:Column size="MD_3">
+                                <gwt:HTML><h5>Join Group</h5></gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_3">
+                                <gwt:HTML><h5>Groups</h5></gwt:HTML>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row>
                             <b:Column size="MD_2">
                                 <b:ListBox ui:field="availableGroupList"/>
                             </b:Column>
                             <b:Column size="MD_1">
-                                <b:Button ui:field="addGroupButton" icon="PLUS" color="blue"/>
+                                <b:Button ui:field="addGroupButton" icon="FORWARD" color="blue"/>
                             </b:Column>
                             <b:Column size="MD_3">
                                 <gwt:FlexTable ui:field="groupTable" styleName="{style.groupList}"/>
