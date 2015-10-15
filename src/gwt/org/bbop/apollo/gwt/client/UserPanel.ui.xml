@@ -35,6 +35,7 @@
 
         .groupList td {
             padding-right: 5px;
+            border: 1px;
             /*padding-top: 5px;*/
         }
 
@@ -123,7 +124,7 @@
                                 <gwt:HTML><h5>Join Group</h5></gwt:HTML>
                             </b:Column>
                             <b:Column size="MD_3">
-                                <gwt:HTML><h5>Groups</h5></gwt:HTML>
+                                <gwt:HTML><h5>Included Groups</h5></gwt:HTML>
                             </b:Column>
                         </b:Row>
                         <b:Row>
