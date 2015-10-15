@@ -9,10 +9,10 @@ import org.json.JSONObject
 
 String usageString = "add_organism.groovy <options>\n" +
         "Example: " +
-        "./add_organism.groovy -name LargeBees -url http://localhost:8080/apollo/ -directory /opt/apollo/yeast -public\n"+
+        "./add_organism.groovy -name yeast -url http://localhost:8080/apollo/ -directory /opt/apollo/yeast -public\n"+
         "which would prompt for user/pass\n"+
         "-or-\n"+
-        "./add_organism.groovy -name LargeBees -url http://localhost:8080/apollo/ -directory /opt/apollo/yeast -username user@site.com -password secret -public"
+        "./add_organism.groovy -name yeast -url http://localhost:8080/apollo/ -directory /opt/apollo/yeast -username user@site.com -password secret -public"
 
 def cli = new CliBuilder(usage: usageString)
 cli.setStopAtNonOption(true)
@@ -64,8 +64,6 @@ def argumentsArray = [
         species   : options.species ?: null,
         publicMode: options.public
 ]
-
-println "arguments array = ${argumentsArray}"
 
 def client = new RESTClient(options.url)
 if (options.ignoressl) { client.ignoreSSLIssues() }
