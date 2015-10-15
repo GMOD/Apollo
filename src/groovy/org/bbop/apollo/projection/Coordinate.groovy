@@ -11,8 +11,7 @@ class Coordinate implements Comparable<Coordinate>{
 
     @Override
     int compareTo(Coordinate o) {
-        min <=> o.min
-        max <=> o.max
+        min <=> o.min ?: max <=> o.max
     }
 
     boolean equals(o) {
