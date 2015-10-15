@@ -4,20 +4,24 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
+import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -29,14 +33,15 @@ import org.bbop.apollo.gwt.client.event.GroupChangeEvent;
 import org.bbop.apollo.gwt.client.event.GroupChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GroupRestService;
+import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
+import org.gwtbootstrap3.extras.select.client.ui.Option;
+import org.gwtbootstrap3.extras.select.client.ui.Select;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -58,8 +63,8 @@ public class GroupPanel extends Composite {
     Button createButton;
     @UiField
     TabLayoutPanel userDetailTab;
-    @UiField
-    FlexTable userData;
+//    @UiField
+//    FlexTable userData;
     @UiField(provided = true)
     WebApolloSimplePager organismPager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField(provided = true)
@@ -74,12 +79,17 @@ public class GroupPanel extends Composite {
     Button updateButton;
     @UiField
     Button cancelUpdateButton;
+    @UiField
+    Select availableUsers;
+    @UiField
+    Button updateUsers;
 
     private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
     private List<GroupInfo> groupInfoList = dataProvider.getList();
     private SingleSelectionModel<GroupInfo> selectionModel = new SingleSelectionModel<>();
     private GroupInfo selectedGroupInfo;
     private ColumnSortEvent.ListHandler<GroupInfo> groupSortHandler = new ColumnSortEvent.ListHandler<>(groupInfoList);
+    private List<UserInfo> allUsersList = new ArrayList<>();
 
 
     private ListDataProvider<GroupOrganismPermissionInfo> permissionProvider = new ListDataProvider<>();
@@ -162,8 +172,29 @@ public class GroupPanel extends Composite {
         });
 
         GroupRestService.loadGroups(groupInfoList);
+
+        UserRestService.loadUsers(allUsersList);
     }
 
+    @UiHandler("updateUsers")
+    public void updateUsers(ClickEvent clickEvent){
+        List<String> selectedValues = availableUsers.getAllSelectedValues();
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                selectedGroupInfo = null;
+                selectionModel.clear();
+                setSelectedGroup();
+                reload();
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Failed to update users: "+exception.fillInStackTrace().toString());
+            }
+        };
+        GroupRestService.updateUserGroups(requestCallback,selectedGroupInfo, selectedValues);
+    }
 
     @UiHandler("deleteButton")
     public void deleteGroup(ClickEvent clickEvent) {
@@ -281,12 +312,27 @@ public class GroupPanel extends Composite {
         if (selectedGroupInfo != null) {
             name.setText(selectedGroupInfo.getName());
             deleteButton.setVisible(true);
-            userData.removeAllRows();
+            availableUsers.clear();
+//            userData.removeAllRows();
 
+            List<Option> optionsList = new ArrayList<>();
             for (UserInfo userInfo : selectedGroupInfo.getUserInfoList()) {
-                int rowCount = userData.getRowCount();
-                userData.setHTML(rowCount, 0, userInfo.getName());
+                Option option = new Option();
+                option.setText(userInfo.getName() + " ("+userInfo.getEmail()+")");
+                optionsList.add(option);
             }
+
+            for(UserInfo userInfo : allUsersList){
+                Option option = new Option();
+                option.setText(userInfo.getName() + " ("+userInfo.getEmail()+")");
+                availableUsers.add(option);
+            }
+
+
+
+            Option[] options = optionsList.toArray(new Option[optionsList.size()]);
+            availableUsers.setValues(options);
+            availableUsers.refresh();
 
             // only show organisms that this user is an admin on . . . https://github.com/GMOD/Apollo/issues/540
             if (MainPanel.getInstance().isCurrentUserAdmin()) {
@@ -310,7 +356,7 @@ public class GroupPanel extends Composite {
         } else {
             name.setText("");
             deleteButton.setVisible(false);
-            userData.removeAllRows();
+//            userData.removeAllRows();
             userDetailTab.setVisible(false);
         }
     }
