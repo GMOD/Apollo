@@ -6,6 +6,7 @@ Features
 + Add support for JBrowse tracks loaded with the --compress options in the data loading pipeline (#517).
 + Add right-click option to CanvasFeatures tracks to "Create new annotation" (alternative to drag and drop) (#576).
 + Add an option for enabling/disabling the public JBrowse mode (#577).
++ Add an -ignoressl option to bypass certificate authority for groovy command line scripts (#557).
 
 Bugfixes
 
