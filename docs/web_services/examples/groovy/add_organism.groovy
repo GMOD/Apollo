@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 @Grab(group = 'org.json', module = 'json', version = '20140107')
-@Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7')
+@Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7.2')
 
 import groovyx.net.http.RESTClient
 import org.json.JSONObject
@@ -25,6 +25,7 @@ cli.public('public', args: 0)
 cli.species('species', args: 1)
 cli.username('username', required: false, args: 1)
 cli.password('password', required: false, args: 1)
+cli.ignoressl('Use this flag to ignore SSL issues', required: false)
 OptionAccessor options
 def admin_username
 def admin_password 
@@ -67,7 +68,7 @@ def argumentsArray = [
 println "arguments array = ${argumentsArray}"
 
 def client = new RESTClient(options.url)
-
+if (options.ignoressl) { client.ignoreSSLIssues() }
 String fullPath = "${url.path}/organism/addOrganism"
 
 def resp = client.post(

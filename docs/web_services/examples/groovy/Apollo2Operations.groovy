@@ -4,7 +4,7 @@ import net.sf.json.JSONArray
 import net.sf.json.JSONObject
 
 @Grab(group = 'org.json', module = 'json', version = '20140107')
-@Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7')
+@Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7.2')
 
 static JSONArray assignNewUniqueName(JSONArray inputArray,Map uniqueNamesMap) {
     JSONArray returnArray = new JSONArray()
@@ -21,11 +21,12 @@ static JSONArray assignNewUniqueName(JSONArray inputArray,Map uniqueNamesMap) {
     return returnArray
 }
 
-static JSONObject triggerAddFeature(String destinationurl, String username, String password, String organism, String sequenceName, JSONArray featuresArray) {
+static JSONObject triggerAddFeature(String destinationurl, String username, String password, String organism, String sequenceName, JSONArray featuresArray, Boolean ignoressl = false) {
     URL url = new URL(destinationurl)
     String fullPath = "${url.path}/annotationEditor/addFeature"
     fullPath = fullPath.replaceAll("//","/")
     def addFeatureClient = new RESTClient(url)
+    if (ignoressl) { addFeatureClient.ignoreSSLIssues() }
     def addFeatureResponse = addFeatureClient.post(
             contentType: 'text/javascript',
             path: fullPath,
@@ -43,11 +44,12 @@ static JSONObject triggerAddFeature(String destinationurl, String username, Stri
     }
 }
 
-static JSONObject triggerAddTranscript(String destinationurl, String username, String password, String organism, String sequenceName, JSONArray featuresArray) {
+static JSONObject triggerAddTranscript(String destinationurl, String username, String password, String organism, String sequenceName, JSONArray featuresArray, Boolean ignoressl = false) {
     URL url = new URL(destinationurl)
     String fullPath = "${url.path}/annotationEditor/addTranscript"
     fullPath = fullPath.replaceAll("//","/")
     def addTranscriptClient = new RESTClient(url)
+    if (ignoressl) { addTranscriptClient.ignoreSSLIssues() }
     def addTranscriptResponse = addTranscriptClient.post(
             contentType: 'text/javascript',
             path: fullPath,
@@ -64,11 +66,12 @@ static JSONObject triggerAddTranscript(String destinationurl, String username, S
     }
 }
 
-static JSONObject triggerRemoveTranscript(String destinationurl, String username, String password, String organism, String sequenceName, JSONArray featuresArray) {
+static JSONObject triggerRemoveTranscript(String destinationurl, String username, String password, String organism, String sequenceName, JSONArray featuresArray, Boolean ignoressl = false) {
     URL url = new URL(destinationurl)
     String fullPath = "${url.path}/annotationEditor/deleteFeature"
     fullPath = fullPath.replaceAll("//","/")
     def removeTranscriptClient = new RESTClient(url)
+    if (ignoressl) { removeTranscriptClient.ignoreSSLIssues() }
     def removeTranscriptResponse = removeTranscriptClient.post(
             contentType: 'text/javascript',
             path: fullPath,

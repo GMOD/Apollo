@@ -5,7 +5,7 @@ import net.sf.json.JSONObject
 import groovyx.net.http.RESTClient
 
 @Grab(group = 'org.json', module = 'json', version = '20140107')
-@Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7')
+@Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7.2')
 @Grab(group = 'org.apache.commons', module = 'commons-lang3', version = '3.0')
 
 String usageString = "\nUSAGE: alter_group_permissions.groovy <options>\n" +
@@ -23,6 +23,7 @@ cli.groupname('groupName for a group', required: false, args: 1)
 cli.destinationurl('WebApollo URL', required: true, args: 1)
 cli.adminusername('Admin username', required: false, args: 1)
 cli.adminpassword('Admin password', required: false, args: 1)
+cli.ignoressl('Use this flag to ignore SSL issues', required: false)
 OptionAccessor options
 
 def admin_username
@@ -88,6 +89,7 @@ if (s.endsWith("/")) {
 
 URL url = new URL(s)
 def client = new RESTClient(options.destinationurl)
+if (options.ignoressl) { client.ignoreSSLIssues() }
 String path = "${url.path}/group/updateOrganismPermission"
 
 for (String groupName in groupPermissionMap.keySet()) {

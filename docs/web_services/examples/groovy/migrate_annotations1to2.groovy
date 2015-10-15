@@ -25,6 +25,7 @@ cli.password1('password1', required: true, args: 1)
 cli.username2('username2', required: true, args: 1)
 cli.password2('password2', required: true, args: 1)
 cli.sequence_names('sequence_names', required: false, args: 1)
+cli.ignoressl('Use this flag to ignore SSL issues', required: false)
 OptionAccessor options
 
 try {
@@ -77,13 +78,13 @@ for (String sequence in sequenceArray) {
     }
 
     if (addFeaturesArray.size() > 0) {
-        def response = Apollo2Operations.triggerAddFeature(options.destinationurl, options.username2, options.password2, options.organism, sequenceName, addFeaturesArray)
+        def response = Apollo2Operations.triggerAddFeature(options.destinationurl, options.username2, options.password2, options.organism, sequenceName, addFeaturesArray, options.ignoressl)
         if (response == null) { return }
         println "Migrate ${response.size()} features for ${sequence}"
     }
     if (addTranscriptArray.size() > 0) {
         //println "ADDTRANSCRIPTARRAY: ${addTranscriptArray.toString()}"
-        def response = Apollo2Operations.triggerAddTranscript(options.destinationurl, options.username2, options.password2, options.organism, sequenceName, addTranscriptArray)
+        def response = Apollo2Operations.triggerAddTranscript(options.destinationurl, options.username2, options.password2, options.organism, sequenceName, addTranscriptArray, options.ignoressl)
         if (response == null) { return }
         println "Migrate ${response.size()} transcripts for ${sequence}"
     }

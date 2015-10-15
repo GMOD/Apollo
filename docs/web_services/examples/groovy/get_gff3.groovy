@@ -7,7 +7,7 @@ import groovyx.net.http.RESTClient
 
 
 @Grab(group = 'org.json', module = 'json', version = '20140107')
-@Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7')
+@Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7.2')
 
 String usageString = "get_gff3.groovy <options>" +
         "Example: \n" +
@@ -20,6 +20,7 @@ cli.username('username', required: false, args: 1)
 cli.password('password', required: false, args: 1)
 cli.password('url', required: false, args: 1)
 cli.organism('organism', required: false, args: 1)
+cli.ignoressl('Use this flag to ignore SSL issues', required: false)
 OptionAccessor options
 def admin_username
 def admin_password
@@ -46,6 +47,7 @@ try {
 // just get data
 println "fetching url: "+options.url
 def client = new RESTClient(options.url,'text/plain')
+if (options.ignoressl) { client.ignoreSSLIssues() }
 def response = client.post(path:options.url+'/IOService/write',body: [username: admin_username, password: admin_password, format: 'plain', type: 'GFF3',exportSequence: false,exportAllSequences: true,organism: options.organism, output:'text'])
 
 assert response.status == 200
