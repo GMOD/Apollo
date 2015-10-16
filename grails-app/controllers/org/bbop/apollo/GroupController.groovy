@@ -187,11 +187,16 @@ class GroupController {
             render jsonObject as JSON
             return
         }
-        group.users.each { it ->
+        List<User> users = group.users as List
+        users.each { it ->
             it.removeFromUserGroups(group)
+            it.save()
         }
-//        UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
-//        UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
+
+        def groupOrganismPermissions = GroupOrganismPermission.findAllByGroup(group)
+        GroupOrganismPermission.deleteAll(groupOrganismPermissions)
+
+        group.save(flush: true)
         group.delete(flush: true)
 
         render new JSONObject() as JSON
@@ -315,4 +320,46 @@ class GroupController {
         render groupOrganismPermission as JSON
 
     }
+
+    @RestApiMethod(description="Update group membership",path="/group/updateMembership",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="groupId", type="long", paramType = RestApiParamType.QUERY,description = "Group ID to alter membership of")
+            ,@RestApiParam(name="user", type="JSONArray", paramType = RestApiParamType.QUERY,description = "A JSON array of strings of emails of users the now belong to the group")
+    ]
+    )
+    @Transactional
+    def updateMembership() {
+        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+        log.debug "json data ${dataObject}"
+        UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
+        List<User> oldUsers = groupInstance.users as List
+        List<String> usernames = dataObject.users
+        List<User> newUsers = User.findAllByUsernameInList(usernames)
+
+        List<User> usersToAdd = newUsers - oldUsers
+        List<User> usersToRemove = oldUsers - newUsers
+
+        usersToAdd.each {
+            groupInstance.addToUsers(it)
+            it.addToUserGroups(groupInstance)
+            it.save()
+        }
+
+        usersToRemove.each {
+            groupInstance.removeFromUsers(it)
+            it.removeFromUserGroups(groupInstance)
+            it.save()
+        }
+
+        groupInstance.save(flush: true)
+
+        render loadGroups() as JSON
+    }
+
 }

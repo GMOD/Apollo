@@ -200,6 +200,8 @@ public class UserPanel extends Composite {
                         if (availableGroupList.getItemCount() > 0) {
                             availableGroupList.setSelectedIndex(0);
                         }
+                        addGroupButton.setEnabled(availableGroupList.getItemCount()>0);
+
                         String group = userChangeEvent.getGroup();
                         addGroupToUi(group);
                         break;
@@ -208,8 +210,10 @@ public class UserPanel extends Composite {
                         break;
                     case REMOVE_USER_FROM_GROUP:
                         removeGroupFromUI(userChangeEvent.getGroup());
+                        addGroupButton.setEnabled(availableGroupList.getItemCount()>0);
                         break;
                     case USERS_RELOADED:
+                        selectionModel.clear();
                         filterSequences();
                         break;
 

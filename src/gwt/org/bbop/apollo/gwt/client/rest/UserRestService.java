@@ -209,7 +209,6 @@ public class UserRestService {
             public void onResponseReceived(Request request, Response response) {
                 List<UserInfo> userInfoList = new ArrayList<>();
                 userInfoList.add(selectedUserInfo);
-                Annotator.eventBus.fireEvent(new UserChangeEvent(userInfoList, UserChangeEvent.Action.RELOAD_USERS));
                 Annotator.eventBus.fireEvent(new UserChangeEvent(userInfoList, UserChangeEvent.Action.REMOVE_USER_FROM_GROUP, groupName));
             }
 
@@ -229,7 +228,6 @@ public class UserRestService {
             public void onResponseReceived(Request request, Response response) {
                 List<UserInfo> userInfoList = new ArrayList<>();
                 userInfoList.add(selectedUserInfo);
-                Annotator.eventBus.fireEvent(new UserChangeEvent(userInfoList, UserChangeEvent.Action.RELOAD_USERS));
                 Annotator.eventBus.fireEvent(new UserChangeEvent(userInfoList, UserChangeEvent.Action.ADD_USER_TO_GROUP, groupName));
             }
 

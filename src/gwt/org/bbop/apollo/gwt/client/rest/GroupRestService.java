@@ -4,10 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.AnnotatorPanel;
@@ -15,6 +12,7 @@ import org.bbop.apollo.gwt.client.dto.GroupInfo;
 import org.bbop.apollo.gwt.client.dto.GroupOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.event.GroupChangeEvent;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,9 +45,9 @@ public class GroupRestService {
                     List<UserInfo> userInfoList = new ArrayList<>();
 
 
-                    if(object.get("users")!=null){
-                        JSONArray usersArray = object.get("users").isArray() ;
-                        for(int j =0 ; j < usersArray.size() ; j++){
+                    if (object.get("users") != null) {
+                        JSONArray usersArray = object.get("users").isArray();
+                        for (int j = 0; j < usersArray.size(); j++) {
                             JSONObject userObject = usersArray.get(j).isObject();
                             UserInfo userInfo = new UserInfo(userObject);
                             userInfoList.add(userInfo);
@@ -60,19 +58,18 @@ public class GroupRestService {
                     groupInfo.setUserInfoList(userInfoList);
 
 
-
                     // TODO: use shared permission enums
                     JSONArray organismArray = object.get("organismPermissions").isArray();
                     Map<String, GroupOrganismPermissionInfo> organismPermissionMap = new TreeMap<>();
                     for (int j = 0; j < organismArray.size(); j++) {
                         JSONObject organismPermissionJsonObject = organismArray.get(j).isObject();
                         GroupOrganismPermissionInfo groupOrganismPermissionInfo = new GroupOrganismPermissionInfo();
-                        if(organismPermissionJsonObject.get("id")!=null){
+                        if (organismPermissionJsonObject.get("id") != null) {
                             groupOrganismPermissionInfo.setId((long) organismPermissionJsonObject.get("id").isNumber().doubleValue());
                         }
                         groupOrganismPermissionInfo.setGroupId((long) organismPermissionJsonObject.get("groupId").isNumber().doubleValue());
                         groupOrganismPermissionInfo.setOrganismName(organismPermissionJsonObject.get("organism").isString().stringValue());
-                        if(organismPermissionJsonObject.get("permissions")!=null) {
+                        if (organismPermissionJsonObject.get("permissions") != null) {
                             JSONArray permissionsArray = JSONParser.parseStrict(organismPermissionJsonObject.get("permissions").isString().stringValue()).isArray();
                             for (int permissionIndex = 0; permissionIndex < permissionsArray.size(); ++permissionIndex) {
                                 String permission = permissionsArray.get(permissionIndex).isString().stringValue();
@@ -102,9 +99,9 @@ public class GroupRestService {
                     groupInfo.setOrganismPermissionMap(organismPermissionMap);
 
 
-
                     groupInfoList.add(groupInfo);
                 }
+                Annotator.eventBus.fireEvent(new GroupChangeEvent(GroupChangeEvent.Action.GROUPS_RELOADED));
             }
 
             @Override
@@ -125,10 +122,10 @@ public class GroupRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("error updating group "+selectedGroupInfo.getName()+" "+exception);
+                Window.alert("error updating group " + selectedGroupInfo.getName() + " " + exception);
             }
         };
-        RestService.sendRequest(requestCallback, "group/updateGroup/", "data="+selectedGroupInfo.toJSON().toString());
+        RestService.sendRequest(requestCallback, "group/updateGroup/", "data=" + selectedGroupInfo.toJSON().toString());
     }
 
     public static void deleteGroup(final GroupInfo selectedGroupInfo) {
@@ -140,10 +137,10 @@ public class GroupRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("error updating group "+selectedGroupInfo.getName()+" "+exception);
+                Window.alert("error updating group " + selectedGroupInfo.getName() + " " + exception);
             }
         };
-        RestService.sendRequest(requestCallback, "group/deleteGroup/", "data="+selectedGroupInfo.toJSON().toString());
+        RestService.sendRequest(requestCallback, "group/deleteGroup/", "data=" + selectedGroupInfo.toJSON().toString());
     }
 
     public static void addNewGroup(final GroupInfo selectedGroupInfo) {
@@ -155,10 +152,10 @@ public class GroupRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("error updating group "+selectedGroupInfo.getName()+" "+exception);
+                Window.alert("error updating group " + selectedGroupInfo.getName() + " " + exception);
             }
         };
-        RestService.sendRequest(requestCallback, "group/createGroup/", "data="+selectedGroupInfo.toJSON().toString());
+        RestService.sendRequest(requestCallback, "group/createGroup/", "data=" + selectedGroupInfo.toJSON().toString());
     }
 
     public static void updateOrganismPermission(GroupOrganismPermissionInfo object) {
@@ -175,5 +172,20 @@ public class GroupRestService {
             }
         };
         RestService.sendRequest(requestCallback, "group/updateOrganismPermission", "data=" + object.toJSON());
+    }
+
+    public static void updateUserGroups(RequestCallback requestCallback, GroupInfo selectedGroupInfo, List<String> selectedValues) {
+//        RestService.sendRequest(requestCallback, "group/updateMembership", "data=" + object.toJSON());
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("groupId", new JSONNumber(selectedGroupInfo.getId()));
+        JSONArray userArray = new JSONArray();
+        for (String userData : selectedValues) {
+            String emailValue = userData.split("\\(")[1].trim();
+            emailValue = emailValue.substring(0, emailValue.length() - 1);
+            userArray.set(userArray.size(), new JSONString(emailValue));
+        }
+        jsonObject.put("users", userArray);
+
+        RestService.sendRequest(requestCallback, "group/updateMembership", "data=" + jsonObject);
     }
 }
