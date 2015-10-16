@@ -155,7 +155,6 @@ public class OrganismInfo implements HasJSON{
             payload.put("valid",JSONBoolean.getInstance(valid));
         }
 
-        GWT.log("toJSON publicMode "+publicMode);
         payload.put("publicMode",JSONBoolean.getInstance(publicMode));
         return payload;
     }
