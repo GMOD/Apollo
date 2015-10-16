@@ -86,10 +86,7 @@ class HomeController {
 
 //        http://localhost:8080/apollo/metrics/metrics?pretty=true
         performanceMetricList.sort(true) { a, b ->
-            b.mean <=> a.mean
-            b.count <=> a.count
-            b.total <=> a.total
-            b.totalPercent <=> a.totalPercent
+            b.mean <=> a.mean ?: b.count <=> a.count ?: b.total <=> a.total ?: b.totalPercent <=> a.totalPercent
         }
 
 

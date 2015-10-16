@@ -34,6 +34,8 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -198,6 +200,8 @@ public class UserPanel extends Composite {
                         if (availableGroupList.getItemCount() > 0) {
                             availableGroupList.setSelectedIndex(0);
                         }
+                        addGroupButton.setEnabled(availableGroupList.getItemCount()>0);
+
                         String group = userChangeEvent.getGroup();
                         addGroupToUi(group);
                         break;
@@ -206,8 +210,10 @@ public class UserPanel extends Composite {
                         break;
                     case REMOVE_USER_FROM_GROUP:
                         removeGroupFromUI(userChangeEvent.getGroup());
+                        addGroupButton.setEnabled(availableGroupList.getItemCount()>0);
                         break;
                     case USERS_RELOADED:
+                        selectionModel.clear();
                         filterSequences();
                         break;
 
@@ -393,11 +399,16 @@ public class UserPanel extends Composite {
 
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent) {
-        if (Window.confirm("Delete user " + selectedUserInfo.getName() + "?")) {
-            UserRestService.deleteUser(userInfoList, selectedUserInfo);
-            selectedUserInfo = null;
-            updateUserInfo();
-        }
+        Bootbox.confirm("Delete user " + selectedUserInfo.getName() + "?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if (result) {
+                    UserRestService.deleteUser(userInfoList, selectedUserInfo);
+                    selectedUserInfo = null;
+                    updateUserInfo();
+                }
+            }
+        });
     }
 
     @UiHandler(value = {"nameSearchBox"})

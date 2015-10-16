@@ -4,23 +4,27 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
+import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.bbop.apollo.gwt.client.WebApolloSimplePager;
 import org.bbop.apollo.gwt.client.dto.GroupInfo;
 import org.bbop.apollo.gwt.client.dto.GroupOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
@@ -29,12 +33,15 @@ import org.bbop.apollo.gwt.client.event.GroupChangeEvent;
 import org.bbop.apollo.gwt.client.event.GroupChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GroupRestService;
+import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
+import org.gwtbootstrap3.extras.select.client.ui.Option;
+import org.gwtbootstrap3.extras.select.client.ui.Select;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Nathan Dunn on 12/17/14.
@@ -56,17 +63,33 @@ public class GroupPanel extends Composite {
     Button createButton;
     @UiField
     TabLayoutPanel userDetailTab;
-    @UiField
-    FlexTable userData;
+    //    @UiField
+//    FlexTable userData;
     @UiField(provided = true)
     WebApolloSimplePager organismPager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField(provided = true)
     DataGrid<GroupOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4, tablecss);
+    @UiField
+    TextBox createGroupField;
+    @UiField
+    Button saveButton;
+    @UiField
+    Button cancelButton;
+    @UiField
+    Button updateButton;
+    @UiField
+    Button cancelUpdateButton;
+    @UiField
+    Select availableUsers;
+    @UiField
+    Button updateUsers;
+
     private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
     private List<GroupInfo> groupInfoList = dataProvider.getList();
     private SingleSelectionModel<GroupInfo> selectionModel = new SingleSelectionModel<>();
     private GroupInfo selectedGroupInfo;
     private ColumnSortEvent.ListHandler<GroupInfo> groupSortHandler = new ColumnSortEvent.ListHandler<>(groupInfoList);
+    private List<UserInfo> allUsersList = new ArrayList<>();
 
 
     private ListDataProvider<GroupOrganismPermissionInfo> permissionProvider = new ListDataProvider<>();
@@ -75,7 +98,6 @@ public class GroupPanel extends Composite {
 
     public GroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-
 
         TextColumn<GroupInfo> firstNameColumn = new TextColumn<GroupInfo>() {
             @Override
@@ -138,24 +160,71 @@ public class GroupPanel extends Composite {
                         reload();
                         break;
                     case ADD_GROUP:
+                    case REMOVE_GROUP:
                         selectedGroupInfo = null;
                         selectionModel.clear();
                         setSelectedGroup();
                         reload();
-                        createButton.setEnabled(true);
+                        cancelAddState();
                         break;
+                    case GROUPS_RELOADED:
+                        selectedGroupInfo = null;
+                        selectionModel.clear();
+                        break;
+
+
                 }
             }
         });
 
         GroupRestService.loadGroups(groupInfoList);
+
+        UserRestService.loadUsers(allUsersList);
+    }
+
+    @UiHandler("updateUsers")
+    public void updateUsers(ClickEvent clickEvent) {
+        List<String> selectedValues = availableUsers.getAllSelectedValues();
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                selectedGroupInfo = null;
+                selectionModel.clear();
+                setSelectedGroup();
+                reload();
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Failed to update users: " + exception.fillInStackTrace().toString());
+            }
+        };
+        GroupRestService.updateUserGroups(requestCallback, selectedGroupInfo, selectedValues);
     }
 
     @UiHandler("deleteButton")
     public void deleteGroup(ClickEvent clickEvent) {
-        if (Window.confirm("Delete group " + selectedGroupInfo.getName() + "?")) {
-            GroupRestService.deleteGroup(selectedGroupInfo);
-            selectionModel.clear();
+        Integer numberOfUsers = selectedGroupInfo.getNumberOfUsers();
+        if (numberOfUsers > 0) {
+            Bootbox.confirm("Group '" + selectedGroupInfo.getName() + "' has "+numberOfUsers+" associated with it.  Still remove?", new ConfirmCallback() {
+                @Override
+                public void callback(boolean result) {
+                    if (result) {
+                        GroupRestService.deleteGroup(selectedGroupInfo);
+                        selectionModel.clear();
+                    }
+                }
+            });
+        } else {
+            Bootbox.confirm("Remove group '" + selectedGroupInfo.getName() + "'?", new ConfirmCallback() {
+                @Override
+                public void callback(boolean result) {
+                    if (result) {
+                        GroupRestService.deleteGroup(selectedGroupInfo);
+                        selectionModel.clear();
+                    }
+                }
+            });
         }
     }
 
@@ -177,21 +246,82 @@ public class GroupPanel extends Composite {
 
     }
 
+    @UiHandler("cancelButton")
+    public void cancelNewGroup(ClickEvent clickEvent) {
+        cancelAddState();
+    }
+
+    @UiHandler("saveButton")
+    public void saveNewGroup(ClickEvent clickEvent) {
+        String groupName = createGroupField.getText().trim();
+        if (validateName(groupName)) {
+            GroupInfo groupInfo = new GroupInfo();
+            groupInfo.setName(groupName);
+            GroupRestService.addNewGroup(groupInfo);
+        }
+    }
+
+    void cancelAddState() {
+        createButton.setVisible(true);
+        createGroupField.setVisible(false);
+        saveButton.setVisible(false);
+        cancelButton.setVisible(false);
+        createGroupField.setText("");
+    }
+
+    void setAddState() {
+        createButton.setVisible(false);
+        createGroupField.setVisible(true);
+        saveButton.setVisible(true);
+        cancelButton.setVisible(true);
+        createGroupField.setText("");
+    }
+
     @UiHandler("createButton")
     public void createGroup(ClickEvent clickEvent) {
-        GroupInfo groupInfo = getGroupFromUI();
+        setAddState();
+    }
 
-        if (groupInfo == null) return;
+    private Boolean validateName(String groupName) {
+        if (groupName.length() < 3) {
+            Window.alert("Group must be at least 3 characters long");
+            return false;
+        }
+        for (GroupInfo groupInfo : groupInfoList) {
+            if (groupName.equals(groupInfo.getName())) {
+                Window.alert("Group name must be unique");
+                return false;
+            }
+        }
 
-        GroupRestService.addNewGroup(groupInfo);
+        return true;
+    }
+
+    @UiHandler("updateButton")
+    public void updateGroupName(ClickEvent clickEvent) {
+        if (selectedGroupInfo != null && selectedGroupInfo.getId() != null) {
+            String groupName = name.getText().trim();
+            if (validateName(groupName)) {
+                selectedGroupInfo.setName(groupName);
+                Window.alert("Saving Group '" + groupName + "'");
+                GroupRestService.updateGroup(selectedGroupInfo);
+            }
+        }
+    }
+
+    @UiHandler("cancelUpdateButton")
+    public void cancelUpdateGroupName(ClickEvent clickEvent) {
+        name.setText(selectedGroupInfo.getName());
+        handleNameChange(null);
     }
 
     @UiHandler("name")
-    public void handleNameChange(ChangeEvent changeEvent) {
-        if (selectedGroupInfo != null && selectedGroupInfo.getId() != null) {
-            selectedGroupInfo.setName(name.getText());
-            GroupRestService.updateGroup(selectedGroupInfo);
-        }
+    public void handleNameChange(KeyUpEvent changeEvent) {
+        String newName = name.getText().trim();
+        String originalName = selectedGroupInfo.getName();
+
+        updateButton.setEnabled(newName.length() >= 3 && !newName.equals(originalName));
+
     }
 
     private void setSelectedGroup() {
@@ -201,18 +331,31 @@ public class GroupPanel extends Composite {
         if (selectedGroupInfo != null) {
             name.setText(selectedGroupInfo.getName());
             deleteButton.setVisible(true);
-            userData.removeAllRows();
+            availableUsers.clear();
+//            userData.removeAllRows();
 
+            List<Option> optionsList = new ArrayList<>();
             for (UserInfo userInfo : selectedGroupInfo.getUserInfoList()) {
-                int rowCount = userData.getRowCount();
-                userData.setHTML(rowCount, 0, userInfo.getName());
+                Option option = new Option();
+                option.setText(userInfo.getName() + " (" + userInfo.getEmail() + ")");
+                optionsList.add(option);
             }
+
+            for (UserInfo userInfo : allUsersList) {
+                Option option = new Option();
+                option.setText(userInfo.getName() + " (" + userInfo.getEmail() + ")");
+                availableUsers.add(option);
+            }
+
+
+            Option[] options = optionsList.toArray(new Option[optionsList.size()]);
+            availableUsers.setValues(options);
+            availableUsers.refresh();
 
             // only show organisms that this user is an admin on . . . https://github.com/GMOD/Apollo/issues/540
             if (MainPanel.getInstance().isCurrentUserAdmin()) {
                 permissionProviderList.addAll(selectedGroupInfo.getOrganismPermissionMap().values());
-            }
-            else{
+            } else {
                 List<String> organismsToShow = new ArrayList<>();
                 for (UserOrganismPermissionInfo userOrganismPermission : MainPanel.getInstance().getCurrentUser().getOrganismPermissionMap().values()) {
                     if (userOrganismPermission.isAdmin()) {
@@ -226,16 +369,18 @@ public class GroupPanel extends Composite {
                     }
                 }
             }
+            userDetailTab.setVisible(true);
         } else {
             name.setText("");
             deleteButton.setVisible(false);
-            userData.removeAllRows();
+//            userData.removeAllRows();
+            userDetailTab.setVisible(false);
         }
     }
 
     public void reload() {
         GroupRestService.loadGroups(groupInfoList);
-        dataGrid.redraw();
+//        dataGrid.redraw();
     }
 
 

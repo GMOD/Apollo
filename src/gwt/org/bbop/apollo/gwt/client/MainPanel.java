@@ -269,7 +269,7 @@ public class MainPanel extends Composite {
         } else {
             highestPermission = PermissionEnum.NONE;
         }
-        if (userOrganismPermissionInfo != null) {
+        if (userOrganismPermissionInfo !=  null && highestPermission != PermissionEnum.ADMINISTRATE) {
             GWT.log("organism: " + userOrganismPermissionInfo.toJSON().toString());
             highestPermission = userOrganismPermissionInfo.getHighestPermission();
         }

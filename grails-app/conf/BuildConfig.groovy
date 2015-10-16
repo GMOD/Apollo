@@ -88,7 +88,6 @@ grails.project.dependency.resolution = {
 //        compile 'org.seqdoop:htsjdk:1.118'
 
 
-
         test "org.grails:grails-datastore-test-support:1.0.2-grails-2.4"
         runtime 'org.grails:grails-datastore-gorm:3.1.5.RELEASE'
 

@@ -64,5 +64,6 @@ public class GroupChangeEvent extends GwtEvent<GroupChangeEventHandler>{
         RELOAD_GROUPS,
         ADD_GROUP,
         REMOVE_GROUP,
+        GROUPS_RELOADED,
     }
 }
