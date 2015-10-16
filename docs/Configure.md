@@ -64,7 +64,7 @@ defined in the Config.groovy file:
 
 These settings are essentially the same familiar parameters from a config.xml file from previous Apollo versions.
 The defaults are generally sufficient, but as noted above, you can override any particular parameter in your
-apollo-config.groovy file, e.g. you can add override configuration any given parameter as follows:
+```apollo-config.groovy``` file, e.g. you can add override configuration any given parameter as follows:
 
 ``` 
     grails {
@@ -76,6 +76,24 @@ apollo-config.groovy file, e.g. you can add override configuration any given par
         }
     }
 ```
+
+#### Logging
+
+To over-ride the default logging you'll most like start out by copying the log4j section in [Config.groovy](https://github.com/GMOD/Apollo/blob/master/grails-app/conf/Config.groovy) into ```apollo-config.groovy``` and making modifications.
+
+```
+log4j.main = {
+    error 'org.codehaus.groovy.grails.web.servlet',        // controllers
+            'org.codehaus.groovy.grails.web.pages',          // GSP
+            'org.codehaus.groovy.grails.web.sitemesh',       // layouts
+            ... 
+    warn 'grails.app'
+}
+```
+
+Here is a [good description of ways to over-ride the logging](http://blog.andresteingress.com/2012/03/22/grails-adding-more-than-one-log4j-configurations/). 
+Additional information about grails logging can be found here [configure logging in grails](http://grails.github.io/grails-doc/2.4.x/guide/single.html#logging).
+
 
 ### Canned comments
 
