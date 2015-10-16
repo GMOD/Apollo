@@ -14,6 +14,7 @@ class UrlMappings {
         "/version.jsp"(controller: 'annotator', view: "version")
 
         // set this routing here
+        "/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
         "/jbrowse/index.html"(controller: "jbrowse", action: "indexRouter", params:params)
         "/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
