@@ -63,7 +63,7 @@ public class GroupPanel extends Composite {
     Button createButton;
     @UiField
     TabLayoutPanel userDetailTab;
-//    @UiField
+    //    @UiField
 //    FlexTable userData;
     @UiField(provided = true)
     WebApolloSimplePager organismPager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
@@ -167,6 +167,12 @@ public class GroupPanel extends Composite {
                         reload();
                         cancelAddState();
                         break;
+                    case GROUPS_RELOADED:
+                        selectedGroupInfo = null;
+                        selectionModel.clear();
+                        break;
+
+
                 }
             }
         });
@@ -177,7 +183,7 @@ public class GroupPanel extends Composite {
     }
 
     @UiHandler("updateUsers")
-    public void updateUsers(ClickEvent clickEvent){
+    public void updateUsers(ClickEvent clickEvent) {
         List<String> selectedValues = availableUsers.getAllSelectedValues();
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -190,24 +196,37 @@ public class GroupPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Failed to update users: "+exception.fillInStackTrace().toString());
+                Window.alert("Failed to update users: " + exception.fillInStackTrace().toString());
             }
         };
-        GroupRestService.updateUserGroups(requestCallback,selectedGroupInfo, selectedValues);
+        GroupRestService.updateUserGroups(requestCallback, selectedGroupInfo, selectedValues);
     }
 
     @UiHandler("deleteButton")
     public void deleteGroup(ClickEvent clickEvent) {
-        Bootbox.confirm("Delete group '"+selectedGroupInfo.getName()+"'?", new ConfirmCallback() {
-            @Override
-            public void callback(boolean result) {
-                if(result){
-                    GroupRestService.deleteGroup(selectedGroupInfo);
-                    selectionModel.clear();
+        Integer numberOfUsers = selectedGroupInfo.getNumberOfUsers();
+        if (numberOfUsers > 0) {
+            Bootbox.confirm("Group '" + selectedGroupInfo.getName() + "' has "+numberOfUsers+" associated with it.  Still remove?", new ConfirmCallback() {
+                @Override
+                public void callback(boolean result) {
+                    if (result) {
+                        GroupRestService.deleteGroup(selectedGroupInfo);
+                        selectionModel.clear();
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            Bootbox.confirm("Remove group '" + selectedGroupInfo.getName() + "'?", new ConfirmCallback() {
+                @Override
+                public void callback(boolean result) {
+                    if (result) {
+                        GroupRestService.deleteGroup(selectedGroupInfo);
+                        selectionModel.clear();
+                    }
+                }
+            });
         }
+    }
 
 
     private GroupInfo getGroupFromUI() {
@@ -235,14 +254,14 @@ public class GroupPanel extends Composite {
     @UiHandler("saveButton")
     public void saveNewGroup(ClickEvent clickEvent) {
         String groupName = createGroupField.getText().trim();
-        if(validateName(groupName)){
+        if (validateName(groupName)) {
             GroupInfo groupInfo = new GroupInfo();
             groupInfo.setName(groupName);
             GroupRestService.addNewGroup(groupInfo);
         }
     }
 
-    void cancelAddState(){
+    void cancelAddState() {
         createButton.setVisible(true);
         createGroupField.setVisible(false);
         saveButton.setVisible(false);
@@ -250,7 +269,7 @@ public class GroupPanel extends Composite {
         createGroupField.setText("");
     }
 
-    void setAddState(){
+    void setAddState() {
         createButton.setVisible(false);
         createGroupField.setVisible(true);
         saveButton.setVisible(true);
@@ -268,30 +287,30 @@ public class GroupPanel extends Composite {
             Window.alert("Group must be at least 3 characters long");
             return false;
         }
-        for(GroupInfo groupInfo : groupInfoList){
-            if(groupName.equals(groupInfo.getName())){
+        for (GroupInfo groupInfo : groupInfoList) {
+            if (groupName.equals(groupInfo.getName())) {
                 Window.alert("Group name must be unique");
                 return false;
             }
         }
 
-        return true ;
+        return true;
     }
 
     @UiHandler("updateButton")
-    public void updateGroupName(ClickEvent clickEvent){
+    public void updateGroupName(ClickEvent clickEvent) {
         if (selectedGroupInfo != null && selectedGroupInfo.getId() != null) {
             String groupName = name.getText().trim();
-            if(validateName(groupName)){
+            if (validateName(groupName)) {
                 selectedGroupInfo.setName(groupName);
-                Window.alert("Saving Group '"+groupName+"'");
+                Window.alert("Saving Group '" + groupName + "'");
                 GroupRestService.updateGroup(selectedGroupInfo);
             }
         }
     }
 
     @UiHandler("cancelUpdateButton")
-    public void cancelUpdateGroupName(ClickEvent clickEvent){
+    public void cancelUpdateGroupName(ClickEvent clickEvent) {
         name.setText(selectedGroupInfo.getName());
         handleNameChange(null);
     }
@@ -318,16 +337,15 @@ public class GroupPanel extends Composite {
             List<Option> optionsList = new ArrayList<>();
             for (UserInfo userInfo : selectedGroupInfo.getUserInfoList()) {
                 Option option = new Option();
-                option.setText(userInfo.getName() + " ("+userInfo.getEmail()+")");
+                option.setText(userInfo.getName() + " (" + userInfo.getEmail() + ")");
                 optionsList.add(option);
             }
 
-            for(UserInfo userInfo : allUsersList){
+            for (UserInfo userInfo : allUsersList) {
                 Option option = new Option();
-                option.setText(userInfo.getName() + " ("+userInfo.getEmail()+")");
+                option.setText(userInfo.getName() + " (" + userInfo.getEmail() + ")");
                 availableUsers.add(option);
             }
-
 
 
             Option[] options = optionsList.toArray(new Option[optionsList.size()]);
@@ -337,8 +355,7 @@ public class GroupPanel extends Composite {
             // only show organisms that this user is an admin on . . . https://github.com/GMOD/Apollo/issues/540
             if (MainPanel.getInstance().isCurrentUserAdmin()) {
                 permissionProviderList.addAll(selectedGroupInfo.getOrganismPermissionMap().values());
-            }
-            else{
+            } else {
                 List<String> organismsToShow = new ArrayList<>();
                 for (UserOrganismPermissionInfo userOrganismPermission : MainPanel.getInstance().getCurrentUser().getOrganismPermissionMap().values()) {
                     if (userOrganismPermission.isAdmin()) {

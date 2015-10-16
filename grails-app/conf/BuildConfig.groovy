@@ -78,7 +78,6 @@ grails.project.dependency.resolution = {
         //compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
         //compile 'org.biojava:biojava3-core:3.1.0'
 
-
         test "org.grails:grails-datastore-test-support:1.0.2-grails-2.4"
         runtime 'org.grails:grails-datastore-gorm:3.1.5.RELEASE'
 

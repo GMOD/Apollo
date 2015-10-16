@@ -101,6 +101,7 @@ public class GroupRestService {
 
                     groupInfoList.add(groupInfo);
                 }
+                Annotator.eventBus.fireEvent(new GroupChangeEvent(GroupChangeEvent.Action.GROUPS_RELOADED));
             }
 
             @Override

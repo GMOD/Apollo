@@ -187,11 +187,14 @@ class GroupController {
             render jsonObject as JSON
             return
         }
-        group.users.each { it ->
+        List<User> users = group.users as List
+        users.each { it ->
             it.removeFromUserGroups(group)
+            it.save()
         }
-//        UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
-//        UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
+        
+
+        group.save(flush: true)
         group.delete(flush: true)
 
         render new JSONObject() as JSON

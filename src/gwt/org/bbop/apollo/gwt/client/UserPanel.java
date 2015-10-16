@@ -213,6 +213,7 @@ public class UserPanel extends Composite {
                         addGroupButton.setEnabled(availableGroupList.getItemCount()>0);
                         break;
                     case USERS_RELOADED:
+                        selectionModel.clear();
                         filterSequences();
                         break;
 
