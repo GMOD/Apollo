@@ -192,7 +192,9 @@ class GroupController {
             it.removeFromUserGroups(group)
             it.save()
         }
-        
+
+        def groupOrganismPermissions = GroupOrganismPermission.findAllByGroup(group)
+        GroupOrganismPermission.deleteAll(groupOrganismPermissions)
 
         group.save(flush: true)
         group.delete(flush: true)
