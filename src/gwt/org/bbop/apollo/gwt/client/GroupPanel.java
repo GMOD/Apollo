@@ -196,7 +196,7 @@ public class GroupPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Failed to update users: " + exception.fillInStackTrace().toString());
+                Bootbox.alert("Failed to update users: " + exception.fillInStackTrace().toString());
             }
         };
         GroupRestService.updateUserGroups(requestCallback, selectedGroupInfo, selectedValues);
@@ -232,7 +232,7 @@ public class GroupPanel extends Composite {
     private GroupInfo getGroupFromUI() {
         String groupName = name.getText().trim();
         if (groupName.length() < 3) {
-            Window.alert("Group must be at least 3 characters long");
+            Bootbox.alert("Group must be at least 3 characters long");
             return null;
         }
         GroupInfo groupInfo = new GroupInfo();
@@ -284,12 +284,12 @@ public class GroupPanel extends Composite {
 
     private Boolean validateName(String groupName) {
         if (groupName.length() < 3) {
-            Window.alert("Group must be at least 3 characters long");
+            Bootbox.alert("Group must be at least 3 characters long");
             return false;
         }
         for (GroupInfo groupInfo : groupInfoList) {
             if (groupName.equals(groupInfo.getName())) {
-                Window.alert("Group name must be unique");
+                Bootbox.alert("Group name must be unique");
                 return false;
             }
         }
@@ -303,7 +303,7 @@ public class GroupPanel extends Composite {
             String groupName = name.getText().trim();
             if (validateName(groupName)) {
                 selectedGroupInfo.setName(groupName);
-                Window.alert("Saving Group '" + groupName + "'");
+                Bootbox.alert("Saving Group '" + groupName + "'");
                 GroupRestService.updateGroup(selectedGroupInfo);
             }
         }

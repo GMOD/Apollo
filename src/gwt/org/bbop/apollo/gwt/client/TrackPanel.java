@@ -28,6 +28,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.gwtbootstrap3.client.ui.TextBox;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.view.client.CellPreviewEvent;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -311,7 +312,7 @@ public class TrackPanel extends Composite {
             // track label can never be null, but key can be
             trackInfo.setName(object.get("key")==null?object.get("label").isString().stringValue():object.get("key").isString().stringValue());
             if(object.get("label")!=null) trackInfo.setLabel(object.get("label").isString().stringValue());
-            else Window.alert("Track label should not be null, please check your tracklist");
+            else Bootbox.alert("Track label should not be null, please check your tracklist");
             if(object.get("type")!=null) trackInfo.setType(object.get("type").isString().stringValue());
             if(object.get("urlTemplate") != null) trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
             if(object.get("visible") != null) trackInfo.setVisible(object.get("visible").isBoolean().booleanValue());

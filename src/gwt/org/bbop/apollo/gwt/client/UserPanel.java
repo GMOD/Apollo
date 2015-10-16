@@ -348,7 +348,7 @@ public class UserPanel extends Composite {
     private void setCurrentUserInfoFromUI() {
         String emailString = email.getText().trim();
         if (emailString.indexOf("@") >= emailString.lastIndexOf(".")) {
-            Window.alert("Does not appear to be a valid email " + emailString);
+            Bootbox.alert("Does not appear to be a valid email " + emailString);
             return;
         }
         selectedUserInfo.setEmail(emailString);

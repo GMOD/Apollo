@@ -224,7 +224,7 @@ public class OrganismPanel extends Composite {
             JSONValue j = JSONParser.parseStrict(response.getText());
             JSONObject obj = j.isObject();
             if (obj != null && obj.containsKey("error")) {
-                Window.alert(obj.get("error").isString().stringValue());
+                Bootbox.alert(obj.get("error").isString().stringValue());
                 changeButtonSelection();
                 setTextEnabled(false);
                 clearTextBoxes();
@@ -255,7 +255,7 @@ public class OrganismPanel extends Composite {
         @Override
         public void onError(Request request, Throwable exception) {
             loadingDialog.hide();
-            Window.alert("Error: "+exception);
+            Bootbox.alert("Error: "+exception);
         }
     }
 

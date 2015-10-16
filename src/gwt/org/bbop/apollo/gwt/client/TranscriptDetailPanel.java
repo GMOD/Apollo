@@ -20,6 +20,7 @@ import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.gwt.CellTable;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
  * Created by ndunn on 1/9/15.
@@ -108,7 +109,7 @@ public class TranscriptDetailPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error updating transcript: " + exception);
+                Bootbox.alert("Error updating transcript: " + exception);
                 enableFields(true);
             }
         };
@@ -118,7 +119,7 @@ public class TranscriptDetailPanel extends Composite {
         } catch (RequestException e) {
             enableFields(true);
             // Couldn't connect to server
-            Window.alert(e.getMessage());
+            Bootbox.alert(e.getMessage());
         }
 
     }

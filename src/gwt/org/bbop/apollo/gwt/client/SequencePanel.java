@@ -32,6 +32,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
 
@@ -144,7 +145,6 @@ public class SequencePanel extends Composite {
                 RequestCallback requestCallback = new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
-//                        Window.alert(response.getText());
                         JSONArray jsonArray = JSONParser.parseLenient(response.getText()).isArray();
                         Integer sequenceCount = 0;
                         if (jsonArray.size() > 0) {
@@ -157,7 +157,7 @@ public class SequencePanel extends Composite {
 
                     @Override
                     public void onError(Request request, Throwable exception) {
-                        Window.alert("error getting sequence info: " + exception);
+                        Bootbox.alert("error getting sequence info: " + exception);
                     }
                 };
 
@@ -201,7 +201,7 @@ public class SequencePanel extends Composite {
 
                         @Override
                         public void onError(Request request, Throwable exception) {
-                            Window.alert("Error setting current sequence: " + exception);
+                            Bootbox.alert("Error setting current sequence: " + exception);
                         }
                     };
                     SequenceRestService.setCurrentSequence(requestCallback, sequenceInfo);

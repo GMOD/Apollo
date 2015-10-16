@@ -7,6 +7,7 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestOracle;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,12 +58,12 @@ public class ReferenceSequenceOracle extends MultiWordSuggestOracle{
 
                 @Override
                 public void onError(com.google.gwt.http.client.Request request, Throwable exception) {
-                    Window.alert("Error: "+exception);
+                    Bootbox.alert("Error: "+exception);
                 }
             });
         } catch (RequestException e) {
             e.printStackTrace();
-            Window.alert("Request exception via "+e);
+            Bootbox.alert("Request exception via " + e);
         }
 
     }

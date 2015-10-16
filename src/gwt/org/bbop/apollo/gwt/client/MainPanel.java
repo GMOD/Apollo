@@ -29,6 +29,7 @@ import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.client.ui.SuggestBox;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -202,7 +203,7 @@ public class MainPanel extends Composite {
             @Override
             public void onError(Request request, Throwable exception) {
                 handlingNavEvent = false;
-                Window.alert("failed to set sequence location: " + exception);
+                Bootbox.alert("failed to set sequence location: " + exception);
             }
         };
 
@@ -245,7 +246,7 @@ public class MainPanel extends Composite {
                 if (blocking) {
                     loadingDialog.hide();
                 }
-                Window.alert("failed to set JBrowse sequence: " + exception);
+                Bootbox.alert("failed to set JBrowse sequence: " + exception);
             }
         };
 
@@ -341,14 +342,14 @@ public class MainPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("User not there: " + exception);
+                Bootbox.alert("User not there: " + exception);
             }
         };
         try {
             builder.setCallback(requestCallback);
             builder.send();
         } catch (RequestException e) {
-            Window.alert(e.getMessage());
+            Bootbox.alert(e.getMessage());
         }
 
     }
@@ -445,7 +446,7 @@ public class MainPanel extends Composite {
                 JSONValue j = JSONParser.parseStrict(response.getText());
                 JSONObject obj = j.isObject();
                 if (obj != null && obj.containsKey("error")) {
-                    Window.alert(obj.get("error").isString().stringValue());
+                    Bootbox.alert(obj.get("error").isString().stringValue());
                     loadingDialog.hide();
                 } else {
                     loadingDialog.hide();
@@ -457,7 +458,7 @@ public class MainPanel extends Composite {
             @Override
             public void onError(Request request, Throwable exception) {
                 loadingDialog.hide();
-                Window.alert("Error loading organisms");
+                Bootbox.alert("Error loading organisms");
             }
         };
         try {
@@ -465,7 +466,7 @@ public class MainPanel extends Composite {
             builder.send();
         } catch (RequestException e) {
             loadingDialog.hide();
-            Window.alert(e.getMessage());
+            Bootbox.alert(e.getMessage());
         }
 
     }

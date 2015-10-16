@@ -8,6 +8,7 @@ import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
  * Created by ndunn on 3/17/15.
@@ -74,18 +75,18 @@ public class RegisterDialog extends DialogBox {
 
     public void doRegister(){
         if(passwordTextBox.getText().length()<4){
-            Window.alert("Passwords must be at least 4 characters");
+            Bootbox.alert("Passwords must be at least 4 characters");
         }
 
         if(!passwordTextBox.getText().equals(passwordRepeatTextBox.getText())){
-            Window.alert("Passwords do not match");
+            Bootbox.alert("Passwords do not match");
             return ;
         }
 
         String usernameText = username.getText() ;
         // TODO: use a better regexp search
         if(!usernameText.contains("@")&&!usernameText.contains(".")){
-            Window.alert("Username does not appear to be an email");
+            Bootbox.alert("Username does not appear to be an email");
             return ;
         }
 

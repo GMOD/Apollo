@@ -43,6 +43,7 @@ import org.gwtbootstrap3.client.ui.Container;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
 
@@ -183,7 +184,7 @@ public class AnnotatorPanel extends Composite {
                         try {
                             returnValue = JSONParser.parseStrict(response.getText());
                         } catch (Exception e) {
-                            Window.alert(e.getMessage());
+                            Bootbox.alert(e.getMessage());
                         }
                         JSONValue localRequestObject = returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue());
                         if(localRequestObject!=null) {
@@ -205,7 +206,7 @@ public class AnnotatorPanel extends Composite {
 
                     @Override
                     public void onError(Request request, Throwable exception) {
-                        Window.alert("Error loading organisms");
+                        Bootbox.alert("Error loading organisms");
                     }
                 };
                 try {
@@ -213,7 +214,7 @@ public class AnnotatorPanel extends Composite {
                     builder.send();
                 } catch (RequestException e) {
                     // Couldn't connect to server
-                    Window.alert(e.getMessage());
+                    Bootbox.alert(e.getMessage());
                 }
             }
         };
@@ -338,7 +339,7 @@ public class AnnotatorPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error retrieving users: " + exception.fillInStackTrace());
+                Bootbox.alert("Error retrieving users: " + exception.fillInStackTrace());
             }
         };
         UserRestService.loadUsers(requestCallback);

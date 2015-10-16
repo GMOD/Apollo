@@ -6,6 +6,7 @@ import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
  * Created by ndunn on 1/14/15.
@@ -37,7 +38,7 @@ public class RestService {
             }
             builder.send();
         } catch (RequestException e) {
-            Window.alert(e.getMessage());
+            Bootbox.alert(e.getMessage());
         }
     }
 
