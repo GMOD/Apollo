@@ -3,15 +3,18 @@
 Features
 
 + Make the pagination for the annotator sidebar more intuitive by only loading the remainder of rows on the last page.
-+ Add support for JBrowse tracks loaded with the --compress options in the data loading pipeline (#517).
++ Add support for JBrowse tracks loaded with the `--compress` options in the data loading pipeline (#517).
 + Add right-click option to CanvasFeatures tracks to "Create new annotation" (alternative to drag and drop) (#576).
 + Add an option for enabling/disabling the public JBrowse mode (#577).
-+ Add an -ignoressl option to bypass certificate authority for groovy command line scripts (#557).
++ Add an `-ignoressl` option to bypass certificate authority for groovy command line scripts (#557).
++ Make the administration of group membership more clear from the User/Group panels (#598).
++ Add scripts and web services for managing user and group permissions (#595).
++ Add web service documentation page generated from source code annotations (#582).
 
 Bugfixes
 
 + Fixed the permissions to only allow the global admin role to create and delete organisms (#542).
-+ Fixed an issue with jbrowse compatibility for certain refSeqs.json files not containing length.
++ Fixed an issue with JBrowse compatibility for certain refSeqs.json files not containing length.
 + Fixed the calculation of overlaps using OrfOverlapper (#558).
 + Fixed a bug that made certain annotation operations slow down over time (#555).
 + Fixed a bug that made changing the location of the organisms's data directory cause problems (#567).
