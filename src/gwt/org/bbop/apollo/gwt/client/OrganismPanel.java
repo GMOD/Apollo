@@ -223,6 +223,7 @@ public class OrganismPanel extends Composite {
         public void onResponseReceived(Request request, Response response) {
             JSONValue j = JSONParser.parseStrict(response.getText());
             JSONObject obj = j.isObject();
+            deleteButton.setText("Delete Organism");
             if (obj != null && obj.containsKey("error")) {
                 Bootbox.alert(obj.get("error").isString().stringValue());
                 changeButtonSelection();
