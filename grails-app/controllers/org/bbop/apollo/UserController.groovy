@@ -156,16 +156,17 @@ class UserController {
     )
     @Transactional
     def addUserToGroup() {
-        log.debug "adding user to group ${request.JSON} -> ${params}"
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
+        log.info "Adding user to group"
         UserGroup userGroup = UserGroup.findByName(dataObject.group)
         User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
         user.addToUserGroups(userGroup)
         user.save(flush: true)
+        log.info "Added user ${user.username} to group ${userGroup.name}"
         render new JSONObject() as JSON
     }
 
@@ -180,16 +181,17 @@ class UserController {
     )
     @Transactional
     def removeUserFromGroup() {
-        log.debug "removing user from group ${request.JSON} -> ${params}"
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
+        log.info "Removing user from group"
         UserGroup userGroup = UserGroup.findByName(dataObject.group)
         User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
         user.removeFromUserGroups(userGroup)
         user.save(flush: true)
+        log.info "Removed user ${user.username} from group ${userGroup.name}"
         render new JSONObject() as JSON
     }
 
@@ -206,7 +208,7 @@ class UserController {
     @Transactional
     def createUser() {
         try {
-            log.debug "creating user ${request.JSON} -> ${params}"
+            log.info "Creating user"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
@@ -234,6 +236,9 @@ class UserController {
             role.addToUsers(user)
             role.save()
             user.save(flush: true)
+
+            log.info "Added user ${user.username} with role ${role.name}"
+
             render new JSONObject() as JSON
         } catch (e) {
             log.error(e.fillInStackTrace())
@@ -255,7 +260,7 @@ class UserController {
     @Transactional
     def deleteUser() {
         try {
-            log.debug "deleting user ${request.JSON} -> ${params}"
+            log.info "Removing user"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
             if (!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
@@ -274,6 +279,9 @@ class UserController {
             UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
             UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
             user.delete(flush: true)
+
+            log.info "Removed user ${user.username}"
+
             render new JSONObject() as JSON
         } catch (e) {
             log.error(e.fillInStackTrace())
@@ -297,6 +305,7 @@ class UserController {
     @Transactional
     def updateUser() {
         try {
+            log.info "Updating user"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
@@ -321,7 +330,7 @@ class UserController {
                 Role role = Role.findByName(roleString.toUpperCase())
                 user.addToRoles(role)
             }
-
+            log.info "Updated user"
             user.save(flush: true)
         } catch (e) {
             log.error(e.fillInStackTrace())
@@ -332,7 +341,13 @@ class UserController {
 
     }
 
-    // webservice
+    @RestApiMethod(description = "Get organism permissions for user, returns an array of permission objects", path = "/user/getOrganismPermissionsForUser", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "User ID to fetch")
+    ]
+    )
     def getOrganismPermissionsForUser() {
         JSONObject dataObject = JSON.parse(params.data)
         User user = User.findById(dataObject.userId)
@@ -364,12 +379,12 @@ class UserController {
     )
     @Transactional
     def updateOrganismPermission() {
+        log.info "Updating organism permissions"
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        log.debug "json data ${dataObject}"
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findById(dataObject.id)
 
 
@@ -410,6 +425,8 @@ class UserController {
 
         userOrganismPermission.permissions = permissionsArray.toString()
         userOrganismPermission.save(flush: true)
+
+        log.info "Updated organism permissions for user ${user.username} and organism ${organism.commonName} and permissions ${permissionsArray.toString()}"
 
         render userOrganismPermission as JSON
     }

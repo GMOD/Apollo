@@ -144,18 +144,18 @@ class GroupController {
     )
     @Transactional
     def createGroup(){
-        log.debug "creating group ${request.JSON} -> ${params}"
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        log.debug "dataObject ${dataObject}"
+        log.info "Creating group"
 
         UserGroup group = new UserGroup(
                 name: dataObject.name
         ).save(flush: true)
 
+        log.info "Added group ${group.name}"
 
         render group as JSON
 
@@ -171,12 +171,12 @@ class GroupController {
     )
     @Transactional
     def deleteGroup(){
-        log.debug "deleting group ${request.JSON} -> ${params}"
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
             render status: HttpStatus.UNAUTHORIZED
             return
         }
+        log.info "Removing group"
         UserGroup group = UserGroup.findById(dataObject.id)
         if(!group){
             group = UserGroup.findByName(dataObject.name)
@@ -196,8 +196,11 @@ class GroupController {
         def groupOrganismPermissions = GroupOrganismPermission.findAllByGroup(group)
         GroupOrganismPermission.deleteAll(groupOrganismPermissions)
 
+        log.info "Removing group ${group.name}"
+
         group.save(flush: true)
         group.delete(flush: true)
+
 
         render new JSONObject() as JSON
     }
@@ -212,9 +215,7 @@ class GroupController {
     )
     @Transactional
     def updateGroup(){
-        log.debug "json: ${request.JSON}"
-        log.debug "params: ${params}"
-        log.debug "params.data: ${params.data}"
+        log.info "Updating group"
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
             render status: HttpStatus.UNAUTHORIZED
@@ -222,6 +223,7 @@ class GroupController {
         }
         UserGroup group = UserGroup.findById(dataObject.id)
         // the only thing that can really change
+        log.info "Updated group ${group.name} to use name ${dataObject.name}"
         group.name = dataObject.name
 
         group.save(flush: true)
@@ -254,7 +256,7 @@ class GroupController {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        log.debug "json data ${dataObject}"
+        log.info "Trying to update group organism permissions"
         GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findById(dataObject.id)
 
 
@@ -275,12 +277,14 @@ class GroupController {
 
         Organism organism =  Organism.findByCommonName(dataObject.organism)
 
+
         if(!organism){
             JSONObject jsonObject = new JSONObject()
             jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to find organism" )
             render jsonObject as JSON
             return
         }
+
 
         log.debug "found ${groupOrganismPermission}"
         if(!groupOrganismPermission){
@@ -317,6 +321,8 @@ class GroupController {
         groupOrganismPermission.permissions = permissionsArray.toString()
         groupOrganismPermission.save(flush: true)
 
+        log.info "Updated permissions for group ${group.name} and organism ${organism?.commonName} and permissions ${permissionsArray?.toString()}"
+
         render groupOrganismPermission as JSON
 
     }
@@ -336,7 +342,7 @@ class GroupController {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        log.debug "json data ${dataObject}"
+        log.info "Trying to update user group membership"
         UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
         List<User> oldUsers = groupInstance.users as List
         List<String> usernames = dataObject.users
@@ -358,6 +364,8 @@ class GroupController {
         }
 
         groupInstance.save(flush: true)
+
+        log.info "Updated group ${groupInstance.name} membership setting users ${newUsers.join(' ')}"
 
         render loadGroups() as JSON
     }
