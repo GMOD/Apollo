@@ -10,7 +10,7 @@ The general idea behind your deployment is to create a `apollo-config.groovy` fi
 have sample settings for various database engines.
 
 
-## Production prerequisites
+## Production pre-requisites
 
 You will minimally need to have Java 7 or greater, [Grails](https://grails.org/), [git](https://git-scm.com/),
 [ant](http://ant.apache.org/), a servlet container e.g. [tomcat7+](http://tomcat.apache.org/), jetty, or resin. An

@@ -1,13 +1,13 @@
 ## Pre-requisites
 
 
-### Client Pre-requisites
+### Client pre-requisites
 
 Web Apollo 2.0 is a web-based application, so the only client side
 requirement is a web browser. Web Apollo has been tested on Chrome, Firefox, and Safari
 and matches the web browser requirements for JBrowse (see [jbrowse.org](http://jbrowse.org) for details).
 
-### Server-side Pre-requisites
+### Server-side pre-requisites
 
 Note: see the [Web Apollo 2.0 quick-start](Apollo2Build.md) for the
 quickest way to take care of pre-requisites.

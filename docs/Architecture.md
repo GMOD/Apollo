@@ -183,7 +183,7 @@ class should be in, but it can be changed later. It is easy also to make changes
 
 
 
-### Main Configuration
+### Main configuration
 
 The central configuration files are defined in grails-app/conf/ folder, however the user normally only edits their
 personal config in apollo-config.groovy. That is because the user config file will override those in the central

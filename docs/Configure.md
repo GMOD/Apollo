@@ -205,7 +205,7 @@ the following "higher level" types (from the Sequence Ontology):
 * sequence:ncRNA sequence:rRNA sequence:miRNA sequence:repeat_region sequence:transposable_element
 
 
-### Apache / Nginx Configuration
+### Apache / Nginx configuration
 
 Oftentimes, admins will put use Apache or Nginx as a reverse proxy so that the requests to a main server can be
 forwarded to the tomcat server.  This setup is not necessary, but it is a very standard configuration.  
