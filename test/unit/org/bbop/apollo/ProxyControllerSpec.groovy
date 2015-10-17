@@ -12,7 +12,8 @@ class ProxyControllerSpec extends Specification {
     def populateValidParams(params) {
         assert params != null
         // TODO: Populate valid properties like...
-        //params["name"] = 'someValidName'
+        params["referenceUrl"] = 'http://someValidName.com'
+        params["targetUrl"] = 'http://someOtherValidName.com'
     }
 
     void "Test the index action returns the correct model"() {
