@@ -74,18 +74,18 @@ Consider using a package manager to install Tomcat so that proper security setti
 http://tomcat.apache.org/tomcat-7.0-doc/security-howto.html#Non-Tomcat_settings
 
 
-### Errors running JBrowse scripts
+### Errors with JBrowse
 
-##### e.g. "Can't locate Hash/Merge.pm in @INC" or "Can't locate JBlibs.pm in @INC"
+#### e.g. "Can't locate Hash/Merge.pm in @INC" or "Can't locate JBlibs.pm in @INC"
 
 If you are trying to run the jbrowse binaries but get these sorts of errors, try running `install_jbrowse.sh` which will
 initialize as many pre-requisites as possible including JBLibs and other JBrowse dependencies. 
 
-### Rebuilding JBrowse
+#### Rebuilding JBrowse
 
 You can manually clear jbrowse files from web-app/jbrowse and re-run `apollo deploy` to rebuild JBrowse.
 
-### RequestError: Unable to load ... Apollo2/jbrowse/data/trackList.json status: 500
+#### RequestError: Unable to load ... Apollo2/jbrowse/data/trackList.json status: 500
 
 Apollo2 does fairly strict JSON validation so make sure your trackList.json file is valid JSON
 
