@@ -192,8 +192,6 @@ configuration. See [Configure.md](Configure.md) for details.
 #### Database configuration
 
 
-##### Database configuration
-
 The "root" database configuration is specified by grails-app/conf/DataSource.groovy but it is generally over-ridden by
 the user's apollo-config.groovy
 

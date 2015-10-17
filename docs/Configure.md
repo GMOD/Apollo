@@ -44,7 +44,6 @@ apollo {
   ]    
       
 
-  // TODO: should come from config or via preferences database
 
   splice_donor_sites = [ "GT" ]
   splice_acceptor_sites = [ "AG"]

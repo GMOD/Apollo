@@ -12,17 +12,12 @@ have sample settings for various database engines.
 
 ## Production prerequisites
 
-You will minimally need to have Java (Oracle or OpenJDK's version, Java (7 or greater), ([Grails](https://grails.org/),
-[git](https://git-scm.com/), [ant](http://ant.apache.org/), and a Java web server (servlet container) which is generally
-[tomcat, minimally 7.0.28](http://tomcat.apache.org/), jetty, or resin. An external database such as PostgreSQL or MySQL
-is generally used for production, but an embedded H2 database will also be used in this guide for ease of deployment.
-
-See the [pre-requisites](Prerequisites.md) for more details.
-
-
+You will minimally need to have Java 7 or greater, [Grails](https://grails.org/), [git](https://git-scm.com/),
+[ant](http://ant.apache.org/), a servlet container e.g. [tomcat7+](http://tomcat.apache.org/), jetty, or resin. An
+external database such as PostgreSQL or MySQL is generally used for production, but instructions for the H2 database is
+also provided.
 
 ### Database configuration
-
 
 Web Apollo supports several database backends, and you can choose sample configurations from using H2, Postgres, or
 MySQL by default.
