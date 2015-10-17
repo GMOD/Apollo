@@ -77,9 +77,9 @@ The defaults are generally sufficient, but as noted above, you can override any 
     }
 ```
 
-#### Logging
+### Logging configuration
 
-To over-ride the default logging you'll most like start out by copying the log4j section in [Config.groovy](https://github.com/GMOD/Apollo/blob/master/grails-app/conf/Config.groovy) into ```apollo-config.groovy``` and making modifications.
+To over-ride the default logging, you can look at the logging configurations from [Config.groovy](https://github.com/GMOD/Apollo/blob/master/grails-app/conf/Config.groovy) and override or modify them in `apollo-config.groovy`.
 
 ```
 log4j.main = {
@@ -91,20 +91,24 @@ log4j.main = {
 }
 ```
 
-Here is a [good description of ways to over-ride the logging](http://blog.andresteingress.com/2012/03/22/grails-adding-more-than-one-log4j-configurations/). 
-Additional information about grails logging can be found here [configure logging in grails](http://grails.github.io/grails-doc/2.4.x/guide/single.html#logging).
+Additional links for log4j:
+
+- Advanced log4j configuration: http://blog.andresteingress.com/2012/03/22/grails-adding-more-than-one-log4j-configurations/
+- Grails log4j guide: http://grails.github.io/grails-doc/2.4.x/guide/single.html#logging
 
 
 ### Canned comments
 
 
-Canned comments are configured via the admin panel on the web interface.
+Canned comments are configured via the admin panel on the web interface, so they are not currently configured via the config files.
+
+See login to your instance for more details e.g. http://localhost:8080/apollo/cannedComment/
 
 
 ### Search tools
 
-Apollo can be configured to work with sequence search tools. The tool UCSC BLAT is
-commonly used and can be easily configured via the config file, with the general parameters given as follows:
+Apollo can be configured to work with various sequence search tools. UCSC's BLAT tool is configured by default
+and you can customize it as follows:
 
 ``` 
     sequence_search_tools = [
@@ -129,13 +133,15 @@ commonly used and can be easily configured via the config file, with the general
     ]
 ```
 
-You can see that the search options are extensible via the config, but that Blat is specified by default. If your blat
-installation binaries reside elsewhere, edit the search_exe location to point to the blat EXE.
+When you setup your organism in the web interface, you can then enter the location of the sequence search database for BLAT.
+
+
+Note: If the BLAT binaries reside elsewhere on your system, edit the search_exe location in the config to point to your BLAT executable.
 
 ### Data adapters
 
 
-Data adapters are currently configured as follows
+Data adapters for Web Apollo provide the methods for exporting annotation data from the application. By default, GFF3 and FASTA adapters are supplied. They are configured to query your IOService URL e.g. http://localhost:8080/apollo/IOService with the customizable query
 
 ``` 
     data_adapters = [[
@@ -176,7 +182,7 @@ Data adapters are currently configured as follows
 
 #### Default data adapter options
 
-The default data adapters are configured by simple URL strings to the IOServiceController. There are GFF3 and FASTA export types and they are set up to take several configurable options
+The options available for the data adapters are configured as follows
 
 - type: `GFF3` or `FASTA`
 - output: can be `file` or `text`. `file` exports to a file and provides a UUID link for downloads, text just outputs to stream.
@@ -205,14 +211,15 @@ supports the following "higher level" types (from the Sequence Ontology):
 
 ### Apache / Nginx Configuration
 
-Often time admins will put Apache or Nginx in front of a servlet container (e.g., Tomcat, Jetty).  This is not necessary, but it is a very standard configuration.  
+Oftentimes, admins will put use Apache or Nginx as a reverse proxy so that the requests to a main server can be forwarded to the tomcat server.  This setup is not necessary, but it is a very standard configuration.  
 
-One thing to consider with this proxy setup is the websocket calls. We use the SockJS library, which will downgrade to long-polling if websockets are not available, but since websockets are preferable, it helps to take some extra steps to ensure that the websocket calls are proxied or forwarded in some way too.
+Note that we use the SockJS library, which will downgrade to long-polling if websockets are not available, but since websockets are preferable, it helps to take some extra steps to ensure that the websocket calls are proxied or forwarded in some way too.
 
 
 #### Apache Proxy 
 
-The most simple setup on apache is a reverse proxy. Note that a reverse proxy _does not_ use `ProxyRequests On` (i.e. if you want you can set `ProxyRequests Off`, it is not relevant to reverse proxies). Here is the most basic configuration:
+The most simple setup on apache is as follows.. Here is the most basic configuration for a reverse proxy:
+
 
 ``` 
     ProxyPass  /apollo http://localhost:8080/apollo
@@ -220,7 +227,10 @@ The most simple setup on apache is a reverse proxy. Note that a reverse proxy _d
     ProxyPassReverseCookiePath  / http://localhost:8080/apollo
 ``` 
 
-This setup will use AJAX long-polling unless websockets are also configured to be proxied. To setup the proxy for websockets, you can use mod_proxy_wstunnel (available for httpd 2.4):  http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html
+Note: that a reverse proxy _does not_ use `ProxyRequests On` (which turns on forward proxying, which is dangerous)
+
+
+Also note: This setup will use downgrade to use AJAX long-polling without the websocket proxy being configured. To setup the proxy for websockets, you can use mod_proxy_wstunnel (available for httpd 2.4):  http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html
 
 First load the module or use a2enmod enable it (on ubuntu / debian):
 
@@ -228,7 +238,7 @@ First load the module or use a2enmod enable it (on ubuntu / debian):
     LoadModule proxy_wstunnel_module libexec/apache2/mod_proxy_wstunnel.so
 ```
 
-Then in your server config, i.e. httpd.conf, add extra ProxyPass calls for the websocket "endpoint" called /apollo/stomp
+Then add extra ProxyPass calls for the websocket "endpoint" called `/apollo/stomp`
 
 ``` 
     ProxyPass /apollo/stomp  ws://localhost:8080/apollo/stomp
@@ -236,8 +246,9 @@ Then in your server config, i.e. httpd.conf, add extra ProxyPass calls for the w
 ```
 
 
-Note: you can also proxy all apps on your tomcat server to a subdirectory like this, but the important part of this configuration is that ProxyPassReverseCookiePath is configured so that sessions are set up properly (otherwise it will look like the app is loaded, but you will not be able to login)
+Note: if your webapp is accessible but it doesn't seem like you can login, you may need to customize your ProxyPassReverseCookiePath
 
+For example, an alternative setup might look like this:
 
 ``` 
     ProxyPass  /testing http://localhost:8080
@@ -280,7 +291,7 @@ Your setup may vary, but setting the upgrade headers can be used for the websock
 
 There are several scripts for migrating from older instances. See the [migration guide](Migration.md) for details. Particular notes:
 
-Note: Apollo 2.0 does not require using the `add-webapollo-plugin.pl` because the plugin is loaded implicitely by including the client/apollo/json/annot.json file at run time.
+Note: Apollo 2.0 does not require using the `add-webapollo-plugin.pl` because the plugin is loaded implicitly by including the client/apollo/json/annot.json file at run time.
 
 #### Upgrading existing JBrowse data stores
 
