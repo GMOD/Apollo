@@ -106,7 +106,7 @@ brew install node
 The `apollo release` command also requires some extra Perl modules, namely Text::Markdown and DateTime:
 
 ``` 
-cpanm DateTime Text::Markdown
+bin/cpanm -l extlib DateTime Text::Markdown
 ```
 
 ### Performing the javascript minimization

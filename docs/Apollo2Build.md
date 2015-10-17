@@ -15,7 +15,9 @@ This guide will cover the "development mode" scenario which is easy to start. Se
 Installing grails is made easier by using [GVM](http://gvmtool.net/) which can automatically setup grails for you. We
 will use grails 2.4.5 for Web Apollo
 
-1. curl -s get.gvmtool.net | bash 2. gvm install grails 2.4.5
+1. curl -s get.gvmtool.net | bash
+2. gvm install grails 2.4.5
+
 
 ### Get the code
 
