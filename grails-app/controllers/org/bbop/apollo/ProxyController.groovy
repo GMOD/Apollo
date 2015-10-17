@@ -57,6 +57,8 @@ json.wrf=jQuery1710751773979049176_1445036592600&
 _=1445036624006
 
      // what is returned . .
+     // MISSING "/solr/select"
+
      http://golr.geneontology.org
  ?json.wrf=jQuery17109697239506058395_1445105400207&
 json=[nl:arrarr, wrf:jQuery17109697239506058395_1445105400207]&
