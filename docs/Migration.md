@@ -57,9 +57,9 @@ ls -1 /opt/apollo/annotations/ | grep Annotations | grep -v history | paste -s -
 ### Migrate Users
 
 You have to add users de novo using something like the [add_users.groovy
-script](https://github.com/gmod/apollo/web_services/examples/groovy/add_users.groovy).  In this case you create a csv
-file (you can start in Excel) with the email, name, password, and role ('user' or 'admin').  This is passed into the
-add_users.groovy script and users are added.  
+script](https://github.com/gmod/apollo/tree/master/docs/web_services/examples/groovy/add_users.groovy). In this case you
+create a csv file with the email, name, password, and role ('user' or 'admin'). This is passed into the add_users.groovy
+script and users are added.  
 
 From Web Apollo 1, you should be able to pull user names out of the database `select * from users ;`, but there is not
 much overlap between users in Web Apollo 1 and Apollo2.
@@ -70,7 +70,7 @@ If you have only a few users, however, just adding them manually on the users wi
 
 If possible adding organisms on the organisms tab is the easiest option if you only have a handful of organisms.  
 
-The [add_organism.groovy script](https://github.com/gmod/apollo/web_services/examples/groovy/add_organism.groovy) can
-help automate this process if you have a large number of migrations to handle.
+The [add_organism.groovy script](https://github.com/gmod/apollo/tree/master/docs/web_services/examples/groovy/
+add_organism.groovy) can help automate this process if you have a large number of migrations to handle.
 
 

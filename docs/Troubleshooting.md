@@ -128,7 +128,7 @@ More detail on database configuration when specifying the `apollo-config.groovy`
 [setup guide](Setup.md).
 
 
-### Cache Error
+### Grails cache errors
 
 In some instances you can't write to the default cache location on disk.  Part of an example config log:
 
@@ -140,10 +140,10 @@ java.lang.NullPointerException
         at grails.plugin.cache.ConfigLoader.reload(ConfigLoader.groovy:42)
 ```
 
-There are several solutions to this, but all involve updating the ```apollo-config.groovy``` file to override the
-caching defined in the [Config.groovy](https://github.com/GMOD/Apollo/blob/master/grails-app/conf/Config.groovy#L103).
+There are several solutions to this, but all involve updating the `apollo-config.groovy` file to override the caching 
+defined in the [Config.groovy](https://github.com/GMOD/Apollo/blob/master/grails-app/conf/Config.groovy#L103).
 
-1) Disabling the cache:
+#### Disabling the cache:
 
 ``` 
     grails.cache.config = {
@@ -154,7 +154,9 @@ caching defined in the [Config.groovy](https://github.com/GMOD/Apollo/blob/maste
     }
 ```
 
-2) Disallow writing overflow to disk (best solution for small installations):
+#### Disallow writing overflow to disk
+
+Can be used for small instances
 
 ``` 
     grails.cache.config = {
@@ -172,7 +174,9 @@ caching defined in the [Config.groovy](https://github.com/GMOD/Apollo/blob/maste
     }
 ```
 
-3) Specify the overflow directory (best for high load servers, which will need the cache).  Make sure your tomcat /
+#### Specify the overflow directory
+
+Best for high load servers, which will need the cache.  Make sure your tomcat /
 web-server user can write to that directory:
 
 ``` 
