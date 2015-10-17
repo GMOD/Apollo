@@ -28,7 +28,90 @@ class ProxyController {
     }
 
     /**
+     * What is input . . .
      * http://localhost:8080/apollo/proxy/request?request=http://golr.geneontology.org/solr/select?defType=edismax&qt=standard&indent=on&wt=json&rows=10&start=0&fl=*,score&facet=true&facet.mincount=1&facet.sort=count&json.nl=arrarr&facet.limit=25&fq=document_category:%22ontology_class%22&fq=source:(biological_process%20OR%20molecular_function%20OR%20cellular_component)&facet.field=annotation_class&facet.field=synonym&facet.field=alternate_id&q=gree*&qf=annotation_class%5E5&qf=annotation_class_label_searchable%5E5&qf=synonym_searchable%5E1&qf=alternate_id%5E1&json.wrf=jQuery1710751773979049176_1445036592600&_=1445036624006
+     * http://golr.geneontology.org/solr/select
+     * ?defType=edismax&
+qt=standard&
+indent=on&
+wt=json&
+rows=10&
+start=0&
+fl=*,score&
+facet=true&
+facet.mincount=1&
+facet.sort=count&
+json.nl=arrarr&
+facet.limit=25&
+fq=document_category:%22ontology_class%22&
+fq=source:(biological_process%20OR%20molecular_function%20OR%20cellular_component)&
+facet.field=annotation_class&
+facet.field=synonym&
+facet.field=alternate_id&
+q=gree*&
+qf=annotation_class%5E5&
+qf=annotation_class_label_searchable%5E5&
+qf=synonym_searchable%5E1&
+qf=alternate_id%5E1&
+json.wrf=jQuery1710751773979049176_1445036592600&
+_=1445036624006
+
+     // what is returned . .
+     http://golr.geneontology.org
+ ?json.wrf=jQuery17109697239506058395_1445105400207&
+json=[nl:arrarr, wrf:jQuery17109697239506058395_1445105400207]&
+facet=true&
+indent=on&
+facet.mincount=1&
+facet.limit=25&
+qf=[annotation_class^5, annotation_class_label_searchable^5, synonym_searchable^1, alternate_id^1]&
+json.nl=arrarr&
+wt=json&
+defType=edismax&
+rows=10&
+fl=*,score&
+start=0&
+facet.sort=count&
+q=red*&
+_=1445105574330&
+facet.field=[annotation_class, synonym, alternate_id]&
+qt=standard&
+fq=[document_category:"ontology_class", source:(biological_process OR molecular_function OR cellular_component)]&
+protocol=http&
+action=request&
+controller=proxy&
+returnType=solr&
+url=golr.geneontology.org. Stacktrace follows:
+
+     // what SHOULD be returned
+     http://golr.geneontology.org/solr/select
+ ?defType=edismax&
+qt=standard&
+indent=on&
+wt=json&
+rows=10&
+start=0&
+fl=*,score&
+facet=true&
+facet.mincount=1&
+facet.sort=count&
+json.nl=arrarr&
+facet.limit=25&
+fq=document_category:%22ontology_class%22&
+fq=source:(biological_process%20OR%20molecular_function%20OR%20cellular_component)&
+facet.field=annotation_class&
+facet.field=synonym&
+facet.field=alternate_id&
+q=red*&
+qf=annotation_class%5E5&
+qf=annotation_class_label_searchable%5E5&
+qf=synonym_searchable%5E1&
+qf=alternate_id%5E1&
+json.wrf=jQuery17101135514669585973_1445106124853&
+_=1445106155048
+
+
+
      * @return
      */
     def request(String protocol,String url,String returnType){
