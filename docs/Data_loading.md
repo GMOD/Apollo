@@ -236,10 +236,10 @@ Web Apollo has a number of specific track config parameters
 
 ``` 
 overrideDraggable (boolean)
-determines whether to transform the alignments tracks to draggable alignments. avaiable since 2.x
+determines whether to transform the alignments tracks to draggable alignments
 
 overridePlugins (boolean)
-determines whether to transform alignments and sequence tracks. available since pre 1.0 versions of WA
+determines whether to transform alignments and sequence tracks
 ```
 
-These can be specified on a specific track or in a global config
+These can be specified on a specific track or in a global config.
