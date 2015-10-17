@@ -108,6 +108,9 @@ public class MainPanel extends Composite {
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
+    private LoginDialog loginDialog = new LoginDialog();
+    private RegisterDialog registerDialog = new RegisterDialog();
+
 
     public static MainPanel getInstance() {
         if (instance == null) {
@@ -327,13 +330,12 @@ public class MainPanel extends Composite {
                     if (hasUsers) {
                         currentUser = null;
                         logoutButton.setVisible(false);
-                        LoginDialog loginDialog = new LoginDialog();
+                        loginDialog.showLogin();
                         loginDialog.center();
                         loginDialog.show();
                     } else {
                         currentUser = null;
                         logoutButton.setVisible(false);
-                        RegisterDialog registerDialog = new RegisterDialog();
                         registerDialog.center();
                         registerDialog.show();
                     }
@@ -342,7 +344,8 @@ public class MainPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Bootbox.alert("User not there: " + exception);
+//                Bootbox.alert("User not there: " + exception);
+                loginDialog.setError(exception.getMessage());
             }
         };
         try {

@@ -74,5 +74,20 @@ public class LoginDialog extends DialogBox {
     public void doLogin(String username,String password,Boolean rememberMe){
         UserRestService.login(username, password,rememberMe);
     }
+
+    public void showLogin() {
+        clearErrors();
+        center();
+        show();
+    }
+
+    public void setError(String errorMessage){
+
+    }
+
+    public void clearErrors(){
+
+    }
+
 }
 
