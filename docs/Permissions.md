@@ -47,13 +47,13 @@ Can only view things related to that organism.
 Table of permissions:
 
 ``` 
-Permission    | Annotator       | Tracks  |  Ref Seq | Organism | Users/groups |
-------------- | --------------- | ------- | -------- | -------- | -------      |
-READ          | Vis / locked    | None    | no export| hide     | hide         |
-EXPORT        | Vis / locked    | None    | export   | hide     | hide         |
-WRITE         | Vis / editable  | None    | export   | hide     | hide         |
-ADMIN         | Vis / editable  | None    | export   | vis      | vis          |
+| Permission | Annotator          | Users/groups  | Annotations         | Organism                  |
+|------------|--------------------|---------------|---------------------|---------------------------|
+| READ       | visible / locked   | hide          | visible / no export | visible                   |
+| EXPORT     | visible / locked   | hide          | visible / export    | visible                   |
+| WRITE      | visible + editable | hide          | visible / export    | visible                   |
+| ADMIN      | visible + editable | visible       | visible /export     | visible + admin functions |
+| NONE       | not available      | not available | not available       | not visible               |
 ```
-
 
 The Preference panel is available only for GLOBAL admin.
