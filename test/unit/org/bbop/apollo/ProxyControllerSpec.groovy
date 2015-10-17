@@ -14,6 +14,7 @@ class ProxyControllerSpec extends Specification {
         // TODO: Populate valid properties like...
         params["referenceUrl"] = 'http://someValidName.com'
         params["targetUrl"] = 'http://someOtherValidName.com'
+        params["active"] = true
     }
 
     void "Test the index action returns the correct model"() {
