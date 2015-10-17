@@ -104,7 +104,7 @@ Additional links for log4j:
 Canned comments are configured via the admin panel on the web interface, so they are not currently configured via the
 config files.
 
-See login to your instance for more details e.g. http://localhost:8080/apollo/cannedComment/
+View your instances page for more details e.g. http://localhost:8080/apollo/cannedComment/
 
 
 ### Search tools
