@@ -67,7 +67,6 @@ public class UserRestService {
                 JSONObject o=j.isObject();
                 if(o.get("error")!=null) {
                     loginDialog.setError(o.get("error").isString().stringValue()+"!");
-//                    Bootbox.alert(o.get("error").isString().stringValue());
                 }
                 else {
                     Window.Location.reload();

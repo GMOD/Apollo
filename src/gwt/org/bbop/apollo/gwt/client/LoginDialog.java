@@ -20,15 +20,11 @@ public class LoginDialog extends DialogBox {
 
     // TODO: move to UIBinder
     private VerticalPanel panel = new VerticalPanel();
-//    private Grid grid = new Grid(3,2);
     private org.gwtbootstrap3.client.ui.Button okButton = new org.gwtbootstrap3.client.ui.Button("Login");
     private org.gwtbootstrap3.client.ui.TextBox username = new org.gwtbootstrap3.client.ui.TextBox();
-//    private PasswordTextBox passwordTextBox = new PasswordTextBox();
     private Input passwordTextBox = new Input();
     private HorizontalPanel horizontalPanel = new HorizontalPanel();
     private org.gwtbootstrap3.client.ui.CheckBox rememberMeCheckBox = new org.gwtbootstrap3.client.ui.CheckBox("Remember me");
-//    private HTML errorHtml = new HTML();
-//    private Paragraph errorHtml = new Paragraph();
     private Heading errorHtml = new Heading(HeadingSize.H4);
 
 
@@ -118,14 +114,11 @@ public class LoginDialog extends DialogBox {
     }
 
     public void setError(String errorMessage){
-//        errorHtml.setHTML(errorMessage);
         errorHtml.setText(errorMessage);
         errorHtml.setVisible(true);
     }
 
     public void clearErrors(){
-//        errorHtml.setHTML("");
-//        errorHtml.clear();
         errorHtml.setText("");
         errorHtml.setVisible(false);
     }
