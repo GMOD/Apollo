@@ -19,6 +19,7 @@ class UrlMappings {
         "/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
+        "/proxy/request/${protocol}/${url}/${returnType}/**"(controller:"proxy", action: "request")
 
 
         "/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params)
