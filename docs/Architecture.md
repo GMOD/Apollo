@@ -65,14 +65,16 @@ The main components of the Web Apollo 2.0 application are:
 
 The main components of the Web Apollo application (the four most important are 1 through 4):
 
-1. The domain classes; these are the main objects 2. Controllers, which route those domains and provide URL routes;
-provides rest services 3. Views: annotator and index and the only ones that matter for Apollo 4. Services: very
-important because all of the controllers should typically have routes, then particular business logic should go into the
-service.  5. Configuration files: The grails-app/conf folder contains central conf files, but the apollo-config.groovy
-file in your root directory can override these central configs (i.e. it is not necessary to edit DataSource.groovy) 6.
-Grails-app/assets: all your javascript live here. efficient way to deliver this stuff 7. Resources: web-app directory:
-css, images, and the jbrowse directory + WA plugin are initialized here.  8. Client directory: The WA plugin is
-developed in this folder before it is dynamically loaded into the web-app directory
+1. The domain classes; these are the main objects
+2. Controllers, which route those domains and provide URL routes; provides rest services
+3. Views: annotator and index and the only ones that matter for Apollo
+4. Services: very important because all of the controllers should typically have routes, then particular business logic
+  should go into the service.
+5. Configuration files: The grails-app/conf folder contains central conf files, but the apollo-config.groovy
+  file in your root directory can override these central configs (i.e. it is not necessary to edit DataSource.groovy)
+6. Grails-app/assets: all your javascript live here. efficient way to deliver this stuff
+7. Resources: web-app directory: css, images, and the jbrowse directory + WA plugin are initialized here. 
+8. Client directory: The WA plugin is copied or compiled along with jbrowse to the web-app directory
 
 ### Schema/domain classes
 
