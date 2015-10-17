@@ -16,7 +16,6 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.*;
@@ -315,7 +314,6 @@ public class MainPanel extends Composite {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
-
                         new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, false, true);
                     } else {
                         getAppState();
@@ -331,8 +329,8 @@ public class MainPanel extends Composite {
                         currentUser = null;
                         logoutButton.setVisible(false);
                         loginDialog.showLogin();
-                        loginDialog.center();
-                        loginDialog.show();
+//                        loginDialog.center();
+//                        loginDialog.show();
                     } else {
                         currentUser = null;
                         logoutButton.setVisible(false);
@@ -352,7 +350,8 @@ public class MainPanel extends Composite {
             builder.setCallback(requestCallback);
             builder.send();
         } catch (RequestException e) {
-            Bootbox.alert(e.getMessage());
+//            Bootbox.alert(e.getMessage());
+            loginDialog.setError(e.getMessage());
         }
 
     }
@@ -449,7 +448,7 @@ public class MainPanel extends Composite {
                 JSONValue j = JSONParser.parseStrict(response.getText());
                 JSONObject obj = j.isObject();
                 if (obj != null && obj.containsKey("error")) {
-                    Bootbox.alert(obj.get("error").isString().stringValue());
+//                    Bootbox.alert(obj.get("error").isString().stringValue());
                     loadingDialog.hide();
                 } else {
                     loadingDialog.hide();
