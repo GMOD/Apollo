@@ -92,30 +92,22 @@ learn how to use `apollo release` to construct a build that includes javascript 
 ### Pre-requisites for Javascript minimization
 
 In addition to the system [pre-requisites](Prerequisites.html), the javascript compilation will use nodejs, which can be
-installed from a package manager on many platforms.
-
-#### Install NodeJS
-
-##### Debian/ubuntu
-
-`sudo apt-get install nodejs`
+installed from a package manager on many platforms. Recommended setup for different platforms:
 
 
-##### CentOS/RedHat
-
-`sudo yum install npm`
-
-You may also need to install the `epel-release` package for this.
-
-##### MacOSX/Homebrew
-
-`brew install node`
+``` 
+sudo apt-get install nodejs`
+sudo yum install epel-release npm
+brew install node
+```
 
 #### Install extra perl modules
 
 The `apollo release` command also requires some extra Perl modules, namely Text::Markdown and DateTime:
 
-`cpanm DateTime Text::Markdown`
+``` 
+cpanm DateTime Text::Markdown
+```
 
 ### Performing the javascript minimization
 
@@ -141,16 +133,5 @@ To perform active development of the codebase, use
 This will launch a temporary instance of Web Apollo by running `grails run-app` and `ant devmode` at the same time, which means that any changes to the Java files will be picked up, allowing fast iteration.
 
 If you modify the javascript files (i.e. the client directory), you can run `scripts/copy_client.sh` and these will be picked up on-the-fly too.
-
-
-## Launching a temporary instance
-
-A temporary tomcat server can be automatically launched without having you configure your own Tomcat server with the `apollo run-local` command:
-
-``` 
-    ./apollo run-local [8085]
-```
-
-The port number is an optional argument.
 
 

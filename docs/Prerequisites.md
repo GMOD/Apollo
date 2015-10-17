@@ -38,17 +38,17 @@ quickest way to take care of pre-requisites.
 
 #### Package manager commands
 
-To install all system pre-requisites, you can try the following commands
+To install system pre-requisites, you can try the following commands
 
 
 ##### Debian/Ubuntu
 
-`sudo apt-get install openjdk-7-jdk curl libexpat1-dev postgresql postgresql-server-dev-all maven tomcat7 git`
+`sudo apt-get install openjdk-7-jdk curl libexpat1-dev postgresql postgresql-server-dev-all tomcat7 git`
 
 ##### CentOS/RedHat
 
-`sudo yum install postgresql postgresql-server postgresql-devel maven expat-devel tomcat git curl`
+`sudo yum install postgresql postgresql-server postgresql-devel expat-devel tomcat git curl`
 
 ##### MacOSX/Homebrew
 
-`brew install maven postgresql wget tomcat git`
+`brew install postgresql wget tomcat git`
