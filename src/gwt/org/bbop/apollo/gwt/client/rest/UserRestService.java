@@ -10,6 +10,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ErrorDialog;
+import org.bbop.apollo.gwt.client.LoginDialog;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
 import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
@@ -58,14 +59,14 @@ public class UserRestService {
         RestService.sendRequest(requestCallback, "login/registerAdmin", data);
     }
 
-    public static void login(String username, String password, Boolean rememberMe) {
+    public static void login(String username, String password, Boolean rememberMe, final LoginDialog loginDialog) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue j=JSONParser.parseStrict(response.getText());
                 JSONObject o=j.isObject();
                 if(o.get("error")!=null) {
-                    Bootbox.alert(o.get("error").isString().stringValue());
+                    loginDialog.setError(o.get("error").isString().stringValue()+"!");
                 }
                 else {
                     Window.Location.reload();
