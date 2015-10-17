@@ -51,4 +51,6 @@ To install system pre-requisites, you can try the following commands
 
 ##### MacOSX/Homebrew
 
-`brew install postgresql wget tomcat git`
+`brew install postgresql tomcat git`
+
+
