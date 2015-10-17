@@ -2,82 +2,101 @@
 
 
 
-The quick-start guide showed how to quickly launch a temporary instance of Web Apollo, but deploying the application to production normally involves some extra steps.
+The quick-start guide showed how to quickly launch a temporary instance of Web Apollo, but deploying the application to
+production normally involves some extra steps.
 
 
-The general idea behind your deployment is to create a `apollo-config.groovy` file from some existing sample files which have sample settings for various database engines.
+The general idea behind your deployment is to create a `apollo-config.groovy` file from some existing sample files which
+have sample settings for various database engines.
 
 
-## Production prerequisites
+## Production pre-requisites
 
-You will minimally need to have Java (Oracle or OpenJDK's version, Java (7 or greater), ([Grails](https://grails.org/), [git](https://git-scm.com/), [ant](http://ant.apache.org/), and a Java web server (servlet container) which is generally [tomcat, minimally 7.0.28](http://tomcat.apache.org/), jetty, or resin. An external database such as PostgreSQL or MySQL is generally used for production, but an embedded H2 database will also be used in this guide for ease of deployment.
-
-See the [pre-requisites](Prerequisites.md) for more details.
-
-
+You will minimally need to have Java 7 or greater, [Grails](https://grails.org/), [git](https://git-scm.com/),
+[ant](http://ant.apache.org/), a servlet container e.g. [tomcat7+](http://tomcat.apache.org/), jetty, or resin. An
+external database such as PostgreSQL or MySQL is generally used for production, but instructions for the H2 database is
+also provided.
 
 ### Database configuration
 
-
-Web Apollo supports several database backends, and you can choose sample configurations from using H2, Postgres, or MySQL by default.
+Web Apollo supports several database backends, and you can choose sample configurations from using H2, Postgres, or
+MySQL by default.
 
 Each has a file called `sample-h2-apollo-config.groovy` or `sample-postgres-apollo-config.groovy` that is designed to be
-renamed to apollo-config.groovy before running `apollo deploy`. Additionally there is a `sample-docker-apollo-config.groovy`
-which allows control of the configuration via environment variables.
+renamed to apollo-config.groovy before running `apollo deploy`. Additionally there is a
+`sample-docker-apollo-config.groovy` which allows control of the configuration via environment variables.
 
-Furthermore, the `apollo-config.groovy` has different groovy environments for test, development, and production modes. The environment will be selected automatically selected depending on how it is run, e.g:
+Furthermore, the `apollo-config.groovy` has different groovy environments for test, development, and production modes.
+The environment will be selected automatically selected depending on how it is run, e.g:
 
-* `apollo deploy` or `apollo release` use the production environment (i.e. when you copy the war file to your production server)
-* `apollo run-local` or `apollo debug` use the development environment (i.e. when you are running it locally)
+* `apollo deploy` or `apollo release` use the production environment (i.e. when you copy the war file to your production
+* server) `apollo run-local` or `apollo debug` use the development environment (i.e. when you are running it locally)
 * `apollo test` uses the test environment (i.e. only when running unit tests)
 
 
 
 #### Configure for H2:
-- H2 is an embedded database engine, so no external setups are needed. Simply copy sample-h2-apollo-config.groovy to apollo-config.groovy.
+- H2 is an embedded database engine, so no external setups are needed. Simply copy sample-h2-apollo-config.groovy to
+  apollo-config.groovy.
 
 #### Configure for PostgreSQL:
-- Create a new database with postgres for production mode (i.e. via the command line `createdb apollo-production`) and copy the sample-postgres-apollo-config.groovy to apollo-config.groovy.
+- Create a new database with postgres for production mode (i.e. via the command line `createdb apollo-production`) and
+  copy the sample-postgres-apollo-config.groovy to apollo-config.groovy.
 
 #### Configure for MySQL:
-- Create a new MySQL database for production mode (i.e. run ``create database `apollo-production``` in the mysql console) and copy the sample-postgres-apollo-config.groovy to apollo-config.groovy.
+- Create a new MySQL database for production mode (i.e. run ``create database `apollo-production``` in the mysql
+  console) and copy the sample-postgres-apollo-config.groovy to apollo-config.groovy.
 
-*Note:* to deploy on tomcat you *NEED* to have a configured `apollo-config.groovy` file copied to deploy to production.
 
 #### Configure for Docker:
-- Set up and export all of the environment variables you wish to configure. At bare minimum you will likely wish to set `WEBAPOLLO_DB_USERNAME`, `WEBAPOLLO_DB_PASSWORD`, `WEBAPOLLO_DB_DRIVER`, `WEBAPOLLO_DB_DIALECT`, and `WEBAPOLLO_DB_URI`
-- Create a new database in your chosen database backend and copy the sample-docker-apollo-config.groovy to apollo-config.groovy.
+- Set up and export all of the environment variables you wish to configure. At bare minimum you will likely wish to set
+  `WEBAPOLLO_DB_USERNAME`, `WEBAPOLLO_DB_PASSWORD`, `WEBAPOLLO_DB_DRIVER`, `WEBAPOLLO_DB_DIALECT`, and
+`WEBAPOLLO_DB_URI`
+- Create a new database in your chosen database backend and copy the sample-docker-apollo-config.groovy to
+  apollo-config.groovy.
 
 ### Database schema
 
-After you startup the application, the database schema (tables, etc.) is automatically setup. You don't have to initialize any database schemas yourself.
+After you startup the application, the database schema (tables, etc.) is automatically setup. You don't have to
+initialize any database schemas yourself.
 
 ## Deploy the application
 
-The `apollo run-local` command only launches a temporary server and should really not be used in production, so to deploy to production, we build a new WAR file with the `apollo deploy` command. After you have setup your `apollo-config.groovy` file, and it has the appropriate username, password, and JDBC URL in it, then we can run the command:
+The `apollo run-local` command only launches a temporary server and should really not be used in production, so to
+deploy to production, we build a new WAR file with the `apollo deploy` command. After you have setup your
+`apollo-config.groovy` file, and it has the appropriate username, password, and JDBC URL in it, then we can run the
+command:
 
 
 
 ``` 
-    ./apollo deploy
+./apollo deploy
 ```
 
 
-This command will package the application and it will download any missing pre-requisites (jbrowse) into a WAR file in the "target/" subfolder. After it completes, you can then copy the WAR file from the target folder to your webapps folder. If you name the file apollo.war in your webapps folder, then you can access your app at "http://localhost:8080/apollo"
+This command will package the application and it will download any missing pre-requisites (jbrowse) into a WAR file in
+the "target/" subfolder. After it completes, you can then copy the WAR file from the target folder to your webapps
+folder. If you name the file apollo.war in your webapps folder, then you can access your app at
+"http://localhost:8080/apollo"
 
 
-Alternatively, as we alluded to previously, you can also launch a temporary instance of the server which is useful for testing
+Alternatively, as we alluded to previously, you can also launch a temporary instance of the server which is useful for
+testing
 
 ``` 
-    ./apollo run-local 8080
+./apollo run-local 8085
 ```
 
-This temporary server will be accessible at "http://localhost:8080/apollo"
+This temporary server will be accessible at "http://localhost:8085/apollo"
 
 
 ### Note on database settings
 
-If you use the `apollo run-local` command, then the "development" section of the apollo-config.groovy is used, but if you use the WAR file generated by the `apollo deploy` command on your own webserver, then the "production" section of the apollo-config.groovy is used.
+If you use the `apollo run-local` command, then the "development" section of the apollo-config.groovy is used (or an
+temporary in-memory H2 database is used if no apollo-config.groovy exists).
+
+If you use the WAR file generated by the `apollo deploy` command on your own webserver, then the "production" section of
+the apollo-config.groovy is used.
 
 ## Detailed build instructions
 
@@ -85,47 +104,41 @@ If you use the `apollo run-local` command, then the "development" section of the
 While the shortcut `apollo deploy` takes care of basic application deployment, understanding the full build process of
 Web Apollo 2.0 can help you to optimize and improve your deployed instances.
 
-To learn more about the architecture of webapollo, view the [architecture guide](Architecture.html) but the main idea here is to
-learn how to use `apollo release` to construct a build that includes javascript minimization
+To learn more about the architecture of webapollo, view the [architecture guide](Architecture.html) but the main idea
+here is to learn how to use `apollo release` to construct a build that includes javascript minimization
 
 
 ### Pre-requisites for Javascript minimization
 
 In addition to the system [pre-requisites](Prerequisites.html), the javascript compilation will use nodejs, which can be
-installed from a package manager on many platforms.
-
-#### Install NodeJS
-
-##### Debian/ubuntu
-
-`sudo apt-get install nodejs`
+installed from a package manager on many platforms. Recommended setup for different platforms:
 
 
-##### CentOS/RedHat
-
-`sudo yum install npm`
-
-You may also need to install the `epel-release` package for this.
-
-##### MacOSX/Homebrew
-
-`brew install node`
+``` 
+sudo apt-get install nodejs
+sudo yum install epel-release npm
+brew install node
+```
 
 #### Install extra perl modules
 
-The `apollo release` command also requires some extra Perl modules, namely Text::Markdown and DateTime:
+Building apollo in release mode also requires some extra Perl modules, namely Text::Markdown and DateTime. One way to
+install them:
 
-`cpanm DateTime Text::Markdown`
+``` 
+bin/cpanm -l extlib DateTime Text::Markdown
+```
 
 ### Performing the javascript minimization
 
 To build a Web Apollo release with Javascript minimization, you can use the command
 
 ``` 
-    ./apollo release
+./apollo release
 ```
 
-This will compile JBrowse and Apollo javascript code into minimized files so that the number of HTTP requests that the client needs to make are reduced.
+This will compile JBrowse and Apollo javascript code into minimized files so that the number of HTTP requests that the
+client needs to make are reduced.
 
 In all other respects, `apollo release` is exactly the same as `apollo deploy` though.
 
@@ -135,22 +148,13 @@ In all other respects, `apollo release` is exactly the same as `apollo deploy` t
 To perform active development of the codebase, use
 
 ``` 
-    ./apollo debug
+./apollo debug
 ```
 
-This will launch a temporary instance of Web Apollo by running `grails run-app` and `ant devmode` at the same time, which means that any changes to the Java files will be picked up, allowing fast iteration.
+This will launch a temporary instance of Web Apollo by running `grails run-app` and `ant devmode` at the same time,
+which means that any changes to the Java files will be picked up, allowing fast iteration.
 
-If you modify the javascript files (i.e. the client directory), you can run `scripts/copy_client.sh` and these will be picked up on-the-fly too.
-
-
-## Launching a temporary instance
-
-A temporary tomcat server can be automatically launched without having you configure your own Tomcat server with the `apollo run-local` command:
-
-``` 
-    ./apollo run-local [8085]
-```
-
-The port number is an optional argument.
+If you modify the javascript files (i.e. the client directory), you can run `scripts/copy_client.sh` and these will be
+picked up on-the-fly too.
 
 

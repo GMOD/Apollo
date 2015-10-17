@@ -16,7 +16,6 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.*;
@@ -107,6 +106,9 @@ public class MainPanel extends Composite {
     static SuggestBox sequenceSuggestBox;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
+
+    private LoginDialog loginDialog = new LoginDialog();
+    private RegisterDialog registerDialog = new RegisterDialog();
 
 
     public static MainPanel getInstance() {
@@ -312,7 +314,6 @@ public class MainPanel extends Composite {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
-
                         new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, false, true);
                     } else {
                         getAppState();
@@ -327,13 +328,12 @@ public class MainPanel extends Composite {
                     if (hasUsers) {
                         currentUser = null;
                         logoutButton.setVisible(false);
-                        LoginDialog loginDialog = new LoginDialog();
-                        loginDialog.center();
-                        loginDialog.show();
+                        loginDialog.showLogin();
+//                        loginDialog.center();
+//                        loginDialog.show();
                     } else {
                         currentUser = null;
                         logoutButton.setVisible(false);
-                        RegisterDialog registerDialog = new RegisterDialog();
                         registerDialog.center();
                         registerDialog.show();
                     }
@@ -342,14 +342,16 @@ public class MainPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Bootbox.alert("User not there: " + exception);
+//                Bootbox.alert("User not there: " + exception);
+                loginDialog.setError(exception.getMessage());
             }
         };
         try {
             builder.setCallback(requestCallback);
             builder.send();
         } catch (RequestException e) {
-            Bootbox.alert(e.getMessage());
+//            Bootbox.alert(e.getMessage());
+            loginDialog.setError(e.getMessage());
         }
 
     }
@@ -446,7 +448,7 @@ public class MainPanel extends Composite {
                 JSONValue j = JSONParser.parseStrict(response.getText());
                 JSONObject obj = j.isObject();
                 if (obj != null && obj.containsKey("error")) {
-                    Bootbox.alert(obj.get("error").isString().stringValue());
+//                    Bootbox.alert(obj.get("error").isString().stringValue());
                     loadingDialog.hide();
                 } else {
                     loadingDialog.hide();

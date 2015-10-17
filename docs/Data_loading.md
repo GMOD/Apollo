@@ -1,9 +1,12 @@
 # Data generation pipeline
 
-The data generation pipeline is based on the typical jbrowse commands such as prepare-refseqs.pl and flatfile-to-json.pl,
- and these scripts are automatically copied to a local bin/ directory when you run the setup scripts (e.g. `apollo run-local` or `apollo deploy` or `install_jbrowse.sh`).
+The data generation pipeline is based on the typical jbrowse commands such as prepare-refseqs.pl and
+flatfile-to-json.pl, and these scripts are automatically copied to a local bin/ directory when you run the setup scripts
+(e.g. `apollo run-local` or `apollo deploy` or `install_jbrowse.sh`).
 
-If you don't see a bin/ subdirectory containing these scripts after running the setup, check setup.log and check the [troubleshooting guide](Troubleshooting.md) for additional tips or feel free to post the error and setup.log on GitHub or the mailing list.
+If you don't see a bin/ subdirectory containing these scripts after running the setup, check setup.log and check the
+[troubleshooting guide](Troubleshooting.md) for additional tips or feel free to post the error and setup.log on GitHub
+or the mailing list.
 
 ### prepare-refseqs.pl
 
@@ -11,24 +14,29 @@ The first step to setup the genome browser is to load the reference genome data.
 script to output to the data directory.
 
 ``` 
-    bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out /opt/apollo/data
+bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out /opt/apollo/data
 ```
 
 Note: the output directory is used later when we load the organism into the browser with the "Create organism" form
 
 ### flatfile-to-json.pl
 
-The flatfile-to-json.pl script can be used to load GFF3 files and you can customize the feature types. Here, we'll start off by loading data from the MAKER GFF for the Pythium ultimum data. The simplest loading command specifies a --trackLabel, the --type of feature to load, the --gff file and the --out directory.
+The flatfile-to-json.pl script can be used to load GFF3 files and you can customize the feature types. Here, we'll start
+off by loading data from the MAKER GFF for the Pythium ultimum data. The simplest loading command specifies a
+--trackLabel, the --type of feature to load, the --gff file and the --out directory.
 
 ``` 
-    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type mRNA --trackLabel MAKER --out /opt/apollo/data
+bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type mRNA \
+        --trackLabel MAKER --out /opt/apollo/data
 ```
  
 Note: you can also use the command `bin/maker2jbrowse` for loading the MAKER data.
 
-Also see the section [Customizing features](Data_loading.md#customizing-features) section for more information on customizing the CSS styles of the Web Apollo 2.0 features.
+Also see the section [Customizing features](Data_loading.md#customizing-features) section for more information on
+customizing the CSS styles of the Web Apollo 2.0 features.
 
-Note: WebApollo uses features that are loaded at the "transcript" level. If your GFF3 has "gene" features with "transcript"/"mRNA" child features, make sure that you use the argument --type mRNA or --type transcript.
+Note: WebApollo uses features that are loaded at the "transcript" level. If your GFF3 has "gene" features with
+"transcript"/"mRNA" child features, make sure that you use the argument --type mRNA or --type transcript.
 
 
 ### generate-names.pl
@@ -36,30 +44,32 @@ Note: WebApollo uses features that are loaded at the "transcript" level. If your
 Once data tracks have been created, you can generate a searchable index of names using the generate-names.pl script:
 
 ``` 
-    bin/generate-names.pl --verbose --out /opt/apollo/data
+bin/generate-names.pl --verbose --out /opt/apollo/data
 ```
 
-This script creates an index of sequence names and feature names in order to enable auto-completion in the navigation
-text box. If you have some tracks that have millions of features, consider using "--completionLimit 0" to disable the
-autocompletion which will save time, and you can also incrementally index the features with the --incremental
-option to disable the completion on certain tracks.
+This is optional but useful step to index of names and features and refseq names. If you have some tracks that have
+millions of features, consider only indexing select tracks with the --tracks argument or disabling autocomplete with
+ `--completionLimit 0`.
 
 ### add-bam-track.pl
 
-WebApollo natively supports BAM files and the file can be read (in chunks) directly from the server with no preprocessing.
+WebApollo natively supports BAM files and the file can be read (in chunks) directly from the server with no
+preprocessing.
 
-To add a BAM track, copy the .bam and .bam.bai files to your data directory, and then use the add-bam-track.pl to add the file to the tracklist.
+To add a BAM track, copy the .bam and .bam.bai files to your data directory, and then use the add-bam-track.pl to add
+the file to the tracklist.
 
 ``` 
-    mkdir /opt/apollo/data/bam
-    cp pyu_data/simulated-sorted.bam /opt/apollo/data/bam
-    cp pyu_data/simulated-sorted.bam.bai /opt/apollo/data/bam
-    bin/add-bam-track.pl --bam_url bam/simulated-sorted.bam \
-       --label simulated_bam --key "simulated BAM" -i /opt/apollo/data/trackList.json
+mkdir /opt/apollo/data/bam
+cp pyu_data/simulated-sorted.bam /opt/apollo/data/bam
+cp pyu_data/simulated-sorted.bam.bai /opt/apollo/data/bam
+bin/add-bam-track.pl --bam_url bam/simulated-sorted.bam \
+   --label simulated_bam --key "simulated BAM" -i /opt/apollo/data/trackList.json
 ```
 
 
-Note: the `bam_url` parameter is a URL that is relative to the data directory. It is not a filepath! Also, the .bai will automatically be located if it is simply the .bam with .bai appended to it.
+Note: the `bam_url` parameter is a URL that is relative to the data directory. It is not a filepath! Also, the .bai will
+automatically be located if it is simply the .bam with .bai appended to it.
 
 ### add-bw-track.pl
 
@@ -69,58 +79,59 @@ To use this, copy the BigWig data into the jbrowse data directory and then use t
 the tracklist.
 
 ``` 
-    mkdir /opt/apollo/data/bigwig
-    cp pyu_data/*.bw /opt/apollo/data/bigwig
-    bin/add-bw-track.pl --bw_url bigwig/simulated-sorted.coverage.bw \
-        --label simulated_bw --key "simulated BigWig"
+mkdir /opt/apollo/data/bigwig
+cp pyu_data/*.bw /opt/apollo/data/bigwig
+bin/add-bw-track.pl --bw_url bigwig/simulated-sorted.coverage.bw \
+    --label simulated_bw --key "simulated BigWig"
 ```
 
 Note: the `bw_url` parameter is a URL that is relative to the data directory. It is not a filepath!
 
 ### Customizing different annotation types (advanced)
 
-To change how the different annotation types look in the "User-created annotation" track, you'll need to update the mapping of the
-annotation type to the appropriate CSS class. This data resides in `client/apollo/json/annot.json`, which is a file containing WebApollo tracks that is loaded by default. You'll need to modify the JSON entry whose label is `Annotations`. Of particular interest is
-the `alternateClasses` element. Let's look at that default element:
+To change how the different annotation types look in the "User-created annotation" track, you'll need to update the
+mapping of the annotation type to the appropriate CSS class. This data resides in `client/apollo/json/annot.json`, which
+is a file containing WebApollo tracks that is loaded by default. You'll need to modify the JSON entry whose label is
+`Annotations`. Of particular interest is the `alternateClasses` element. Let's look at that default element:
 
 ``` 
-    "alternateClasses": {
-        "pseudogene" : {
-           "className" : "light-purple-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "tRNA" : {
-           "className" : "brightgreen-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "snRNA" : {
-           "className" : "brightgreen-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "snoRNA" : {
-           "className" : "brightgreen-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "ncRNA" : {
-           "className" : "brightgreen-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "miRNA" : {
-           "className" : "brightgreen-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "rRNA" : {
-           "className" : "brightgreen-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "repeat_region" : {
-           "className" : "magenta-80pct"
-        },
-        "transposable_element" : {
-           "className" : "blue-ibeam",
-           "renderClassName" : "blue-ibeam-render"
-        }
+"alternateClasses": {
+    "pseudogene" : {
+       "className" : "light-purple-80pct",
+       "renderClassName" : "gray-center-30pct"
+    },
+    "tRNA" : {
+       "className" : "brightgreen-80pct",
+       "renderClassName" : "gray-center-30pct"
+    },
+    "snRNA" : {
+       "className" : "brightgreen-80pct",
+       "renderClassName" : "gray-center-30pct"
+    },
+    "snoRNA" : {
+       "className" : "brightgreen-80pct",
+       "renderClassName" : "gray-center-30pct"
+    },
+    "ncRNA" : {
+       "className" : "brightgreen-80pct",
+       "renderClassName" : "gray-center-30pct"
+    },
+    "miRNA" : {
+       "className" : "brightgreen-80pct",
+       "renderClassName" : "gray-center-30pct"
+    },
+    "rRNA" : {
+       "className" : "brightgreen-80pct",
+       "renderClassName" : "gray-center-30pct"
+    },
+    "repeat_region" : {
+       "className" : "magenta-80pct"
+    },
+    "transposable_element" : {
+       "className" : "blue-ibeam",
+       "renderClassName" : "blue-ibeam-render"
     }
+}
 ```
 
 For each annotation type, you can override the default class mapping for both `className` and `renderClassName` to use
@@ -132,9 +143,9 @@ information on customizing the CSS classes.
 The visual appearance of biological features in WebApollo (and JBrowse) is handled by CSS stylesheets with HTMLFeatures
 tracks. Every feature and subfeature is given a default CSS "class" that matches a default CSS style in a CSS
 stylesheet. These styles are are defined in `client/apollo/css/track_styles.css` and
-`client/apollo/css/webapollo_track_styles.css`. Additional styles are also defined in these
-files, and can be used by explicitly specifying them in the --className, --subfeatureClasses, --renderClassname, or
---arrowheadClass parameters to flatfile-to-json.pl ([see data loading section](Data_loading.md#flatfile-to-json.pl_transcripts)).
+`client/apollo/css/webapollo_track_styles.css`. Additional styles are also defined in these files, and can be used by
+explicitly specifying them in the --className, --subfeatureClasses, --renderClassname, or --arrowheadClass parameters to
+flatfile-to-json.pl ([see data loading section](Data_loading.md#flatfile-to-json.pl_transcripts)).
 
 WebApollo differs from JBrowse in some of it's styling, largely in order to help with feature selection, edge-matching,
 and dragging. WebApollo by default uses invisible container elements (with style class names like "container-16px") for
@@ -175,15 +186,17 @@ adds the "plus-" or "minus-" to the class of the feature if the the feature has 
 You need to tell WebApollo where to find these styles by modifying the JBrowse config or the plugin config, e.g. by
 adding this to the trackList.json
 
-```
-       "css" : "data/custom_track_styles.css" 
+``` 
+    "css" : "data/custom_track_styles.css"
 ```
 
-Then you may use these new styles using --subfeatureClasses, which uses the specified CSS classes for your features in the genome browser, for example:
+Then you may use these new styles using --subfeatureClasses, which uses the specified CSS classes for your features in
+the genome browser, for example:
 
 ``` 
-    bin/flatfile-to-json.pl --gff MyFile.gff --type mRNA --trackLabel MyTrack
-        --subfeatureClasses '{"CDS":"gold-90pct", "UTR": "dimgold-60pct"}' 
+    bin/flatfile-to-json.pl --gff MyFile.gff \
+       --type mRNA --trackLabel MyTrack      \
+       --subfeatureClasses '{"CDS":"gold-90pct","UTR": "dimgold-60pct"}'
 ```
 
 ### Bulk loading annotations to the user annotation track
@@ -194,8 +207,8 @@ You can use the `tools/data/add_transcripts_from_gff3_to_annotations.pl` script 
 to the user annotation track. Let's say we want to load our `maker.gff` transcripts.
 
 ``` 
-    tools/data/add_transcripts_from_gff3_to_annotations.pl \
-        -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
+    tools/data/add_transcripts_from_gff3_to_annotations.pl \
+        -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
         -i scf1117875582023.gff -t mRNA -o "name of organism"
 ```
 
@@ -207,26 +220,26 @@ Let's say we want to load `match` and `match_part` features as transcripts and e
 `blastn.gff` file as an example.
 
 ``` 
-    tools/data/add_transcripts_from_gff3_to_annotations.pl \
-       -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
-       -i cf1117875582023gff -t match -e match_part -o "name of organism"
+    tools/data/add_transcripts_from_gff3_to_annotations.pl \
+       -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
+       -i cf1117875582023gff -t match -e match_part -o "name of organism"
 ```
-
 
 
 You can view the add_transcripts_from_gff3_to_annotations.pl help (`-h`) option for all available options.
 
 
-### Special track config parameters
+### Disable draggable
 
 
 Web Apollo has a number of specific track config parameters
 
+``` 
+overrideDraggable (boolean)
+determines whether to transform the alignments tracks to draggable alignments
 
-    overrideDraggable (boolean)
-    determines whether to transform the alignments tracks to draggable alignments. avaiable since 2.x
+overridePlugins (boolean)
+determines whether to transform alignments and sequence tracks
+```
 
-    overridePlugins (boolean)
-    determines whether to transform alignments and sequence tracks. available since early and 1.x versions of WA
-
-These can be specified on a specific track or globally (i.e. outside the "tracks" section of trackList.json)
+These can be specified on a specific track or in a global config.
