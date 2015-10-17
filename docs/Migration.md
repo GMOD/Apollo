@@ -25,14 +25,7 @@ server is not running) and the proper tables will be recreated on startup.
 ## Migration from 1.0 to 2.0:
 
 We provide examples in the form of [migration scripts](web_services/examples) in the docs/web_services/examples
-directory. These tools are also described in the [command line tools section](Command_line.md). In each case these
-scripts will the use Apollo 2 web services API, which you can find out more about via the user interface:
-
-![](web_services_link.png)
-
-If you are upgrading to a new version of grails or groovy, you'll need to install it in a similar manner as you did
-grails, e.g. `gvm install groovy`. If you have not installed [gvm](http://gvmtool.net/) (or grails) you should be able
-to download it easily following their instructions.
+directory. These tools are also described in the [command line tools section](Command_line.md).
 
 We have written many of the [command line tools](Command_line.md) examples using the groovy language, but mostly any
 language will work (Perl, shell/curl, Python, etc.).
