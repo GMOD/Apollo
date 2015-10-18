@@ -140,16 +140,16 @@ _=1445106155048
 //        String returnText = url.text
 
         // TODO: make
-        if(returnType.equalsIgnoreCase("json")){
+//        if(returnType.equalsIgnoreCase("json")){
             println "returning json"
             DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
             JSONObject returnObject = FormatUtil.convertFromXMLToJSON(docBuilder.parse(returnUrl.openStream()))
             render returnObject as JSON
-        }
-        else{
-            println "returning else"
-            response.outputStream << returnUrl.openStream()
-        }
+//        }
+//        else{
+//            println "returning else"
+//            response.outputStream << returnUrl.openStream()
+//        }
     }
 
     @Transactional
