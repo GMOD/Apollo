@@ -1,14 +1,5 @@
 package org.bbop.apollo
 
-import grails.converters.JSON
-import org.apache.commons.collections.MultiMap
-import org.apache.commons.collections.map.MultiValueMap
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.springframework.http.HttpStatus
-
-import javax.xml.parsers.DocumentBuilder
-import javax.xml.parsers.DocumentBuilderFactory
-
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 

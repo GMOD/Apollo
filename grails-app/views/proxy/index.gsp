@@ -23,37 +23,44 @@
 			<table>
 			<thead>
 					<tr>
-					
+						<th></th>
+						<g:sortableColumn property="referenceUrl" title="${message(code: 'proxy.referenceUrl.label', default: 'Reference Url')}" />
+
+						<g:sortableColumn property="targetUrl" title="${message(code: 'proxy.targetUrl.label', default: 'Target Url')}" />
+
+						<g:sortableColumn property="active" title="${message(code: 'proxy.active.label', default: 'Active')}" />
+
 						<g:sortableColumn property="fallbackOrder" title="${message(code: 'proxy.fallbackOrder.label', default: 'Fallback Order')}" />
 					
 						<g:sortableColumn property="lastSuccess" title="${message(code: 'proxy.lastSuccess.label', default: 'Last Success')}" />
 					
 						<g:sortableColumn property="lastFail" title="${message(code: 'proxy.lastFail.label', default: 'Last Fail')}" />
 					
-						<g:sortableColumn property="referenceUrl" title="${message(code: 'proxy.referenceUrl.label', default: 'Reference Url')}" />
-					
-						<g:sortableColumn property="targetUrl" title="${message(code: 'proxy.targetUrl.label', default: 'Target Url')}" />
-					
-						<g:sortableColumn property="active" title="${message(code: 'proxy.active.label', default: 'Active')}" />
-					
+
 					</tr>
 				</thead>
 				<tbody>
 				<g:each in="${proxyInstanceList}" status="i" var="proxyInstance">
 					<tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
-					
-						<td><g:link action="show" id="${proxyInstance.id}">${fieldValue(bean: proxyInstance, field: "fallbackOrder")}</g:link></td>
+
+
+						<td>
+							<g:link action="show" id="${proxyInstance.id}">Show</g:link>
+						</td>
+
+						<td>${fieldValue(bean: proxyInstance, field: "referenceUrl")}</td>
+
+						<td>${fieldValue(bean: proxyInstance, field: "targetUrl")}</td>
+
+						<td><g:formatBoolean boolean="${proxyInstance.active}" /></td>
+
+						<td>${fieldValue(bean: proxyInstance, field: "fallbackOrder")}</td>
 					
 						<td><g:formatDate date="${proxyInstance.lastSuccess}" /></td>
 					
 						<td><g:formatDate date="${proxyInstance.lastFail}" /></td>
 					
-						<td>${fieldValue(bean: proxyInstance, field: "referenceUrl")}</td>
-					
-						<td>${fieldValue(bean: proxyInstance, field: "targetUrl")}</td>
-					
-						<td><g:formatBoolean boolean="${proxyInstance.active}" /></td>
-					
+
 					</tr>
 				</g:each>
 				</tbody>
