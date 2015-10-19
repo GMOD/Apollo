@@ -147,7 +147,7 @@ public class SequencePanel extends Composite {
                     public void onResponseReceived(Request request, Response response) {
                         JSONArray jsonArray = JSONParser.parseLenient(response.getText()).isArray();
                         Integer sequenceCount = 0;
-                        if (jsonArray.size() > 0) {
+                        if (jsonArray!=null && jsonArray.size() > 0) {
                             JSONObject jsonObject = jsonArray.get(0).isObject();
                             sequenceCount = (int) jsonObject.get("sequenceCount").isNumber().doubleValue();
                         }

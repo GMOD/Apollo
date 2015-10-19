@@ -25,9 +25,12 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.client.ui.SuggestBox;
+import org.gwtbootstrap3.client.ui.constants.AlertType;
+import org.gwtbootstrap3.client.ui.constants.IconType;
+import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
@@ -104,6 +107,10 @@ public class MainPanel extends Composite {
     ListBox organismListBox;
     @UiField(provided = true)
     static SuggestBox sequenceSuggestBox;
+    @UiField
+    Modal notificationModal;
+    @UiField
+    Alert alertText;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
@@ -314,7 +321,24 @@ public class MainPanel extends Composite {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
-                        new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, false, true);
+                        String errorText = returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue();
+                        alertText.setText(errorText);
+//                        notificationModal.setVisible(true);
+                        notificationModal.show();
+//                        Modal modal = new Modal();
+//                        ModalHeader modalHeader = new ModalHeader();
+//                        modalHeader.setTitle("Error");
+//                        modal.add(modalHeader);
+//                        ModalBody modalBody = new ModalBody();
+//                        Alert alert = new Alert();
+//                        alert.setType(AlertType.WARNING);
+//                        alert.setText(errorText);
+//                        modalBody.add(alert);
+//                        modal.add(modalBody);
+//                        modal.setClosable(true);
+//                        modal.setDataBackdrop(ModalBackdrop.FALSE);
+//                        modal.setDataKeyboard(true);
+//                        modal.show();
                     } else {
                         getAppState();
                         logoutButton.setVisible(true);

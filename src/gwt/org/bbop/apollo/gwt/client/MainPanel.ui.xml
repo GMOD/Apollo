@@ -28,7 +28,6 @@
             border-width: 1px;
         }
 
-
         .logout-button {
             margin-left: 10px;
         }
@@ -91,6 +90,17 @@
                             <gwt:HTML ui:field="userName" styleName="{style.username}"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
                         </b:Panel>
+                        <b:Modal ui:field="notificationModal" closable="true" fade="true" dataBackdrop="FALSE"
+                                 dataKeyboard="true">
+                            <b:ModalHeader>
+                                <gwt:HTML>Error</gwt:HTML>
+                            </b:ModalHeader>
+                            <b:ModalBody>
+                                <b:Alert type="WARNING" ui:field="alertText">
+                                    <b:Icon type="WARNING"/>
+                                </b:Alert>
+                            </b:ModalBody>
+                        </b:Modal>
                     </gwt:FlowPanel>
                 </gwt:north>
                 <gwt:west size="20">
@@ -132,6 +142,5 @@
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:east>
-
     </gwt:SplitLayoutPanel>
 </ui:UiBinder>
