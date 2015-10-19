@@ -128,6 +128,11 @@ _=1445106155048
 
         String referenceUrl = URLDecoder.decode(url,"UTF-8")
         Proxy proxy = Proxy.findByReferenceUrl(referenceUrl)
+        if(!proxy){
+            log.error "No proxy found for ${referenceUrl}"
+            response.status = 404
+            return
+        }
 //        String targetUrl = proxy ? proxy.targetUrl : referenceUrl
 //        request.parameterMap.each {
 //            println "key: ${it.key} -> ${it.value}"
