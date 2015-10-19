@@ -31,6 +31,10 @@
       <b:CheckBox ui:field="rememberBox" text="Remember me"/>
       <b:Button ui:field="loginButton" type="PRIMARY">Login</b:Button>
     </g:FlowPanel>
+
+    <g:FlowPanel>
+      <b:html.Paragraph ui:field="errorHtml"/>
+    </g:FlowPanel>
   </b:FieldSet>
 </b:Form>
 

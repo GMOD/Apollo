@@ -9,12 +9,13 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.client.Event.*;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.uibinder.client.UiBinder;
-
-import com.google.gwt.user.client.ui.*;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.Input;
 import org.gwtbootstrap3.client.ui.CheckBox;
+import org.gwtbootstrap3.client.ui.html.Paragraph;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.*;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
@@ -25,7 +26,8 @@ public class LoginDialog extends DialogBox {
     }
 
 
-    private Heading errorHtml = new Heading(HeadingSize.H4);
+    @UiField
+    Paragraph errorHtml;
 
 
 
@@ -48,9 +50,7 @@ public class LoginDialog extends DialogBox {
         setAnimationEnabled(true);
         // Enable glass background.
         setGlassEnabled(true);
-        errorHtml.setEmphasis(Emphasis.DANGER);
-        Icon icon = new Icon(IconType.WARNING);
-        errorHtml.add(icon);
+        //errorHtml.setEmphasis(Emphasis.DANGER);
         setWidget(binder.createAndBindUi(this));
     }
 
