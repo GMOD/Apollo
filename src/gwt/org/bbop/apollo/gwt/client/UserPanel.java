@@ -351,17 +351,19 @@ public class UserPanel extends Composite {
     }
 
 
-    private void setCurrentUserInfoFromUI() {
+    private Boolean setCurrentUserInfoFromUI() {
         String emailString = email.getText().trim();
         if (emailString.indexOf("@") >= emailString.lastIndexOf(".")) {
             Bootbox.alert("Does not appear to be a valid email " + emailString);
-            return;
+            return false;
         }
         selectedUserInfo.setEmail(emailString);
         selectedUserInfo.setFirstName(firstName.getText());
         selectedUserInfo.setLastName(lastName.getText());
         selectedUserInfo.setPassword(passwordTextBox.getText());
         selectedUserInfo.setRole(roleList.getSelectedItemText());
+
+        return true;
     }
 
 
@@ -467,7 +469,10 @@ public class UserPanel extends Composite {
     public void updateUser() {
         // assume an edit operation
         if (selectedUserInfo != null) {
-            setCurrentUserInfoFromUI();
+            if(!setCurrentUserInfoFromUI()){
+                handleCancel(null);
+                return ;
+            }
             RequestCallback requestCallback = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
@@ -497,8 +502,12 @@ public class UserPanel extends Composite {
 
     private void saveNewUser() {
         selectedUserInfo = new UserInfo();
-        setCurrentUserInfoFromUI();
-        UserRestService.createUser(userInfoList, selectedUserInfo);
+        if(setCurrentUserInfoFromUI()){
+            UserRestService.createUser(userInfoList, selectedUserInfo);
+        }
+        else{
+            handleCancel(null);
+        }
         createButton.setEnabled(true);
 
         selectedUserInfo = null;
