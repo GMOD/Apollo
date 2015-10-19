@@ -36,7 +36,7 @@ public class RegisterDialog extends DialogBox {
         // Enable glass background.
         setGlassEnabled(true);
 
-        grid.setHTML(0, 0, "Username");
+        grid.setHTML(0, 0, "Username (email)");
         grid.setWidget(0, 1, username);
         grid.setHTML(1, 0, "Password");
         grid.setWidget(1, 1, passwordTextBox);
