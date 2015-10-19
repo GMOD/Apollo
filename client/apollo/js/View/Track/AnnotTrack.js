@@ -2820,10 +2820,12 @@ define([
                                             //var gserv = 'http://golr.berkeleybop.org/';
                                             //var gserv = 'http://golr.geneontology.org/solr/';
                                             var original = 'http://golr.geneontology.org/solr/';
-                                            var encoded_original = dojo.html.entities.encode(original);
+                                            var encoded_original = encodeURI(original);
+                                            encoded_original = encoded_original.replace(/:/g,"%3A");
+                                            encoded_original = encoded_original.replace(/\//g,"%2F");
 
                                             //var gserv = context_path + "/proxy/request/http/golr.geneontology.org%2Fsolr%2Fselect/json/";
-                                            var gserv = context_path + "/proxy/request/http/"+encoded_original;
+                                            var gserv = context_path + "/proxy/request/"+encoded_original;
                                             var gconf = new bbop.golr.conf(amigo.data.golr);
                                             var args = {
                                                 label_template: '{{annotation_class_label}} [{{annotation_class}}]',

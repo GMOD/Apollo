@@ -3,7 +3,7 @@ package org.bbop.apollo
 class Proxy {
 
     static constraints = {
-        order nullable: true
+        fallbackOrder nullable: true
         lastSuccess nullable: true
         lastFail nullable: true
         referenceUrl url: true, nullable: false,blank: false
@@ -18,7 +18,7 @@ class Proxy {
     String referenceUrl
     String targetUrl
     Boolean active
-    Integer order
+    Integer fallbackOrder
     Date lastSuccess
     Date lastFail
 }

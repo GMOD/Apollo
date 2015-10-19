@@ -1,6 +1,8 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import org.apache.commons.collections.MultiMap
+import org.apache.commons.collections.map.MultiValueMap
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 import javax.xml.parsers.DocumentBuilder
@@ -116,35 +118,63 @@ _=1445106155048
 
      * @return
      */
-    def request(String protocol,String url,String returnType){
+    def request(String url){
         println "params: ${params}"
-        println "protocol: ${protocol}"
+//        println "protocol: ${protocol}"
         println "requestUrl: ${url}"
-        println "returnType: ${returnType}"
+//        println "returnType: ${returnType}"
         println "request URI: ${request.requestURI}"
-        println "request URL: ${request.requestURL}"
-        String referenceUrl = protocol+"://"+url
+//        http://localhost:8080/apollo/proxy/request/http%253A%252F%252Fgolr.geneontology.org%252Fsolr%252Fselect?defType=edismax&qt=standard&indent=on&wt=json&rows=10&start=0&fl=*,score&facet=true&facet.mincount=1&facet.sort=count&json.nl=arrarr&facet.limit=25&fq=document_category:%22ontology_class%22&fq=source:(biological_process%20OR%20molecular_function%20OR%20cellular_component)&facet.field=annotation_class&facet.field=synonym&facet.field=alternate_id&q=blood*&qf=annotation_class%5E5&qf=annotation_class_label_searchable%5E5&qf=synonym_searchable%5E1&qf=alternate_id%5E1&json.wrf=jQuery171043437046254985034_1445234103214&_=1445234283067
+
+        String referenceUrl = URLDecoder.decode(url,"UTF-8")
         Proxy proxy = Proxy.findByReferenceUrl(referenceUrl)
-        String targetUrl = proxy ? proxy.targetUrl : referenceUrl
+//        String targetUrl = proxy ? proxy.targetUrl : referenceUrl
+//        request.parameterMap.each {
+//            println "key: ${it.key} -> ${it.value}"
+//        }
+
+        String targetUrl = referenceUrl
+
+        MultiMap multiMap =new MultiValueMap()
 
         params.eachWithIndex{ it, idx ->
-            targetUrl += idx==0 ? "?" : "&"
-            targetUrl += it.key
-            targetUrl += "="
-            targetUrl += it.value
+            if(it.value instanceof String){
+                multiMap.put(it.key,URLEncoder.encode(it.value,"UTF-8"))
+            }
+            else if(it.value instanceof HashMap){
+                HashMap valueMap = it.value
+                for(val in valueMap.values()){
+                    multiMap.put(it.key,URLEncoder.encode(val,"UTF-8"))
+                }
+            }
         }
 
+        int index = 0
+        for(key in multiMap.keySet()){
+            multiMap.getCollection(key).each {
+                targetUrl += index++==0 ? "?" : "&"
+                targetUrl += key+"="+it
+            }
+        }
 
         URL returnUrl = new URL(targetUrl)
-        println "return URL "+returnUrl
+
+//        println "return URL "+returnUrl
 //        String returnText = url.text
 
         // TODO: make
 //        if(returnType.equalsIgnoreCase("json")){
-            println "returning json"
-            DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            JSONObject returnObject = FormatUtil.convertFromXMLToJSON(docBuilder.parse(returnUrl.openStream()))
-            render returnObject as JSON
+//            println "returning json"
+
+//        response.setContentType("text/plain")
+//        response.setCharacterEncoding("UTF-8")
+
+//        response.outputStream << returnUrl.openStream()
+//        render text: returnUrl.text
+        forward(url:returnUrl)
+//            DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+//            JSONObject returnObject = FormatUtil.convertFromXMLToJSON(docBuilder.parse(returnUrl.openStream()))
+//            render returnObject as JSON
 //        }
 //        else{
 //            println "returning else"
