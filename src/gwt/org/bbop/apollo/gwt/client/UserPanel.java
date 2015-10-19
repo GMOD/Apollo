@@ -6,6 +6,12 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -29,6 +35,7 @@ import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -363,6 +370,7 @@ public class UserPanel extends Composite {
         selectedUserInfo = null;
         selectionModel.clear();
         saveButton.setVisible(true);
+        saveButton.setEnabled(true);
         updateUserInfo();
         cancelButton.setVisible(true);
         cancelButton.setEnabled(true);
@@ -460,7 +468,30 @@ public class UserPanel extends Composite {
         // assume an edit operation
         if (selectedUserInfo != null) {
             setCurrentUserInfoFromUI();
-            UserRestService.updateUser(userInfoList, selectedUserInfo);
+            RequestCallback requestCallback = new RequestCallback() {
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    JSONValue v= JSONParser.parseStrict(response.getText());
+                    JSONObject o=v.isObject();
+                    if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                        new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
+                    }
+                    else{
+                        Bootbox.alert("Saved changes to user "+selectedUserInfo.getName()+"!");
+                        selectedUserInfo = null ;
+                        updateUserInfo();
+                        saveButton.setEnabled(false);
+                        cancelButton.setEnabled(false);
+                        UserRestService.loadUsers(userInfoList);
+                    }
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    Bootbox.alert("Error updating user: " + exception);
+                }
+            };
+            UserRestService.updateUser(requestCallback, selectedUserInfo);
         }
     }
 

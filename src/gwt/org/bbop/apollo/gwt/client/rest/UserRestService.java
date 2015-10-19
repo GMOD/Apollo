@@ -135,25 +135,7 @@ public class UserRestService {
         logout(requestCallback);
     }
 
-    public static void updateUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                JSONValue v=JSONParser.parseStrict(response.getText());
-                JSONObject o=v.isObject();
-                if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
-                    new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
-                }
-                else{
-                    loadUsers(userInfoList);
-                }
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Error updating user: " + exception);
-            }
-        };
+    public static void updateUser(RequestCallback requestCallback, UserInfo selectedUserInfo) {
         JSONObject jsonObject = selectedUserInfo.toJSON();
         RestService.sendRequest(requestCallback, "user/updateUser", "data=" + jsonObject.toString());
     }

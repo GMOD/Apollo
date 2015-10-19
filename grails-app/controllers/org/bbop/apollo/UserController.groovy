@@ -332,6 +332,7 @@ class UserController {
             }
             log.info "Updated user"
             user.save(flush: true)
+            render new JSONObject() as JSON
         } catch (e) {
             log.error(e.fillInStackTrace())
             JSONObject jsonObject = new JSONObject()
