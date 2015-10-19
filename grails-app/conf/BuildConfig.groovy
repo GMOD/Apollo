@@ -68,6 +68,8 @@ grails.project.dependency.resolution = {
         runtime 'mysql:mysql-connector-java:5.1.29'
         runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'
         compile 'commons-codec:commons-codec:1.2'
+        compile 'commons-collections:commons-collections:3.2.1'
+
         compile 'org.json:json:20140107'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
         //compile 'com.sleepycat:je:5.0.73'

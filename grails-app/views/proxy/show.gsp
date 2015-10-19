@@ -22,25 +22,54 @@
 			<div class="message" role="status">${flash.message}</div>
 			</g:if>
 			<ol class="property-list proxy">
-			
-				<g:if test="${proxyInstance?.referenceUrl}">
+
 				<li class="fieldcontain">
 					<span id="referenceUrl-label" class="property-label"><g:message code="proxy.referenceUrl.label" default="Reference Url" /></span>
-					
-						<span class="property-value" aria-labelledby="referenceUrl-label"><g:fieldValue bean="${proxyInstance}" field="referenceUrl"/></span>
-					
+
+					<span class="property-value" aria-labelledby="referenceUrl-label"><g:fieldValue bean="${proxyInstance}" field="referenceUrl"/></span>
+
 				</li>
-				</g:if>
-			
-				<g:if test="${proxyInstance?.targetUrl}">
 				<li class="fieldcontain">
 					<span id="targetUrl-label" class="property-label"><g:message code="proxy.targetUrl.label" default="Target Url" /></span>
-					
-						<span class="property-value" aria-labelledby="targetUrl-label"><g:fieldValue bean="${proxyInstance}" field="targetUrl"/></span>
+
+					<span class="property-value" aria-labelledby="targetUrl-label"><g:fieldValue bean="${proxyInstance}" field="targetUrl"/></span>
+
+				</li>
+
+				<li class="fieldcontain">
+					<span id="active-label" class="property-label"><g:message code="proxy.active.label" default="Active" /></span>
+
+					<span class="property-value" aria-labelledby="active-label"><g:formatBoolean boolean="${proxyInstance?.active}" /></span>
+
+				</li>
+
+				<g:if test="${proxyInstance?.fallbackOrder}">
+				<li class="fieldcontain">
+					<span id="fallbackOrder-label" class="property-label"><g:message code="proxy.fallbackOrder.label" default="Fallback Order" /></span>
+						<span class="property-value" aria-labelledby="fallbackOrder-label"><g:fieldValue bean="${proxyInstance}" field="fallbackOrder"/></span>
 					
 				</li>
 				</g:if>
 			
+				<g:if test="${proxyInstance?.lastSuccess}">
+				<li class="fieldcontain">
+					<span id="lastSuccess-label" class="property-label"><g:message code="proxy.lastSuccess.label" default="Last Success" /></span>
+					
+						<span class="property-value" aria-labelledby="lastSuccess-label"><g:formatDate date="${proxyInstance?.lastSuccess}" /></span>
+					
+				</li>
+				</g:if>
+			
+				<g:if test="${proxyInstance?.lastFail}">
+				<li class="fieldcontain">
+					<span id="lastFail-label" class="property-label"><g:message code="proxy.lastFail.label" default="Last Fail" /></span>
+					
+						<span class="property-value" aria-labelledby="lastFail-label"><g:formatDate date="${proxyInstance?.lastFail}" /></span>
+					
+				</li>
+				</g:if>
+			
+
 			</ol>
 			<g:form url="[resource:proxyInstance, action:'delete']" method="DELETE">
 				<fieldset class="buttons">

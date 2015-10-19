@@ -330,7 +330,35 @@ If you want to style the GWT sidebar, generally the bootstrap theme is used but 
 web-app/annotator/theme.css which overrides the bootstrap theme
 
 
+#### Adding / using proxies
 
+If you are https, or choose to use separate services rather than the default provided, you can setup a pass-through proxy or modify a particular URL. 
+
+This service is only available to logged-in users. 
+
+The internal proxy URL is: 
+
+```<apollo url>/proxy/request/<encoded_proxy_url>/```
+
+For example if your URL the URL we want to proxy:
+
+```http://golr.geneontology.org/solr/select```
+
+encoded:
+
+```http%3A%2F%2Fgolr.geneontology.org%2Fsolr%2Fselect```
+
+If you user is logged-in and you pass in:
+
+```http://localhost/apollo/proxy/request/http%3A%2F%2Fgolr.geneontology.org%2Fsolr%2Fselect?testkey=asdf&anotherkey=zxcv```
+
+This will get proxied to:
+
+```http://golr.geneontology.org/solr/select?testkey=asdf&anotherkey=zxcv```
+
+If you choose to use another proxy service, you can go to the proxy service tab (as admin). 
+
+To use a proxy it has to be registered by an admin.   Internally used proxies are provided by default.
 
 
 

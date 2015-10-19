@@ -267,6 +267,7 @@ apollo {
             ['label': "Canned Comments", 'link': "/cannedComment/"]
             ,['label': "Feature Types", 'link': "/featureType/"]
             ,['label': "Statuses", 'link': "/availableStatus/"]
+            ,['label': "Proxies", 'link': "/proxy/"]
             ,['label': "Report::Organisms", 'link': "/organism/report/",'type':"report"]
             ,['label': "Report::Sequences", 'link': "/sequence/report/",'type':"report"]
             ,['label': "Report::Annotator", 'link': "/annotator/report/",'type':"report"]
