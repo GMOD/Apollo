@@ -23,6 +23,33 @@
 			</g:if>
 			<ol class="property-list proxy">
 			
+				<g:if test="${proxyInstance?.fallbackOrder}">
+				<li class="fieldcontain">
+					<span id="fallbackOrder-label" class="property-label"><g:message code="proxy.fallbackOrder.label" default="Fallback Order" /></span>
+					
+						<span class="property-value" aria-labelledby="fallbackOrder-label"><g:fieldValue bean="${proxyInstance}" field="fallbackOrder"/></span>
+					
+				</li>
+				</g:if>
+			
+				<g:if test="${proxyInstance?.lastSuccess}">
+				<li class="fieldcontain">
+					<span id="lastSuccess-label" class="property-label"><g:message code="proxy.lastSuccess.label" default="Last Success" /></span>
+					
+						<span class="property-value" aria-labelledby="lastSuccess-label"><g:formatDate date="${proxyInstance?.lastSuccess}" /></span>
+					
+				</li>
+				</g:if>
+			
+				<g:if test="${proxyInstance?.lastFail}">
+				<li class="fieldcontain">
+					<span id="lastFail-label" class="property-label"><g:message code="proxy.lastFail.label" default="Last Fail" /></span>
+					
+						<span class="property-value" aria-labelledby="lastFail-label"><g:formatDate date="${proxyInstance?.lastFail}" /></span>
+					
+				</li>
+				</g:if>
+			
 				<g:if test="${proxyInstance?.referenceUrl}">
 				<li class="fieldcontain">
 					<span id="referenceUrl-label" class="property-label"><g:message code="proxy.referenceUrl.label" default="Reference Url" /></span>
@@ -37,6 +64,15 @@
 					<span id="targetUrl-label" class="property-label"><g:message code="proxy.targetUrl.label" default="Target Url" /></span>
 					
 						<span class="property-value" aria-labelledby="targetUrl-label"><g:fieldValue bean="${proxyInstance}" field="targetUrl"/></span>
+					
+				</li>
+				</g:if>
+			
+				<g:if test="${proxyInstance?.active}">
+				<li class="fieldcontain">
+					<span id="active-label" class="property-label"><g:message code="proxy.active.label" default="Active" /></span>
+					
+						<span class="property-value" aria-labelledby="active-label"><g:formatBoolean boolean="${proxyInstance?.active}" /></span>
 					
 				</li>
 				</g:if>
