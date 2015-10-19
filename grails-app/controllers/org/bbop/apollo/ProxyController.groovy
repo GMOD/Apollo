@@ -9,6 +9,14 @@ class ProxyController {
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     def permissionService
+    def proxyService
+
+    def beforeInterceptor = {
+        if(actionName!="request" && !permissionService.isAdmin()){
+            forward action: "notAuthorized" ,controller: "annotator"
+            return
+        }
+    }
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
@@ -27,6 +35,7 @@ class ProxyController {
     /**
      * @return
      */
+    @Transactional
     def request(String url) {
         // only a logged-in user can use the proxy
         User currentUser = permissionService.currentUser
@@ -36,7 +45,18 @@ class ProxyController {
             return
         }
         String referenceUrl = URLDecoder.decode(url, "UTF-8")
-        Proxy proxy = Proxy.findByReferenceUrl(referenceUrl)
+        Proxy proxy = proxyService.findProxyForUrl(referenceUrl)
+
+
+        if(!proxy){
+            proxy = proxyService.findDefaultProxy(referenceUrl)
+        }
+        if(!proxy){
+            log.error "Proxy not found for ${referenceUrl}.  Please add a proxy (see the config guide)."
+            render status: NOT_FOUND
+            return
+        }
+
 
 
         log.info "using proxy ${proxy?.targetUrl}"
@@ -51,6 +71,7 @@ class ProxyController {
         log.info "return url: ${returnUrl}"
         render text: returnUrl.text
     }
+
 
     @Transactional
     def save(Proxy proxyInstance) {
