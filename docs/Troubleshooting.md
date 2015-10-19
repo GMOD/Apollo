@@ -56,7 +56,7 @@ directory and re-deploy.
 - Run `apollo deploy`  (or `apollo release` for javascript-minimization)
 - Undeploy any existing WebApollo instances
 - Stop tomcat
-- Copy the war file to the webapps folder e.g. `cp target/apollo-XXX.war $TOMCAT_WEBAPPS_DIR/webapps/WebApollo.war`
+- Copy the war file to the webapps folder
 - Start tomcat 
 
 ### Tomcat permissions

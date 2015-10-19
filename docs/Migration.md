@@ -24,8 +24,9 @@ server is not running) and the proper tables will be recreated on startup.
 
 ## Migration from 1.0 to 2.0:
 
-We provide examples in the form of [migration scripts](web_services/examples) in the docs/web_services/examples
-directory. These tools are also described in the [command line tools section](Command_line.md).
+We provide examples in the form of [migration scripts](https://github.com/gmod/apollo/tree/master/docs/web_services/
+examples) in the docs/web_services/examples directory. These tools are also described in the [command line tools 
+section](Command_line.md).
 
 We have written many of the [command line tools](Command_line.md) examples using the groovy language, but mostly any
 language will work (Perl, shell/curl, Python, etc.).
@@ -33,9 +34,10 @@ language will work (Perl, shell/curl, Python, etc.).
 
 ### Migrate Annotations
 
-We provide a [migration script](web_services/examples/groovy/migrate_annotations1to2.groovy) that connects to a single
-Web Apollo 1 instance and populates the annotations for an organism for a set of sequences / (confusingly called tracks
-as well).  It would be best to develop your script on a development instance of Apollo2 for restricted sequences.
+We provide a [migration script](https://github.com/gmod/apollo/tree/master/docs/web_services/examples/groovy/
+migrate_annotations1to2.groovy) that connects to a single Web Apollo 1 instance and populates the annotations for an
+organism for a set of sequences / (confusingly called tracks as well).  It would be best to develop your script on a
+development instance of Apollo2 for restricted sequences.
 
 To get the scripts working properly, you'll need to provide the list of sequences (or tracks) to migrate for each
 organism.  You can get the list of tracks by either using the database (`select * from tracks ;`) or looking in the Web
