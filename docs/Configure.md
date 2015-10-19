@@ -358,6 +358,7 @@ This will get proxied to:
 
 If you choose to use another proxy service, you can go to the proxy service tab (as admin). 
 
+To use a proxy it has to be registered by an admin.   Internally used proxies are provided by default.
 
 
 
