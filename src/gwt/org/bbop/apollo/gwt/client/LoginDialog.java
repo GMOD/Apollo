@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.uibinder.client.UiBinder;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Input;
+import org.gwtbootstrap3.client.ui.Icon;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.html.Paragraph;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -50,7 +51,6 @@ public class LoginDialog extends DialogBox {
         setAnimationEnabled(true);
         // Enable glass background.
         setGlassEnabled(true);
-        //errorHtml.setEmphasis(Emphasis.DANGER);
         setWidget(binder.createAndBindUi(this));
     }
 
@@ -61,6 +61,9 @@ public class LoginDialog extends DialogBox {
     }
 
     public void setError(String errorMessage){
+        Icon icon = new Icon(IconType.WARNING);
+        errorHtml.add(icon);
+        errorHtml.setEmphasis(Emphasis.DANGER);
         errorHtml.setText(errorMessage);
         errorHtml.setVisible(true);
     }
@@ -70,12 +73,19 @@ public class LoginDialog extends DialogBox {
         errorHtml.setVisible(false);
     }
 
+    @Override
+    public void onPreviewNativeEvent(NativePreviewEvent e) {
+        NativeEvent nativeEvent = e.getNativeEvent();
+        if ("keydown".equals(nativeEvent.getType())) {
+            if (nativeEvent.getKeyCode() == KeyCodes.KEY_ENTER) {
+                doLogin(userBox.getText().trim(), passBox.getText(), rememberBox.getValue());
+            }
+        }
+    }
+
     @UiHandler("loginButton")
     public void submitAction(ClickEvent e) {
-        String user=userBox.getText();
-        String pass=passBox.getText();
-        Boolean remember=rememberBox.getValue();
-        doLogin(user,pass,remember);
+        doLogin(userBox.getText().trim(),passBox.getText(),rememberBox.getValue());
     }
 
     public void doLogin(String username,String password,Boolean rememberMe){

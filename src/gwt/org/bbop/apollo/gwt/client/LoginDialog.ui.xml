@@ -12,25 +12,26 @@
 
 <b:Form type="HORIZONTAL">
   <b:FieldSet>
-    <b:FormGroup>
-      <b:FormLabel for="username" addStyleNames="col-lg-4">Username:</b:FormLabel>
-      <g:FlowPanel addStyleNames="col-lg-8">
-        <b:TextBox ui:field="userBox" b:id="formName"/>
-      </g:FlowPanel>
-    </b:FormGroup>
+    <b:Container fluid="true">
+      <b:Row>
+        <b:FormLabel for="username" addStyleNames="col-lg-4">Username:</b:FormLabel>
+        <g:FlowPanel addStyleNames="col-lg-8">
+          <b:TextBox ui:field="userBox" b:id="formName"/>
+        </g:FlowPanel>
+      </b:Row>
 
-    <b:FormGroup>
-      <b:FormLabel for="formPassword" addStyleNames="col-lg-4">Password:</b:FormLabel>
-      <g:FlowPanel addStyleNames="col-lg-8">
-        <b:Input type="PASSWORD"  ui:field="passBox" b:id="formPassword"/>
-      </g:FlowPanel>
-    </b:FormGroup>
+      <b:Row>
+        <b:FormLabel for="formPassword" addStyleNames="col-lg-4">Password:</b:FormLabel>
+        <g:FlowPanel addStyleNames="col-lg-8">
+          <b:Input type="PASSWORD"  ui:field="passBox" b:id="formPassword"/>
+        </g:FlowPanel>
+      </b:Row>
 
-
-    <g:FlowPanel>
-      <b:CheckBox ui:field="rememberBox" text="Remember me"/>
-      <b:Button ui:field="loginButton" type="PRIMARY">Login</b:Button>
-    </g:FlowPanel>
+      <b:Row>
+        <b:Column size="MD_9"><b:CheckBox ui:field="rememberBox" text="Remember me"/></b:Column>
+        <b:Column size="MD_3"><b:Button ui:field="loginButton" type="PRIMARY">Login</b:Button></b:Column>
+      </b:Row>
+    </b:Container>
 
     <g:FlowPanel>
       <b:html.Paragraph ui:field="errorHtml"/>
