@@ -186,6 +186,8 @@ public class MainPanel extends Composite {
         }
 
         loginUser();
+
+        detailTabs.selectTab(4);
     }
 
     private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {

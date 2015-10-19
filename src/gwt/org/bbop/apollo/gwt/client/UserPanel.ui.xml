@@ -13,6 +13,7 @@
         .widgetPanel {
             padding: 5px;
             margin: 5px;
+            display: inline-block;
         }
 
         .trackTable {
@@ -22,6 +23,7 @@
         }
 
         .tableKeyName {
+            margin-top: 5px;
             font-weight: bolder;
         }
 
@@ -49,8 +51,12 @@
         <gwt:north size="80">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
-                    <b:Column size="MD_6" styleName="{style.widgetPanel}">
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
                         <b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>
+                    </b:Column>
+                    <b:Column size="MD_2" styleName="{style.widgetPanel}">
+                        <!--<b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>-->
+                        <b:Button text="Create User" icon="PLUS" ui:field="createButton"/>
                     </b:Column>
                 </b:Row>
             </b:Container>
@@ -75,13 +81,13 @@
                                 <gwt:HTML styleName="{style.tableKeyName}" text="First Name"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:TextBox ui:field="firstName"/>
+                                <b:TextBox ui:field="firstName"/>
                             </b:Column>
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Last Name"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:TextBox ui:field="lastName"/>
+                                <b:TextBox ui:field="lastName"/>
                             </b:Column>
                         </b:Row>
                         <b:Row ui:field="userRow2" visible="false">
@@ -89,13 +95,13 @@
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Email"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:TextBox ui:field="email"/>
+                                <b:TextBox ui:field="email"/>
                             </b:Column>
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Role"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:ListBox ui:field="roleList" styleName="{style.details-list}"/>
+                                <b:ListBox ui:field="roleList" styleName="{style.details-list}"/>
                             </b:Column>
                         </b:Row>
                         <b:Row ui:field="passwordRow" visible="false">
@@ -103,15 +109,17 @@
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Password"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:PasswordTextBox ui:field="passwordTextBox"/>
+                                <!--<b:PasswordTextBox ui:field:field:field:field:field:field:field:field:field:field:field:field="passwordTextBox" />-->
+                                <!--<b:TextBox ui:field="passwordTextBox"/>-->
+                                <b:Input ui:field="passwordTextBox" type="PASSWORD"/>
                             </b:Column>
                         </b:Row>
                         <b:Row>
-                            <b:Column size="MD_6">
-                                <gwt:Button text="Create" ui:field="createButton"/>
-                                <gwt:Button text="Cancel" ui:field="cancelButton" enabled="false" visible="false"/>
-                                <gwt:Button text="Delete" ui:field="deleteButton" enabled="false" visible="false"/>
-                                <gwt:Button text="Save" ui:field="saveButton" visible="false"/>
+                            <b:Column size="MD_6" styleName="{style.widgetPanel}">
+                                <b:Button text="Save" type="PRIMARY" icon="SAVE" ui:field="saveButton" visible="false" enabled="false"/>
+                                <b:Button text="Cancel" ui:field="cancelButton" enabled="false" visible="false"/>
+                                <b:Button text="Delete" icon="REMOVE" type="WARNING" ui:field="deleteButton" enabled="false" visible="false"/>
+                                <b:Label ui:field="saveLabel" visible="false"/>
                             </b:Column>
                         </b:Row>
                     </b:Container>

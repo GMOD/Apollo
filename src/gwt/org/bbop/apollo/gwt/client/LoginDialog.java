@@ -10,7 +10,6 @@ import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.*;
-import org.gwtbootstrap3.client.ui.html.Paragraph;
 
 /**
  * Created by ndunn on 3/17/15.
