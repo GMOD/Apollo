@@ -101,6 +101,7 @@
 
                         <i class="pull-right glyphicon"
                            ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
+                        <span class="pull-right badge badge-default">{{api.methods.length}}</span>
 
                     </accordion-heading>
 
