@@ -7,7 +7,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.*;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -16,8 +15,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -26,15 +23,17 @@ import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.view.client.CellPreviewEvent;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ArrayList;
 
 
 /**
@@ -331,6 +330,22 @@ public class TrackPanel extends Composite {
 
     @UiHandler("trackListToggle")
     public void handleCancelNewOrganism(ClickEvent clickEvent) {
-        GWT.log(trackListToggle.getValue());
+        GWT.log("Testing: " + trackListToggle.getValue());
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue v= JSONParser.parseStrict(response.getText());
+                JSONObject o=v.isObject();
+                if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                    new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error updating user: " + exception);
+            }
+        };
+        UserRestService.updateUserTrackPanelPreference(requestCallback, trackListToggle.getValue());
     }
 }
