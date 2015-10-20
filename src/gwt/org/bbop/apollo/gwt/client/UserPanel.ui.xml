@@ -46,6 +46,13 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        .buttonPanel {
+            display: inline-block;
+            margin-top: 5px;
+            margin-left: 10px;
+        }
+    
     </ui:style>
     <gwt:SplitLayoutPanel>
         <gwt:north size="80">
@@ -90,7 +97,7 @@
                                 <b:TextBox ui:field="lastName"/>
                             </b:Column>
                         </b:Row>
-                        <b:Row ui:field="userRow2" visible="false">
+                        <b:Row ui:field="userRow2" visible="false"  marginTop="5">
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Email"/>
                             </b:Column>
@@ -101,10 +108,12 @@
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Role"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <b:ListBox ui:field="roleList" styleName="{style.details-list}"/>
+                                <b:FormGroup>
+                                    <b:ListBox ui:field="roleList" />
+                                </b:FormGroup>
                             </b:Column>
                         </b:Row>
-                        <b:Row ui:field="passwordRow" visible="false">
+                        <b:Row ui:field="passwordRow" visible="false" >
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Password"/>
                             </b:Column>
@@ -115,10 +124,10 @@
                             </b:Column>
                         </b:Row>
                         <b:Row>
-                            <b:Column size="MD_6" styleName="{style.widgetPanel}">
-                                <b:Button text="Save" type="PRIMARY" icon="SAVE" ui:field="saveButton" visible="false" enabled="false"/>
-                                <b:Button text="Cancel" ui:field="cancelButton" enabled="false" visible="false"/>
-                                <b:Button text="Delete" icon="REMOVE" type="WARNING" ui:field="deleteButton" enabled="false" visible="false"/>
+                            <b:Column size="MD_6" marginTop="5">
+                                <b:Button text="Save" type="PRIMARY" icon="SAVE" ui:field="saveButton" visible="false" enabled="false" marginRight="5"/>
+                                <b:Button text="Cancel" ui:field="cancelButton" enabled="false" visible="false" marginRight="5"/>
+                                <b:Button text="Delete" icon="REMOVE" type="WARNING" ui:field="deleteButton" enabled="false" visible="false" marginRight="5"/>
                                 <b:Label ui:field="saveLabel" visible="false"/>
                             </b:Column>
                         </b:Row>
@@ -129,10 +138,14 @@
                     <b:Container>
                         <b:Row>
                             <b:Column size="MD_3">
-                                <gwt:HTML><h5>Join Group</h5></gwt:HTML>
+                                <gwt:HTML>
+                                    <h5>Join Group</h5>
+                                </gwt:HTML>
                             </b:Column>
                             <b:Column size="MD_3">
-                                <gwt:HTML><h5>Included Groups</h5></gwt:HTML>
+                                <gwt:HTML>
+                                    <h5>Included Groups</h5>
+                                </gwt:HTML>
                             </b:Column>
                         </b:Row>
                         <b:Row>
