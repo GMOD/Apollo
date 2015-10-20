@@ -160,7 +160,7 @@ class UserController {
             uop.nativeTrackList = dataObject.get("tracklist")
             uop.save(flush: true)
             log.info "Added userOrganismPreference ${uop.nativeTrackList}"
-            render ([message: "success"]) as JSON
+            render new JSONObject() as JSON
         }
         catch(Exception e) {
             log.error "${e.message}"
@@ -172,13 +172,15 @@ class UserController {
         try {
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.READ)) {
-                render status: HttpStatus.UNAUTHORIZED
+                response.setStatus(HttpStatus.UNAUTHORIZED)
+                render ([error: "unauthorized"]) as JSON
                 return
             }
             log.info "getTrackListPreference"
 
             UserOrganismPreference uop=permissionService.getCurrentOrganismPreference()
-            render ([tracklist: uop.nativeTrackList]) as JSON
+            def returnObj=[tracklist: uop.nativeTrackList]
+            render returnObj as JSON
         }
         catch(Exception e) {
             log.error "${e.message}"
