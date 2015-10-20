@@ -2,22 +2,32 @@
 
 Features
 
-+ Make the pagination for the annotator sidebar more intuitive by only loading the remainder of rows on the last page.
++ Made the pagination for the annotator sidebar more intuitive by only loading the remainder of rows on the last page.
 + Added support for JBrowse tracks loaded with the `--compress` options in the data loading pipeline (#517).
 + Added right-click option to CanvasFeatures tracks to "Create new annotation" (alternative to drag and drop) (#576).
-+ Added an option for enabling/disabling the public JBrowse mode (#577).
++ Added an option for enabling/disabling the public JBrowse mode (#433).
 + Added an `-ignoressl` option to bypass certificate authority for groovy command line scripts (#557).
-+ Make the administration of group membership more clear from the User/Group panels (#598).
++ Made the administration of group membership more clear from the User/Group panels (#598).
 + Added scripts and web services for managing user and group permissions (#595).
-+ Added web service documentation page generated from source code annotations (#582).
++ Added additional Web Services API documentation generated from source code annotations (#582).
++ Added ability to toggle the native tracklist from the annotator panel (#597).
++ Added ability to collapse HTMLFeatures evidence tracks from track menu (#571).
++ Added case insensitive search to annotator panel search boxes (#575).
++ Added some bootstrap styling to annotator panel features (#489).
++ Added a feature to remember the width of the annotator panel (#591).
++ Added scripts and web services for deleting all features from a given organism (#539).
+
 
 Bugfixes
 
 + Fixed the permissions to only allow the global admin role to create and delete organisms (#542).
 + Fixed an issue with JBrowse compatibility for certain refSeqs.json files not containing length.
-+ Fixed the calculation of overlaps using OrfOverlapper (#558).
++ Fixed the calculation of isoform overlap (#558).
 + Fixed a bug that made certain annotation operations slow down over time (#555).
 + Fixed a bug that made changing the location of the organisms's data directory cause problems (#567).
++ Fixed a bug that occured when splitting and merging a transcript back together again (#588).
++ Fixed a bug that preventing showing when multiple values for an attribute in the Information Editor (#579). 
+
 
 
 ## 2.0.0
