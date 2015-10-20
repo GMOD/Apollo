@@ -139,7 +139,8 @@ elif [[ $1 == "compile" ]];then
 elif [[ $1 == "create-rest-doc" ]];then
     check_configs
     # should call the copy target first
-    $grails_executable rest-api-doc
+	# need to copy it 
+    $grails_executable rest-api-doc && cp restapidoc.json web-app/js/restapidoc/
 elif [[ $1 == "clean-all" ]];then
     # should call the copy target first
     check_configs

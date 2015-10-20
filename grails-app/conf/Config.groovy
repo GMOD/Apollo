@@ -287,7 +287,7 @@ apollo {
 
 }
 
-grails.plugins.restapidoc.basePath = "http://localhost:8080/apollo"
+//grails.plugins.restapidoc.basePath = "http://localhost:8080/apollo"
 //grails.plugins.restapidoc.layout = "restapidoc_layout"
 //grails.plugins.restapidoc.layout = "main"
 

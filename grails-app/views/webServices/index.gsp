@@ -4,7 +4,7 @@
     <meta name="layout" content="main">
     <title>Apollo Web Service APIs</title>
     <asset:javascript src="vendor/jquery-1.11.1.min.js"/>
-    <asset:javascript src="vendor/vendor/jquery-ui-1.11.2.custom/jquery-ui.min.js"/>
+    <asset:javascript src="vendor/jquery-ui-1.11.2.custom/jquery-ui.min.js"/>
     <asset:javascript src="vendor/angular.min.js"/>
     <asset:javascript src="vendor/angular-strap.min.js"/>
     <asset:javascript src="vendor/angular-strap.tpl.min.js"/>
@@ -13,6 +13,7 @@
     <asset:stylesheet src="ui-bootstrap-custom-0.13.4-csp.css"/>
 
 
+    %{--<asset:javascript src="restapidoc/restapidoc.json"/>--}%
     <asset:javascript src="WebServicesController.js"/>
 </head>
 
