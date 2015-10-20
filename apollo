@@ -110,9 +110,11 @@ elif [[ $1 == "debug" ]];then
     unset OLD_MAVEN_OPTS
 elif [[ $1 == "test" ]];then
     # should call the copy target first
+    check_configs
     $grails_executable test-app
 elif [[ $1 == "test-unit" ]];then
     # should call the copy target first
+    check_configs
     $grails_executable test-app :unit
 #    mvn test
 elif [[ $1 == "deploy" ]];then
@@ -132,6 +134,7 @@ elif [[ $1 == "release" ]];then
     ant clean-all release gwtc && grails war
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
+    check_configs
     ant gwtc && grails compile
 elif [[ $1 == "create-rest-doc" ]];then
     check_configs
@@ -139,6 +142,7 @@ elif [[ $1 == "create-rest-doc" ]];then
     $grails_executable rest-api-doc
 elif [[ $1 == "clean-all" ]];then
     # should call the copy target first
+    check_configs
     rm -rf bin
     rm -rf jbrowse-download
     rm -rf JBrowse-dev
@@ -148,6 +152,7 @@ elif [[ $1 == "clean-all" ]];then
     $grails_executable clean 
 elif [[ $1 == "clean" ]];then
     # should call the copy target first
+    check_configs
     ant clean &&  $grails_executable clean
 else
     usage
