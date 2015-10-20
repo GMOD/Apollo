@@ -36,6 +36,7 @@
     </b:Container>
 
     <b:Row styleName="{style.spacer}">
+      <b:Anchor text="Browse public genomes" href="../jbrowse/"/>
     </b:Row>
 
     <b:Row styleName="{style.spacer}">
