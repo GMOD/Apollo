@@ -4,6 +4,7 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
@@ -26,6 +27,7 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.CheckBox;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.view.client.CellPreviewEvent;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -54,6 +56,10 @@ public class TrackPanel extends Composite {
     HTML trackCount;
     @UiField
     HTML trackDensity;
+
+    @UiField
+    CheckBox trackListToggle;
+
 
     private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
@@ -323,4 +329,8 @@ public class TrackPanel extends Composite {
         filterList();
     }
 
+    @UiHandler("trackListToggle")
+    public void handleCancelNewOrganism(ClickEvent clickEvent) {
+        GWT.log(trackListToggle.getValue());
+    }
 }
