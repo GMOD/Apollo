@@ -145,6 +145,7 @@ class UserController {
     }
 
 
+    @Transactional
     def updateTrackListPreference() {
         try {
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -154,11 +155,11 @@ class UserController {
             }
             log.info "updateTrackListPreference"
 
-            permissionService.getCurrentOrganismPreference()
+            UserOrganismPreference uop=permissionService.getCurrentOrganismPreference()
 
             uop.nativeTrackList = dataObject.get("tracklist")
             uop.save(flush: true)
-            log.info "Added userOrganismPreference ${user.username} as ${uop.nativeTrackList}"
+            log.info "Added userOrganismPreference ${uop.nativeTrackList}"
             render ([message: "success"]) as JSON
         }
         catch(Exception e) {
@@ -167,7 +168,23 @@ class UserController {
         }
     }
 
+    def getTrackListPreference() {
+        try {
+            JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            if (!permissionService.hasPermissions(dataObject, PermissionEnum.READ)) {
+                render status: HttpStatus.UNAUTHORIZED
+                return
+            }
+            log.info "getTrackListPreference"
 
+            UserOrganismPreference uop=permissionService.getCurrentOrganismPreference()
+            render ([tracklist: uop.nativeTrackList]) as JSON
+        }
+        catch(Exception e) {
+            log.error "${e.message}"
+            render ([error: e.message]) as JSON
+        }
+    }
 
     @RestApiMethod(description = "Add user to group", path = "/user/addUserToGroup", verb = RestApiVerb.POST)
     @RestApiParams(params = [

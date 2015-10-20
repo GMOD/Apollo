@@ -59,6 +59,7 @@ public class MainPanel extends Composite {
     private static SequenceInfo currentSequence;
     private static Integer currentStartBp; // list of organisms for user
     private static Integer currentEndBp; // list of organisms for user
+    public static boolean useNativeTracklist; // list of organisms for user
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
 
     private static boolean handlingNavEvent = false;
@@ -181,6 +182,23 @@ public class MainPanel extends Composite {
             GWT.log("Error setting preference: "+e.fillInStackTrace().toString());
             setPreference(FeatureStringEnum.DOCK_OPEN.getValue(),true);
         }
+
+        RequestCallback requestCallback2 = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue v= JSONParser.parseStrict(response.getText());
+                JSONObject o=v.isObject();
+                if(o.containsKey("tracklist")) {
+                    MainPanel.useNativeTracklist=o.get("tracklist").isBoolean().booleanValue();
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error getting tracklist preference: " + exception);
+            }
+        };
+        UserRestService.getUserTrackPanelPreference(requestCallback2);
 
 
         try {
@@ -406,10 +424,12 @@ public class MainPanel extends Composite {
         currentEndBp = maxRegion;
 
 
+
+
         String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
         trackListString += selectedSequence;
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
-        trackListString += "&highlight=&tracklist=0";
+        trackListString += "&highlight=&tracklist="+(MainPanel.useNativeTracklist?"1":"0");
 
         final String finalString = trackListString;
 

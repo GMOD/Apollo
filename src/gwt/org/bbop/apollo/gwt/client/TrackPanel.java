@@ -160,6 +160,7 @@ public class TrackPanel extends Composite {
 
         dataProvider.addDataDisplay(dataGrid);
 
+        trackListToggle.setValue(MainPanel.useNativeTracklist);
 
         ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(filteredTrackInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -182,6 +183,9 @@ public class TrackPanel extends Composite {
                 return o1.getName().compareTo(o2.getName());
             }
         });
+
+
+
 
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE,new OrganismChangeEventHandler(){
@@ -339,6 +343,9 @@ public class TrackPanel extends Composite {
                 if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
                     new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
                 }
+
+                GWT.log("updateGenomicViewer");
+                MainPanel.updateGenomicViewer(true);
             }
 
             @Override
