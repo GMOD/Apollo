@@ -57,7 +57,7 @@ public class TrackPanel extends Composite {
     HTML trackDensity;
 
     @UiField
-    public static CheckBox trackListToggle;
+    CheckBox trackListToggle;
 
 
     private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
@@ -69,6 +69,9 @@ public class TrackPanel extends Composite {
     Tree optionTree;
 
 
+    public void updateTrackToggle(Boolean val) {
+        trackListToggle.setValue(val);
+    }
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();

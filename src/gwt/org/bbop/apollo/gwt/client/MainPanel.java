@@ -191,7 +191,7 @@ public class MainPanel extends Composite {
                 if(o.containsKey("tracklist")) {
                     Boolean val=o.get("tracklist").isBoolean().booleanValue();
                     MainPanel.useNativeTracklist=val;
-                    TrackPanel.trackListToggle.setValue(val);
+                    trackPanel.updateTrackToggle(val);
                 }
             }
 
