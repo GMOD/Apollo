@@ -140,6 +140,13 @@ public class UserRestService {
         RestService.sendRequest(requestCallback, "user/updateUser", "data=" + jsonObject.toString());
     }
 
+    public static void updateUserTrackPanelPreference(RequestCallback requestCallback, boolean tracklist) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("tracklist", JSONBoolean.getInstance(tracklist));
+        RestService.sendRequest(requestCallback, "user/updateTrackListPreference", "data=" + jsonObject.toString());
+    }
+
+
     public static void deleteUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
