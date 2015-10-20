@@ -333,7 +333,7 @@ public class TrackPanel extends Composite {
     }
 
     @UiHandler("trackListToggle")
-    public void handleCancelNewOrganism(ClickEvent clickEvent) {
+    public void trackListToggle(ClickEvent clickEvent) {
         GWT.log("Testing: " + trackListToggle.getValue());
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -353,6 +353,7 @@ public class TrackPanel extends Composite {
                 Bootbox.alert("Error updating user: " + exception);
             }
         };
+        MainPanel.useNativeTracklist=trackListToggle.getValue();
         UserRestService.updateUserTrackPanelPreference(requestCallback, trackListToggle.getValue());
     }
 }
