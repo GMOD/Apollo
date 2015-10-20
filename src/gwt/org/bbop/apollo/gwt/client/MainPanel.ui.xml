@@ -93,12 +93,13 @@
                         <b:Modal ui:field="notificationModal" closable="true" fade="true" dataBackdrop="FALSE"
                                  dataKeyboard="true">
                             <b:ModalHeader>
-                                <gwt:HTML>Error</gwt:HTML>
+                                <gwt:HTML><b>Error</b></gwt:HTML>
                             </b:ModalHeader>
                             <b:ModalBody>
                                 <b:Alert type="WARNING" ui:field="alertText">
                                     <b:Icon type="WARNING"/>
                                 </b:Alert>
+                                <b:Button text="Logout" ui:field="logoutButton2" styleName="{style.logout-button}" icon="SIGN_OUT" />
                             </b:ModalBody>
                         </b:Modal>
                     </gwt:FlowPanel>

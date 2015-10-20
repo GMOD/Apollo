@@ -111,6 +111,8 @@ public class MainPanel extends Composite {
     Modal notificationModal;
     @UiField
     Alert alertText;
+    @UiField
+    Button logoutButton2;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
@@ -654,7 +656,7 @@ public class MainPanel extends Composite {
     }
 
 
-    @UiHandler("logoutButton")
+    @UiHandler(value = {"logoutButton","logoutButton2"})
     public void logout(ClickEvent clickEvent) {
         UserRestService.logout();
     }
