@@ -143,11 +143,6 @@ public class UserRestService {
     }
 
 
-    public static void getUserTrackPanelPreference(RequestCallback requestCallback) {
-        JSONObject jsonObject = new JSONObject();
-        RestService.sendRequest(requestCallback, "user/getTrackListPreference", "data=" + jsonObject.toString());
-    }
-
     public static void deleteUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override

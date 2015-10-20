@@ -135,6 +135,9 @@ class UserController {
             if ((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserAdmin(currentUser)) {
                 userObject.put(FeatureStringEnum.ERROR.value, "You do not have access to any organism on this server.  Please contact your administrator.")
             }
+            else {
+                userObject.put("tracklist", userOrganismPreference.nativeTrackList)
+            }
 
             render userObject as JSON
         } else {
@@ -168,25 +171,6 @@ class UserController {
         }
     }
 
-    def getTrackListPreference() {
-        try {
-            JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-            if (!permissionService.hasPermissions(dataObject, PermissionEnum.READ)) {
-                response.setStatus(HttpStatus.UNAUTHORIZED)
-                render ([error: "unauthorized"]) as JSON
-                return
-            }
-            log.info "getTrackListPreference"
-
-            UserOrganismPreference uop=permissionService.getCurrentOrganismPreference()
-            def returnObj=[tracklist: uop.nativeTrackList]
-            render returnObj as JSON
-        }
-        catch(Exception e) {
-            log.error "${e.message}"
-            render ([error: e.message]) as JSON
-        }
-    }
 
     @RestApiMethod(description = "Add user to group", path = "/user/addUserToGroup", verb = RestApiVerb.POST)
     @RestApiParams(params = [

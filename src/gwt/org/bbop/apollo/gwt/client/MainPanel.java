@@ -183,24 +183,6 @@ public class MainPanel extends Composite {
             setPreference(FeatureStringEnum.DOCK_OPEN.getValue(),true);
         }
 
-        RequestCallback requestCallback2 = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                JSONValue v= JSONParser.parseStrict(response.getText());
-                JSONObject o=v.isObject();
-                if(o.containsKey("tracklist")) {
-                    Boolean val=o.get("tracklist").isBoolean().booleanValue();
-                    MainPanel.useNativeTracklist=val;
-                    trackPanel.updateTrackToggle(val);
-                }
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Error getting tracklist preference: " + exception);
-            }
-        };
-        UserRestService.getUserTrackPanelPreference(requestCallback2);
 
 
         try {
@@ -342,38 +324,27 @@ public class MainPanel extends Composite {
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
                         String errorText = returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue();
                         alertText.setText(errorText);
-//                        notificationModal.setVisible(true);
                         notificationModal.show();
-//                        Modal modal = new Modal();
-//                        ModalHeader modalHeader = new ModalHeader();
-//                        modalHeader.setTitle("Error");
-//                        modal.add(modalHeader);
-//                        ModalBody modalBody = new ModalBody();
-//                        Alert alert = new Alert();
-//                        alert.setType(AlertType.WARNING);
-//                        alert.setText(errorText);
-//                        modalBody.add(alert);
-//                        modal.add(modalBody);
-//                        modal.setClosable(true);
-//                        modal.setDataBackdrop(ModalBackdrop.FALSE);
-//                        modal.setDataKeyboard(true);
-//                        modal.show();
                     } else {
                         getAppState();
                         logoutButton.setVisible(true);
                         currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
+                        MainPanel.useNativeTracklist = returnValue.get("tracklist").isBoolean().booleanValue();
+                        trackPanel.updateTrackToggle(MainPanel.useNativeTracklist);
+
+
                         String displayName = currentUser.getEmail();
                         userName.setHTML(displayName.length() > maxUsernameLength ?
                                 displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
                     }
+
+
                 } else {
                     boolean hasUsers = returnValue.get(FeatureStringEnum.HAS_USERS.getValue()).isBoolean().booleanValue();
                     if (hasUsers) {
                         currentUser = null;
                         logoutButton.setVisible(false);
                         loginDialog.showLogin();
-//                        loginDialog.center();
-//                        loginDialog.show();
                     } else {
                         currentUser = null;
                         logoutButton.setVisible(false);
@@ -385,7 +356,6 @@ public class MainPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-//                Bootbox.alert("User not there: " + exception);
                 loginDialog.setError(exception.getMessage());
             }
         };
@@ -393,7 +363,6 @@ public class MainPanel extends Composite {
             builder.setCallback(requestCallback);
             builder.send();
         } catch (RequestException e) {
-//            Bootbox.alert(e.getMessage());
             loginDialog.setError(e.getMessage());
         }
 
