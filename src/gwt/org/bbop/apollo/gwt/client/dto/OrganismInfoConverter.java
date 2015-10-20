@@ -45,8 +45,6 @@ public class OrganismInfoConverter {
             organismInfo.setBlatDb(object.get("blatdb").isString().stringValue());
         }
         if (object.get("publicMode") != null) {
-
-            GWT.log("convertFromJson publicMode "+object.get("publicMode")+" "+object.get("commonName"));
             organismInfo.setPublicMode(object.get("publicMode").isBoolean().booleanValue());
         }
         organismInfo.setCurrent(object.get("currentOrganism") != null && object.get("currentOrganism").isBoolean().booleanValue());

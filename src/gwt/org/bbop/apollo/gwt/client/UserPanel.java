@@ -417,7 +417,6 @@ public class UserPanel extends Composite {
     }
 
     private void filterSequences() {
-        GWT.log("original size: " + userInfoList.size());
 
         filteredUserInfoList.clear();
         String nameText = nameSearchBox.getText().toLowerCase().trim();
@@ -432,7 +431,6 @@ public class UserPanel extends Composite {
         } else {
             filteredUserInfoList.addAll(userInfoList);
         }
-        GWT.log("filtered size: " + filteredUserInfoList.size());
     }
 
     @UiHandler(value = {"firstName", "lastName", "email", "passwordTextBox"})

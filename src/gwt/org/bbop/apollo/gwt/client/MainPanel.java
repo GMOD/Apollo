@@ -268,9 +268,7 @@ public class MainPanel extends Composite {
 
 
     private void updatePermissionsForOrganism() {
-        GWT.log(currentUser.getOrganismPermissionMap().keySet().toString());
         String globalRole = currentUser.getRole();
-        GWT.log("global: " + globalRole);
         UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
         if (globalRole.equals("admin")) {
             highestPermission = PermissionEnum.ADMINISTRATE;
@@ -278,7 +276,6 @@ public class MainPanel extends Composite {
             highestPermission = PermissionEnum.NONE;
         }
         if (userOrganismPermissionInfo !=  null && highestPermission != PermissionEnum.ADMINISTRATE) {
-            GWT.log("organism: " + userOrganismPermissionInfo.toJSON().toString());
             highestPermission = userOrganismPermissionInfo.getHighestPermission();
         }
 
