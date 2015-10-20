@@ -144,9 +144,6 @@ define([
 
                 }));
 
-                this.gview.browser.subscribe("/jbrowse/v1/v/tracks/show", dojo.hitch(this, function (names) {
-                }));
-
                 this.gview.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
                 this.gview.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
 
@@ -306,10 +303,10 @@ define([
                         var handleTrackVisibility = function (trackInfo) {
                             var command = trackInfo.command;
                             if (command == "show") {
-                                track.gview.browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
+                                browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
                             }
                             else if (command == "hide") {
-                                track.gview.browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
+                                browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
                             }
                             else if (command == "list") {
                                 var trackList = browser.trackConfigsByName;
@@ -320,7 +317,8 @@ define([
                                 console.log('unknown command: ' + command);
                             }
                         };
-
+                        browser.subscribe('/jbrowse/v1/c/tracks/show', function() { console.log("show update");handleTrackVisibility({command:"list"}); });
+                        browser.subscribe('/jbrowse/v1/c/tracks/hide', function() { console.log("hide update");handleTrackVisibility({command:"list"}); });
                         window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
 
 
