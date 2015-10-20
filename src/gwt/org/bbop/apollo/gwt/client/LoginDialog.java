@@ -16,6 +16,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Input;
 import org.gwtbootstrap3.client.ui.Icon;
 import org.gwtbootstrap3.client.ui.CheckBox;
+import org.gwtbootstrap3.client.ui.html.Div;
 import org.gwtbootstrap3.client.ui.html.Paragraph;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.*;
@@ -28,7 +29,11 @@ public class LoginDialog extends DialogBox {
 
 
     @UiField
-    Paragraph errorHtml;
+    Div errorHtml;
+
+    @UiField
+    Paragraph errorText;
+
 
 
 
@@ -63,13 +68,13 @@ public class LoginDialog extends DialogBox {
     public void setError(String errorMessage){
         Icon icon = new Icon(IconType.WARNING);
         errorHtml.add(icon);
-        errorHtml.setEmphasis(Emphasis.DANGER);
-        errorHtml.setText(errorMessage);
+        errorText.setEmphasis(Emphasis.DANGER);
+        errorText.setText(errorMessage);
         errorHtml.setVisible(true);
     }
  
     public void clearErrors(){
-        errorHtml.setText("");
+        errorText.setText("");
         errorHtml.setVisible(false);
     }
 
