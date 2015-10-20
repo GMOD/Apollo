@@ -280,7 +280,7 @@ class OrganismController {
         }
     }
 
-    @RestApiMethod(description="Returns a JSON array of all organisms",path="/organism/findAllOrganismso",verb = RestApiVerb.POST)
+    @RestApiMethod(description="Returns a JSON array of all organisms",path="/organism/findAllOrganisms",verb = RestApiVerb.POST)
     @RestApiParams(params=[
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
