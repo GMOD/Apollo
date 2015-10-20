@@ -189,7 +189,9 @@ public class MainPanel extends Composite {
                 JSONValue v= JSONParser.parseStrict(response.getText());
                 JSONObject o=v.isObject();
                 if(o.containsKey("tracklist")) {
-                    MainPanel.useNativeTracklist=o.get("tracklist").isBoolean().booleanValue();
+                    Boolean val=o.get("tracklist").isBoolean().booleanValue();
+                    MainPanel.useNativeTracklist=val;
+                    TrackPanel.trackListToggle.setValue(val);
                 }
             }
 

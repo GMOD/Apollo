@@ -57,7 +57,7 @@ public class TrackPanel extends Composite {
     HTML trackDensity;
 
     @UiField
-    CheckBox trackListToggle;
+    public static CheckBox trackListToggle;
 
 
     private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
@@ -160,7 +160,6 @@ public class TrackPanel extends Composite {
 
         dataProvider.addDataDisplay(dataGrid);
 
-        trackListToggle.setValue(MainPanel.useNativeTracklist);
 
         ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(filteredTrackInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
