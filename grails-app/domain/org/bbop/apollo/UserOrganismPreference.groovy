@@ -13,7 +13,7 @@ class UserOrganismPreference extends UserPreference{
 
     Organism organism
     Boolean currentOrganism
-    boolean nativeTrackList
+    Boolean nativeTrackList
     Sequence sequence
     Integer startbp
     Integer endbp
