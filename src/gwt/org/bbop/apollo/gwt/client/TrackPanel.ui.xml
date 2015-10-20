@@ -9,10 +9,6 @@
             margin: 10px;
         }
 
-        .widgetPanel {
-            padding: 5px;
-            margin: 5px;
-        }
 
 
         .tableKeyName{
@@ -31,8 +27,11 @@
         <gwt:north size="60">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
-                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
-                        <b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>
+                    <b:Column size="MD_6">
+                        <b:TextBox placeholder="Search" ui:field="nameSearchBox"/>
+                    </b:Column>
+                    <b:Column size="MD_6">
+                        <b:CheckBox ui:field="trackListToggle"  text="Toggle native tracklist"/>
                     </b:Column>
                 </b:Row>
             </b:Container>

@@ -66,7 +66,7 @@ public class UserRestService {
                 JSONValue j=JSONParser.parseStrict(response.getText());
                 JSONObject o=j.isObject();
                 if(o.get("error")!=null) {
-                    loginDialog.setError(o.get("error").isString().stringValue()+"!");
+                    loginDialog.setError(o.get("error").isString().stringValue() + "!");
                 }
                 else {
                     Window.Location.reload();
@@ -116,10 +116,6 @@ public class UserRestService {
         loadUsers(requestCallback);
     }
 
-    public static void logout(RequestCallback requestCallback) {
-        RestService.sendRequest(requestCallback, "Login?operation=logout");
-    }
-
     public static void logout() {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -132,12 +128,24 @@ public class UserRestService {
                 Bootbox.alert("Error logging out " + exception);
             }
         };
-        logout(requestCallback);
+        RestService.sendRequest(requestCallback, "Login?operation=logout");
     }
 
     public static void updateUser(RequestCallback requestCallback, UserInfo selectedUserInfo) {
         JSONObject jsonObject = selectedUserInfo.toJSON();
         RestService.sendRequest(requestCallback, "user/updateUser", "data=" + jsonObject.toString());
+    }
+
+    public static void updateUserTrackPanelPreference(RequestCallback requestCallback, boolean tracklist) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("tracklist", JSONBoolean.getInstance(tracklist));
+        RestService.sendRequest(requestCallback, "user/updateTrackListPreference", "data=" + jsonObject.toString());
+    }
+
+
+    public static void getUserTrackPanelPreference(RequestCallback requestCallback) {
+        JSONObject jsonObject = new JSONObject();
+        RestService.sendRequest(requestCallback, "user/getTrackListPreference", "data=" + jsonObject.toString());
     }
 
     public static void deleteUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
@@ -239,4 +247,6 @@ public class UserRestService {
         };
         RestService.sendRequest(requestCallback, "user/updateOrganismPermission", "data=" + object.toJSON().toString());
     }
+
+
 }
