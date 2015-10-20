@@ -50,8 +50,12 @@ try {
 }
 
 
-URL url = new URL(options.url)
+def s=options.url
+if (s.endsWith("/")) {
+    s = s.substring(0, s.length() - 1);
+}
 
+URL url = new URL(s)
 
 
 def argumentsArray = [
