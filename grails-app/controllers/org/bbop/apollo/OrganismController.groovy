@@ -251,27 +251,32 @@ class OrganismController {
         log.debug "updating organism info ${params}"
         JSONObject organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
         try {
-            permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
-            Organism organism = Organism.findById(organismJson.id)
-            if (organism) {
-                log.debug "Adding public mode ${organismJson.publicMode}"
-                organism.commonName = organismJson.name
-                organism.blatdb = organismJson.blatdb
-                organism.species = organismJson.species
-                organism.genus = organismJson.genus
-                organism.directory = organismJson.directory
-                organism.publicMode = organismJson.publicMode
+            if(permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)) {
+                Organism organism = Organism.findById(organismJson.id)
+                if (organism) {
+                    log.debug "Adding public mode ${organismJson.publicMode}"
+                    organism.commonName = organismJson.name
+                    organism.blatdb = organismJson.blatdb
+                    organism.species = organismJson.species
+                    organism.genus = organismJson.genus
+                    organism.directory = organismJson.directory
+                    organism.publicMode = organismJson.publicMode
 
-                if (checkOrganism(organism)) {
-                    organism.save(flush: true, insert: false, failOnError: true)
+                    if (checkOrganism(organism)) {
+                        organism.save(flush: true, insert: false, failOnError: true)
+                    } else {
+                        throw new Exception("Bad organism directory: " + organism.directory)
+                    }
+                } else {
+                    throw new Exception('organism not found')
                 }
-                else{
-                    throw new Exception("Bad organism directory: "+organism.directory)
-                }
-            } else {
-                throw new Exception('organism not found')
+                render findAllOrganisms()
             }
-            render findAllOrganisms()
+            else {
+                def error=[error: 'not authorized']
+                render error as JSON
+                log.error (error.error)
+            }
         }
         catch (e) {
             def error= [error: 'problem saving organism: '+e]
@@ -355,7 +360,6 @@ class OrganismController {
 
 
         respond organismSummaryInstance, model: [organismSummaries:organismSummaryListInstance]
-//        respond featureInstance
     }
 
     protected void notFound() {
