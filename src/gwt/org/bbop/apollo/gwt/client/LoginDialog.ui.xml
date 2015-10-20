@@ -1,0 +1,42 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g="urn:import:com.google.gwt.user.client.ui"
+             xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
+             xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
+             xmlns:wa="urn:import:org.bbop.apollo.gwt.client"
+        >
+
+
+    <ui:style>
+    </ui:style>
+
+
+<b:Form type="HORIZONTAL">
+  <b:FieldSet>
+    <b:Container fluid="true">
+      <b:Row>
+        <b:FormLabel for="username" addStyleNames="col-lg-4">Username:</b:FormLabel>
+        <g:FlowPanel addStyleNames="col-lg-8">
+          <b:TextBox ui:field="userBox" b:id="formName"/>
+        </g:FlowPanel>
+      </b:Row>
+
+      <b:Row>
+        <b:FormLabel for="formPassword" addStyleNames="col-lg-4">Password:</b:FormLabel>
+        <g:FlowPanel addStyleNames="col-lg-8">
+          <b:Input type="PASSWORD"  ui:field="passBox" b:id="formPassword"/>
+        </g:FlowPanel>
+      </b:Row>
+
+      <b:Row>
+        <b:Column size="MD_9"><b:CheckBox ui:field="rememberBox" text="Remember me"/></b:Column>
+        <b:Column size="MD_3"><b:Button ui:field="loginButton" type="PRIMARY">Login</b:Button></b:Column>
+      </b:Row>
+    </b:Container>
+
+    <g:FlowPanel>
+      <b:html.Paragraph ui:field="errorHtml"/>
+    </g:FlowPanel>
+  </b:FieldSet>
+</b:Form>
+
+</ui:UiBinder>
