@@ -40,6 +40,7 @@ class FeatureEvent {
     }
 
     static mapping = {
+        name type: "text"
         originalJsonCommand type: "text"
         newFeaturesJsonArray type: "text"
         oldFeaturesJsonArray type: "text"
