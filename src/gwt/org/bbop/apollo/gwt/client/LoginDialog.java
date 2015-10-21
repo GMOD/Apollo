@@ -60,15 +60,15 @@ public class LoginDialog extends DialogBox {
     }
 
     public void showLogin() {
+        Icon icon = new Icon(IconType.WARNING);
+        errorHtml.add(icon);
+        errorText.setEmphasis(Emphasis.DANGER);
         clearErrors();
         center();
         show();
     }
 
     public void setError(String errorMessage){
-        Icon icon = new Icon(IconType.WARNING);
-        errorHtml.add(icon);
-        errorText.setEmphasis(Emphasis.DANGER);
         errorText.setText(errorMessage);
         errorHtml.setVisible(true);
     }
