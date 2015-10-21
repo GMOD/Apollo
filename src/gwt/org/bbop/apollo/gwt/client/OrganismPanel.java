@@ -205,17 +205,28 @@ public class OrganismPanel extends Composite {
         setTextEnabled(organismInfo.isEditable());
 
         GWT.log("loadOrganismInfo setValue " + organismInfo.getPublicMode());
-        organismName.setText(organismInfo.getName());
-        blatdb.setText(organismInfo.getBlatDb());
-        genus.setText(organismInfo.getGenus());
-        species.setText(organismInfo.getSpecies());
-        sequenceFile.setText(organismInfo.getDirectory());
-        publicMode.setValue(organismInfo.getPublicMode());
+        Boolean isEditable = organismInfo.isEditable()||MainPanel.getInstance().isCurrentUserAdmin();
 
-        deleteButton.setVisible(organismInfo.isEditable());
-        sequenceFile.setEnabled(organismInfo.isEditable());
-        deleteButton.setEnabled(organismInfo.isEditable());
-        publicMode.setEnabled(organismInfo.isEditable());
+        organismName.setText(organismInfo.getName());
+        organismName.setEnabled(isEditable);
+
+        blatdb.setText(organismInfo.getBlatDb());
+        blatdb.setEnabled(isEditable);
+
+        genus.setText(organismInfo.getGenus());
+        genus.setEnabled(isEditable);
+
+        species.setText(organismInfo.getSpecies());
+        species.setEnabled(isEditable);
+
+        sequenceFile.setText(organismInfo.getDirectory());
+        sequenceFile.setEnabled(isEditable);
+
+        publicMode.setValue(organismInfo.getPublicMode());
+        publicMode.setEnabled(isEditable);
+
+        deleteButton.setVisible(isEditable);
+        deleteButton.setEnabled(isEditable);
     }
 
     private class UpdateInfoListCallback implements RequestCallback {
