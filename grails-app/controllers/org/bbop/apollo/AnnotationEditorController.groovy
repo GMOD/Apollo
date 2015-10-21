@@ -122,11 +122,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         inputObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        if(!permissionService.checkPermissions(inputObject, PermissionEnum.READ)) {
-            def error=[error: "not authorized"]
-            render error as JSON
-            return
-        }
+        permissionService.checkPermissions(inputObject, PermissionEnum.READ)
 
         JSONObject historyContainer = createJSONFeatureContainer();
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
@@ -460,13 +456,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getFeatures() {
         JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         try {
-            if(!permissionService.checkPermissions(returnObject, PermissionEnum.READ)) {
-                def error=[error: "not authorized"]
-                render error as JSON
-            }
-            else {
-                render requestHandlingService.getFeatures(returnObject)
-            }
+            permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+            render requestHandlingService.getFeatures(returnObject)
         } catch (e) {
             def error = [error: 'problem getting features: ' + e.fillInStackTrace()]
             render error as JSON

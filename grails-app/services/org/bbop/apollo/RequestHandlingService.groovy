@@ -86,9 +86,7 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(uniqueName)
             String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
             if (!sequence) sequence = feature.getFeatureLocation().getSequence()
-            if(!permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)) {
-                throw new Exception("Not authorized")
-            }
+            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
             feature.symbol = symbolString
             feature.save(flush: true, failOnError: true)
@@ -120,9 +118,7 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(uniqueName)
             String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
             if (!sequence) sequence = feature.getFeatureLocation().getSequence()
-            if(!permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)) {
-                throw new Exception("not authorized")
-            }
+            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
 
             feature.description = descriptionString
@@ -2312,9 +2308,7 @@ class RequestHandlingService {
     @Timed
     def undo(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        if(!permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)) {
-            throw new Exception("not authorized")
-        }
+        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         permissionService.getCurrentUser(inputObject)
 
         for (int i = 0; i < featuresArray.size(); ++i) {
@@ -2330,9 +2324,7 @@ class RequestHandlingService {
     @Timed
     def redo(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        if(!permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)) {
-            throw new Exception("not authorized")
-        }
+        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         permissionService.getCurrentUser(inputObject)
 
         for (int i = 0; i < featuresArray.size(); ++i) {
