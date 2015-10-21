@@ -51,7 +51,7 @@ public class OrganismRestService {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue jsonValue = JSONParser.parseStrict(response.getText());
-                if(jsonValue.isObject()!=null){
+                if(jsonValue.isObject()!=null && jsonValue.isObject()!=null && jsonValue.isObject().containsKey(FeatureStringEnum.ERROR.getValue())){
                     String errorMessage = jsonValue.isObject().get(FeatureStringEnum.ERROR.getValue()).isString().stringValue();
                     ErrorDialog errorDialog = new ErrorDialog("Unable to update the organism",errorMessage,true,true);
                 }

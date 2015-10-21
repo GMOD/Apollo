@@ -16,6 +16,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.*;
@@ -329,7 +330,12 @@ public class MainPanel extends Composite {
                         getAppState();
                         logoutButton.setVisible(true);
                         currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
-                        MainPanel.useNativeTracklist = returnValue.get("tracklist").isBoolean().booleanValue();
+                        if(returnValue.containsKey("tracklist")){
+                            MainPanel.useNativeTracklist = returnValue.get("tracklist").isBoolean().booleanValue();
+                        }
+                        else{
+                           MainPanel.useNativeTracklist = false ;
+                        }
                         trackPanel.updateTrackToggle(MainPanel.useNativeTracklist);
 
 

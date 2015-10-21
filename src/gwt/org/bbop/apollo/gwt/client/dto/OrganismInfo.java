@@ -27,7 +27,9 @@ public class OrganismInfo implements HasJSON{
     private Integer numSequences;
     private Boolean valid ;
     private Boolean current;
-    private boolean publicMode;
+    private Boolean publicMode;
+    private Boolean canEdit ;
+    private boolean editable;
 
 
     public OrganismInfo(){
@@ -159,4 +161,11 @@ public class OrganismInfo implements HasJSON{
         return payload;
     }
 
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+    }
+
+    public boolean isEditable() {
+        return editable;
+    }
 }

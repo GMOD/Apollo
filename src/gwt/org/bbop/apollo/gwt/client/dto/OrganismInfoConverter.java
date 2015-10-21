@@ -47,6 +47,9 @@ public class OrganismInfoConverter {
         if (object.get("publicMode") != null) {
             organismInfo.setPublicMode(object.get("publicMode").isBoolean().booleanValue());
         }
+        if (object.get("editable") != null) {
+            organismInfo.setEditable(object.get("editable").isBoolean().booleanValue());
+        }
         organismInfo.setCurrent(object.get("currentOrganism") != null && object.get("currentOrganism").isBoolean().booleanValue());
         return organismInfo;
     }
