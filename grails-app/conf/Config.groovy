@@ -287,8 +287,9 @@ apollo {
 
 }
 
-//grails.plugin.databasemigration.updateOnStart = true
-//grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.1.groovy']
+grails.plugin.databasemigration.updateOnStart = true
+//grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.0.groovy','changelog-2.0.1.groovy']
+grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.1.groovy']
 
 
 //grails.plugins.restapidoc.basePath = "http://localhost:8080/apollo"
