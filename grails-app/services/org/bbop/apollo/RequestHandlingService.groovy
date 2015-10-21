@@ -86,7 +86,9 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(uniqueName)
             String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
             if (!sequence) sequence = feature.getFeatureLocation().getSequence()
-            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
+            if(!permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)) {
+                throw new Exception("Not authorized")
+            }
 
             feature.symbol = symbolString
             feature.save(flush: true, failOnError: true)
@@ -103,6 +105,8 @@ class RequestHandlingService {
             )
             fireAnnotationEvent(annotationEvent)
         }
+
+        return new JSONObject()
     }
 
     JSONObject setDescription(JSONObject inputObject) {
@@ -116,7 +120,9 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(uniqueName)
             String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
             if (!sequence) sequence = feature.getFeatureLocation().getSequence()
-            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
+            if(!permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)) {
+                throw new Exception("not authorized")
+            }
 
 
             feature.description = descriptionString
@@ -2306,7 +2312,9 @@ class RequestHandlingService {
     @Timed
     def undo(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        if(!permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)) {
+            throw new Exception("not authorized")
+        }
         permissionService.getCurrentUser(inputObject)
 
         for (int i = 0; i < featuresArray.size(); ++i) {
@@ -2322,7 +2330,9 @@ class RequestHandlingService {
     @Timed
     def redo(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        if(!permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)) {
+            throw new Exception("not authorized")
+        }
         permissionService.getCurrentUser(inputObject)
 
         for (int i = 0; i < featuresArray.size(); ++i) {
