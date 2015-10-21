@@ -157,7 +157,8 @@ public class OrganismInfo implements HasJSON{
             payload.put("valid",JSONBoolean.getInstance(valid));
         }
 
-        payload.put("publicMode",JSONBoolean.getInstance(publicMode));
+        payload.put("publicMode",JSONBoolean.getInstance(publicMode != null ? publicMode : false));
+
         return payload;
     }
 
