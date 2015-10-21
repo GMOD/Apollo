@@ -24,8 +24,8 @@
         <b:Column size="MD_9"><b:TextBox ui:field="userBox" b:id="formName"/></b:Column>
       </b:Row>
 
-      <b:Row>
-        <b:Column size="MD_3"><b:FormLabel for="formPassword">Password:</b:FormLabel></b:Column>
+      <b:Row marginTop="5" >
+        <b:Column size="MD_3"><b:FormLabel  for="formPassword">Password:</b:FormLabel></b:Column>
         <b:Column size="MD_9"><b:Input type="PASSWORD"  ui:field="passBox" b:id="formPassword"/></b:Column>
       </b:Row>
 
