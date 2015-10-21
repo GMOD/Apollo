@@ -22,10 +22,6 @@ grails.config.locations = [
 // }
 
 
-grails.assets.minifyJs = false
-grails.assets.minifyCss = false
-grails.assets.enableSourceMaps = true
-grails.assets.bundle = false
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 
 // The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
@@ -127,12 +123,27 @@ grails.cache.config = {
 }
 
 
+
 environments {
     development {
         grails.logging.jul.usebridge = true
+        grails.assets.minifyJs = false
+        grails.assets.minifyCss = false
+        grails.assets.enableSourceMaps = true
+        grails.assets.bundle = false
+    }
+    test {
+        grails.assets.minifyJs = false
+        grails.assets.minifyCss = false
+        grails.assets.enableSourceMaps = true
+        grails.assets.bundle = false
     }
     production {
         grails.logging.jul.usebridge = false
+        grails.assets.minifyJs = true
+        grails.assets.minifyCss = true
+        grails.assets.enableSourceMaps = true
+        grails.assets.bundle = true
     }
 }
 
