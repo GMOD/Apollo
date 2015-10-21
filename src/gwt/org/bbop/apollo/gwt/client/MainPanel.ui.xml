@@ -90,7 +90,7 @@
                             <gwt:HTML ui:field="userName" styleName="{style.username}"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
                         </b:Panel>
-                        <b:Modal ui:field="notificationModal" closable="true" fade="true" dataBackdrop="FALSE"
+                        <b:Modal ui:field="notificationModal" closable="false" fade="true" dataBackdrop="FALSE"
                                  dataKeyboard="true">
                             <b:ModalHeader>
                                 <gwt:HTML><b>Error</b></gwt:HTML>
@@ -101,6 +101,9 @@
                                 </b:Alert>
                                 <b:Button text="Logout" ui:field="logoutButton2" styleName="{style.logout-button}" icon="SIGN_OUT" />
                             </b:ModalBody>
+                            <b:ModalFooter>
+                                <b:Anchor ui:field="logoutAndBrowsePublicGenomes" text="Browse public genomes" href="../jbrowse/"/>
+                            </b:ModalFooter>
                         </b:Modal>
                     </gwt:FlowPanel>
                 </gwt:north>
@@ -110,7 +113,6 @@
                 </gwt:west>
                 <gwt:center>
                     <gwt:TabLayoutPanel barHeight="30" ui:field="detailTabs" addStyleNames="{style.title-tab-headers}">
-
                         <gwt:tab>
                             <gwt:header>Annotations</gwt:header>
                             <apollo:AnnotatorPanel ui:field="annotatorPanel"/>

@@ -27,6 +27,7 @@ import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Anchor;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.SuggestBox;
 import org.gwtbootstrap3.client.ui.constants.AlertType;
@@ -115,6 +116,8 @@ public class MainPanel extends Composite {
     Alert alertText;
     @UiField
     Button logoutButton2;
+    @UiField
+    Anchor logoutAndBrowsePublicGenomes;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
@@ -138,7 +141,7 @@ public class MainPanel extends Composite {
             @Override
             public void onResize() {
                 super.onResize();
-                setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(),mainSplitPanel.getWidgetSize(eastDockPanel));
+                setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), mainSplitPanel.getWidgetSize(eastDockPanel));
             }
         };
 
@@ -180,21 +183,20 @@ public class MainPanel extends Composite {
                 toggleOpen();
             }
         } catch (Exception e) {
-            GWT.log("Error setting preference: "+e.fillInStackTrace().toString());
-            setPreference(FeatureStringEnum.DOCK_OPEN.getValue(),true);
+            GWT.log("Error setting preference: " + e.fillInStackTrace().toString());
+            setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), true);
         }
-
 
 
         try {
             String dockWidth = getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
-            if(dockWidth!=null && toggleOpen){
+            if (dockWidth != null && toggleOpen) {
                 Integer dockWidthInt = Integer.parseInt(dockWidth);
-                mainSplitPanel.setWidgetSize(eastDockPanel,dockWidthInt);
+                mainSplitPanel.setWidgetSize(eastDockPanel, dockWidthInt);
             }
         } catch (NumberFormatException e) {
-            GWT.log("Error setting preference: "+e.fillInStackTrace().toString());
-            setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(),600);
+            GWT.log("Error setting preference: " + e.fillInStackTrace().toString());
+            setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), 600);
         }
 
         loginUser();
@@ -278,7 +280,7 @@ public class MainPanel extends Composite {
         } else {
             highestPermission = PermissionEnum.NONE;
         }
-        if (userOrganismPermissionInfo !=  null && highestPermission != PermissionEnum.ADMINISTRATE) {
+        if (userOrganismPermissionInfo != null && highestPermission != PermissionEnum.ADMINISTRATE) {
             highestPermission = userOrganismPermissionInfo.getHighestPermission();
         }
 
@@ -325,16 +327,17 @@ public class MainPanel extends Composite {
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
                         String errorText = returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue();
                         alertText.setText(errorText);
+                        detailTabs.setVisible(false);
                         notificationModal.show();
                     } else {
+                        detailTabs.setVisible(true);
                         getAppState();
                         logoutButton.setVisible(true);
                         currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
-                        if(returnValue.containsKey("tracklist")){
+                        if (returnValue.containsKey("tracklist")) {
                             MainPanel.useNativeTracklist = returnValue.get("tracklist").isBoolean().booleanValue();
-                        }
-                        else{
-                           MainPanel.useNativeTracklist = false ;
+                        } else {
+                            MainPanel.useNativeTracklist = false;
                         }
                         trackPanel.updateTrackToggle(MainPanel.useNativeTracklist);
 
@@ -398,12 +401,10 @@ public class MainPanel extends Composite {
         currentEndBp = maxRegion;
 
 
-
-
         String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
         trackListString += selectedSequence;
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
-        trackListString += "&highlight=&tracklist="+(MainPanel.useNativeTracklist?"1":"0");
+        trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
 
         final String finalString = trackListString;
 
@@ -544,11 +545,10 @@ public class MainPanel extends Composite {
 
     private void openPanel() {
         String dockWidth = getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
-        if(dockWidth!=null){
+        if (dockWidth != null) {
             Integer dockWidthInt = Integer.parseInt(dockWidth);
-            mainSplitPanel.setWidgetSize(eastDockPanel,dockWidthInt);
-        }
-        else{
+            mainSplitPanel.setWidgetSize(eastDockPanel, dockWidthInt);
+        } else {
             mainSplitPanel.setWidgetSize(eastDockPanel, 550);
         }
         dockOpenClose.setIcon(IconType.CARET_RIGHT);
@@ -596,18 +596,18 @@ public class MainPanel extends Composite {
         String text = "";
         String publicUrl = generatePublicUrl();
         String apolloUrl = generateApolloUrl();
-        text +="<ul>";
-        text +="<li>";
-        text += "Public URL: <a href='"+publicUrl+"'>"+publicUrl+"</a>";
-        text +="</li>";
-        text +="<li>";
-        text += "Apollo URL: <a href='"+apolloUrl+"'>"+apolloUrl+"</a>";
-        text +="</li>";
-        text +="</ul>";
-        new LinkDialog("Links to this Location",text,true);
+        text += "<ul>";
+        text += "<li>";
+        text += "Public URL: <a href='" + publicUrl + "'>" + publicUrl + "</a>";
+        text += "</li>";
+        text += "<li>";
+        text += "Apollo URL: <a href='" + apolloUrl + "'>" + apolloUrl + "</a>";
+        text += "</li>";
+        text += "</ul>";
+        new LinkDialog("Links to this Location", text, true);
     }
 
-    public String generatePublicUrl(){
+    public String generatePublicUrl() {
         String url2 = Annotator.getRootUrl();
         url2 += "jbrowse/index.html";
         if (currentStartBp != null) {
@@ -625,10 +625,10 @@ public class MainPanel extends Composite {
                 url2 += ",";
             }
         }
-        return url2 ;
+        return url2;
     }
 
-    public String generateApolloUrl(){
+    public String generateApolloUrl() {
         String url = Annotator.getRootUrl();
         url += "annotator/loadLink";
         if (currentStartBp != null) {
@@ -646,11 +646,16 @@ public class MainPanel extends Composite {
                 url += ",";
             }
         }
-        return url ;
+        return url;
+    }
+
+    @UiHandler(value = {"logoutAndBrowsePublicGenomes"})
+    public void logoutAndBrowse(ClickEvent clickEvent) {
+        UserRestService.logout("../jbrowse");
     }
 
 
-    @UiHandler(value = {"logoutButton","logoutButton2"})
+    @UiHandler(value = {"logoutButton", "logoutButton2"})
     public void logout(ClickEvent clickEvent) {
         UserRestService.logout();
     }

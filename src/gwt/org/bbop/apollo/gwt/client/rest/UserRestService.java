@@ -115,12 +115,20 @@ public class UserRestService {
 
         loadUsers(requestCallback);
     }
-
     public static void logout() {
+        logout(null);
+    }
+
+    public static void logout(final String redirectUrl) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                Window.Location.reload();
+                if(redirectUrl!=null){
+                    Window.Location.replace(redirectUrl);
+                }
+                else{
+                    Window.Location.reload();
+                }
             }
 
             @Override
