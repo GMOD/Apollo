@@ -31,6 +31,7 @@ Bugfixes
 + Fixed a bug that occured when splitting and merging a transcript back together again (#588).
 + Fixed a bug that preventing showing when multiple values for an attribute in the Information Editor (#579). 
 + Fixed a bug preventing features with long names (#580).
++ Fixed a bug where a closed track in the genome browser was not showing up as un-checked in the side-panel (#554). 
 
 
 ## 2.0.0
