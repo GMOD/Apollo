@@ -31,10 +31,7 @@
         .dataGrid td {
             word-wrap: break-word;
         }
-
-        .topbuffer {
-            padd
-        }</ui:style>
+    </ui:style>
     <gwt:SplitLayoutPanel ui:field="splitPanel">
         <gwt:north size="100">
             <b:Container fluid="true" styleName="{style.northPanel}" ui:field="northPanelContainer">
