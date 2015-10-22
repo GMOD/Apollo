@@ -3,7 +3,7 @@
 Features
 
 + Made the pagination for the annotator sidebar more intuitive by only loading the remainder of rows on the last page.
-+ Added support for JBrowse tracks loaded with the `--compress` options in the data loading pipeline (#517).
++ Added support for flatfile-to-json tracks loaded with the `--compress` option in the data loading pipeline (#517).
 + Added right-click option to CanvasFeatures tracks to "Create new annotation" (alternative to drag and drop) (#576).
 + Added an option for enabling/disabling the public JBrowse mode (#433).
 + Added an `-ignoressl` option to bypass certificate authority for groovy command line scripts (#557).
