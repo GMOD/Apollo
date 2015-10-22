@@ -87,7 +87,8 @@
                         <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
                         <gwt:SuggestBox ui:field="sequenceSuggestBox" stylePrimaryName="{style.lookup-display}"/>
                         <b:Panel styleName="pull-right">
-                            <gwt:HTML ui:field="userName" styleName="{style.username}"/>
+                            <!--<gwt:HTML ui:field="userName" styleName="{style.username}"/>-->
+                            <b:Button ui:field="userName" icon="USER"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
                         </b:Panel>
                         <b:Modal ui:field="notificationModal" closable="false" fade="true" dataBackdrop="FALSE"
@@ -104,6 +105,16 @@
                             <b:ModalFooter>
                                 <b:Anchor ui:field="logoutAndBrowsePublicGenomes" text="Browse public genomes" href="../jbrowse/"/>
                             </b:ModalFooter>
+                        </b:Modal>
+                        <b:Modal ui:field="editUserModal" closable="true">
+                            <b:ModalHeader>
+                                <gwt:HTML>Edit Password</gwt:HTML>
+                            </b:ModalHeader>
+                            <b:ModalBody>
+                                <b:Input type="PASSWORD" ui:field="editMyPasswordInput"/>
+                                <b:Button text="Save" type="PRIMARY" ui:field="savePasswordButton" />
+                                <b:Button text="Cancel" type="DEFAULT" ui:field="cancelPasswordButton"/>
+                            </b:ModalBody>
                         </b:Modal>
                     </gwt:FlowPanel>
                 </gwt:north>

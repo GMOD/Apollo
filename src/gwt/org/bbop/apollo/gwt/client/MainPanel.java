@@ -103,7 +103,7 @@ public class MainPanel extends Composite {
     @UiField
     Button logoutButton;
     @UiField
-    HTML userName;
+    Button userName;
     @UiField
     Button generateLink;
     @UiField
@@ -118,6 +118,14 @@ public class MainPanel extends Composite {
     Button logoutButton2;
     @UiField
     Anchor logoutAndBrowsePublicGenomes;
+    @UiField
+    Modal editUserModal;
+    @UiField
+    Input editMyPasswordInput;
+    @UiField
+    Button savePasswordButton;
+    @UiField
+    Button cancelPasswordButton;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
@@ -343,7 +351,7 @@ public class MainPanel extends Composite {
 
 
                         String displayName = currentUser.getEmail();
-                        userName.setHTML(displayName.length() > maxUsernameLength ?
+                        userName.setText(displayName.length() > maxUsernameLength ?
                                 displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
                     }
 
@@ -491,7 +499,38 @@ public class MainPanel extends Composite {
             loadingDialog.hide();
             Bootbox.alert(e.getMessage());
         }
+    }
 
+    @UiHandler("cancelPasswordButton")
+    void cancelEditUserPassword(ClickEvent event) {
+        editUserModal.hide();
+    }
+
+
+    @UiHandler("savePasswordButton")
+    void saveEditUserPassword(ClickEvent event) {
+        UserInfo currentUser = MainPanel.getInstance().getCurrentUser();
+        currentUser.setPassword(editMyPasswordInput.getText());
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                Bootbox.alert("Saved password!");
+                editUserModal.hide();
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error updating password");
+                editUserModal.hide();
+            }
+        };
+        UserRestService.updateUser(requestCallback,currentUser);
+    }
+
+    @UiHandler("userName")
+    void editUserPassword(ClickEvent event) {
+        editMyPasswordInput.setText("");
+        editUserModal.show();
     }
 
     @UiHandler("dockOpenClose")
@@ -856,5 +895,6 @@ public class MainPanel extends Composite {
     public void setOrganismInfoList(List<OrganismInfo> organismInfoList) {
         this.organismInfoList = organismInfoList;
     }
+
 
 }
