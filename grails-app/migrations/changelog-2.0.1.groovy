@@ -92,35 +92,21 @@ databaseChangeLog = {
 		modifyDataType(columnName: "public_group", newDataType: "boolean", tableName: "user_group")
 	}
 
-//	changeSet(author: "nathandunn (generated)", id: "1445460972540-24") {
-//		dropForeignKeyConstraint(baseTableName: "projection", baseTableSchemaName: "public", constraintName: "fk_guvlqqyv488odx129cqw5mpuj")
-//	}
-
-	changeSet(author: "nathandunn (generated)", id: "1445460972540-25") {
-		dropColumn(columnName: "ref_seq_file", tableName: "sequence")
-	}
-
-	changeSet(author: "nathandunn (generated)", id: "1445460972540-26") {
-		dropColumn(columnName: "splice_acceptor", tableName: "sequence")
-	}
-
 	changeSet(author: "nathandunn (generated)", id: "1445460972540-27") {
+        preConditions(onFail: 'MARK_RAN'){
+            columnExists(columnName:"seq_chunk_prefix",tableName:"sequence")
+            columnExists(columnName:"splice_acceptor",tableName:"sequence")
+            columnExists(columnName:"splice_donor",tableName:"sequence")
+            columnExists(columnName:"translation_table_location",tableName:"sequence")
+            columnExists(columnName:"ref_seq_file",tableName:"sequence")
+            columnExists(columnName:"sequence_directory",tableName:"sequence")
+        }
+		dropColumn(columnName: "ref_seq_file", tableName: "sequence")
+		dropColumn(columnName: "splice_acceptor", tableName: "sequence")
 		dropColumn(columnName: "splice_donor_site", tableName: "sequence")
-	}
-
-	changeSet(author: "nathandunn (generated)", id: "1445460972540-28") {
 		dropColumn(columnName: "translation_table_location", tableName: "sequence")
-	}
-
-	changeSet(author: "nathandunn (generated)", id: "1445460972540-29") {
 		dropColumn(columnName: "seq_chunk_prefix", tableName: "sequence")
-	}
-
-	changeSet(author: "nathandunn (generated)", id: "1445460972540-30") {
 		dropColumn(columnName: "sequence_directory", tableName: "sequence")
 	}
 
-//	changeSet(author: "nathandunn (generated)", id: "1445460972540-29") {
-//		dropTable(tableName: "projection")
-//	}
 }
