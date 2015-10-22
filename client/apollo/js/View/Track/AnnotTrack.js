@@ -281,18 +281,18 @@ define([
                         }));
 
 
-                        var sendTracks = function (trackList, visibleTrackNames) {
+                        var sendTracks = function (trackList, visibleTrackNames, showLabels) {
                             var filteredTrackList = [];
                             for (var trackConfigIndex in trackList) {
                                 var filteredTrack = {};
                                 var trackConfig = trackList[trackConfigIndex];
-                                var index = visibleTrackNames.indexOf(trackConfig.label);
+                                var visible = visibleTrackNames.indexOf(trackConfig.label)>=0||showLabels.indexOf(trackConfig.label)>=0;
                                 filteredTrack.label = trackConfig.label;
                                 filteredTrack.key = trackConfig.key;
                                 filteredTrack.name = trackConfig.name;
                                 filteredTrack.type = trackConfig.type;
                                 filteredTrack.urlTemplate = trackConfig.urlTemplate;
-                                filteredTrack.visible = index >= 0;
+                                filteredTrack.visible = visible;
                                 filteredTrackList.push(filteredTrack);
                             }
 
@@ -311,13 +311,14 @@ define([
                             else if (command == "list") {
                                 var trackList = browser.trackConfigsByName;
                                 var visibleTrackNames = browser.view.visibleTrackNames();
-                                sendTracks(trackList, visibleTrackNames);
+                                var showLabels = array.map(trackInfo.labels,function(track) { return track.label; });
+                                sendTracks(trackList, visibleTrackNames, showLabels);
                             }
                             else {
                                 console.log('unknown command: ' + command);
                             }
                         };
-                        browser.subscribe('/jbrowse/v1/c/tracks/show', function() { console.log("show update");handleTrackVisibility({command:"list"}); });
+                        browser.subscribe('/jbrowse/v1/c/tracks/show', function(labels) { console.log("show update");handleTrackVisibility({command:"list",labels:labels}); });
                         browser.subscribe('/jbrowse/v1/c/tracks/hide', function() { console.log("hide update");handleTrackVisibility({command:"list"}); });
                         window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
 
