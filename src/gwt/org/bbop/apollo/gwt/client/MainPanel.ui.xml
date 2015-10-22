@@ -71,7 +71,9 @@
             font-size: smaller;
         }
 
-
+        .buffer {
+            margin-top: 5px;
+        }
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
@@ -94,26 +96,39 @@
                         <b:Modal ui:field="notificationModal" closable="false" fade="true" dataBackdrop="FALSE"
                                  dataKeyboard="true">
                             <b:ModalHeader>
-                                <gwt:HTML><b>Error</b></gwt:HTML>
+                                <gwt:HTML>
+                                    <b>Error</b>
+                                </gwt:HTML>
                             </b:ModalHeader>
                             <b:ModalBody>
                                 <b:Alert type="WARNING" ui:field="alertText">
                                     <b:Icon type="WARNING"/>
                                 </b:Alert>
-                                <b:Button text="Logout" ui:field="logoutButton2" styleName="{style.logout-button}" icon="SIGN_OUT" />
+                                <b:Button text="Logout" ui:field="logoutButton2" styleName="{style.logout-button}"
+                                          icon="SIGN_OUT"/>
                             </b:ModalBody>
                             <b:ModalFooter>
-                                <b:Anchor ui:field="logoutAndBrowsePublicGenomes" text="Browse public genomes" href="../jbrowse/"/>
+                                <b:Anchor ui:field="logoutAndBrowsePublicGenomes" text="Browse public genomes"
+                                          href="../jbrowse/"/>
                             </b:ModalFooter>
                         </b:Modal>
-                        <b:Modal ui:field="editUserModal" closable="true">
+                        <b:Modal ui:field="editUserModal" closable="true" >
                             <b:ModalHeader>
                                 <gwt:HTML>Edit Password</gwt:HTML>
                             </b:ModalHeader>
                             <b:ModalBody>
-                                <b:Input type="PASSWORD" ui:field="editMyPasswordInput"/>
-                                <b:Button text="Save" type="PRIMARY" ui:field="savePasswordButton" />
-                                <b:Button text="Cancel" type="DEFAULT" ui:field="cancelPasswordButton"/>
+                                <b:InputGroup>
+                                    <b:InputGroupAddon>Password</b:InputGroupAddon>
+                                    <b:Input type="PASSWORD" ui:field="editMyPasswordInput"/>
+                                </b:InputGroup>
+                                <b:InputGroup addStyleNames="{style.buffer}">
+                                    <b:InputGroupAddon>Repeat</b:InputGroupAddon>
+                                    <b:Input type="PASSWORD" ui:field="editMyPasswordInputRepeat" text="Repeat"/>
+                                </b:InputGroup>
+                                <b:InputGroup addStyleNames="{style.buffer}">
+                                    <b:Button text="Save" type="PRIMARY" ui:field="savePasswordButton" marginRight="5"/>
+                                    <b:Button text="Cancel" type="DEFAULT" ui:field="cancelPasswordButton"/>
+                                </b:InputGroup>
                             </b:ModalBody>
                         </b:Modal>
                     </gwt:FlowPanel>

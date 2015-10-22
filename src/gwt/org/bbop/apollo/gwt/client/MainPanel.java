@@ -126,6 +126,8 @@ public class MainPanel extends Composite {
     Button savePasswordButton;
     @UiField
     Button cancelPasswordButton;
+    @UiField
+    Input editMyPasswordInputRepeat;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
@@ -510,7 +512,13 @@ public class MainPanel extends Composite {
     @UiHandler("savePasswordButton")
     void saveEditUserPassword(ClickEvent event) {
         UserInfo currentUser = MainPanel.getInstance().getCurrentUser();
-        currentUser.setPassword(editMyPasswordInput.getText());
+        if(editMyPasswordInput.getText().equals(editMyPasswordInputRepeat.getText())){
+            currentUser.setPassword(editMyPasswordInput.getText());
+        }
+        else{
+            Bootbox.alert("Passwords do not match");
+            return;
+        }
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
