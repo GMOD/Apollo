@@ -19,7 +19,7 @@ Features
 + Added proxy support to support https servers and general proxy support (#148).
 + Improved user experience for login, user, and group pages (#603, #601, #592).
 + Improved, expanded, and automated web services documentation (#546).
-
++ Added feature to let user change their own password  (#620).
 
 Bugfixes
 
