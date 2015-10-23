@@ -95,9 +95,9 @@ elif [[ $1 == "run-local" ]];then
     # should call the copy target first
     check_configs
     if [[ $# == 2 ]]; then
-        ant copy-resources gwtc && grails -Dserver.port=$2 run-app
+        ant copy-resources gwtc && $grails_executable -Dserver.port=$2 run-app
     else
-        ant copy-resources gwtc && grails run-app
+        ant copy-resources gwtc && $grails_executable run-app
     fi
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
@@ -124,18 +124,18 @@ elif [[ $1 == "deploy" ]];then
     rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
     #grails deploy
-    ant copy-resources gwtc &&  grails war
+    ant copy-resources gwtc &&  $grails_executable war
 elif [[ $1 == "release" ]];then
     # should call the copy target first
     check_configs
     check_configs_for_release
     rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
-    ant clean-all release gwtc && grails war
+    ant clean-all release gwtc && $grails_executable war
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
     check_configs
-    ant gwtc && grails compile
+    ant gwtc && $grails_executable compile
 elif [[ $1 == "create-rest-doc" ]];then
     check_configs
     # should call the copy target first
