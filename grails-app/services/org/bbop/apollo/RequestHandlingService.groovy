@@ -104,6 +104,8 @@ class RequestHandlingService {
             )
             fireAnnotationEvent(annotationEvent)
         }
+
+        return new JSONObject()
     }
 
     JSONObject setDescription(JSONObject inputObject) {

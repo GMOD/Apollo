@@ -573,4 +573,21 @@ class PermissionService {
 
         return false
     }
+
+    PermissionEnum findHighestOrganismPermissionForCurrentUser(Organism organism) {
+        User user = currentUser
+        List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism,user)
+
+        PermissionEnum highestEnum = PermissionEnum.NONE
+        for(PermissionEnum permissionEnum : permissionEnums){
+            if(permissionEnum.rank>highestEnum.rank){
+                highestEnum = permissionEnum ;
+            }
+        }
+        return highestEnum
+    }
+
+    Boolean userHasOrganismPermission(Organism organism,PermissionEnum permissionEnum){
+        return findHighestOrganismPermissionForCurrentUser(organism).rank >= permissionEnum.rank
+    }
 }

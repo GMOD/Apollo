@@ -28,6 +28,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Container;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.Comparator;
 import java.util.List;
@@ -307,14 +308,12 @@ public class ExonDetailPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 GWT.log("return value: "+returnValue.toString());
-//                Window.alert("successful update: "+returnValue);
-//                enableFields(true);
                 Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error updating exon: " + exception);
+                Bootbox.alert("Error updating exon: " + exception);
 //                enableFields(true);
             }
         };
@@ -324,7 +323,7 @@ public class ExonDetailPanel extends Composite {
 //            enableFields(true);
         } catch (RequestException e) {
             // Couldn't connect to server
-            Window.alert(e.getMessage());
+            Bootbox.alert(e.getMessage());
 //            enableFields(true);
         }
 
@@ -385,7 +384,7 @@ public class ExonDetailPanel extends Composite {
             @Override
             public void onError(Request request, Throwable exception) {
                 //todo: handling different types of errors
-                Window.alert("Error updating exon: " + exception);
+                Bootbox.alert("Error updating exon: " + exception.toString());
                 coordinatesToPrime(originalInfo.getMin(), originalInfo.getMax());
                 enableFields(true);
             }
@@ -394,7 +393,7 @@ public class ExonDetailPanel extends Composite {
             builder.setCallback(requestCallback);
             builder.send();
         } catch (RequestException e) {
-            Window.alert(e.getMessage());
+            Bootbox.alert(e.getMessage());
             enableFields(true);
         }
     }

@@ -12,6 +12,7 @@ import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.OrganismInfoConverter;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class OrganismRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
+                Bootbox.alert("Error loading organisms");
             }
         };
         loadOrganisms(requestCallback);
@@ -50,7 +51,7 @@ public class OrganismRestService {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue jsonValue = JSONParser.parseStrict(response.getText());
-                if(jsonValue.isObject()!=null){
+                if(jsonValue.isObject()!=null && jsonValue.isObject()!=null && jsonValue.isObject().containsKey(FeatureStringEnum.ERROR.getValue())){
                     String errorMessage = jsonValue.isObject().get(FeatureStringEnum.ERROR.getValue()).isString().stringValue();
                     ErrorDialog errorDialog = new ErrorDialog("Unable to update the organism",errorMessage,true,true);
                 }
@@ -65,7 +66,7 @@ public class OrganismRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("error updating organism info: "+exception);
+                Bootbox.alert("error updating organism info: "+exception);
             }
         };
         RestService.sendRequest(requestCallback, "organism/updateOrganismInfo", "data=" + organismInfoObject.toString());
@@ -87,7 +88,7 @@ public class OrganismRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error changing organisms");
+                Bootbox.alert("Error changing organisms");
             }
         };
         String payload = "data={organismId:'"+newOrganismId+"'}";
@@ -117,7 +118,7 @@ public class OrganismRestService {
             @Override
             public void onError(Request request, Throwable exception) {
                 loadingDialog.hide();
-                Window.alert("Error changing organisms");
+                Bootbox.alert("Error changing organisms");
             }
         };
 
@@ -137,7 +138,7 @@ public class OrganismRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error changing organisms");
+                Bootbox.alert("Error changing organisms: "+exception.getMessage());
             }
         };
 

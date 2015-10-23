@@ -4,6 +4,7 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Window;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +86,7 @@ public class UserInfoConverter {
                                 break;
 
                             default:
-                                Window.alert("not sure what to do wtih this: " + permission);
+                                Bootbox.alert("Unrecognized permission '" + permission+"'");
                         }
                     }
                 }

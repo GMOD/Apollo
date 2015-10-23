@@ -12,6 +12,7 @@ import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ExportPanel;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
  * Created by Nathan Dunn on 1/14/15.
@@ -50,7 +51,7 @@ public class SequenceRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error: " + exception);
+                Bootbox.alert("Error: " + exception);
             }
         };
 

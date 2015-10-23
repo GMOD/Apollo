@@ -4,9 +4,9 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.*;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -15,8 +15,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -25,13 +23,17 @@ import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.CheckBox;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.view.client.CellPreviewEvent;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ArrayList;
 
 
 /**
@@ -54,6 +56,10 @@ public class TrackPanel extends Composite {
     @UiField
     HTML trackDensity;
 
+    @UiField
+    CheckBox trackListToggle;
+
+
     private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(1000, tablecss);
@@ -63,6 +69,9 @@ public class TrackPanel extends Composite {
     Tree optionTree;
 
 
+    public void updateTrackToggle(Boolean val) {
+        trackListToggle.setValue(val);
+    }
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -176,6 +185,9 @@ public class TrackPanel extends Composite {
                 return o1.getName().compareTo(o2.getName());
             }
         });
+
+
+
 
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE,new OrganismChangeEventHandler(){
@@ -311,7 +323,7 @@ public class TrackPanel extends Composite {
             // track label can never be null, but key can be
             trackInfo.setName(object.get("key")==null?object.get("label").isString().stringValue():object.get("key").isString().stringValue());
             if(object.get("label")!=null) trackInfo.setLabel(object.get("label").isString().stringValue());
-            else Window.alert("Track label should not be null, please check your tracklist");
+            else Bootbox.alert("Track label should not be null, please check your tracklist");
             if(object.get("type")!=null) trackInfo.setType(object.get("type").isString().stringValue());
             if(object.get("urlTemplate") != null) trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
             if(object.get("visible") != null) trackInfo.setVisible(object.get("visible").isBoolean().booleanValue());
@@ -322,4 +334,28 @@ public class TrackPanel extends Composite {
         filterList();
     }
 
+    @UiHandler("trackListToggle")
+    public void trackListToggle(ClickEvent clickEvent) {
+        GWT.log("Testing: " + trackListToggle.getValue());
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue v= JSONParser.parseStrict(response.getText());
+                JSONObject o=v.isObject();
+                if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                    new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
+                }
+
+                GWT.log("updateGenomicViewer");
+                MainPanel.updateGenomicViewer(true);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error updating user: " + exception);
+            }
+        };
+        MainPanel.useNativeTracklist=trackListToggle.getValue();
+        UserRestService.updateUserTrackPanelPreference(requestCallback, trackListToggle.getValue());
+    }
 }

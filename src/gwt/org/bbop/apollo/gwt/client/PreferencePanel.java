@@ -6,6 +6,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
  * Created by Nathan Dunn on 1/11/15.
@@ -47,11 +48,11 @@ public class PreferencePanel extends Composite {
 
 
                 public void onError(Request request, Throwable exception) {
-                    Window.alert(exception.toString());
+                    Bootbox.alert(exception.toString());
                 }
             });
         } catch (RequestException e) {
-            Window.alert(e.toString());
+            Bootbox.alert(e.toString());
         }
     }
 

@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import grails.converters.JSON
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.hibernate.Hibernate
@@ -35,7 +36,9 @@ class AnnotatorService {
                         species        : organism.species,
                         valid          : organism.valid,
                         publicMode     : organism.publicMode,
-                        currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
+                        currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false,
+                        editable       : permissionService.userHasOrganismPermission(organism,PermissionEnum.ADMINISTRATE)
+
                 ] as JSONObject
                 organismArray.add(jsonObject)
             }

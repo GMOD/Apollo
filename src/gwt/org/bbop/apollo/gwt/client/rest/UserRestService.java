@@ -10,11 +10,13 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ErrorDialog;
+import org.bbop.apollo.gwt.client.LoginDialog;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
 import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +42,7 @@ public class UserRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
+                Bootbox.alert("Error loading organisms");
             }
         };
         JSONObject jsonObject = new JSONObject();
@@ -57,14 +59,14 @@ public class UserRestService {
         RestService.sendRequest(requestCallback, "login/registerAdmin", data);
     }
 
-    public static void login(String username, String password, Boolean rememberMe) {
+    public static void login(String username, String password, Boolean rememberMe, final LoginDialog loginDialog) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue j=JSONParser.parseStrict(response.getText());
                 JSONObject o=j.isObject();
                 if(o.get("error")!=null) {
-                    Window.alert(o.get("error").isString().stringValue());
+                    loginDialog.setError(o.get("error").isString().stringValue() + "!");
                 }
                 else {
                     Window.Location.reload();
@@ -73,7 +75,7 @@ public class UserRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
+                Bootbox.alert("Error loading organisms");
             }
         };
         JSONObject jsonObject = new JSONObject();
@@ -107,54 +109,47 @@ public class UserRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
+                Bootbox.alert("Error loading organisms");
             }
         };
 
         loadUsers(requestCallback);
     }
+    public static void logout() {
+        logout(null);
+    }
 
-    public static void logout(RequestCallback requestCallback) {
+    public static void logout(final String redirectUrl) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                if(redirectUrl!=null){
+                    Window.Location.replace(redirectUrl);
+                }
+                else{
+                    Window.Location.reload();
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error logging out " + exception);
+            }
+        };
         RestService.sendRequest(requestCallback, "Login?operation=logout");
     }
 
-    public static void logout() {
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                Window.Location.reload();
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Window.alert("Error logging out " + exception);
-            }
-        };
-        logout(requestCallback);
-    }
-
-    public static void updateUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                JSONValue v=JSONParser.parseStrict(response.getText());
-                JSONObject o=v.isObject();
-                if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
-                    new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
-                }
-                else{
-                    loadUsers(userInfoList);
-                }
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Window.alert("Error updating user: " + exception);
-            }
-        };
+    public static void updateUser(RequestCallback requestCallback, UserInfo selectedUserInfo) {
         JSONObject jsonObject = selectedUserInfo.toJSON();
         RestService.sendRequest(requestCallback, "user/updateUser", "data=" + jsonObject.toString());
     }
+
+    public static void updateUserTrackPanelPreference(RequestCallback requestCallback, boolean tracklist) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("tracklist", JSONBoolean.getInstance(tracklist));
+        RestService.sendRequest(requestCallback, "user/updateTrackListPreference", "data=" + jsonObject.toString());
+    }
+
 
     public static void deleteUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
         RequestCallback requestCallback = new RequestCallback() {
@@ -172,7 +167,7 @@ public class UserRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error deleting user: " + exception);
+                Bootbox.alert("Error deleting user: " + exception);
             }
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
@@ -195,7 +190,7 @@ public class UserRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error adding user: " + exception);
+                Bootbox.alert("Error adding user: " + exception);
             }
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
@@ -214,7 +209,7 @@ public class UserRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error removing group from user: " + exception);
+                Bootbox.alert("Error removing group from user: " + exception);
             }
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
@@ -233,7 +228,7 @@ public class UserRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error adding group to user: " + exception);
+                Bootbox.alert("Error adding group to user: " + exception);
             }
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
@@ -250,9 +245,11 @@ public class UserRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error updating permissions: " + exception);
+                Bootbox.alert("Error updating permissions: " + exception);
             }
         };
         RestService.sendRequest(requestCallback, "user/updateOrganismPermission", "data=" + object.toJSON().toString());
     }
+
+
 }

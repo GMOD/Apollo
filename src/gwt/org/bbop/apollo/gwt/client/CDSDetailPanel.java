@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
  * Created by Nathan Dunn on 1/9/15.
@@ -135,13 +136,12 @@ public class CDSDetailPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                Window.alert("successful update: "+returnValue);
                 enableFields(true);
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error updating gene: " + exception);
+                Bootbox.alert("Error updating gene: " + exception);
                 enableFields(true);
             }
         };
@@ -151,7 +151,7 @@ public class CDSDetailPanel extends Composite {
             enableFields(true);
         } catch (RequestException e) {
             // Couldn't connect to server
-            Window.alert(e.getMessage());
+            Bootbox.alert(e.getMessage());
             enableFields(true);
         }
 

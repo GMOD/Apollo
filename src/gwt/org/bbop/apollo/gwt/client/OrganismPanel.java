@@ -77,19 +77,19 @@ public class OrganismPanel extends Composite {
     @UiField(provided = true)
     WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
 
-    boolean creatingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
-    boolean savingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
+    boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
+    boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
 
     final LoadingDialog loadingDialog;
-    final ErrorDialog errorDialog ;
+    final ErrorDialog errorDialog;
     private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
     private List<OrganismInfo> organismInfoList = dataProvider.getList();
     private final SingleSelectionModel<OrganismInfo> singleSelectionModel = new SingleSelectionModel<>();
 
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        loadingDialog = new LoadingDialog("Processing ...",null, false);
-        errorDialog = new ErrorDialog("Error","Organism directory must be an absolute path pointing to 'trackList.json'",false,true);
+        loadingDialog = new LoadingDialog("Processing ...", null, false);
+        errorDialog = new ErrorDialog("Error", "Organism directory must be an absolute path pointing to 'trackList.json'", false, true);
 
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
@@ -136,16 +136,14 @@ public class OrganismPanel extends Composite {
         dataGrid.setEmptyTableWidget(new Label("No organisms available. Add new organisms using the form field."));
 
 
-
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                if(!creatingNewOrganism) {
+                if (!creatingNewOrganism) {
                     loadOrganismInfo();
                     changeButtonSelection();
-                }
-                else {
-                    creatingNewOrganism=false;
+                } else {
+                    creatingNewOrganism = false;
                 }
             }
         });
@@ -190,40 +188,55 @@ public class OrganismPanel extends Composite {
             }
         });
 
+
     }
 
     public void loadOrganismInfo() {
         loadOrganismInfo(singleSelectionModel.getSelectedObject());
     }
-    public void loadOrganismInfo(OrganismInfo organismInfo){
-        if(organismInfo==null) {
+
+    public void loadOrganismInfo(OrganismInfo organismInfo) {
+        if (organismInfo == null) {
             setNoSelection();
             return;
         }
 
-        setTextEnabled(true);
+        setTextEnabled(organismInfo.isEditable());
 
-        GWT.log("loadOrganismInfo setValue "+organismInfo.getPublicMode());
+        GWT.log("loadOrganismInfo setValue " + organismInfo.getPublicMode());
+        Boolean isEditable = organismInfo.isEditable()||MainPanel.getInstance().isCurrentUserAdmin();
+
         organismName.setText(organismInfo.getName());
-        blatdb.setText(organismInfo.getBlatDb());
-        genus.setText(organismInfo.getGenus());
-        species.setText(organismInfo.getSpecies());
-        sequenceFile.setText(organismInfo.getDirectory());
-        publicMode.setValue(organismInfo.getPublicMode());
+        organismName.setEnabled(isEditable);
 
-        deleteButton.setVisible(true);
-        sequenceFile.setEnabled(true);
-        deleteButton.setEnabled(true);
+        blatdb.setText(organismInfo.getBlatDb());
+        blatdb.setEnabled(isEditable);
+
+        genus.setText(organismInfo.getGenus());
+        genus.setEnabled(isEditable);
+
+        species.setText(organismInfo.getSpecies());
+        species.setEnabled(isEditable);
+
+        sequenceFile.setText(organismInfo.getDirectory());
+        sequenceFile.setEnabled(isEditable);
+
+        publicMode.setValue(organismInfo.getPublicMode());
+        publicMode.setEnabled(isEditable);
+
+        deleteButton.setVisible(isEditable);
+        deleteButton.setEnabled(isEditable);
     }
 
-    private class UpdateInfoListCallback implements  RequestCallback {
+    private class UpdateInfoListCallback implements RequestCallback {
 
         @Override
         public void onResponseReceived(Request request, Response response) {
             JSONValue j = JSONParser.parseStrict(response.getText());
             JSONObject obj = j.isObject();
+            deleteButton.setText("Delete Organism");
             if (obj != null && obj.containsKey("error")) {
-                Window.alert(obj.get("error").isString().stringValue());
+                Bootbox.alert(obj.get("error").isString().stringValue());
                 changeButtonSelection();
                 setTextEnabled(false);
                 clearTextBoxes();
@@ -239,12 +252,12 @@ public class OrganismPanel extends Composite {
                 Annotator.eventBus.fireEvent(organismChangeEvent);
 
                 // in the case where we just add one . . .we should refresh the app state
-                if(organismInfoList.size()==1){
+                if (organismInfoList.size() == 1) {
                     MainPanel.getInstance().getAppState();
                 }
             }
-            if(savingNewOrganism) {
-                savingNewOrganism=false;
+            if (savingNewOrganism) {
+                savingNewOrganism = false;
                 setNoSelection();
                 changeButtonSelection(false);
                 loadingDialog.hide();
@@ -254,41 +267,41 @@ public class OrganismPanel extends Composite {
         @Override
         public void onError(Request request, Throwable exception) {
             loadingDialog.hide();
-            Window.alert("Error: "+exception);
+            Bootbox.alert("Error: " + exception);
         }
     }
 
 
     @UiHandler("newButton")
     public void handleAddNewOrganism(ClickEvent clickEvent) {
-        creatingNewOrganism=true;
+        creatingNewOrganism = true;
         clearTextBoxes();
         singleSelectionModel.clear();
 
         createButton.setText("Create Organism");
         deleteButton.setText("Delete Organism");
         newButton.setEnabled(false);
-        cancelButton.setEnabled(true);
-        createButton.setEnabled(true);
+        cancelButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
+        createButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
 
-        createButton.setVisible(true);
-        cancelButton.setVisible(true);
-        newButton.setVisible(true);
-        deleteButton.setVisible(false);
+        createButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
+        cancelButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
+        newButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
+        deleteButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
 
 
-        setTextEnabled(true);
+        setTextEnabled(MainPanel.getInstance().isCurrentUserAdmin());
     }
 
     @UiHandler("createButton")
     public void handleSaveNewOrganism(ClickEvent clickEvent) {
 
-        if(!sequenceFile.getText().startsWith("/")){
+        if (!sequenceFile.getText().startsWith("/")) {
             errorDialog.show();
-            return ;
+            return;
         }
 
-        GWT.log("handleSaveNewOrganism "+publicMode.getValue());
+        GWT.log("handleSaveNewOrganism " + publicMode.getValue());
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
@@ -299,7 +312,7 @@ public class OrganismPanel extends Composite {
 
         createButton.setEnabled(false);
         createButton.setText("Processing");
-        savingNewOrganism=true;
+        savingNewOrganism = true;
 
         OrganismRestService.createOrganism(new UpdateInfoListCallback(), organismInfo);
         loadingDialog.show();
@@ -308,7 +321,7 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("cancelButton")
     public void handleCancelNewOrganism(ClickEvent clickEvent) {
-        newButton.setEnabled(true);
+        newButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
         deleteButton.setVisible(false);
         createButton.setVisible(false);
         cancelButton.setVisible(false);
@@ -318,12 +331,12 @@ public class OrganismPanel extends Composite {
     @UiHandler("deleteButton")
     public void handleDeleteOrganism(ClickEvent clickEvent) {
         OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
-        if(organismInfo==null) return ;
-        if(organismInfo.getNumFeatures()>0){
-            new ErrorDialog("Can Not Delete Organism '"+organismInfo.getName()+"'","Can not delete organism "+organismInfo.getName()+".  You remove "+singleSelectionModel.getSelectedObject().getNumFeatures() + " annotations first.  Please see the web services API in the help menu for more details on how to do this in bulk.",true,true);
-            return ;
+        if (organismInfo == null) return;
+        if (organismInfo.getNumFeatures() > 0) {
+            new ErrorDialog("Can Not Delete Organism '" + organismInfo.getName() + "'", "Can not delete organism " + organismInfo.getName() + ".  You remove " + singleSelectionModel.getSelectedObject().getNumFeatures() + " annotations first.  Please see the web services API in the help menu for more details on how to do this in bulk.", true, true);
+            return;
         }
-        Bootbox.confirm("Are you sure you want to delete organism "+singleSelectionModel.getSelectedObject().getName()+"?", new ConfirmCallback() {
+        Bootbox.confirm("Are you sure you want to delete organism " + singleSelectionModel.getSelectedObject().getName() + "?", new ConfirmCallback() {
             @Override
             public void callback(boolean result) {
                 if (result) {
@@ -340,7 +353,7 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("organismName")
     public void handleOrganismNameChange(ChangeEvent changeEvent) {
-        if(singleSelectionModel.getSelectedObject()!=null) {
+        if (singleSelectionModel.getSelectedObject() != null) {
             singleSelectionModel.getSelectedObject().setName(organismName.getText());
             updateOrganismInfo();
         }
@@ -348,16 +361,17 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("blatdb")
     public void handleBlatDbChange(ChangeEvent changeEvent) {
-        if(singleSelectionModel.getSelectedObject()!=null) {
+        if (singleSelectionModel.getSelectedObject() != null) {
             singleSelectionModel.getSelectedObject().setBlatDb(blatdb.getText());
             updateOrganismInfo();
         }
     }
+
     @UiHandler("publicMode")
     public void handlePublicModeChange(ChangeEvent changeEvent) {
-        GWT.log("Handling mode change "+publicMode.getValue());
-        if(singleSelectionModel.getSelectedObject()!=null) {
-            GWT.log("Handling mode not null "+publicMode.getValue());
+        GWT.log("Handling mode change " + publicMode.getValue());
+        if (singleSelectionModel.getSelectedObject() != null) {
+            GWT.log("Handling mode not null " + publicMode.getValue());
             singleSelectionModel.getSelectedObject().setPublicMode(publicMode.getValue());
             updateOrganismInfo();
         }
@@ -365,7 +379,7 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("species")
     public void handleSpeciesChange(ChangeEvent changeEvent) {
-        if(singleSelectionModel.getSelectedObject()!=null) {
+        if (singleSelectionModel.getSelectedObject() != null) {
             singleSelectionModel.getSelectedObject().setSpecies(species.getText());
             updateOrganismInfo();
         }
@@ -373,7 +387,7 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("genus")
     public void handleGenusChange(ChangeEvent changeEvent) {
-        if(singleSelectionModel.getSelectedObject()!=null) {
+        if (singleSelectionModel.getSelectedObject() != null) {
             singleSelectionModel.getSelectedObject().setGenus(genus.getText());
             updateOrganismInfo();
         }
@@ -382,7 +396,7 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("sequenceFile")
     public void handleOrganismDirectory(ChangeEvent changeEvent) {
-        if(singleSelectionModel.getSelectedObject()!=null) {
+        if (singleSelectionModel.getSelectedObject() != null) {
             singleSelectionModel.getSelectedObject().setDirectory(sequenceFile.getText());
             updateOrganismInfo();
         }
@@ -414,18 +428,19 @@ public class OrganismPanel extends Composite {
     public void changeButtonSelection() {
         changeButtonSelection(singleSelectionModel.getSelectedObject() != null);
     }
+
     // Set the button states/visibility depending on whether there is a selection or not
-    public void changeButtonSelection(boolean selection){
-        if(selection){
-            newButton.setEnabled(true);
-            newButton.setVisible(true);
-            deleteButton.setVisible(true);
+    public void changeButtonSelection(boolean selection) {
+        Boolean isAdmin = MainPanel.getInstance().isCurrentUserAdmin();
+        if (selection) {
+            newButton.setEnabled(isAdmin);
+            newButton.setVisible(isAdmin);
+            deleteButton.setVisible(isAdmin);
             createButton.setVisible(false);
             cancelButton.setVisible(false);
-        }
-        else{
-            newButton.setEnabled(true);
-            newButton.setVisible(true);
+        } else {
+            newButton.setEnabled(isAdmin);
+            newButton.setVisible(isAdmin);
             createButton.setVisible(false);
             cancelButton.setVisible(false);
             deleteButton.setVisible(false);
@@ -441,6 +456,7 @@ public class OrganismPanel extends Composite {
         blatdb.setEnabled(enabled);
         publicMode.setEnabled(enabled);
     }
+
     //Utility function for clearing the textboxes ("")
     public void clearTextBoxes() {
         organismName.setText("");
@@ -451,10 +467,4 @@ public class OrganismPanel extends Composite {
         publicMode.setValue(false);
     }
 
-
-    public void setThinkingInterface(){
-    }
-
-    public void unsetThinkingInterface(){
-    }
 }

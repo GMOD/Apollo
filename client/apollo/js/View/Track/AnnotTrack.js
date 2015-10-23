@@ -144,9 +144,6 @@ define([
 
                 }));
 
-                this.gview.browser.subscribe("/jbrowse/v1/v/tracks/show", dojo.hitch(this, function (names) {
-                }));
-
                 this.gview.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
                 this.gview.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
 
@@ -284,18 +281,18 @@ define([
                         }));
 
 
-                        var sendTracks = function (trackList, visibleTrackNames) {
+                        var sendTracks = function (trackList, visibleTrackNames, showLabels) {
                             var filteredTrackList = [];
                             for (var trackConfigIndex in trackList) {
                                 var filteredTrack = {};
                                 var trackConfig = trackList[trackConfigIndex];
-                                var index = visibleTrackNames.indexOf(trackConfig.label);
+                                var visible = visibleTrackNames.indexOf(trackConfig.label)>=0||showLabels.indexOf(trackConfig.label)>=0;
                                 filteredTrack.label = trackConfig.label;
                                 filteredTrack.key = trackConfig.key;
                                 filteredTrack.name = trackConfig.name;
                                 filteredTrack.type = trackConfig.type;
                                 filteredTrack.urlTemplate = trackConfig.urlTemplate;
-                                filteredTrack.visible = index >= 0;
+                                filteredTrack.visible = visible;
                                 filteredTrackList.push(filteredTrack);
                             }
 
@@ -306,21 +303,23 @@ define([
                         var handleTrackVisibility = function (trackInfo) {
                             var command = trackInfo.command;
                             if (command == "show") {
-                                track.gview.browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
+                                browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
                             }
                             else if (command == "hide") {
-                                track.gview.browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
+                                browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
                             }
                             else if (command == "list") {
                                 var trackList = browser.trackConfigsByName;
                                 var visibleTrackNames = browser.view.visibleTrackNames();
-                                sendTracks(trackList, visibleTrackNames);
+                                var showLabels = array.map(trackInfo.labels,function(track) { return track.label; });
+                                sendTracks(trackList, visibleTrackNames, showLabels);
                             }
                             else {
                                 console.log('unknown command: ' + command);
                             }
                         };
-
+                        browser.subscribe('/jbrowse/v1/c/tracks/show', function(labels) { console.log("show update");handleTrackVisibility({command:"list",labels:labels}); });
+                        browser.subscribe('/jbrowse/v1/c/tracks/hide', function() { console.log("hide update");handleTrackVisibility({command:"list"}); });
                         window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
 
 
@@ -2818,7 +2817,14 @@ define([
                                                 }
                                             });
                                             //var gserv = 'http://golr.berkeleybop.org/';
-                                            var gserv = 'http://golr.geneontology.org/solr/';
+                                            //var gserv = 'http://golr.geneontology.org/solr/';
+                                            var original = 'http://golr.geneontology.org/solr/';
+                                            var encoded_original = encodeURI(original);
+                                            encoded_original = encoded_original.replace(/:/g,"%3A");
+                                            encoded_original = encoded_original.replace(/\//g,"%2F");
+
+                                            //var gserv = context_path + "/proxy/request/http/golr.geneontology.org%2Fsolr%2Fselect/json/";
+                                            var gserv = context_path + "/proxy/request/"+encoded_original;
                                             var gconf = new bbop.golr.conf(amigo.data.golr);
                                             var args = {
                                                 label_template: '{{annotation_class_label}} [{{annotation_class}}]',

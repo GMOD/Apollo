@@ -30,3 +30,4 @@ setup.log
 /src/perl5/
 /bin/
 /site/
+docs/Makefile

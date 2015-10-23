@@ -13,6 +13,8 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+
 /**
  * Created by Nathan Dunn on 1/9/15.
  */
@@ -91,7 +93,7 @@ public class GeneDetailPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error updating gene: " + exception);
+                Bootbox.alert("Error updating gene: " + exception);
                 enableFields(true);
             }
         };
@@ -101,7 +103,7 @@ public class GeneDetailPanel extends Composite {
         } catch (RequestException e) {
             enableFields(true);
             // Couldn't connect to server
-            Window.alert(e.getMessage());
+            Bootbox.alert(e.getMessage());
         }
 
     }

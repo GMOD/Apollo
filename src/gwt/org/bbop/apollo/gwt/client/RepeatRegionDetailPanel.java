@@ -13,6 +13,8 @@ import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+
 /**
  * Created by Deepak on 4/28/15.
  */
@@ -78,7 +80,7 @@ public class RepeatRegionDetailPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error updating gene: " + exception);
+                Bootbox.alert("Error updating gene: " + exception);
                 enableFields(true);
             }
         };
@@ -87,7 +89,7 @@ public class RepeatRegionDetailPanel extends Composite {
             builder.send();
         } catch (RequestException e) {
             enableFields(true);
-            Window.alert(e.getMessage());
+            Bootbox.alert(e.getMessage());
         }
     }
     

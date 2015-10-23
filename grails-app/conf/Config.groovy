@@ -22,10 +22,6 @@ grails.config.locations = [
 // }
 
 
-grails.assets.minifyJs = false
-grails.assets.minifyCss = false
-grails.assets.enableSourceMaps = true
-grails.assets.bundle = false
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 
 // The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
@@ -82,7 +78,7 @@ grails.scaffolding.templates.domainSuffix = 'Instance'
 // Set to false to use the new Grails 1.2 JSONBuilder in the render method
 grails.json.legacy.builder = false
 // enabled native2ascii conversion of i18n properties files
-grails.enable.native2ascii = true
+grails.enable.native2ascii = false
 // packages to include in Spring bean scanning
 grails.spring.bean.packages = []
 // whether to disable processing of multi part requests
@@ -127,12 +123,27 @@ grails.cache.config = {
 }
 
 
+
 environments {
     development {
         grails.logging.jul.usebridge = true
+        grails.assets.minifyJs = false
+        grails.assets.minifyCss = false
+        grails.assets.enableSourceMaps = true
+        grails.assets.bundle = false
+    }
+    test {
+        grails.assets.minifyJs = false
+        grails.assets.minifyCss = false
+        grails.assets.enableSourceMaps = true
+        grails.assets.bundle = false
     }
     production {
         grails.logging.jul.usebridge = false
+        grails.assets.minifyJs = true
+        grails.assets.minifyCss = true
+        grails.assets.enableSourceMaps = true
+        grails.assets.bundle = true
     }
 }
 
@@ -267,6 +278,7 @@ apollo {
             ['label': "Canned Comments", 'link': "/cannedComment/"]
             ,['label': "Feature Types", 'link': "/featureType/"]
             ,['label': "Statuses", 'link': "/availableStatus/"]
+            ,['label': "Proxies", 'link': "/proxy/"]
             ,['label': "Report::Organisms", 'link': "/organism/report/",'type':"report"]
             ,['label': "Report::Sequences", 'link': "/sequence/report/",'type':"report"]
             ,['label': "Report::Annotator", 'link': "/annotator/report/",'type':"report"]
@@ -290,7 +302,12 @@ apollo {
 
 }
 
-grails.plugins.restapidoc.basePath = "http://localhost:8080/apollo"
+grails.plugin.databasemigration.updateOnStart = true
+//grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.0.groovy','changelog-2.0.1.groovy']
+grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.1.groovy']
+
+
+//grails.plugins.restapidoc.basePath = "http://localhost:8080/apollo"
 //grails.plugins.restapidoc.layout = "restapidoc_layout"
 //grails.plugins.restapidoc.layout = "main"
 

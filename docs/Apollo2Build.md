@@ -2,17 +2,22 @@
 
 Here we will introduce how to setup Web Apollo on your server. In general, there are two modes of deploying Web Apollo.
 
-There is "development mode" where the application is launched in a temporary server (automatically) and there is "production mode", which will typically require an external separate database and tomcat server where you can deploy the generated `war` file.
+There is "development mode" where the application is launched in a temporary server (automatically) and there is
+"production mode", which will typically require an external separate database and tomcat server where you can deploy the
+generated `war` file.
 
-This guide will cover the "development mode" scenario which is easy to start. See the [setup](Setup) guide to cover the "production mode" setup.
+This guide will cover the "development mode" scenario which is easy to start. See the [setup](Setup.md) guide to cover
+the "production mode" setup.
 
 
 ### Grails
 
-Installing grails is made easier by using [GVM](http://gvmtool.net/) which can automatically setup grails for you. We will use grails 2.4.5 for Web Apollo
+Installing grails is made easier by using [GVM](http://gvmtool.net/) which can automatically setup grails for you. We
+will use grails 2.4.5 for Web Apollo
 
 1. curl -s get.gvmtool.net | bash
 2. gvm install grails 2.4.5
+
 
 ### Get the code
 
@@ -21,7 +26,8 @@ To setup Web Apollo, you can download the code from github:
 - git clone https://github.com/GMOD/Apollo.git Apollo
 - cd Apollo
 
-Alternatively, download a .tar.gz file or .zip file from the releases page: [https://github.com/GMOD/Apollo/releases](https://github.com/GMOD/Apollo/releases).
+Alternatively, download a .tar.gz file or .zip file from the releases page:
+[https://github.com/GMOD/Apollo/releases](https://github.com/GMOD/Apollo/releases).
 
 There won't be any difference in the workflow either way that you choose to get the code.
 
@@ -31,25 +37,32 @@ There won't be any difference in the workflow either way that you choose to get 
 We can now perform a quick-start of the application in "development mode" with this command:
 
 ``` 
-    ./apollo run-local
+./apollo run-local
 ```
 
-The jbrowse and perl pre-requisites will be installed during this step, and if there is a success, then a temporary server will be automatically launched at `http://localhost:8080/apollo`.
+The jbrowse and perl pre-requisites will be installed during this step, and if there is a success, then a temporary
+server will be automatically launched at `http://localhost:8080/apollo`.
 
 Note: You can also supply a port number e.g. `apollo run-local 8085` if there are conflicts on port 8080.
 
-Also note: if there are any errors at this step, check the setup.log file for errors. You can refer to the [troubleshooting guide](Troubleshooting.md) and often it just means the pre-requisites or perl modules failed.
+Also note: if there are any errors at this step, check the setup.log file for errors. You can refer to the
+[troubleshooting guide](Troubleshooting.md) and often it just means the pre-requisites or perl modules failed.
 
-Also also note: the "development mode" uses an in-memory H2 database for storing data by default. The setup guide will show you how to configure custom database settings.
+Also also note: the "development mode" uses an in-memory H2 database for storing data by default. The setup guide will
+show you how to configure custom database settings.
 
 ## Setting up the application
 
 
-After we have a server setup, we will want to add a new organism to the panel. If you are a new user, you will want to setup this data with the jbrowse pre-processing scripts. You can see the [data loading guide](Data_loading.md) for more details, but essentially, you will want to load a reference genome and an annotations file at a minimum:
+After we have a server setup, we will want to add a new organism to the panel. If you are a new user, you will want to
+setup this data with the jbrowse pre-processing scripts. You can see the [data loading guide](Data_loading.md) for more
+details, but essentially, you will want to load a reference genome and an annotations file at a minimum:
 
 ``` 
-    bin/prepare-refseqs.pl --fasta yourgenome.fasta --out /some/directory
-    bin/flatfile-to-json.pl --gff yourannotations.gff --type mRNA --trackLabel AnnotationsGff --out /some/directory
+bin/prepare-refseqs.pl --fasta yourgenome.fasta --out /opt/apollo/data
+
+bin/flatfile-to-json.pl --gff yourannotations.gff --type mRNA \
+        --trackLabel AnnotationsGff --out /opt/apollo/data
 ```
 
 
@@ -77,4 +90,6 @@ Figure 3. Open up the new organism from the drop down tab on the annotator panel
 
 ## Conclusion
 
-If you completed this setup, you can then begin adding new users and performing annotations. Please continue to the [setup guide](Setup.md) for deploying the webapp to production or visit the [troubleshooting guide](Troubleshooting.md) if you encounter problems during setup.
+If you completed this setup, you can then begin adding new users and performing annotations. Please continue to the
+[setup guide](Setup.md) for deploying the webapp to production or visit the [troubleshooting guide](Troubleshooting.md)
+if you encounter problems during setup.

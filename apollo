@@ -95,9 +95,9 @@ elif [[ $1 == "run-local" ]];then
     # should call the copy target first
     check_configs
     if [[ $# == 2 ]]; then
-        ant copy-resources gwtc && grails -Dserver.port=$2 run-app
+        ant copy-resources gwtc && $grails_executable -Dserver.port=$2 run-app
     else
-        ant copy-resources gwtc && grails run-app
+        ant copy-resources gwtc && $grails_executable run-app
     fi
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
@@ -110,9 +110,11 @@ elif [[ $1 == "debug" ]];then
     unset OLD_MAVEN_OPTS
 elif [[ $1 == "test" ]];then
     # should call the copy target first
+    check_configs
     $grails_executable test-app
 elif [[ $1 == "test-unit" ]];then
     # should call the copy target first
+    check_configs
     $grails_executable test-app :unit
 #    mvn test
 elif [[ $1 == "deploy" ]];then
@@ -122,23 +124,26 @@ elif [[ $1 == "deploy" ]];then
     rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
     #grails deploy
-    ant copy-resources gwtc &&  grails war
+    ant copy-resources gwtc &&  $grails_executable war
 elif [[ $1 == "release" ]];then
     # should call the copy target first
     check_configs
     check_configs_for_release
     rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
-    ant clean-all release gwtc && grails war
+    ant clean-all release gwtc && $grails_executable war
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
-    ant gwtc && grails compile
+    check_configs
+    ant gwtc && $grails_executable compile
 elif [[ $1 == "create-rest-doc" ]];then
     check_configs
     # should call the copy target first
-    $grails_executable rest-api-doc
+	# need to copy it 
+    $grails_executable rest-api-doc && cp restapidoc.json web-app/js/restapidoc/
 elif [[ $1 == "clean-all" ]];then
     # should call the copy target first
+    check_configs
     rm -rf bin
     rm -rf jbrowse-download
     rm -rf JBrowse-dev
@@ -148,6 +153,7 @@ elif [[ $1 == "clean-all" ]];then
     $grails_executable clean 
 elif [[ $1 == "clean" ]];then
     # should call the copy target first
+    check_configs
     ant clean &&  $grails_executable clean
 else
     usage

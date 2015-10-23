@@ -13,6 +13,7 @@ import org.bbop.apollo.gwt.client.dto.GroupOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.event.GroupChangeEvent;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +89,7 @@ public class GroupRestService {
                                         break;
 
                                     default:
-                                        Window.alert("not sure what to do wtih this: " + permission);
+                                        Bootbox.alert("Unsure how to handle this permission '" + permission+"'");
                                 }
                             }
                         }
@@ -106,7 +107,7 @@ public class GroupRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("errror retrieving groups");
+                Bootbox.alert("errror retrieving groups");
             }
         };
 
@@ -122,7 +123,7 @@ public class GroupRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("error updating group " + selectedGroupInfo.getName() + " " + exception);
+                Bootbox.alert("error updating group " + selectedGroupInfo.getName() + " " + exception);
             }
         };
         RestService.sendRequest(requestCallback, "group/updateGroup/", "data=" + selectedGroupInfo.toJSON().toString());
@@ -137,7 +138,7 @@ public class GroupRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("error updating group " + selectedGroupInfo.getName() + " " + exception);
+                Bootbox.alert("error updating group " + selectedGroupInfo.getName() + " " + exception);
             }
         };
         RestService.sendRequest(requestCallback, "group/deleteGroup/", "data=" + selectedGroupInfo.toJSON().toString());
@@ -152,7 +153,7 @@ public class GroupRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("error updating group " + selectedGroupInfo.getName() + " " + exception);
+                Bootbox.alert("error updating group " + selectedGroupInfo.getName() + " " + exception);
             }
         };
         RestService.sendRequest(requestCallback, "group/createGroup/", "data=" + selectedGroupInfo.toJSON().toString());
@@ -168,7 +169,7 @@ public class GroupRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error updating permissions: " + exception);
+                Bootbox.alert("Error updating permissions: " + exception);
             }
         };
         RestService.sendRequest(requestCallback, "group/updateOrganismPermission", "data=" + object.toJSON());

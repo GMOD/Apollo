@@ -6,6 +6,12 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -18,20 +24,18 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.bbop.apollo.gwt.client.WebApolloSimplePager;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -51,25 +55,25 @@ public class UserPanel extends Composite {
 
     private static UserBrowserPanelUiBinder ourUiBinder = GWT.create(UserBrowserPanelUiBinder.class);
     @UiField
-    TextBox firstName;
+    org.gwtbootstrap3.client.ui.TextBox firstName;
     @UiField
-    TextBox lastName;
+    org.gwtbootstrap3.client.ui.TextBox lastName;
     @UiField
-    TextBox email;
+    org.gwtbootstrap3.client.ui.TextBox email;
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<UserInfo> dataGrid = new DataGrid<UserInfo>(10, tablecss);
     @UiField
-    Button createButton;
+    org.gwtbootstrap3.client.ui.Button createButton;
     @UiField
-    Button cancelButton;
+    org.gwtbootstrap3.client.ui.Button cancelButton;
     @UiField
-    Button deleteButton;
+    org.gwtbootstrap3.client.ui.Button deleteButton;
     @UiField
-    Button saveButton;
+    org.gwtbootstrap3.client.ui.Button saveButton;
     @UiField
-    PasswordTextBox passwordTextBox;
+    Input passwordTextBox;
     @UiField
     Row passwordRow;
     @UiField
@@ -94,6 +98,8 @@ public class UserPanel extends Composite {
     Row userRow1;
     @UiField
     Row userRow2;
+    @UiField
+    org.gwtbootstrap3.client.ui.Label saveLabel;
 
 
     private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
@@ -200,7 +206,7 @@ public class UserPanel extends Composite {
                         if (availableGroupList.getItemCount() > 0) {
                             availableGroupList.setSelectedIndex(0);
                         }
-                        addGroupButton.setEnabled(availableGroupList.getItemCount()>0);
+                        addGroupButton.setEnabled(availableGroupList.getItemCount() > 0);
 
                         String group = userChangeEvent.getGroup();
                         addGroupToUi(group);
@@ -210,7 +216,7 @@ public class UserPanel extends Composite {
                         break;
                     case REMOVE_USER_FROM_GROUP:
                         removeGroupFromUI(userChangeEvent.getGroup());
-                        addGroupButton.setEnabled(availableGroupList.getItemCount()>0);
+                        addGroupButton.setEnabled(availableGroupList.getItemCount() > 0);
                         break;
                     case USERS_RELOADED:
                         selectionModel.clear();
@@ -345,26 +351,19 @@ public class UserPanel extends Composite {
     }
 
 
-    private void setCurrentUserInfoFromUI() {
+    private Boolean setCurrentUserInfoFromUI() {
         String emailString = email.getText().trim();
         if (emailString.indexOf("@") >= emailString.lastIndexOf(".")) {
-            Window.alert("Does not appear to be a valid email " + emailString);
-            return;
+            Bootbox.alert("Does not appear to be a valid email " + emailString);
+            return false;
         }
         selectedUserInfo.setEmail(emailString);
         selectedUserInfo.setFirstName(firstName.getText());
         selectedUserInfo.setLastName(lastName.getText());
         selectedUserInfo.setPassword(passwordTextBox.getText());
         selectedUserInfo.setRole(roleList.getSelectedItemText());
-    }
 
-    @UiHandler(value = {"firstName", "lastName", "email", "passwordTextBox", "roleList"})
-    public void updateName(ChangeEvent changeHandler) {
-        // assume an edit operation
-        if (selectedUserInfo != null) {
-            setCurrentUserInfoFromUI();
-            UserRestService.updateUser(userInfoList, selectedUserInfo);
-        }
+        return true;
     }
 
 
@@ -373,6 +372,7 @@ public class UserPanel extends Composite {
         selectedUserInfo = null;
         selectionModel.clear();
         saveButton.setVisible(true);
+        saveButton.setEnabled(true);
         updateUserInfo();
         cancelButton.setVisible(true);
         cancelButton.setEnabled(true);
@@ -417,7 +417,6 @@ public class UserPanel extends Composite {
     }
 
     private void filterSequences() {
-        GWT.log("original size: " + userInfoList.size());
 
         filteredUserInfoList.clear();
         String nameText = nameSearchBox.getText().toLowerCase().trim();
@@ -432,15 +431,81 @@ public class UserPanel extends Composite {
         } else {
             filteredUserInfoList.addAll(userInfoList);
         }
-        GWT.log("filtered size: " + filteredUserInfoList.size());
+    }
+
+    @UiHandler(value = {"firstName", "lastName", "email", "passwordTextBox"})
+    public void updateInterface(KeyUpEvent keyUpEvent) {
+        userIsSame();
+    }
+
+    @UiHandler(value = { "roleList"})
+    public void handleRole(ChangeEvent changeEvent) {
+        userIsSame();
     }
 
 
-    @UiHandler("saveButton")
-    public void save(ClickEvent clickEvent) {
+    @UiHandler("cancelButton")
+    public void handleCancel(ClickEvent clickEvent) {
+        updateUserInfo();
+    }
+
+    private void userIsSame() {
+        if(selectedUserInfo.getEmail().equals(email.getText().trim())
+                && selectedUserInfo.getFirstName().equals(firstName.getText().trim())
+                && selectedUserInfo.getLastName().equals(lastName.getText().trim())
+                && selectedUserInfo.getRole().equals(roleList.getSelectedValue())
+                && passwordTextBox.getText().trim().length()==0  // we don't the password back here . . !!
+                ){
+            saveButton.setEnabled(false);
+            cancelButton.setEnabled(false);
+        } else {
+            saveButton.setEnabled(true);
+            cancelButton.setEnabled(true);
+        }
+    }
+
+    public void updateUser() {
+        // assume an edit operation
+        if (selectedUserInfo != null) {
+            if(!setCurrentUserInfoFromUI()){
+                handleCancel(null);
+                return ;
+            }
+            RequestCallback requestCallback = new RequestCallback() {
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    JSONValue v= JSONParser.parseStrict(response.getText());
+                    JSONObject o=v.isObject();
+                    if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                        new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
+                    }
+                    else{
+                        Bootbox.alert("Saved changes to user "+selectedUserInfo.getName()+"!");
+                        selectedUserInfo = null ;
+                        updateUserInfo();
+                        saveButton.setEnabled(false);
+                        cancelButton.setEnabled(false);
+                        UserRestService.loadUsers(userInfoList);
+                    }
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    Bootbox.alert("Error updating user: " + exception);
+                }
+            };
+            UserRestService.updateUser(requestCallback, selectedUserInfo);
+        }
+    }
+
+    private void saveNewUser() {
         selectedUserInfo = new UserInfo();
-        setCurrentUserInfoFromUI();
-        UserRestService.createUser(userInfoList, selectedUserInfo);
+        if(setCurrentUserInfoFromUI()){
+            UserRestService.createUser(userInfoList, selectedUserInfo);
+        }
+        else{
+            handleCancel(null);
+        }
         createButton.setEnabled(true);
 
         selectedUserInfo = null;
@@ -449,6 +514,15 @@ public class UserPanel extends Composite {
         saveButton.setVisible(false);
         cancelButton.setVisible(false);
         passwordRow.setVisible(false);
+    }
+
+    @UiHandler("saveButton")
+    public void save(ClickEvent clickEvent) {
+        if (selectedUserInfo == null) {
+            saveNewUser();
+        } else {
+            updateUser();
+        }
     }
 
     private void updateUserInfo() {
@@ -488,8 +562,10 @@ public class UserPanel extends Composite {
             firstName.setText(selectedUserInfo.getFirstName());
             lastName.setText(selectedUserInfo.getLastName());
             email.setText(selectedUserInfo.getEmail());
-            cancelButton.setVisible(false);
-            saveButton.setVisible(false);
+            cancelButton.setVisible(true);
+            saveButton.setVisible(true);
+            saveButton.setEnabled(false);
+            cancelButton.setEnabled(false);
             deleteButton.setVisible(true);
             deleteButton.setEnabled(true);
             userRow1.setVisible(true);

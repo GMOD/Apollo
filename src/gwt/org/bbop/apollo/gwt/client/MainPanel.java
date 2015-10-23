@@ -28,9 +28,15 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Anchor;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.client.ui.SuggestBox;
+import org.gwtbootstrap3.client.ui.constants.AlertType;
+import org.gwtbootstrap3.client.ui.constants.IconType;
+import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Nathan Dunn on 12/18/14.
+ * Created by ndunn on 12/18/14.
  */
 public class MainPanel extends Composite {
 
@@ -58,6 +64,7 @@ public class MainPanel extends Composite {
     private static SequenceInfo currentSequence;
     private static Integer currentStartBp; // list of organisms for user
     private static Integer currentEndBp; // list of organisms for user
+    public static boolean useNativeTracklist; // list of organisms for user
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
 
     private static boolean handlingNavEvent = false;
@@ -101,15 +108,36 @@ public class MainPanel extends Composite {
     @UiField
     Button logoutButton;
     @UiField
-    HTML userName;
+    Button userName;
     @UiField
     Button generateLink;
     @UiField
     ListBox organismListBox;
     @UiField(provided = true)
     static SuggestBox sequenceSuggestBox;
+    @UiField
+    Modal notificationModal;
+    @UiField
+    Alert alertText;
+    @UiField
+    Button logoutButton2;
+    @UiField
+    Anchor logoutAndBrowsePublicGenomes;
+    @UiField
+    Modal editUserModal;
+    @UiField
+    Input editMyPasswordInput;
+    @UiField
+    Button savePasswordButton;
+    @UiField
+    Button cancelPasswordButton;
+    @UiField
+    Input editMyPasswordInputRepeat;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
+
+    private LoginDialog loginDialog = new LoginDialog();
+    private RegisterDialog registerDialog = new RegisterDialog();
 
 
     public static MainPanel getInstance() {
@@ -128,7 +156,7 @@ public class MainPanel extends Composite {
             @Override
             public void onResize() {
                 super.onResize();
-                setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(),mainSplitPanel.getWidgetSize(eastDockPanel));
+                setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), mainSplitPanel.getWidgetSize(eastDockPanel));
             }
         };
 
@@ -170,20 +198,20 @@ public class MainPanel extends Composite {
                 toggleOpen();
             }
         } catch (Exception e) {
-            GWT.log("Error setting preference: "+e.fillInStackTrace().toString());
-            setPreference(FeatureStringEnum.DOCK_OPEN.getValue(),true);
+            GWT.log("Error setting preference: " + e.fillInStackTrace().toString());
+            setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), true);
         }
 
 
         try {
             String dockWidth = getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
-            if(dockWidth!=null && toggleOpen){
+            if (dockWidth != null && toggleOpen) {
                 Integer dockWidthInt = Integer.parseInt(dockWidth);
-                mainSplitPanel.setWidgetSize(eastDockPanel,dockWidthInt);
+                mainSplitPanel.setWidgetSize(eastDockPanel, dockWidthInt);
             }
         } catch (NumberFormatException e) {
-            GWT.log("Error setting preference: "+e.fillInStackTrace().toString());
-            setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(),600);
+            GWT.log("Error setting preference: " + e.fillInStackTrace().toString());
+            setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), 600);
         }
 
         loginUser();
@@ -206,7 +234,7 @@ public class MainPanel extends Composite {
             @Override
             public void onError(Request request, Throwable exception) {
                 handlingNavEvent = false;
-                Window.alert("failed to set sequence location: " + exception);
+                Bootbox.alert("failed to set sequence location: " + exception);
             }
         };
 
@@ -249,7 +277,7 @@ public class MainPanel extends Composite {
                 if (blocking) {
                     loadingDialog.hide();
                 }
-                Window.alert("failed to set JBrowse sequence: " + exception);
+                Bootbox.alert("failed to set JBrowse sequence: " + exception);
             }
         };
 
@@ -260,17 +288,14 @@ public class MainPanel extends Composite {
 
 
     private void updatePermissionsForOrganism() {
-        GWT.log(currentUser.getOrganismPermissionMap().keySet().toString());
         String globalRole = currentUser.getRole();
-        GWT.log("global: " + globalRole);
         UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
         if (globalRole.equals("admin")) {
             highestPermission = PermissionEnum.ADMINISTRATE;
         } else {
             highestPermission = PermissionEnum.NONE;
         }
-        if (userOrganismPermissionInfo !=  null && highestPermission != PermissionEnum.ADMINISTRATE) {
-            GWT.log("organism: " + userOrganismPermissionInfo.toJSON().toString());
+        if (userOrganismPermissionInfo != null && highestPermission != PermissionEnum.ADMINISTRATE) {
             highestPermission = userOrganismPermissionInfo.getHighestPermission();
         }
 
@@ -315,28 +340,38 @@ public class MainPanel extends Composite {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
-
-                        new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, false, true);
+                        String errorText = returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue();
+                        alertText.setText(errorText);
+                        detailTabs.setVisible(false);
+                        notificationModal.show();
                     } else {
+                        detailTabs.setVisible(true);
                         getAppState();
                         logoutButton.setVisible(true);
                         currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
+                        if (returnValue.containsKey("tracklist")) {
+                            MainPanel.useNativeTracklist = returnValue.get("tracklist").isBoolean().booleanValue();
+                        } else {
+                            MainPanel.useNativeTracklist = false;
+                        }
+                        trackPanel.updateTrackToggle(MainPanel.useNativeTracklist);
+
+
                         String displayName = currentUser.getEmail();
-                        userName.setHTML(displayName.length() > maxUsernameLength ?
+                        userName.setText(displayName.length() > maxUsernameLength ?
                                 displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
                     }
+
+
                 } else {
                     boolean hasUsers = returnValue.get(FeatureStringEnum.HAS_USERS.getValue()).isBoolean().booleanValue();
                     if (hasUsers) {
                         currentUser = null;
                         logoutButton.setVisible(false);
-                        LoginDialog loginDialog = new LoginDialog();
-                        loginDialog.center();
-                        loginDialog.show();
+                        loginDialog.showLogin();
                     } else {
                         currentUser = null;
                         logoutButton.setVisible(false);
-                        RegisterDialog registerDialog = new RegisterDialog();
                         registerDialog.center();
                         registerDialog.show();
                     }
@@ -345,14 +380,14 @@ public class MainPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("User not there: " + exception);
+                loginDialog.setError(exception.getMessage());
             }
         };
         try {
             builder.setCallback(requestCallback);
             builder.send();
         } catch (RequestException e) {
-            Window.alert(e.getMessage());
+            loginDialog.setError(e.getMessage());
         }
 
     }
@@ -423,15 +458,15 @@ public class MainPanel extends Composite {
 
         String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
         if(selectedSequence.startsWith("{")){
-             trackListString += URL.encodeQueryString(selectedSequence);
+            trackListString += URL.encodeQueryString(selectedSequence);
         }
         else{
+//            trackListString += selectedSequence;
+//            trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
             trackListString += selectedSequence;
             trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
+            trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
         }
-        trackListString += "&highlight=&tracklist=0";
-
-//        Window.alert(trackListString);
 
         final String finalString = trackListString;
 
@@ -536,7 +571,7 @@ public class MainPanel extends Composite {
             @Override
             public void onError(Request request, Throwable exception) {
                 loadingDialog.hide();
-                Window.alert("Error loading organisms");
+                Bootbox.alert("Error loading organisms");
             }
         };
         try {
@@ -544,9 +579,46 @@ public class MainPanel extends Composite {
             builder.send();
         } catch (RequestException e) {
             loadingDialog.hide();
-            Window.alert(e.getMessage());
+            Bootbox.alert(e.getMessage());
         }
+    }
 
+    @UiHandler("cancelPasswordButton")
+    void cancelEditUserPassword(ClickEvent event) {
+        editUserModal.hide();
+    }
+
+
+    @UiHandler("savePasswordButton")
+    void saveEditUserPassword(ClickEvent event) {
+        UserInfo currentUser = MainPanel.getInstance().getCurrentUser();
+        if(editMyPasswordInput.getText().equals(editMyPasswordInputRepeat.getText())){
+            currentUser.setPassword(editMyPasswordInput.getText());
+        }
+        else{
+            Bootbox.alert("Passwords do not match");
+            return;
+        }
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                Bootbox.alert("Saved password!");
+                editUserModal.hide();
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error updating password");
+                editUserModal.hide();
+            }
+        };
+        UserRestService.updateUser(requestCallback,currentUser);
+    }
+
+    @UiHandler("userName")
+    void editUserPassword(ClickEvent event) {
+        editMyPasswordInput.setText("");
+        editUserModal.show();
     }
 
     @UiHandler("dockOpenClose")
@@ -603,11 +675,10 @@ public class MainPanel extends Composite {
 
     private void openPanel() {
         String dockWidth = getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
-        if(dockWidth!=null){
+        if (dockWidth != null) {
             Integer dockWidthInt = Integer.parseInt(dockWidth);
-            mainSplitPanel.setWidgetSize(eastDockPanel,dockWidthInt);
-        }
-        else{
+            mainSplitPanel.setWidgetSize(eastDockPanel, dockWidthInt);
+        } else {
             mainSplitPanel.setWidgetSize(eastDockPanel, 550);
         }
         dockOpenClose.setIcon(IconType.CARET_RIGHT);
@@ -655,18 +726,18 @@ public class MainPanel extends Composite {
         String text = "";
         String publicUrl = generatePublicUrl();
         String apolloUrl = generateApolloUrl();
-        text +="<ul>";
-        text +="<li>";
-        text += "Public URL: <a href='"+publicUrl+"'>"+publicUrl+"</a>";
-        text +="</li>";
-        text +="<li>";
-        text += "Apollo URL: <a href='"+apolloUrl+"'>"+apolloUrl+"</a>";
-        text +="</li>";
-        text +="</ul>";
-        new LinkDialog("Links to this Location",text,true);
+        text += "<ul>";
+        text += "<li>";
+        text += "Public URL: <a href='" + publicUrl + "'>" + publicUrl + "</a>";
+        text += "</li>";
+        text += "<li>";
+        text += "Apollo URL: <a href='" + apolloUrl + "'>" + apolloUrl + "</a>";
+        text += "</li>";
+        text += "</ul>";
+        new LinkDialog("Links to this Location", text, true);
     }
 
-    public String generatePublicUrl(){
+    public String generatePublicUrl() {
         String url2 = Annotator.getRootUrl();
         url2 += "jbrowse/index.html";
         if (currentStartBp != null) {
@@ -684,10 +755,10 @@ public class MainPanel extends Composite {
                 url2 += ",";
             }
         }
-        return url2 ;
+        return url2;
     }
 
-    public String generateApolloUrl(){
+    public String generateApolloUrl() {
         String url = Annotator.getRootUrl();
         url += "annotator/loadLink";
         if (currentStartBp != null) {
@@ -705,11 +776,16 @@ public class MainPanel extends Composite {
                 url += ",";
             }
         }
-        return url ;
+        return url;
+    }
+
+    @UiHandler(value = {"logoutAndBrowsePublicGenomes"})
+    public void logoutAndBrowse(ClickEvent clickEvent) {
+        UserRestService.logout("../jbrowse");
     }
 
 
-    @UiHandler("logoutButton")
+    @UiHandler(value = {"logoutButton", "logoutButton2"})
     public void logout(ClickEvent clickEvent) {
         UserRestService.logout();
     }
@@ -914,5 +990,6 @@ public class MainPanel extends Composite {
     public void addBookmark(RequestCallback requestCallback,BookmarkInfo bookmarkInfo){
         bookmarkPanel.addBookmark(requestCallback, bookmarkInfo);
     }
+
 
 }

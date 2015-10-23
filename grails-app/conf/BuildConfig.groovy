@@ -34,6 +34,7 @@ if (System.getProperty("grails.debug")) {
 }
 
 
+
 grails.project.dependency.resolver = "maven" // or ivy
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
@@ -68,6 +69,8 @@ grails.project.dependency.resolution = {
         runtime 'mysql:mysql-connector-java:5.1.29'
         runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'
         compile 'commons-codec:commons-codec:1.2'
+        compile 'commons-collections:commons-collections:3.2.1'
+
         compile 'org.json:json:20140107'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
         //compile 'com.sleepycat:je:5.0.73'
@@ -124,7 +127,7 @@ grails.project.dependency.resolution = {
 
         // plugins needed at runtime but not for compilation
         runtime ":hibernate4:4.3.5.5" // or ":hibernate:3.6.10.17"
-        runtime ":database-migration:1.4.0"
+        runtime ":database-migration:1.4.1"
         runtime ":jquery-ui:1.10.4"
         runtime ":jquery:1.11.1"
 

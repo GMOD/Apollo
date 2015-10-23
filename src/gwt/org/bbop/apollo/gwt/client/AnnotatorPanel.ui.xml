@@ -28,11 +28,9 @@
             margin-bottom: 40px;
         }
 
-
-        .dataGrid td  {
+        .dataGrid td {
             word-wrap: break-word;
         }
-
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="splitPanel">
         <gwt:north size="100">
@@ -53,7 +51,7 @@
                 </b:Row>
                 <b:Row>
                     <gwt:HTMLPanel>
-                        <table>
+                        <table style="border-top: none;">
                             <tr>
                                 <td>
                                     <b:TextBox placeholder="Search Annotation Name" width="250px"
@@ -68,7 +66,6 @@
                             </tr>
                         </table>
                     </gwt:HTMLPanel>
-
                 </b:Row>
             </b:Container>
         </gwt:north>
