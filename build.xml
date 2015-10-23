@@ -69,9 +69,24 @@
 
     <target name="build" depends="gwtc" description="Build this project"/>
 
-    <target name="clean" description="Cleans this project">
+    <target name="clean" depends="clean-grails,clean-grailsw" description="Cleans this project using grails">
+    </target>
+
+    <property name="grails-clean" value="false"/>
+
+    <target name="clean-grails" description="Cleans this project">
         <delete dir="${apollo.jbrowse.directory}"/>
-        <exec executable="grails" failifexecutionfails="" errorproperty="">
+        <exec executable="grails" failifexecutionfails="false" failonerror="false" resultproperty="grails-clean">
+            <arg value="clean"/>
+        </exec>
+    </target>
+
+
+
+    <target name="clean-grailsw" unless="grails-clean" description="Cleans this project using grailsw">
+        <echo message="'grails' not found, using grailsw to clean"/>
+        <delete dir="${apollo.jbrowse.directory}"/>
+        <exec executable="./grailsw" failifexecutionfails="true">
             <arg value="clean"/>
         </exec>
     </target>
