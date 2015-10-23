@@ -33,6 +33,9 @@ if (System.getProperty("grails.debug")) {
     println "Using debug for run"
 }
 
+// when building with openjdk sometimes:  http://stackoverflow.com/a/12215174/1739366
+grails.enable.native2ascii = false
+
 
 grails.project.dependency.resolver = "maven" // or ivy
 grails.project.dependency.resolution = {
