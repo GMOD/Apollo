@@ -132,7 +132,7 @@ return declare( [JBPlugin, HelpMixin],
 
         FeatureEdgeMatchManager.addSelectionManager(this.featSelectionManager);
         FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
-           
+
         if(!browser.config.quickHelp)
         {
             browser.config.quickHelp = {
@@ -188,7 +188,7 @@ return declare( [JBPlugin, HelpMixin],
         if(browser.config.show_nav&&browser.config.show_menu) {
             this.createMenus();
         }
-                
+
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
@@ -240,7 +240,7 @@ return declare( [JBPlugin, HelpMixin],
                     view.oldOnResize();
                 }
             };
-            
+
 
 
 
@@ -360,7 +360,7 @@ return declare( [JBPlugin, HelpMixin],
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
     },
-        
+
     initSearchMenu: function()  {
         if (! this.searchMenuInitialized) {
             var webapollo = this;
@@ -562,7 +562,7 @@ return declare( [JBPlugin, HelpMixin],
     createMenus: function() {
         var browser=this.browser;
         var thisB=this;
-        
+
 
                 // add a global menu option for setting CDS color
         var cds_frame_toggle = new dijitCheckedMenuItem(
@@ -611,6 +611,21 @@ return declare( [JBPlugin, HelpMixin],
 
         this.addStrandFilterOptions();
 
+        if (typeof window.parent.getEmbeddedVersion == 'undefined') {
+            var view_annotator_toggle = new dijitCheckedMenuItem(
+                {
+                    label: "View Annotator",
+                    checked: false,
+                    onClick: function (event) {
+                        if (this.get("checked")) {
+                            window.location.href = '../';
+                        }
+                    }
+                });
+
+            browser.addGlobalMenuItem('view', view_annotator_toggle);
+        }
+
         this._showLabels=(browser.cookie("showTrackLabel")||"true")=="true"
         var hide_track_label_toggle = new dijitCheckedMenuItem(
             {
@@ -625,6 +640,7 @@ return declare( [JBPlugin, HelpMixin],
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
         browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
+
 
     },
     // postCreateMenu is run after initView for convenience of ordering new items
