@@ -8,6 +8,7 @@ import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionDescription
 import org.bbop.apollo.projection.ProjectionInterface
+import org.bbop.apollo.projection.RefSeqProjector
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -127,8 +128,9 @@ class JbrowseController {
         String fileName = FilenameUtils.getName(params.path)
 
         String referer = request.getHeader("Referer")
+        println "referer: ${referer}"
         int startIndex = referer.indexOf("?loc=")
-        int endIndex = referer.indexOf("&")
+        int endIndex = referer.contains("&")?referer.indexOf("&"):referer.length()
         String refererLoc = referer.subSequence(startIndex + 5, endIndex)
         refererLoc = URLDecoder.decode(refererLoc, "UTF-8")
 
@@ -138,7 +140,7 @@ class JbrowseController {
 //        /opt/apollo/honeybee/data//tracks/Official Gene Set v3.2/{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}/trackData.json
         if (putativeSequencePathName.contains("projection")) {
             if (fileName.endsWith("trackData.json")) {
-                JSONObject projectionSequenceObject = JSON.parse(putativeSequencePathName)
+                JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray("sequences")
                 List<String> sequenceStrings = new ArrayList<>()
 //                "sequences":[{"n
@@ -272,32 +274,12 @@ class JbrowseController {
 //                    if (projectionService.hasProjection(preferenceService.currentOrganismForCurrentUser,projectionService.getTrackName(file.absolutePath))) {
                     println "refseq size ${refSeqJsonObject.size()}"
 
-                    JSONArray projectedArray = new JSONArray()
                     MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+                    RefSeqProjector refSeqProjector = new RefSeqProjector()
 
-                    for (int i = 0; i < refSeqJsonObject.size(); i++) {
+                    // returns projection to a string of some sort
+                    response.outputStream << refSeqProjector.projectTrack(refSeqJsonObject,projection,currentOrganism,refererLoc)
 
-                        JSONObject sequenceValue = refSeqJsonObject.getJSONObject(i)
-
-                        String sequenceName = sequenceValue.getString("name")
-                        if (projection && projection.containsSequence(sequenceName, sequenceValue.id, currentOrganism)) {
-                            log.debug "input sequence ${sequenceValue as JSON}"
-                            Integer projectedSequenceLength = projection.findProjectSequenceLength(sequenceName)
-                            sequenceValue.put("length", projectedSequenceLength)
-                            sequenceValue.put("end", projectedSequenceLength)
-                            sequenceValue.put("name", refererLoc)
-                            log.debug "output sequence ${sequenceValue as JSON}"
-                            projectedArray = trackService.mergeRefseqProjections(projectedArray,sequenceValue)
-                            log.debug "final array ${projectedArray as JSON}"
-                        }
-                    }
-
-                    if (projection) {
-                        response.outputStream << projectedArray.toString()
-                    } else {
-                        response.outputStream << refSeqJsonObject.toString()
-                    }
-                    return
                 } else if (fileName.endsWith("trackData.json")) {
                     // TODO: project trackData.json
                     // if we are a projection, then we are going to want to merge multiple sequences

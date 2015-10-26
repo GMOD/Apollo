@@ -496,39 +496,4 @@ class TrackService {
 
         return first
     }
-
-    /**
-     [{"seqChunkSize": 20000, "start": 0,
-     "name": "{\"projection\":\"None\", \"padding\":50, \"referenceTrack\":\"Official Gene Set v3.2\", \"sequences\":[{\"name\":\"Group5.7\"},{\"name\":\"Group9.2\"}]}",
-     "length": 471578, "end": 471578},
-     *
-     {"seqChunkSize": 20000, "start": 0,
-     "name": "{\"projection\":\"None\", \"padding\":50, \"referenceTrack\":\"Official Gene Set v3.2\", \"sequences\":[{\"name\":\"Group5.7\"},{\"name\":\"Group9.2\"}]}",
-     "length": 456816, "end": 456816}]
-     *
-     *  Ignore chunkSize, start, name
-     *
-     *  sum: length / end
-     *
-     * @param jsonArray
-     * @param refSeq   JSONObject to add
-     * @return
-     */
-    @NotTransactional
-    JSONArray mergeRefseqProjections(JSONArray projectedArray, JSONObject refSeq) {
-        if (projectedArray.size() == 0) {
-            projectedArray.add(refSeq)
-        } else if (projectedArray.size() == 1) {
-            JSONObject existingObject = projectedArray.getJSONObject(0)
-            Integer existingLength = existingObject.getInt("length")
-            Integer nextLength = refSeq.getInt("length")
-
-            existingObject.put("length",existingLength+nextLength)
-            existingObject.put("end",existingLength+nextLength)
-        } else {
-            log.error "wrong number of input projected arrays ${projectedArray?.size()}: ${projectedArray as JSON} . .. ${refSeq as JSON}"
-        }
-        return projectedArray
-
-    }
 }
