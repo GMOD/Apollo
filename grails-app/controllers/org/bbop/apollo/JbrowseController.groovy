@@ -91,25 +91,38 @@ class JbrowseController {
                 if (organism.sequences) {
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
-                    Sequence sequence = organism?.sequences?.first()
+//                    String sequenceList = userOrganismPreference.bookmark.sequenceList
+                    List<Sequence> sequences= organism?.sequences
+//                    List<String> sequenceList = []
+                    JSONArray sequenceArray = new JSONArray()
+                    sequences.each {
+                        JSONObject jsonObject = new JSONObject()
+                        jsonObject.name = it.name
+                        sequenceArray.add(jsonObject)
+                    }
+
                     if (userOrganismPreference == null) {
+                        Bookmark bookmark = new Bookmark(
+                                organism: organism
+                                ,sequenceList: sequenceArray.toString()
+                        ).save(insert:true,flush: true,failOnError: true)
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
                                 , organism: organism
-                                , sequence: sequence
+                                , bookmark: bookmark
                                 , currentOrganism: true
                         ).save(insert: true, flush: true)
                     } else {
-                        userOrganismPreference.sequence = sequence
+                        userOrganismPreference.bookmark = userOrganismPreference.bookmark
                         userOrganismPreference.currentOrganism = true
                         userOrganismPreference.save()
                     }
 
                     organismJBrowseDirectory = organism.directory
                     session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)
-                    session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequence.name)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequence.organismId)
-                    session.setAttribute(FeatureStringEnum.ORGANISM.value, sequence.organism.commonName)
+                    session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceArray.toString())
+                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
+                    session.setAttribute(FeatureStringEnum.ORGANISM.value, organism.commonName)
                     return organismJBrowseDirectory
                 }
             }
@@ -117,6 +130,13 @@ class JbrowseController {
         return organismJBrowseDirectory
     }
 
+    private static String extractLocation(String referer){
+        int startIndex = referer.indexOf("?loc=")
+        int endIndex = referer.contains("&")?referer.indexOf("&"):referer.length()
+        String refererLoc = referer.subSequence(startIndex + 5, endIndex)
+        refererLoc = URLDecoder.decode(refererLoc, "UTF-8")
+        return refererLoc
+    }
 
     /**
      * Handles data directory serving for jbrowse
@@ -128,11 +148,7 @@ class JbrowseController {
         String fileName = FilenameUtils.getName(params.path)
 
         String referer = request.getHeader("Referer")
-        println "referer: ${referer}"
-        int startIndex = referer.indexOf("?loc=")
-        int endIndex = referer.contains("&")?referer.indexOf("&"):referer.length()
-        String refererLoc = referer.subSequence(startIndex + 5, endIndex)
-        refererLoc = URLDecoder.decode(refererLoc, "UTF-8")
+        String refererLoc = extractLocation(referer)
 
         String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
         println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
@@ -141,7 +157,7 @@ class JbrowseController {
         if (putativeSequencePathName.contains("projection")) {
             if (fileName.endsWith("trackData.json")) {
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
-                JSONArray sequenceArray = projectionSequenceObject.getJSONArray("sequences")
+                JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCES.value)
                 List<String> sequenceStrings = new ArrayList<>()
 //                "sequences":[{"n
                 for (int i = 0; i < sequenceArray.size(); i++) {

@@ -49,12 +49,12 @@ class AnnotatorService {
                 appStateObject.put("currentOrganism", currentOrganism )
 
 
-                if (!currentUserOrganismPreference.sequence) {
-                    Sequence sequence = Sequence.findByOrganism(currentUserOrganismPreference.organism)
-                    currentUserOrganismPreference.sequence = sequence
+                if (!currentUserOrganismPreference.bookmark) {
+                    Bookmark bookmark = Bookmark.findByOrganism(currentUserOrganismPreference.organism)
+                    currentUserOrganismPreference.bookmark = bookmark
                     currentUserOrganismPreference.save()
                 }
-                appStateObject.put("currentSequence", currentUserOrganismPreference.sequence)
+                appStateObject.put("currentSequence", currentUserOrganismPreference.bookmark.sequenceList)
 
 
                 if (currentUserOrganismPreference.startbp && currentUserOrganismPreference.endbp) {

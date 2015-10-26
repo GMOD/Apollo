@@ -185,10 +185,11 @@ class BigwigController {
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
                     Sequence sequence = organism?.sequences?.first()
                     if (userOrganismPreference == null) {
+                        Bookmark bookmark = new Bookmark()
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
                                 , organism: organism
-                                , sequence: sequence
+                                , bookmark: bookmark
                                 , currentOrganism: true
                         ).save(insert: true, flush: true)
                     } else {

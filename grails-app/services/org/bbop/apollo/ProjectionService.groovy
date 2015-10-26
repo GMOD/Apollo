@@ -321,27 +321,6 @@ class ProjectionService {
 
     }
 
-    /**
-     * Anything in this space is assumed to be visible
-     * @param sequence
-     * @param referenceTrackName
-     * @param inputFeaturesArray
-     * @return
-     */
-    @Transactional(readOnly = true)
-    JSONArray projectFeatures(Sequence sequence, String referenceTrackName, JSONArray inputFeaturesArray, Boolean reverseProjection) {
-        DiscontinuousProjection projection = (DiscontinuousProjection) getProjection(sequence.organism, referenceTrackName, sequence.name)
-        println "trying to convert ${inputFeaturesArray as JSON}"
-        if (projection) {
-            // process location . . .
-            projectFeaturesArray(inputFeaturesArray, projection, reverseProjection)
-            println "converted ${inputFeaturesArray as JSON}"
-        } else {
-            println "no conversion?? "
-        }
-        return inputFeaturesArray
-    }
-
     @NotTransactional
     JSONArray projectFeaturesArray(JSONArray inputFeaturesArray, DiscontinuousProjection projection, Boolean reverseProjection) {
         for (int i = 0; i < inputFeaturesArray.size(); i++) {

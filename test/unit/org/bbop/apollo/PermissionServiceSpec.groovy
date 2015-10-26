@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Specification
 
 /**
@@ -134,6 +135,21 @@ class PermissionServiceSpec extends Specification {
         assert userPermissionEnumsReceived3.contains(PermissionEnum.EXPORT)
 
         
+
+    }
+
+    void "extract sequence names from JSON"(){
+        given:"a JSON string"
+        String inputString = '{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group5.7"},{"name":"Group9.2"}]}'
+
+        when: "it gets processed"
+        JSONObject inputObject = new JSONObject(inputString)
+        def sequenceNames = service.extractSequenceNamesFromJson(inputObject)
+
+        then: "we should have a few sequence names "
+        assert 2==sequenceNames.size()
+        assert "Group5.7" in sequenceNames
+        assert "Group9.2" in sequenceNames
 
     }
 }
