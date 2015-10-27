@@ -121,4 +121,4 @@ section).
 The most up to date Web Service API documentation is deployed from the source code rest-api-doc annotations
 
 
-See [http://icebox.lbl.gov/Apollo2/WebServices/](http://icebox.lbl.gov/Apollo2/WebServices/) for details
+See [http://icebox.lbl.gov/Apollo2/jbrowse/web_services/api](http://icebox.lbl.gov/Apollo2/jbrowse/web_services/api) for details
