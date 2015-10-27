@@ -287,6 +287,7 @@ class UserController {
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
+                return
             }
             User user = null
             if (dataObject.has('userId')) {
