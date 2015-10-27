@@ -55,6 +55,7 @@ class JbrowseController {
             Organism organism = Organism.findByCommonName(params.organism)
             if(!organism) organism = Organism.findById(params.organism)
             if(!organism) {
+                response.status = 404
                 render "Organism not found!"
                 return
             }
