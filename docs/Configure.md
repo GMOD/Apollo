@@ -214,7 +214,7 @@ forwarded to the tomcat server.  This setup is not necessary, but it is a very s
 Note that we use the SockJS library, which will downgrade to long-polling if websockets are not available, but since
 websockets are preferable, it helps to take some extra steps to ensure that the websocket calls are proxied or forwarded
 in some way too.
-
+If you are using tomcat 7, please make sure to use the most recent stable version, which supports web sockets by default.  Using older versions (e.g. 7.0.26) websockets may not be included by default and you will need to include an additional .jar file.
 
 #### Apache Proxy 
 
