@@ -417,6 +417,18 @@ return declare( [JBPlugin, HelpMixin],
                                     }
                             });
         }
+
+        if (typeof window.parent.getEmbeddedVersion == 'undefined') {
+            annotatorButton = new dijitButton(
+                {
+                    innerHTML: "Annotator View",
+                    onClick: function () {
+                        window.location.href = '../';
+                    }
+                });
+            this.browser.menuBar.appendChild( annotatorButton.domNode );
+        }
+
         this.browser.menuBar.appendChild( loginButton.domNode );
         this.loginMenuInitialized = true;
     },
@@ -611,20 +623,6 @@ return declare( [JBPlugin, HelpMixin],
 
         this.addStrandFilterOptions();
 
-        if (typeof window.parent.getEmbeddedVersion == 'undefined') {
-            var view_annotator_toggle = new dijitCheckedMenuItem(
-                {
-                    label: "View Annotator",
-                    checked: false,
-                    onClick: function (event) {
-                        if (this.get("checked")) {
-                            window.location.href = '../';
-                        }
-                    }
-                });
-
-            browser.addGlobalMenuItem('view', view_annotator_toggle);
-        }
 
         this._showLabels=(browser.cookie("showTrackLabel")||"true")=="true"
         var hide_track_label_toggle = new dijitCheckedMenuItem(
