@@ -538,6 +538,7 @@ public class MainPanel extends Composite {
     @UiHandler("userName")
     void editUserPassword(ClickEvent event) {
         editMyPasswordInput.setText("");
+        editMyPasswordInputRepeat.setText("");
         editUserModal.show();
     }
 
