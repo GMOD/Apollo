@@ -301,6 +301,7 @@ class UserController {
             }
             UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
             UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
+            UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByUser(user))
             user.delete(flush: true)
 
             log.info "Removed user ${user.username}"
