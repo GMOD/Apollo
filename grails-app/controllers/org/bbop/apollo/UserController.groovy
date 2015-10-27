@@ -340,8 +340,8 @@ class UserController {
             user.lastName = dataObject.lastName
             user.username = dataObject.email
 
-            if (dataObject.password) {
-                user.passwordHash = new Sha256Hash(dataObject.password).toHex()
+            if (dataObject.newPassword) {
+                user.passwordHash = new Sha256Hash(dataObject.newPassword).toHex()
             }
 
             String roleString = dataObject.role
