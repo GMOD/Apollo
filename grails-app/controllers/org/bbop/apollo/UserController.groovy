@@ -285,7 +285,7 @@ class UserController {
         try {
             log.info "Removing user"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-            if (!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
             }
             User user = null
