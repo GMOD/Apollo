@@ -53,7 +53,9 @@ class JbrowseController {
 
 
             Organism organism = Organism.findByCommonName(params.organism)
-            if(!organism) organism = Organism.findById(params.organism)
+            if(!organism&&params.organism.isInteger()) {
+                organism = Organism.findById(params.organism.toInteger())
+            }
             if(!organism) {
                 response.status = 404
                 render "Organism not found!"
