@@ -2051,8 +2051,6 @@ class RequestHandlingService {
                 Transcript t1 = transcripts.get(i)
                 for (int j = i + 1; j < transcripts.size(); j++) {
                     Transcript t2 = transcripts.get(j)
-                    println "==> t1: ${t1.name}"
-                    println "==> t2: ${t2.name}"
                     if (overlapperService.overlaps(t1.fmin, t1.fmax, t2.fmin, t2.fmax)) {
                         if (overlapperService.overlaps(t1,t2)) {
                             gene1Transcripts.add(t2)
