@@ -333,7 +333,7 @@ public class OrganismPanel extends Composite {
         OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
         if (organismInfo == null) return;
         if (organismInfo.getNumFeatures() > 0) {
-            new ErrorDialog("Can Not Delete Organism '" + organismInfo.getName() + "'", "Can not delete organism " + organismInfo.getName() + ".  You remove " + singleSelectionModel.getSelectedObject().getNumFeatures() + " annotations first.  Please see the web services API in the help menu for more details on how to do this in bulk.", true, true);
+            new ErrorDialog("Cannot delete organism '" + organismInfo.getName() + "'", "You must first remove " + singleSelectionModel.getSelectedObject().getNumFeatures() + " annotations before deleting organism '"+organismInfo.getName()+"'.  Please see our <a href='../WebServices/'>Web Services API</a> from the 'Help' menu for more details on how to perform this operation in bulk.", true, true);
             return;
         }
         Bootbox.confirm("Are you sure you want to delete organism " + singleSelectionModel.getSelectedObject().getName() + "?", new ConfirmCallback() {

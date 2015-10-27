@@ -93,8 +93,7 @@
                             <b:Button ui:field="userName" icon="USER"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
                         </b:Panel>
-                        <b:Modal ui:field="notificationModal" closable="false" fade="true" dataBackdrop="FALSE"
-                                 dataKeyboard="true">
+                        <b:Modal ui:field="notificationModal" closable="false" fade="true" >
                             <b:ModalHeader>
                                 <gwt:HTML>
                                     <b>Error</b>
@@ -112,11 +111,12 @@
                                           href="../jbrowse/"/>
                             </b:ModalFooter>
                         </b:Modal>
-                        <b:Modal ui:field="editUserModal" closable="true" >
+                        <b:Modal ui:field="editUserModal" closable="true" dataBackdrop="FALSE">
                             <b:ModalHeader>
                                 <gwt:HTML>Edit Password</gwt:HTML>
                             </b:ModalHeader>
                             <b:ModalBody>
+                                <b:Alert ui:field="editUserAlertText" visible="false" dismissable="true"/>
                                 <b:InputGroup>
                                     <b:InputGroupAddon>Password</b:InputGroupAddon>
                                     <b:Input type="PASSWORD" ui:field="editMyPasswordInput"/>

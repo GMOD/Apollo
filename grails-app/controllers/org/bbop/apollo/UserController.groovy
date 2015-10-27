@@ -285,8 +285,9 @@ class UserController {
         try {
             log.info "Removing user"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-            if (!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
+                return
             }
             User user = null
             if (dataObject.has('userId')) {
@@ -301,6 +302,7 @@ class UserController {
             }
             UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
             UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
+            UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByUser(user))
             user.delete(flush: true)
 
             log.info "Removed user ${user.username}"
@@ -339,8 +341,8 @@ class UserController {
             user.lastName = dataObject.lastName
             user.username = dataObject.email
 
-            if (dataObject.password) {
-                user.passwordHash = new Sha256Hash(dataObject.password).toHex()
+            if (dataObject.newPassword) {
+                user.passwordHash = new Sha256Hash(dataObject.newPassword).toHex()
             }
 
             String roleString = dataObject.role

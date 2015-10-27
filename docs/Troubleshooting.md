@@ -36,8 +36,8 @@ export CATALINA_OPTS="-Xmx12288m -Xms8192m \
 ```
 
 To change your settings, you can edit the setenv.sh script in `$TOMCAT_BIN_DIR/setenv.sh` where `$TOMCAT_BIN_DIR` is
-where the directory where the Tomcat binaries reside. It is possible that this file doesn't exist by default, but it
-will be picked up when Tomcat restarts.
+where the directory where the Tomcat binaries reside, or on Ubuntu, the file /etc/default/tomcat7 contains these
+settings. It is possible that this file doesn't exist by default, but it will be picked up when Tomcat restarts.
 
 
 #### Confirm your settings

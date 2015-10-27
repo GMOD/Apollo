@@ -133,6 +133,8 @@ public class MainPanel extends Composite {
     Button cancelPasswordButton;
     @UiField
     Input editMyPasswordInputRepeat;
+    @UiField
+    Alert editUserAlertText;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
@@ -592,33 +594,50 @@ public class MainPanel extends Composite {
     @UiHandler("savePasswordButton")
     void saveEditUserPassword(ClickEvent event) {
         UserInfo currentUser = MainPanel.getInstance().getCurrentUser();
-        if(editMyPasswordInput.getText().equals(editMyPasswordInputRepeat.getText())){
+        if (editMyPasswordInput.getText().equals(editMyPasswordInputRepeat.getText())) {
             currentUser.setPassword(editMyPasswordInput.getText());
-        }
-        else{
-            Bootbox.alert("Passwords do not match");
+        } else {
+            editUserAlertText.setVisible(true);
+            editUserAlertText.setText("Passwords do not match");
             return;
         }
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                Bootbox.alert("Saved password!");
-                editUserModal.hide();
+                savePasswordButton.setEnabled(false);
+                cancelPasswordButton.setEnabled(false);
+                editUserAlertText.setType(AlertType.SUCCESS);
+                editUserAlertText.setVisible(true);
+                editUserAlertText.setText("Saved!");
+                Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+                    @Override
+                    public boolean execute() {
+                        editUserModal.setFade(true);
+                        editUserModal.hide();
+                        return false;
+                    }
+                },1000);
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Error updating password");
+                editUserAlertText.setVisible(true);
+                editUserAlertText.setText("Error setting user password: " + exception.getMessage());
                 editUserModal.hide();
             }
         };
-        UserRestService.updateUser(requestCallback,currentUser);
+        UserRestService.updateUser(requestCallback, currentUser);
     }
 
     @UiHandler("userName")
     void editUserPassword(ClickEvent event) {
+        editUserAlertText.setText("");
+        editUserAlertText.setVisible(false);
         editMyPasswordInput.setText("");
+        editMyPasswordInputRepeat.setText("");
         editUserModal.show();
+        savePasswordButton.setEnabled(true);
+        cancelPasswordButton.setEnabled(true);
     }
 
     @UiHandler("dockOpenClose")
