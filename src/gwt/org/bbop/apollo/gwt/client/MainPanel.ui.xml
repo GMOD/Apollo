@@ -93,7 +93,7 @@
                             <b:Button ui:field="userName" icon="USER"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
                         </b:Panel>
-                        <b:Modal ui:field="notificationModal" closable="false" fade="true" >
+                        <b:Modal ui:field="notificationModal" closable="true" fade="true"  dataBackdrop="FALSE">
                             <b:ModalHeader>
                                 <gwt:HTML>
                                     <b>Error</b>
