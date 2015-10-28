@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import org.apache.catalina.security.SecurityUtil
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.converters.JSON
@@ -332,7 +333,7 @@ class UserController {
         try {
             log.info "Updating user"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-            if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.sameUser(dataObject) && !permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
