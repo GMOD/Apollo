@@ -391,7 +391,6 @@ class TranscriptService {
         if (gene1) {
             gene1.save(flush: true)
         }
-        boolean flag=false
         // if the parent genes aren't the same, this leads to a merge of the genes
         if (gene1 && gene2) {
             if (gene1 != gene2) {
@@ -402,12 +401,17 @@ class TranscriptService {
                         featureService.addTranscriptToGene(gene1, transcript)
                     }
                 }
-                flag=true
                 featureRelationshipService.deleteFeatureAndChildren(gene2)
             }
         }
         // Delete the empty transcript from the gene, if gene not already deleted
-        if(!flag) {
+        if (getGene(transcript2)) {
+            def childFeatures = featureRelationshipService.getChildren(transcript2)
+            featureRelationshipService.deleteChildrenForTypes(transcript2)
+            Feature.deleteAll(childFeatures)
+            deleteTranscript(gene2, transcript2);
+            featureEventService.deleteHistory(transcript2.uniqueName)
+        } else {
             featureService.deleteFeature(transcript2);
         }
         featureService.removeExonOverlapsAndAdjacencies(transcript1);
