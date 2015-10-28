@@ -164,7 +164,7 @@ public class UserInfo implements HasJSON {
         jsonObject.put("availableGroups", availableGroupArray);
 
         if (password != null) {
-            jsonObject.put("password", new JSONString(password));
+            jsonObject.put("newPassword", new JSONString(password));
         }
 
         JSONArray organismPermissions = new JSONArray();
