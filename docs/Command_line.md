@@ -59,4 +59,16 @@ The -username and -password refer to the admin user, and they can also be specif
 line if they are omitted.
 
 
+### delete_annotations_from_organism.groovy
+
+Example:
+
+```
+docs/web_services/examples/groovy/delete_annotations_from_organism.groovy  -destinationurl http://localhost:8080/apollo\
+     -organismname honeybee2
+```
+
+This script will delete any annotations associated with a given organism.
+
+
 
