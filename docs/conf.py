@@ -197,8 +197,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'WebApollo.tex', u'Web Apollo Documentation',
-   u'Web Apollo', 'manual'),
+  ('index', 'Apollo.tex', u'Apollo Documentation',
+   u'Apollo', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
