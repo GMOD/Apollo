@@ -2008,7 +2008,7 @@ class RequestHandlingService {
     }
 
     @Timed
-    def splitTranscript(JSONObject inputObject) {
+    def splitTranscriptOld(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
@@ -2020,10 +2020,8 @@ class RequestHandlingService {
         Transcript transcript2 = transcriptService.splitTranscript(transcript1, exon1, exon2)
 
         featureService.updateNewGsolFeatureAttributes(transcript2, sequence);
-
         featureService.calculateCDS(transcript1)
         featureService.calculateCDS(transcript2)
-
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1);
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript2);
 
@@ -2034,7 +2032,6 @@ class RequestHandlingService {
 
         // we get the original gene off of the transcript
         Gene gene1 = transcriptService.getGene(transcript1)
-
         String transcript2UniqueName = transcript2.uniqueName
         String transcript2Name = transcript2.name
 
@@ -2046,79 +2043,83 @@ class RequestHandlingService {
             Set<Transcript> gene2Transcripts = new HashSet<Transcript>();
 
             List<Transcript> transcripts = transcriptService.getTranscriptsSortedByFeatureLocation(gene1, false)
+            gene1Transcripts.add(transcripts.get(0))
 
-            for (int i = 0; i <transcripts.size(); i ++) {
-                Transcript t1 = transcripts.get(i)
-                for (int j = i + 1; j < transcripts.size(); j++) {
-                    Transcript t2 = transcripts.get(j)
-                    if (overlapperService.overlaps(t1.fmin, t1.fmax, t2.fmin, t2.fmax)) {
-                        if (overlapperService.overlaps(t1,t2)) {
-                            gene1Transcripts.add(t2)
-                            gene2Transcripts.remove(t2)
+            // determine if transcripts belong on a new gene
+            for (int i = 0; i < transcripts.size() - 1; ++i) {
+                Transcript t1 = transcripts.get(i);
+                for (int j = i + 1; j < transcripts.size(); ++j) {
+                    Transcript t2 = transcripts.get(j);
+                    if (gene1Transcripts.contains(t2) || gene2Transcripts.contains(t2)) {
+                        continue;
+                    }
+                    if (t1.getFmin() < transcript2.featureLocation.getFmin()) {
+                        if (overlapperService.overlaps(t1, t2)) {
+                            gene1Transcripts.add(t2);
                         } else {
-                            gene2Transcripts.add(t2)
-                            gene1Transcripts.remove(t2)
+                            gene2Transcripts.add(t2);
                         }
                     } else {
-                        gene2Transcripts.add(t2)
-                        gene1Transcripts.remove(t1)
+                        gene2Transcripts.add(t2);
                     }
                 }
+                if (t1.featureLocation.getFmin() > transcript2.featureLocation.getFmin()) {
+                    break;
+                }
             }
-            
+
             gene1.featureLocation.fmax = exon1.featureLocation.fmax
             gene1.save(flush: true)
 
-            // we add transcript 2 explicitly ONLY if gene2Transcripts has any transcripts in it
-            if (gene2Transcripts.size() > 0) {
-                JSONObject addSplitTranscriptJSONObject = new JSONObject()
-                JSONArray addTranscriptFeaturesArray = new JSONArray()
-                transcript2.featureLocation.fmin = exon2.featureLocation.fmin
-                JSONObject transcript2Object = featureService.convertFeatureToJSON(transcript2)
-                transcript2Object.put(FeatureStringEnum.NAME.value, gene1.name)
-                transcript2Object.remove(FeatureStringEnum.PARENT_ID.value)
-                transcript2Object.remove(FeatureStringEnum.UNIQUENAME.value)
-                log.debug "transcript2Object ${transcript2Object as JSON}"
-                addTranscriptFeaturesArray.add(transcript2Object)
-                addSplitTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addTranscriptFeaturesArray)
-                addSplitTranscriptJSONObject.put("track", inputObject.track)
-                
-                // we delete transcripts that belong on the other gene
-                for (Transcript t : gene2Transcripts) {
-                    transcriptService.deleteTranscript(gene1, t)
-                }
-                log.debug "NAME OF TRANSCRIPT 2: ${transcript2.name}"
-                transcript2.parentFeatureRelationships.each { it ->
-                    it.childFeature.delete()
-                }
-                transcript2.delete()
+            // we add transcript 2 explicitly
+            JSONObject addSplitTranscriptJSONObject = new JSONObject()
+            JSONArray addTranscriptFeaturesArray = new JSONArray()
+            transcript2.featureLocation.fmin = exon2.featureLocation.fmin
+            JSONObject transcript2Object = featureService.convertFeatureToJSON(transcript2)
+            transcript2Object.put(FeatureStringEnum.NAME.value, gene1.name)
+            transcript2Object.remove(FeatureStringEnum.PARENT_ID.value)
+            transcript2Object.remove(FeatureStringEnum.UNIQUENAME.value)
+            log.debug "transcript2Object ${transcript2Object as JSON}"
+            addTranscriptFeaturesArray.add(transcript2Object)
+            addSplitTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addTranscriptFeaturesArray)
+            addSplitTranscriptJSONObject.put("track", inputObject.track)
 
-                // we add any other transcripts to the correct gene
-                for (Transcript t : gene2Transcripts) {
-                    if (!t.equals(transcript2)) {
-                        JSONObject addTranscriptJSONObject = new JSONObject()
-                        addTranscriptFeaturesArray = new JSONArray()
-                        addTranscriptFeaturesArray.add(featureService.convertFeatureToJSON(t))
-                        addTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addTranscriptFeaturesArray)
-                        addTranscriptJSONObject.put("track", inputObject.track)
-                        addTranscriptJSONObject.put(FeatureStringEnum.USERNAME.value, inputObject.getString(FeatureStringEnum.USERNAME.value))
-                        addTranscript(addTranscriptJSONObject)
-                    }
-                }
-
-                addSplitTranscriptJSONObject = permissionService.copyUserName(inputObject, addSplitTranscriptJSONObject)
-
-                // has to be added separately, which is what we wan to see
-                JSONObject returnAddTranscriptObject = addTranscript(addSplitTranscriptJSONObject).getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
-
-                // we could suppress the history, but that screws up the naming . . . .
-                // so we'll just delete the other feature event
-                // so we just delete it (it tries to do an "add transcript")
-                transcript2Name = returnAddTranscriptObject.getString(FeatureStringEnum.NAME.value)
-                transcript2UniqueName = returnAddTranscriptObject.getString(FeatureStringEnum.UNIQUENAME.value)
-                featureEventService.deleteHistory(transcript2UniqueName)
-                gene2Name = transcriptService.getGene(Transcript.findByUniqueName(transcript2UniqueName))?.name
+            // we delete transcripts that belong on the other gene
+            for (Transcript t : gene2Transcripts) {
+                transcriptService.deleteTranscript(gene1, t)
             }
+            log.debug "NAME OF TRANSCRIPT 2: ${transcript2.name}"
+            transcript2.parentFeatureRelationships.each { it ->
+                it.childFeature.delete()
+            }
+            transcript2.delete()
+
+            // we add any other transcripts to the correct gene
+            for (Transcript t : gene2Transcripts) {
+                if (!t.equals(transcript2)) {
+                    JSONObject addTranscriptJSONObject = new JSONObject()
+                    addTranscriptFeaturesArray = new JSONArray()
+                    addTranscriptFeaturesArray.add(featureService.convertFeatureToJSON(t))
+                    addTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addTranscriptFeaturesArray)
+                    addTranscriptJSONObject.put("track", inputObject.track)
+                    addTranscriptJSONObject.put(FeatureStringEnum.USERNAME.value, inputObject.getString(FeatureStringEnum.USERNAME.value))
+                    addTranscript(addTranscriptJSONObject)
+                }
+            }
+
+            addSplitTranscriptJSONObject = permissionService.copyUserName(inputObject, addSplitTranscriptJSONObject)
+
+            // has to be added separately, which is what we wan to see
+            JSONObject returnAddTranscriptObject = addTranscript(addSplitTranscriptJSONObject).getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
+
+            // we could suppress the history, but that screws up the naming . . . .
+            // so we'll just delete the other feature event
+            // so we just delete it (it tries to do an "add transcript")
+            transcript2Name = returnAddTranscriptObject.getString(FeatureStringEnum.NAME.value)
+            transcript2UniqueName = returnAddTranscriptObject.getString(FeatureStringEnum.UNIQUENAME.value)
+            featureEventService.deleteHistory(transcript2UniqueName)
+            gene2Name = transcriptService.getGene(Transcript.findByUniqueName(transcript2UniqueName))?.name
+
         }
 
         JSONObject updateContainer = createJSONFeatureContainer();
@@ -2139,7 +2140,6 @@ class RequestHandlingService {
             updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
         }
 
-        
         Transcript tmpTranscript2 = Transcript.findByUniqueName(transcript2UniqueName)
         if (tmpTranscript2) {
             Gene tmpGene2 = transcriptService.getGene(tmpTranscript2)
@@ -2148,6 +2148,7 @@ class RequestHandlingService {
                 for (Transcript t : exon2Transcripts) {
                     updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
                 }
+
             }
         }
 
@@ -2176,6 +2177,84 @@ class RequestHandlingService {
         fireAnnotationEvent(updateAnnotationEvent)
 
 
+        return returnContainer
+    }
+
+    @Timed
+    def splitTranscript(JSONObject inputObject) {
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        Exon exon1 = Exon.findByUniqueName(featuresArray.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value))
+        Exon exon2 = Exon.findByUniqueName(featuresArray.getJSONObject(1).getString(FeatureStringEnum.UNIQUENAME.value))
+
+        Transcript transcript1 = exonService.getTranscript(exon1)
+        Transcript transcript2 = transcriptService.splitTranscript(transcript1, exon1, exon2)
+        println "Transcript 1: ${transcript1.name} with parent gene ${transcriptService.getGene(transcript1)}"
+        println "Transcript 2: ${transcript2.name} with parent gene ${transcriptService.getGene(transcript2)}"
+
+        // at this point in the backend, the transcript has already been split into transcript1 and transcript2
+        featureService.updateNewGsolFeatureAttributes(transcript2, sequence)
+        featureService.calculateCDS(transcript1)
+        featureService.calculateCDS(transcript2)
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1);
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript2);
+        transcript1.name = transcript1.name ?: nameService.generateUniqueName(transcript1)
+        transcript2.name = transcript2.name ?: nameService.generateUniqueName(transcript2)
+
+        // adding owners of transcript1 to transcript2
+        transcript1.owners.each { transcript2.addToOwners(it) }
+
+        transcript1.save(flush: true)
+        transcript2.save(flush: true)
+        // calling hDIO for transcript1
+        println "Calling hDIO for transcript1"
+        def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript1)
+        // calling hDIO for transcript2
+        println "Calling hDIO for transcript2"
+        transcriptsToUpdate.addAll(featureService.handleDynamicIsoformOverlap(transcript2))
+        println "Transcripts to update: ${transcriptsToUpdate.name}"
+
+        // instead of calling addTranscript, adding the transcripts to updateContainer for firing UPDATE event
+        JSONObject updateContainer = createJSONFeatureContainer()
+        if (transcriptsToUpdate.size() > 0) {
+            transcriptsToUpdate.each {
+                if ((it.uniqueName != transcript1.uniqueName) || (it.uniqueName != transcript2.uniqueName)) {
+                    updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                }
+            }
+        }
+        updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript1))
+        updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript2))
+
+        // and now comes the history tracking part
+        // TODO: transcript1's history doesn't show the proper rendered model
+        // TODO: incomplete because after an undo, if we do redo, transcript1 isn't shown
+        Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value) ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value) : false
+        if (!suppressHistory) {
+            try {
+                featureEventService.addSplitFeatureEvent(transcriptService.getGene(transcript1).name, transcript1.uniqueName,
+                        transcriptService.getGene(transcript2).name, transcript2.uniqueName,
+                        inputObject,
+                        featureService.convertFeatureToJSON(transcript1),
+                        updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value),
+                        permissionService.getCurrentUser(inputObject)
+                )
+            } catch (e) {
+                log.error "There was an error adding history ${e}"
+            }
+        }
+
+        AnnotationEvent updateAnnotationEvent = new AnnotationEvent(
+                features: updateContainer,
+                sequence: sequence,
+                operation: AnnotationEvent.Operation.UPDATE
+        )
+        fireAnnotationEvent(updateAnnotationEvent)
+
+        // preparing a return container
+        JSONObject returnContainer = createJSONFeatureContainerFromFeatures(featureService.getTopLevelFeature(transcript1))
+        println "returnContainer: ${returnContainer.toString()}"
         return returnContainer
     }
 
