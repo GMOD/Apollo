@@ -12,8 +12,8 @@ the "production mode" setup.
 
 ### Grails
 
-Installing grails is made easier by using [SDKMAN](http://sdkman.io/) (formerly GVM) which can automatically setup grails for you. We
-will use grails 2.4.5 for Web Apollo.
+Installing grails is made easier by using [SDKMAN](http://sdkman.io/) (formerly GVM) which can automatically setup
+grails for you. We will use grails 2.4.5 for Web Apollo.
 
 1. curl -s http://get.sdkman.io | bash
 2. gvm install grails 2.4.5
