@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 scriptDir = new File(getClass().protectionDomain.codeSource.location.path).parent
-evaluate(new File("${scriptDir}/Apollo2Operations.groovy"))
+evaluate(new File("${scriptDir}/ApolloOperations.groovy"))
 import net.sf.json.JSONArray
 import net.sf.json.JSONObject
 import groovyx.net.http.RESTClient
@@ -12,8 +12,8 @@ import groovyx.net.http.RESTClient
 
 String usageString = "add_users.groovy <options>\n" +
         "Example: \n" +
-        "./add_users.groovy -inputfile somefile.csv -destinationurl http://localhost:8080/WebApollo2/\n" +
-        "./add_users.groovy -newuser newuser@test.com -newpassword newuserpass -destinationurl http://localhost:8080/WebApollo2/\n"
+        "./add_users.groovy -inputfile somefile.csv -destinationurl http://localhost:8080/Apollo/\n" +
+        "./add_users.groovy -newuser newuser@test.com -newpassword newuserpass -destinationurl http://localhost:8080/Apollo/\n"
 
 def cli = new CliBuilder(usage: 'add_users.groovy <options>')
 cli.setStopAtNonOption(true)
@@ -23,7 +23,7 @@ cli.password('Admin username', required: false, args: 1)
 cli.newuser('New user name (if not from csv)',required: false, args: 1)
 cli.newpassword('New user password (if not from csv)',required: false, args: 1)
 cli.newrole('New user role (if not from csv)',required: false, args: 1)
-cli.destinationurl('WebApollo URL', required: true, args: 1)
+cli.destinationurl('Apollo URL', required: true, args: 1)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)
 OptionAccessor options
 

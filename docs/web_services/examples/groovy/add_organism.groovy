@@ -16,7 +16,7 @@ String usageString = "add_organism.groovy <options>\n" +
 
 def cli = new CliBuilder(usage: usageString)
 cli.setStopAtNonOption(true)
-cli.url('URL to WebApollo instance', required: true, args: 1)
+cli.url('URL to Apollo instance', required: true, args: 1)
 cli.name('organism common name', required: true, args: 1)
 cli.directory('jbrowse data directory', required: true, args: 1)
 cli.blatdb('blatdb directory', args: 1)
