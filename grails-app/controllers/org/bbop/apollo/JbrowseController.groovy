@@ -50,7 +50,17 @@ class JbrowseController {
             log.debug "organism ID specified: ${params.organism}"
 
             // set the organism
-            Organism organism = Organism.findById(params.organism)
+
+
+            Organism organism = Organism.findByCommonName(params.organism)
+            if(!organism&&params.organism.isInteger()) {
+                organism = Organism.findById(params.organism.toInteger())
+            }
+            if(!organism) {
+                forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString,error:"Unable to find organism '${params.organism}'"])
+            }
+
+
             def session = request.getSession(true)
             session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
             session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)

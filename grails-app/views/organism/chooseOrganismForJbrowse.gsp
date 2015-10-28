@@ -24,6 +24,11 @@
     </ul>
 </div>
 
+<g:if test="${flash.message}">
+    <div class="message" role="status">${flash.message}</div>
+</g:if>
+
+
 <div style="margin-left: 20px;">
     <h3>
         Choose Organism to View
