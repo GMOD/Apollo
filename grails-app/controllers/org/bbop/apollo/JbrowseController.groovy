@@ -57,7 +57,7 @@ class JbrowseController {
                 organism = Organism.findById(params.organism.toInteger())
             }
             if(!organism) {
-                forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString,error:"Unable to find organism"])
+                forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString,error:"Unable to find organism '${params.organism}'"])
             }
 
 
