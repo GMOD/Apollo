@@ -66,6 +66,7 @@ public class LoginDialog extends DialogBox {
         clearErrors();
         center();
         show();
+        userBox.setFocus(true);
     }
 
     public void setError(String errorMessage){
