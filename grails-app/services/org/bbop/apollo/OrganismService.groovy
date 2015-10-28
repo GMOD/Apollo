@@ -6,16 +6,8 @@ import org.hibernate.Session
 
 @Transactional
 class OrganismService {
-
-    def sessionFactory
     def featureService
 
-    /**
-     * A good example of executing bulk operations from hibernate
-     * http://mrhaki.blogspot.com/2014/03/grails-goodness-using-hibernate-native.html
-     * @param organism
-     * @return
-     */
     def deleteAllFeaturesForOrganism(Organism organism) {
 
         // the very slow way
@@ -31,8 +23,25 @@ class OrganismService {
             }
         }
 
+
+        def uniqueNames=list.collect {
+            it.uniqueName
+        }
+
+
+
         list.each {
             it.delete();
+        }
+
+
+        def events=FeatureEvent.withCriteria() {
+            'in'("uniqueName",uniqueNames)
+        }
+
+
+        events.each {
+            it.delete()
         }
 
 
