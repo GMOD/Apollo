@@ -23,7 +23,8 @@ class OrganismService {
         int count = 0
         final Session session = sessionFactory.currentSession
 
-        // there are a few missing heere
+
+        // there are a few missing here
         println "deleted owners " + session.createSQLQuery("delete from feature_grails_user where EXISTS (select 'x' from feature_grails_user fgu JOIN feature f ON fgu.feature_owners_id=f.id join feature_location fl on fl.feature_id=f.id join sequence s on s.id = fl.sequence_id join organism o ON o.id = s.organism_id where o.id = ${organism.id})").executeUpdate()
 
         println "deleted genotypes " + session.createSQLQuery("delete from feature_genotype where EXISTS (select 'x' from feature_genotype fgu JOIN feature f ON fgu.feature_id=f.id join feature_location fl on fl.feature_id=f.id join sequence s on s.id = fl.sequence_id join organism o ON o.id = s.organism_id where o.id = ${organism.id})").executeUpdate()
@@ -43,9 +44,7 @@ class OrganismService {
 
 
         println "deleted location " + session.createSQLQuery("delete from feature_location where EXISTS (select 'x' from feature_location fl join sequence s on s.id = fl.sequence_id join organism o ON o.id = s.organism_id where o.id = ${organism.id})").executeUpdate()
-
         println "deleted feature " + session.createSQLQuery("delete from feature where not EXISTS (select 'x' from feature f join feature_location fl on fl.feature_id=f.id)").executeUpdate()
-
         println "deleted feature_event " + session.createSQLQuery("delete from feature_event where not exists (select 'x' from feature f, feature_event fe where f.unique_name=f.name) ").executeUpdate()
 
         organism.save(flush: true )
