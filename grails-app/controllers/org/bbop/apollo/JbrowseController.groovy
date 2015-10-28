@@ -57,9 +57,7 @@ class JbrowseController {
                 organism = Organism.findById(params.organism.toInteger())
             }
             if(!organism) {
-                response.status = 404
-                render "Organism not found!"
-                return
+                forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString,error:"Unable to find organism"])
             }
 
 
