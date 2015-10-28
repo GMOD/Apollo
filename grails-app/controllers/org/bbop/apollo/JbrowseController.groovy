@@ -27,7 +27,7 @@ class JbrowseController {
 
         List<String> paramList = new ArrayList<>()
         params.eachWithIndex{ entry, int i ->
-            if(entry.key!="action" && entry.key!="controller"){
+            if(entry.key!="action" && entry.key!="controller" && entry.key!="organism"){
                 paramList.add(entry.key+"="+entry.value)
             }
         }
