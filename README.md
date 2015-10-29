@@ -25,7 +25,7 @@ Version 2.0.0 is now released. See [the announcement](http://genomearchitect.org
 
 ## Quick Update Guide to Version 2.0.x 
 
-The [quick-start guide](docs/Apollo2Build.md) shows how to easily get started with Apollo 2, and further setup steps are shown how to deploy on a production server with customized settings in the [setup guide](docs/Setup.md) and [configuration guide](docs/Configure.md).
+The [quick-start guide](docs/Apollo2Build.md) shows how to easily get started with Apollo, and further setup steps are shown how to deploy on a production server with customized settings in the [setup guide](docs/Setup.md) and [configuration guide](docs/Configure.md).
 
 ## Migrating data from older versions to WA2
 
