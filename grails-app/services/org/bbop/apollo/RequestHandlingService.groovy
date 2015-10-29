@@ -468,7 +468,7 @@ class RequestHandlingService {
     }
 
     @Timed
-    @Transactional(readOnly = true)
+    @Transactional
     JSONObject getFeatures(JSONObject inputObject) {
 
         List<String> sequenceNameList = permissionService.extractSequenceNamesFromJson(inputObject)
@@ -506,7 +506,7 @@ class RequestHandlingService {
 
 
 
-        List<Feature> topLevelFeatures = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence in (:sequence) and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequences: sequenceList, viewableAnnotationList: viewableAnnotationFeatureList])
+        List<Feature> topLevelFeatures = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence in (:sequences) and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequences: sequenceList, viewableAnnotationList: viewableAnnotationFeatureList])
         topLevelFeatures.each { feature ->
             JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
             jsonFeatures.put(jsonObject)

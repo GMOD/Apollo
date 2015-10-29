@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import grails.converters.JSON
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -12,6 +13,7 @@ class AnnotatorService {
 
     def permissionService
     def requestHandlingService
+    def bookmarkService
 
     def getAppState() {
         JSONObject appStateObject = new JSONObject()
@@ -37,24 +39,38 @@ class AnnotatorService {
                         valid          : organism.valid,
                         publicMode     : organism.publicMode,
                         currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false,
-                        editable       : permissionService.userHasOrganismPermission(organism,PermissionEnum.ADMINISTRATE)
+                        editable       : permissionService.userHasOrganismPermission(organism, PermissionEnum.ADMINISTRATE)
 
                 ] as JSONObject
                 organismArray.add(jsonObject)
             }
             appStateObject.put("organismList", organismArray)
             UserOrganismPreference currentUserOrganismPreference = permissionService.currentOrganismPreference
-            if(currentUserOrganismPreference){
+            if (currentUserOrganismPreference) {
                 Organism currentOrganism = currentUserOrganismPreference?.organism
-                appStateObject.put("currentOrganism", currentOrganism )
+                appStateObject.put("currentOrganism", currentOrganism)
 
 
                 if (!currentUserOrganismPreference.bookmark) {
-                    Bookmark bookmark = Bookmark.findByOrganism(currentUserOrganismPreference.organism)
+                    Bookmark bookmark = Bookmark.findByOrganism(currentOrganism)
+                    if (!bookmark) {
+                        // just need the first random one
+                        Sequence sequence = Sequence.findByOrganism(currentOrganism)
+                        JSONArray sequenceArray = new JSONArray()
+                        JSONObject sequenceObject = new JSONObject()
+                        sequenceObject.name = sequence.name
+                        sequenceArray.add(sequenceObject)
+                        bookmark = new Bookmark(
+                                organism: currentOrganism
+                                , sequenceList: sequenceArray.toString()
+                                , start: sequence.start
+                                , end: sequence.end
+                        ).save()
+                    }
                     currentUserOrganismPreference.bookmark = bookmark
                     currentUserOrganismPreference.save()
                 }
-                appStateObject.put("currentSequence", currentUserOrganismPreference.bookmark.sequenceList)
+                appStateObject.put(FeatureStringEnum.CURRENT_BOOKMARK.getValue(), bookmarkService.convertBookmarkToJson(currentUserOrganismPreference.bookmark))
 
 
                 if (currentUserOrganismPreference.startbp && currentUserOrganismPreference.endbp) {
@@ -63,8 +79,8 @@ class AnnotatorService {
                 }
             }
         }
-        catch(PermissionException e) {
-            def error=[error: "Error: "+e]
+        catch (PermissionException e) {
+            def error = [error: "Error: " + e]
             log.error(error.error)
             return error
         }

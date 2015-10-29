@@ -28,6 +28,12 @@ public class BookmarkInfoConverter {
         if(bookmarkInfo.getPadding()!=null) {
             jsonObject.put("padding", new JSONNumber(bookmarkInfo.getPadding()));
         }
+        if(bookmarkInfo.getStart()!=null) {
+            jsonObject.put("start", new JSONNumber(bookmarkInfo.getStart()));
+        }
+        if(bookmarkInfo.getEnd()!=null) {
+            jsonObject.put("end", new JSONNumber(bookmarkInfo.getEnd()));
+        }
         jsonObject.put("sequenceList",(JSONArray) bookmarkInfo.getSequenceList());
         if(bookmarkInfo.getPayload()!=null) {
             jsonObject.put("payload", bookmarkInfo.getPayload());
@@ -73,6 +79,8 @@ public class BookmarkInfoConverter {
         bookmarkInfo.setId((long) jsonObject.get(FeatureStringEnum.ID.getValue()).isNumber().doubleValue());
         bookmarkInfo.setPadding( (int) jsonObject.get("padding").isNumber().doubleValue());
         bookmarkInfo.setPayload( jsonObject.get("payload").isObject());
+        bookmarkInfo.setStart( (int) jsonObject.get("start").isNumber().doubleValue());
+        bookmarkInfo.setEnd( (int) jsonObject.get("end").isNumber().doubleValue());
 
         JSONArray sequenceListArray = jsonObject.get("sequenceList").isArray();
         // some weird stuff here

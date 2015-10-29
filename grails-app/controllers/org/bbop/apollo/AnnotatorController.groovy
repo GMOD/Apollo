@@ -168,8 +168,8 @@ class AnnotatorController {
                 returnObject.track = sequenceName
             }
 
-//            Sequence sequence
             Bookmark bookmark
+            Organism organism
             if (returnObject.has("track")) {
                 bookmark = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             } else {
