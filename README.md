@@ -11,7 +11,7 @@ For general information on Web Apollo, go to:
 [http://genomearchitect.org/](http://genomearchitect.org/)
 
 Complete Web Apollo installation and configuration instructions are available at:
-[http://webapollo.readthedocs.org](http://webapollo.readthedocs.org)
+[http://apollo.readthedocs.org](http://apollo.readthedocs.org)
 
 The Web Apollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
 [http://jbrowse.org](http://jbrowse.org)

@@ -396,7 +396,7 @@ class TranscriptService {
         if (gene1 && gene2) {
             if (gene1 != gene2) {
                 List<Transcript> gene2Transcripts = getTranscripts(gene2)
-                for (Transcript transcript : gene2Transcripts) {
+                for (Transcript transcript : geneTranscripts) {
                     if (transcript != transcript2) {
                         deleteTranscript(gene2, transcript)
                         featureService.addTranscriptToGene(gene1, transcript)

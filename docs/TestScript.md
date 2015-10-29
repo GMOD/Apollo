@@ -20,7 +20,7 @@ http://www.slideshare.net/MonicaMunozTorres/
 - Web Apollo at GMOD page: 
 http://www.gmod.org/wiki/WebApollo 
 - Web Apollo installation and configuration guide
-http://webapollo.readthedocs.org/en/latest/
+http://apollo.readthedocs.org/en/latest/
 
 If testing the Web Apollo demo, go to: http://genomearchitect.org/WebApolloDemo/ 
 Login|Password : demo|demo
