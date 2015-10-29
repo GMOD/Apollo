@@ -18,7 +18,7 @@ class FeatureEventService {
     def permissionService
     def featureService
     def requestHandlingService
-    def projectionService
+    def featureProjectionService
     def bookmarkService
 
     /**
@@ -523,6 +523,7 @@ class FeatureEventService {
         }
 
         Sequence sequence = Feature.findByUniqueName(uniqueName).featureLocation.sequence
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
         log.debug "sequence: ${sequence}"
 
 
@@ -572,12 +573,12 @@ class FeatureEventService {
 //                }
                     log.debug "original command object = ${originalCommandObject as JSON}"
                     log.debug "final command object = ${addCommandObject as JSON}"
-                    JSONArray returnArray = projectionService.projectFeatures(sequence,"",addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+                    JSONArray returnArray = featureProjectionService.projectTrack(bookmark,addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
                     addCommandObject.put(FeatureStringEnum.FEATURES.value, returnArray)
 
                     returnObject = requestHandlingService.addTranscript(addCommandObject)
                 } else {
-                    JSONArray returnArray = projectionService.projectFeatures(sequence,"",addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+                    JSONArray returnArray = featureProjectionService.projectTrack(bookmark,addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
                     addCommandObject.put(FeatureStringEnum.FEATURES.value, returnArray)
                     returnObject = requestHandlingService.addFeature(addCommandObject)
                 }

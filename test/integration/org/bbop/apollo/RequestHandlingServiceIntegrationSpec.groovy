@@ -2247,7 +2247,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         String transcript1Name = addTranscript1ReturnObject.name
         String transcript1UniqueName = addTranscript1ReturnObject.uniquename
         
-        when: "we move the transcript to oppposite strand"
+        when: "we move the transcript to opposite strand"
         String flipStrandForTranscript1 = flipStrandForTranscript.replace("@UNIQUENAME@", transcript1UniqueName)
         JSONObject flipStrandForTranscript1ReturnObject = requestHandlingService.flipStrand(JSON.parse(flipStrandForTranscript1) as JSONObject).get("features")
         
