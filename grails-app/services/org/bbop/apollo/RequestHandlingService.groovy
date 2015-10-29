@@ -546,9 +546,9 @@ class RequestHandlingService {
         for (int i = 1; i < features.length(); ++i) {
             JSONObject jsonExon = features.getJSONObject(i);
             // could be that this is null
-            Exon gsolExon = (Exon) featureService.convertJSONToFeature(jsonExon, sequence)
+            Exon gsolExon = (Exon) featureService.convertJSONToFeature(jsonExon, bookmark)
 
-            featureService.updateNewGsolFeatureAttributes(gsolExon, sequence);
+            featureService.updateNewGsolFeatureAttributes(gsolExon, bookmark);
 
             if (gsolExon.getFmin() < 0 || gsolExon.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
@@ -1192,7 +1192,7 @@ class RequestHandlingService {
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
-            SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
+            SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, bookmark)
             if (grails.util.Environment.current != grails.util.Environment.TEST) {
                 if (activeUser) {
                     featureService.setOwner(sequenceAlteration, activeUser)
@@ -1202,7 +1202,7 @@ class RequestHandlingService {
             }
             sequenceAlteration.save()
 
-            featureService.updateNewGsolFeatureAttributes(sequenceAlteration, sequence)
+            featureService.updateNewGsolFeatureAttributes(sequenceAlteration, bookmark)
 
             if (sequenceAlteration.getFmin() < 0 || sequenceAlteration.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
@@ -1610,7 +1610,7 @@ class RequestHandlingService {
                     jsonFeature.put(FeatureStringEnum.NAME.value, childArray.getJSONObject(0).getString(FeatureStringEnum.NAME.value))
                 }
             }
-            Feature newFeature = featureService.convertJSONToFeature(jsonFeature, sequence)
+            Feature newFeature = featureService.convertJSONToFeature(jsonFeature, bookmark)
             String principalName = newFeature.name
             log.debug "principal name ${principalName}"
             if (!suppressHistory) {

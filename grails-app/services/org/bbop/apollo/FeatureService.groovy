@@ -88,13 +88,20 @@ class FeatureService {
             Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax))",[fmin:location.fmin,fmax:location.fmax,sequence:location.sequence])
         }
     }
-    
+
+    @Transactional
+    void updateNewGsolFeatureAttributes(Feature gsolFeature, Bookmark bookmark) {
+        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+        sequenceList.each { updateNewGsolFeatureAttributes(gsolFeature,it) }
+    }
+
     @Transactional
     void updateNewGsolFeatureAttributes(Feature gsolFeature, Sequence sequence = null) {
 
         gsolFeature.setIsAnalysis(false);
         gsolFeature.setIsObsolete(false);
         if (sequence) {
+            // TODO: this needs to handle muliple featre locations
             gsolFeature.getFeatureLocations().iterator().next().sequence = sequence;
         }
 
@@ -1057,6 +1064,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     }
 
+
+    @Timed
+    @Transactional
+    public Feature convertJSONToFeature(JSONObject jsonFeature, Bookmark bookmark) {
+        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+        if(!sequenceList || sequenceList.size()>1){
+            log.error("trying to convert a feature that has multiple sequences: ${bookmark}")
+        }
+        return convertJSONToFeature(jsonFeature,sequenceList.first())
+    }
 
     @Timed
     @Transactional
