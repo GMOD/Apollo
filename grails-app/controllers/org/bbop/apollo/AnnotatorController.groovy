@@ -2,8 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.session.Session
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -20,6 +18,7 @@ class AnnotatorController {
     def annotatorService
     def preferenceService
     def reportService
+    def bookmarkService
 
     /**
      * Loads the shared link and moves over:
@@ -112,7 +111,7 @@ class AnnotatorController {
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
-                , sequence: sequence
+                , bookmark: bookmarkService.generateBookmarkForSequence(sequence)
                 , operation: AnnotationEvent.Operation.UPDATE
                 , sequenceAlterationEvent: false
         )
@@ -141,7 +140,7 @@ class AnnotatorController {
         Sequence sequence = exon?.featureLocation?.sequence
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
-                , sequence: sequence
+                , bookmark: bookmarkService.generateBookmarkForSequence(sequence)
                 , operation: AnnotationEvent.Operation.UPDATE
                 , sequenceAlterationEvent: false
         )

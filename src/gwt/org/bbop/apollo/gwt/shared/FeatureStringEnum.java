@@ -62,7 +62,7 @@ public enum FeatureStringEnum {
         VALUE,
         CV,
         SEQUENCE,
-        SEQUENCES,
+        SEQUENCE_LIST,
         TRACK,
         TRACKS,
         DB,

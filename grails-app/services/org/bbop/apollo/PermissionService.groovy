@@ -238,7 +238,7 @@ class PermissionService {
     @NotTransactional
     public static List<String> extractSequenceNamesFromJson(JSONObject inputObject) {
         def sequences = []
-        if (inputObject.has(FeatureStringEnum.SEQUENCES.value)) {
+        if (inputObject.has(FeatureStringEnum.SEQUENCE_LIST.value)) {
             inputObject.sequences.each{ it ->
                 sequences << it.name
             }
@@ -380,7 +380,7 @@ class PermissionService {
     }
 
     Organism getOrganismFromPreferences(User user, String trackName) {
-        Organism organism
+        Organism organism = null
 
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
         if(user!=null) {
@@ -391,7 +391,6 @@ class PermissionService {
             if (!userOrganismPreference) {
                 // find a random organism based on sequence
 
-                List<Sequence> sequenceList = []
                 List<String> sequenceStrings = []
                 if(trackName.startsWith("{\"projection")){
                     sequenceStrings = extractSequenceNamesFromJson(new JSONObject(trackName))
@@ -399,6 +398,8 @@ class PermissionService {
                 else{
                     sequenceStrings << trackName
                 }
+                List<Sequence> sequenceList = Sequence.findAllByNameInList(sequenceStrings)
+
                 organism  = sequenceList.first().organism
 
                 Bookmark bookmark = new Bookmark(
@@ -445,7 +446,7 @@ class PermissionService {
                 }
                 sequenceObjects << sequence
             }
-            return bookmarkService.generateBookmarkForSequence(sequenceObjects)
+            return bookmarkService.generateBookmarkForSequence(sequenceObjects as Sequence[])
         }
 
         User user = getCurrentUser(inputObject)

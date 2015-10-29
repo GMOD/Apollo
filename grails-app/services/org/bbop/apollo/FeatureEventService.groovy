@@ -19,6 +19,7 @@ class FeatureEventService {
     def featureService
     def requestHandlingService
     def projectionService
+    def bookmarkService
 
     /**
      *
@@ -583,7 +584,7 @@ class FeatureEventService {
 
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: returnObject
-                        , sequence: sequence
+                        , bookmark: bookmarkService.generateBookmarkForSequence(sequence)
                         , operation: AnnotationEvent.Operation.UPDATE
                 )
 

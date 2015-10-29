@@ -37,7 +37,6 @@ class RefSeqProjector implements TrackProjector{
         } else {
             return refSeqJsonObject.toString()
         }
-        return
     }
 
 
@@ -58,7 +57,7 @@ class RefSeqProjector implements TrackProjector{
      * @param refSeq   JSONObject to add
      * @return
      */
-    JSONArray mergeRefseqProjections(JSONArray projectedArray, JSONObject refSeq) {
+    private JSONArray mergeRefseqProjections(JSONArray projectedArray, JSONObject refSeq) {
         if (projectedArray.size() == 0) {
             projectedArray.add(refSeq)
         } else if (projectedArray.size() == 1) {
@@ -69,9 +68,8 @@ class RefSeqProjector implements TrackProjector{
             existingObject.put("length",existingLength+nextLength)
             existingObject.put("end",existingLength+nextLength)
         } else {
-            log.error "wrong number of input projected arrays ${projectedArray?.size()}: ${projectedArray as JSON} . .. ${refSeq as JSON}"
+            throw new RuntimeException("wrong number of input projected arrays ${projectedArray?.size()}: ${projectedArray as JSON} . .. ${refSeq as JSON}")
         }
         return projectedArray
-
     }
 }

@@ -20,6 +20,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class ProjectionService {
 
     def grailsApplication
+    def bookmarkService
 
     // TODO: move to database as JSON
     // track, sequence, projection
@@ -407,18 +408,18 @@ class ProjectionService {
      */
     List<Location> getExonLocations(List<String> referenceTracks, ProjectionDescription projectionDescription) {
         List<Location> locationList = new ArrayList<>()
-        Organism organism  = Organism.findByCommonName(projectionDescription.organism)
+        Organism organism = Organism.findByCommonName(projectionDescription.organism)
         for (String track in referenceTracks) {
-            JSONArray tracksArray = loadTrackJson(track,organism,projectionDescription)
-            locationList.addAll(createExonLocations(tracksArray,projectionDescription))
+            JSONArray tracksArray = loadTrackJson(track, organism, projectionDescription)
+            locationList.addAll(createExonLocations(tracksArray, projectionDescription))
         }
 
         return locationList
     }
 
-    List<Location> createExonLocations(JSONArray jsonArray,ProjectionDescription projectionDescription) {
+    List<Location> createExonLocations(JSONArray jsonArray, ProjectionDescription projectionDescription) {
         List<Location> locationList = new ArrayList<>()
-        for(int i = 0 ; i < jsonArray.size() ; i++){
+        for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject referenceJsonObject = jsonArray.getJSONObject(i)
             JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
 
@@ -434,13 +435,13 @@ class ProjectionService {
                     for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
                         JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
 //                        locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection, chunkArrayCoordinate, projectionDescription))
-                        locationList.addAll(extractHighLevelLocations( chunkArrayCoordinate, projectionDescription))
+                        locationList.addAll(extractHighLevelLocations(chunkArrayCoordinate, projectionDescription))
 //                                processHighLevelArray(discontinuousProjection, chunkArrayCoordinate,padding)
                     }
 
                 } else {
 //                    List<Location> thisLocationList = extractHighLevelArrayLocations(discontinuousProjection, coordinate, projectionDescription)
-                    List<Location> thisLocationList = extractHighLevelLocations( coordinate, projectionDescription)
+                    List<Location> thisLocationList = extractHighLevelLocations(coordinate, projectionDescription)
                     locationList.addAll(thisLocationList)
 //                            processHighLevelArray(discontinuousProjection, coordinate,padding)
                 }
@@ -456,18 +457,18 @@ class ProjectionService {
     }
 
     JSONArray loadTrackJson(String referenceTrackName, Organism organism, ProjectionDescription projectionDescription) {
-        Map<String,ProjectionSequence> sequenceNames = new HashMap<>()
+        Map<String, ProjectionSequence> sequenceNames = new HashMap<>()
         projectionDescription.sequenceList.each {
-            sequenceNames.put(it.name,it)
+            sequenceNames.put(it.name, it)
         }
         JSONArray returnArray = new JSONArray()
 
         String jbrowseDirectory = organism.directory + "/tracks/" + referenceTrackName
         File trackDirectory = new File(jbrowseDirectory)
         File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
-        for(File trackDataFile in files){
+        for (File trackDataFile in files) {
             String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
-            if(sequenceNames.containsKey(sequenceFileName)){
+            if (sequenceNames.containsKey(sequenceFileName)) {
                 JSONObject trackObject = new JSONObject(trackDataFile.text)
                 trackObject.directory = trackDataFile.parent
                 trackObject.sequenceName = sequenceNames.get(sequenceFileName) as JSONObject
@@ -526,7 +527,7 @@ class ProjectionService {
             case 0:
                 featureType = coordinate.getString(9)
                 // process array in 10
-                List<Location> localExonArray = extractExonArrayLocations( coordinate.getJSONArray(10), projectionDescription)
+                List<Location> localExonArray = extractExonArrayLocations(coordinate.getJSONArray(10), projectionDescription)
                 return localExonArray
                 // process sublist if 11 exists
                 break
@@ -561,7 +562,7 @@ class ProjectionService {
         if (classType instanceof JSONArray) {
             for (int i = 0; i < coordinate.size(); i++) {
                 log.debug "subarray ${coordinate.get(i) as JSON}"
-                locationList.addAll(extractExonArrayLocations( coordinate.getJSONArray(i), projectionDescription))
+                locationList.addAll(extractExonArrayLocations(coordinate.getJSONArray(i), projectionDescription))
             }
             return locationList
         } else {
@@ -579,7 +580,7 @@ class ProjectionService {
                 if (coordinate.size() >= 11) {
                     JSONObject sublist = coordinate.getJSONObject(11)
 //                    locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection, sublist.getJSONArray("Sublist"), projectionDescription))
-                    locationList.addAll(extractHighLevelLocations( sublist.getJSONArray("Sublist"), projectionDescription))
+                    locationList.addAll(extractHighLevelLocations(sublist.getJSONArray("Sublist"), projectionDescription))
                 }
                 break
             case 1:
@@ -613,12 +614,12 @@ class ProjectionService {
         return locationList
     }
 /**
-     * @deprecated . .. don't want to pass a projection here
-     * @param discontinuousProjection
-     * @param coordinate
-     * @param projectionDescription
-     * @return
-     */
+ * @deprecated . .. don't want to pass a projection here
+ * @param discontinuousProjection
+ * @param coordinate
+ * @param projectionDescription
+ * @return
+ */
     List<Location> extractHighLevelArrayLocations(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, ProjectionDescription projectionDescription) {
 //                        // TODO: use enums to better track format
         int classType = coordinate.getInt(0)
@@ -803,6 +804,41 @@ class ProjectionService {
         }
     }
 
+
+    ProjectionDescription convertJsonObjecToProjectDescription(JSONObject bookmarkObject) {
+
+        println "gettting projeciton ${bookmarkObject}"
+        ProjectionDescription projectionDescription = new ProjectionDescription()
+
+        projectionDescription.type = bookmarkObject.projection
+        projectionDescription.padding = bookmarkObject.padding
+        projectionDescription.organism = bookmarkObject.organism
+        projectionDescription.referenceTracks = [bookmarkObject.referenceTrack] as List<String>
+        projectionDescription.sequenceList = new ArrayList<>()
+
+        // TODO: reference / ?
+        for (int i = 0; i < bookmarkObject.sequenceList.size(); i++) {
+            JSONObject bookmarkSequence = bookmarkObject.sequenceList.getJSONObject(i)
+            ProjectionSequence projectionSequence1 = new ProjectionSequence()
+            projectionSequence1.setOrder(i)
+            projectionSequence1.setName(bookmarkSequence.name)
+            projectionSequence1.setOrganism(projectionDescription.organism)
+
+            JSONArray featureArray = bookmarkSequence.features
+            List<String> features = new ArrayList<>()
+            for (int j = 0; featureArray != null && j < featureArray.size(); j++) {
+                features.add(featureArray.getString(j))
+            }
+            projectionSequence1.setFeatures(features)
+            projectionDescription.sequenceList.add(projectionSequence1)
+        }
+        return projectionDescription
+    }
+
+    MultiSequenceProjection getProjection(Bookmark bookmark) {
+        JSONObject jsonObject = bookmarkService.convertBookmarkToJson(bookmark)
+        getProjection(jsonObject)
+    }
 /**
  * TODO:
  * looks up bookmarks based on Ids'
@@ -819,32 +855,7 @@ class ProjectionService {
  */
     MultiSequenceProjection getProjection(JSONObject bookmarkObject) {
 
-        println "gettting projeciton ${bookmarkObject}"
-        ProjectionDescription projectionDescription = new ProjectionDescription()
-
-        projectionDescription.type = bookmarkObject.projection
-        projectionDescription.padding = bookmarkObject.padding
-        projectionDescription.organism = bookmarkObject.organism
-        projectionDescription.referenceTracks = [bookmarkObject.referenceTrack] as List<String>
-        projectionDescription.sequenceList = new ArrayList<>()
-
-        // TODO: reference / ?
-        for (int i = 0; i < bookmarkObject.sequences.size(); i++) {
-            JSONObject bookmarkSequence = bookmarkObject.sequences.getJSONObject(i)
-            ProjectionSequence projectionSequence1 = new ProjectionSequence()
-            projectionSequence1.setOrder(i)
-            projectionSequence1.setName(bookmarkSequence.name)
-            projectionSequence1.setOrganism(projectionDescription.organism)
-
-            JSONArray featureArray = bookmarkSequence.features
-            List<String> features = new ArrayList<>()
-            for (int j = 0; featureArray != null && j < featureArray.size(); j++) {
-                features.add(featureArray.getString(j))
-            }
-            projectionSequence1.setFeatures(features)
-            projectionDescription.sequenceList.add(projectionSequence1)
-        }
-
+        ProjectionDescription projectionDescription = convertJsonObjecToProjectDescription(bookmarkObject)
 
         if (!multiSequenceProjectionMap.containsKey(projectionDescription)) {
             MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(projectionDescription)
@@ -852,11 +863,6 @@ class ProjectionService {
             multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
         }
         return multiSequenceProjectionMap.get(projectionDescription)
-        // return with appropriate sequence if one . .
-
-//        projectionDescription.getSequenceList().iterator().next().
-
-//        return null
     }
 
     Boolean containsSequence(Map<ProjectionSequence, MultiSequenceProjection> projectionSequenceMultiSequenceProjectionMap, String sequenceName, Long sequenceId, Organism currentOrganism) {

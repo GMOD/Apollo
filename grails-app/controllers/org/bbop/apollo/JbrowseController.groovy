@@ -31,6 +31,9 @@ class JbrowseController {
     def projectionService
     def trackService
 
+    // move to a type of a service?
+    RefSeqProjector refSeqProjector = new RefSeqProjector()
+
     def indexRouter(){
         log.debug "indexRouter ${params}"
 
@@ -170,7 +173,7 @@ class JbrowseController {
         if (putativeSequencePathName.contains("projection")) {
             if (fileName.endsWith("trackData.json")) {
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
-                JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCES.value)
+                JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
                 List<String> sequenceStrings = new ArrayList<>()
 //                "sequences":[{"n
                 for (int i = 0; i < sequenceArray.size(); i++) {
@@ -306,7 +309,6 @@ class JbrowseController {
                     println "refseq size ${refSeqJsonObject.size()}"
 
                     MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
-                    RefSeqProjector refSeqProjector = new RefSeqProjector()
 
                     // returns projection to a string of some sort
                     response.outputStream << refSeqProjector.projectTrack(refSeqJsonObject,projection,currentOrganism,refererLoc)

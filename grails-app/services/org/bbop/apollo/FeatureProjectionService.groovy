@@ -1,19 +1,25 @@
-package org.bbop.apollo.projection
+package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import org.bbop.apollo.Organism
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.DiscontinuousProjection
+import org.bbop.apollo.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-/**
- * Created by nathandunn on 8/11/15.
- */
-class FeatureProjector implements TrackProjector{
+@Transactional
+class FeatureProjectionService {
 
+    def projectionService
+    def bookmarkService
 
-    String projectTrack(JSONArray inputFeaturesArray, MultiSequenceProjection projection,Organism currentOrganism,String refererLoc,Boolean reverseProjection = false ) {
+    JSONArray projectTrack(JSONArray inputFeaturesArray, Bookmark bookmark,Boolean reverseProjection = false ) {
+        MultiSequenceProjection projection = projectionService.getProjection(bookmark)
+        projectTrack(inputFeaturesArray,projection,bookmark.organism,(bookmark as JSON).toString(),reverseProjection)
+    }
+
+    JSONArray projectTrack(JSONArray inputFeaturesArray, MultiSequenceProjection projection,Organism currentOrganism,String refererLoc,Boolean reverseProjection = false ) {
 
 
         println "trying to convert ${inputFeaturesArray as JSON}"
@@ -74,7 +80,7 @@ class FeatureProjector implements TrackProjector{
 //        return inputFeaturesArray
 //    }
 
-    JSONObject projectFeature(JSONObject inputFeature, DiscontinuousProjection projection, Boolean reverseProjection) {
+    private JSONObject projectFeature(JSONObject inputFeature, DiscontinuousProjection projection, Boolean reverseProjection) {
         if (!inputFeature.has(FeatureStringEnum.LOCATION.value)) return inputFeature
 
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
@@ -99,7 +105,7 @@ class FeatureProjector implements TrackProjector{
         return inputFeature
     }
 
-    JSONArray projectFeaturesArray(JSONArray inputFeaturesArray, DiscontinuousProjection projection, Boolean reverseProjection) {
+    private JSONArray projectFeaturesArray(JSONArray inputFeaturesArray, DiscontinuousProjection projection, Boolean reverseProjection) {
         for (int i = 0; i < inputFeaturesArray.size(); i++) {
             JSONObject inputFeature = inputFeaturesArray.getJSONObject(i)
             projectFeature(inputFeature, projection, reverseProjection)

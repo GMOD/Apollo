@@ -36,5 +36,15 @@ class BookmarkService {
         return Sequence.findAllByOrganismAndNameInList(bookmark.organism,sequenceNames)
     }
 
+    // should match ProjectionDescription
+    JSONObject convertBookmarkToJson(Bookmark bookmark) {
+        JSONObject jsonObject = new JSONObject()
+        jsonObject.type = bookmark.type
+        jsonObject.padding = bookmark.padding
+        jsonObject.organism = bookmark.organism.commonName
+        // in theory these should be the same
+        jsonObject.sequenceList = JSON.parse(bookmark.sequenceList) as JSONArray
 
+        return jsonObject
+    }
 }
