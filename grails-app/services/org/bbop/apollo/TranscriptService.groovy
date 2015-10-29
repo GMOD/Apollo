@@ -394,7 +394,9 @@ class TranscriptService {
         // if the parent genes aren't the same, this leads to a merge of the genes
         if (gene1 && gene2) {
             if (gene1 != gene2) {
+                println "gene1 != gene2"
                 List<Transcript> gene2Transcripts = getTranscripts(gene2)
+                println "Transcripts for gene2: ${gene2Transcripts.name}"
                 for (Transcript transcript : gene2Transcripts) {
                     if (transcript != transcript2) {
                         deleteTranscript(gene2, transcript)
@@ -403,10 +405,22 @@ class TranscriptService {
                 }
                 featureRelationshipService.deleteFeatureAndChildren(gene2)
             }
+            else {
+                println "gene1 == gene2"
+                def childFeatures = featureRelationshipService.getChildren(transcript2)
+                println "childFeatures: ${childFeatures.name}"
+                featureRelationshipService.deleteChildrenForTypes(transcript2)
+                Feature.deleteAll(childFeatures)
+                // TODO: this doesn't end up deleting transcript2
+                deleteTranscript(gene2, transcript2)
+                featureEventService.deleteHistory(transcript2.uniqueName)
+            }
         }
         // Delete the empty transcript from the gene, if gene not already deleted
         if (getGene(transcript2)) {
+            println "inside the formidable block"
             def childFeatures = featureRelationshipService.getChildren(transcript2)
+            println "childFeatures: ${childFeatures.name}"
             featureRelationshipService.deleteChildrenForTypes(transcript2)
             Feature.deleteAll(childFeatures)
             deleteTranscript(gene2, transcript2);
