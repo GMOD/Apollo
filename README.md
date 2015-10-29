@@ -7,13 +7,13 @@ Apollo
 
 An instantaneous, collaborative, genome annotation editor.  The stack is a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin.  
 
-For general information on Web Apollo, go to: 
+For general information on Apollo, go to: 
 [http://genomearchitect.org/](http://genomearchitect.org/)
 
-Complete Web Apollo installation and configuration instructions are available at:
+Complete Apollo installation and configuration instructions are available at:
 [http://webapollo.readthedocs.org](http://webapollo.readthedocs.org)
 
-The Web Apollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
+The Apollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
 [http://jbrowse.org](http://jbrowse.org)
 
 ![Build status](https://travis-ci.org/GMOD/Apollo.svg?branch=master)

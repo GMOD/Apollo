@@ -1,4 +1,4 @@
-# Web Apollo Testing Script
+# Apollo Testing Script
 
 2015-02-20
 
@@ -6,27 +6,27 @@ M. Munoz-Torres
 
 Note: The following steps are meant for testing purposes only, not for training manual annotators.
 
-## Web Apollo General Information
-- The Web Apollo website:
+## Apollo General Information
+- The Apollo website:
 http://GenomeArchitect.org
-- The article describing Web Apollo can be found at:  
+- The article describing Apollo can be found at:  
 http://genomebiology.com/2013/14/8/R93/abstract
-- The public Web Apollo honey bee (Apis mellifera) demonstration site is available at: 
+- The public Apollo honey bee (Apis mellifera) demonstration site is available at: 
 http://genomearchitect.org/WebApolloDemo/
 - You may find our user guide at:
 http://genomearchitect.org/web_apollo_user_guide
-- You may find a few slide presentations on the 'How Tos' of Web Apollo at:
+- You may find a few slide presentations on the 'How Tos' of Apollo at:
 http://www.slideshare.net/MonicaMunozTorres/
-- Web Apollo at GMOD page: 
+- Apollo at GMOD page: 
 http://www.gmod.org/wiki/WebApollo 
-- Web Apollo installation and configuration guide
+- Apollo installation and configuration guide
 http://webapollo.readthedocs.org/en/latest/
 
-If testing the Web Apollo demo, go to: http://genomearchitect.org/WebApolloDemo/ 
+If testing the Apollo demo, go to: http://genomearchitect.org/WebApolloDemo/ 
 Login|Password : demo|demo
 
 
-## Testing a Web Apollo Instance
+## Testing a Apollo Instance
 
 ### Test the “Sequences” screen (formerly Select tracks)
 

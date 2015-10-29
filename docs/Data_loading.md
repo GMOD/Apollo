@@ -33,7 +33,7 @@ bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type mRNA \
 Note: you can also use the command `bin/maker2jbrowse` for loading the MAKER data.
 
 Also see the section [Customizing features](Data_loading.md#customizing-features) section for more information on
-customizing the CSS styles of the Web Apollo 2.0 features.
+customizing the CSS styles of the Apollo features.
 
 Note: Apollo uses features that are loaded at the "transcript" level. If your GFF3 has "gene" features with
 "transcript"/"mRNA" child features, make sure that you use the argument --type mRNA or --type transcript.
@@ -232,7 +232,7 @@ You can view the add_transcripts_from_gff3_to_annotations.pl help (`-h`) option 
 ### Disable draggable
 
 
-Web Apollo has a number of specific track config parameters
+Apollo has a number of specific track config parameters
 
 ``` 
 overrideDraggable (boolean)

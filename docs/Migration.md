@@ -57,7 +57,7 @@ create a csv file with the email, name, password, and role ('user' or 'admin'). 
 script and users are added.  
 
 From Web Apollo 1, you should be able to pull user names out of the database `select * from users ;`, but there is not
-much overlap between users in Web Apollo 1 and Apollo2.
+much overlap between users in Web Apollo1.x and Apollo2.x.
 
 If you have only a few users, however, just adding them manually on the users will likely be easier. 
 

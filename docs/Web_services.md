@@ -1,10 +1,10 @@
 # Web Service API
 
 
-The Apollo Web Service API is a JSON-based REST API to interact with the annotations and other services of Web Apollo.
+The Apollo Web Service API is a JSON-based REST API to interact with the annotations and other services of Apollo.
 Both the request and response JSON objects can contain feature information that are based on the Chado schema.  We use 
 the web services API [scripting examples](https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/)
-and we also use them in the Web Apollo JBrowse plugin.
+and we also use them in the Apollo JBrowse plugin.
 
 
 The most up to date Web Service API documentation is deployed from the source code rest-api-doc annotations. 
@@ -13,10 +13,10 @@ See [http://icebox.lbl.gov/Apollo2/jbrowse/web_services/api](http://icebox.lbl.g
 
 ## What is the Web Service API?
 
-For a given Web Apollo server url (e.g., `https://localhost:8080/apollo` or any other Web Apollo site on the web), the
+For a given Apollo server url (e.g., `https://localhost:8080/apollo` or any other Apollo site on the web), the
 Web Service API allows us to make requests to the various "controllers" of the application and perform operations.
 
-The controllers that are available for Web Apollo include the AnnotationEditorController, the OrganismController, the
+The controllers that are available for Apollo include the AnnotationEditorController, the OrganismController, the
 IOServiceController for downloads of data, and the UserController for user management.
 
 
@@ -69,7 +69,7 @@ A successful login returns a empty JSON object
 
 ### Cookies
 
-The Web Apollo Login creates a JSESSIONID cookie and rememberMe cookie (if applicable) and these can be used in
+The Apollo Login creates a JSESSIONID cookie and rememberMe cookie (if applicable) and these can be used in
 downstream API requests (for example, by setting -b cookies.txt in curl will preserve the cookie in the request).
 
 You can also pass username/password to individual API requests and these will authenticate each individual request. 

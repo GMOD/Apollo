@@ -146,7 +146,7 @@ BLAT executable.
 ### Data adapters
 
 
-Data adapters for Web Apollo provide the methods for exporting annotation data from the application. By default, GFF3
+Data adapters for Apollo provide the methods for exporting annotation data from the application. By default, GFF3
 and FASTA adapters are supplied. They are configured to query your IOService URL e.g.
 http://localhost:8080/apollo/IOService with the customizable query
 

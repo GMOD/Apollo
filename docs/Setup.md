@@ -2,7 +2,7 @@
 
 
 
-The quick-start guide showed how to quickly launch a temporary instance of Web Apollo, but deploying the application to
+The quick-start guide showed how to quickly launch a temporary instance of Apollo, but deploying the application to
 production normally involves some extra steps.
 
 
@@ -19,7 +19,7 @@ also provided.
 
 ### Database configuration
 
-Web Apollo supports several database backends, and you can choose sample configurations from using H2, Postgres, or
+Apollo supports several database backends, and you can choose sample configurations from using H2, Postgres, or
 MySQL by default.
 
 Each has a file called `sample-h2-apollo-config.groovy` or `sample-postgres-apollo-config.groovy` that is designed to be
@@ -102,7 +102,7 @@ the apollo-config.groovy is used.
 
 
 While the shortcut `apollo deploy` takes care of basic application deployment, understanding the full build process of
-Web Apollo 2.0 can help you to optimize and improve your deployed instances.
+Apollo can help you to optimize and improve your deployed instances.
 
 To learn more about the architecture of webapollo, view the [architecture guide](Architecture.md) but the main idea here
 is to learn how to use `apollo release` to construct a build that includes javascript minimization
@@ -131,7 +131,7 @@ bin/cpanm -l extlib DateTime Text::Markdown
 
 ### Performing the javascript minimization
 
-To build a Web Apollo release with Javascript minimization, you can use the command
+To build a Apollo release with Javascript minimization, you can use the command
 
 ``` 
 ./apollo release
@@ -151,7 +151,7 @@ To perform active development of the codebase, use
 ./apollo debug
 ```
 
-This will launch a temporary instance of Web Apollo by running `grails run-app` and `ant devmode` at the same time,
+This will launch a temporary instance of Apollo by running `grails run-app` and `ant devmode` at the same time,
 which means that any changes to the Java files will be picked up, allowing fast iteration.
 
 If you modify the javascript files (i.e. the client directory), you can run `scripts/copy_client.sh` and these will be
