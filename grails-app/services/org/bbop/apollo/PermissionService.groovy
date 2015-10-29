@@ -17,6 +17,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class PermissionService {
 
     def preferenceService
+    def bookmarkService
 
     boolean isUserAdmin(User user) {
         if(user!=null) {
@@ -426,7 +427,7 @@ class PermissionService {
      * @param requiredPermissionEnum
      * @return
      */
-    List<Sequence> checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
+    Bookmark checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
         List<String> sequenceStrings = extractSequenceNamesFromJson(inputObject)
         if(!sequenceStrings){
@@ -436,6 +437,7 @@ class PermissionService {
         // this is for testing only
         if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
             List<Sequence> sequenceObjects = []
+            JSONArray sequenceArray = new JSONArray()
             sequenceStrings.each { it
                 Sequence sequence = sequenceStrings ? Sequence.findByName(it) : null
                 if(sequence==null){
@@ -443,7 +445,7 @@ class PermissionService {
                 }
                 sequenceObjects << sequence
             }
-            return sequenceObjects
+            return bookmarkService.generateBookmarkForSequence(sequenceObjects)
         }
 
         User user = getCurrentUser(inputObject)

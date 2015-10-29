@@ -49,6 +49,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def sequenceSearchService
     def featureEventService
     def overlapperService
+    def bookmarkService
 
 
     def index() {
@@ -554,14 +555,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getSequenceAlterations() {
         JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
 
-        List<Sequence> sequences = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+        Bookmark bookmark = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
 
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
         def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
 
         List<SequenceAlteration> sequenceAlterationList = (List<SequenceAlteration>) Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in( :sequences) and f.class in :sequenceTypes"
-                , [sequences: sequences, sequenceTypes: sequenceTypes])
+                , [sequences: bookmarkService.getSequencesFromBookmark(bookmark), sequenceTypes: sequenceTypes])
         for (SequenceAlteration alteration : sequenceAlterationList) {
             jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true));
         }
@@ -957,10 +958,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @Timed
     def getAnnotationInfoEditorData() {
-        Sequence sequence
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         try {
-            sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+            permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         } catch (e) {
             log.error(e)
             render new JSONObject() as JSON

@@ -169,11 +169,10 @@ class AnnotatorController {
                 returnObject.track = sequenceName
             }
 
-            Sequence sequence
-            Organism organism
+//            Sequence sequence
+            Bookmark bookmark
             if (returnObject.has("track")) {
-                sequence = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
-                organism = sequence.organism
+                bookmark = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             } else {
                 organism = permissionService.checkPermissionsForOrganism(returnObject, PermissionEnum.READ)
             }
@@ -225,8 +224,8 @@ class AnnotatorController {
 
             }
 
-            if (organism) {
-                if (!sequence) {
+            if (bookmark?.organism) {
+                if (!bookmark?.sequenceList) {
                     try {
                         final long start = System.currentTimeMillis();
                         allFeatures = Feature.executeQuery("select distinct f, abs(fl.fmax-fl.fmin) as seqLength, s from Feature f join f.owners own left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes) and upper(f.name) like :annotationName and own.username like :username " + sortString, [organism: organism, viewableTypes: viewableTypes, offset: offset, max: max, annotationName: '%' + annotationName.toUpperCase() + "%", username: '%' + user + '%']).collect {

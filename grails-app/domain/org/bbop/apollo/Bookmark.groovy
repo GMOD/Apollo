@@ -22,4 +22,5 @@ class Bookmark {
         sequenceList type: "text"
         payload type: "text"
     }
+
 }

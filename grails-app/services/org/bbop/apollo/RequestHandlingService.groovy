@@ -658,10 +658,10 @@ class RequestHandlingService {
         JSONObject returnObject = createJSONFeatureContainer()
 
         log.info "addTranscript ${inputObject?.size()}"
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-        log.debug "sequence: ${sequence}"
-        log.debug "organism: ${sequence.organism}"
-        featuresArray = projectionService.projectFeatures(sequence, "", featuresArray, true)
+        Bookmark bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        log.debug "sequence: ${bookmark}"
+        log.debug "organism: ${bookmark.organism}"
+        featuresArray = projectionService.projectFeatures(bookmark, "", featuresArray, true)
         log.info "number of features: ${featuresArray?.size()}"
         boolean suppressHistory = false
         boolean suppressEvents = false
@@ -676,7 +676,7 @@ class RequestHandlingService {
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
             jsonTranscript = permissionService.copyUserName(inputObject, jsonTranscript)
-            Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence, suppressHistory)
+            Transcript transcript = featureService.generateTranscript(jsonTranscript, bookmark, suppressHistory)
 
             // should automatically write to history
             transcript.save(flush: true)
@@ -698,14 +698,14 @@ class RequestHandlingService {
             }
         }
 
-        JSONArray returnArray = projectionService.projectFeatures(sequence, "", transcriptService.convertTranscriptsToJSON(transcriptList), false)
+        JSONArray returnArray = projectionService.projectFeatures(bookmark, "", transcriptService.convertTranscriptsToJSON(transcriptList), false)
         returnObject.put(FeatureStringEnum.FEATURES.value, returnArray)
 
 
         if (!suppressEvents) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: returnObject
-                    , sequence: sequence
+                    , sequence: bookmark
                     , operation: AnnotationEvent.Operation.ADD
             )
 

@@ -13,6 +13,7 @@ class TrackController {
     def permissionService
     def trackService
     def sequenceService
+    def bookmarkService
 
 
     def featureDetail(){
@@ -75,13 +76,14 @@ class TrackController {
             rootElement.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
             rootElement.put(FeatureStringEnum.SEQUENCE.value, sequenceName)
 
-            Sequence sequence = permissionService.checkPermissions(rootElement, PermissionEnum.READ)
+            Bookmark bookmark = permissionService.checkPermissions(rootElement, PermissionEnum.READ)
 
-            println "sequence ${sequence}"
-            assert sequence!=null
-            assert sequence.name==sequenceName
+            println "bookmark ${bookmark}"
+            assert bookmark!=null
+            assert bookmark.sequenceList==bookmarkName
 
-            render retrieveSequence(sequence,trackName,nameLookup) as JSON
+//            render retrieveSequence(sequence,trackName,nameLookup) as JSON
+            render retrieveBookmarkSequence(bookmark,trackName,nameLookup) as JSON
         } catch (e) {
             def error= [error: 'problem retrieving track: '+e]
             render error as JSON
@@ -107,6 +109,13 @@ class TrackController {
         println "${jsonObject as JSON}"
         render jsonObject as JSON
     }
+
+    private JSONObject retrieveBookmarkSequence(Bookmark bookmark,String trackName,String nameLookup){
+        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+        // TODO: need to merge these!!!
+        return retrieveSequence(sequenceList.first(),trackName,nameLookup)
+    }
+
 
     private JSONObject retrieveSequence(Sequence sequence,String trackName,String nameLookup){
         JSONArray returnData = trackService.getTrackData(sequence,trackName,nameLookup)
