@@ -573,12 +573,12 @@ class FeatureEventService {
 //                }
                     log.debug "original command object = ${originalCommandObject as JSON}"
                     log.debug "final command object = ${addCommandObject as JSON}"
-                    JSONArray returnArray = featureProjectionService.projectTrack(bookmark,addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+                    JSONArray returnArray = featureProjectionService.projectTrack(addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),bookmark,false)
                     addCommandObject.put(FeatureStringEnum.FEATURES.value, returnArray)
 
                     returnObject = requestHandlingService.addTranscript(addCommandObject)
                 } else {
-                    JSONArray returnArray = featureProjectionService.projectTrack(bookmark,addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),false)
+                    JSONArray returnArray = featureProjectionService.projectTrack(addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),bookmark,false)
                     addCommandObject.put(FeatureStringEnum.FEATURES.value, returnArray)
                     returnObject = requestHandlingService.addFeature(addCommandObject)
                 }
