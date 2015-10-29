@@ -140,7 +140,7 @@ class PermissionServiceSpec extends Specification {
 
     void "extract sequence names from JSON"(){
         given:"a JSON string"
-        String inputString = '{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group5.7"},{"name":"Group9.2"}]}'
+        String inputString = '{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group5.7"},{"name":"Group9.2"}]}'
 
         when: "it gets processed"
         JSONObject inputObject = new JSONObject(inputString)

@@ -239,7 +239,7 @@ class PermissionService {
     public static List<String> extractSequenceNamesFromJson(JSONObject inputObject) {
         def sequences = []
         if (inputObject.has(FeatureStringEnum.SEQUENCE_LIST.value)) {
-            inputObject.sequences.each{ it ->
+            inputObject.sequenceList.each{ it ->
                 sequences << it.name
             }
         }
@@ -251,7 +251,7 @@ class PermissionService {
                 }
             }
             else{
-                sequences << inputObject.sequence
+                sequences << inputObject.getString(FeatureStringEnum.SEQUENCE.value)
             }
         }
         else
