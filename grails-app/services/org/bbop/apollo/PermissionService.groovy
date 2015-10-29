@@ -438,7 +438,6 @@ class PermissionService {
         // this is for testing only
         if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
             List<Sequence> sequenceObjects = []
-            JSONArray sequenceArray = new JSONArray()
             sequenceStrings.each { it
                 Sequence sequence = sequenceStrings ? Sequence.findByName(it) : null
                 if(sequence==null){
@@ -467,7 +466,8 @@ class PermissionService {
             log.debug "permission display ${requiredPermissionEnum.display}"
             throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
-        return foundSequences
+//        return foundSequences
+        return bookmarkService.generateBookmarkForSequence(foundSequences as Sequence[])
     }
 
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {

@@ -378,11 +378,12 @@ class ProjectionService {
                 return getTranscriptLocations(projectionDescription.referenceTracks, projectionDescription.padding, projectionDescription)
                 break
             case "NONE":
+            default:
                 return getSequenceLocations(projectionDescription)
                 break
-            default:
-                log.error "Not sure how we got here "
-                break
+//            default:
+//                log.error "Not sure how we got here "
+//                break
         }
     }
 
@@ -810,7 +811,7 @@ class ProjectionService {
         println "gettting projeciton ${bookmarkObject}"
         ProjectionDescription projectionDescription = new ProjectionDescription()
 
-        projectionDescription.type = bookmarkObject.projection
+        projectionDescription.type = bookmarkObject.type
         projectionDescription.padding = bookmarkObject.padding
         projectionDescription.organism = bookmarkObject.organism
         projectionDescription.referenceTracks = [bookmarkObject.referenceTrack] as List<String>

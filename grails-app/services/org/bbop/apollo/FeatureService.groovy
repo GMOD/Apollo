@@ -37,6 +37,7 @@ class FeatureService {
     def sequenceService
     def permissionService
     def overlapperService
+    def bookmarkService
 
 
     @Timed
@@ -118,13 +119,17 @@ class FeatureService {
 
     @Timed
     @Transactional
-    def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory) {
+    def generateTranscript(JSONObject jsonTranscript, Bookmark bookmark, boolean suppressHistory) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         log.debug "JSON transcript ${jsonTranscript}"
         log.debug "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
         log.debug "gene ${gene}"
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
+
+        // TODO: make multisequence plausible . . . based on location
+        log.warn "Fix generateTranscript to allow for multiple sequences"
+        Sequence sequence = bookmarkService.getSequencesFromBookmark(bookmark).first()
 
         User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
@@ -223,7 +228,6 @@ class FeatureService {
                 geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
             }
             else{
-//                geneName = nameService.makeUniqueFeatureName(sequence.organism, sequence.name, new LetterPaddingStrategy(), false)
                 geneName = nameService.makeUniqueGeneName(sequence.organism, sequence.name, false)
             }
             if (!suppressHistory) {

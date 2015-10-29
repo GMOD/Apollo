@@ -9,12 +9,10 @@ import spock.lang.Ignore
 
 class CdsServiceIntegrationSpec extends IntegrationSpec {
     
-    def cdsService
     def sequenceService
     def requestHandlingService
     def transcriptService
-    def featureService
-    
+
     def setup() {
         Organism organism = new Organism(
                 directory: "test/integration/resources/sequences/honeybee-Group1.10/"

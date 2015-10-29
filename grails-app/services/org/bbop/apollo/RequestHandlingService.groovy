@@ -5,10 +5,8 @@ import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
-
-//import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.history.FeatureOperation
-import org.bbop.apollo.projection.MultiSequenceProjection
+
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -97,15 +95,8 @@ class RequestHandlingService {
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
-
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , bookmark: bookmarkService.generateBookmarkForSequence(sequence)
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+        fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
 
         return new JSONObject()
     }
@@ -129,14 +120,6 @@ class RequestHandlingService {
 
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
-//        if (sequence) {
-//            AnnotationEvent annotationEvent = new AnnotationEvent(
-//                    features: updateFeatureContainer
-//                    , sequence: sequence
-//                    , operation: AnnotationEvent.Operation.UPDATE
-//            )
-//            fireAnnotationEvent(annotationEvent)
-//        }
 
         return updateFeatureContainer
     }
@@ -304,14 +287,7 @@ class RequestHandlingService {
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
 
         }
-        if (bookmark) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , bookmark: bookmark
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+        fireEvent(bookmark,updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
 
         return updateFeatureContainer
     }
@@ -339,14 +315,7 @@ class RequestHandlingService {
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
 
         }
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , bookmark: bookmark
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+        fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
         return updateFeatureContainer
     }
 
@@ -373,14 +342,7 @@ class RequestHandlingService {
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
 
         }
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , bookmark: bookmark
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+        fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
         return updateFeatureContainer
     }
 
@@ -403,14 +365,7 @@ class RequestHandlingService {
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
 
         }
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , bookmark: bookmark
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+        fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
         return updateFeatureContainer
     }
 
@@ -474,14 +429,7 @@ class RequestHandlingService {
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , bookmark: bookmark
-                    , operation: AnnotationEvent.Operation.ADD
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+        fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.ADD)
 
         return updateFeatureContainer
 
@@ -506,14 +454,7 @@ class RequestHandlingService {
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , bookmark: bookmark
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+        fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
 
         return updateFeatureContainer
     }
@@ -693,12 +634,11 @@ class RequestHandlingService {
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
 
             if (!suppressHistory) {
-//                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, transcript, inputObject, permissionService.getCurrentUser(inputObject))
                 featureEventService.addNewFeatureEventWithUser(FeatureOperation.ADD_TRANSCRIPT, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, featureService.convertFeatureToJSON(transcript), permissionService.getCurrentUser(inputObject))
             }
         }
 
-        JSONArray returnArray = projectionService.projectFeatures(bookmark, "", transcriptService.convertTranscriptsToJSON(transcriptList), false)
+        JSONArray returnArray = featureProjectionService.projectTrack(featuresArray,bookmark,false)
         returnObject.put(FeatureStringEnum.FEATURES.value, returnArray)
 
 
@@ -723,7 +663,8 @@ class RequestHandlingService {
     JSONObject setTranslationStart(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Bookmark bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-        features = projectionService.projectFeatures(sequence, "", features, true)
+//        features = projectionService.projectFeatures(sequence, "", features, true)
+        features = featureProjectionService.projectTrack(features,bookmark, true)
 
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 
@@ -747,14 +688,7 @@ class RequestHandlingService {
             transcriptsToUpdate.each {
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
             }
-            if (sequence) {
-                AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: updateFeatureContainer,
-                        bookmark: bookmark,
-                        operation: AnnotationEvent.Operation.UPDATE
-                )
-                fireAnnotationEvent(annotationEvent)
-            }
+            fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
         }
 
         Gene gene = transcriptService.getGene(transcript)
@@ -765,14 +699,7 @@ class RequestHandlingService {
         JSONArray returnArray = projectionService.projectFeatures(sequence, "", featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), false)
         featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: featureContainer
-                    , bookmark: bookmark
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+        fireEvent(bookmark,featureContainer,AnnotationEvent.Operation.UPDATE)
 
         return featureContainer
     }
@@ -809,14 +736,8 @@ class RequestHandlingService {
             transcriptsToUpdate.each {
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
             }
-            if (sequence) {
-                AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: updateFeatureContainer,
-                        bookmark: bookmark,
-                        operation: AnnotationEvent.Operation.UPDATE
-                )
-                fireAnnotationEvent(annotationEvent)
-            }
+
+            fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
         }
 
         JSONObject newJSONObject = featureService.convertFeatureToJSON(transcript, false)
@@ -826,14 +747,7 @@ class RequestHandlingService {
         JSONArray returnArray = projectionService.projectFeatures(sequence, "", featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), false)
         featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: featureContainer
-                    , bookmark: bookmark
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+        fireEvent(bookmark,featureContainer,AnnotationEvent.Operation.UPDATE)
 
         return featureContainer
     }
@@ -857,7 +771,7 @@ class RequestHandlingService {
             transcriptsToUpdate.each {
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
             }
-            if (sequence) {
+            if (bookmark) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer,
                         bookmark: bookmark,
@@ -874,10 +788,12 @@ class RequestHandlingService {
 
         JSONObject returnObject = createJSONFeatureContainer(newJsonObject);
 
-        JSONArray returnArray = projectionService.projectFeatures(sequence, "", featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), false)
+        JSONArray inputArray = new JSONArray(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value))
+        JSONArray returnArray = featureProjectionService.projectTrack(inputArray,bookmark,false)
+//        JSONArray returnArray = projectionService.projectFeatures(sequence, "", featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), false)
         featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
-        if (sequence) {
+        if (bookmark) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: featureContainer
                     , bookmark: bookmark
@@ -919,7 +835,7 @@ class RequestHandlingService {
                 transcriptsToUpdate.each {
                     updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
                 }
-                if (sequence) {
+                if (bookmark) {
                     AnnotationEvent annotationEvent = new AnnotationEvent(
                             features: updateFeatureContainer,
                             bookmark: bookmark,
@@ -938,7 +854,7 @@ class RequestHandlingService {
         JSONArray returnArray = projectionService.projectFeatures(sequence, "", featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), false)
         featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
-        if (sequence) {
+        if (bookmark) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: featureContainer
                     , bookmark: bookmark
@@ -981,14 +897,7 @@ class RequestHandlingService {
                 transcriptsToUpdate.each {
                     updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
                 }
-                if (sequence) {
-                    AnnotationEvent annotationEvent = new AnnotationEvent(
-                            features: updateFeatureContainer,
-                            bookmark: bookmark,
-                            operation: AnnotationEvent.Operation.UPDATE
-                    )
-                    fireAnnotationEvent(annotationEvent)
-                }
+                fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
             }
 
             JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
@@ -999,16 +908,20 @@ class RequestHandlingService {
         JSONArray returnArray = projectionService.projectFeatures(sequence, "", featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), false)
         featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
-        if (sequence) {
+        fireEvent(bookmark,featureContainer,AnnotationEvent.Operation.UPDATE)
+
+        return featureContainer
+    }
+
+    def fireEvent(Bookmark bookmark, JSONObject jsonObject, AnnotationEvent.Operation operation) {
+        if (bookmark) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: featureContainer
-                    , bookmark: bookmark
-                    , operation: AnnotationEvent.Operation.UPDATE
+                    features: jsonObject,
+                    bookmark: bookmark,
+                    operation: operation
             )
             fireAnnotationEvent(annotationEvent)
         }
-
-        return featureContainer
     }
 
     @Timed
@@ -1028,14 +941,8 @@ class RequestHandlingService {
             transcriptsToUpdate.each {
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
             }
-            if (sequence) {
-                AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: updateFeatureContainer,
-                        bookmark: bookmark,
-                        operation: AnnotationEvent.Operation.UPDATE
-                )
-                fireAnnotationEvent(annotationEvent)
-            }
+
+            fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
         }
 
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
@@ -1043,14 +950,7 @@ class RequestHandlingService {
         JSONArray returnArray = projectionService.projectFeatures(sequence, "", featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), false)
         featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: featureContainer
-                    , bookmark: bookmark
-                    , operation: AnnotationEvent.Operation.UPDATE
-            )
-            fireAnnotationEvent(annotationEvent)
-        }
+        fireEvent(bookmark,featureContainer,AnnotationEvent.Operation.UPDATE)
 
         return featureContainer
     }
@@ -1111,14 +1011,8 @@ class RequestHandlingService {
                 transcriptsToUpdate.each {
                     updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
                 }
-                if (sequence) {
-                    AnnotationEvent annotationEvent = new AnnotationEvent(
-                            features: updateFeatureContainer,
-                            bookmark: bookmark,
-                            operation: AnnotationEvent.Operation.UPDATE
-                    )
-                    fireAnnotationEvent(annotationEvent)
-                }
+
+                fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
             }
 
             JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
@@ -1193,12 +1087,14 @@ class RequestHandlingService {
         }
     }
 
-    public void sendAnnotationEvent(String returnString, Sequence sequence) {
+    public void sendAnnotationEvent(String returnString, Bookmark bookmark) {
         if (returnString.startsWith("[")) {
             returnString = returnString.substring(1, returnString.length() - 1)
         }
         try {
-            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + sequence.organismId + "/" + sequence.id, returnString
+            // TODO: also send to any overlapping sequences as well?
+//            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + sequence.organismId + "/" + sequence.id, returnString
+            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + sequence.organismId + "/" + bookmark.id, returnString
         } catch (e) {
             log.error("problem sending message: ${e}")
         }
@@ -1537,14 +1433,8 @@ class RequestHandlingService {
                     transcriptsToUpdate.each {
                         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
                     }
-                    if (sequence) {
-                        AnnotationEvent annotationEvent = new AnnotationEvent(
-                                features: updateFeatureContainer,
-                                bookmark: bookmark,
-                                operation: AnnotationEvent.Operation.UPDATE
-                        )
-                        fireAnnotationEvent(annotationEvent)
-                    }
+
+                    fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
                 }
             } else {
                 feature = featureService.flipStrand(feature)
@@ -1589,14 +1479,7 @@ class RequestHandlingService {
             transcriptsToUpdate.each {
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
             }
-            if (sequence) {
-                AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: updateFeatureContainer,
-                        bookmark: bookmark,
-                        operation: AnnotationEvent.Operation.UPDATE
-                )
-                fireAnnotationEvent(annotationEvent)
-            }
+            fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
         }
 
         JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript1)
@@ -1607,13 +1490,7 @@ class RequestHandlingService {
         JSONArray returnArray = projectionService.projectFeatures(sequence, "", featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), false)
         featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
-        AnnotationEvent annotationEvent = new AnnotationEvent(
-                features: featureContainer
-                , bookmark: bookmark
-                , operation: AnnotationEvent.Operation.UPDATE
-        )
-
-        fireAnnotationEvent(annotationEvent)
+        fireEvent(bookmark,featureContainer,AnnotationEvent.Operation.UPDATE)
 
         return featureContainer
     }
@@ -1645,14 +1522,8 @@ class RequestHandlingService {
             transcriptsToUpdate.each {
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
             }
-            if (sequence) {
-                AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: updateFeatureContainer,
-                        bookmark: bookmark,
-                        operation: AnnotationEvent.Operation.UPDATE
-                )
-                fireAnnotationEvent(annotationEvent)
-            }
+
+            fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
         }
 
         JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
@@ -1699,14 +1570,7 @@ class RequestHandlingService {
             transcriptsToUpdate.each {
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
             }
-            if (sequence) {
-                AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: updateFeatureContainer,
-                        bookmark: bookmark,
-                        operation: AnnotationEvent.Operation.UPDATE
-                )
-                fireAnnotationEvent(annotationEvent)
-            }
+            fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
         }
 
         Feature topLevelFeature = featureService.getTopLevelFeature(transcript)
@@ -1773,14 +1637,7 @@ class RequestHandlingService {
                                 transcriptsToUpdate.each {
                                     updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
                                 }
-                                if (sequence) {
-                                    AnnotationEvent annotationEvent = new AnnotationEvent(
-                                            features: updateFeatureContainer,
-                                            bookmark: bookmark,
-                                            operation: AnnotationEvent.Operation.UPDATE
-                                    )
-                                    fireAnnotationEvent(annotationEvent)
-                                }
+                                fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
                             }
                         }
                     } else {
@@ -1998,14 +1855,7 @@ class RequestHandlingService {
                         transcriptsToUpdate.each {
                             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
                         }
-                        if (sequence) {
-                            AnnotationEvent annotationEvent = new AnnotationEvent(
-                                    features: updateFeatureContainer,
-                                    bookmark: bookmark,
-                                    operation: AnnotationEvent.Operation.UPDATE
-                            )
-                            fireAnnotationEvent(annotationEvent)
-                        }
+                        fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
                     }
 
                     featureOperation = FeatureOperation.DELETE_EXON
@@ -2082,14 +1932,7 @@ class RequestHandlingService {
             transcriptsToUpdate.each {
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
             }
-            if (sequence) {
-                AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: updateFeatureContainer,
-                        bookmark: bookmark,
-                        operation: AnnotationEvent.Operation.UPDATE
-                )
-                fireAnnotationEvent(annotationEvent)
-            }
+            fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
         }
 
         JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
@@ -2333,14 +2176,7 @@ class RequestHandlingService {
             transcriptsToUpdate.each {
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
             }
-            if (sequence) {
-                AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: updateFeatureContainer,
-                        bookmark: bookmark,
-                        operation: AnnotationEvent.Operation.UPDATE
-                )
-                fireAnnotationEvent(annotationEvent)
-            }
+            fireEvent(bookmark,updateFeatureContainer,AnnotationEvent.Operation.UPDATE)
         }
 
         Gene gene1 = transcriptService.getGene(transcript1)

@@ -39,7 +39,7 @@ class BookmarkService {
     // should match ProjectionDescription
     JSONObject convertBookmarkToJson(Bookmark bookmark) {
         JSONObject jsonObject = new JSONObject()
-        jsonObject.type = bookmark.type
+        jsonObject.type = bookmark.type ?: "NONE"
         jsonObject.padding = bookmark.padding
         jsonObject.organism = bookmark.organism.commonName
         // in theory these should be the same
