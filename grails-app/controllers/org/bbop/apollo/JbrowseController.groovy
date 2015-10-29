@@ -31,38 +31,49 @@ class JbrowseController {
     def projectionService
     def trackService
 
-    def indexRouter() {
+    def indexRouter(){
         log.debug "indexRouter ${params}"
 
         List<String> paramList = new ArrayList<>()
-        params.eachWithIndex { entry, int i ->
-            if (entry.key != "action" && entry.key != "controller") {
-                paramList.add(entry.key + "=" + entry.value)
+        params.eachWithIndex{ entry, int i ->
+            if(entry.key!="action" && entry.key!="controller"&& entry.key!="organism" ){
+                paramList.add(entry.key+"="+entry.value)
             }
         }
-        String urlString = "/jbrowse/index.html?${paramList.join("&")}"
         // case 3 - validated login (just read from preferences, then
-        if (permissionService.currentUser && params.organism) {
+        if(permissionService.currentUser&&params.organism){
             Organism organism = Organism.findById(params.organism)
-            preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
+            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
         }
 
-        if (permissionService.currentUser) {
+        if(permissionService.currentUser) {
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
             render file.text
             return
         }
 
+
         // case 1 - anonymous login with organism ID, show organism
-        if (params.organism) {
+        if(params.organism){
             log.debug "organism ID specified: ${params.organism}"
 
             // set the organism
-            Organism organism = Organism.findById(params.organism)
+
+
+            Organism organism = Organism.findByCommonName(params.organism)
+            if(!organism&&params.organism.isInteger()) {
+                organism = Organism.findById(params.organism.toInteger())
+            }
+            if(!organism) {
+                String urlString = "/jbrowse/index.html?${paramList.join("&")}"
+                forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString,error:"Unable to find organism '${params.organism}'"])
+            }
+
+
             def session = request.getSession(true)
-            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
-            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
+            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
+            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value,organism.commonName)
 
             // create an anonymous login
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
@@ -71,12 +82,14 @@ class JbrowseController {
         }
 
         // case 2 - anonymous login with-OUT organism ID, show organism list
-        forward(controller: "organism", action: "chooseOrganismForJbrowse", params: [urlString: urlString])
+        paramList.add("organism=${params.organism}")
+        String urlString = "/jbrowse/index.html?${paramList.join("&")}"
+        forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
     }
 
 
     private String getJBrowseDirectoryForSession() {
-        if (!permissionService.currentUser) {
+        if(!permissionService.currentUser){
             return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         }
 
@@ -219,10 +232,12 @@ class JbrowseController {
                 log.info("Could not get MIME type of " + fileName + " falling back to text/plain");
                 mimeType = "text/plain";
             }
-            if (fileName.endsWith("jsonz") || fileName.endsWith("txtz")) {
+            if(fileName.endsWith("jsonz")||fileName.endsWith("txtz")) {
                 response.setHeader 'Content-Encoding', 'x-gzip'
             }
         }
+
+
 
         if (isCacheableFile(fileName)) {
             String eTag = createHashFromFile(file);
@@ -484,7 +499,6 @@ class JbrowseController {
 
             }
         } else if (ranges.size() == 1) {
-            println "files with range 1 ${file.absolutePath}"
             // Return single part of file.
             Range r = ranges.get(0);
             response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
@@ -527,14 +541,13 @@ class JbrowseController {
 
     }
 
-
-
     def trackList() {
         String dataDirectory = getJBrowseDirectoryForSession()
         String absoluteFilePath = dataDirectory + "/trackList.json"
         File file = new File(absoluteFilePath);
         def mimeType = "application/json";
         response.setContentType(mimeType);
+        int id
 
         if (!file.exists()) {
             log.warn("Could not get for name and path: ${absoluteFilePath}");
@@ -563,7 +576,6 @@ class JbrowseController {
                 projectionService.createExonLevelProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), 50)
             }
         }
-        long id
 
         if (currentOrganism != null) {
             jsonObject.put("dataset_id", currentOrganism.id)

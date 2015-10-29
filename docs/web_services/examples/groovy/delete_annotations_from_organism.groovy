@@ -10,15 +10,15 @@ import groovyx.net.http.RESTClient
 
 String usageString = "\nUSAGE: delete_annotations_from_organism.groovy <options>\n" +
         "Example (will prompt if 'adminusername' and 'adminpassword' are not provided):\n" +
-        "./delete_annotations_from_organism.groovy -organismname organism_name -destinationurl http://localhost:8080/WebApollo2\n" +
-        "./delete_annotations_from_organism.groovy -organismid 123 -destinationurl http://localhost:8080/WebApollo2"
-        "./delete_annotations_from_organism.groovy -organismid 123 -destinationurl http://localhost:8080/WebApollo2 -adminusername bob@gov.com -adminpassword demo"
+        "./delete_annotations_from_organism.groovy -organismname organism_name -destinationurl http://localhost:8080/Apollo\n" +
+        "./delete_annotations_from_organism.groovy -organismid 123 -destinationurl http://localhost:8080/Apollo"
+        "./delete_annotations_from_organism.groovy -organismid 123 -destinationurl http://localhost:8080/Apollo -adminusername bob@gov.com -adminpassword demo"
 
 def cli = new CliBuilder(usage: 'delete_annotations_from_organism.groovy')
 cli.setStopAtNonOption(true)
 cli.organismid('Organism Id corresponding to organism', required: false, args: 1)
 cli.organismname('Common name for the organism (if organismid is not provided)', required: false, args:1)
-cli.destinationurl('WebApollo URL', required: true, args: 1)
+cli.destinationurl('Apollo URL', required: true, args: 1)
 cli.adminusername('Admin username', required: false, args: 1)
 cli.adminpassword('Admin password', required: false, args: 1)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)

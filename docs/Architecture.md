@@ -255,7 +255,7 @@ In our application, we use the apollo-config.groovy then everything in there sup
 The log4j area can enable logging levels. You can turn on the "debug grails.app" to output all the webapollo debug info,
 or also set the "grails.debug" environment variable for java too.
 
-There is also some WebApollo configuration here, and it is mostly covered by the [configuration section](Configure.md).
+There is also some Apollo configuration here, and it is mostly covered by the [configuration section](Configure.md).
 
 
 

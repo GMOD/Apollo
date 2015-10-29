@@ -643,4 +643,42 @@ class PermissionService {
     Boolean userHasOrganismPermission(Organism organism,PermissionEnum permissionEnum){
         return findHighestOrganismPermissionForCurrentUser(organism).rank >= permissionEnum.rank
     }
+
+    /**
+     * Verifies that "userId" matches userName for the secured session user
+     * @param jsonObject
+     * @return
+     */
+    Boolean sameUser(JSONObject jsonObject) {
+        // not sure if permissions with translate through or not
+        Session session = SecurityUtils.subject.getSession(false)
+        if (!session) {
+            // login with jsonObject tokens
+            log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
+            def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
+            try {
+                Subject subject = SecurityUtils.getSubject();
+                session = subject.getSession(true);
+                subject.login(authToken)
+                if (!subject.authenticated) {
+                    log.error "Failed to authenticate user ${jsonObject.username}"
+                    return false
+                }
+            } catch (Exception ae) {
+                log.error("Problem authenticating: " + ae.fillInStackTrace())
+                return false
+            }
+        }
+        else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
+            jsonObject.username = SecurityUtils?.subject?.principal
+        }
+        else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
+            jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
+        }
+        if(jsonObject.username){
+            User user = User.findByUsername(jsonObject.username)
+            return user?.id == jsonObject.userId
+        }
+        return false
+    }
 }

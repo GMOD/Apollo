@@ -604,6 +604,16 @@ public class MainPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
+//                {"error":"Failed to update the user You have insufficient permissions [write < administrate] to perform this operation"}
+                if(response.getText().startsWith("{\"error\":")){
+                    JSONObject errorJsonObject = JSONParser.parseStrict(response.getText()).isObject();
+                    String errorMessage = errorJsonObject.get("error").isString().stringValue();
+
+                    editUserAlertText.setType(AlertType.DANGER);
+                    editUserAlertText.setVisible(true);
+                    editUserAlertText.setText(errorMessage);
+                    return ;
+                }
                 savePasswordButton.setEnabled(false);
                 cancelPasswordButton.setEnabled(false);
                 editUserAlertText.setType(AlertType.SUCCESS);

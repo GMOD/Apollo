@@ -50,18 +50,18 @@ Your CATALINA_OPTS settings from setenv.sh can be confirmed with a tool like jvi
 If you start seeing memory leaks (`java.lang.OutOfMemoryError: Java heap space`) after doing an update, you might try
 re-installing, as the live re-deploy itself can cause memory leaks or an inconsistent software state. 
 
-If you have named your web application named `WebApollo.war` then you can remove all of these files from your webapps
+If you have named your web application named `Apollo.war` then you can remove all of these files from your webapps
 directory and re-deploy.
 
 - Run `apollo deploy`  (or `apollo release` for javascript-minimization)
-- Undeploy any existing WebApollo instances
+- Undeploy any existing Apollo instances
 - Stop tomcat
 - Copy the war file to the webapps folder
 - Start tomcat 
 
 ### Tomcat permissions
 
-Preferably, when running WebApollo or any webserver, you should not run Tomcat as root. Therefore, when deploying your
+Preferably, when running Apollo or any webserver, you should not run Tomcat as root. Therefore, when deploying your
 war file to tomcat or another web application server, you may need to tune your file permissions to make sure Tomcat is
 able to access your files.
 

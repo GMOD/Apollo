@@ -16,7 +16,7 @@ String usageString = "get_usersinwa1.groovy <options>" +
 
 def cli = new CliBuilder(usage: 'get_usersinwa1.groovy <options>')
 cli.setStopAtNonOption(true)
-cli.databaseurl('URL of WebApollo 1.0.x database from which users are fetched', required: true, args: 1)
+cli.databaseurl('URL of Apollo 1.0.x database from which users are fetched', required: true, args: 1)
 cli.username('username', required: true, args: 1)
 cli.password('password', required: false, args: 1)
 OptionAccessor options

@@ -115,7 +115,7 @@ sub print_usage {
     my $progname = basename($0);
     die << "END";
 usage: $progname
-    --url|-U <URL to WebApollo instance>
+    --url|-U <URL to Apollo instance>
     --username|-u <username>
     --password|-p <password>
     [--genes_types_in|-g <gene types for input>]
@@ -139,28 +139,28 @@ usage: $progname
     [--help|-h]
     [--name_attributes <feature attribute to be used as name, first found used>]
 
-    U: URL to WebApollo instance
-    u: username to access WebApollo
-    p: password to access WebApollo
+    U: URL to Apollo instance
+    u: username to access Apollo
+    p: password to access Apollo
     g: string/regex to define the GFF3 types to treat as genes 
        [default: "$gene_types_in"]
     t: string/regex to define the GFF3 types to treat as transcripts
        [default: "$transcript_types_in"]
     e: string/regex to define the GFF3 types to treat as exons 
        [default: "$exon_types_in"]
-    O: ontology name used in WebApollo instance
+    O: ontology name used in Apollo instance
        [default: "$ontology"]
-    G: gene type used in WebApollo instance
+    G: gene type used in Apollo instance
        [default: "$gene_type_out"]
-    T: transcript type used in WebApollo instance
+    T: transcript type used in Apollo instance
        [default: "$transcript_type_out"]
-    E: exon type used in WebApollo instance
+    E: exon type used in Apollo instance
        [default: "$exon_type_out"]
-    R: property ontology name used in WebApollo instance
+    R: property ontology name used in Apollo instance
        [default: "$property_ontology"]
-    C: comment type used in WebApollo instance
+    C: comment type used in Apollo instance
        [default: "$comment_type_out"]
-    S: feature property type used in WebApollo instance
+    S: feature property type used in Apollo instance
        [default: "$property_type_out"]
     P: annotation track prefix
        [default: "$annotation_track_prefix"]

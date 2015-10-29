@@ -12,11 +12,11 @@ import net.sf.json.JSONObject
 
 String usageString = "stress_test.groovy <options>" +
         "Example: \n" +
-        "./stress_test.groovy -iter 100 -concurrency 3 -username ndunn@me.com -password demo  -organism Honey2 -destinationurl http://localhost:8080/WebApollo2/ -load 10 -showHeader"
+        "./stress_test.groovy -iter 100 -concurrency 3 -username ndunn@me.com -password demo  -organism Honey2 -destinationurl http://localhost:8080/Apollo2/ -load 10 -showHeader"
 
 def cli = new CliBuilder(usage: 'stress_test.groovy <options>')
 cli.setStopAtNonOption(true)
-cli.destinationurl('URL of WebApollo 2.0.x instance to which annotations are to be loaded', required: true, args: 1)
+cli.destinationurl('URL of Apollo instance to which annotations are to be loaded', required: true, args: 1)
 cli.organism('organism common name', required: true, args: 1)
 cli.username('username', required: true, args: 1)
 cli.password('password', required: true, args: 1)
