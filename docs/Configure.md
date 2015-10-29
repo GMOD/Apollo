@@ -202,8 +202,18 @@ The options available for the data adapters are configured as follows
 Many configurations will require you to define which annotation types the configuration will apply to. Apollo supports
 the following "higher level" types (from the Sequence Ontology):
 
-* sequence:gene sequence:pseudogene sequence:transcript sequence:mRNA sequence:tRNA sequence:snRNA sequence:snoRNA
-* sequence:ncRNA sequence:rRNA sequence:miRNA sequence:repeat_region sequence:transposable_element
+* sequence:gene
+* sequence:pseudogene
+* sequence:transcript
+* sequence:mRNA
+* sequence:tRNA
+* sequence:snRNA
+* sequence:snoRNA
+* sequence:ncRNA
+* sequence:rRNA
+* sequence:miRNA
+* sequence:repeat_region
+* sequence:transposable_element
 
 
 ### Apache / Nginx configuration
