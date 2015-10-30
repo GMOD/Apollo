@@ -21,7 +21,7 @@ class BookmarkController {
         User user = permissionService.getCurrentUser(bookmarkJson)
         Organism organism = preferenceService.getCurrentOrganism(user)
 
-        render UserBookmark.findAllByUserAndOrganism(user,organism) as JSON
+        render UserBookmark.findAllByUser(user) as JSON
     }
 
     def getBookmark(){
@@ -46,7 +46,7 @@ class BookmarkController {
         UserBookmark userBookmark = new UserBookmark(
                 bookmark: bookmark
                 ,user: user
-        ).save()
+        ).save(insert: true,failOnError: true,flush: true)
 
 //        bookmarkArray.getJSONObject(0).getJSONArray("sequenceList")
 

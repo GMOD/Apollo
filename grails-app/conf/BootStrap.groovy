@@ -56,10 +56,12 @@ class BootStrap {
         JSON.registerObjectMarshaller(UserBookmark) {
             def returnArray = [:]
             returnArray['id'] = it?.bookmark.id
-            returnArray['type'] = it?.bookmark.type
-            returnArray['padding'] = it?.bookmark.padding
-            returnArray['payload'] = it?.bookmark.payload
-            returnArray['sequenceList'] = it?.sequenceList
+            returnArray['type'] = it?.bookmark.type ?: "NONE"
+            returnArray['padding'] = it?.bookmark.padding ?: 0
+            returnArray['payload'] = it?.bookmark.payload ?: "{}"
+            returnArray['start'] = it?.bookmark.start
+            returnArray['end'] = it?.bookmark.end
+            returnArray['sequenceList'] = it?.bookmark.sequenceList
             return returnArray
         }
 
