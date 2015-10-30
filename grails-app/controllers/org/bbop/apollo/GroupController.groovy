@@ -56,7 +56,7 @@ class GroupController {
     def loadGroups() {
         try {
             JSONArray returnArray = new JSONArray()
-            JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data?:"{}"))) as JSONObject
             if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
                 def error=[error: "Not authorized"]
                 response.status = HttpStatus.UNAUTHORIZED
@@ -83,7 +83,7 @@ class GroupController {
 
 
 
-            def groups = dataObject.groupId?[Group.findById(dataObject.groupId)]:Group.all
+            def groups = dataObject.groupId?[UserGroup.findById(dataObject.groupId)]:UserGroup.all
             groups.each {
                 def groupObject = new JSONObject()
                 groupObject.id = it.id
@@ -142,6 +142,7 @@ class GroupController {
         catch(Exception e) {
             response.status=500
             def error=[error: e.message]
+            log.error error
             render error as JSON
         }
     }
