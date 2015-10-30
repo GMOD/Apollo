@@ -38,8 +38,9 @@ class OverlapperService implements Overlapper{
     boolean overlapsOrf(Transcript transcript, Gene gene) {
         long start = System.currentTimeMillis();
         for (Transcript geneTranscript : transcriptService.getTranscripts(gene)) {
-            if (geneTranscript.uniqueName == transcript.uniqueName) {
-                // if transcript is the same as eachTranscript
+            if (transcript.uniqueName == geneTranscript.uniqueName) {
+                // if transcript and geneTranscript are the same then don't test for overlap
+                // to avoid false positive
                 continue
             }
             if (overlapsOrf(transcript, geneTranscript)) {
