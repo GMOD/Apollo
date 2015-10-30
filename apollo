@@ -32,7 +32,7 @@ function check_node(){
     if ! [ -x "$node_executable" ] ; then
         nodejs_executable=$(which nodejs)
         if ! [ -x "$node_executable" ] ; then
-            echo "You must install 'Node JS' to do a release of web apollo."
+            echo "You must install 'Node JS' to do a release of Apollo."
             exit 1 ;
         else
             echo "Creating an alias 'node' for 'nodejs'"
@@ -44,12 +44,12 @@ function check_node(){
 function check_perldependencies(){
     perl -e 'use Text::Markdown'
     if [ $? != 0 ] ; then
-        echo "Perl package 'Text::Markdown' is required in order to do a release of web apollo."
+        echo "Perl package 'Text::Markdown' is required in order to do a release of Apollo."
         exit 1 ;
     fi
     perl -e 'use DateTime'
     if [ $? != 0 ] ; then
-        echo "Perl package 'DateTime' is required in order to do a release of web apollo."
+        echo "Perl package 'DateTime' is required in order to do a release of Apollo."
         exit 1 ;
     fi
 }
@@ -57,7 +57,7 @@ function check_perldependencies(){
 function check_configs_for_release(){
     ant_executable=$(which ant)
     if ! [ -x "$ant_executable" ] ; then
-        echo "You must install 'Ant' to do a release of web apollo."
+        echo "You must install 'ant' to do a release of Apollo."
     fi
     check_node
     check_perldependencies
@@ -73,12 +73,12 @@ function check_configs(){
 		   echo "Grails not found using grailsw";
 		   grails_executable="./grailsw"
 	   else
-		   echo "You must install 'grails' to install web apollo."
+		   echo "You must install 'grails' to install Apollo."
 		   exit 1 ;
 		fi 
     fi
     if ! [ -x "$git_executable" ] ; then
-       echo "You must install 'git' to install web apollo."
+       echo "You must install 'git' to install Apollo."
        exit 1 ;
     fi
 

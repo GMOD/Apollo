@@ -3,20 +3,20 @@
 
 ### Client pre-requisites
 
-Web Apollo 2.0 is a web-based application, so the only client side
-requirement is a web browser. Web Apollo has been tested on Chrome, Firefox, and Safari
+Apollo is a web-based application, so the only client side
+requirement is a web browser. Apollo has been tested on Chrome, Firefox, and Safari
 and matches the web browser requirements for JBrowse (see [jbrowse.org](http://jbrowse.org) for details).
 
 ### Server-side pre-requisites
 
-Note: see the [Web Apollo 2.0 quick-start](Apollo2Build.md) for the
+Note: see the [Apollo 2.x quick-start](Apollo2Build.md) for the
 quickest way to take care of pre-requisites.
 
 -   System pre-requisites (see quick-start guide for simple setup)
     -   Any Unix like system (e.g., Unix, Linux, Mac OS X)
     -   Servlet container (must support servlet spec 3.0+) such as tomcat 7
     -   Java 7+
-    -   Grails (easiest way to install is using GVM, see [Web Apollo 2.0 quick-start](Apollo2Build.md) for this step)
+    -   Grails (easiest way to install is using GVM, see [Apollo 2.x quick-start](Apollo2Build.md) for this step)
     -   Ant 1.8+ (most package managers will have this)
     -   A database (RDMS) system. Sample configurations for PostgreSQL and MySQL are available. H2 configuration does not require any manual installation.
     -   Basic tools like Git, Curl, a text editor, etc
@@ -31,8 +31,8 @@ quickest way to take care of pre-requisites.
         -   libexpat1-dev (Debian/Ubuntu)
         -   expat-dev (RedHat/CentOS)
 -   Perl pre-requisites:
-    -   Web Apollo will automatically try to install all perl-pre-requisites
-    -   If you are building Web Apollo in "release" mode, perl 5.10 or up will be required
+    -   Apollo will automatically try to install all perl-pre-requisites
+    -   If you are building Apollo in "release" mode, perl 5.10 or up will be required
 -   Sequence search (optional)
     -   Blat (download [Linux](http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/) or [OSX](http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/) binaries)
 

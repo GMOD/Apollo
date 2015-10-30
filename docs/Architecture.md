@@ -33,7 +33,7 @@ browsers).
 
 [PDF schema](https://github.com/GMOD/Apollo/blob/master/docs/schemaupdates.pdf)
 
-The main components of the Web Apollo 2.0 application are:
+The main components of the Apollo 2.x application are:
 
 - Grails Server (formally a simple servlet 3 container) [Grails 2.4.5
   doc](https://grails.github.io/grails-doc/2.4.5/guide/)
@@ -63,7 +63,7 @@ The main components of the Web Apollo 2.0 application are:
 
 #### Main components
 
-The main components of the Web Apollo application (the four most important are 1 through 4):
+The main components of the Apollo 2.x application (the four most important are 1 through 4):
 
 1. The domain classes; these are the main objects
 2. Controllers, which route those domains and provide URL routes; provides rest services

@@ -50,89 +50,101 @@ class GroupController {
     @RestApiParams(params=[
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="groupId", type="long", paramType = RestApiParamType.QUERY,description="Optional only load a specific groupId")
     ]
     )
     def loadGroups() {
-        JSONArray returnArray = new JSONArray()
-        if(request.JSON || params.data){
-            JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        try {
+            JSONArray returnArray = new JSONArray()
+            JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data?:"{}"))) as JSONObject
             if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
-                render status: HttpStatus.UNAUTHORIZED
+                def error=[error: "Not authorized"]
+                response.status = HttpStatus.UNAUTHORIZED
+                log.error error
+                render error as JSON
                 return
             }
-        }
-        def allowableOrganisms = permissionService.getOrganisms((User) permissionService.currentUser)
+            def allowableOrganisms = permissionService.getOrganisms((User) permissionService.currentUser)
 
-        Map<String,List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
+            Map<String,List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
 
-        List<GroupOrganismPermission> groupOrganismPermissionList = GroupOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
-        for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList){
-            List<GroupOrganismPermission> groupOrganismPermissionListTemp =  groupOrganismPermissionMap.get(groupOrganismPermission.group.name)
-            if(groupOrganismPermissionListTemp==null){
-                groupOrganismPermissionListTemp = new ArrayList<>()
-            }
-            groupOrganismPermissionListTemp.add(groupOrganismPermission)
-            groupOrganismPermissionMap.put(groupOrganismPermission.group.name,groupOrganismPermissionListTemp)
-        }
-        for(v in groupOrganismPermissionMap){
-            log.debug "${v.key} ${v.value}"
-        }
-
-
-        UserGroup.all.each {
-            def groupObject = new JSONObject()
-            groupObject.id = it.id
-            groupObject.name = it.name
-            groupObject.public = it.isPublicGroup()
-            groupObject.numberOfUsers = it.users?.size()
-
-            JSONArray userArray = new JSONArray()
-            it.users.each{ user ->
-                JSONObject userObject = new JSONObject()
-                userObject.id=user.id
-                userObject.email=user.username
-                userObject.firstName=user.firstName
-                userObject.lastName=user.lastName
-
-                userArray.add(userObject)
-            }
-            groupObject.users = userArray
-
-
-            // add organism permissions
-            JSONArray organismPermissionsArray = new JSONArray()
-            def  groupOrganismPermissionList3 = groupOrganismPermissionMap.get(it.name)
-            List<Long> organismsWithPermissions = new ArrayList<>()
-            for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList3){
-                if(groupOrganismPermission.organism in allowableOrganisms){
-                    JSONObject organismJSON = new JSONObject()
-                    organismJSON.put("organism", groupOrganismPermission.organism.commonName)
-                    organismJSON.put("permissions",groupOrganismPermission.permissions)
-                    organismJSON.put("groupId",groupOrganismPermission.groupId)
-                    organismJSON.put("id",groupOrganismPermission.id)
-                    organismPermissionsArray.add(organismJSON)
-                    organismsWithPermissions.add(groupOrganismPermission.organism.id)
+            List<GroupOrganismPermission> groupOrganismPermissionList = GroupOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
+            for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList){
+                List<GroupOrganismPermission> groupOrganismPermissionListTemp =  groupOrganismPermissionMap.get(groupOrganismPermission.group.name)
+                if(groupOrganismPermissionListTemp==null){
+                    groupOrganismPermissionListTemp = new ArrayList<>()
                 }
+                groupOrganismPermissionListTemp.add(groupOrganismPermission)
+                groupOrganismPermissionMap.put(groupOrganismPermission.group.name,groupOrganismPermissionListTemp)
             }
-
-            Set<Organism> organismList = allowableOrganisms.findAll(){
-                !organismsWithPermissions.contains(it.id)
-            }
-
-            for(Organism organism in organismList){
-                JSONObject organismJSON = new JSONObject()
-                organismJSON.put("organism", organism.commonName)
-                organismJSON.put("permissions","[]")
-                organismJSON.put("groupId",it.id)
-                organismPermissionsArray.add(organismJSON)
+            for(v in groupOrganismPermissionMap){
+                log.debug "${v.key} ${v.value}"
             }
 
 
-            groupObject.organismPermissions = organismPermissionsArray
-            returnArray.put(groupObject)
+
+            def groups = dataObject.groupId?[UserGroup.findById(dataObject.groupId)]:UserGroup.all
+            groups.each {
+                def groupObject = new JSONObject()
+                groupObject.id = it.id
+                groupObject.name = it.name
+                groupObject.public = it.isPublicGroup()
+                groupObject.numberOfUsers = it.users?.size()
+
+                JSONArray userArray = new JSONArray()
+                it.users.each{ user ->
+                    JSONObject userObject = new JSONObject()
+                    userObject.id=user.id
+                    userObject.email=user.username
+                    userObject.firstName=user.firstName
+                    userObject.lastName=user.lastName
+
+                    userArray.add(userObject)
+                }
+                groupObject.users = userArray
+
+
+                // add organism permissions
+                JSONArray organismPermissionsArray = new JSONArray()
+                def  groupOrganismPermissionList3 = groupOrganismPermissionMap.get(it.name)
+                List<Long> organismsWithPermissions = new ArrayList<>()
+                for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList3){
+                    if(groupOrganismPermission.organism in allowableOrganisms){
+                        JSONObject organismJSON = new JSONObject()
+                        organismJSON.put("organism", groupOrganismPermission.organism.commonName)
+                        organismJSON.put("permissions",groupOrganismPermission.permissions)
+                        organismJSON.put("groupId",groupOrganismPermission.groupId)
+                        organismJSON.put("id",groupOrganismPermission.id)
+                        organismPermissionsArray.add(organismJSON)
+                        organismsWithPermissions.add(groupOrganismPermission.organism.id)
+                    }
+                }
+
+                Set<Organism> organismList = allowableOrganisms.findAll(){
+                    !organismsWithPermissions.contains(it.id)
+                }
+
+                for(Organism organism in organismList){
+                    JSONObject organismJSON = new JSONObject()
+                    organismJSON.put("organism", organism.commonName)
+                    organismJSON.put("permissions","[]")
+                    organismJSON.put("groupId",it.id)
+                    organismPermissionsArray.add(organismJSON)
+                }
+
+
+                groupObject.organismPermissions = organismPermissionsArray
+                returnArray.put(groupObject)
+            }
+
+            render returnArray as JSON
         }
-
-        render returnArray as JSON
+        catch(Exception e) {
+            response.status=HttpStatus.INTERNAL_SERVER_ERROR
+            def error=[error: e.message]
+            log.error error
+            render error as JSON
+        }
     }
 
     @RestApiMethod(description="Create group",path="/group/createGroup",verb = RestApiVerb.POST)

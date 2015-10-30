@@ -1,6 +1,6 @@
 # Quick-start guide
 
-Here we will introduce how to setup Web Apollo on your server. In general, there are two modes of deploying Web Apollo.
+Here we will introduce how to setup Apollo on your server. In general, there are two modes of deploying Apollo.
 
 There is "development mode" where the application is launched in a temporary server (automatically) and there is
 "production mode", which will typically require an external separate database and tomcat server where you can deploy the
@@ -13,7 +13,7 @@ the "production mode" setup.
 ### Grails
 
 Installing grails is made easier by using [SDKMAN](http://sdkman.io/) (formerly GVM) which can automatically setup
-grails for you. We will use grails 2.4.5 for Web Apollo.
+grails for you. We will use grails 2.4.5 for Apollo.
 
 1. `curl -s http://get.sdkman.io | bash`
 2. `gvm install grails 2.4.5`
@@ -27,7 +27,7 @@ It is not required but you can also install the groovy command line
 
 ### Get the code
 
-To setup Web Apollo, you can download the code from github:
+To setup Apollo, you can download the code from github:
 
 - git clone https://github.com/GMOD/Apollo.git Apollo
 - cd Apollo

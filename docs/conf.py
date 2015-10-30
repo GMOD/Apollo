@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Web Apollo documentation build configuration file, created by
+# Apollo documentation build configuration file, created by
 # sphinx-quickstart on Mon Mar  9 10:54:48 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -44,8 +44,8 @@ templates_path = ['_templates']
 master_doc = 'index'
 
 # General information about the project.
-project = u'Web Apollo'
-copyright = u'2015, Web Apollo'
+project = u'Apollo'
+copyright = u'2015, Apollo'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -197,8 +197,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'WebApollo.tex', u'Web Apollo Documentation',
-   u'Web Apollo', 'manual'),
+  ('index', 'Apollo.tex', u'Apollo Documentation',
+   u'Apollo', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -227,7 +227,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'webapollo', u'Web Apollo Documentation',
+    ('index', 'webapollo', u'Apollo Documentation',
      [u'webapoollo'], 1)
 ]
 
@@ -241,7 +241,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'WebApollo', u'Web Apollo Documentation',
+  ('index', 'WebApollo', u'Apollo Documentation',
    u'webapollo', 'WebApollo', 'One line description of project.',
    'Miscellaneous'),
 ]
