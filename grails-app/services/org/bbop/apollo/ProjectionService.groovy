@@ -811,8 +811,8 @@ class ProjectionService {
         println "gettting projeciton ${bookmarkObject}"
         ProjectionDescription projectionDescription = new ProjectionDescription()
 
-        projectionDescription.type = bookmarkObject.type
-        projectionDescription.padding = bookmarkObject.padding
+        projectionDescription.type = bookmarkObject.type ?: "NONE"
+        projectionDescription.padding = bookmarkObject.padding ?: 0
         projectionDescription.organism = bookmarkObject.organism
         projectionDescription.referenceTracks = [bookmarkObject.referenceTrack] as List<String>
         projectionDescription.sequenceList = new ArrayList<>()

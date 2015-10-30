@@ -5,6 +5,8 @@ import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -147,6 +149,15 @@ public class BookmarkPanel extends Composite {
         });
 
 
+
+        dataGrid.addDomHandler(new DoubleClickHandler() {
+            @Override
+            public void onDoubleClick(DoubleClickEvent event) {
+                view(null);
+            }
+        }, DoubleClickEvent.getType());
+
+
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent authenticationEvent) {
@@ -215,7 +226,7 @@ public class BookmarkPanel extends Composite {
 //        Window.alert("viein g "+ mergedBookmark);
 
         JSONObject mergedSequence = BookmarkInfoConverter.generateSequenceString(bookmarkInfoSet,foldingType,foldPaddingValue,referenceTrackString);
-//        Window.alert(mergedSequence.toString());
+        Window.alert(mergedSequence.toString());
 
         MainPanel.updateGenomicViewerForLocation(mergedSequence.toString(),-1,-1);
 //        MainPanel.updateGenomicViewerForBookmark(mergedBookmark);

@@ -55,7 +55,7 @@ public class BookmarkInfoConverter {
 //        jsonObject.put(BookmarkKeyEnum.BOOKMARKS.getValue(),bookmarksArray);
 
         JSONArray sequencesArray = BookmarkInfoConverter.extractSequencesFromBookmarks(bookmarkInfoSet.toArray(new BookmarkInfo[bookmarkInfoSet.size()]));
-        jsonObject.put(BookmarkKeyEnum.SEQUENCES.getValue(),sequencesArray);
+        jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(),sequencesArray);
 
         return jsonObject;
     }
