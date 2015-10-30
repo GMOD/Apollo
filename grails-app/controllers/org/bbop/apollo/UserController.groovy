@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import org.apache.catalina.security.SecurityUtil
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.converters.JSON
@@ -133,7 +132,7 @@ class UserController {
             render returnArray as JSON
         }
         catch(Exception e) {
-            response.status=HttpStatus.SC_INTERNAL_SERVER_ERROR
+            response.status=HttpStatus.INTERNAL_SERVER_ERROR
             def error=[error: e.message]
             log.error error
             render error as JSON

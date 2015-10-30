@@ -140,7 +140,7 @@ class GroupController {
             render returnArray as JSON
         }
         catch(Exception e) {
-            response.status=HttpStatus.SC_INTERNAL_SERVER_ERROR
+            response.status=HttpStatus.INTERNAL_SERVER_ERROR
             def error=[error: e.message]
             log.error error
             render error as JSON
