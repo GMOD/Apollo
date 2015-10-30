@@ -1,14 +1,14 @@
 package org.bbop.apollo
 
 
-class UserBookmark extends Bookmark{
+class UserBookmark {
 
-
-    Organism organism
     User user
+    Bookmark bookmark
 
     static constraints = {
         user nullable: false
+        bookmark nullable: false
     }
 
 }

@@ -13,6 +13,7 @@ class BookmarkController {
     def permissionService
     def preferenceService
     def projectionService
+    def bookmarkService
 
     def list() {
         println "loading bookmark . . . "
@@ -28,23 +29,9 @@ class BookmarkController {
         User user = permissionService.currentUser
         Organism organism = preferenceService.getCurrentOrganism(user)
 
-//        // should just be an array of long's
-//        List<UserBookmark> bookmarkList = []
-//        List<Long> bookmarkList = []
-////
-//        for(int i = 0 ; i < bookmarkArray.size() ; i++){
-//            Long bookmarkId = bookmarkArray.getLong(i)
-////            UserBookmark userBookmark = UserBookmark.findById(bookmarkId)
-////            UserBookmark userBookmark = UserBookmark.findById(bookmarkId)
-//            bookmarkList.add(bookmarkId)
-//        }
-
         // creates a projection based on the Bookmarks and caches them
         bookmarkObject.organism = organism.commonName
         projectionService.getProjection(bookmarkObject)
-
-//        JSONObject returnObject = new JSONObject()
-//        returnObject.bookmark = UUID.randomUUID().toString()
 
         render bookmarkObject as JSON
     }
@@ -53,26 +40,36 @@ class BookmarkController {
     def addBookmark() {
         JSONArray bookmarkArray = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
         User user = permissionService.currentUser
-        Organism organism = preferenceService.getCurrentOrganism(user)
+//        Organism organism = preferenceService.getCurrentOrganism(user)
+//        println "bookmark array ${bookmarkArray as JSON}"
+        Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkArray.getJSONObject(0))
+        UserBookmark userBookmark = new UserBookmark(
+                bookmark: bookmark
+                ,user: user
+        ).save()
 
-        for(int i = 0 ; i < bookmarkArray.size() ; i++){
-            JSONObject bookmarkJson = bookmarkArray.getJSONObject(i)
-            UserBookmark userBookmark = new UserBookmark(
-                    id: bookmarkJson.id
-                    , user: user
-                    , type: bookmarkJson.type
-                    , padding: bookmarkJson.padding
-                    , payload: bookmarkJson.payload
-                    , organism: organism
-                    , sequenceList: (bookmarkJson.sequenceList as JSON).toString()
-            ).save()
-//            println "output ${userBookmark as JSON}"
-//            println "is valid ${userBookmark.validate()}"
-        }
+//        bookmarkArray.getJSONObject(0).getJSONArray("sequenceList")
+
+//        for(int i = 0 ; i < bookmarkArray.size() ; i++){
+//            JSONObject bookmarkJson = bookmarkArray.getJSONObject(i)
+//            UserBookmark userBookmark = new UserBookmark(
+//                    id: bookmarkJson.id
+//                    , user: user
+//                    , type: bookmarkJson.type
+//                    , padding: bookmarkJson.padding
+//                    , payload: bookmarkJson.payload
+//                    , organism: organism
+//                    , sequenceList: (bookmarkJson.sequenceList as JSON).toString()
+//            ).save()
+////            println "output ${userBookmark as JSON}"
+////            println "is valid ${userBookmark.validate()}"
+//        }
+
+//        render UserBookmark.findAllByU
 
 
-
-        render UserBookmark.findAllByUserAndOrganism(user,organism) as JSON
+//        render UserBookmark.findAllByUserAndOrganism(user,organism) as JSON
+        render userBookmark as JSON
     }
 
     @Transactional
