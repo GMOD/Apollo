@@ -223,7 +223,7 @@ class AnnotatorController {
 
             }
 
-            if (bookmark?.organism) {
+            if (organism) {
                 if (!bookmark?.sequenceList) {
                     try {
                         final long start = System.currentTimeMillis();
