@@ -34,11 +34,8 @@ class UserController {
     ])
     def loadUsers() {
         try {
-            log.debug "loadUsers1 ${request} ${params} ${params.data} ${request.JSON}"
             JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data?:"{}"))) as JSONObject
-            log.debug "dataObj ${dataObject}"
             JSONArray returnArray = new JSONArray()
-            log.debug "loadUsers1.5"
             if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
                 def error=[error: "Not authorized"]
                 response.status = HttpStatus.UNAUTHORIZED
@@ -47,7 +44,6 @@ class UserController {
                 return
             }
 
-            log.debug "loadUsers2"
             def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
 
             List<String> allUserGroups = UserGroup.all.name
