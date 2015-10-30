@@ -58,10 +58,7 @@ class GroupController {
             JSONArray returnArray = new JSONArray()
             JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data?:"{}"))) as JSONObject
             if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
-                def error=[error: "Not authorized"]
-                response.status = HttpStatus.UNAUTHORIZED
-                log.error error
-                render error as JSON
+                render status: HttpStatus.UNAUTHORIZED
                 return
             }
             def allowableOrganisms = permissionService.getOrganisms((User) permissionService.currentUser)
@@ -140,7 +137,7 @@ class GroupController {
             render returnArray as JSON
         }
         catch(Exception e) {
-            response.status=HttpStatus.INTERNAL_SERVER_ERROR
+            response.status=HttpStatus.INTERNAL_SERVER_ERROR.value()
             def error=[error: e.message]
             log.error error
             render error as JSON
@@ -185,7 +182,7 @@ class GroupController {
     def deleteGroup(){
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
-            render status: HttpStatus.UNAUTHORIZED
+            render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
         log.info "Removing group"
@@ -230,7 +227,7 @@ class GroupController {
         log.info "Updating group"
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
-            render status: HttpStatus.UNAUTHORIZED
+            render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
         UserGroup group = UserGroup.findById(dataObject.id)
@@ -265,7 +262,7 @@ class GroupController {
     def updateOrganismPermission(){
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
-            render status: HttpStatus.UNAUTHORIZED
+            render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
         log.info "Trying to update group organism permissions"
@@ -351,7 +348,7 @@ class GroupController {
     def updateMembership() {
         JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
-            render status: HttpStatus.UNAUTHORIZED
+            render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
         log.info "Trying to update user group membership"

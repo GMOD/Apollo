@@ -14,7 +14,7 @@ import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatus
 
 @RestApi(name = "User Services", description = "Methods for managing users")
 @Transactional(readOnly = true)
@@ -36,10 +36,7 @@ class UserController {
             JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data?:"{}"))) as JSONObject
             JSONArray returnArray = new JSONArray()
             if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
-                def error=[error: "Not authorized"]
-                response.status = HttpStatus.UNAUTHORIZED
-                log.error error
-                render error as JSON
+                render status:  HttpStatus.UNAUTHORIZED
                 return
             }
 
@@ -132,7 +129,7 @@ class UserController {
             render returnArray as JSON
         }
         catch(Exception e) {
-            response.status=HttpStatus.INTERNAL_SERVER_ERROR
+            response.status=HttpStatus.INTERNAL_SERVER_ERROR.value()
             def error=[error: e.message]
             log.error error
             render error as JSON
