@@ -50,7 +50,7 @@ class GroupController {
     @RestApiParams(params=[
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="groupId", type="string", paramType = RestApiParamType.QUERY,description="Optional only load a specific groupId")
+            ,@RestApiParam(name="groupId", type="long", paramType = RestApiParamType.QUERY,description="Optional only load a specific groupId")
     ]
     )
     def loadGroups() {
@@ -140,7 +140,7 @@ class GroupController {
             render returnArray as JSON
         }
         catch(Exception e) {
-            response.status=500
+            response.status=HttpStatus.SC_INTERNAL_SERVER_ERROR
             def error=[error: e.message]
             log.error error
             render error as JSON
