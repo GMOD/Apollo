@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<project name="Web Apollo" default="usage" basedir=".">
+<project name="Apollo" default="usage" basedir=".">
     <!-- Arguments to gwtc and devmode targets -->
     <property name="gwt.args" value=""/>
 

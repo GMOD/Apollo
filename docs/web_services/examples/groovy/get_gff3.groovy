@@ -15,7 +15,7 @@ String usageString = "get_gff3.groovy <options>" +
 
 def cli = new CliBuilder(usage: 'get_gff3.groovy <options>')
 cli.setStopAtNonOption(true)
-cli.url('URL of Apollo 2.0 from which gff3 is to be fetched', required: true, args: 1)
+cli.url('URL of Apollo from which GFF3 is to be fetched', required: true, args: 1)
 cli.username('username', required: false, args: 1)
 cli.password('password', required: false, args: 1)
 cli.password('url', required: false, args: 1)

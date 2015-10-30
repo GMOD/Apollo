@@ -37,4 +37,4 @@ Each of the test script utilizes several user profiles. To add the same user pro
 add_users.groovy -inputfile example-users-for-stress-test.csv --username <admin username> --password <admin password> --destinationurl <URL for apollo>
 ```
 
-Note: After this step, make sure to grant organism permissions to each user. This can be done via the Users tab in Annotator Panel of Apollo 2.0.
+Note: After this step, make sure to grant organism permissions to each user. This can be done via the Users tab in Annotator Panel of Apollo.

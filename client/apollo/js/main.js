@@ -136,7 +136,7 @@ return declare( [JBPlugin, HelpMixin],
         if(!browser.config.quickHelp)
         {
             browser.config.quickHelp = {
-                "title": "Web Apollo Help",
+                "title": "Apollo Help",
                 "content": this.defaultHelp()
             }
         };
@@ -646,7 +646,7 @@ return declare( [JBPlugin, HelpMixin],
         var browser=this.browser;
         var help=dijit.byId("menubar_generalhelp");
 
-        help.set("label", "Web Apollo Help");
+        help.set("label", "Apollo Help");
         help.set("iconClass", null);
         var jbrowseUrl = "http://jbrowse.org";
         browser.addGlobalMenuItem( 'help',

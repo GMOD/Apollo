@@ -1,9 +1,9 @@
 # Migration guide
 
-This guide explains how to prepare your Web Apollo 2.0 instance, and to migrate data from previous Web Apollo versions
+This guide explains how to prepare your Apollo 2.x instance, and to migrate data from previous Web Apollo versions
 into 2.0.
 
-In all cases you will need to follow the [guide for setting up your 2.0 instance](Apollo2Build.md).
+In all cases you will need to follow the [guide for setting up your 2.x instance](Apollo2Build.md).
 
 
 ## Migration from Evaluation to Production:
@@ -57,7 +57,7 @@ create a csv file with the email, name, password, and role ('user' or 'admin'). 
 script and users are added.  
 
 From Web Apollo 1, you should be able to pull user names out of the database `select * from users ;`, but there is not
-much overlap between users in Web Apollo 1 and Apollo2.
+much overlap between users in Web Apollo1.x and Apollo2.x.
 
 If you have only a few users, however, just adding them manually on the users will likely be easier. 
 

@@ -1,7 +1,7 @@
 
 ## Automated testing architecture
 
-The Web Apollo unit testing framework uses the grails testing guidelines extensively, which can be reviewed here:
+The Apollo unit testing framework uses the grails testing guidelines extensively, which can be reviewed here:
 http://grails.github.io/grails-doc/2.4.3/guide/testing.html
 
 

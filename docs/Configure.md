@@ -1,7 +1,7 @@
 ## Apollo Configuration
 
 
-Apollo 2.0 includes some basic configuration parameters that are specified in configuration files. The most important
+Apollo includes some basic configuration parameters that are specified in configuration files. The most important
 parameters are the database parameters in order to get Apollo up and running. Other options besides the database
 parameters can be configured via the config files, but note that many parameters can also be configured via the web
 interface.
@@ -146,7 +146,7 @@ BLAT executable.
 ### Data adapters
 
 
-Data adapters for Web Apollo provide the methods for exporting annotation data from the application. By default, GFF3
+Data adapters for Apollo provide the methods for exporting annotation data from the application. By default, GFF3
 and FASTA adapters are supplied. They are configured to query your IOService URL e.g.
 http://localhost:8080/apollo/IOService with the customizable query
 
@@ -293,12 +293,12 @@ http://nginx.org/en/docs/http/websocket.html
 There are several scripts for migrating from older instances. See the [migration guide](Migration.md) for details.
 Particular notes:
 
-Note: Apollo 2.0 does not require using the `add-webapollo-plugin.pl` because the plugin is loaded implicitly by
+Note: Apollo does not require using the `add-webapollo-plugin.pl` because the plugin is loaded implicitly by
 including the client/apollo/json/annot.json file at run time.
 
 #### Upgrading existing JBrowse data stores
 
-It is not necessary to change your existing JBrowse data directories to use Apollo 2.0, you can just point to existing
+It is not necessary to change your existing JBrowse data directories to use Apollo 2.x, you can just point to existing
 data directories from your previous instances.
 
 #### Adding custom CSS for track styling for JBrowse
