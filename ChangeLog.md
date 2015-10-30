@@ -161,7 +161,7 @@ Bugfixes
 Features
 
 + Update to JBrowse 1.11.6 (http://jbrowse.org/jbrowse-1-11-6/)
-+ Added new Help page with Apollo specific content (#153).
++ Added new Help page with Web Apollo specific content (#153).		
 + Added Drupal authentication module to share authentication with an existing Drupal DB (#117).
 + Made "Show track labels" and "Color by CDS" more persistent (#120).
 + Added a "Collapse" option to the "User-created Annotations" track. The track labels are automatically removed when selecting to "Collapse" the track, but can be shown again. (#155).
