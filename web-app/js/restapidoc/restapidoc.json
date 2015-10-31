@@ -7,90 +7,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "1893744d-b42d-4a3e-82a0-2cb878c6c789",
+                  "jsondocId": "f3dd8117-89a1-4565-aebf-df0f06f626c3",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "d2685b48-4ff3-4516-9b06-a3b5c30adfdc",
+               "jsondocId": "4c78dde0-8015-49aa-b860-e75f48b258ea",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "f2a6d4c8-1d7d-4598-8cea-cb492c22adb2",
-                  "mapValueObject": "",
-                  "object": "annotation editor"
-               },
-               "pathparameters": [],
-               "apierrors": [],
-               "verb": "POST",
-               "description": "Set symbol of a feature",
-               "queryparameters": [
-                  {
-                     "jsondocId": "da0523e8-8b57-46ff-b1c9-247d03812ed3",
-                     "description": "",
-                     "name": "username",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "email"
-                  },
-                  {
-                     "jsondocId": "4ed73d6b-f55a-4ea8-8a2a-5843f00eb7e0",
-                     "description": "",
-                     "name": "password",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "password"
-                  },
-                  {
-                     "jsondocId": "d48ca930-445c-49fc-9cf3-48e71479ffaa",
-                     "description": "(optional) Sequence name",
-                     "name": "sequence",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "string"
-                  },
-                  {
-                     "jsondocId": "87f02f7e-ba67-45c6-9357-7a3ba348a387",
-                     "description": "(optional) Organism ID or common name",
-                     "name": "organism",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "string"
-                  },
-                  {
-                     "jsondocId": "8ec518de-e79b-4186-ae50-ee77bb05831f",
-                     "description": "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','symbol':'Pax6a'}",
-                     "name": "features",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "JSONArray"
-                  }
-               ],
-               "path": "/annotationEditor/setSymbol",
-               "produces": ["application/json"],
-               "methodName": "setSymbol"
-            },
-            {
-               "headers": [],
-               "bodyobject": {
-                  "mapKeyObject": "",
-                  "jsondocId": "a9488016-e6b5-4b57-aa03-45b7ed190495",
-                  "mapValueObject": "",
-                  "map": "",
-                  "object": "annotation editor",
-                  "multiple": "Unknow"
-               },
-               "jsondocId": "290a36f9-1a3a-4ba9-9243-caf09410b59f",
-               "consumes": ["application/json"],
-               "response": {
-                  "mapKeyObject": "",
-                  "jsondocId": "152e2e33-f2ce-4a86-af16-b602cd03b2f8",
+                  "jsondocId": "099e3ecc-fd8a-4d1c-a7ac-b4766749d3c0",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -100,7 +27,7 @@
                "description": "Set description for a feature",
                "queryparameters": [
                   {
-                     "jsondocId": "af965c80-118a-4831-83a3-801f7be2f608",
+                     "jsondocId": "8f116ab4-8944-400c-8a08-ad347913438f",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -109,7 +36,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "5515afe4-dd37-45f5-b251-05d2147dd7c5",
+                     "jsondocId": "31ee64a3-d42e-4fdd-b749-7e413125f050",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -118,7 +45,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "3863fac4-0898-4857-9542-4378a22778b3",
+                     "jsondocId": "f563a0a1-d00f-460b-b130-bb4d091da486",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -127,7 +54,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "023a81ba-f8ae-44e8-abcf-091bf1cc4314",
+                     "jsondocId": "0885a0c4-48c5-4829-bd95-22b435b0d593",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -136,7 +63,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "53d6ba77-a2dc-49ed-8d9a-0e548cde0685",
+                     "jsondocId": "1969c81d-7e04-449a-994d-2f0bafd9f5f8",
                      "description": "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','description':'some descriptive test'}",
                      "name": "features",
                      "allowedvalues": [],
@@ -153,154 +80,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "dcda5673-c7fb-453c-bd09-353c259cfdc1",
+                  "jsondocId": "d7d811a0-f1af-4d3a-b81c-a38b725f17b2",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "d57bb692-5c3f-4caf-ba2e-903bd59ee39e",
+               "jsondocId": "7dc16add-8020-41bf-97ac-25351241c15d",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "b971cd40-e4aa-485c-b8fd-dc740714eed3",
-                  "mapValueObject": "",
-                  "object": "annotation editor"
-               },
-               "pathparameters": [],
-               "apierrors": [],
-               "verb": "POST",
-               "description": "Get all annotated features for a sequence",
-               "queryparameters": [
-                  {
-                     "jsondocId": "ac6e4e44-d83e-4f1c-a41f-6f62f3a37ca7",
-                     "description": "",
-                     "name": "username",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "email"
-                  },
-                  {
-                     "jsondocId": "670bbc7a-708f-462b-ad96-b5d9b79e2cfd",
-                     "description": "",
-                     "name": "password",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "password"
-                  },
-                  {
-                     "jsondocId": "994957c9-8059-4a2b-9da2-eb4e1ec571f1",
-                     "description": "(optional) Sequence name",
-                     "name": "sequence",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "string"
-                  },
-                  {
-                     "jsondocId": "42ecabb8-8d97-4222-8af9-cc2cc4ec285e",
-                     "description": "(optional) Organism ID or common name",
-                     "name": "organism",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "string"
-                  }
-               ],
-               "path": "/annotationEditor/getFeatures",
-               "produces": ["application/json"],
-               "methodName": "getFeatures"
-            },
-            {
-               "headers": [],
-               "bodyobject": {
-                  "mapKeyObject": "",
-                  "jsondocId": "5e5acc7f-9e43-4ea6-82c7-6dfd1f39cdd1",
-                  "mapValueObject": "",
-                  "map": "",
-                  "object": "annotation editor",
-                  "multiple": "Unknow"
-               },
-               "jsondocId": "388b89c0-df36-4b4b-9df4-a4af67c01cb3",
-               "consumes": ["application/json"],
-               "response": {
-                  "mapKeyObject": "",
-                  "jsondocId": "a4274f6c-a038-456a-9a63-0f771f20b895",
-                  "mapValueObject": "",
-                  "object": "annotation editor"
-               },
-               "pathparameters": [],
-               "apierrors": [],
-               "verb": "POST",
-               "description": "Get sequences for features",
-               "queryparameters": [
-                  {
-                     "jsondocId": "9a7acfd9-2f4f-411b-a8be-dc40cbb8f087",
-                     "description": "",
-                     "name": "username",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "email"
-                  },
-                  {
-                     "jsondocId": "ba03d731-5e95-46bd-b169-b0fd4d7f27f3",
-                     "description": "",
-                     "name": "password",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "password"
-                  },
-                  {
-                     "jsondocId": "dcf09952-9964-4df5-8263-90a3a624744e",
-                     "description": "(optional) Sequence name",
-                     "name": "sequence",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "string"
-                  },
-                  {
-                     "jsondocId": "516aaeaa-cf8e-4f26-989e-67b1a9d04038",
-                     "description": "(optional) Organism ID or common name",
-                     "name": "organism",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "string"
-                  },
-                  {
-                     "jsondocId": "faa1bf35-86ac-4f70-bf82-a7cb0404b654",
-                     "description": "JSONArray of features objects to export defined by a unique name {'uniquename':'ABC123'}",
-                     "name": "features",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "JSONArray"
-                  }
-               ],
-               "path": "/annotationEditor/getSequences",
-               "produces": ["application/json"],
-               "methodName": "getSequence"
-            },
-            {
-               "headers": [],
-               "bodyobject": {
-                  "mapKeyObject": "",
-                  "jsondocId": "7e0ac064-1a3a-4656-be90-dd39838dd46a",
-                  "mapValueObject": "",
-                  "map": "",
-                  "object": "annotation editor",
-                  "multiple": "Unknow"
-               },
-               "jsondocId": "e2011b66-4dac-4335-be84-6234ad38c62c",
-               "consumes": ["application/json"],
-               "response": {
-                  "mapKeyObject": "",
-                  "jsondocId": "4c4cca76-210a-4185-b956-c940075d11e7",
+                  "jsondocId": "d8d1d9b5-ec51-48a3-91bf-051f122f0721",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -310,7 +100,7 @@
                "description": "Set status of a feature",
                "queryparameters": [
                   {
-                     "jsondocId": "65b8df73-8d72-44d3-9ea9-64805a4ef174",
+                     "jsondocId": "36475fd7-a789-45a7-a181-d122c4ae42c1",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -319,7 +109,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "57b5ceec-d912-47f0-bf77-19f249208a1a",
+                     "jsondocId": "02ff36a3-cff1-4b25-a61f-5e20c35d2443",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -328,7 +118,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "7af0f78e-b472-4295-9074-fcf40cf277f6",
+                     "jsondocId": "ed473bfa-6987-46cb-99af-0aa261dfa8a5",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -337,7 +127,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "2594993d-1573-4e13-8392-9004c0150c0d",
+                     "jsondocId": "0e06c7aa-ec1d-4b36-8664-75201fcdd8ca",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -346,7 +136,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "afdcbcd5-e38b-46ae-8845-da044e69949d",
+                     "jsondocId": "97114981-6e22-4677-b503-eac893244bdd",
                      "description": "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','status':'existing-status-string'}.  Available status found here: /availableStatus/ ",
                      "name": "features",
                      "allowedvalues": [],
@@ -363,17 +153,90 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "8bf4bbb7-380e-4837-88f9-740229d4c89d",
+                  "jsondocId": "93d74c8e-f4a0-4750-9916-ade555b4d054",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "090fd25e-6985-43e1-b708-842153b506fa",
+               "jsondocId": "9567f8c7-bf77-499e-a71f-a48dead24e22",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "ff4ec0c9-20b6-472a-83db-47e3d58eae95",
+                  "jsondocId": "8ff74111-4bc7-446d-b88b-1134cb1f2954",
+                  "mapValueObject": "",
+                  "object": "annotation editor"
+               },
+               "pathparameters": [],
+               "apierrors": [],
+               "verb": "POST",
+               "description": "Set symbol of a feature",
+               "queryparameters": [
+                  {
+                     "jsondocId": "223a2133-27f8-4783-bec6-e70495d0d8f0",
+                     "description": "",
+                     "name": "username",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "email"
+                  },
+                  {
+                     "jsondocId": "2f667a38-4312-40fd-977f-35d844555a2e",
+                     "description": "",
+                     "name": "password",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "password"
+                  },
+                  {
+                     "jsondocId": "52b34b9e-10f9-480c-8ce3-8dc6faa7f8e3",
+                     "description": "(optional) Sequence name",
+                     "name": "sequence",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "string"
+                  },
+                  {
+                     "jsondocId": "30f78e42-bf16-44aa-96cc-106a001f2a82",
+                     "description": "(optional) Organism ID or common name",
+                     "name": "organism",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "string"
+                  },
+                  {
+                     "jsondocId": "2b493fd2-912c-4a4d-a6f0-6caf32675275",
+                     "description": "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','symbol':'Pax6a'}",
+                     "name": "features",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "JSONArray"
+                  }
+               ],
+               "path": "/annotationEditor/setSymbol",
+               "produces": ["application/json"],
+               "methodName": "setSymbol"
+            },
+            {
+               "headers": [],
+               "bodyobject": {
+                  "mapKeyObject": "",
+                  "jsondocId": "e33b5299-c996-4691-8655-f12b6abf7ad0",
+                  "mapValueObject": "",
+                  "map": "",
+                  "object": "annotation editor",
+                  "multiple": "Unknow"
+               },
+               "jsondocId": "a7c58980-abad-481d-bf62-cffc8c574fbc",
+               "consumes": ["application/json"],
+               "response": {
+                  "mapKeyObject": "",
+                  "jsondocId": "2d914be1-fb23-4585-af03-53920a4ddcbd",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -383,7 +246,7 @@
                "description": "Get comments",
                "queryparameters": [
                   {
-                     "jsondocId": "01cedbf1-0c3f-46c0-a581-75135b1de89a",
+                     "jsondocId": "77c218ec-cf26-4481-b319-3b77ec0ecee3",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -392,7 +255,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "924d13b9-baac-4d8c-9c3d-1848702ca12d",
+                     "jsondocId": "42097dc9-5a86-42b1-9778-f47f737bd5fb",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -401,7 +264,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "f367c0fb-33e3-44a8-889e-4c49dbaac696",
+                     "jsondocId": "c88ac676-4949-4366-88b1-135e72097b3a",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -410,7 +273,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "977cb00e-8594-4242-95d0-bc83e07caba0",
+                     "jsondocId": "db26ea99-8f24-499a-a4d5-fc74181bc384",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -419,7 +282,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "703c7de7-1bd8-4684-9d71-66aac61931ed",
+                     "jsondocId": "36bbaddf-8380-4033-8951-d927354f45cb",
                      "description": "JSONArray of JSON feature objects ('uniquename' required) JSONArray described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy",
                      "name": "features",
                      "allowedvalues": [],
@@ -436,17 +299,227 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "84dbc319-618f-4296-af1e-64435b417c88",
+                  "jsondocId": "33864185-9f0b-4ed1-bde8-066239f45498",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "cd0166a0-5171-455c-ba75-e25dff8acf18",
+               "jsondocId": "0e3698cd-e2ba-48dc-9164-1feefded2009",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "65ee6a37-f55c-4b8f-99f6-0830b0b8e645",
+                  "jsondocId": "1b83d9bd-718b-4156-877f-2ab4f4bcbebc",
+                  "mapValueObject": "",
+                  "object": "annotation editor"
+               },
+               "pathparameters": [],
+               "apierrors": [],
+               "verb": "POST",
+               "description": "Add attribute (key,value pair) to feature",
+               "queryparameters": [
+                  {
+                     "jsondocId": "b7c89be8-d6d4-48cf-b55f-ac4b7dfad05c",
+                     "description": "",
+                     "name": "username",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "email"
+                  },
+                  {
+                     "jsondocId": "5134d134-1560-479f-bee9-fa20b2886cfa",
+                     "description": "",
+                     "name": "password",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "password"
+                  },
+                  {
+                     "jsondocId": "bf725fbc-6b23-45f0-9d82-2a6fe1de13e4",
+                     "description": "(optional) Sequence name",
+                     "name": "sequence",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "string"
+                  },
+                  {
+                     "jsondocId": "ef356d42-0c69-4756-ad2a-378fe3c87c31",
+                     "description": "(optional) Organism ID or common name",
+                     "name": "organism",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "string"
+                  },
+                  {
+                     "jsondocId": "9d759f5a-a9bc-47df-bc1d-329cd8381cd7",
+                     "description": "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','non_reserved_properties':[{'tag':'clockwark','value':'orange'},{'tag':'color','value':'purple'}]}.  Available status found here: /availableStatus/ ",
+                     "name": "features",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "JSONArray"
+                  }
+               ],
+               "path": "/annotationEditor/addAttribute",
+               "produces": ["application/json"],
+               "methodName": "addAttribute"
+            },
+            {
+               "headers": [],
+               "bodyobject": {
+                  "mapKeyObject": "",
+                  "jsondocId": "ceceaa90-2b62-4c36-a1a7-939afc4edaf9",
+                  "mapValueObject": "",
+                  "map": "",
+                  "object": "annotation editor",
+                  "multiple": "Unknow"
+               },
+               "jsondocId": "abc48e42-c319-48e4-bbed-465de79e3d1b",
+               "consumes": ["application/json"],
+               "response": {
+                  "mapKeyObject": "",
+                  "jsondocId": "6c710499-8b4b-4135-b537-75d9c88d65a7",
+                  "mapValueObject": "",
+                  "object": "annotation editor"
+               },
+               "pathparameters": [],
+               "apierrors": [],
+               "verb": "POST",
+               "description": "Get all annotated features for a sequence",
+               "queryparameters": [
+                  {
+                     "jsondocId": "bb6a6fa2-a4f4-49fa-93ec-1e66d1708e5e",
+                     "description": "",
+                     "name": "username",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "email"
+                  },
+                  {
+                     "jsondocId": "0614238a-3bfb-422c-b38a-ada17deeeaee",
+                     "description": "",
+                     "name": "password",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "password"
+                  },
+                  {
+                     "jsondocId": "d0682d03-11c9-4705-a9ed-eff76ca4a4c1",
+                     "description": "(optional) Sequence name",
+                     "name": "sequence",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "string"
+                  },
+                  {
+                     "jsondocId": "d182eb4f-f22a-4dbd-8a7f-57dc45dab00c",
+                     "description": "(optional) Organism ID or common name",
+                     "name": "organism",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "string"
+                  }
+               ],
+               "path": "/annotationEditor/getFeatures",
+               "produces": ["application/json"],
+               "methodName": "getFeatures"
+            },
+            {
+               "headers": [],
+               "bodyobject": {
+                  "mapKeyObject": "",
+                  "jsondocId": "e1d0c759-edfb-4609-b573-b0e14fc83381",
+                  "mapValueObject": "",
+                  "map": "",
+                  "object": "annotation editor",
+                  "multiple": "Unknow"
+               },
+               "jsondocId": "1b496a68-2e1b-42a2-82c3-276e72d06dd4",
+               "consumes": ["application/json"],
+               "response": {
+                  "mapKeyObject": "",
+                  "jsondocId": "da71069a-6f50-4249-a721-e1f4aa3a2e45",
+                  "mapValueObject": "",
+                  "object": "annotation editor"
+               },
+               "pathparameters": [],
+               "apierrors": [],
+               "verb": "POST",
+               "description": "Get sequences for features",
+               "queryparameters": [
+                  {
+                     "jsondocId": "c789c53d-1a4d-477e-8ee6-f326cc3c8e6d",
+                     "description": "",
+                     "name": "username",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "email"
+                  },
+                  {
+                     "jsondocId": "66d1071f-b4d8-4fd9-8f95-8e125dc7e17f",
+                     "description": "",
+                     "name": "password",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "password"
+                  },
+                  {
+                     "jsondocId": "c68326f6-bea5-4f01-a630-a24ae6b1a044",
+                     "description": "(optional) Sequence name",
+                     "name": "sequence",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "string"
+                  },
+                  {
+                     "jsondocId": "8b8f12cc-bf65-44d0-a1b9-9fcf75cff040",
+                     "description": "(optional) Organism ID or common name",
+                     "name": "organism",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "string"
+                  },
+                  {
+                     "jsondocId": "2d3c34e3-2e24-44aa-a4db-f724a338b514",
+                     "description": "JSONArray of features objects to export defined by a unique name {'uniquename':'ABC123'}",
+                     "name": "features",
+                     "allowedvalues": [],
+                     "format": "",
+                     "required": "true",
+                     "type": "JSONArray"
+                  }
+               ],
+               "path": "/annotationEditor/getSequences",
+               "produces": ["application/json"],
+               "methodName": "getSequence"
+            },
+            {
+               "headers": [],
+               "bodyobject": {
+                  "mapKeyObject": "",
+                  "jsondocId": "035f81cc-3e92-4df7-9faa-79d27ce605ba",
+                  "mapValueObject": "",
+                  "map": "",
+                  "object": "annotation editor",
+                  "multiple": "Unknow"
+               },
+               "jsondocId": "4d4be2b6-5a20-4594-a9be-e66150388c9c",
+               "consumes": ["application/json"],
+               "response": {
+                  "mapKeyObject": "",
+                  "jsondocId": "5588cb68-2952-4482-8d70-c28dcc378dcb",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -456,7 +529,7 @@
                "description": "Add non-coding genomic feature",
                "queryparameters": [
                   {
-                     "jsondocId": "2cd83e54-fa4e-4b71-9719-77ab7fecd298",
+                     "jsondocId": "89d4e7ca-2fbd-402d-860b-da33c36598bc",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -465,7 +538,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "9f20a603-12e2-46c3-a084-7e9e76ee51d3",
+                     "jsondocId": "b90a909e-7428-4c5a-9aa8-530fefcddc5c",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -474,7 +547,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "8d338651-9b33-4006-b1f8-b9bae17925fc",
+                     "jsondocId": "0c02af6a-db88-4e6a-93b3-bd076330a0b6",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -483,7 +556,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "b071bf67-ee5d-42a3-a9a8-9fcb36bc001c",
+                     "jsondocId": "270c01f1-2781-49c6-9460-64c96336790c",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -492,7 +565,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "59f5ddf2-8608-4873-9935-51943f981cc1",
+                     "jsondocId": "f9e471ac-488e-4374-ae0d-d72b79ca5e83",
                      "description": "Suppress the history of this operation",
                      "name": "suppressHistory",
                      "allowedvalues": [],
@@ -501,7 +574,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "51d0d46f-a33f-4d01-a649-a46a5221f7e1",
+                     "jsondocId": "fd5cc396-32d2-4b35-843c-1021b51a9ba0",
                      "description": "Suppress instant update of the user interface",
                      "name": "suppressEvents",
                      "allowedvalues": [],
@@ -510,7 +583,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "e3ab217e-0765-44ec-907a-60fca5f42289",
+                     "jsondocId": "3f75d438-3872-4c0c-8593-4bf45f7cbfee",
                      "description": "JSONArray of JSON feature objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy",
                      "name": "features",
                      "allowedvalues": [],
@@ -527,17 +600,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "e7643497-0a2d-4d22-bdec-9fae7cb0fce9",
+                  "jsondocId": "d5755134-c061-4e78-b212-d901bb4e2ae4",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "1383db8f-a4fe-4a63-a9c8-1c4ad2a351d4",
+               "jsondocId": "246d5047-2219-4009-8a92-c2e63ccfd9f5",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "795818e3-a42e-4fb5-a469-54f26e0a20b6",
+                  "jsondocId": "2721267b-ac4b-4575-91b3-d9a7d7ec4767",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -547,7 +620,7 @@
                "description": "Set exon feature boundaries",
                "queryparameters": [
                   {
-                     "jsondocId": "17fce186-f67a-4232-9185-d5a2b8178db6",
+                     "jsondocId": "b10ab4b1-5093-4dd8-a216-80bcc4468660",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -556,7 +629,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "06bb4f79-ee7c-495b-b0db-b05fb9c70968",
+                     "jsondocId": "e1c2979a-bd28-4593-8aff-f39dbb911356",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -565,7 +638,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "46794d9a-bb5b-41d2-bf9d-19a6e13767d0",
+                     "jsondocId": "2b182fd1-59cd-40f6-9343-0f11306051c1",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -574,7 +647,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "c8a62368-1ea1-43d1-9147-7cca6f4fa293",
+                     "jsondocId": "8042fb9c-bffa-4a97-ade9-eed75aafcfb8",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -583,7 +656,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "50e2226d-1031-4349-b013-c0a9720d0e87",
+                     "jsondocId": "b1752ad8-1f83-4123-93f3-d91988fe73d0",
                      "description": "Suppress the history of this operation",
                      "name": "suppressHistory",
                      "allowedvalues": [],
@@ -592,7 +665,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "3e203371-46ae-4d48-9bb5-5579f1de6855",
+                     "jsondocId": "5408d843-8d88-4aad-abcc-19d6b14adf7c",
                      "description": "Suppress instant update of the user interface",
                      "name": "suppressEvents",
                      "allowedvalues": [],
@@ -601,7 +674,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "2f4b1f34-4ee6-4cd4-be27-a0f2fb937d71",
+                     "jsondocId": "cb721e47-2992-4479-b733-a447d9e7346d",
                      "description": "JSONArray of JSON feature objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy",
                      "name": "features",
                      "allowedvalues": [],
@@ -618,17 +691,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "0680c235-6d38-4d82-9706-7b8c70341531",
+                  "jsondocId": "90ce4b2a-1f27-44ed-ad82-0ce7dbb1c3af",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "2553291a-44bb-4f5d-ac47-1e12ed2f96df",
+               "jsondocId": "dcf18d8e-cf32-4a23-a588-4eaf8f749e6d",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "4f35fb7b-825f-49ab-8203-7ce6f00bb9e0",
+                  "jsondocId": "81cc24ee-ec8b-4d76-bc07-2b18b2deff72",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -638,7 +711,7 @@
                "description": "Add an exon",
                "queryparameters": [
                   {
-                     "jsondocId": "daeb929e-19b7-4054-ae22-2d5d6b4ec32b",
+                     "jsondocId": "a65540d7-aa7a-4dd6-8dce-8627afa90b38",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -647,7 +720,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "c189a2e8-ecdf-423b-8ae1-dfe005916e73",
+                     "jsondocId": "3c1c0055-5bc5-4d91-8949-39cfc518c34d",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -656,7 +729,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "e3c8c62c-6e0f-44a0-97cf-03b6d7412613",
+                     "jsondocId": "73676775-69be-4b8f-8985-e3bee58d5218",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -665,7 +738,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "33793eb0-5113-41c3-a4c6-c4fd545fd848",
+                     "jsondocId": "5bc64828-b763-4d55-9b36-db3f667c67cb",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -674,7 +747,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "19872789-16b7-4a31-89f0-016255ffff34",
+                     "jsondocId": "792c8676-f7aa-4c53-b568-cc3ef80235c1",
                      "description": "Suppress the history of this operation",
                      "name": "suppressHistory",
                      "allowedvalues": [],
@@ -683,7 +756,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "9b9e1b31-3a95-4468-9a91-9d81e68896be",
+                     "jsondocId": "79d271a4-5dca-4843-befd-114989170b15",
                      "description": "Suppress instant update of the user interface",
                      "name": "suppressEvents",
                      "allowedvalues": [],
@@ -692,7 +765,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "8669e438-e1e0-4299-85cf-2a0e6945b1b8",
+                     "jsondocId": "d6f0a069-79ce-49ae-84e8-2c1b6d1135d3",
                      "description": "JSONArray of JSON feature objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy",
                      "name": "features",
                      "allowedvalues": [],
@@ -709,17 +782,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "2bdf3e36-1392-4e60-a46f-2851a5232832",
+                  "jsondocId": "a8dd4232-277b-479c-b224-c23845a91761",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "e71ebc42-339c-49ed-aa87-d925636b460b",
+               "jsondocId": "41c29e41-98e8-495c-8f5a-bc78966fb9f3",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "12495161-187f-46d6-bbd1-0f24c13cfea9",
+                  "jsondocId": "59813010-5e17-4a57-94f0-4627ac709b64",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -729,7 +802,7 @@
                "description": "Add comments",
                "queryparameters": [
                   {
-                     "jsondocId": "f99aba41-568e-4a17-885b-f43866769fa1",
+                     "jsondocId": "74370cc4-9fce-4479-aa73-f75eb9d590d5",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -738,7 +811,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "76c4c930-616d-4629-915c-2b66a0245a4e",
+                     "jsondocId": "9f488f38-5f9e-4986-956e-5380c0f5a85f",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -747,7 +820,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "858f2c21-d1c0-4d35-928d-65e298b5147f",
+                     "jsondocId": "c81e6b28-50ca-4f15-a8ab-da0bb01c752a",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -756,7 +829,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "e7bfb4d1-4e89-4ee8-920e-551c12826b2c",
+                     "jsondocId": "a33f256c-6cbf-489f-96d3-b09af5e9efe9",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -765,7 +838,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "40de80b8-cfbf-4b02-bbc6-000d012b5ace",
+                     "jsondocId": "aef23dc2-77e2-40d8-9810-5f7b8c1a4c62",
                      "description": "JSONArray of JSON feature objects ('uniquename' required) that include an added 'comments' JSONArray described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy",
                      "name": "features",
                      "allowedvalues": [],
@@ -782,17 +855,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "60d705e5-9860-4d50-b14e-4bde0e2799d0",
+                  "jsondocId": "36e3d723-54c0-4160-8bfd-f178c647533f",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "d19c18d0-e34d-4ca1-8f9a-f2cd2e4d72d6",
+               "jsondocId": "2acb3a31-2111-4bb3-bc4a-d70282e88edb",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "53415577-a093-4d4c-bd1e-964d7599719e",
+                  "jsondocId": "4c0fc835-db73-4eb3-81d2-abb9ce10961d",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -802,7 +875,7 @@
                "description": "Delete comments",
                "queryparameters": [
                   {
-                     "jsondocId": "8e26faf3-367b-4a8e-943a-7021d1ad0f11",
+                     "jsondocId": "73cd85d5-085f-40c0-b35d-a6dae2c5d1b3",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -811,7 +884,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "2c11a443-bd8e-4a92-8beb-a9f40d811e53",
+                     "jsondocId": "0c191bb6-70fd-425f-bd58-26010341d6ef",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -820,7 +893,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "09f534f8-52e0-48f2-9a5e-7519858101ad",
+                     "jsondocId": "40ba0803-31f1-4107-bcd4-06b0b3e687b7",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -829,7 +902,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "154f1ba0-a8eb-4311-86a2-6b77612cb2ac",
+                     "jsondocId": "86d897ab-69a5-4e22-95a3-aba7c206017e",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -838,7 +911,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "bc24af7a-d5c2-4250-94d7-9f47501a5d88",
+                     "jsondocId": "0f9c6dd3-d371-4dce-a609-0ecccd858607",
                      "description": "JSONArray of JSON feature objects ('uniquename' required) that include an added 'comments' JSONArray described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy",
                      "name": "features",
                      "allowedvalues": [],
@@ -855,17 +928,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "49d3e336-95f5-46ce-ac95-9f1ccbef1523",
+                  "jsondocId": "9eb615a0-b535-47ad-a3b2-807011c73c13",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "00291e1d-6487-4d36-b3cf-68c21af3f399",
+               "jsondocId": "7f0c14dc-241b-4ead-a91b-76cbd86b346e",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "8b7b4a25-38a0-4446-9001-2047ed7dff32",
+                  "jsondocId": "5933c2f6-0866-4d7c-a727-e0f5c8d10cdd",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -875,7 +948,7 @@
                "description": "Update comments",
                "queryparameters": [
                   {
-                     "jsondocId": "4c75c075-9708-4118-935f-ba782d01b20d",
+                     "jsondocId": "d1851b37-3bb0-430e-9988-24b4d24fda6b",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -884,7 +957,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "10f05480-efee-4176-95dc-8c9ce3fc95ec",
+                     "jsondocId": "aafc0097-e29a-4153-a35d-519e47df861b",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -893,7 +966,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "80259755-770f-455d-af81-f426026464e5",
+                     "jsondocId": "3494a613-eb23-47d8-9ba8-d54f4afc5868",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -902,7 +975,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "2a501d8b-3d92-4678-b790-64d660003fc9",
+                     "jsondocId": "c831c52d-bab6-45ab-855e-4290e62a10cb",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -911,7 +984,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "7ac274ce-f3d1-4eed-9c28-fab759470bb1",
+                     "jsondocId": "265830ca-5746-4f2f-a795-36e99622b722",
                      "description": "JSONArray of JSON feature objects ('uniquename' required) that include an added 'old_comments','new_comments' JSONArray described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy",
                      "name": "features",
                      "allowedvalues": [],
@@ -928,17 +1001,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "4fc7dad5-4a05-430e-871b-f36420523743",
+                  "jsondocId": "41e95c64-22f3-4eb2-ab57-582781330a54",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "ab4b240a-a0e0-40ae-a280-9b203c8e9fa8",
+               "jsondocId": "43210041-8507-4735-8200-fc1d7a3f12d6",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "1418cc68-f33f-4894-8968-10d415fc670b",
+                  "jsondocId": "98d4c58e-8023-458e-a967-3c3782e40139",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -948,7 +1021,7 @@
                "description": "Add transcript",
                "queryparameters": [
                   {
-                     "jsondocId": "4e2f16ca-2b4d-4287-b3ee-508c5da6191b",
+                     "jsondocId": "d666cbd0-998d-4e1f-bc60-37a5c31e0cd4",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -957,7 +1030,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "8ac072eb-8480-4234-beb6-8f643592a087",
+                     "jsondocId": "623eed71-a8f1-476f-90d8-0ddfe26fb36b",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -966,7 +1039,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "a6136d66-cb8b-4791-95c9-63b0fe77eaff",
+                     "jsondocId": "c8fdc7ac-2b7b-468c-83d9-101b866de924",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -975,7 +1048,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "128b5f73-f957-4b84-bf93-3d30e4f5a046",
+                     "jsondocId": "c786a706-2408-4af7-93c7-a5a5d2cca516",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -984,7 +1057,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "c24f3b8c-7b54-4f4a-9ba4-ba41fb6119aa",
+                     "jsondocId": "40e48eff-3f9f-4f9f-be4c-3c41adb1a890",
                      "description": "Suppress the history of this operation",
                      "name": "suppressHistory",
                      "allowedvalues": [],
@@ -993,7 +1066,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "177081e2-5fd7-4aa4-9d01-ede5c888a593",
+                     "jsondocId": "33fc2d31-8872-4381-b668-78cf1d83f28f",
                      "description": "Suppress instant update of the user interface",
                      "name": "suppressEvents",
                      "allowedvalues": [],
@@ -1002,7 +1075,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "697bb48a-0b90-4526-82ac-158076a18dab",
+                     "jsondocId": "b0a4432a-e74b-45d8-9261-dadba6aabfa5",
                      "description": "JSONArray of JSON feature objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy",
                      "name": "features",
                      "allowedvalues": [],
@@ -1019,17 +1092,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "25beff4a-2b13-41b7-84d3-4413abd1bbbe",
+                  "jsondocId": "93db99a7-eda3-422b-981a-cf465eb059e9",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "da79c595-2e9a-4244-8931-f51028afad4a",
+               "jsondocId": "8d773c24-c903-4b14-b9a8-937eaa20750f",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "d47fe8b3-9f4f-4022-9550-679455f34a52",
+                  "jsondocId": "6b15cfdd-f3df-4650-8007-9844821722b0",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1039,7 +1112,7 @@
                "description": "Duplicate transcript",
                "queryparameters": [
                   {
-                     "jsondocId": "361fab9d-0547-42bd-8c4a-798e265fc924",
+                     "jsondocId": "6a332e95-9f9a-4fb4-8170-28c0b6532804",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1048,7 +1121,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "97726c59-c278-4e21-9a34-65d782fd33ca",
+                     "jsondocId": "54ec4b06-8c19-41c5-96c9-eca3e0af102f",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1057,7 +1130,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "1f7f8f6d-3a9b-4166-8d11-2c473db89c65",
+                     "jsondocId": "545f7657-1492-4c5c-abd8-7e13557c6bce",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1066,7 +1139,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "ff34f5b7-b1f3-4eda-a44e-13a0e18281ce",
+                     "jsondocId": "aaee2b46-62f2-4fce-802c-5f58f67061c5",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1075,7 +1148,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "5fa0952f-c55e-4abb-ba81-bb3c35904316",
+                     "jsondocId": "bd40eda3-f7d6-4760-9cb4-c7629958b32c",
                      "description": "Suppress the history of this operation",
                      "name": "suppressHistory",
                      "allowedvalues": [],
@@ -1084,7 +1157,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "6a6a7851-5d41-42e3-be9f-a035c7fa11ad",
+                     "jsondocId": "c1f9dfce-bc23-42d2-914a-cad31edd5af9",
                      "description": "Suppress instant update of the user interface",
                      "name": "suppressEvents",
                      "allowedvalues": [],
@@ -1093,7 +1166,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "accc6900-6eb5-4442-90a6-918d5f982f6e",
+                     "jsondocId": "40afc884-b744-49a7-be57-19a0a810a2d4",
                      "description": "JSONArray containing a single JSONObject feature that contains 'uniquename'",
                      "name": "features",
                      "allowedvalues": [],
@@ -1110,17 +1183,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "621e449a-119d-4b5f-a380-a8072b9d449a",
+                  "jsondocId": "c993ed19-3187-40a5-b22c-f767aba693d5",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "203d668c-3987-436c-a03b-1eb5844ee50e",
+               "jsondocId": "8741f023-0ca0-438e-82e2-d931d3e514f8",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "1e949eb2-e711-4fa7-94a0-f71c8756a03f",
+                  "jsondocId": "0c81a0a9-786c-470c-92f7-91abedac7932",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1130,7 +1203,7 @@
                "description": "Set translation start",
                "queryparameters": [
                   {
-                     "jsondocId": "246c1273-9a0d-40cc-8235-4055a40e8e61",
+                     "jsondocId": "f5db1bdd-0a13-4b62-bd82-257c208cc494",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1139,7 +1212,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "3ec700e8-f139-478e-8807-343fbd502dde",
+                     "jsondocId": "ebb98f74-de25-43ef-a4a0-b2b85c4197e9",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1148,7 +1221,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "f837e928-301d-4212-9093-60df4e334f76",
+                     "jsondocId": "92a5c230-8587-4e99-8080-8ed20f0f4235",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1157,7 +1230,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "bc1ebc79-7495-4f21-b7d2-21834ab519d4",
+                     "jsondocId": "47f61d18-867e-4dd5-8175-660d9ae77702",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1166,7 +1239,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "a6b96adb-788a-414e-9174-96c3125db6cb",
+                     "jsondocId": "c2b574f3-b435-4ddd-b30d-6fdafae257ca",
                      "description": "JSONArray containing a single JSONObject feature that contains {'uniquename':'ABCD-1234','location':{'fmin':12}}",
                      "name": "features",
                      "allowedvalues": [],
@@ -1183,17 +1256,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "8382c9ac-9630-4f6b-9556-03f6df274c8b",
+                  "jsondocId": "495cdbb1-e2da-4e66-8865-2e8617809cd4",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "dc6d760f-fc03-4048-9d2b-fd1c2a9e19b1",
+               "jsondocId": "b87510ba-042f-41e7-9c97-c2baaa59d30b",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "85c20c62-dcab-4706-8b6e-366f10c9757d",
+                  "jsondocId": "e8f3a222-7d60-42ed-a999-09155bd00882",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1203,7 +1276,7 @@
                "description": "Set translation end",
                "queryparameters": [
                   {
-                     "jsondocId": "f857e1ab-2a7e-4149-b852-e64a22993e65",
+                     "jsondocId": "0035bcf8-56d0-44ed-b48f-6d38fd4f60b3",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1212,7 +1285,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "640103b1-675b-4f4b-a4b1-f3939acbe80c",
+                     "jsondocId": "00e1aa23-86eb-43a0-91b0-2c3775424cc2",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1221,7 +1294,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "d3fffe06-0f41-4159-b853-f4443d9d53ac",
+                     "jsondocId": "d9585246-bab5-47d8-984e-841978a4ff12",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1230,7 +1303,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "d82ebf29-8311-45e5-8a3b-679855192235",
+                     "jsondocId": "0d4cd754-7efa-4efa-b2f0-96db6be5dbce",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1239,7 +1312,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "0e8c26bc-c764-4a5d-b03f-35fc61e377e4",
+                     "jsondocId": "1834e7ca-69e5-4d2a-86f7-7ea95616a2d5",
                      "description": "JSONArray containing a single JSONObject feature that contains {'uniquename':'ABCD-1234','location':{'fmax':12}}",
                      "name": "features",
                      "allowedvalues": [],
@@ -1256,17 +1329,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "7c74a970-e90b-4e75-bd46-548561f9f82a",
+                  "jsondocId": "3ba8bb95-3e35-4228-88e0-ebbc4f2b1c3b",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "c7b1792a-6826-405a-b605-2bb9d2243317",
+               "jsondocId": "1df94d3e-fa7d-47de-a648-fc05f573f40f",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "be307bb1-3964-458d-b842-41626d4678b8",
+                  "jsondocId": "6bba416f-df8c-481f-89b8-b38b74718c88",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1276,7 +1349,7 @@
                "description": "Set longest ORF",
                "queryparameters": [
                   {
-                     "jsondocId": "a5185054-b064-45da-a38d-edc11a8d6a54",
+                     "jsondocId": "4cdb8725-ab52-4e24-8b0c-1f4b9fe69bf4",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1285,7 +1358,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "906689f6-00b7-4671-b1d0-cec3ac736429",
+                     "jsondocId": "ca596074-8389-4ed0-ad8a-a036e6a2aada",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1294,7 +1367,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "4e4d026d-685b-4a98-8f83-991b70b91f67",
+                     "jsondocId": "afb54a60-b2ec-47cd-82aa-5f076bc702a2",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1303,7 +1376,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "eb3c011f-d4dd-47db-8de0-d5264a441e9f",
+                     "jsondocId": "8a17d237-9073-47a6-beb7-787828f146ba",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1312,7 +1385,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "3bf6eeee-cd96-431c-9091-ac263f54af97",
+                     "jsondocId": "61cd9897-8c21-48d2-916d-7428534140cf",
                      "description": "JSONArray containing a single JSONObject feature that contains {'uniquename':'ABCD-1234'}",
                      "name": "features",
                      "allowedvalues": [],
@@ -1329,17 +1402,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "55d883f1-2c15-4cc6-b1cd-e064384a431d",
+                  "jsondocId": "36097463-6df2-48fa-94d7-16212ebd3954",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "04ab2dce-8d44-491b-919d-d33b182e13c1",
+               "jsondocId": "f93698f0-9e98-4bb5-85c1-ef6e54a58bf7",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "e66af8f4-1f2a-4a6e-88eb-c3bd7c56eeb5",
+                  "jsondocId": "7aff3ee2-bc1f-46d8-9745-c26683cb8785",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1349,7 +1422,7 @@
                "description": "Set boundaries of genomic feature",
                "queryparameters": [
                   {
-                     "jsondocId": "4b8f5fbe-8528-4fe5-af9f-7f649c5ed8a9",
+                     "jsondocId": "cbe3d654-261d-4828-ac92-7470551e58d4",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1358,7 +1431,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "85503ba0-0dbb-4c86-81ea-c6ae2fc62b3f",
+                     "jsondocId": "9bbd796a-afd6-4bf3-adbf-253c1a750f35",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1367,7 +1440,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "d34df53e-394b-4207-a536-9bb941955286",
+                     "jsondocId": "ded79102-2073-41b9-86b9-0d79800caa97",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1376,7 +1449,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "2f64740c-034d-44f4-80e8-6a8e68239091",
+                     "jsondocId": "f2b53220-3d65-4a36-b4ba-32c97e6548fc",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1385,7 +1458,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "61dd116d-c180-43ab-88e1-f6ee26a0e720",
+                     "jsondocId": "d91a293c-5570-4521-96c8-4606884eeca8",
                      "description": "JSONArray containing feature objects with the location object defined {'uniquename':'ABCD-1234','location':{'fmin':2,'fmax':12}}",
                      "name": "features",
                      "allowedvalues": [],
@@ -1402,17 +1475,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "e2d5ca71-8bbb-4fae-8e46-156cfce61427",
+                  "jsondocId": "06e38d19-bc33-4000-bd96-ae902c79f5b2",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "81a2cc9b-4d58-415e-bee7-e23430f138b9",
+               "jsondocId": "56e5e190-3abd-40a7-b5b6-a37b6220a74f",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "44781493-d9cb-456d-bf47-dd02cd7e866d",
+                  "jsondocId": "dc0a0070-7c30-4469-8136-8009c61b1726",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1422,7 +1495,7 @@
                "description": "Get sequence alterations for a given sequence",
                "queryparameters": [
                   {
-                     "jsondocId": "e3c38881-d7af-47d0-8f7c-a8916c377ba5",
+                     "jsondocId": "2e52da6a-a902-4b56-a81b-def559a0af1a",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1431,7 +1504,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "0c174640-3692-43d2-92e6-436881ff0950",
+                     "jsondocId": "4c372a5d-9667-4807-a629-db5b0ba10bc3",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1440,7 +1513,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "c7e9534d-0dea-48fd-bd0b-277ed7011e9d",
+                     "jsondocId": "7760cdec-6036-414c-81d5-e636cb2ea7b9",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1449,7 +1522,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "fcad033e-f7ea-4dbb-9a94-ec895b412bb6",
+                     "jsondocId": "1d8757aa-ae5d-4033-b154-5edc0f639cbc",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1466,17 +1539,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "2bf962a8-a8a5-45fa-93fe-f9bcf6dfcd98",
+                  "jsondocId": "68d6290b-3af2-425c-831b-f0e19669aa2c",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "f64930b3-6d2f-4180-8d3b-cb1242c3aa67",
+               "jsondocId": "ac33e433-76f4-42dd-bf9c-ae02ec83ce1f",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "0e3bbfb4-633e-4f2e-b17d-ad33436319a4",
+                  "jsondocId": "4de0be42-e057-43e6-9f44-c8370d028a53",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1486,7 +1559,7 @@
                "description": "Set readthrough stop codon",
                "queryparameters": [
                   {
-                     "jsondocId": "9e450c77-d1b8-4769-9e10-cdf92eaed211",
+                     "jsondocId": "8479c364-8dbe-44fb-b30e-81a57007f7fb",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1495,7 +1568,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "1b895328-f229-4877-8e8a-9f56bf498a65",
+                     "jsondocId": "fb79e11b-3404-4c31-8787-dd470240791c",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1504,7 +1577,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "793c4de7-2242-43c0-9257-6a45370b677d",
+                     "jsondocId": "08f37389-09b2-4a4e-ac4e-6fe01fd8529a",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1513,7 +1586,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "4736c6e7-5be2-45e3-b117-87a9f32634d8",
+                     "jsondocId": "a94df85c-9dc8-4194-b58c-f2ef34be6875",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1522,7 +1595,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "a40f74fb-c4e0-4206-a68d-f3e711c4883b",
+                     "jsondocId": "6f8c1ccf-5543-442e-8588-883a405bbd9f",
                      "description": "JSONArray with one feature object {'uniquename':'ABCD-1234'}",
                      "name": "features",
                      "allowedvalues": [],
@@ -1539,17 +1612,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "031b1002-afea-430d-b5eb-916f57602746",
+                  "jsondocId": "ba79370d-3616-4d23-9481-7550e8d47f1f",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "20743e12-88b1-49fe-9788-c40faa0db34f",
+               "jsondocId": "0e5ffc2a-167c-431e-8527-ef11c26c2e31",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "a1952101-6e76-433e-bf4e-7225d8863a10",
+                  "jsondocId": "9512c0e7-d6b4-4a6e-a20b-605adbd24d94",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1559,7 +1632,7 @@
                "description": "Add sequence alteration",
                "queryparameters": [
                   {
-                     "jsondocId": "799e847c-ec84-40c8-bb09-59cbad3502c5",
+                     "jsondocId": "b3d7d0b3-a11f-45b3-bd07-e06ec8083f39",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1568,7 +1641,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "78ed153e-6cc9-4f10-9269-9f8db53b997f",
+                     "jsondocId": "42b2b570-a03e-4318-893f-b730012d261e",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1577,7 +1650,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "d4dfe44c-bd8b-456d-a0c5-74c8d5558f6b",
+                     "jsondocId": "77642eae-2c1a-4195-8052-39e1a2785326",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1586,7 +1659,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "156d17c2-505c-4fac-920f-637e051f39dd",
+                     "jsondocId": "f608d134-cd76-421a-b748-11a2d69f2f7f",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1595,7 +1668,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "47a3426e-3ff7-4585-85eb-094d0af2d503",
+                     "jsondocId": "e9b36eef-1798-496a-bd8c-5e5cc7818679",
                      "description": "JSONArray with Sequence Alteration (Insertion, Deletion, Substituion) objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/",
                      "name": "features",
                      "allowedvalues": [],
@@ -1612,17 +1685,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "a5368e72-56ba-4ccc-88af-40263b1478fb",
+                  "jsondocId": "f73d87de-7948-4c7c-940f-af0f90f060aa",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "c8b9d614-5ed2-4eb0-b0a4-8744bb0f3e92",
+               "jsondocId": "b870a7a7-810a-41ca-8080-843f4d8c282a",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "37a2f00d-dc1d-493a-91af-4ab378e2b091",
+                  "jsondocId": "52d01174-cd22-4db0-a31d-5510d57ff424",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1632,7 +1705,7 @@
                "description": "Delete sequence alteration",
                "queryparameters": [
                   {
-                     "jsondocId": "5d8726a7-ce5d-4b88-82e5-362639c8e5fb",
+                     "jsondocId": "1c9bdb4b-53cc-4e5e-902b-329f9b1c2eab",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1641,7 +1714,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "28995d69-a760-4cc6-b227-a6e6c652da09",
+                     "jsondocId": "42e6ca9d-cff5-49b7-81d4-39e60291d6a1",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1650,7 +1723,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "2dcbe9ef-1db7-4cfe-bd44-17f20890ed49",
+                     "jsondocId": "2f5adc09-c98e-4479-a32c-92b78f4dc46b",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1659,7 +1732,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "639655e8-5bc2-43d2-be48-320ebb0fe580",
+                     "jsondocId": "f7711e95-4dec-4580-a06e-d152053874ef",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1668,7 +1741,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "04778e8c-5dbe-4694-b7ff-98cc3a8ea6c5",
+                     "jsondocId": "07c27f19-1dad-4f59-9491-911ce032db10",
                      "description": "JSONArray with Sequence Alteration identified by unique names {'uniquename':'ABC123'}",
                      "name": "features",
                      "allowedvalues": [],
@@ -1685,17 +1758,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "27c652a9-cd04-4e7e-abc3-6b28a121c8b5",
+                  "jsondocId": "e7038d6b-7b3c-4843-8b69-2c4501ff78df",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "46a83fad-d4d5-4c23-b736-25dc497477c1",
+               "jsondocId": "52aadea7-ee43-4da7-ab32-656f4a134b39",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "1b590fe0-896e-4796-b7df-a8d6483f0695",
+                  "jsondocId": "d5cdb622-d6c8-4c0e-b36d-a7febee58d1c",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1705,7 +1778,7 @@
                "description": "Flip strand",
                "queryparameters": [
                   {
-                     "jsondocId": "17938646-031f-4d68-9c5c-8161aff5a1ad",
+                     "jsondocId": "7cf029c5-54f1-4c12-956b-b3829e2fc8e8",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1714,7 +1787,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "bd1c8114-0bd9-4644-b8b3-119b532317aa",
+                     "jsondocId": "1cbe738d-c230-4208-bdd3-48f2bbf81a64",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1723,7 +1796,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "be3b4823-4ca0-4903-9272-1bb97461dc38",
+                     "jsondocId": "775e5352-87ea-4b45-b6de-a31e974e67af",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1732,7 +1805,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "90c02d20-5cbd-42fd-b4fb-3d99086f5312",
+                     "jsondocId": "6343b568-9548-4888-8bb8-9453ebc30dc4",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1741,7 +1814,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "c86c9b11-9dfe-4f64-9509-02018220bad9",
+                     "jsondocId": "e2e16bec-52ab-4777-a10f-89af5697eaf9",
                      "description": "JSONArray with with objects of features defined as {'uniquename':'ABC123'}",
                      "name": "features",
                      "allowedvalues": [],
@@ -1758,17 +1831,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "108cf868-173b-42b0-b583-1b7aaf151aba",
+                  "jsondocId": "f9c9e865-a71a-4793-a846-c9acaab82ac1",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "e013a939-38f0-47e0-b2b8-27307d6e94f1",
+               "jsondocId": "c9559061-990b-42c4-817f-475759dd5515",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "2a2efc8f-f30a-4eb8-97a8-dcc6935c75d8",
+                  "jsondocId": "16b0e8ae-f624-4b81-8cb0-ac399045e3c8",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1778,7 +1851,7 @@
                "description": "Merge exons",
                "queryparameters": [
                   {
-                     "jsondocId": "9ce202ee-fbe2-4150-9fdc-8f54fdcd2b3e",
+                     "jsondocId": "5151c440-5efd-456e-9bbd-64659eefbc3d",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1787,7 +1860,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "c9c6d825-2e83-4ec9-95fc-25bf21bca528",
+                     "jsondocId": "81024f5d-48de-4667-bac0-0ec012f0161a",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1796,7 +1869,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "f02e9afd-d9ab-46e2-9423-7118c759f1c1",
+                     "jsondocId": "88ff6831-770b-4af4-be62-d10225477149",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1805,7 +1878,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "bf607117-4f09-41a4-9c31-ecc8f7f078f4",
+                     "jsondocId": "545cf842-b396-43ed-984c-3ed63fb17256",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1814,7 +1887,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "39db56d4-10de-4b61-94b2-f547cc350fc0",
+                     "jsondocId": "c6ad4859-ce40-4026-af7c-71eae8c5b710",
                      "description": "JSONArray with with two objects of referred to as defined as {'uniquename':'ABC123'}",
                      "name": "features",
                      "allowedvalues": [],
@@ -1831,17 +1904,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "1a63c9a3-e77a-4b31-9694-8eed6dbf71b0",
+                  "jsondocId": "88419a83-8044-4c50-9797-72925b67ab6a",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "f3d847a3-eddc-4e3d-9f13-c05229f8a6fd",
+               "jsondocId": "5cf05907-070d-4ac9-bb76-b7157c855422",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "4c2403e2-4684-4391-8bb2-99ce567bfc30",
+                  "jsondocId": "89c4c419-2b28-4284-b493-8b2fd354161b",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1851,7 +1924,7 @@
                "description": "Split exons",
                "queryparameters": [
                   {
-                     "jsondocId": "fbb883ae-cc0c-48a3-94d6-885d6a070b07",
+                     "jsondocId": "d60c7077-1356-4f03-8fcc-6001b473a9f4",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1860,7 +1933,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "4d2d5f1f-c18a-486b-abfd-313f662dd149",
+                     "jsondocId": "11f68fb5-178b-4207-853e-932341bb1c54",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1869,7 +1942,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "6bbaa28d-21f5-4e51-8b2a-377669b3d3e3",
+                     "jsondocId": "fcc1ca76-2e48-4b6b-be67-379b04575793",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1878,7 +1951,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "2d9be1f7-388a-4f9d-8276-5118f74ac633",
+                     "jsondocId": "d100d5b5-bb4a-43fd-86bd-b1fe8243cdf3",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1887,7 +1960,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "1ed5988f-e5b9-4492-a97a-ec4836a5622f",
+                     "jsondocId": "7b547da2-f752-4bf1-8145-c8f1259f5102",
                      "description": "JSONArray containing feature objects with the location object defined {'uniquename':'ABCD-1234','location':{'fmin':2,'fmax':12}}",
                      "name": "features",
                      "allowedvalues": [],
@@ -1904,17 +1977,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "f4e7e3aa-112b-40de-8bd9-c99ca16b7694",
+                  "jsondocId": "d234d786-d8ff-4b83-a5a3-0f11ed8b6722",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "b9794874-7d55-4c25-9314-6d0348f24efb",
+               "jsondocId": "4f578c28-e845-4a02-85cb-411ec7c15414",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "85309908-e870-4969-9b87-0e107b992d59",
+                  "jsondocId": "5362251b-37c6-4b26-a6d8-6e2c448d0714",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1924,7 +1997,7 @@
                "description": "Delete feature",
                "queryparameters": [
                   {
-                     "jsondocId": "02aba3c2-8b60-4b3d-b2e4-77b223d4f296",
+                     "jsondocId": "2ca9cd22-4872-43b1-8e29-4eb6d841e3e4",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -1933,7 +2006,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "4a637ab2-f3ab-4ade-85bc-98418c1ad56c",
+                     "jsondocId": "19a3a12d-7d04-4508-ad1d-3a12ec82ca7b",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -1942,7 +2015,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "e1d51069-28fd-494f-9beb-f3673870aa2c",
+                     "jsondocId": "7036d50c-ab52-4bcd-879c-a0ee79240184",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -1951,7 +2024,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "6824864f-e093-4e2f-b40f-577b53cbc313",
+                     "jsondocId": "0d5ddcc4-e5a7-4662-9eaf-53e401d24e2d",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -1960,7 +2033,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "96e7730a-eaee-4396-ac2a-3b7d08db98d7",
+                     "jsondocId": "df757a83-25c9-4bf2-906a-d95ad202c5d0",
                      "description": "JSONArray of features objects to delete defined by unique name {'uniquename':'ABC123'}",
                      "name": "features",
                      "allowedvalues": [],
@@ -1977,17 +2050,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "b1d9cc56-2a3a-4b62-b498-3b3fd5d5efb7",
+                  "jsondocId": "f9b45251-c3c2-4b52-a2cb-4cbeabfd7b33",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "4fdb7e4b-8ae6-440f-9ff4-8833af7a3cec",
+               "jsondocId": "c3fb831b-8392-4ee9-9b0d-7235069956c1",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "a199f9f0-b9cf-4266-b3f1-52ecfbbfe86c",
+                  "jsondocId": "227302a0-09f0-4b31-a439-40b0a8634374",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -1997,7 +2070,7 @@
                "description": "Delete exons",
                "queryparameters": [
                   {
-                     "jsondocId": "1f6a3415-ba51-4336-bcf5-f877a18747fe",
+                     "jsondocId": "971d788b-7c77-4019-8359-1f9563e91a0a",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2006,7 +2079,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "00385337-2ddf-47bf-ae50-deec94f90ea4",
+                     "jsondocId": "98c75400-d827-43d1-89a3-73ae07963379",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2015,7 +2088,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "c492b75d-9ce6-4086-860e-7023a70a5b05",
+                     "jsondocId": "4950a054-645b-4b02-b068-0c36f3733fbe",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -2024,7 +2097,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "64241f01-009c-4660-aab4-6356603181ca",
+                     "jsondocId": "b03bdad1-a71b-4197-8cc9-80d706c4058a",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -2033,7 +2106,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "4a1fbced-43a3-4348-94e4-541f270e4037",
+                     "jsondocId": "0848bd1b-d583-41c6-985c-65ddc53ccacc",
                      "description": "JSONArray of features objects, where the first is the parent transcript and the remaining are exons all defined by a unique name {'uniquename':'ABC123'}",
                      "name": "features",
                      "allowedvalues": [],
@@ -2050,17 +2123,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "96b4303d-c333-4f30-b07a-a5b34bb0dbad",
+                  "jsondocId": "109ffa4d-3871-43d0-918c-ae326fd7f98c",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "b40d6b84-0d76-4410-91fd-9b9d30b668e0",
+               "jsondocId": "f6dc3981-8636-497b-9faf-60a9470ade59",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "8e6b5c95-59fa-4843-bf2c-cc81255dc336",
+                  "jsondocId": "b6e7954c-6820-4a37-9012-fd088a7dde1f",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -2070,7 +2143,7 @@
                "description": "Make intron",
                "queryparameters": [
                   {
-                     "jsondocId": "de09efd2-d038-4019-88a5-0bd0e4257a69",
+                     "jsondocId": "3ff18491-13fc-4cbd-ad44-2a6f6ad871c4",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2079,7 +2152,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "b3448577-bbbe-4bec-b2c2-97a8ee8314d8",
+                     "jsondocId": "089262a6-1b61-4073-8f39-1883aad0d77e",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2088,7 +2161,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "3b0f0ff8-b59d-4749-8acf-fe81177d9076",
+                     "jsondocId": "2881f015-2393-430a-80b1-261739dcbfa0",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -2097,7 +2170,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "f4b15cf0-c78f-4fa5-8a03-5b5f24b715d3",
+                     "jsondocId": "ac288145-a099-4b48-a924-f71dd72fd64e",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -2106,7 +2179,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "ce5de64d-c578-4c90-9310-3a4fb0348de8",
+                     "jsondocId": "ea5235ef-db3b-4155-9677-19af9a53f76c",
                      "description": "JSONArray containing a single JSONObject feature that contains {'uniquename':'ABCD-1234','location':{'fmin':12}}",
                      "name": "features",
                      "allowedvalues": [],
@@ -2123,17 +2196,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "a0b6aa0e-4818-4bbe-8e64-a578ae440fee",
+                  "jsondocId": "902d2d77-2d67-49ad-8106-c4c7f0bf147b",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "f2b78176-5ca9-4160-ae9c-3a2bb3c29347",
+               "jsondocId": "de0e222b-25fd-420b-a4c8-8885cf38b89b",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "c42f29de-8512-4492-9023-bf52c08c5c77",
+                  "jsondocId": "2b989180-bdac-4612-837c-758ff53cf000",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -2143,7 +2216,7 @@
                "description": "Split transcript",
                "queryparameters": [
                   {
-                     "jsondocId": "dab7a469-37de-4aa9-b002-985f66c1c2c9",
+                     "jsondocId": "3fd71c53-576d-4e10-9217-17ec2f06d729",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2152,7 +2225,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "d99102e1-f1bd-4af5-8dbb-07eea3edc06a",
+                     "jsondocId": "7e90095e-1a06-4dba-9158-5dbafc0d1052",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2161,7 +2234,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "8b30ab7e-ced2-4bff-b4e9-0ef82a4ec9f4",
+                     "jsondocId": "82717f5e-9060-4660-bc4b-f5fc8c16bcec",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -2170,7 +2243,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "1f8d80ac-039c-4e4c-9963-4e926163da2c",
+                     "jsondocId": "e01223e5-8ab1-4e26-b632-e72499be029d",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -2179,7 +2252,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "52ef9440-7668-44ef-8c51-212ffb74d343",
+                     "jsondocId": "46591a93-0fe6-491d-9934-7db005f38e8e",
                      "description": "JSONArray with with two exon objects referred to their unique names {'uniquename':'ABC123'}",
                      "name": "features",
                      "allowedvalues": [],
@@ -2196,17 +2269,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "40ec273a-bf33-4674-9f58-36c75a1def00",
+                  "jsondocId": "6a9bafed-9054-4d91-9967-25ea32004ad0",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "6d064e6c-f1d5-4bbf-87fd-7876c7b1b75c",
+               "jsondocId": "2bed7146-535b-40fb-b4ce-67914cd566a4",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "3f1ab44e-433f-48db-b727-4924ed8f2273",
+                  "jsondocId": "cd8ebe9c-94ea-4b85-969d-202c1f883467",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -2216,7 +2289,7 @@
                "description": "Merge transcripts",
                "queryparameters": [
                   {
-                     "jsondocId": "e919c6d4-d0d5-4469-a9a5-bf98d75a2f2f",
+                     "jsondocId": "41d61a44-d83f-465b-bb91-6409794843dd",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2225,7 +2298,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "d9e5bc8a-9fc8-43c1-8215-50afea00837a",
+                     "jsondocId": "9379bb41-629c-43a9-903c-74ea67b725c1",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2234,7 +2307,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "2286be6e-2453-4b53-84e1-cfc4dcf10474",
+                     "jsondocId": "465e84af-b81a-4856-9e95-42533bd47c19",
                      "description": "(optional) Sequence name",
                      "name": "sequence",
                      "allowedvalues": [],
@@ -2243,7 +2316,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "7b42772d-ccc8-4175-8794-65e993e0493d",
+                     "jsondocId": "67ee0357-f2b6-4d22-b606-313ec6edbdaf",
                      "description": "(optional) Organism ID or common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -2252,7 +2325,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "87ef3ce6-bbe6-42e5-8388-171d4109d16d",
+                     "jsondocId": "9651f791-97ba-49ec-8df0-c0ddc6a9f964",
                      "description": "JSONArray with with two transcript objects referred to their unique names {'uniquename':'ABC123'}",
                      "name": "features",
                      "allowedvalues": [],
@@ -2268,7 +2341,7 @@
             {
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "6fcc1f95-eb6d-4b61-9079-f92fa7c1e813",
+                  "jsondocId": "8d426bda-dc5a-4b08-9b47-102976ebd3bf",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -2276,7 +2349,7 @@
                "pathparameters": [],
                "apierrors": [],
                "bodyobject": null,
-               "jsondocId": "4102c194-6de0-4edf-915a-3cb985bb60d8",
+               "jsondocId": "767dc04b-bd0b-4112-adc6-ec5677463adb",
                "description": "Get sequences search tools",
                "queryparameters": [],
                "path": "/annotationEditor/getSequenceSearchTools",
@@ -2288,17 +2361,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "bfc8bb95-a318-4ff8-9250-3e9be9c9cdd8",
+                  "jsondocId": "2dc34d81-2590-483c-a196-32dc5648196a",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "0ade92b8-b920-4d4f-bade-3cda88a196f7",
+               "jsondocId": "ba42b3c2-e02a-4aa5-bbfe-17a0c19145a8",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "3d8d3798-abc2-43b8-8cb6-dd2340004e8f",
+                  "jsondocId": "57bae42e-abd7-4248-9323-c02c386bec0f",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -2308,7 +2381,7 @@
                "description": "Get canned comments",
                "queryparameters": [
                   {
-                     "jsondocId": "d26c917b-fb6e-49c9-aace-44831bf4d0da",
+                     "jsondocId": "c69cef66-f83f-4cc8-a339-44287a1cf9d1",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2317,7 +2390,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "208ad673-a29a-4fa8-9421-ef954e715097",
+                     "jsondocId": "1439ae86-26e4-476e-96d5-98998d67728e",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2334,17 +2407,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "9ef67eed-b7a8-48e2-90da-f8332b9b81e8",
+                  "jsondocId": "a218b703-4951-49dc-a1d8-3ee9a220f355",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "e5321dca-5a63-45b7-b154-4df119b80e71",
+               "jsondocId": "ed449055-4063-4e3c-ae41-088f4d8deb8a",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "87c91f4d-3b30-482e-aa2c-f007390acfbf",
+                  "jsondocId": "26eb4504-7066-4db7-92bd-729b39b585c0",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -2354,7 +2427,7 @@
                "description": "Search sequences",
                "queryparameters": [
                   {
-                     "jsondocId": "4b565a49-711d-44fc-98b6-d3f09cff5115",
+                     "jsondocId": "0041433e-54b2-490c-b0f2-780cc194b588",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2363,7 +2436,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "255a1f67-c185-498d-bde8-6f7c40b421a7",
+                     "jsondocId": "1bb677e3-a1c1-4eb4-9231-8144788ecaef",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2372,7 +2445,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "32208a80-5c7f-4b5c-8c37-69625d3e395b",
+                     "jsondocId": "0e58aedd-cc9f-4014-a457-ccfd0c9e5cd7",
                      "description": "{'key':'blat','residues':'ATACTAGAGATAC':'database_id':'abc123'}",
                      "name": "search",
                      "allowedvalues": [],
@@ -2389,17 +2462,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "a44853b9-d88f-4e81-94ef-9f29879815e2",
+                  "jsondocId": "44eae921-3293-409e-929f-dd493b319f8b",
                   "mapValueObject": "",
                   "map": "",
                   "object": "annotation editor",
                   "multiple": "Unknow"
                },
-               "jsondocId": "12f12083-0261-475a-a7cc-b695c8e69e1d",
+               "jsondocId": "b30457f4-6b30-443d-abf8-60b4c26069bd",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "481e85c6-2a03-48b6-9149-bfa3148d26b7",
+                  "jsondocId": "407833b6-8b89-458d-8d61-1219ab04177c",
                   "mapValueObject": "",
                   "object": "annotation editor"
                },
@@ -2409,7 +2482,7 @@
                "description": "Get gff3",
                "queryparameters": [
                   {
-                     "jsondocId": "e9772a44-b29c-41ad-9a37-f6a8ad1c6649",
+                     "jsondocId": "2c6f415e-f12a-4240-ab82-76b1a3fd2403",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2418,7 +2491,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "734efead-4d4b-4081-8294-4cc9068ec667",
+                     "jsondocId": "b3b73b7a-3fd9-4dde-8bf6-2350b56176d0",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2427,7 +2500,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "9f77e3b8-fcf5-40a1-933e-62e85a44acbb",
+                     "jsondocId": "76db998c-7cd5-4adb-9fc6-25d9b95778eb",
                      "description": "JSONArray of features objects to export defined by a unique name {'uniquename':'ABC123'}",
                      "name": "features",
                      "allowedvalues": [],
@@ -2439,82 +2512,9 @@
                "path": "/annotationEditor/getGff3",
                "produces": ["application/json"],
                "methodName": "getGff3"
-            },
-            {
-               "headers": [],
-               "bodyobject": {
-                  "mapKeyObject": "",
-                  "jsondocId": "28822299-fcf8-4b72-8ba9-3f1174c1b292",
-                  "mapValueObject": "",
-                  "map": "",
-                  "object": "annotation editor",
-                  "multiple": "Unknow"
-               },
-               "jsondocId": "fdbe98ed-80c7-473e-b14c-8c8ae02fb972",
-               "consumes": ["application/json"],
-               "response": {
-                  "mapKeyObject": "",
-                  "jsondocId": "09a8ba65-0967-4efe-aab5-d58cd960f60f",
-                  "mapValueObject": "",
-                  "object": "annotation editor"
-               },
-               "pathparameters": [],
-               "apierrors": [],
-               "verb": "POST",
-               "description": "Add attribute (key,value pair) to feature",
-               "queryparameters": [
-                  {
-                     "jsondocId": "aec9b99d-3912-4e94-9d2f-d5d47e1c79d4",
-                     "description": "",
-                     "name": "username",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "email"
-                  },
-                  {
-                     "jsondocId": "3217e03b-f356-4896-b582-4b3085c8272d",
-                     "description": "",
-                     "name": "password",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "password"
-                  },
-                  {
-                     "jsondocId": "4c3015ea-8925-450e-ab3b-0ae0e184289d",
-                     "description": "(optional) Sequence name",
-                     "name": "sequence",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "string"
-                  },
-                  {
-                     "jsondocId": "2db043dc-3abf-44ea-9f27-f1e9e5869efc",
-                     "description": "(optional) Organism ID or common name",
-                     "name": "organism",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "string"
-                  },
-                  {
-                     "jsondocId": "38890c43-be4b-4228-990b-835044c47889",
-                     "description": "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','non_reserved_properties':[{'tag':'clockwark','value':'orange'},{'tag':'color','value':'purple'}]}.  Available status found here: /availableStatus/ ",
-                     "name": "features",
-                     "allowedvalues": [],
-                     "format": "",
-                     "required": "true",
-                     "type": "JSONArray"
-                  }
-               ],
-               "path": "/annotationEditor/addAttribute",
-               "produces": ["application/json"],
-               "methodName": "addAttribute"
             }
          ],
-         "jsondocId": "f98cc54c-d3b1-4112-8ea5-4d8d26c0e9eb",
+         "jsondocId": "5ecd9c8d-7ae8-4278-9e88-a9e3baf075cd",
          "description": "Methods for running the annotation engine",
          "name": "Annotation Services"
       },
@@ -2524,17 +2524,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "0113977c-3648-449b-905b-7d251faaecc4",
+                  "jsondocId": "e3da22b0-44de-4ae2-8e1f-192f384b5f9c",
                   "mapValueObject": "",
                   "map": "",
                   "object": "group",
                   "multiple": "Unknow"
                },
-               "jsondocId": "3dac858a-22be-4bfe-92d9-9b3e3d8d3113",
+               "jsondocId": "182d0606-7f76-4438-b08a-89af91a12202",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "9b2ef90d-6600-4391-9d92-8fc10165b44b",
+                  "jsondocId": "232c3c43-c1bc-49e1-95bd-d1d91f2f4b0b",
                   "mapValueObject": "",
                   "object": "group"
                },
@@ -2544,7 +2544,7 @@
                "description": "Create group",
                "queryparameters": [
                   {
-                     "jsondocId": "29662a4c-9946-43aa-86b5-fe8d93b45bb8",
+                     "jsondocId": "1dbcdd26-53ac-4680-bf8f-d6697c3a39af",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2553,7 +2553,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "dd8a1501-a667-4768-ac83-3ed50e9879b1",
+                     "jsondocId": "d3707b77-a3d7-47b3-90b2-16ad4b2eac1a",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2562,7 +2562,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "550ca370-c773-4d83-9802-0a08946243c9",
+                     "jsondocId": "bcc8951e-8391-41ba-8176-f2b2b445eabc",
                      "description": "Group name to add",
                      "name": "name",
                      "allowedvalues": [],
@@ -2579,17 +2579,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "a51e4c0e-49ed-4ab3-bb60-c63f777a77b0",
+                  "jsondocId": "7c09d9cd-0384-4195-b144-275db311af4c",
                   "mapValueObject": "",
                   "map": "",
                   "object": "group",
                   "multiple": "Unknow"
                },
-               "jsondocId": "286a3018-720a-4cda-9173-56d3f8b1073d",
+               "jsondocId": "b652bf43-912c-4e1e-ada3-db363618f44c",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "658e7b84-69f3-4b93-94bf-dc5b713f0a53",
+                  "jsondocId": "77f4ca35-41d6-48e5-97e4-61bd79050840",
                   "mapValueObject": "",
                   "object": "group"
                },
@@ -2599,7 +2599,7 @@
                "description": "Get organism permissions for group",
                "queryparameters": [
                   {
-                     "jsondocId": "2cce00e0-ae22-44f6-822d-e962febaf0b5",
+                     "jsondocId": "034f11c0-28ca-45e5-9f5b-65176db15c1d",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2608,7 +2608,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "2d46afc0-05c7-47fb-bd23-e5ed0b6557a0",
+                     "jsondocId": "0efe68ba-d64b-480e-af5c-c685b9157fdc",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2617,7 +2617,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "a547c5e6-81cc-4e32-9a47-fec363213ef3",
+                     "jsondocId": "e0f6b97a-0e3d-4ef0-9f79-1abc5af00af5",
                      "description": "Group ID (or specify the name)",
                      "name": "id",
                      "allowedvalues": [],
@@ -2626,7 +2626,7 @@
                      "type": "long"
                   },
                   {
-                     "jsondocId": "c6e680f8-9cd5-4e70-acab-c0822a76d3bb",
+                     "jsondocId": "decefc73-647a-4af6-a8ad-e6f105382594",
                      "description": "Group name",
                      "name": "name",
                      "allowedvalues": [],
@@ -2643,17 +2643,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "87788bb6-a62e-411a-92b0-0d653493e255",
+                  "jsondocId": "0edc9c52-989c-42f9-a318-02455e08ee05",
                   "mapValueObject": "",
                   "map": "",
                   "object": "group",
                   "multiple": "Unknow"
                },
-               "jsondocId": "6fa4513f-829e-42c5-a4c9-c7c156155346",
+               "jsondocId": "8b944a7f-30bf-4a3f-9d19-2365d8e6bfa3",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "1bea28dc-89df-4791-a0b2-97c0bef9960d",
+                  "jsondocId": "13ddd519-c2e5-46d3-89d7-a2a08555e5eb",
                   "mapValueObject": "",
                   "object": "group"
                },
@@ -2663,7 +2663,7 @@
                "description": "Load all groups",
                "queryparameters": [
                   {
-                     "jsondocId": "09ce50a4-8e5a-448a-b369-74ef80d54bee",
+                     "jsondocId": "fd6011f3-76cd-4fe1-8d59-a99a46dcf510",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2672,7 +2672,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "e0a70c20-6c38-4adf-80c3-c9e4ecf156cc",
+                     "jsondocId": "286ce430-cfea-4c7a-b054-c1dc35d46964",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2681,7 +2681,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "eb84bbee-a2e0-467f-af48-f2fd40258679",
+                     "jsondocId": "3860e264-8e5c-4a22-ab3f-1018f0a99903",
                      "description": "Optional only load a specific groupId",
                      "name": "groupId",
                      "allowedvalues": [],
@@ -2698,17 +2698,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "948f5388-2d77-4e0d-a5f0-2a97b5147a04",
+                  "jsondocId": "d306193b-5bd4-47c3-8e2b-82282b1a967a",
                   "mapValueObject": "",
                   "map": "",
                   "object": "group",
                   "multiple": "Unknow"
                },
-               "jsondocId": "58481314-6073-48c2-995d-59de549473f5",
+               "jsondocId": "36942bf2-599d-4c4b-8299-79bb6c72c495",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "747e6f26-3019-4879-ac93-4f251ac66128",
+                  "jsondocId": "ad5da3e4-883a-4628-be51-e9f9f48e7e4e",
                   "mapValueObject": "",
                   "object": "group"
                },
@@ -2718,7 +2718,7 @@
                "description": "Delete a group",
                "queryparameters": [
                   {
-                     "jsondocId": "2a7f85f0-c566-41cf-a6a9-9297e80d7779",
+                     "jsondocId": "b61077c8-e5e5-4732-b0af-fe3a8f6c1cfe",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2727,7 +2727,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "84be5776-4d75-4469-aa3b-e18eed8a069a",
+                     "jsondocId": "c49540c9-ba3c-45f1-9e2b-c08c28547de1",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2736,7 +2736,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "5db82028-133f-4ad3-a32a-f9f30503959b",
+                     "jsondocId": "60468058-5a4f-4acf-8076-e25c467cadba",
                      "description": "Group ID to remove (or specify the name)",
                      "name": "id",
                      "allowedvalues": [],
@@ -2745,7 +2745,7 @@
                      "type": "long"
                   },
                   {
-                     "jsondocId": "b063dd87-8966-406b-a06c-b4483954789f",
+                     "jsondocId": "74bdaa4c-a44d-40ad-b00b-010bf44dd901",
                      "description": "Group name to remove",
                      "name": "name",
                      "allowedvalues": [],
@@ -2762,17 +2762,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "72572318-cb1e-4568-9fb7-bdfb7f2960f0",
+                  "jsondocId": "3e379224-f4de-40ed-a726-919e79c387e8",
                   "mapValueObject": "",
                   "map": "",
                   "object": "group",
                   "multiple": "Unknow"
                },
-               "jsondocId": "ba61cc8c-1c16-48bb-812d-cf13931e6314",
+               "jsondocId": "6175b83f-d0d5-49b7-a8be-ab0459301b02",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "fc2ca799-2eb8-495c-af66-89dd65dd0df0",
+                  "jsondocId": "30ea4520-bea6-4998-9e55-c836c4843fbb",
                   "mapValueObject": "",
                   "object": "group"
                },
@@ -2782,7 +2782,7 @@
                "description": "Update group",
                "queryparameters": [
                   {
-                     "jsondocId": "ac3e4d8c-496a-4fe3-ad16-23e02b8f3885",
+                     "jsondocId": "10d91580-2825-4f90-8a1e-9f3e92b5e4f7",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2791,7 +2791,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "87e2f17d-5045-4ac0-9d95-3c0825c8ec4f",
+                     "jsondocId": "049dcfd7-d4ef-4747-b8bd-8bb5f6aa6def",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2800,7 +2800,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "3daec0de-1abd-4990-b073-ce39d0aa174a",
+                     "jsondocId": "469e7eca-cb48-4733-af1c-674b7fb8ef6d",
                      "description": "Group ID to update",
                      "name": "id",
                      "allowedvalues": [],
@@ -2809,7 +2809,7 @@
                      "type": "long"
                   },
                   {
-                     "jsondocId": "f2b4fe02-a903-47a5-a77d-874e62129963",
+                     "jsondocId": "5b95cdf5-9f50-4963-8195-daa61383d515",
                      "description": "Group name to change to (the only editable optoin)",
                      "name": "name",
                      "allowedvalues": [],
@@ -2826,17 +2826,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "7a2b8858-35a1-4f43-b62e-8fceea78abcb",
+                  "jsondocId": "9d5d97b1-a76d-41d5-8fd9-8cabdbb168e6",
                   "mapValueObject": "",
                   "map": "",
                   "object": "group",
                   "multiple": "Unknow"
                },
-               "jsondocId": "e48029c1-e83f-4020-af87-bd784b8e7a7f",
+               "jsondocId": "4cae47da-3464-4c07-8867-3f01a6b2b5bd",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "b850d130-51ce-4913-bfda-a6ec01b249ca",
+                  "jsondocId": "43acf739-b2bf-4d9a-9e1f-ce714a786262",
                   "mapValueObject": "",
                   "object": "group"
                },
@@ -2846,7 +2846,7 @@
                "description": "Update organism permission",
                "queryparameters": [
                   {
-                     "jsondocId": "56031ad3-c6c1-4471-89f1-21a23c4beea2",
+                     "jsondocId": "c80aca07-8ce5-4b9a-afba-e87544dd81f6",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2855,7 +2855,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "ab10e688-5e36-4ca1-91f1-da015c4bbdb9",
+                     "jsondocId": "89cb16f7-a974-42af-b304-6ed8eed63766",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2864,7 +2864,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "96776fbb-6ebf-4b76-be5a-e252361eb202",
+                     "jsondocId": "f178b220-36c2-4969-8cd9-db3bdd5cad34",
                      "description": "Group ID to modify permissions for",
                      "name": "groupId",
                      "allowedvalues": [],
@@ -2873,7 +2873,7 @@
                      "type": "long"
                   },
                   {
-                     "jsondocId": "551efa22-6929-481f-b4cc-219dd79e0e2c",
+                     "jsondocId": "abdb18e3-da7f-4757-991b-f5fe3ea1622b",
                      "description": "Group name to modify permissions for",
                      "name": "name",
                      "allowedvalues": [],
@@ -2882,7 +2882,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "febf07c9-3ec1-435b-89c0-5b877bc65047",
+                     "jsondocId": "1674dd54-3b9f-4634-8e59-06e6e61941ad",
                      "description": "Organism common name",
                      "name": "organism",
                      "allowedvalues": [],
@@ -2891,7 +2891,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "ae118a34-90b9-4d55-bd34-8a3555783f5f",
+                     "jsondocId": "d0aab9ac-6162-4fff-ba05-a72f8f9c9560",
                      "description": "Indicate if user has administrative privileges for the organism",
                      "name": "administrate",
                      "allowedvalues": [],
@@ -2900,7 +2900,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "774e7fa3-79ae-4ff8-aac8-35be67b2f615",
+                     "jsondocId": "325b2257-06f0-4a64-a70e-1ecd07e806fa",
                      "description": "Indicate if user has write privileges for the organism",
                      "name": "write",
                      "allowedvalues": [],
@@ -2909,7 +2909,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "c7f274c0-3d1e-4616-8506-6125b30d7b8d",
+                     "jsondocId": "8eb3d4b0-0ec6-4a7a-85d5-6ecd65893986",
                      "description": "Indicate if user has export privileges for the organism",
                      "name": "export",
                      "allowedvalues": [],
@@ -2918,7 +2918,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "ec6230b7-70c5-4b6e-a641-a7530898d660",
+                     "jsondocId": "402911af-dad2-4fd5-900a-671dc8fc1b0c",
                      "description": "Indicate if user has read privileges for the organism",
                      "name": "read",
                      "allowedvalues": [],
@@ -2935,17 +2935,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "e50b0274-b0e9-4622-9342-85e125219619",
+                  "jsondocId": "8a2a21cd-cc86-4568-b3a8-bab2c9502dd6",
                   "mapValueObject": "",
                   "map": "",
                   "object": "group",
                   "multiple": "Unknow"
                },
-               "jsondocId": "3de0e804-eaff-4c74-9dc1-49128239463b",
+               "jsondocId": "093b5011-205a-4896-b024-a3aeeb927524",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "96077b97-35b6-4b6f-9206-79c506cecfd1",
+                  "jsondocId": "3b00ccb5-9484-4870-aa41-4cd49e93334b",
                   "mapValueObject": "",
                   "object": "group"
                },
@@ -2955,7 +2955,7 @@
                "description": "Update group membership",
                "queryparameters": [
                   {
-                     "jsondocId": "63e4ddbb-64f4-419c-971a-60795e197451",
+                     "jsondocId": "a732863f-85ec-4204-903e-1b7be40a8f3c",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -2964,7 +2964,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "e3da7e98-850d-46dc-a0fd-2968e777930c",
+                     "jsondocId": "ce00fbef-c032-4d51-831b-af011e061f0f",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -2973,7 +2973,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "ef91358a-96c6-4d35-a951-3bb828ccafa4",
+                     "jsondocId": "274b5f41-70ba-49a0-8ec6-1a4214b54452",
                      "description": "Group ID to alter membership of",
                      "name": "groupId",
                      "allowedvalues": [],
@@ -2982,7 +2982,7 @@
                      "type": "long"
                   },
                   {
-                     "jsondocId": "e22a8f1b-a9de-4c35-a2b0-91dec711fb72",
+                     "jsondocId": "cb4bdce3-0f3d-4f02-9c56-fda5efaf0f2e",
                      "description": "A JSON array of strings of emails of users the now belong to the group",
                      "name": "user",
                      "allowedvalues": [],
@@ -2996,7 +2996,7 @@
                "methodName": "updateMembership"
             }
          ],
-         "jsondocId": "6d554fe2-e839-4774-8dc0-5ec42df05026",
+         "jsondocId": "221c368f-d2ef-40da-89c7-45c772dcf88c",
          "description": "Methods for managing groups",
          "name": "Group Services"
       },
@@ -3006,17 +3006,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "b241af13-ab18-43e5-98ca-de448a118c2a",
+                  "jsondocId": "6cee951f-f806-4630-83c2-746683004d49",
                   "mapValueObject": "",
                   "map": "",
                   "object": "i o service",
                   "multiple": "Unknow"
                },
-               "jsondocId": "72a58805-1b08-493a-98f8-0bc5397e7dc3",
+               "jsondocId": "d0f5eb66-12ba-48ee-a349-4ef211468a19",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "486d1cc4-62ab-4c01-accb-2dc443a22347",
+                  "jsondocId": "bc9b58b2-f96f-4f9c-af5e-d454e403e61f",
                   "mapValueObject": "",
                   "object": "i o service"
                },
@@ -3026,7 +3026,7 @@
                "description": "Write out genomic data.  An example script is used in the https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/get_gff3.groovy",
                "queryparameters": [
                   {
-                     "jsondocId": "c08774da-63ce-4690-b83a-ffbee3eb04d7",
+                     "jsondocId": "e28f5edc-f5d7-406f-aef4-67395f8aafbe",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3035,7 +3035,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "eccf9819-a2d3-4908-b90c-7b53ddf2d131",
+                     "jsondocId": "b050c81c-55fa-434a-b499-633e6482349a",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3044,7 +3044,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "2cc789a2-e17b-4a2f-9434-2b3cc43cdae7",
+                     "jsondocId": "1e0bcc05-7534-4edb-9944-86e33fa4641b",
                      "description": "Type of export 'FASTA','GFF3'",
                      "name": "type",
                      "allowedvalues": [],
@@ -3053,7 +3053,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "60c14a90-a680-46ef-bf6d-94175dfd6f50",
+                     "jsondocId": "7b8bd3bd-3959-4957-9b7e-2f71fabb77bc",
                      "description": "Type of output sequence 'peptide','cds','cdna','genomic'",
                      "name": "seqType",
                      "allowedvalues": [],
@@ -3062,7 +3062,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "132626a6-3c9b-4940-87f3-784fe98b80a3",
+                     "jsondocId": "8a2f0ef9-dd8a-45b3-a0e7-755c40ee8415",
                      "description": "'gzip' or 'text'",
                      "name": "format",
                      "allowedvalues": [],
@@ -3071,7 +3071,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "341041ae-ed79-4ef6-82bb-1505b9e872b5",
+                     "jsondocId": "92ee12f6-112e-45cc-8dbd-cbf51acf7bef",
                      "description": "Names of references sequences to add.",
                      "name": "sequences",
                      "allowedvalues": [],
@@ -3080,7 +3080,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "f0b1d52f-b765-4ce4-a70d-521b9fc0cc45",
+                     "jsondocId": "8a81cf57-3f2b-48af-bd7f-4d0b49a8ca76",
                      "description": "Name of organism that sequences belong to.",
                      "name": "organism",
                      "allowedvalues": [],
@@ -3089,7 +3089,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "df24e9cc-f307-4876-b3c5-7eda7962af63",
+                     "jsondocId": "18ad3551-7eda-4c7f-884e-5444f7b78250",
                      "description": "Output method 'file','text'",
                      "name": "output",
                      "allowedvalues": [],
@@ -3098,7 +3098,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "830753b0-04b7-4e4f-9db8-64c600939a93",
+                     "jsondocId": "e1062b11-fe39-43ef-afa5-fa6c15d4ed89",
                      "description": "Export all sequences for an organism (over-rides 'sequences')",
                      "name": "exportAllSequences",
                      "allowedvalues": [],
@@ -3107,7 +3107,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "6a41c461-4607-41f4-907a-77396cc6e7a2",
+                     "jsondocId": "859ad53e-3490-42a8-ab5f-3087a9f2f5b9",
                      "description": "Export sequences when exporting gff3",
                      "name": "exportGff3Fasta",
                      "allowedvalues": [],
@@ -3124,17 +3124,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "00f13b0f-b9df-41f7-b43c-6df2972bc778",
+                  "jsondocId": "8d37237d-3996-4309-8cf3-c1950d166ff3",
                   "mapValueObject": "",
                   "map": "",
                   "object": "i o service",
                   "multiple": "Unknow"
                },
-               "jsondocId": "fcb84a2f-f895-44e6-9ad0-3a23fbbdee4f",
+               "jsondocId": "be6e2dc1-8bab-49af-91ff-d887cf004978",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "e9f90191-ce97-46fb-9794-6073d384d36f",
+                  "jsondocId": "a2f507b7-9455-4a52-93b5-28f186ff16bc",
                   "mapValueObject": "",
                   "object": "i o service"
                },
@@ -3144,7 +3144,7 @@
                "description": "This is used to retrieve the a download link once the write operation was initialized using output: file.",
                "queryparameters": [
                   {
-                     "jsondocId": "3132df8b-6ce7-4e4c-97c7-cf751d396fb6",
+                     "jsondocId": "63b990f9-efa6-48ca-9d40-b781751d4b12",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3153,7 +3153,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "2af4554c-6112-4eb8-816f-596aaaaa245a",
+                     "jsondocId": "4cb9628c-8b7b-4678-a566-640c1e5fe825",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3162,7 +3162,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "bb97a0fc-be32-432a-ab4f-53630a058072",
+                     "jsondocId": "a070b59a-2949-4123-aeea-41d8e8bd5dc0",
                      "description": "UUID that holds the key to the stored download.",
                      "name": "uuid",
                      "allowedvalues": [],
@@ -3171,7 +3171,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "453d6026-fb16-449d-b735-e45c5837ad36",
+                     "jsondocId": "d21b08ff-c2a2-4f8c-aced-5b3ea81c7297",
                      "description": "'gzip' or 'text'",
                      "name": "format",
                      "allowedvalues": [],
@@ -3185,7 +3185,7 @@
                "methodName": "download"
             }
          ],
-         "jsondocId": "51794821-1417-4b9b-b8d5-1c95eaad7db3",
+         "jsondocId": "e67c5202-fceb-4c89-adf6-e75489536f4f",
          "description": "Methods for bulk importing and exporting sequence data",
          "name": "IO Services"
       },
@@ -3195,17 +3195,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "8551a7a5-5f6c-4843-a315-6f3deb8046fe",
+                  "jsondocId": "80291c27-48ff-47da-b825-5361e19b8884",
                   "mapValueObject": "",
                   "map": "",
                   "object": "organism",
                   "multiple": "Unknow"
                },
-               "jsondocId": "1106d90f-833a-4667-8da7-7f76989e83cb",
+               "jsondocId": "251de065-54cf-4c55-b6fe-6abe860ccd8b",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "a927e1cc-5929-442b-a6f0-93f6b88373ca",
+                  "jsondocId": "5964ecce-46e9-4bf7-895d-6b0bf706ebec",
                   "mapValueObject": "",
                   "object": "organism"
                },
@@ -3215,7 +3215,7 @@
                "description": "Remove an organism",
                "queryparameters": [
                   {
-                     "jsondocId": "71d4613d-81c5-4e6c-9400-4a17e4a7e6ef",
+                     "jsondocId": "58534e58-0c74-47fc-b128-a14e123fbcbc",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3224,7 +3224,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "66394052-9754-466e-872e-defc33d77a2a",
+                     "jsondocId": "517d0650-f644-4413-a386-3d520fd007f9",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3233,7 +3233,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "d4d4314f-ab61-47db-bd92-6bb109c9d4c3",
+                     "jsondocId": "f7a6a339-e5c6-4408-ba3b-3cda37e997a1",
                      "description": "Pass an Organism JSON object with an 'id' that corresponds to the id to delete",
                      "name": "organism",
                      "allowedvalues": [],
@@ -3250,17 +3250,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "8d91448d-f955-4225-8792-51ce0237f219",
+                  "jsondocId": "65487f4a-48fc-4183-8a86-c2283d291340",
                   "mapValueObject": "",
                   "map": "",
                   "object": "organism",
                   "multiple": "Unknow"
                },
-               "jsondocId": "881792d8-a628-4fae-bdc0-5430e596727f",
+               "jsondocId": "c33d9715-a7e2-4ed0-aa2a-b3b2bdd2f9ef",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "60b87c14-c806-451b-b93b-b2e012b55c07",
+                  "jsondocId": "8c0a52c5-7e68-4df9-a692-5bc7c6cb14e5",
                   "mapValueObject": "",
                   "object": "organism"
                },
@@ -3270,7 +3270,7 @@
                "description": "Remove features from an organism",
                "queryparameters": [
                   {
-                     "jsondocId": "9d527c9c-25c0-4bd4-8850-c6fe5a9b31af",
+                     "jsondocId": "68ecac90-441d-4450-aa8c-4d061dd4dcfc",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3279,7 +3279,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "3a2d1519-eec4-4275-82f1-57c54f59bcfe",
+                     "jsondocId": "a1a68e6d-64f1-4c11-9674-5546273311b0",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3288,7 +3288,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "78b2e865-fdd9-499e-9bbd-47e20ddb8b65",
+                     "jsondocId": "3f1f01d3-0109-487d-a617-9b87c0d55080",
                      "description": "An organism json object that has an 'id' or 'commonName' parameter that corresponds to an organism.",
                      "name": "organism",
                      "allowedvalues": [],
@@ -3305,17 +3305,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "410120c7-d9de-4189-8224-20b4777f449c",
+                  "jsondocId": "e76fd613-15db-481f-adac-7bb479f04db3",
                   "mapValueObject": "",
                   "map": "",
                   "object": "organism",
                   "multiple": "Unknow"
                },
-               "jsondocId": "fa4034b8-9c47-4576-a9ed-751078550029",
+               "jsondocId": "adb05de8-7f94-46bf-9465-bd7a0db33c19",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "5cb049fe-2493-41c3-ad1a-0b1912537188",
+                  "jsondocId": "cfee28bf-2111-44c5-99aa-5b8d4edbe961",
                   "mapValueObject": "",
                   "object": "organism"
                },
@@ -3325,7 +3325,7 @@
                "description": "Adds an organism returning a JSON array of all organisms",
                "queryparameters": [
                   {
-                     "jsondocId": "40ec6333-65e6-44c3-b7ee-8b0729ebf6ce",
+                     "jsondocId": "ae53b2ae-d9cb-46cc-aba2-ed76897cc58c",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3334,7 +3334,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "e92259c1-69cf-4b79-8c99-b316a68b530a",
+                     "jsondocId": "a66f3200-7f4b-4480-b48f-0ffd9b20e2ab",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3343,7 +3343,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "0fa1c8dd-8f56-4ec6-a8e4-b038a8b49351",
+                     "jsondocId": "5e5ef505-31f0-4b78-864f-5e3d60bfc640",
                      "description": "An organism json object with the properties 'commonName' (required),'directory' (required), 'blatdb', 'species','genus'",
                      "name": "organism",
                      "allowedvalues": [],
@@ -3360,17 +3360,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "7ff6ceec-fd49-442e-b326-09dfff834aa3",
+                  "jsondocId": "0539bcbb-ff10-406a-b85d-820e1e8265e8",
                   "mapValueObject": "",
                   "map": "",
                   "object": "organism",
                   "multiple": "Unknow"
                },
-               "jsondocId": "bf030d5c-18e3-4884-8534-ab74c7a54344",
+               "jsondocId": "6362c0b6-a13d-4b82-b94c-7493eea38cd7",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "ebeac957-e661-43ed-ad44-e8bf7cf3158e",
+                  "jsondocId": "d185d63c-fb69-4d88-8db5-ca4c9666a658",
                   "mapValueObject": "",
                   "object": "organism"
                },
@@ -3380,7 +3380,7 @@
                "description": "Finds sequences for a given organism and returns a JSON object including the username, organism and a JSONArray of sequences",
                "queryparameters": [
                   {
-                     "jsondocId": "172b47e6-946e-4615-971f-5d940297b1df",
+                     "jsondocId": "8e6f272d-f29d-4ce6-b0e6-983f8802ca38",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3389,7 +3389,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "202f3e50-7c1c-4035-9822-5f8e2bd1f7df",
+                     "jsondocId": "b556da0b-04c1-4fc2-8c3c-1ebd18608338",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3398,7 +3398,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "1e108f6f-6da6-45ee-a251-a48f89de8dd1",
+                     "jsondocId": "a9b0256f-b8f6-4545-bf3b-4fe616a6e5f4",
                      "description": "Common name for the organism",
                      "name": "organism",
                      "allowedvalues": [],
@@ -3415,17 +3415,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "a6460ea7-c0e4-4111-b93e-d43fe381f72e",
+                  "jsondocId": "19eb2895-9eff-4d88-8fa8-917600c6032a",
                   "mapValueObject": "",
                   "map": "",
                   "object": "organism",
                   "multiple": "Unknow"
                },
-               "jsondocId": "dfb6a274-1e78-443b-b900-c120cf369738",
+               "jsondocId": "0c213d95-7205-4905-a116-ca5c71374ec7",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "2c8f080e-20b1-4496-b621-d0225f78512c",
+                  "jsondocId": "2fa0db8f-edd0-4587-aaa8-1441493ca62e",
                   "mapValueObject": "",
                   "object": "organism"
                },
@@ -3435,7 +3435,7 @@
                "description": "Adds an organism returning a JSON array of all organisms",
                "queryparameters": [
                   {
-                     "jsondocId": "cf563af5-bd02-433c-bcd4-29199054dcc5",
+                     "jsondocId": "66ba2b67-def2-4872-b7b6-85b2b185efd2",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3444,7 +3444,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "859921ba-265e-4bc7-a90d-f819ce865c6a",
+                     "jsondocId": "788db921-9f41-403a-82f6-7b2bb40ae37f",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3453,7 +3453,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "17e32684-e159-4fd4-b139-897cbf502b66",
+                     "jsondocId": "bd1223ad-b8c4-4213-b039-58ec89878536",
                      "description": "An organism json object with the properties: 'id' (required), 'commonName' (required),'directory' (required), 'blatdb', 'species','genus'",
                      "name": "organism",
                      "allowedvalues": [],
@@ -3470,17 +3470,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "eeb5b2df-9c5d-4aa6-a2bb-e1c99e830467",
+                  "jsondocId": "dc9c69cd-5810-48f9-b5e2-d318993abb19",
                   "mapValueObject": "",
                   "map": "",
                   "object": "organism",
                   "multiple": "Unknow"
                },
-               "jsondocId": "9634830a-6ed5-40af-8c10-6f8a721f5df9",
+               "jsondocId": "540fcfb2-c438-4030-8b12-f079ddabec3e",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "777b4c44-7826-4cfe-b64b-0de01b7846bb",
+                  "jsondocId": "cf5234da-8dab-4a94-9c86-792dcfe97ad5",
                   "mapValueObject": "",
                   "object": "organism"
                },
@@ -3490,7 +3490,7 @@
                "description": "Returns a JSON array of all organisms",
                "queryparameters": [
                   {
-                     "jsondocId": "894a6cde-a243-4a80-baad-4351d6a7fa8d",
+                     "jsondocId": "f41dce94-6193-4f1a-a7eb-7369a7435ded",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3499,7 +3499,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "0d733b49-efec-4688-9ebb-257ce3423323",
+                     "jsondocId": "77392149-ad78-4cde-8e69-c0b31ccb6fae",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3513,7 +3513,7 @@
                "methodName": "findAllOrganisms"
             }
          ],
-         "jsondocId": "ebec6228-fb1c-42c9-b242-683bdf817005",
+         "jsondocId": "188a9680-970d-4755-ae66-6b916088da4f",
          "description": "Methods for managing users",
          "name": "Organism Services"
       },
@@ -3523,17 +3523,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "5ad0cf11-97a5-43af-a364-376e5e1fa729",
+                  "jsondocId": "b4ecc020-abeb-416e-a08d-17388fe39d5d",
                   "mapValueObject": "",
                   "map": "",
                   "object": "user",
                   "multiple": "Unknow"
                },
-               "jsondocId": "551d13a0-838a-4c6d-af91-40ea99b8bf28",
+               "jsondocId": "e7990fcb-3ee5-4aaa-b7e9-184f669b10a8",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "13b044ea-0405-4619-a4d0-08aefe8a5e1f",
+                  "jsondocId": "b0e31159-9561-4a5f-a366-ced432508d03",
                   "mapValueObject": "",
                   "object": "user"
                },
@@ -3543,7 +3543,7 @@
                "description": "Get organism permissions for user, returns an array of permission objects",
                "queryparameters": [
                   {
-                     "jsondocId": "5a88a699-a25f-47bb-9f61-558753572af5",
+                     "jsondocId": "67f4edd6-2984-40fe-a25f-3491b36c166c",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3552,7 +3552,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "c96390b7-83a1-4b97-ac51-723cbe30165f",
+                     "jsondocId": "f2f04edc-8773-4cee-b059-89388d324a84",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3561,7 +3561,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "71e6fc01-8cbd-4d2a-9089-c33f3368ac97",
+                     "jsondocId": "8b952d62-3247-43fa-bd5a-6cc65fc13f76",
                      "description": "User ID to fetch",
                      "name": "userId",
                      "allowedvalues": [],
@@ -3578,17 +3578,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "5660bb75-c02e-4fcf-9c5c-69c2650ee1e2",
+                  "jsondocId": "73691360-c42f-44e4-bd1b-2bfdc3d7e155",
                   "mapValueObject": "",
                   "map": "",
                   "object": "user",
                   "multiple": "Unknow"
                },
-               "jsondocId": "2c0f484a-f6ad-44f2-baee-f316cb9b7b37",
+               "jsondocId": "dcf6f12e-9fa6-4f75-9d27-bb711b0c1aab",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "db69c940-8568-45fe-8304-387d1a0d8081",
+                  "jsondocId": "d6c812fa-c5e2-422f-87d7-d10a9b34ad23",
                   "mapValueObject": "",
                   "object": "user"
                },
@@ -3598,7 +3598,7 @@
                "description": "Update organism permissions",
                "queryparameters": [
                   {
-                     "jsondocId": "16ee91eb-66df-4a15-aaa8-9eba33aae5be",
+                     "jsondocId": "52df5cd9-8627-4cce-ae7b-59e505289082",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3607,7 +3607,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "0b4100f6-fa59-44fd-8fe4-a7d7c535c8fd",
+                     "jsondocId": "aa403e10-e4ea-4ded-86c3-9a2df212e241",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3616,7 +3616,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "6ca5c32f-e380-4fd2-9109-f19772e84c95",
+                     "jsondocId": "d580b2a3-6d4d-4186-be22-21b6fea33add",
                      "description": "User ID to modify permissions for",
                      "name": "userId",
                      "allowedvalues": [],
@@ -3625,7 +3625,7 @@
                      "type": "long"
                   },
                   {
-                     "jsondocId": "cc7955b8-35f7-4f57-a06a-f75d228d1cb4",
+                     "jsondocId": "03051250-989b-4c03-975b-150ba7984f84",
                      "description": "(Optional) user email of the user to modify permissions for if User ID is not provided",
                      "name": "user",
                      "allowedvalues": [],
@@ -3634,7 +3634,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "f7028ead-c4a2-451a-8b90-69d4b32f81df",
+                     "jsondocId": "d7225e5a-3415-44c3-b4d1-996e716f7c5e",
                      "description": "Name of organism to update",
                      "name": "organism",
                      "allowedvalues": [],
@@ -3643,7 +3643,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "b58541b8-2464-4bd5-b276-d53d89ce39a9",
+                     "jsondocId": "efd8168e-1b82-442a-ba72-d4ad6a4e560b",
                      "description": "Permission ID to update (can get from userId/organism instead)",
                      "name": "id",
                      "allowedvalues": [],
@@ -3652,7 +3652,7 @@
                      "type": "long"
                   },
                   {
-                     "jsondocId": "c2d1ead8-c4ec-4629-b9ca-c6f62239b294",
+                     "jsondocId": "d673494c-cdc9-4faf-b231-d3c56cdf3c55",
                      "description": "Indicate if user has administrative privileges for the organism",
                      "name": "administrate",
                      "allowedvalues": [],
@@ -3661,7 +3661,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "fe83fb75-ca1b-4047-bf75-db873bb5d241",
+                     "jsondocId": "506dca6a-38fc-483e-a05a-af2c0c5e06b8",
                      "description": "Indicate if user has write privileges for the organism",
                      "name": "write",
                      "allowedvalues": [],
@@ -3670,7 +3670,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "5e22f3ca-e561-464e-bdcc-c7d76d76cfd6",
+                     "jsondocId": "fcced65b-e3ae-45fb-a0e4-4ca006d8ff2d",
                      "description": "Indicate if user has export privileges for the organism",
                      "name": "export",
                      "allowedvalues": [],
@@ -3679,7 +3679,7 @@
                      "type": "boolean"
                   },
                   {
-                     "jsondocId": "cddc5b1e-4b67-43bf-ab47-5260079e6388",
+                     "jsondocId": "66b44001-88d9-4658-a224-357ee0b2bf5d",
                      "description": "Indicate if user has read privileges for the organism",
                      "name": "read",
                      "allowedvalues": [],
@@ -3696,17 +3696,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "2419b4ab-9231-4f34-ba93-5ecad259abe5",
+                  "jsondocId": "3f27f77f-5a04-4490-ad44-2ad487191f71",
                   "mapValueObject": "",
                   "map": "",
                   "object": "user",
                   "multiple": "Unknow"
                },
-               "jsondocId": "d974fcb8-3eb8-440a-bbc7-19858ad1823d",
+               "jsondocId": "0da1125e-06ed-467e-9690-f3df8893c919",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "511129ae-cc1a-468a-99ba-ea2b5206e63f",
+                  "jsondocId": "f76913ae-a86f-43a6-8417-5962521f1778",
                   "mapValueObject": "",
                   "object": "user"
                },
@@ -3716,7 +3716,7 @@
                "description": "Load all users",
                "queryparameters": [
                   {
-                     "jsondocId": "735753c1-007c-44e8-b8de-88b40d816627",
+                     "jsondocId": "517e53ff-405e-48c4-9c37-8a338b012052",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3725,7 +3725,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "c491e590-5588-426a-aad3-69397371ab92",
+                     "jsondocId": "aac12b2c-90cf-4542-b93a-41a541adace2",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3734,7 +3734,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "1541ce5c-cb22-4f7c-94c4-6583d4f83771",
+                     "jsondocId": "062eeca1-2cf0-400b-b45e-a88481005de2",
                      "description": "Optionally only user a specific userId",
                      "name": "userId",
                      "allowedvalues": [],
@@ -3751,17 +3751,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "65dd68b8-6e0b-4ed0-b207-fad1ef880278",
+                  "jsondocId": "b0bdd295-045f-4f74-a1a2-1cfd4211fe97",
                   "mapValueObject": "",
                   "map": "",
                   "object": "user",
                   "multiple": "Unknow"
                },
-               "jsondocId": "bd0cc82a-c405-4489-8f06-4c4b93b86e38",
+               "jsondocId": "dc39b4dc-2705-45d3-8bd5-edbc3f66efb8",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "aecc57ec-c346-4c66-89c3-f3ab2617df9a",
+                  "jsondocId": "6a1d9023-ebd9-4b90-add1-da131219df3c",
                   "mapValueObject": "",
                   "object": "user"
                },
@@ -3771,7 +3771,7 @@
                "description": "Add user to group",
                "queryparameters": [
                   {
-                     "jsondocId": "0fe60009-c4ed-41c0-9a6a-42f703d2a448",
+                     "jsondocId": "5d3fb7ee-0379-4001-a022-5c8261480d8e",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3780,7 +3780,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "68c29683-ceb8-437e-b12a-b448918fb1e6",
+                     "jsondocId": "c9fbb9d2-6f42-42bd-9157-8f4cc6e4df2a",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3789,7 +3789,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "15878a40-8487-4d6f-b9cb-0113cc17068b",
+                     "jsondocId": "da9e4444-c297-40cd-8d09-8d277170ea22",
                      "description": "Group name",
                      "name": "group",
                      "allowedvalues": [],
@@ -3798,7 +3798,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "b2408a1b-a5d4-4694-84d8-1de795c2467d",
+                     "jsondocId": "947cd49a-1f0c-42ec-a187-a428cbda4a4f",
                      "description": "User id",
                      "name": "userId",
                      "allowedvalues": [],
@@ -3807,7 +3807,7 @@
                      "type": "long"
                   },
                   {
-                     "jsondocId": "ec3ef0b9-963b-4259-9aba-7a85688181d4",
+                     "jsondocId": "45a1cace-16f5-4b98-b7a9-0f391741d8d8",
                      "description": "User email/username (supplied if user id unknown)",
                      "name": "user",
                      "allowedvalues": [],
@@ -3824,17 +3824,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "9c056cfd-680f-45b1-9b3a-7df80891ef63",
+                  "jsondocId": "7182faad-e09d-45e7-8937-c7ddca3f162b",
                   "mapValueObject": "",
                   "map": "",
                   "object": "user",
                   "multiple": "Unknow"
                },
-               "jsondocId": "9887c79b-d057-493c-80b0-9dd39117e268",
+               "jsondocId": "3943958a-c813-45bc-9a91-25a2a92a898c",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "57d9b229-5bd1-49d5-9d36-1ab8be62c9b0",
+                  "jsondocId": "e10a9eac-f84b-4dd5-a5dc-2f584290b059",
                   "mapValueObject": "",
                   "object": "user"
                },
@@ -3844,7 +3844,7 @@
                "description": "Remove user from group",
                "queryparameters": [
                   {
-                     "jsondocId": "2d714932-4262-4868-91d3-79504b5f1e68",
+                     "jsondocId": "8ec7bef9-ccce-4749-a337-6660d2247fbb",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3853,7 +3853,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "c4930d2c-b341-42f1-b6c8-98080c094c5c",
+                     "jsondocId": "c7f87a41-d910-4c88-b5cc-9d15cfceb0a7",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3862,7 +3862,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "5b5d2b60-0c7f-4575-b097-ad23f49bc076",
+                     "jsondocId": "e204ef94-de3b-47d9-80a6-a896ccace856",
                      "description": "Group name",
                      "name": "group",
                      "allowedvalues": [],
@@ -3871,7 +3871,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "0997f3a1-ddfe-4f8e-9a9a-6bc841b990b0",
+                     "jsondocId": "9d6037a6-112c-45d5-bb4d-a541878015b3",
                      "description": "User id",
                      "name": "userId",
                      "allowedvalues": [],
@@ -3880,7 +3880,7 @@
                      "type": "long"
                   },
                   {
-                     "jsondocId": "b5917d9b-1127-4147-888d-243cbca383f2",
+                     "jsondocId": "19085155-e165-4eb9-b006-2645e2bbd38f",
                      "description": "User email/username (supplied if user id unknown)",
                      "name": "user",
                      "allowedvalues": [],
@@ -3897,17 +3897,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "d4593412-b17c-43db-a349-ec65dd0a0501",
+                  "jsondocId": "e681a77e-d5ea-4e58-a236-c1e14c72819a",
                   "mapValueObject": "",
                   "map": "",
                   "object": "user",
                   "multiple": "Unknow"
                },
-               "jsondocId": "8c3d7e55-2f42-49b5-8399-037d151a5355",
+               "jsondocId": "4ee76843-b1fe-418f-a792-1c5aeeac50d1",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "66ec44d0-d703-4b9a-a7f1-c4b84dfeb516",
+                  "jsondocId": "ad0b76e5-6d2f-425c-ac77-994fa58c5612",
                   "mapValueObject": "",
                   "object": "user"
                },
@@ -3917,7 +3917,7 @@
                "description": "Create user",
                "queryparameters": [
                   {
-                     "jsondocId": "01169237-5c40-43b5-9030-a5aaa7f13af3",
+                     "jsondocId": "e2ac7e6a-7479-4693-b305-401bdd97ab03",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -3926,7 +3926,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "ccb336e9-8fe5-4c38-bd31-f699e75c24f0",
+                     "jsondocId": "a25c703a-9f5f-4f2f-8105-e67a7625806f",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -3935,7 +3935,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "220d7bf4-6a1e-4380-aad4-906ef12ae60a",
+                     "jsondocId": "612ff4e2-dd2c-4f1b-9b29-8c985889679f",
                      "description": "Email of the user to add",
                      "name": "email",
                      "allowedvalues": [],
@@ -3944,7 +3944,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "941f1403-53dd-48a0-b491-3f28d22e57db",
+                     "jsondocId": "c1f0d189-673b-4d72-b046-3d9cd491b57f",
                      "description": "First name of user to add",
                      "name": "firstName",
                      "allowedvalues": [],
@@ -3953,7 +3953,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "4432ab9f-181d-4736-95c1-89eaf4a3d2ab",
+                     "jsondocId": "53375242-9423-4e4b-9a17-dc467db0263e",
                      "description": "Last name of user to add",
                      "name": "lastName",
                      "allowedvalues": [],
@@ -3962,7 +3962,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "944e8644-8451-423c-8d24-1afab4aac278",
+                     "jsondocId": "7d7bdfa9-9dfb-47d8-bbb5-49697f543141",
                      "description": "Password of user to add",
                      "name": "newPassword",
                      "allowedvalues": [],
@@ -3979,17 +3979,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "771c1f49-e1a3-4da3-a6d6-bb2eb13c9df3",
+                  "jsondocId": "d08606a2-260e-4d69-bb64-b2b5f879f504",
                   "mapValueObject": "",
                   "map": "",
                   "object": "user",
                   "multiple": "Unknow"
                },
-               "jsondocId": "bfda4a0c-1fff-4249-85ce-1115182c24d2",
+               "jsondocId": "5703f601-4ba0-4241-b949-3844aa6cdfce",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "dd7b7319-361a-48d0-9a40-34febe23812e",
+                  "jsondocId": "a5c181fd-5c5f-49e5-8fb9-f5b1e4d20faa",
                   "mapValueObject": "",
                   "object": "user"
                },
@@ -3999,7 +3999,7 @@
                "description": "Delete user",
                "queryparameters": [
                   {
-                     "jsondocId": "bc16e943-4654-416a-9efc-5f574593dff0",
+                     "jsondocId": "77f490fa-0eb6-48e8-aa1c-6e146afc202e",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -4008,7 +4008,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "426eb9cb-256e-465e-9a3f-9745adc47637",
+                     "jsondocId": "b8f426b8-fa73-4cf2-a7f5-8961d9d2a496",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -4017,7 +4017,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "b225a0a7-823f-40ba-9fbf-e603753c8e48",
+                     "jsondocId": "e411c662-e30c-4d32-824b-6c653977af0d",
                      "description": "User ID to delete",
                      "name": "userId",
                      "allowedvalues": [],
@@ -4026,7 +4026,7 @@
                      "type": "long"
                   },
                   {
-                     "jsondocId": "5321d3f5-4668-4b7d-a5c5-f86a002f0082",
+                     "jsondocId": "86cd2dac-a6ea-409f-aa09-bcba413069f4",
                      "description": "Username (email) to delete",
                      "name": "userToDelete",
                      "allowedvalues": [],
@@ -4043,17 +4043,17 @@
                "headers": [],
                "bodyobject": {
                   "mapKeyObject": "",
-                  "jsondocId": "99a3a613-f928-46c1-861c-df61bb47fb90",
+                  "jsondocId": "0fa42b2d-f215-4f18-bab3-e9c00f1c0297",
                   "mapValueObject": "",
                   "map": "",
                   "object": "user",
                   "multiple": "Unknow"
                },
-               "jsondocId": "f8893c60-d6aa-4ea8-8c90-1037ccfd550d",
+               "jsondocId": "1586d195-854c-4a7e-a81b-b6747e17f218",
                "consumes": ["application/json"],
                "response": {
                   "mapKeyObject": "",
-                  "jsondocId": "58fac195-241a-4f91-8d1c-09f94d874c05",
+                  "jsondocId": "c9c91456-a0c8-4676-bee2-8f8c4e32d21f",
                   "mapValueObject": "",
                   "object": "user"
                },
@@ -4063,7 +4063,7 @@
                "description": "Update user",
                "queryparameters": [
                   {
-                     "jsondocId": "66daca5c-c026-429d-bb68-9414469078e0",
+                     "jsondocId": "b858b308-44c0-4bc0-9ccd-4924607873ea",
                      "description": "",
                      "name": "username",
                      "allowedvalues": [],
@@ -4072,7 +4072,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "336a9e3f-4b1b-4478-a34f-0a199eb92df4",
+                     "jsondocId": "fbaa091d-8bcc-4a95-a045-7c5b5102258d",
                      "description": "",
                      "name": "password",
                      "allowedvalues": [],
@@ -4081,7 +4081,7 @@
                      "type": "password"
                   },
                   {
-                     "jsondocId": "e28d9b48-0eb4-41a7-8741-712964b97b5f",
+                     "jsondocId": "f2afccbf-ea0c-4e90-b5ee-2b67851d8888",
                      "description": "User ID to update",
                      "name": "userId",
                      "allowedvalues": [],
@@ -4090,7 +4090,7 @@
                      "type": "long"
                   },
                   {
-                     "jsondocId": "75b93db3-9792-4866-a52e-b60f04262a78",
+                     "jsondocId": "45e4fa41-7008-412c-91c6-2e1cdc598715",
                      "description": "Email of the user to update",
                      "name": "email",
                      "allowedvalues": [],
@@ -4099,7 +4099,7 @@
                      "type": "email"
                   },
                   {
-                     "jsondocId": "4c02a93a-6744-4d42-a5bc-2c7fa5ec02fd",
+                     "jsondocId": "f745b3c0-80cc-4389-be86-eae1085591aa",
                      "description": "First name of user to update",
                      "name": "firstName",
                      "allowedvalues": [],
@@ -4108,7 +4108,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "bf8eeb13-50e4-4aa5-be8e-fd03955d4067",
+                     "jsondocId": "df589db3-baa7-4fc0-8e0f-1c325fafb675",
                      "description": "Last name of user to update",
                      "name": "lastName",
                      "allowedvalues": [],
@@ -4117,7 +4117,7 @@
                      "type": "string"
                   },
                   {
-                     "jsondocId": "1041f544-b3ea-45a8-a87c-613950b951de",
+                     "jsondocId": "5600307f-9a46-42c7-bd83-7db61e39af29",
                      "description": "Password of user to update",
                      "name": "newPassword",
                      "allowedvalues": [],
@@ -4131,7 +4131,7 @@
                "methodName": "updateUser"
             }
          ],
-         "jsondocId": "bf60b61e-e615-498e-9a79-983bc41b2ae7",
+         "jsondocId": "2dea6842-555f-4ff4-9ead-ca3574cfa644",
          "description": "Methods for managing users",
          "name": "User Services"
       }
