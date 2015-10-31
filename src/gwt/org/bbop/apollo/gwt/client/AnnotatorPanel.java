@@ -187,9 +187,11 @@ public class AnnotatorPanel extends Composite {
                     public void onResponseReceived(Request request, Response response) {
                         JSONValue returnValue = null;
                         try {
+                            Window.alert(response.getText());
                             returnValue = JSONParser.parseStrict(response.getText());
                         } catch (Exception e) {
                             Bootbox.alert(e.getMessage());
+                            return ;
                         }
                         JSONValue localRequestObject = returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue());
                         if (localRequestObject != null) {

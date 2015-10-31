@@ -14,8 +14,8 @@ class BookmarkService {
         User user = permissionService.currentUser
         Organism organism = null
         JSONArray sequenceArray = new JSONArray()
-        int end = 0 ;
-        for(Sequence seq in sequences){
+        int end = 0;
+        for (Sequence seq in sequences) {
             JSONObject sequenceObject = new JSONObject()
             sequenceObject.name = seq.name
             sequenceArray.add(sequenceObject)
@@ -23,28 +23,27 @@ class BookmarkService {
             end += seq.end
         }
 
-        Bookmark bookmark = Bookmark.findByOrganismAndSequenceListAndUser(organism,sequenceArray.toString(),user) ?: new Bookmark(
+        Bookmark bookmark = Bookmark.findByOrganismAndSequenceListAndUser(organism, sequenceArray.toString(), user) ?: new Bookmark(
                 organism: organism
-                ,sequenceList: sequenceArray.toString()
-                ,start: 0
-                ,end: end
-                ,user: user
-        ).save(insert: true,flush:true,failOnError: true)
+                , sequenceList: sequenceArray.toString()
+                , start: 0
+                , end: end
+                , user: user
+        ).save(insert: true, flush: true, failOnError: true)
 
         return bookmark
     }
 
-    List<Sequence> getSequencesFromBookmark(Bookmark bookmark){
+    List<Sequence> getSequencesFromBookmark(Bookmark bookmark) {
         JSONArray sequeneArray = JSON.parse(bookmark.sequenceList) as JSONArray
         List<String> sequenceNames = []
-        for(int i = 0 ; i < sequeneArray.size() ; i++){
+        for (int i = 0; i < sequeneArray.size(); i++) {
             sequenceNames << sequeneArray.getJSONObject(i).name
         }
         // if unsaved without the organism
-        if(bookmark.organism){
-            return Sequence.findAllByOrganismAndNameInList(bookmark.organism,sequenceNames)
-        }
-        else{
+        if (bookmark.organism) {
+            return Sequence.findAllByOrganismAndNameInList(bookmark.organism, sequenceNames)
+        } else {
             Sequence.findAllByNameInList(sequenceNames)
         }
     }
@@ -73,5 +72,15 @@ class BookmarkService {
 
 
         return generateBookmarkForSequence(sequences as Sequence[])
+    }
+
+    Bookmark convertStringToBookmark(String inputString, Organism organism) {
+        if (inputString.startsWith("{\"projection\":")) {
+            JSONObject jsonObject = JSON.parse(inputString) as JSONObject
+            return convertJsonToBookmark(jsonObject)
+        } else {
+            Sequence sequence = Sequence.findByNameAndOrganism(inputString, organism)
+            return generateBookmarkForSequence(sequence)
+        }
     }
 }
