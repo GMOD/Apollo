@@ -199,6 +199,20 @@ class AnnotatorController {
         return jsonFeatureContainer;
     }
 
+    /**
+     * Not really setup for a REST service as is specific to the Annotator Panel interface.
+     * If a user has read permissions this method will work.
+     * @param sequenceName
+     * @param request
+     * @param annotationName
+     * @param type
+     * @param user
+     * @param offset
+     * @param max
+     * @param order
+     * @param sort
+     * @return
+     */
     def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String order, String sort) {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
@@ -317,10 +331,17 @@ class AnnotatorController {
 
     }
 
+    /**
+     * This is a public passthrough to version
+     */
     def version() {}
 
     /**
-     * TODO: return an AnnotatorStateInfo object
+     * This is a very specific method for the GWT interface.
+     * An additional method should be added.
+     *
+     * AnnotatorService.getAppState() throws an exception and returns an empty JSON string
+     * if the user has insufficient permissions.
      */
     @Transactional
     def getAppState() {
@@ -328,21 +349,29 @@ class AnnotatorController {
     }
 
     /**
-     * TODO: return an AnnotatorStateInfo object
      */
     @Transactional
     def setCurrentOrganism(Organism organismInstance) {
         // set the current organism
         preferenceService.setCurrentOrganism(permissionService.currentUser, organismInstance)
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismInstance.directory)
+
+        if (!permissionService.checkPermissions(PermissionEnum.READ)) {
+            redirect(uri: "/auth/unauthorized")
+            return
+        }
+
         render annotatorService.getAppState() as JSON
     }
 
     /**
-     * TODO: return an AnnotatorStateInfo object
      */
     @Transactional
     def setCurrentSequence(Sequence sequenceInstance) {
+        if (!permissionService.checkPermissions(PermissionEnum.READ)) {
+            redirect(uri: "/auth/unauthorized")
+            return
+        }
         // set the current organism and sequence Id (if both)
         preferenceService.setCurrentSequence(permissionService.currentUser, sequenceInstance)
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, sequenceInstance.organism.directory)
@@ -372,6 +401,10 @@ class AnnotatorController {
     }
 
     def detail(User user) {
+        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+            redirect(uri: "/auth/unauthorized")
+            return
+        }
         render view:"detail", model:[annotatorInstance:reportService.generateAnnotatorSummary(user)]
     }
 }
