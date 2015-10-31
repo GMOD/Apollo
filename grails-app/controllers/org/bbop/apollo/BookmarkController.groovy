@@ -21,7 +21,7 @@ class BookmarkController {
         User user = permissionService.getCurrentUser(bookmarkJson)
         Organism organism = preferenceService.getCurrentOrganism(user)
 
-        render UserBookmark.findAllByUser(user) as JSON
+        render user.bookmarks as JSON
     }
 
     def getBookmark(){
@@ -43,33 +43,7 @@ class BookmarkController {
 //        Organism organism = preferenceService.getCurrentOrganism(user)
 //        println "bookmark array ${bookmarkArray as JSON}"
         Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkArray.getJSONObject(0))
-        UserBookmark userBookmark = new UserBookmark(
-                bookmark: bookmark
-                ,user: user
-        ).save(insert: true,failOnError: true,flush: true)
-
-//        bookmarkArray.getJSONObject(0).getJSONArray("sequenceList")
-
-//        for(int i = 0 ; i < bookmarkArray.size() ; i++){
-//            JSONObject bookmarkJson = bookmarkArray.getJSONObject(i)
-//            UserBookmark userBookmark = new UserBookmark(
-//                    id: bookmarkJson.id
-//                    , user: user
-//                    , type: bookmarkJson.type
-//                    , padding: bookmarkJson.padding
-//                    , payload: bookmarkJson.payload
-//                    , organism: organism
-//                    , sequenceList: (bookmarkJson.sequenceList as JSON).toString()
-//            ).save()
-////            println "output ${userBookmark as JSON}"
-////            println "is valid ${userBookmark.validate()}"
-//        }
-
-//        render UserBookmark.findAllByU
-
-
-//        render UserBookmark.findAllByUserAndOrganism(user,organism) as JSON
-        render userBookmark as JSON
+        render bookmark as JSON
     }
 
     @Transactional
@@ -84,9 +58,9 @@ class BookmarkController {
             idList.add(bookmarkJson.getJSONObject(i).id)
         }
 
+        Bookmark.deleteAll(Bookmark.findAllByIdInList(idList))
 
-        UserBookmark.deleteAll(UserBookmark.findAllByIdInList(idList))
-
-        render UserBookmark.findAllByUserAndOrganism(user,organism) as JSON
+        def bookmarks = Bookmark.findAllByUserAndOrganism(user,organism)
+        render bookmarks as JSON
     }
 }

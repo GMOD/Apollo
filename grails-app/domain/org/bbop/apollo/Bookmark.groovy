@@ -9,6 +9,7 @@ class Bookmark {
     String payload
     String sequenceList
     Organism organism
+    User user
     Integer start
     Integer end
 
@@ -20,6 +21,7 @@ class Bookmark {
         organism nullable: false
         start nullable: false
         end nullable: false
+        user nullable: true
     }
 
     static mapping = {
