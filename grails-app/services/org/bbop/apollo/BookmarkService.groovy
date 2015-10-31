@@ -8,8 +8,10 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 @Transactional
 class BookmarkService {
 
-    Bookmark generateBookmarkForSequence(Sequence... sequences) {
+    def permissionService
 
+    Bookmark generateBookmarkForSequence(Sequence... sequences) {
+        User user = permissionService.currentUser
         Organism organism = null
         JSONArray sequenceArray = new JSONArray()
         int end = 0 ;
@@ -21,11 +23,12 @@ class BookmarkService {
             end += seq.end
         }
 
-        Bookmark bookmark = new Bookmark(
+        Bookmark bookmark = Bookmark.findByOrganismAndSequenceListAndUser(organism,sequenceArray.toString(),user) ?: new Bookmark(
                 organism: organism
                 ,sequenceList: sequenceArray.toString()
                 ,start: 0
                 ,end: end
+                ,user: user
         ).save(insert: true,flush:true,failOnError: true)
 
         return bookmark
@@ -37,7 +40,7 @@ class BookmarkService {
         for(int i = 0 ; i < sequeneArray.size() ; i++){
             sequenceNames << sequeneArray.getJSONObject(i).name
         }
-        // if unsaved wihtout the organism
+        // if unsaved without the organism
         if(bookmark.organism){
             return Sequence.findAllByOrganismAndNameInList(bookmark.organism,sequenceNames)
         }
@@ -67,6 +70,7 @@ class BookmarkService {
         bookmark.sequenceList = jsonObject.sequenceList.toString()
         List<Sequence> sequences = getSequencesFromBookmark(bookmark)
         bookmark.organism = sequences.first().organism
+
 
         return generateBookmarkForSequence(sequences as Sequence[])
     }

@@ -406,7 +406,8 @@ class PermissionService {
                 Bookmark bookmark = new Bookmark(
                         organism: organism
                         ,sequenceList: sequenceStrings
-                ).save(flush: true, insert:true)
+                        ,user: user
+                ).save(flush: true, insert:true,failOnError: true)
 
                 userOrganismPreference = new UserOrganismPreference(
                         user: user

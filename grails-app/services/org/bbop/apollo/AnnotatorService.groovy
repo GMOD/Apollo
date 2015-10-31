@@ -52,7 +52,7 @@ class AnnotatorService {
 
 
                 if (!currentUserOrganismPreference.bookmark) {
-                    Bookmark bookmark = Bookmark.findByOrganism(currentOrganism)
+                    Bookmark bookmark = Bookmark.findByOrganismAndUser(currentOrganism,user)
                     if (!bookmark) {
                         // just need the first random one
                         Sequence sequence = Sequence.findByOrganism(currentOrganism)
@@ -65,7 +65,8 @@ class AnnotatorService {
                                 , sequenceList: sequenceArray.toString()
                                 , start: sequence.start
                                 , end: sequence.end
-                        ).save()
+                                , user: permissionService.currentUser
+                        ).save(failOnError: true)
                     }
                     currentUserOrganismPreference.bookmark = bookmark
                     currentUserOrganismPreference.save()

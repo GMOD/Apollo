@@ -121,6 +121,7 @@ class JbrowseController {
                         Bookmark bookmark = new Bookmark(
                                 organism: organism
                                 ,sequenceList: sequenceArray.toString()
+                                ,user: user
                         ).save(insert:true,flush: true,failOnError: true)
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user

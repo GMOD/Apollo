@@ -18,6 +18,7 @@ class BigwigController {
     def preferenceService
     def sequenceService
     def projectionService
+    def bookmarkService
 
     /**
      *{"features": [
@@ -185,7 +186,7 @@ class BigwigController {
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
                     Sequence sequence = organism?.sequences?.first()
                     if (userOrganismPreference == null) {
-                        Bookmark bookmark = new Bookmark()
+                        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
                                 , organism: organism
@@ -193,7 +194,7 @@ class BigwigController {
                                 , currentOrganism: true
                         ).save(insert: true, flush: true)
                     } else {
-                        userOrganismPreference.sequence = sequence
+//                        userOrganismPreference.bookmark = bo
                         userOrganismPreference.currentOrganism = true
                         userOrganismPreference.save()
                     }

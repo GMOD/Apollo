@@ -21,7 +21,7 @@ class Bookmark {
         organism nullable: false
         start nullable: false
         end nullable: false
-        user nullable: true
+        user nullable: false
     }
 
     static mapping = {
