@@ -11,6 +11,12 @@ import org.bbop.apollo.report.AnnotatorSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.restapidoc.annotation.RestApiMethod
+import org.restapidoc.annotation.RestApiParam
+import org.restapidoc.annotation.RestApiParams
+import org.restapidoc.pojo.RestApiParamType
+import org.restapidoc.pojo.RestApiVerb
+import org.springframework.http.HttpStatus
 
 class AnnotatorController {
 
@@ -22,6 +28,8 @@ class AnnotatorController {
     def reportService
 
     /**
+     * This is a public method, but is really used only internally.
+     *
      * Loads the shared link and moves over:
      * http://localhost:8080/apollo/annotator/loadLink?loc=chrII:302089..337445&organism=23357&highlight=0&tracklist=0&tracks=Reference%20sequence,User-created%20Annotations
      * @return
@@ -61,6 +69,9 @@ class AnnotatorController {
         redirect uri: "/annotator/index"
     }
 
+    /**
+     * Loads the main annotator panel.
+     */
     def index() {
         log.debug "loading the index"
         String uuid = UUID.randomUUID().toString()
@@ -84,10 +95,24 @@ class AnnotatorController {
      * updates shallow properties of gene / feature
      * @return
      */
+    @RestApiMethod(description = "Update shallow feature properties", path = "/annotator/updateFeature", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the feature we are editing")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature name")
+            , @RestApiParam(name = "symbol", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature symbol")
+            , @RestApiParam(name = "description", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature description")
+    ]
+    )
     @Transactional
     def updateFeature() {
         log.debug "updateFeature ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
+        if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
         Feature feature = Feature.findByUniqueName(data.uniquename)
 
         feature.name = data.name
@@ -122,23 +147,37 @@ class AnnotatorController {
     }
 
 
+    @RestApiMethod(description = "Update feature location", path = "/annotator/updateFeatureLocation", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the feature we are editing")
+            , @RestApiParam(name = "fmin", type = "int", paramType = RestApiParamType.QUERY, description = "fmin for Feature Location")
+            , @RestApiParam(name = "fmax", type = "int", paramType = RestApiParamType.QUERY, description = "fmax for Feature Location")
+            , @RestApiParam(name = "strand", type = "int", paramType = RestApiParamType.QUERY, description = "strand for Feature Location 1 or -1")
+    ]
+    )
     def updateFeatureLocation() {
         log.info "updateFeatureLocation ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
-        Feature exon = Feature.findByUniqueName(data.uniquename)
-        exon.featureLocation.fmin = data.fmin
-        exon.featureLocation.fmax = data.fmax
-        exon.featureLocation.strand = data.strand
-        exon.save(flush: true, failOnError: true)
+        if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+        Feature feature = Feature.findByUniqueName(data.uniquename)
+        feature.featureLocation.fmin = data.fmin
+        feature.featureLocation.fmax = data.fmax
+        feature.featureLocation.strand = data.strand
+        feature.save(flush: true, failOnError: true)
 
         // need to grant the parent feature to force a redraw
-        Feature parentFeature = exon.childFeatureRelationships*.parentFeature.first()
+        Feature parentFeature = feature.childFeatureRelationships*.parentFeature.first()
 
         JSONObject jsonFeature = featureService.convertFeatureToJSON(parentFeature, false)
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
 
-        Sequence sequence = exon?.featureLocation?.sequence
+        Sequence sequence = feature?.featureLocation?.sequence
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
                 , sequence: sequence
