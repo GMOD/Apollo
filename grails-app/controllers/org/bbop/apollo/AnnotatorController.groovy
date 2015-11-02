@@ -18,6 +18,9 @@ import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 import org.springframework.http.HttpStatus
 
+/**
+ * This is server-side code supporting the high-level functionality of the GWT AnnotatorPanel class.
+ */
 class AnnotatorController {
 
     def featureService
@@ -26,6 +29,7 @@ class AnnotatorController {
     def annotatorService
     def preferenceService
     def reportService
+    def featureRelationshipService
 
     /**
      * This is a public method, but is really used only internally.
@@ -171,7 +175,8 @@ class AnnotatorController {
         feature.save(flush: true, failOnError: true)
 
         // need to grant the parent feature to force a redraw
-        Feature parentFeature = feature.childFeatureRelationships*.parentFeature.first()
+//        Feature parentFeature = feature.childFeatureRelationships*.parentFeature.first()
+        Feature parentFeature = featureRelationshipService.getParentForFeature(feature)
 
         JSONObject jsonFeature = featureService.convertFeatureToJSON(parentFeature, false)
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
