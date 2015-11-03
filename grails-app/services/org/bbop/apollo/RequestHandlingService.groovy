@@ -1780,7 +1780,7 @@ class RequestHandlingService {
 //                featureEventService.deleteHistory(uniqueName)
 //            }
 
-            log.debug "feature found to delete ${feature.name}"
+            log.debug "feature found to delete ${feature?.name}"
             if (feature) {
                 if (feature instanceof Exon) {
                     Transcript transcript = exonService.getTranscript((Exon) feature)

@@ -442,7 +442,7 @@ class TranscriptService {
             Feature.deleteAll(childFeatures)
             deleteTranscript(gene2, transcript2);
             featureRelationshipService.deleteFeatureAndChildren(transcript2);
-            featureEventService.deleteHistory(transcript2.uniqueName)
+//            featureEventService.deleteHistory(transcript2.uniqueName)
         } else {
             // if gene for transcript2 doesn't exist then transcript2 is orphan
             // no outstanding relationships that need to be deleted
