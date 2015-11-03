@@ -2472,8 +2472,9 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert Exon.count == 4
 
         when: "we split a transcript"
-        Transcript transcript1 = MRNA.all[0]
-        Transcript transcript2 = MRNA.all[1]
+        def mrnas = MRNA.all.sort{ a,b -> a.name <=> b.name }
+        Transcript transcript1 = mrnas[0]
+        Transcript transcript2 = mrnas[1]
         ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2)
         String exon1UniqueName = exonList.get(0).uniqueName
         String exon2UniqueName = exonList.get(1).uniqueName
@@ -2488,7 +2489,11 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert CDS.count == 3
 
         when: "we merge the sub transcripts"
-        String mergeTranscriptsString = mergeTranscriptOperation.replace("@TRANSCRIPT1_UNIQUENAME@", transcript1.uniqueName).replace("@TRANSCRIPT2_UNIQUENAME@", transcript2.uniqueName)
+        mrnas = MRNA.all.sort{ a,b -> a.name <=> b.name }
+        transcript1 = mrnas[0]
+        transcript2 = mrnas[1]
+        Transcript transcript3 = mrnas[2]
+        String mergeTranscriptsString = mergeTranscriptOperation.replace("@TRANSCRIPT1_UNIQUENAME@", transcript2.uniqueName).replace("@TRANSCRIPT2_UNIQUENAME@", transcript3.uniqueName)
         JSONObject mergeTranscriptReturnObject = requestHandlingService.mergeTranscripts(JSON.parse(mergeTranscriptsString) as JSONObject)
 
         then: "we should have 1 gene, 1 transcript, 4 exons and 2 CDS"
