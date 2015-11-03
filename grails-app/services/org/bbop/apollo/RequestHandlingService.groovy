@@ -2054,6 +2054,11 @@ class RequestHandlingService {
         Feature topLevelExonFeature = featureService.getTopLevelFeature(transcript1)
         JSONObject returnContainer = createJSONFeatureContainerFromFeatures(topLevelExonFeature)
 
+        // features to add to history
+        JSONObject featureForHistory = createJSONFeatureContainer()
+        featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript1))
+        featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript2))
+
         // add history for transcript1 and transcript2
         Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value) ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value) : false
         if (!suppressHistory) {
@@ -2062,7 +2067,7 @@ class RequestHandlingService {
                         , updatedGene2.name, transcript2.uniqueName
                         , inputObject
                         , featureService.convertFeatureToJSON(transcript1)
-                        , updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
+                        , featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value)
                         , permissionService.getCurrentUser(inputObject)
                 )
             } catch (e) {
@@ -2141,6 +2146,9 @@ class RequestHandlingService {
         deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(transcript2JSONObject);
 
         // TODO: history tracking
+        JSONObject featureForHistory = createJSONFeatureContainer()
+        featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript1));
+
         Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value) ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value) : false
         if (!suppressHistory) {
             JSONArray oldJsonArray = new JSONArray()
@@ -2151,7 +2159,7 @@ class RequestHandlingService {
                 featureEventService.addMergeFeatureEvent(gene1Name, transcript1UniqueName
                         , gene2Name, transcript2UniqueName
                         , inputObject, oldJsonArray
-                        , updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
+                        , featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
                         , permissionService.getCurrentUser(inputObject)
                 )
                 log.debug "ADDED history"
