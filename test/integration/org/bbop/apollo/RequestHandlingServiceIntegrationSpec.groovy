@@ -2454,6 +2454,169 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert combinedxRefs == xRefForMergedGene.sort()
         assert combinedFeatureProperties == fpForMergedGene.sort()
     }
-    
 
+    void "split and merge should work for transcripts belonging to same gene"() {
+        given: "GB40812-RA"
+        String transcriptString = "{\"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":403882,\"fmax\":405154,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40812-RA\",\"children\":[{\"location\":{\"fmin\":403882,\"fmax\":404044,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":405031,\"fmax\":405154,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":403882,\"fmax\":405154,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        String setExonBoundaryOperation = "{\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":@EXON_FMIN@,\"fmax\":@EXON_FMAX@}}],\"track\":\"Group1.10\",\"operation\":\"set_exon_boundaries\"}"
+        String splitTranscriptOperation = "{\"features\":[{\"uniquename\":\"@EXON1_UNIQUENAME@\"},{\"uniquename\":\"@EXON2_UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"split_transcript\"}"
+        String mergeTranscriptOperation = "{\"features\":[{\"uniquename\":\"@TRANSCRIPT1_UNIQUENAME@\"},{\"uniquename\":\"@TRANSCRIPT2_UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"merge_transcripts\"}"
+
+        when: "we add transcript GB40812-RA twice"
+        JSONObject transcript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcriptString) as JSONObject)
+        JSONObject transcript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcriptString) as JSONObject)
+
+        then: "we should see 1 gene with 2 transcripts"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert Exon.count == 4
+
+        when: "we split a transcript"
+        Transcript transcript1 = MRNA.all[0]
+        Transcript transcript2 = MRNA.all[1]
+        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2)
+        String exon1UniqueName = exonList.get(0).uniqueName
+        String exon2UniqueName = exonList.get(1).uniqueName
+
+        String splitTranscript2String = splitTranscriptOperation.replace("@EXON1_UNIQUENAME@", exon1UniqueName).replace("@EXON2_UNIQUENAME@", exon2UniqueName)
+        JSONObject splitTranscript2ReturnObject = requestHandlingService.splitTranscript(JSON.parse(splitTranscript2String) as JSONObject)
+
+        then: "we should have 1 gene and 3 transcripts"
+        assert Gene.count == 1
+        assert Transcript.count == 3
+        assert Exon.count == 4
+        assert CDS.count == 3
+
+        when: "we merge the sub transcripts"
+        String mergeTranscriptsString = mergeTranscriptOperation.replace("@TRANSCRIPT1_UNIQUENAME@", transcript1.uniqueName).replace("@TRANSCRIPT2_UNIQUENAME@", transcript2.uniqueName)
+        JSONObject mergeTranscriptReturnObject = requestHandlingService.mergeTranscripts(JSON.parse(mergeTranscriptsString) as JSONObject)
+
+        then: "we should have 1 gene, 1 transcript, 4 exons and 2 CDS"
+        assert Gene.count == 1
+        assert Transcript.count == 2
+        assert Exon.count == 4
+        assert CDS.count == 2
+    }
+
+    void "for a negative stranded feature, after a split, an undo followed by redo should give the same result as that of a split transcript"() {
+        given: "GB40745-RA"
+        String transcriptString = "{\"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":733182,\"fmax\":733316},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":731930,\"fmax\":732023},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":731930,\"fmax\":732539},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":732909,\"fmax\":733316},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":732023,\"fmax\":733182},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40745-RA\",\"location\":{\"strand\":-1,\"fmin\":731930,\"fmax\":733316},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String splitTranscriptOperation = "{\"features\":[{\"uniquename\":\"@EXON1_UNIQUENAME@\"},{\"uniquename\":\"@EXON2_UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"split_transcript\"}"
+        String undoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
+        String redoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
+
+        when: "we add transcript GB40745-RA twice"
+        JSONObject transcript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcriptString) as JSONObject)
+        JSONObject transcript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcriptString) as JSONObject)
+
+        then: "we should see 1 gene with 2 transcripts"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert Exon.count == 4
+        assert CDS.count == 2
+
+        when: "we split the transcript"
+        Transcript transcript1 = MRNA.all[0]
+        Transcript transcript2 = MRNA.all[1]
+        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2)
+        String exon1UniqueName = exonList.get(0).uniqueName
+        String exon2UniqueName = exonList.get(1).uniqueName
+
+        String splitTranscriptString = splitTranscriptOperation.replace("@EXON1_UNIQUENAME@", exon1UniqueName).replace("@EXON2_UNIQUENAME@", exon2UniqueName)
+        JSONObject splitTranscriptReturnObject = requestHandlingService.splitTranscript(JSON.parse(splitTranscriptString) as JSONObject)
+
+        then: "we should have 1 gene and 3 transcripts"
+        assert Gene.count == 1
+        assert MRNA.count == 3
+        assert Exon.count == 4
+        assert CDS.count == 3
+
+        when: "we do an undo operation on the transcript"
+        String transcriptSplitUndoString = undoOperation.replace("@UNIQUENAME@", transcript2.uniqueName)
+        JSONObject transcriptSplitReturnObject = requestHandlingService.undo(JSON.parse(transcriptSplitUndoString) as JSONObject)
+
+        then: "we should have successfully undid the split transcript"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert Exon.count == 4
+        assert CDS.count == 2
+
+        when: "we do a redo operation on the transcript"
+        String transcriptSplitRedoString = redoOperation.replace("@UNIQUENAME@", transcript2.uniqueName)
+        JSONObject transcriptSplitRedoReturnObject = requestHandlingService.redo(JSON.parse(transcriptSplitRedoString) as JSONObject)
+
+        then: "we should have the same outcome as that of split transcript"
+        assert Gene.count == 1
+        assert MRNA.count == 3
+        assert Exon.count == 4
+        assert CDS.count == 3
+
+        then: "and there will be no orphan transcripts left behind"
+
+        MRNA.all.each {
+            Gene gene = transcriptService.getGene(it)
+            assert gene != null
+        }
+    }
+
+    void "for a positive stranded feature, after a split, an undo followed by redo should give the same result as that of a split transcript"() {
+        given: "GB40822-RA"
+        String transcriptString = "{\"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":654601,\"fmax\":654649},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":657084,\"fmax\":657144},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":654601,\"fmax\":657144},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40822-RA\",\"location\":{\"strand\":1,\"fmin\":654601,\"fmax\":657144},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String splitTranscriptOperation = "{\"features\":[{\"uniquename\":\"@EXON1_UNIQUENAME@\"},{\"uniquename\":\"@EXON2_UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"split_transcript\"}"
+        String undoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
+        String redoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
+
+        when: "we add transcript GB40822-RA, twice"
+        JSONObject transcript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcriptString) as JSONObject)
+        JSONObject transcript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcriptString) as JSONObject)
+
+        then: "we should see 1 gene with 2 transcripts"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert Exon.count == 4
+        assert CDS.count == 2
+
+        when: "we split the transcript"
+        Transcript transcript1 = MRNA.all[0]
+        Transcript transcript2 = MRNA.all[1]
+        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2)
+        String exon1UniqueName = exonList.get(0).uniqueName
+        String exon2UniqueName = exonList.get(1).uniqueName
+
+        String splitTranscriptString = splitTranscriptOperation.replace("@EXON1_UNIQUENAME@", exon1UniqueName).replace("@EXON2_UNIQUENAME@", exon2UniqueName)
+        JSONObject splitTranscriptReturnObject = requestHandlingService.splitTranscript(JSON.parse(splitTranscriptString) as JSONObject)
+
+        then: "we should have 1 gene and 3 transcripts"
+        assert Gene.count == 1
+        assert MRNA.count == 3
+        assert Exon.count == 4
+        assert CDS.count == 3
+
+        when: "we do an undo operation on the transcript"
+        String transcriptSplitUndoString = undoOperation.replace("@UNIQUENAME@", transcript2.uniqueName)
+        JSONObject transcriptSplitReturnObject = requestHandlingService.undo(JSON.parse(transcriptSplitUndoString) as JSONObject)
+
+        then: "we should have successfully undid the split transcript"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert Exon.count == 4
+        assert CDS.count == 2
+
+        when: "we do a redo operation on the transcript"
+        String transcriptSplitRedoString = redoOperation.replace("@UNIQUENAME@", transcript2.uniqueName)
+        JSONObject transcriptSplitRedoReturnObject = requestHandlingService.redo(JSON.parse(transcriptSplitRedoString) as JSONObject)
+
+        then: "we should have the same outcome as that of split transcript"
+        assert Gene.count == 1
+        assert MRNA.count == 3
+        assert Exon.count == 4
+        assert CDS.count == 3
+
+        then: "and there will be no orphan transcripts left behind"
+
+        MRNA.all.each {
+            Gene gene = transcriptService.getGene(it)
+            assert gene != null
+        }
+    }
 }
