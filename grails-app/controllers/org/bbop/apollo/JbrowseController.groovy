@@ -27,11 +27,10 @@ class JbrowseController {
 
         List<String> paramList = new ArrayList<>()
         params.eachWithIndex{ entry, int i ->
-            if(entry.key!="action" && entry.key!="controller"){
+            if(entry.key!="action" && entry.key!="controller"&& entry.key!="organism" ){
                 paramList.add(entry.key+"="+entry.value)
             }
         }
-        String urlString = "/jbrowse/index.html?${paramList.join("&")}"
         // case 3 - validated login (just read from preferences, then
         if(permissionService.currentUser&&params.organism){
             Organism organism = Organism.findById(params.organism)
@@ -50,7 +49,18 @@ class JbrowseController {
             log.debug "organism ID specified: ${params.organism}"
 
             // set the organism
-            Organism organism = Organism.findById(params.organism)
+
+
+            Organism organism = Organism.findByCommonName(params.organism)
+            if(!organism&&params.organism.isInteger()) {
+                organism = Organism.findById(params.organism.toInteger())
+            }
+            if(!organism) {
+                String urlString = "/jbrowse/index.html?${paramList.join("&")}"
+                forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString,error:"Unable to find organism '${params.organism}'"])
+            }
+
+
             def session = request.getSession(true)
             session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
             session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
@@ -63,6 +73,8 @@ class JbrowseController {
         }
 
         // case 2 - anonymous login with-OUT organism ID, show organism list
+        paramList.add("organism=${params.organism}")
+        String urlString = "/jbrowse/index.html?${paramList.join("&")}"
         forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
     }
 

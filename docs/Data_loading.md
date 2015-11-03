@@ -33,9 +33,9 @@ bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type mRNA \
 Note: you can also use the command `bin/maker2jbrowse` for loading the MAKER data.
 
 Also see the section [Customizing features](Data_loading.md#customizing-features) section for more information on
-customizing the CSS styles of the Web Apollo 2.0 features.
+customizing the CSS styles of the Apollo features.
 
-Note: WebApollo uses features that are loaded at the "transcript" level. If your GFF3 has "gene" features with
+Note: Apollo uses features that are loaded at the "transcript" level. If your GFF3 has "gene" features with
 "transcript"/"mRNA" child features, make sure that you use the argument --type mRNA or --type transcript.
 
 
@@ -53,7 +53,7 @@ millions of features, consider only indexing select tracks with the --tracks arg
 
 ### add-bam-track.pl
 
-WebApollo natively supports BAM files and the file can be read (in chunks) directly from the server with no
+Apollo natively supports BAM files and the file can be read (in chunks) directly from the server with no
 preprocessing.
 
 To add a BAM track, copy the .bam and .bam.bai files to your data directory, and then use the add-bam-track.pl to add
@@ -73,7 +73,7 @@ automatically be located if it is simply the .bam with .bai appended to it.
 
 ### add-bw-track.pl
 
-WebApollo also has native support for BigWig files (.bw), so no extra processing of these files is required either.
+Apollo also has native support for BigWig files (.bw), so no extra processing of these files is required either.
 
 To use this, copy the BigWig data into the jbrowse data directory and then use the add-bw-track.pl to add the file to
 the tracklist.
@@ -91,7 +91,7 @@ Note: the `bw_url` parameter is a URL that is relative to the data directory. It
 
 To change how the different annotation types look in the "User-created annotation" track, you'll need to update the
 mapping of the annotation type to the appropriate CSS class. This data resides in `client/apollo/json/annot.json`, which
-is a file containing WebApollo tracks that is loaded by default. You'll need to modify the JSON entry whose label is
+is a file containing Apollo tracks that is loaded by default. You'll need to modify the JSON entry whose label is
 `Annotations`. Of particular interest is the `alternateClasses` element. Let's look at that default element:
 
 ``` 
@@ -140,15 +140,15 @@ information on customizing the CSS classes.
 
 ### Customizing features
 
-The visual appearance of biological features in WebApollo (and JBrowse) is handled by CSS stylesheets with HTMLFeatures
+The visual appearance of biological features in Apollo (and JBrowse) is handled by CSS stylesheets with HTMLFeatures
 tracks. Every feature and subfeature is given a default CSS "class" that matches a default CSS style in a CSS
 stylesheet. These styles are are defined in `client/apollo/css/track_styles.css` and
 `client/apollo/css/webapollo_track_styles.css`. Additional styles are also defined in these files, and can be used by
 explicitly specifying them in the --className, --subfeatureClasses, --renderClassname, or --arrowheadClass parameters to
 flatfile-to-json.pl ([see data loading section](Data_loading.md#flatfile-to-json.pl_transcripts)).
 
-WebApollo differs from JBrowse in some of it's styling, largely in order to help with feature selection, edge-matching,
-and dragging. WebApollo by default uses invisible container elements (with style class names like "container-16px") for
+Apollo differs from JBrowse in some of it's styling, largely in order to help with feature selection, edge-matching,
+and dragging. Apollo by default uses invisible container elements (with style class names like "container-16px") for
 features that have children, so that the children are fully contained within the parent feature. This is paired with
 another styled element that gets rendered *within* the feature but underneath the subfeatures, and is specified by the
 `--renderClassname` argument to `flatfile-to-json.pl`. Exons are also by default treated as special invisible
@@ -180,10 +180,10 @@ styles:
 
 In this example, two subfeature styles are defined, and the *top* property is being set to (100%-height)/2 to assure
 that the subfeatures are centered vertically within their parent feature. When defining new styles for features, it is
-important to specify rules that apply to plus-*stylename* and minus-*stylename* in addition to *stylename*, as WebApollo
+important to specify rules that apply to plus-*stylename* and minus-*stylename* in addition to *stylename*, as Apollo
 adds the "plus-" or "minus-" to the class of the feature if the the feature has a strand orientation.
 
-You need to tell WebApollo where to find these styles by modifying the JBrowse config or the plugin config, e.g. by
+You need to tell Apollo where to find these styles by modifying the JBrowse config or the plugin config, e.g. by
 adding this to the trackList.json
 
 ``` 
@@ -208,7 +208,7 @@ to the user annotation track. Let's say we want to load our `maker.gff` transcri
 
 ``` 
     tools/data/add_transcripts_from_gff3_to_annotations.pl \
-        -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
+        -U localhost:8080/Apollo -u web_apollo_admin -p web_apollo_admin \
         -i scf1117875582023.gff -t mRNA -o "name of organism"
 ```
 
@@ -221,7 +221,7 @@ Let's say we want to load `match` and `match_part` features as transcripts and e
 
 ``` 
     tools/data/add_transcripts_from_gff3_to_annotations.pl \
-       -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
+       -U localhost:8080/Apollo -u web_apollo_admin -p web_apollo_admin \
        -i cf1117875582023gff -t match -e match_part -o "name of organism"
 ```
 
@@ -232,7 +232,7 @@ You can view the add_transcripts_from_gff3_to_annotations.pl help (`-h`) option 
 ### Disable draggable
 
 
-Web Apollo has a number of specific track config parameters
+Apollo has a number of specific track config parameters
 
 ``` 
 overrideDraggable (boolean)

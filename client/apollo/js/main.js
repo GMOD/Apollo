@@ -132,11 +132,11 @@ return declare( [JBPlugin, HelpMixin],
 
         FeatureEdgeMatchManager.addSelectionManager(this.featSelectionManager);
         FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
-           
+
         if(!browser.config.quickHelp)
         {
             browser.config.quickHelp = {
-                "title": "Web Apollo Help",
+                "title": "Apollo Help",
                 "content": this.defaultHelp()
             }
         };
@@ -188,7 +188,7 @@ return declare( [JBPlugin, HelpMixin],
         if(browser.config.show_nav&&browser.config.show_menu) {
             this.createMenus();
         }
-                
+
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
@@ -240,7 +240,7 @@ return declare( [JBPlugin, HelpMixin],
                     view.oldOnResize();
                 }
             };
-            
+
 
 
 
@@ -360,7 +360,7 @@ return declare( [JBPlugin, HelpMixin],
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
     },
-        
+
     initSearchMenu: function()  {
         if (! this.searchMenuInitialized) {
             var webapollo = this;
@@ -417,6 +417,18 @@ return declare( [JBPlugin, HelpMixin],
                                     }
                             });
         }
+
+        if (typeof window.parent.getEmbeddedVersion == 'undefined') {
+            annotatorButton = new dijitButton(
+                {
+                    innerHTML: "Annotator View",
+                    onClick: function () {
+                        window.location.href = '../';
+                    }
+                });
+            this.browser.menuBar.appendChild( annotatorButton.domNode );
+        }
+
         this.browser.menuBar.appendChild( loginButton.domNode );
         this.loginMenuInitialized = true;
     },
@@ -562,7 +574,7 @@ return declare( [JBPlugin, HelpMixin],
     createMenus: function() {
         var browser=this.browser;
         var thisB=this;
-        
+
 
                 // add a global menu option for setting CDS color
         var cds_frame_toggle = new dijitCheckedMenuItem(
@@ -611,6 +623,7 @@ return declare( [JBPlugin, HelpMixin],
 
         this.addStrandFilterOptions();
 
+
         this._showLabels=(browser.cookie("showTrackLabel")||"true")=="true"
         var hide_track_label_toggle = new dijitCheckedMenuItem(
             {
@@ -626,13 +639,14 @@ return declare( [JBPlugin, HelpMixin],
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
         browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
 
+
     },
     // postCreateMenu is run after initView for convenience of ordering new items
     postCreateMenus: function() {
         var browser=this.browser;
         var help=dijit.byId("menubar_generalhelp");
 
-        help.set("label", "Web Apollo Help");
+        help.set("label", "Apollo Help");
         help.set("iconClass", null);
         var jbrowseUrl = "http://jbrowse.org";
         browser.addGlobalMenuItem( 'help',

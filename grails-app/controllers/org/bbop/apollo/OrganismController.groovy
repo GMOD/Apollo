@@ -29,11 +29,10 @@ class OrganismController {
     def requestHandlingService
     def preferenceService
     def organismService
-
     def reportService
 
     def chooseOrganismForJbrowse() {
-        [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'desc']), urlString: params.urlString]
+        [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'desc']), flash: [message: params.error]]
     }
 
     @RestApiMethod(description = "Remove an organism", path = "/organism/deleteOrganism", verb = RestApiVerb.POST)
@@ -41,8 +40,7 @@ class OrganismController {
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "organism", type = "json", paramType = RestApiParamType.QUERY, description = "Pass an Organism JSON object with an 'id' that corresponds to the id to delete")
-    ]
-    )
+    ])
     @Transactional
     def deleteOrganism() {
         try {
@@ -59,7 +57,7 @@ class OrganismController {
                     UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
                     organism.delete()
                 }
-                log.debug "Success deleting organism: ${organismJson.id}"
+                log.info "Success deleting organism: ${organismJson.id}"
                 render findAllOrganisms()
             } else {
                 def error = [error: 'not authorized to delete organism']
@@ -247,8 +245,8 @@ class OrganismController {
     @Transactional
     def updateOrganismInfo() {
         log.debug "updating organism info ${params}"
-        JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
         try {
+            JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             Organism organism = Organism.findById(organismJson.id)
             if (organism) {
@@ -283,15 +281,8 @@ class OrganismController {
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
     ])
     def findAllOrganisms() {
-        JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
         try {
-//            if (!permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
-//                if (!permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
-//                def error = [error: 'Must be admin to see all organisms ']
-//                render error as JSON
-//                return
-//            }
-
+            JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
             List<Organism> putativeOrganismList = permissionService.getOrganismsForCurrentUser()
             List<Organism> organismList = []
 

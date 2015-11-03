@@ -125,7 +125,7 @@ Bugfixes
 + Fixed bug with stop codons being retained in peptide sequence exports (#448).
 + Fixed bug with stop codon readthrough features not being restored after "Undo/Redo" (#400).
 + Fixed a bug with downloading data files (#464).
-+ Fixed a bug that prevented running multiple instances of WebApollo2 at the same time (#462).
++ Fixed a bug that prevented running multiple instances of Apollo at the same time (#462).
 + Fixed a bug where tracks without a key would cause track panel to produce error (#461).
 
 ## 2.0.0-RC1
@@ -138,7 +138,7 @@ Features
 + Added webservices and command-line scripts for creating new organisms (#360).
 + Added webservices and command line scripts for adding users and [support for migrating annotations from WA1 to WA2](https://github.com/GMOD/Apollo/blob/master/docs/Migration.md) (#255).
 + Created a new "Annotator panel", a side-bar for viewing annotations, reference sequences, export options, and admin features.
-+ Added ability to load WebApollo client-side plugin automatically, so there is no need to run add-webapollo-plugin.pl (#435).
++ Added ability to load Apollo client-side plugin automatically, so there is no need to run add-webapollo-plugin.pl (#435).
 + Implemented new data models for Hibernate with support for MySQL, PostgreSQL, Oracle, and H2.
 + Implemented simplified configuration via apollo-config.groovy.
 + Added websocket implementation for annotation updates, with long-polling fallback (#14).
@@ -228,7 +228,7 @@ Features:
 + Added a forceRedirect option for logins that can be used for custom login classes
 + Added tool to split all isoforms into individual genes (RemoveIsoforms.java)
 + Added tool for fixing gene boundaries based on children transcripts (FixGeneBoundaries.java)
-+ Using javascript minimization for JBrowse+WebApollo to allow faster initial load time
++ Using javascript minimization for JBrowse+Apollo to allow faster initial load time
 + Using Maven build system for deployment ([See new installation guide] (https://github.com/GMOD/Apollo/blob/master/docs/index.md))
 + Integrate with TravisCI: https://travis-ci.org/GMOD/Apollo
 + Added menus for changes / sequences to annotation screen, fixing memory issues from selectTrack.jsp and recentChanges.jsp pages.

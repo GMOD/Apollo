@@ -11,8 +11,8 @@ import groovyx.net.http.RESTClient
 String usageString = "\nUSAGE: alter_group_permissions.groovy <options>\n" +
         "Permissions: ADMINISTRATE,WRITE,EXPORT,READ (lower permissions are inherited)\n" +
         "Example:\n" +
-        "./alter_group_permissions.groovy -inputfile group_to_permissions.csv -destinationurl http://localhost:8080/WebApollo2\n" + 
-        "./alter_group_permissions.groovy -groupname group1 -organism organism_name -permission READ:WRITE -destinationurl http://localhost:8080/WebApollo2"
+        "./alter_group_permissions.groovy -inputfile group_to_permissions.csv -destinationurl http://localhost:8080/Apollo\n" +
+        "./alter_group_permissions.groovy -groupname group1 -organism organism_name -permission READ:WRITE -destinationurl http://localhost:8080/Apollo"
 
 def cli = new CliBuilder(usage: 'alter_group_permissions.groovy')
 cli.setStopAtNonOption(true)
@@ -20,7 +20,7 @@ cli.inputfile('CSV file with format <groupname>,<organism>,<permissions>', requi
 cli.organism('Organism for which the current group should be granted permissions', required: false, args: 1)
 cli.permission('Permission(s) to be granted for group on organism, separated by \':\'', required: false, args: 1)
 cli.groupname('groupName for a group', required: false, args: 1)
-cli.destinationurl('WebApollo URL', required: true, args: 1)
+cli.destinationurl('Apollo URL', required: true, args: 1)
 cli.adminusername('Admin username', required: false, args: 1)
 cli.adminpassword('Admin password', required: false, args: 1)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)

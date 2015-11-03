@@ -1,7 +1,7 @@
-Apollo 2
+Apollo
 ============
 
-Apollo 2 - An instantaneous, collaborative, genome annotation editor.
+Apollo - An instantaneous, collaborative, genome annotation editor.
 
 The application's technology stack includes a Grails-based Java web application with flexible database backends and a
 Javascript client that runs in a web browser as a JBrowse plugin.

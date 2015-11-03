@@ -14,7 +14,7 @@ import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatus
 
 @RestApi(name = "User Services", description = "Methods for managing users")
 @Transactional(readOnly = true)
@@ -23,98 +23,117 @@ class UserController {
     def permissionService
     def userService
 
+
+
+    @RestApiMethod(description="Load all users",path="/user/loadUsers",verb = RestApiVerb.POST)
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="userId", type="long", paramType = RestApiParamType.QUERY,description="Optionally only user a specific userId")
+    ])
     def loadUsers() {
-        JSONArray returnArray = new JSONArray()
-        if (!permissionService.currentUser) {
-            render returnArray as JSON
-            return
-        }
-
-        def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
-
-        List<String> allUserGroups = UserGroup.all.name
-        Map<String, List<UserOrganismPermission>> userOrganismPermissionMap = new HashMap<>()
-        List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
-        for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList) {
-            List<UserOrganismPermission> userOrganismPermissionListTemp = userOrganismPermissionMap.get(userOrganismPermission.user.username)
-            if (userOrganismPermissionListTemp == null) {
-                userOrganismPermissionListTemp = new ArrayList<>()
+        try {
+            JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data?:"{}"))) as JSONObject
+            JSONArray returnArray = new JSONArray()
+            if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+                render status:  HttpStatus.UNAUTHORIZED
+                return
             }
-            userOrganismPermissionListTemp.add(userOrganismPermission)
-            userOrganismPermissionMap.put(userOrganismPermission.user.username, userOrganismPermissionListTemp)
-        }
-        for (v in userOrganismPermissionMap) {
-            log.debug "${v.key} ${v.value}"
-        }
 
-        User.all.each {
-            def userObject = new JSONObject()
+            def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
 
-            userObject.userId = it.id
-            userObject.username = it.username
-            userObject.firstName = it.firstName
-            userObject.lastName = it.lastName
-            Role role = userService.getHighestRole(it)
-            userObject.role = role?.name
-
-
-            JSONArray groupsArray = new JSONArray()
-            List<String> groupsForUser = new ArrayList<>()
-            for (group in it.userGroups) {
-                JSONObject groupJson = new JSONObject()
-                groupsForUser.add(group.name)
-                groupJson.put("name", group.name)
-                groupsArray.add(groupJson)
-            }
-            userObject.groups = groupsArray
-
-
-            JSONArray availableGroupsArray = new JSONArray()
-            List<String> availableGroups = allUserGroups - groupsForUser
-            for (group in availableGroups) {
-                JSONObject groupJson = new JSONObject()
-                groupJson.put("name", group)
-                availableGroupsArray.add(groupJson)
-            }
-            userObject.availableGroups = availableGroupsArray
-
-            // organism permissions
-            JSONArray organismPermissionsArray = new JSONArray()
-            def userOrganismPermissionList3 = userOrganismPermissionMap.get(it.username)
-            List<Long> organismsWithPermissions = new ArrayList<>()
-            log.debug "number of groups for user: ${userOrganismPermissionList3?.size()} for ${it.username}"
-            for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList3) {
-                if (userOrganismPermission.organism in allowableOrganisms) {
-                    JSONObject organismJSON = new JSONObject()
-                    organismJSON.put("organism", userOrganismPermission.organism.commonName)
-                    organismJSON.put("permissions", userOrganismPermission.permissions)
-                    organismJSON.put("userId", userOrganismPermission.userId)
-                    organismJSON.put("id", userOrganismPermission.id)
-                    organismPermissionsArray.add(organismJSON)
-                    organismsWithPermissions.add(userOrganismPermission.organism.id)
+            List<String> allUserGroups = UserGroup.all.name
+            Map<String, List<UserOrganismPermission>> userOrganismPermissionMap = new HashMap<>()
+            List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
+            for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList) {
+                List<UserOrganismPermission> userOrganismPermissionListTemp = userOrganismPermissionMap.get(userOrganismPermission.user.username)
+                if (userOrganismPermissionListTemp == null) {
+                    userOrganismPermissionListTemp = new ArrayList<>()
                 }
+                userOrganismPermissionListTemp.add(userOrganismPermission)
+                userOrganismPermissionMap.put(userOrganismPermission.user.username, userOrganismPermissionListTemp)
+            }
+            for (v in userOrganismPermissionMap) {
+                log.debug "${v.key} ${v.value}"
             }
 
-            // if an organism has permissions
-            Set<Organism> organismList = allowableOrganisms.findAll() {
-                !organismsWithPermissions.contains(it.id)
+            def users = dataObject.userId?[User.findById(dataObject.userId)]:User.all
+            log.debug "${users}"
+            users.each {
+                def userObject = new JSONObject()
+
+                userObject.userId = it.id
+                userObject.username = it.username
+                userObject.firstName = it.firstName
+                userObject.lastName = it.lastName
+                Role role = userService.getHighestRole(it)
+                userObject.role = role?.name
+
+
+                JSONArray groupsArray = new JSONArray()
+                List<String> groupsForUser = new ArrayList<>()
+                for (group in it.userGroups) {
+                    JSONObject groupJson = new JSONObject()
+                    groupsForUser.add(group.name)
+                    groupJson.put("name", group.name)
+                    groupsArray.add(groupJson)
+                }
+                userObject.groups = groupsArray
+
+
+                JSONArray availableGroupsArray = new JSONArray()
+                List<String> availableGroups = allUserGroups - groupsForUser
+                for (group in availableGroups) {
+                    JSONObject groupJson = new JSONObject()
+                    groupJson.put("name", group)
+                    availableGroupsArray.add(groupJson)
+                }
+                userObject.availableGroups = availableGroupsArray
+
+                // organism permissions
+                JSONArray organismPermissionsArray = new JSONArray()
+                def userOrganismPermissionList3 = userOrganismPermissionMap.get(it.username)
+                List<Long> organismsWithPermissions = new ArrayList<>()
+                log.debug "number of groups for user: ${userOrganismPermissionList3?.size()} for ${it.username}"
+                for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList3) {
+                    if (userOrganismPermission.organism in allowableOrganisms) {
+                        JSONObject organismJSON = new JSONObject()
+                        organismJSON.put("organism", userOrganismPermission.organism.commonName)
+                        organismJSON.put("permissions", userOrganismPermission.permissions)
+                        organismJSON.put("userId", userOrganismPermission.userId)
+                        organismJSON.put("id", userOrganismPermission.id)
+                        organismPermissionsArray.add(organismJSON)
+                        organismsWithPermissions.add(userOrganismPermission.organism.id)
+                    }
+                }
+
+                // if an organism has permissions
+                Set<Organism> organismList = allowableOrganisms.findAll() {
+                    !organismsWithPermissions.contains(it.id)
+                }
+
+                for (Organism organism in organismList) {
+                    JSONObject organismJSON = new JSONObject()
+                    organismJSON.put("organism", organism.commonName)
+                    organismJSON.put("permissions", "[]")
+                    organismJSON.put("userId", it.id)
+                    organismPermissionsArray.add(organismJSON)
+                }
+
+
+                userObject.organismPermissions = organismPermissionsArray
+
+                returnArray.put(userObject)
             }
 
-            for (Organism organism in organismList) {
-                JSONObject organismJSON = new JSONObject()
-                organismJSON.put("organism", organism.commonName)
-                organismJSON.put("permissions", "[]")
-                organismJSON.put("userId", it.id)
-                organismPermissionsArray.add(organismJSON)
-            }
-
-
-            userObject.organismPermissions = organismPermissionsArray
-
-            returnArray.put(userObject)
+            render returnArray as JSON
         }
-
-        render returnArray as JSON
+        catch(Exception e) {
+            response.status=HttpStatus.INTERNAL_SERVER_ERROR.value()
+            def error=[error: e.message]
+            log.error error
+            render error as JSON
+        }
     }
 
     def checkLogin() {
@@ -285,8 +304,9 @@ class UserController {
         try {
             log.info "Removing user"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-            if (!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
+                return
             }
             User user = null
             if (dataObject.has('userId')) {
@@ -301,6 +321,7 @@ class UserController {
             }
             UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
             UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
+            UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByUser(user))
             user.delete(flush: true)
 
             log.info "Removed user ${user.username}"
@@ -330,7 +351,7 @@ class UserController {
         try {
             log.info "Updating user"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-            if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.sameUser(dataObject) && !permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
@@ -339,8 +360,8 @@ class UserController {
             user.lastName = dataObject.lastName
             user.username = dataObject.email
 
-            if (dataObject.password) {
-                user.passwordHash = new Sha256Hash(dataObject.password).toHex()
+            if (dataObject.newPassword) {
+                user.passwordHash = new Sha256Hash(dataObject.newPassword).toHex()
             }
 
             String roleString = dataObject.role

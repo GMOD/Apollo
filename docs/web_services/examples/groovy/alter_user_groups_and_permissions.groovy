@@ -10,10 +10,10 @@ import groovyx.net.http.RESTClient
 
 String usageString = "\nUSAGE: alter_user_groups_and_permissions.groovy <options>\n" +
         "Example:\n" +
-        "./alter_user_groups_and_permissions.groovy -inputfile user_to_permissions.csv -destinationurl http://localhost:8080/WebApollo2/\n" +
-        "./alter_user_groups_and_permissions.groovy -user test@admin.gov -organism organism_name -permission READ:WRITE -destinationurl http://localhost:8080/WebApollo2/\n" +
-        "./alter_user_groups_and_permissions.groovy -user test@admin.gov -addToGroup group1 -removeFromGroup group2:group3 -destinationurl http://localhost:8080/WebApollo2/\n" +
-        "./alter_user_groups_and_permissions.groovy -user test@admin.gov -organism organism_name -permission READ:WRITE -addToGroup group1 -removeFromGroup group2 -destinationurl http://localhost:8080/WebApollo2/"
+        "./alter_user_groups_and_permissions.groovy -inputfile user_to_permissions.csv -destinationurl http://localhost:8080/Apollo/\n" +
+        "./alter_user_groups_and_permissions.groovy -user test@admin.gov -organism organism_name -permission READ:WRITE -destinationurl http://localhost:8080/Apollo/\n" +
+        "./alter_user_groups_and_permissions.groovy -user test@admin.gov -addToGroup group1 -removeFromGroup group2:group3 -destinationurl http://localhost:8080/Apollo/\n" +
+        "./alter_user_groups_and_permissions.groovy -user test@admin.gov -organism organism_name -permission READ:WRITE -addToGroup group1 -removeFromGroup group2 -destinationurl http://localhost:8080/Apollo/"
 
 def cli = new CliBuilder(usage: 'alter_user_groups_and_permissions.groovy')
 cli.setStopAtNonOption(true)
@@ -23,7 +23,7 @@ cli.organism('Organism for which permissions have to be altered for username', r
 cli.permission('Permission(s) to be granted for username on organism, separated by \':\'.  They can be READ, WRITE, EXPORT, ADMINISTRATE', required: false, args: 1)
 cli.addToGroup('Add user to group(s), separated by \':\'', required: false, args: 1)
 cli.removeFromGroup('Remove user from group(s), separated by \':\'', required: false, args: 1)
-cli.destinationurl('WebApollo URL', required: true, args: 1)
+cli.destinationurl('Apollo URL', required: true, args: 1)
 cli.adminusername('Admin username', required: false, args: 1)
 cli.adminpassword('Admin password', required: false, args: 1)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)

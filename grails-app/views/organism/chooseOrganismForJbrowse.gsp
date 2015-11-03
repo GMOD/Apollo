@@ -24,6 +24,11 @@
     </ul>
 </div>
 
+<g:if test="${flash.message}">
+    <div class="message" role="status">${flash.message}</div>
+</g:if>
+
+
 <div style="margin-left: 20px;">
     <h3>
         Choose Organism to View
@@ -31,7 +36,7 @@
 
     <div class="btn-group-vertical" role="group" style="width: 300px;">
             <g:each in="${organisms}" var="organism">
-                <a href="${createLink(uri:'')}${params.urlString}&organism=${organism.id}" type="button" class="btn btn-default">${organism.commonName}</a>
+                <a href="${createLink(uri:'')}/jbrowse/index.html?organism=${organism.id}" type="button" class="btn btn-default">${organism.commonName}</a>
             </g:each>
     </div>
 

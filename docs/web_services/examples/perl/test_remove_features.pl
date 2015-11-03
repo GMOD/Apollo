@@ -42,15 +42,15 @@ sub print_usage {
     my $progname = basename($0);
     die << "END";
 usage: $progname
-    --url|-U <URL to WebApollo instance>
+    --url|-U <URL to Apollo instance>
     --username|-u <username>
     --password|-p <password>
     --track|-t <trackname>
     [--prefix|-P <trackname>]
 
-    U: URL to WebApollo instance
-    u: username to access WebApollo
-    p: password to access WebApollo
+    U: URL to Apollo instance
+    u: username to access Apollo
+    p: password to access Apollo
     t: trackname to delete tracks on
 END
 }

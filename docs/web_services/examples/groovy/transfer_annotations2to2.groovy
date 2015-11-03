@@ -16,8 +16,8 @@ String usageString = "transfer_annotations2to2.groovy <options>" +
 
 def cli = new CliBuilder(usage: 'transfer_annotations.groovyy <options>')
 cli.setStopAtNonOption(true)
-cli.sourceurl('URL of source WebApollo instance from which annotations are fetched', required: true, args: 1)
-cli.destinationurl('URL of destination WebApollo instance to which annotations are to be loaded', required: true, args: 1)
+cli.sourceurl('URL of source Apollo instance from which annotations are fetched', required: true, args: 1)
+cli.destinationurl('URL of destination Apollo instance to which annotations are to be loaded', required: true, args: 1)
 cli.source_organism('source organism common name', required: true, args: 1)
 cli.destination_organism('destination organism common name', required: true, args: 1)
 cli.username('username', required: true, args: 1)

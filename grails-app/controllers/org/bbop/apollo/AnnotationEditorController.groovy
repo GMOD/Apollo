@@ -30,7 +30,9 @@ import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 
 /**
- * From the AnnotationEditorService
+ * From the WA1 AnnotationEditorService class.
+ *
+ * This code primarily provides integration with genomic editing functionality visible in the JBrowse window.
  */
 @RestApi(name = "Annotation Services", description = "Methods for running the annotation engine")
 class AnnotationEditorController extends AbstractApolloController implements AnnotationListener {
