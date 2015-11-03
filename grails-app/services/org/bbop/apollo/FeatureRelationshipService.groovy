@@ -51,16 +51,11 @@ class FeatureRelationshipService {
     }
 
     List<Feature> getParentsForFeature(Feature feature, String... ontologyIds) {
-        def list=new ArrayList<Feature>()
-        if(feature?.childFeatureRelationships!=null) {
-            feature.childFeatureRelationships.each { it ->
-                if(ontologyIds.size()==0 || (it && ontologyIds.contains(it.parentFeature.ontologyId))) {
-                    list.push(it.parentFeature)
-                }
-            }
-        }
-
-        return list
+        List<String> ontologyIdList = new ArrayList<>()
+        ontologyIdList.addAll(ontologyIds)
+        return FeatureRelationship.findAllByChildFeature(feature)*.parentFeature.findAll() {
+            ontologyIdList.empty || (it && ontologyIdList.contains(it.ontologyId))
+        }.unique()
     }
 
     @Transactional

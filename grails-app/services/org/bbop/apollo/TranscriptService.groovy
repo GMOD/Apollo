@@ -289,7 +289,7 @@ class TranscriptService {
         splitTranscript.name = nameService.generateUniqueName(transcript)
         splitTranscript.save()
 
-        // copy feature locations if right of right exon
+        // copying featureLocation of transcript to splitTranscript
         transcript.featureLocations.each { featureLocation ->
             FeatureLocation newFeatureLocation = new FeatureLocation(
                     fmin: featureLocation.fmin
@@ -305,19 +305,39 @@ class TranscriptService {
         splitTranscript.save(flush: true)
 
         Gene gene = getGene(transcript)
-        if (gene) {
-            featureService.addTranscriptToGene(gene, splitTranscript)
-        } else {
-            featureService.addFeature(splitTranscript)
-        }
+        // add transcript2 to a new gene
+        Gene splitTranscriptGene = new Gene(
+                name: nameService.generateUniqueName(gene),
+                uniqueName: nameService.generateUniqueName(),
+        ).save(flush: true)
+
+        FeatureLocation splitTranscriptGeneFeatureLocation = new FeatureLocation(
+                feature: splitTranscriptGene,
+                fmin: splitTranscript.fmin,
+                fmax: splitTranscript.fmax,
+                strand: splitTranscript.strand,
+                sequence: splitTranscript.featureLocation.sequence,
+                residueInfo: splitTranscript.featureLocation.residueInfo,
+                locgroup: splitTranscript.featureLocation.locgroup,
+                rank: splitTranscript.featureLocation.rank
+        ).save(flush: true)
+
+        splitTranscriptGene.addToFeatureLocations(splitTranscriptGeneFeatureLocation)
+        splitTranscript.name = nameService.generateUniqueName(splitTranscript, splitTranscriptGene.name)
+        featureService.addTranscriptToGene(splitTranscriptGene, splitTranscript)
 
         FeatureLocation transcriptFeatureLocation = transcript.featureLocation
+
+        // changing feature location of transcript to the fmax of the left exon
         transcriptFeatureLocation.fmax = leftExon.fmax
         FeatureLocation splitFeatureLocation = splitTranscript.featureLocation
         log.debug "right1: ${rightExon.featureLocation}"
+
+        // changing feature location of splitTranscript to the fmin of the right exon
         splitFeatureLocation.fmin = rightExon.featureLocation.fmin
         log.debug "right2: ${rightExon.featureLocation}"
         for (Exon exon : exons) {
+            // starting with rightExon and all right flanking exons to splitTranscript
             FeatureLocation exonFeatureLocation = exon.featureLocation
             FeatureLocation leftFeatureLocation = leftExon.featureLocation
             if (exonFeatureLocation.fmin > leftFeatureLocation.getFmin()) {
@@ -335,6 +355,8 @@ class TranscriptService {
                 }
             }
         }
+        transcript.save(flush: true)
+        splitTranscript.save(flush: true)
 
         return splitTranscript
     }
@@ -381,33 +403,49 @@ class TranscriptService {
     def mergeTranscripts(Transcript transcript1, Transcript transcript2) {
         // Merging transcripts basically boils down to moving all exons from one transcript to the other
 
+        // moving all exons from transcript2 to transcript1
         for (Exon exon : getExons(transcript2)) {
             featureRelationshipService.removeFeatureRelationship(transcript2, exon)
             addExon(transcript1, exon)
         }
-//        transcript1.save()
+        transcript1.save(flush: true)
+
         Gene gene1 = getGene(transcript1)
         Gene gene2 = getGene(transcript2)
+        String gene2uniquename = gene2.uniqueName
+
         if (gene1) {
             gene1.save(flush: true)
         }
-        boolean flag=false
+
         // if the parent genes aren't the same, this leads to a merge of the genes
         if (gene1 && gene2) {
             if (gene1 != gene2) {
+                // if gene1 != gene2
+                log.debug "Gene1 != Gene2; merging genes together"
                 List<Transcript> gene2Transcripts = getTranscripts(gene2)
                 for (Transcript transcript : gene2Transcripts) {
+                    // moving all transcripts of gene2 to gene1, except for transcripts2 which needs to be deleted
                     if (transcript != transcript2) {
                         deleteTranscript(gene2, transcript)
                         featureService.addTranscriptToGene(gene1, transcript)
                     }
                 }
-                flag=true
                 featureRelationshipService.deleteFeatureAndChildren(gene2)
             }
         }
+
         // Delete the empty transcript from the gene, if gene not already deleted
-        if(!flag) {
+        if (getGene(transcript2)) {
+            def childFeatures = featureRelationshipService.getChildren(transcript2)
+            featureRelationshipService.deleteChildrenForTypes(transcript2)
+            Feature.deleteAll(childFeatures)
+            deleteTranscript(gene2, transcript2);
+            featureRelationshipService.deleteFeatureAndChildren(transcript2);
+//            featureEventService.deleteHistory(transcript2.uniqueName)
+        } else {
+            // if gene for transcript2 doesn't exist then transcript2 is orphan
+            // no outstanding relationships that need to be deleted
             featureService.deleteFeature(transcript2);
         }
         featureService.removeExonOverlapsAndAdjacencies(transcript1);

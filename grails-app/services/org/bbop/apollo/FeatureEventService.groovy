@@ -268,6 +268,7 @@ class FeatureEventService {
             idsToCollect.add(it.parentMergeId)
             idsToCollect = idsToCollect - longFeatureEventMap.keySet()
         }
+        idsToCollect.removeAll(Collections.singleton(null));
 
         featureEventMap.put(uniqueName,longFeatureEventMap)
 
