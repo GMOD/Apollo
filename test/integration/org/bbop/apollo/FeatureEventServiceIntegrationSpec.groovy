@@ -24,6 +24,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
     }
 
     def cleanup() {
+        Feature.deleteAll(Feature.all)
     }
 
     void "we can undo and redo a transcript split"() {
@@ -127,8 +128,9 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert CDS.count == 2
         assert MRNA.count == 2
         assert Gene.count == 2
-        assert MRNA.all[0].name == "GB40736-RA-00001"
-        assert MRNA.all[1].name == "GB40736-RAa-00001"
+        def mrnas = MRNA.all.sort(){ a,b -> a.name <=> b.name }
+        assert mrnas[0].name == "GB40736-RA-00001"
+        assert mrnas[1].name == "GB40736-RAa-00001"
 
 
         when: "we merge the transcript"

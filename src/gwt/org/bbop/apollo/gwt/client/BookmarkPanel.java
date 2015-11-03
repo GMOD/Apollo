@@ -429,11 +429,12 @@ public class BookmarkPanel extends Composite {
     private class UpdateBookmarksCallback implements RequestCallback{
         @Override
         public void onResponseReceived(Request request, Response response) {
+            Window.alert(response.getText());
             JSONArray jsonValue = JSONParser.parseStrict(response.getText()).isArray();
             bookmarkInfoList.clear();
 
             // add to bookmarkInfo list
-            for(int i = 0 ; i < jsonValue.size() ; i++){
+            for(int i = 0 ; jsonValue!=null && i < jsonValue.size() ; i++){
                 JSONObject jsonObject = jsonValue.get(i).isObject() ;
                 BookmarkInfo bookmarkInfo = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(jsonObject);
                 bookmarkInfoList.add(bookmarkInfo);

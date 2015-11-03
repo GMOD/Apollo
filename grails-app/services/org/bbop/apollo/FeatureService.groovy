@@ -1304,6 +1304,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 case StopCodonReadThrough.cvTerm.toUpperCase(): return StopCodonReadThrough.ontologyId
                 case NonCanonicalFivePrimeSpliceSite.cvTerm.toUpperCase(): return NonCanonicalFivePrimeSpliceSite.ontologyId
                 case NonCanonicalThreePrimeSpliceSite.cvTerm.toUpperCase(): return NonCanonicalThreePrimeSpliceSite.ontologyId
+                case NonCanonicalFivePrimeSpliceSite.alternateCvTerm.toUpperCase(): return NonCanonicalFivePrimeSpliceSite.ontologyId
+                case NonCanonicalThreePrimeSpliceSite.alternateCvTerm.toUpperCase(): return NonCanonicalThreePrimeSpliceSite.ontologyId
                 default:
                     log.error("CV Term not known ${cvTermString} for CV ${FeatureStringEnum.SEQUENCE}")
                     return null
@@ -1869,7 +1871,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         ArrayList<Transcript> transcriptsToUpdate = new ArrayList<Transcript>()
         
         for (Transcript eachTranscript : allSortedTranscripts) {
-            if (overlapperService.overlaps(eachTranscript, fivePrimeTranscript)) {
+            if (overlapperService.overlaps(eachTranscript, fivePrimeGene)) {
                 if (transcriptService.getGene(eachTranscript).uniqueName != fivePrimeGene.uniqueName) {
                     transcriptsToAssociate.add(eachTranscript) 
                     genesToMerge.add(transcriptService.getGene(eachTranscript))

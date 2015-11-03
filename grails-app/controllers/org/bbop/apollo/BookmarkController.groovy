@@ -19,9 +19,15 @@ class BookmarkController {
         println "loading bookmark . . . "
         JSONObject bookmarkJson = (request.JSON ?: JSON.parse(params.data.toString())) as JSONObject
         User user = permissionService.getCurrentUser(bookmarkJson)
-        Organism organism = preferenceService.getCurrentOrganism(user)
+        if(Organism.count>0){
+            preferenceService.getCurrentOrganism(user)
+            render user.bookmarks as JSON
+//            render (user.bookmarks ?: new JSONObject()) as JSON
+        }
+        else{
+            render new JSONObject() as JSON
+        }
 
-        render user.bookmarks as JSON
     }
 
     def getBookmark(){
