@@ -21,7 +21,7 @@
         <g:textField name="ownerName" maxlength="50"/><br />
         <label for="featureType">Feature type:</label>
         <g:textField name="featureType" maxlength="50"/> <br />
-        <label for="featureType">Organism:</label>
+        <label for="organismName">Organism:</label>
         <g:textField name="organismName" maxlength="50"/><br />
 
         <input type="submit" value="Submit">
@@ -35,7 +35,7 @@
             <g:sortableColumn property="organism" title="Organism"/>
             <g:sortableColumn property="name" title="Name"/>
             <g:sortableColumn property="owners" title="Owner"/>
-            <g:sortableColumn property="cvTerm" title="CV Term"/>
+            <g:sortableColumn property="cvTerm" title="Feature type"/>
         </tr>
         </thead>
         <tbody>
