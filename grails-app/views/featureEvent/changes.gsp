@@ -32,6 +32,7 @@
         <tr>
             <g:sortableColumn property="lastUpdated" title="Last updated"/>
             <g:sortableColumn property="name" title="Name"/>
+            <g:sortableColumn property="name" title="Organism"/>
             <g:sortableColumn property="owners" title="Owner"/>
             <g:sortableColumn property="cvTerm" title="CV Term"/>
         </tr>
@@ -43,10 +44,14 @@
                     <g:formatDate format="E dd-MMM-yy" date="${feature.lastUpdated}"/>
                 </td>
                 <td>
+                    ${feature.featureLocation.sequence.organism.commonName}
+                </td>
+                <td>
                     <g:link target="_blank" controller="annotator" action="loadLink" params="[loc: feature.featureLocation.sequence.name+':'+feature.featureLocation.fmin+'..'+feature.featureLocation.fmax, organism: feature.featureLocation.sequence.organism.id]">
                         ${feature.name}
                     </g:link>
                 </td>
+
                 <td>
                     ${feature.owner?.username}
                 </td>

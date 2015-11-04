@@ -70,17 +70,23 @@ class FeatureEventController {
                 owners {
                     order('username', params.order)
                 }
+                'in'('class',viewableFeatureList)
             }
         }
         else if(params.sort=="cvTerm") {
             def c = Feature.createCriteria()
             list = c.list(max: params.max, offset:params.offset) {
-                order('cvTerm', params.order)
+                order('class', params.order)
+                'in'('class',viewableFeatureList)
+
             }
         }
 
         else {
-            list = Feature.list(params)
+            def c = Feature.createCriteria()
+            list = c.list(max: params.max, offset:params.offset) {
+                'in'('class',viewableFeatureList)
+            }
         }
 
 
