@@ -13,43 +13,14 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-class CdsServiceIntegrationSpec extends IntegrationSpec {
+class CdsServiceIntegrationSpec extends AbstractIntegrationSpec{
     
     def sequenceService
     def requestHandlingService
     def transcriptService
-    def shiroSecurityManager
-
-    private String password = "testPass"
-    private String passwordHash = new Sha256Hash(password).toHex()
 
     def setup() {
-        User testUser = new User(
-                username: 'test@test.com'
-                ,firstName: 'Bob'
-                ,lastName: 'Test'
-                ,passwordHash: passwordHash
-        ).save(insert: true,flush: true)
-
-        shiroSecurityManager.sessionManager = new DefaultWebSessionManager()
-        ThreadContext.bind(shiroSecurityManager)
-        def authToken = new UsernamePasswordToken(testUser.username,password as String)
-        Subject subject = SecurityUtils.getSubject();
-        subject.login(authToken)
-
-        Organism organism = new Organism(
-                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-                ,commonName: "sampleAnimal"
-        ).save(flush: true)
-        
-        Sequence sequence = new Sequence(
-                length: 1405242
-                ,seqChunkSize: 20000
-                ,start: 0
-                ,end: 1405242
-                ,organism: organism
-                ,name: "Group1.10"
-        ).save()
+        setupDefaultUserOrg()
     }
 
     def cleanup() {
