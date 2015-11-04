@@ -220,14 +220,19 @@ class AnnotatorController {
     def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String order, String sort) {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
-            if (sequenceName && !Sequence.countByName(sequenceName)) return
+            String[] sequenceNames = sequenceName.split("\\:\\:")
+            List<Sequence> sequences = Sequence.findAllByNameInList(sequenceNames as List<String>)
+            String bookmarkString = bookmarkService.convertBookmarkToJson(bookmarkService.generateBookmarkForSequence(sequences as Sequence[])).toString()
+            if (!sequences) return
 
             if (sequenceName) {
-                returnObject.track = sequenceName
+                returnObject.track = bookmarkString
             }
 
             Bookmark bookmark
-            Organism organism
+            Organism organism = permissionService.currentOrganismPreference.organism
+
+            returnObject.organism = organism.id
             if (returnObject.has("track")) {
                 bookmark = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             } else {

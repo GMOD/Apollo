@@ -262,6 +262,13 @@ class PermissionService {
                     sequences << it.name
                 }
             }
+            else
+            if(inputObject.track.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
+                JSONObject sequenceObject = JSON.parse(inputObject.track) as JSONObject
+                sequenceObject.sequenceList.each{ it ->
+                    sequences << it.name
+                }
+            }
             else{
                 sequences << inputObject.track
             }
