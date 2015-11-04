@@ -65,13 +65,12 @@ class FeatureEventController {
 
         def list
         def c = Feature.createCriteria()
+
         list = c.list(max: params.max, offset:params.offset) {
             if(params.sort=="owners") {
                 owners {
                     order('username', params.order)
-                    if(params.ownerName!="") {
-                        eq('username',params.ownerName)
-                    }
+
                 }
             }
             else if(params.sort=="name") {
@@ -85,7 +84,6 @@ class FeatureEventController {
                     sequence {
                         organism {
                             order('commonName',params.order)
-                            if(params.organismName!="") eq('commonName',params.organismName)
                         }
                     }
                 }
@@ -93,12 +91,25 @@ class FeatureEventController {
             else if(params.sort=="lastUpdated") {
                 order('lastUpdated',params.order)
             }
-            if(params.featureType!="") {
-                eq('class',params.featureType)
+
+            if(params.ownerName!=null&&params.ownerName!="") {
+                owners {
+                    eq('username', params.ownerName)
+                }
             }
-            else {
-                'in'('class',viewableFeatureList)
+            if(params.featureType!= null&&params.featureType!= "") {
+                eq('class', params.featureType)
             }
+            if(params.organismName!= null&&params.organismName != "") {
+                featureLocations {
+                    sequence {
+                        organism {
+                            eq('commonName',params.organismName)
+                        }
+                    }
+                }
+            }
+            'in'('class',viewableFeatureList)
         }
 
 
