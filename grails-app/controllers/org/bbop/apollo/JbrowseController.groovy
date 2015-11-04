@@ -185,14 +185,22 @@ class JbrowseController {
 
                 if(fileName.endsWith("trackData.json")){
                     List<JSONObject> trackObjectList = new ArrayList<>()
+                    List<String> projectionChunk = new ArrayList<>()
                     for (sequence in sequenceStrings) {
                         // next we want to load tracks from the REAL paths . .  .
 //                    String sequencePathName = dataFileName.replaceAll(putativeSequencePathName, sequence)
                         String sequencePathName = trackService.generateTrackNameForSequence(dataFileName,sequence)
                         // this loads PROJECTED
                         JSONObject trackObject = trackService.loadTrackData(sequencePathName,refererLoc,currentOrganism)
+                        JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+                        for(int i = 0 ; i < ncListArray.size() ;i++){
+                            projectionChunk.add(sequence)
+                        }
+
                         trackObjectList.add(trackObject)
                     }
+                    MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc,currentOrganism)
+                    multiSequenceProjection.chunks.addAll(projectionChunk)
 
                     JSONObject trackObject = trackService.mergeTrackObject(trackObjectList)
                     response.outputStream << trackObject.toString()
@@ -201,6 +209,13 @@ class JbrowseController {
                 if(fileName.startsWith("lf-")){
                     List<JSONArray> trackArrayList = new ArrayList<>()
                     List<Integer> sequenceLengths = []
+
+                    MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc,currentOrganism)
+                    List<String> projectionSequences = multiSequenceProjection.chunks
+
+                    println "projection sequences ${projectionSequences}"
+
+
                     for (sequenceString in sequenceStrings) {
                         // next we want to load tracks from the REAL paths . .  .
 //                    String sequencePathName = dataFileName.replaceAll(putativeSequencePathName, sequence)

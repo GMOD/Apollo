@@ -10,6 +10,7 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     // if a projection includes multiple sequences, this will include greater than one
     TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>()
     ProjectionDescription projectionDescription  // description of how this is generated
+    List<String> chunks = new ArrayList<>()
 
     ProjectionSequence getReverseProjectionSequence(Integer input) {
         for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
