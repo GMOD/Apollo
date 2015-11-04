@@ -460,12 +460,12 @@ class TrackService {
         return first
     }
 
-    JSONArray nudgeNcListArray(JSONArray coordinate, Integer nudgeAmount) {
+    JSONArray nudgeNcListArray(JSONArray coordinate, Integer nudgeAmount,Integer nudgeIndex) {
         // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
         for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
             def subArray = coordinate.get(subIndex)
             if (subArray instanceof JSONArray) {
-                nudgeNcListArray(subArray, nudgeAmount)
+                nudgeNcListArray(subArray, nudgeAmount,nudgeIndex)
             }
         }
 
@@ -473,9 +473,11 @@ class TrackService {
                 && coordinate.get(0) instanceof Integer
                 && coordinate.get(1) instanceof Integer
                 && coordinate.get(2) instanceof Integer
+                && coordinate.get(3) instanceof Integer
         ) {
             coordinate.set(1, coordinate.getInt(1) + nudgeAmount)
             coordinate.set(2, coordinate.getInt(2) + nudgeAmount)
+            coordinate.set(3, coordinate.getInt(3) + nudgeIndex)
         }
 
         return coordinate
@@ -523,10 +525,11 @@ class TrackService {
      * @return
      */
     JSONArray mergeCoordinateArray(JSONArray firstNcListArray,JSONArray secondNcListArray,int endSize) {
+        int nudgeIndex = firstNcListArray.size()
         for (int i = 0; i < secondNcListArray.size(); i++) {
             def ncListArray = secondNcListArray.get(i)
             if (ncListArray instanceof JSONArray) {
-                nudgeNcListArray(ncListArray, endSize)
+                nudgeNcListArray(ncListArray, endSize,nudgeIndex)
                 firstNcListArray.add(ncListArray)
             }
         }
@@ -538,7 +541,8 @@ class TrackService {
         JSONArray firstNcListArray = jsonArrays.first()
 
         for(int i = 1 ; i < jsonArrays.size() ; i++){
-            mergeCoordinateArray(firstNcListArray,jsonArrays.get(i),endSizes.get(i-1))
+            JSONArray secondArray = jsonArrays.get(i)
+            mergeCoordinateArray(firstNcListArray,secondArray,endSizes.get(i-1))
         }
 
 //        for (int i = 0; i < secondNcListArray.size(); i++) {
