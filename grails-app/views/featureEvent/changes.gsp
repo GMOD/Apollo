@@ -31,8 +31,8 @@
         <thead>
         <tr>
             <g:sortableColumn property="lastUpdated" title="Last updated"/>
+            <g:sortableColumn property="organism" title="Organism"/>
             <g:sortableColumn property="name" title="Name"/>
-            <g:sortableColumn property="name" title="Organism"/>
             <g:sortableColumn property="owners" title="Owner"/>
             <g:sortableColumn property="cvTerm" title="CV Term"/>
         </tr>

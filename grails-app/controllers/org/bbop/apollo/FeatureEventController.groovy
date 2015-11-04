@@ -81,6 +81,19 @@ class FeatureEventController {
 
             }
         }
+        else if(params.sort=="organism") {
+            def c = Feature.createCriteria()
+            list = c.list(max: params.max, offset:params.offset) {
+                featureLocations {
+                    sequence {
+                        organism {
+                            order('commonName',params.order)
+                        }
+                    }
+                }
+                'in'('class',viewableFeatureList)
+            }
+        }
 
         else {
             def c = Feature.createCriteria()
