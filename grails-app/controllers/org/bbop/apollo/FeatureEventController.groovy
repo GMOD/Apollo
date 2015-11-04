@@ -64,26 +64,20 @@ class FeatureEventController {
         params.max = Math.min(max ?: 15, 100)
 
         def list
-        if(params.sort=="owners") {
-            def c = Feature.createCriteria()
-            list = c.list(max: params.max, offset:params.offset) {
+        def c = Feature.createCriteria()
+        list = c.list(max: params.max, offset:params.offset) {
+            if(params.sort=="owners") {
                 owners {
                     order('username', params.order)
                 }
-                'in'('class',viewableFeatureList)
             }
-        }
-        else if(params.sort=="cvTerm") {
-            def c = Feature.createCriteria()
-            list = c.list(max: params.max, offset:params.offset) {
+            else if(params.sort=="name") {
+                order('name', params.order)
+            }
+            else if(params.sort=="cvTerm") {
                 order('class', params.order)
-                'in'('class',viewableFeatureList)
-
             }
-        }
-        else if(params.sort=="organism") {
-            def c = Feature.createCriteria()
-            list = c.list(max: params.max, offset:params.offset) {
+            else if(params.sort=="organism") {
                 featureLocations {
                     sequence {
                         organism {
@@ -91,21 +85,12 @@ class FeatureEventController {
                         }
                     }
                 }
-                'in'('class',viewableFeatureList)
             }
-        }
-        else if(params.sort=="lastUpdated") {
-            def c = Feature.createCriteria()
-            list = c.list(max: params.max, offset:params.offset) {
+            else if(params.sort=="lastUpdated") {
                 order('lastUpdated',params.order)
-                'in'('class',viewableFeatureList)
             }
-        }
-        else {
-            def c = Feature.createCriteria()
-            list = c.list(max: params.max, offset:params.offset) {
-                'in'('class',viewableFeatureList)
-            }
+            'in'('class',viewableFeatureList)
+
         }
 
 
