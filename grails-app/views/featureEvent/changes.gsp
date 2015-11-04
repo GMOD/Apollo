@@ -16,16 +16,21 @@
         <div class="message" role="status">${flash.message}</div>
     </g:if>
 
-    <div id="form" style="padding:10px">
-        <form name="types">
-            <label>Filter users</label><input id="username" type="text"/><br/>
-            <label>Filter types</label><input id="types" type="text"/><br/>
-        </form>
-    </div>
+    <g:form name="myForm" url="[action:'changes',controller:'featureEvent']">
+        <div>
+            <label for="name">Filter owner:</label>
+            <g:textField name="name" maxlength="50" mycustomstuff="whatever">
+            </g:textField>
+        </div>
+
+        <input type="submit" value="Submit">
+    </g:form>
+
+
     <table>
         <thead>
         <tr>
-            <g:sortableColumn property="dateCreated" title="Date"/>
+            <g:sortableColumn property="lastUpdated" title="Last updated"/>
             <g:sortableColumn property="name" title="Name"/>
             <g:sortableColumn property="owners" title="Owner"/>
             <g:sortableColumn property="cvTerm" title="CV Term"/>

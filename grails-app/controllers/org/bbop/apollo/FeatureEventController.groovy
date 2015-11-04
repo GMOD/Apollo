@@ -59,9 +59,32 @@ class FeatureEventController {
                 MiRNA.class.name,
         ]
 
-        params.max = Math.min(max ?: 20, 100)
+        log.debug "${params}"
 
-        render view: "changes", model: [features: Feature.findAllByFeatureCVTerms(viewableFeatureList,params), featureCount: Feature.count()]
+        params.max = Math.min(max ?: 15, 100)
+
+        def list
+        if(params.sort=="owners") {
+            def c = Feature.createCriteria()
+            list = c.list(max: params.max, offset:params.offset) {
+                owners {
+                    order('username', params.order)
+                }
+            }
+        }
+        else if(params.sort=="cvTerm") {
+            def c = Feature.createCriteria()
+            list = c.list(max: params.max, offset:params.offset) {
+                order('cvTerm', params.order)
+            }
+        }
+
+        else {
+            list = Feature.list(params)
+        }
+
+
+        render view: "changes", model: [features: list, featureCount: Feature.count()]
     }
 
     def index(Integer max) {
