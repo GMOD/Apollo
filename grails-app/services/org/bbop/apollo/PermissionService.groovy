@@ -305,9 +305,9 @@ class PermissionService {
         Organism organism
 
         // this is for testing only
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            return null
-        }
+//        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
+//            return null
+//        }
 
         //def session = RequestContextHolder.currentRequestAttributes().getSession()
         User user = getCurrentUser(inputObject)
@@ -442,17 +442,17 @@ class PermissionService {
         }
 
         // this is for testing only
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            List<Sequence> sequenceObjects = []
-            sequenceStrings.each { it
-                Sequence sequence = sequenceStrings ? Sequence.findByName(it) : null
-                if(sequence==null){
-                    throw new RuntimeException("Unable to find sequence for ${it}")
-                }
-                sequenceObjects << sequence
-            }
-            return bookmarkService.generateBookmarkForSequence(sequenceObjects as Sequence[])
-        }
+//        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
+//            List<Sequence> sequenceObjects = []
+//            sequenceStrings.each { it
+//                Sequence sequence = sequenceStrings ? Sequence.findByName(it) : null
+//                if(sequence==null){
+//                    throw new RuntimeException("Unable to find sequence for ${it}")
+//                }
+//                sequenceObjects << sequence
+//            }
+//            return bookmarkService.generateBookmarkForSequence(sequenceObjects as Sequence[])
+//        }
 
         User user = getCurrentUser(inputObject)
         organism = getOrganismFromInput(inputObject)

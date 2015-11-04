@@ -1193,13 +1193,13 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, bookmark)
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
+//            if (grails.util.Environment.current != grails.util.Environment.TEST) {
                 if (activeUser) {
                     featureService.setOwner(sequenceAlteration, activeUser)
                 } else {
                     log.error("Unable to find valid user to set on transcript!" + inputObject)
                 }
-            }
+//            }
             sequenceAlteration.save()
 
             featureService.updateNewGsolFeatureAttributes(sequenceAlteration, bookmark)

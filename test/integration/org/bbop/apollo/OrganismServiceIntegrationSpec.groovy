@@ -6,27 +6,13 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-class OrganismServiceIntegrationSpec extends IntegrationSpec {
+class OrganismServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     def organismService
     def requestHandlingService
 
     def setup() {
-        Organism organism = new Organism(
-                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-                , commonName: "sampleAnimal"
-        ).save()
-        Sequence sequence = new Sequence(
-                length: 1405242
-                , seqChunkSize: 20000
-                , start: 0
-                , organism: organism
-                , end: 1405242
-                , name: "Group1.10"
-        ).save()
-        organism.addToSequences(sequence)
-        organism.save(flush: true )
-
+        setupDefaultUserOrg()
     }
 
     def cleanup() {

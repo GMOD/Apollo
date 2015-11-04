@@ -26,6 +26,9 @@ class AbstractIntegrationSpec extends IntegrationSpec{
                 ,lastName: 'Test'
                 ,passwordHash: passwordHash
         ).save(insert: true,flush: true)
+        def adminRole = Role.findByName(UserService.ADMIN)
+        testUser.addToRoles(adminRole)
+        testUser.save()
 
         shiroSecurityManager.sessionManager = new DefaultWebSessionManager()
         ThreadContext.bind(shiroSecurityManager)

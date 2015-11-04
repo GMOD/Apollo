@@ -5,23 +5,24 @@ import grails.test.spock.IntegrationSpec
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-class OverlapperServiceIntegrationSpec extends IntegrationSpec {
+class OverlapperServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     def requestHandlingService
 
     def setup() {
-        Organism organism = new Organism(
-                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-                , commonName: "sampleAnimal"
-        ).save(flush: true)
-        Sequence sequence = new Sequence(
-                length: 1405242
-                , seqChunkSize: 20000
-                , start: 0
-                , organism: organism
-                , end: 1405242
-                , name: "Group1.10"
-        ).save()
+        setupDefaultUserOrg()
+//        Organism organism = new Organism(
+//                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
+//                , commonName: "sampleAnimal"
+//        ).save(flush: true)
+//        Sequence sequence = new Sequence(
+//                length: 1405242
+//                , seqChunkSize: 20000
+//                , start: 0
+//                , organism: organism
+//                , end: 1405242
+//                , name: "Group1.10"
+//        ).save()
     }
     
     def cleanup() {

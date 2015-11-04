@@ -148,14 +148,14 @@ class FeatureService {
             }
 
             //this one is working, but was marked as needing improvement
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
+//            if (grails.util.Environment.current != grails.util.Environment.TEST) {
                 log.debug "setting owner for gene and transcript per: ${permissionService.getCurrentUser(jsonTranscript)}"
                 if (owner) {
                     setOwner(transcript, owner);
                 } else {
                     log.error("Unable to find valid user to set on transcript!" + jsonTranscript)
                 }
-            }
+//            }
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -186,14 +186,14 @@ class FeatureService {
                     }
 
                     //this one is working, but was marked as needing improvement
-                    if (grails.util.Environment.current != grails.util.Environment.TEST) {
+//                    if (grails.util.Environment.current != grails.util.Environment.TEST) {
                         log.debug "setting owner for gene and transcript per: ${permissionService.getCurrentUser(jsonTranscript)}"
                         if (owner) {
                             setOwner(tmpTranscript, owner);
                         } else {
                             log.error("Unable to find valid user to set on transcript!" + jsonTranscript)
                         }
-                    }
+//                    }
 
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
@@ -267,7 +267,7 @@ class FeatureService {
             transcript.save(flush: true)
 
             // doesn't work well for testing
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
+//            if (grails.util.Environment.current != grails.util.Environment.TEST) {
                 log.debug "setting owner for gene and transcript per: ${permissionService.getCurrentUser(jsonTranscript)}"
                 if (owner) {
                     setOwner(gene, owner);
@@ -275,7 +275,7 @@ class FeatureService {
                 } else {
                     log.error("Unable to find valid user to set on transcript!" + jsonTranscript)
                 }
-            }
+//            }
         }
         return transcript;
 

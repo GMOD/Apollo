@@ -7,7 +7,7 @@ import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Ignore
 
-class SequenceServiceIntegrationSpec extends IntegrationSpec {
+class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
     
     def requestHandlingService
     def sequenceService
@@ -15,19 +15,20 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
     def featureService
     
     def setup() {
-        Organism organism = new Organism(
-                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-                ,commonName: "sampleAnimal"
-        ).save(flush: true)
-
-        Sequence sequence = new Sequence(
-                length: 1405242
-                ,seqChunkSize: 20000
-                ,start: 0
-                ,end: 1405242
-                ,organism: organism
-                ,name: "Group1.10"
-        ).save(flush: true)
+        setupDefaultUserOrg()
+//        Organism organism = new Organism(
+//                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
+//                ,commonName: "sampleAnimal"
+//        ).save(flush: true)
+//
+//        Sequence sequence = new Sequence(
+//                length: 1405242
+//                ,seqChunkSize: 20000
+//                ,start: 0
+//                ,end: 1405242
+//                ,organism: organism
+//                ,name: "Group1.10"
+//        ).save(flush: true)
     }
 
     def cleanup() {
