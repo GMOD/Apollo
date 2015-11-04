@@ -94,7 +94,13 @@ class FeatureEventController {
                 'in'('class',viewableFeatureList)
             }
         }
-
+        else if(params.sort=="lastUpdated") {
+            def c = Feature.createCriteria()
+            list = c.list(max: params.max, offset:params.offset) {
+                order('lastUpdated',params.order)
+                'in'('class',viewableFeatureList)
+            }
+        }
         else {
             def c = Feature.createCriteria()
             list = c.list(max: params.max, offset:params.offset) {
