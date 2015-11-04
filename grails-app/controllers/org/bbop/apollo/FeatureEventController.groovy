@@ -69,6 +69,9 @@ class FeatureEventController {
             if(params.sort=="owners") {
                 owners {
                     order('username', params.order)
+                    if(params.ownerName!="") {
+                        eq('username',params.ownerName)
+                    }
                 }
             }
             else if(params.sort=="name") {
@@ -82,6 +85,7 @@ class FeatureEventController {
                     sequence {
                         organism {
                             order('commonName',params.order)
+                            if(params.organismName!="") eq('commonName',params.organismName)
                         }
                     }
                 }
@@ -89,12 +93,16 @@ class FeatureEventController {
             else if(params.sort=="lastUpdated") {
                 order('lastUpdated',params.order)
             }
-            'in'('class',viewableFeatureList)
-
+            if(params.featureType!="") {
+                eq('class',params.featureType)
+            }
+            else {
+                'in'('class',viewableFeatureList)
+            }
         }
 
 
-        render view: "changes", model: [features: list, featureCount: Feature.count()]
+        render view: "changes", model: [features: list, featureCount: list.size()]
     }
 
     def index(Integer max) {

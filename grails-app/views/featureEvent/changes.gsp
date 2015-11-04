@@ -17,11 +17,12 @@
     </g:if>
 
     <g:form name="myForm" url="[action:'changes',controller:'featureEvent']">
-        <div>
-            <label for="name">Filter owner:</label>
-            <g:textField name="name" maxlength="50" mycustomstuff="whatever">
-            </g:textField>
-        </div>
+        <label for="ownerName">Owner:</label>
+        <g:textField name="ownerName" maxlength="50"/><br />
+        <label for="featureType">Feature type:</label>
+        <g:textField name="featureType" maxlength="50"/> <br />
+        <label for="featureType">Organism:</label>
+        <g:textField name="organismName" maxlength="50"/><br />
 
         <input type="submit" value="Submit">
     </g:form>
