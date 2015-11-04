@@ -2,18 +2,41 @@ package org.bbop.apollo
 
 import grails.test.spock.IntegrationSpec
 import grails.converters.JSON
+import org.apache.shiro.SecurityUtils
+import org.apache.shiro.authc.UsernamePasswordToken
+import org.apache.shiro.crypto.hash.Sha256Hash
+import org.apache.shiro.session.Session
+import org.apache.shiro.subject.Subject
+import org.apache.shiro.util.ThreadContext
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.lang.Ignore
 
 class CdsServiceIntegrationSpec extends IntegrationSpec {
     
     def sequenceService
     def requestHandlingService
     def transcriptService
+    def shiroSecurityManager
+
+    private String password = "testPass"
+    private String passwordHash = new Sha256Hash(password).toHex()
 
     def setup() {
+        User testUser = new User(
+                username: 'test@test.com'
+                ,firstName: 'Bob'
+                ,lastName: 'Test'
+                ,passwordHash: passwordHash
+        ).save(insert: true,flush: true)
+
+        shiroSecurityManager.sessionManager = new DefaultWebSessionManager()
+        ThreadContext.bind(shiroSecurityManager)
+        def authToken = new UsernamePasswordToken(testUser.username,password as String)
+        Subject subject = SecurityUtils.getSubject();
+        subject.login(authToken)
+
         Organism organism = new Organism(
                 directory: "test/integration/resources/sequences/honeybee-Group1.10/"
                 ,commonName: "sampleAnimal"

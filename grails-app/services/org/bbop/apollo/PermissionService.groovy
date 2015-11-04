@@ -273,9 +273,9 @@ class PermissionService {
 
     // get current user from session or input object
     User getCurrentUser(JSONObject inputObject = new JSONObject()) {
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            return null
-        }
+//        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
+//            return null
+//        }
 
         String username
         if (inputObject.has(FeatureStringEnum.USERNAME.value)) {
@@ -401,12 +401,15 @@ class PermissionService {
                 }
                 List<Sequence> sequenceList = Sequence.findAllByNameInList(sequenceStrings)
 
+                // TODO: assume that these are ordered correctly .  . a bad assumption
                 organism  = sequenceList.first().organism
 
                 Bookmark bookmark = new Bookmark(
                         organism: organism
                         ,sequenceList: sequenceStrings
                         ,user: user
+                        ,start: 0
+                        ,end: sequenceList.last().end
                 ).save(flush: true, insert:true,failOnError: true)
 
                 userOrganismPreference = new UserOrganismPreference(
