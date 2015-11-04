@@ -172,7 +172,7 @@ class JbrowseController {
 //        String putativeTrackPathName = getTrackPathName(dataFileName)
 //        /opt/apollo/honeybee/data//tracks/Official Gene Set v3.2/{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}/trackData.json
         if (putativeSequencePathName.contains("projection")) {
-            if (fileName.endsWith("trackData.json")) {
+            if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
                 List<String> sequenceStrings = new ArrayList<>()
@@ -182,20 +182,42 @@ class JbrowseController {
                     sequenceStrings.add(sequenceObject.name)
                 }
 
-                List<JSONObject> trackObjectList = new ArrayList<>()
 
-                for (sequence in sequenceStrings) {
-                    // next we want to load tracks from the REAL paths . .  .
+                if(fileName.endsWith("trackData.json")){
+                    List<JSONObject> trackObjectList = new ArrayList<>()
+                    for (sequence in sequenceStrings) {
+                        // next we want to load tracks from the REAL paths . .  .
 //                    String sequencePathName = dataFileName.replaceAll(putativeSequencePathName, sequence)
-                    String sequencePathName = trackService.generateTrackNameForSequence(dataFileName,sequence)
-                    // this loads PROJECTED
-                    JSONObject trackObject = trackService.loadTrackData(sequencePathName,refererLoc,currentOrganism)
-                    trackObjectList.add(trackObject)
+                        String sequencePathName = trackService.generateTrackNameForSequence(dataFileName,sequence)
+                        // this loads PROJECTED
+                        JSONObject trackObject = trackService.loadTrackData(sequencePathName,refererLoc,currentOrganism)
+                        trackObjectList.add(trackObject)
+                    }
+
+                    JSONObject trackObject = trackService.mergeTrackObject(trackObjectList)
+                    response.outputStream << trackObject.toString()
+                    return
+                }
+                if(fileName.startsWith("lf-")){
+                    List<JSONArray> trackArrayList = new ArrayList<>()
+                    List<Integer> sequenceLengths = []
+                    for (sequenceString in sequenceStrings) {
+                        // next we want to load tracks from the REAL paths . .  .
+//                    String sequencePathName = dataFileName.replaceAll(putativeSequencePathName, sequence)
+                        String sequencePathName = trackService.generateTrackNameForSequence(dataFileName,sequenceString)
+                        // this loads PROJECTED
+                        JSONArray coordinateArray = trackService.loadChunkData(sequencePathName,refererLoc,currentOrganism)
+                        trackArrayList.add(coordinateArray)
+                        Sequence sequence = Sequence.findByNameAndOrganism(sequenceString,currentOrganism)
+                        sequenceLengths << sequence.end
+                    }
+
+                    JSONArray trackArray = trackService.mergeCoordinateArray(trackArrayList,sequenceLengths)
+                    response.outputStream << trackArray.toString()
+                    return
                 }
 
-                JSONObject trackObject = trackService.mergeTrackObject(trackObjectList)
-                response.outputStream << trackObject.toString()
-                return
+
             }
         }
         // 1 - if endsWith trackData and the "sequence" contains a projection then
@@ -314,39 +336,41 @@ class JbrowseController {
                     // returns projection to a string of some sort
                     response.outputStream << refSeqProjector.projectTrack(refSeqJsonObject,projection,currentOrganism,refererLoc)
 
-                } else if (fileName.endsWith("trackData.json")) {
-                    // TODO: project trackData.json
-                    // if we are a projection, then we are going to want to merge multiple sequences
-                    // into a single trackData.json
-                    println "trying to get trackData for ${file.absolutePath}"
-                    println "fileNAme is NOT lf-type ${fileName}"
-                    // transform 2nd and 3rd array object in intervals/ncList
-                    JSONObject trackDataJsonObject = trackService.loadTrackData(file.absolutePath,refererLoc,currentOrganism)
-                    response.outputStream << trackDataJsonObject.toString()
-
-                    return
-                } else if (fileName.startsWith("lf-")) {
-                    // TODO: project trackData.json
-                    JSONArray trackDataJsonObject = new JSONArray(file.text)
-                    String sequenceName = projectionService.getSequenceName(file.absolutePath)
-                    // get the track from the json object
-
-                    // TODO: it should look up the OGS track either default or variable
-                    ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
-
-                    if (projection) {
-//                        println "re-writing the LF array ${trackDataJsonObject.size()}"
-//                        println "coordinates are ${projection.toString()}"
-                        for (int i = 0; i < trackDataJsonObject.size(); i++) {
-                            JSONArray coordinate = trackDataJsonObject.getJSONArray(i)
-//                            println "lf-from ${coordinate as JSON}"
-                            trackService.projectJsonArray(projection, coordinate)
-//                            println "lf-to ${coordinate as JSON}"
-                        }
-                    }
-                    response.outputStream << trackDataJsonObject.toString()
-                    return
-                } else {
+                }
+//                else if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-") ) {
+//                    // TODO: project trackData.json
+//                    // if we are a projection, then we are going to want to merge multiple sequences
+//                    // into a single trackData.json
+//                    println "trying to get trackData for ${file.absolutePath}"
+//                    println "fileNAme is NOT lf-type ${fileName}"
+//                    // transform 2nd and 3rd array object in intervals/ncList
+//                    JSONObject trackDataJsonObject = trackService.loadTrackData(file.absolutePath,refererLoc,currentOrganism)
+//                    response.outputStream << trackDataJsonObject.toString()
+//
+//                    return
+//                } else if (fileName.startsWith("lf-")) {
+//                    // TODO: project trackData.json
+//                    JSONArray trackDataJsonObject = new JSONArray(file.text)
+//                    String sequenceName = projectionService.getSequenceName(file.absolutePath)
+//                    // get the track from the json object
+//
+//                    // TODO: it should look up the OGS track either default or variable
+//                    ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
+//
+//                    if (projection) {
+////                        println "re-writing the LF array ${trackDataJsonObject.size()}"
+////                        println "coordinates are ${projection.toString()}"
+//                        for (int i = 0; i < trackDataJsonObject.size(); i++) {
+//                            JSONArray coordinate = trackDataJsonObject.getJSONArray(i)
+////                            println "lf-from ${coordinate as JSON}"
+//                            trackService.projectJsonArray(projection, coordinate)
+////                            println "lf-to ${coordinate as JSON}"
+//                        }
+//                    }
+//                    response.outputStream << trackDataJsonObject.toString()
+//                    return
+//                }
+            else {
                     // Set content size
                     response.setContentLength((int) file.length());
 

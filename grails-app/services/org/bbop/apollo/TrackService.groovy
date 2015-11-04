@@ -300,9 +300,34 @@ class TrackService {
         return null
     }
 
+    def JSONArray loadChunkData(String path, String refererLoc, Organism currentOrganism) {
+        File file = new File(path)
+        String inputText = file.text
+        JSONArray coordinateJsonArray = new JSONArray(inputText)
+        String sequenceName = projectionService.getSequenceName(file.absolutePath)
+        // get the track from the json object
+
+        // TODO: it should look up the OGS track either default or variable
+//        JSONArray projectedArray = new JSONArray()
+        MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+
+        if (projection && projection.containsSequence(sequenceName, currentOrganism)) {
+//                    if (projection) {
+            println "found a projection ${projection.size()}"
+//            JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
+//            JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
+            for (int i = 0; i < coordinateJsonArray.size(); i++) {
+                JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
+                projectJsonArray(projection, coordinate)
+            }
+        }
+        return coordinateJsonArray
+    }
+
     def JSONObject loadTrackData(String path, String refererLoc, Organism currentOrganism) {
         File file = new File(path)
-        JSONObject trackDataJsonObject = new JSONObject(file.text)
+        String inputText = file.text
+        JSONObject trackDataJsonObject = new JSONObject(inputText)
         String sequenceName = projectionService.getSequenceName(file.absolutePath)
         // get the track from the json object
 
@@ -485,6 +510,19 @@ class TrackService {
         JSONArray firstNcListArray = first.getJSONArray("nclist")
         JSONArray secondNcListArray = second.getJSONArray("nclist")
 
+
+        mergeCoordinateArray(firstNcListArray,secondNcListArray,endSize)
+
+        return first
+    }
+
+    /**
+     * This is a destructive method .. . putting everythin on the second onto the first with an alignment
+     * @param firstNcListArray
+     * @param secondNcListArray
+     * @return
+     */
+    JSONArray mergeCoordinateArray(JSONArray firstNcListArray,JSONArray secondNcListArray,int endSize) {
         for (int i = 0; i < secondNcListArray.size(); i++) {
             def ncListArray = secondNcListArray.get(i)
             if (ncListArray instanceof JSONArray) {
@@ -492,8 +530,26 @@ class TrackService {
                 firstNcListArray.add(ncListArray)
             }
         }
+        return firstNcListArray
+    }
 
+    JSONArray mergeCoordinateArray(ArrayList<JSONArray> jsonArrays,List<Integer> endSizes) {
 
-        return first
+        JSONArray firstNcListArray = jsonArrays.first()
+
+        for(int i = 1 ; i < jsonArrays.size() ; i++){
+            mergeCoordinateArray(firstNcListArray,jsonArrays.get(i),endSizes.get(i-1))
+        }
+
+//        for (int i = 0; i < secondNcListArray.size(); i++) {
+//            def ncListArray = secondNcListArray.get(i)
+//            if (ncListArray instanceof JSONArray) {
+//                nudgeNcListArray(ncListArray, endSize)
+//                firstNcListArray.add(ncListArray)
+//            }
+//        }
+
+        return firstNcListArray
+
     }
 }
