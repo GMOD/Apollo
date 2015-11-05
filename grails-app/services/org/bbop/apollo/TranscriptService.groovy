@@ -311,6 +311,10 @@ class TranscriptService {
                 uniqueName: nameService.generateUniqueName(),
         ).save(flush: true)
 
+        transcript.owners.each {
+            splitTranscriptGene.addToOwners(it)
+        }
+
         FeatureLocation splitTranscriptGeneFeatureLocation = new FeatureLocation(
                 feature: splitTranscriptGene,
                 fmin: splitTranscript.fmin,

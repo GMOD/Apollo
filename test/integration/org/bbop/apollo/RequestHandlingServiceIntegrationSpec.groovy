@@ -2624,4 +2624,58 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
             assert gene != null
         }
     }
+
+    void "when we add undo a merge transcript operation, isoform overlap rule should be applied consistently"() {
+        given: "Two transcripts: GB40769-RA and GB40770-RA"
+        String transcript1String = "{\"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":262511,\"fmax\":262558},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":258387,\"fmax\":258402},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":258387,\"fmax\":258492},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":259081,\"fmax\":259225},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":259957,\"fmax\":260090},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":260570,\"fmax\":260697},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":262216,\"fmax\":262558},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":258402,\"fmax\":262511},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40769-RA\",\"location\":{\"strand\":-1,\"fmin\":258387,\"fmax\":262558},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String transcript2String = "{\"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":255124,\"fmax\":255153},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":252400,\"fmax\":252408},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":252004,\"fmax\":252303},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":252004,\"fmax\":252303},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":252400,\"fmax\":252462},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":252667,\"fmax\":252814},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":253468,\"fmax\":253601},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":253751,\"fmax\":253878},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":254826,\"fmax\":255153},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":252408,\"fmax\":255124},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40770-RA\",\"location\":{\"strand\":-1,\"fmin\":252004,\"fmax\":255153},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String mergeTranscriptOperation = " {\"features\":[{\"uniquename\":\"@TRANSCRIPT1_UNIQUENAME@\"},{\"uniquename\":\"@TRANSCRIPT2_UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"merge_transcripts\"}"
+        String undoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
+
+        when: "we add transcripts"
+        requestHandlingService.addTranscript(JSON.parse(transcript1String) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(transcript1String) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(transcript2String) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(transcript2String) as JSONObject)
+
+        then: "we should see 2 genes and 4 transcripts"
+        assert Gene.count == 2
+        assert MRNA.count == 4
+
+        Transcript transcript1 = MRNA.findByName("GB40769-RA-00001")
+        Transcript transcript2 = MRNA.findByName("GB40769-RA-00002")
+        Transcript transcript3 = MRNA.findByName("GB40770-RA-00001")
+        Transcript transcript4 = MRNA.findByName("GB40770-RA-00002")
+
+
+        when: "we merge transcript GB40769-RA-00002 with GB40770-RA-00002"
+        String mergeTranscriptString = mergeTranscriptOperation.replace("@TRANSCRIPT1_UNIQUENAME@", transcript4.uniqueName).replace("@TRANSCRIPT2_UNIQUENAME@", transcript2.uniqueName)
+        JSONObject mergeTranscriptReturnObject = requestHandlingService.mergeTranscripts(JSON.parse(mergeTranscriptString) as JSONObject)
+
+        then: "there should be 2 genes and 3 transcripts"
+        assert Gene.count == 2
+        assert MRNA.count == 3
+
+        def genes = Gene.all.sort{ a,b -> a.name <=> b.name }
+        assert transcriptService.getTranscripts(genes[0]).size() == 2
+        assert transcriptService.getTranscripts(genes[1]).size() == 1
+
+        when: "we undo the operation"
+        String undoMergeTranscriptString = undoOperation.replace("@UNIQUENAME@", transcript4.uniqueName)
+        requestHandlingService.undo(JSON.parse(undoMergeTranscriptString) as JSONObject)
+
+        then: "we should have 2 genes and 4 transcripts"
+        assert Gene.count == 2
+        assert Transcript.count == 4
+        assert MRNA.count == 4
+        assert Exon.count == 22
+        assert CDS.count == 4
+
+        then: "each of the gene should have two transcripts"
+        assert transcriptService.getTranscripts(genes[0]).size() == 2
+        assert transcriptService.getTranscripts(genes[1]).size() == 2
+
+
+
+    }
 }

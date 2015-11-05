@@ -28,6 +28,7 @@ class FeatureService {
 
     def nameService
     def configWrapperService
+    def featureService
     def transcriptService
     def exonService
     def cdsService
@@ -61,8 +62,10 @@ class FeatureService {
      */
     public Collection<Transcript> getOverlappingTranscripts(FeatureLocation location, boolean compareStrands = true) {
         List<Transcript> transcriptList = new ArrayList<>()
+        List<Transcript> overlappingFeaturesList = getOverlappingFeatures(location, compareStrands)
 
-        for (Feature feature : getOverlappingFeatures(location, compareStrands)) {
+        for (Feature eachFeature : overlappingFeaturesList) {
+            Feature feature = Feature.get(eachFeature.id)
             if (feature instanceof Transcript) {
                 transcriptList.add((Transcript) feature)
             }
@@ -158,12 +161,16 @@ class FeatureService {
             log.debug "no gene given"
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll(){
+                it = Feature.get(it.id)
                 it instanceof Gene
             }
-            
+
             log.debug "overlapping features: ${overlappingFeatures.size()}"
-            for (Feature feature : overlappingFeatures) {
-                log.debug "evaluating overlap of feature ${feature.name}"
+            for (Feature eachFeature : overlappingFeatures) {
+                // get the proper object instead of its proxy, due to lazy loading
+                Feature feature = Feature.get(eachFeature.id)
+                log.debug "evaluating overlap of feature ${feature.name} of class ${feature.class.name}"
+
                 if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
                     Gene tmpGene = (Gene) feature;
                     log.debug "found an overlapping gene ${tmpGene}"
@@ -1869,8 +1876,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         transcriptsToUpdate.addAll(transcriptsToDissociate)
 
         if (transcriptsToAssociate.size() > 0) {
-            Gene mergedGene
-            mergedGene = mergeGeneEntities(fivePrimeGene, genesToMerge.unique())
+            Gene mergedGene = mergeGeneEntities(fivePrimeGene, genesToMerge.unique())
             for (Transcript eachTranscript in transcriptsToAssociate) {
                 Gene eachTranscriptParent = transcriptService.getGene(eachTranscript)
                 featureRelationshipService.removeFeatureRelationship(eachTranscriptParent, eachTranscript)
@@ -1882,11 +1888,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     for (FeatureProperty fp : featureProperties) {
                         featurePropertyService.deleteProperty(eachTranscriptParent, fp)
                     }
-                    eachTranscriptParent.delete()
+                    //eachTranscriptParent.delete()
+                    // replace a direct delete with the standard method
+                    Feature topLevelFeature = featureService.getTopLevelFeature(eachTranscriptParent)
+                    featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
                 }
             }
         }
-        
+
         if (transcriptsToDissociate.size() > 0) {
             Transcript firstTranscript = null
             for (Transcript eachTranscript in transcriptsToDissociate) {
@@ -1946,7 +1955,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
     
     @Transactional
-    def mergeGeneEntities(Gene mainGene, ArrayList<Gene> genes) {
+    Gene mergeGeneEntities(Gene mainGene, ArrayList<Gene> genes) {
         def fminList = genes.featureLocation.fmin
         def fmaxList = genes.featureLocation.fmax
         fminList.add(mainGene.fmin)
