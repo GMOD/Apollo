@@ -42,7 +42,7 @@ public class UserRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Error loading organisms");
+                Bootbox.alert("Error registering admin: "+exception.getMessage());
             }
         };
         JSONObject jsonObject = new JSONObject();
