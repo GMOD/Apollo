@@ -43,38 +43,79 @@ class FeatureEventController {
             redirect(uri: "/auth/unauthorized")
             return
         }
-        params.max = Math.min(max ?: 10, 100)
-        Map<String, FeatureEvent> featureEventList = new HashMap<>()
-        Map<String, Feature> features = new HashMap<>()
 
-        FeatureEvent.list(params).each {
-            featureEventList.put(it.uniqueName, it)
-        }
-        Feature.findAllByUniqueNameInList(featureEventList.keySet() as List).each {
-            features.put(it.uniqueName, it)
-        }
-        log.debug "featureEventList + ${featureEventList.size()}"
-        log.debug "features+ ${features.size()}"
-        assert featureEventList.size() >= features.size()
+        def viewableFeatureList = [
+                RepeatRegion.class.name,
+                TransposableElement.class.name,
+                Gene.class.name,
+                Pseudogene.class.name,
+                Transcript.class.name,
+                MRNA.class.name,
+                TRNA.class.name,
+                SnRNA.class.name,
+                SnoRNA.class.name,
+                NcRNA.class.name,
+                RRNA.class.name,
+                MiRNA.class.name,
+        ]
 
-        List<FeatureEventView> featureEventViewList = new ArrayList<>()
-        featureEventList.each {
-            // sometimes a feature is deleted when its event may not have been
-            Feature feature = features.get(it.key)
-            if(feature){
-                FeatureEventView featureEventView = new FeatureEventView()
-                featureEventView.featureEvent = it.value
-                featureEventView.feature = feature
-                featureEventView.organismId = feature.featureLocation.sequence.organismId
-                String locationString = feature.featureLocation.sequence.name + ":"
-                locationString += feature.featureLocation.fmin + ".." + feature.featureLocation.fmax
-                featureEventView.locString = locationString
-                featureEventViewList.add(featureEventView)
+        log.debug "${params}"
+
+        params.max = Math.min(max ?: 15, 100)
+
+        def list
+        def c = Feature.createCriteria()
+
+        list = c.list(max: params.max, offset:params.offset) {
+            if(params.sort=="owners") {
+                owners {
+                    order('username', params.order)
+
+                }
             }
-        }
-        log.debug "featureEventViewList + ${featureEventViewList.size()}"
+            else if(params.sort=="name") {
+                order('name', params.order)
+            }
+            else if(params.sort=="cvTerm") {
+                order('class', params.order)
+            }
+            else if(params.sort=="organism") {
+                featureLocations {
+                    sequence {
+                        organism {
+                            order('commonName',params.order)
+                        }
+                    }
+                }
+            }
+            else if(params.sort=="lastUpdated") {
+                order('lastUpdated',params.order)
+            }
 
-        render view: "changes", model: [featureEventViewList: featureEventViewList, featureEventInstanceCount: FeatureEvent.count()]
+            if(params.ownerName!=null&&params.ownerName!="") {
+                owners {
+                    ilike('username', '%'+params.ownerName+'%')
+                }
+            }
+            if(params.featureType!= null&&params.featureType!= "") {
+                ilike('class', '%'+params.featureType)
+            }
+            if(params.organismName!= null&&params.organismName != "") {
+                featureLocations {
+                    sequence {
+                        organism {
+                            eq('commonName',params.organismName, [ignoreCase:true])
+                        }
+                    }
+                }
+            }
+
+
+            'in'('class',viewableFeatureList)
+        }
+
+
+        render view: "changes", model: [features: list, featureCount: list.size(), organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName]
     }
 
     def index(Integer max) {
