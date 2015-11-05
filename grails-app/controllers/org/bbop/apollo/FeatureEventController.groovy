@@ -94,17 +94,17 @@ class FeatureEventController {
 
             if(params.ownerName!=null&&params.ownerName!="") {
                 owners {
-                    eq('username', params.ownerName)
+                    eq('username', '%'+params.ownerName, [ignoreCase:true])
                 }
             }
             if(params.featureType!= null&&params.featureType!= "") {
-                eq('class', params.featureType)
+                ilike('class', '%'+params.featureType)
             }
             if(params.organismName!= null&&params.organismName != "") {
                 featureLocations {
                     sequence {
                         organism {
-                            eq('commonName',params.organismName)
+                            eq('commonName',params.organismName, [ignoreCase:true])
                         }
                     }
                 }
