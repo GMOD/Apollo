@@ -33,27 +33,6 @@ public class UserRestService {
         RestService.sendRequest(requestCallback, "Login", data.toString());
     }
 
-    public static void registerAdmin(String username, String password, Boolean rememberMe, String firstName, String lastName) {
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                Window.Location.reload();
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Error registering admin: "+exception.getMessage());
-            }
-        };
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("operation", new JSONString("register"));
-        jsonObject.put("username", new JSONString(username));
-        jsonObject.put("password", new JSONString(password));
-        jsonObject.put("rememberMe", JSONBoolean.getInstance(rememberMe));
-        jsonObject.put("firstName", new JSONString(firstName));
-        jsonObject.put("lastName", new JSONString(lastName));
-        registerAdmin(requestCallback, jsonObject);
-    }
 
     public static void registerAdmin(RequestCallback requestCallback, JSONObject data) {
         RestService.sendRequest(requestCallback, "login/registerAdmin", data);
@@ -99,7 +78,7 @@ public class UserRestService {
 
                 userInfoList.clear();
 
-                for (int i = 0; i < array.size(); i++) {
+                for (int i = 0; array != null && i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
                     UserInfo userInfo = UserInfoConverter.convertToUserInfoFromJSON(object);
                     userInfoList.add(userInfo);

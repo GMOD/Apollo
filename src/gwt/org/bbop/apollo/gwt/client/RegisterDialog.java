@@ -4,6 +4,12 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONBoolean;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -18,7 +24,7 @@ public class RegisterDialog extends DialogBox {
 
     // TODO: move to UIBinder
     private VerticalPanel panel = new VerticalPanel();
-    private Grid grid = new Grid(5,2);
+    private Grid grid = new Grid(6, 2);
     private Button okButton = new Button("Register & Login");
     private TextBox username = new TextBox();
     private TextBox firstNameBox = new TextBox();
@@ -27,6 +33,7 @@ public class RegisterDialog extends DialogBox {
     private PasswordTextBox passwordRepeatTextBox = new PasswordTextBox();
     private HorizontalPanel horizontalPanel = new HorizontalPanel();
     private CheckBox rememberMeCheckBox = new CheckBox("Remember me");
+    private HTML errorMessage = new HTML("");
 
     public RegisterDialog() {
         // Set the dialog box's caption.
@@ -46,8 +53,10 @@ public class RegisterDialog extends DialogBox {
         grid.setWidget(3, 1, firstNameBox);
         grid.setHTML(4, 0, "Last Name");
         grid.setWidget(4, 1, lastNameBox);
+        grid.setHTML(5, 0, "");
+        grid.setWidget(5, 1, errorMessage);
         panel.add(grid);
-        
+
 
         horizontalPanel.add(rememberMeCheckBox);
         horizontalPanel.add(new HTML("&nbsp;&nbsp;&nbsp;&nbsp;"));
@@ -63,6 +72,7 @@ public class RegisterDialog extends DialogBox {
         });
         setWidget(panel);
     }
+
     @Override
     public void onPreviewNativeEvent(NativePreviewEvent e) {
         NativeEvent nativeEvent = e.getNativeEvent();
@@ -73,25 +83,61 @@ public class RegisterDialog extends DialogBox {
         }
     }
 
-    public void doRegister(){
-        if(passwordTextBox.getText().length()<4){
-            Bootbox.alert("Passwords must be at least 4 characters");
+    public void doRegister() {
+        clearError();
+        if (passwordTextBox.getText().length() < 4) {
+            setError("Passwords must be at least 4 characters");
         }
 
-        if(!passwordTextBox.getText().equals(passwordRepeatTextBox.getText())){
-            Bootbox.alert("Passwords do not match");
-            return ;
+        if (!passwordTextBox.getText().equals(passwordRepeatTextBox.getText())) {
+            setError("Passwords do not match");
+            return;
         }
 
-        String usernameText = username.getText() ;
+        String usernameText = username.getText();
         // TODO: use a better regexp search
-        if(!usernameText.contains("@")&&!usernameText.contains(".")){
-            Bootbox.alert("Username does not appear to be an email");
-            return ;
+        if (!usernameText.contains("@") && !usernameText.contains(".")) {
+            setError("Username does not appear to be an email");
         }
+        registerAdmin(username.getText().trim(), passwordTextBox.getText(), rememberMeCheckBox.getValue(),firstNameBox.getText().trim(),lastNameBox.getText().trim());
+    }
 
+    public void registerAdmin(String username, String password, Boolean rememberMe, String firstName, String lastName) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+//                Window.alert(response.getStatusCode()+"");
+//                Window.alert(response.getStatusText());
+//                Window.alert(response.getText());
+                if (response.getStatusCode() < 200 || response.getStatusCode() > 299) {
+                    setError("Problem registering adming . . check logs for more details");
+                }
+                else{
+                    Window.Location.reload();
+                }
+            }
 
-        UserRestService.registerAdmin(username.getText().trim(), passwordTextBox.getText(), rememberMeCheckBox.getValue(),firstNameBox.getText().trim(),lastNameBox.getText().trim());
+            @Override
+            public void onError(Request request, Throwable exception) {
+                setError("Error registering admin: " + exception.getMessage());
+            }
+        };
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("operation", new JSONString("register"));
+        jsonObject.put("username", new JSONString(username));
+        jsonObject.put("password", new JSONString(password));
+        jsonObject.put("rememberMe", JSONBoolean.getInstance(rememberMe));
+        jsonObject.put("firstName", new JSONString(firstName));
+        jsonObject.put("lastName", new JSONString(lastName));
+        UserRestService.registerAdmin(requestCallback, jsonObject);
+    }
+
+    public void setError(String errroString) {
+        errorMessage.setHTML("<font color='red'>" + errroString + "</font>");
+    }
+
+    public void clearError(){
+        errorMessage.setHTML("");
     }
 }
 
