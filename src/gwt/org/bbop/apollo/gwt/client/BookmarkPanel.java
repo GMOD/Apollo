@@ -226,7 +226,7 @@ public class BookmarkPanel extends Composite {
 //        Window.alert("viein g "+ mergedBookmark);
 
         JSONObject mergedSequence = BookmarkInfoConverter.generateSequenceString(bookmarkInfoSet,foldingType,foldPaddingValue,referenceTrackString);
-        Window.alert(mergedSequence.toString());
+        GWT.log(mergedSequence.toString());
 
         MainPanel.updateGenomicViewerForLocation(mergedSequence.toString(),-1,-1);
 //        MainPanel.updateGenomicViewerForBookmark(mergedBookmark);
@@ -429,7 +429,7 @@ public class BookmarkPanel extends Composite {
     private class UpdateBookmarksCallback implements RequestCallback{
         @Override
         public void onResponseReceived(Request request, Response response) {
-            Window.alert(response.getText());
+            GWT.log(response.getText());
             JSONArray jsonValue = JSONParser.parseStrict(response.getText()).isArray();
             bookmarkInfoList.clear();
 
