@@ -94,7 +94,7 @@ class FeatureEventController {
 
             if(params.ownerName!=null&&params.ownerName!="") {
                 owners {
-                    eq('username', '%'+params.ownerName, [ignoreCase:true])
+                    ilike('username', '%'+params.ownerName+'%')
                 }
             }
             if(params.featureType!= null&&params.featureType!= "") {
@@ -109,6 +109,8 @@ class FeatureEventController {
                     }
                 }
             }
+
+
             'in'('class',viewableFeatureList)
         }
 
