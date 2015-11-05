@@ -63,10 +63,9 @@ class FeatureEventController {
 
         params.max = Math.min(max ?: 15, 100)
 
-        def list
         def c = Feature.createCriteria()
 
-        list = c.list(max: params.max, offset:params.offset) {
+        def list = c.list(max: params.max, offset:params.offset) {
             if(params.sort=="owners") {
                 owners {
                     order('username', params.order)
@@ -115,7 +114,7 @@ class FeatureEventController {
         }
 
 
-        render view: "changes", model: [features: list, featureCount: list.size(), organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName]
+        render view: "changes", model: [features: list, featureCount: list.totalCount, organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName]
     }
 
     def index(Integer max) {
