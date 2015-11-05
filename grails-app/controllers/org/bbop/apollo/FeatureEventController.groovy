@@ -113,7 +113,7 @@ class FeatureEventController {
         }
 
 
-        render view: "changes", model: [features: list, featureCount: list.size()]
+        render view: "changes", model: [features: list, featureCount: list.size(), organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName]
     }
 
     def index(Integer max) {
