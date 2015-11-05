@@ -577,33 +577,36 @@ class FeatureEventService {
 
 
                     returnObject = requestHandlingService.addTranscript(addCommandObject)
-                    transcriptsToCheckForIsoformOverlap.add(Transcript.findByUniqueName(jsonFeature.getString("uniquename")))
+                    transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
 
                 } else {
                     returnObject = requestHandlingService.addFeature(addCommandObject)
                 }
 
-                AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: returnObject
-                        , sequence: sequence
-                        , operation: AnnotationEvent.Operation.UPDATE
-                )
-
-                requestHandlingService.fireAnnotationEvent(annotationEvent)
+//                AnnotationEvent annotationEvent = new AnnotationEvent(
+//                        features: returnObject
+//                        , sequence: sequence
+//                        , operation: AnnotationEvent.Operation.UPDATE
+//                )
+//
+//                requestHandlingService.fireAnnotationEvent(annotationEvent)
             }
         }
 
         // after all the transcripts from the feature event has been added, applying isoform overlap rule
-        def transcriptsToUpdate = []
-        for (Transcript transcript : transcriptsToCheckForIsoformOverlap) {
-            Gene gene = transcriptService.getGene(transcript)
-            transcriptsToUpdate.addAll(featureService.handleDynamicIsoformOverlap(transcript))
+        Set transcriptsToUpdate = new HashSet()
+        transcriptsToCheckForIsoformOverlap.each {
+            transcriptsToUpdate.add(it)
+            transcriptsToUpdate.addAll(featureService.handleDynamicIsoformOverlap(Transcript.findByUniqueName(it)).uniqueName)
         }
 
         // firing update annotation event
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
-            transcriptsToUpdate.unique(true).each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
+            transcriptsToUpdate.each {
+                Transcript transcript = Transcript.findByUniqueName(it)
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript))
+            }
             if (sequence) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer,
