@@ -104,7 +104,7 @@ class FeatureEventController {
                 featureLocations {
                     sequence {
                         organism {
-                            eq('commonName',params.organismName, [ignoreCase:true])
+                            ilike('commonName','%'+params.organismName+'%')
                         }
                     }
                 }
