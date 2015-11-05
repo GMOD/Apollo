@@ -34,49 +34,48 @@ class JbrowseController {
     // move to a type of a service?
     RefSeqProjector refSeqProjector = new RefSeqProjector()
 
-    def indexRouter(){
+    def indexRouter() {
         log.debug "indexRouter ${params}"
 
         List<String> paramList = new ArrayList<>()
-        params.eachWithIndex{ entry, int i ->
-            if(entry.key!="action" && entry.key!="controller"&& entry.key!="organism" ){
-                paramList.add(entry.key+"="+entry.value)
+        params.eachWithIndex { entry, int i ->
+            if (entry.key != "action" && entry.key != "controller" && entry.key != "organism") {
+                paramList.add(entry.key + "=" + entry.value)
             }
         }
         // case 3 - validated login (just read from preferences, then
-        if(permissionService.currentUser&&params.organism){
+        if (permissionService.currentUser && params.organism) {
             Organism organism = Organism.findById(params.organism)
-            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
+            preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
         }
 
-        if(permissionService.currentUser) {
+        if (permissionService.currentUser) {
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
             render file.text
             return
         }
 
-
         // case 1 - anonymous login with organism ID, show organism
-        if(params.organism){
+        if (params.organism) {
             log.debug "organism ID specified: ${params.organism}"
 
             // set the organism
 
 
             Organism organism = Organism.findByCommonName(params.organism)
-            if(!organism&&params.organism.isInteger()) {
+            if (!organism && params.organism.isInteger()) {
                 organism = Organism.findById(params.organism.toInteger())
             }
-            if(!organism) {
+            if (!organism) {
                 String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-                forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString,error:"Unable to find organism '${params.organism}'"])
+                forward(controller: "organism", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "Unable to find organism '${params.organism}'"])
             }
 
 
             def session = request.getSession(true)
-            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
-            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
-            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value,organism.commonName)
+            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
+            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
 
             // create an anonymous login
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
@@ -87,12 +86,12 @@ class JbrowseController {
         // case 2 - anonymous login with-OUT organism ID, show organism list
         paramList.add("organism=${params.organism}")
         String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-        forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
+        forward(controller: "organism", action: "chooseOrganismForJbrowse", params: [urlString: urlString])
     }
 
 
     private String getJBrowseDirectoryForSession() {
-        if(!permissionService.currentUser){
+        if (!permissionService.currentUser) {
             return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         }
 
@@ -108,7 +107,7 @@ class JbrowseController {
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
 //                    String sequenceList = userOrganismPreference.bookmark.sequenceList
-                    List<Sequence> sequences= organism?.sequences
+                    List<Sequence> sequences = organism?.sequences
 //                    List<String> sequenceList = []
                     JSONArray sequenceArray = new JSONArray()
                     sequences.each {
@@ -120,9 +119,9 @@ class JbrowseController {
                     if (userOrganismPreference == null) {
                         Bookmark bookmark = new Bookmark(
                                 organism: organism
-                                ,sequenceList: sequenceArray.toString()
-                                ,user: user
-                        ).save(insert:true,flush: true,failOnError: true)
+                                , sequenceList: sequenceArray.toString()
+                                , user: user
+                        ).save(insert: true, flush: true, failOnError: true)
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
                                 , organism: organism
@@ -147,12 +146,23 @@ class JbrowseController {
         return organismJBrowseDirectory
     }
 
-    private static String extractLocation(String referer){
+    private static String extractLocation(String referer) {
         int startIndex = referer.indexOf("?loc=")
-        int endIndex = referer.contains("&")?referer.indexOf("&"):referer.length()
+        int endIndex = referer.contains("&") ? referer.indexOf("&") : referer.length()
         String refererLoc = referer.subSequence(startIndex + 5, endIndex)
         refererLoc = URLDecoder.decode(refererLoc, "UTF-8")
         return refererLoc
+    }
+
+    /**
+     * Get chunk index for files of the pattern: lf-${X}.json
+     * @param fileName
+     * @return
+     */
+    private Integer getChunkIndex(String fileName) {
+        String finalString = fileName.substring(3, fileName.length() - 5)
+//        println finalString
+        return Integer.parseInt(finalString)
     }
 
     /**
@@ -183,51 +193,58 @@ class JbrowseController {
                 }
 
 
-                if(fileName.endsWith("trackData.json")){
+                if (fileName.endsWith("trackData.json")) {
                     List<JSONObject> trackObjectList = new ArrayList<>()
-                    List<String> projectionChunk = new ArrayList<>()
-                    for (sequence in sequenceStrings) {
-                        // next we want to load tracks from the REAL paths . .  .
-//                    String sequencePathName = dataFileName.replaceAll(putativeSequencePathName, sequence)
-                        String sequencePathName = trackService.generateTrackNameForSequence(dataFileName,sequence)
-                        // this loads PROJECTED
-                        JSONObject trackObject = trackService.loadTrackData(sequencePathName,refererLoc,currentOrganism)
-                        JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
-                        for(int i = 0 ; i < ncListArray.size() ;i++){
-                            projectionChunk.add(sequence)
-                        }
+                    List<String> projectionChunkList = new ArrayList<>()
 
+                    // can probably store the projection chunks
+                    for (sequence in sequenceStrings) {
+                        String sequencePathName = trackService.generateTrackNameForSequence(dataFileName, sequence)
+                        // this loads PROJECTED
+                        JSONObject trackObject = trackService.loadTrackData(sequencePathName, refererLoc, currentOrganism)
+                        JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+                        for (int i = 0; i < ncListArray.size(); i++) {
+                            projectionChunkList.add(sequence)
+                        }
                         trackObjectList.add(trackObject)
                     }
-                    MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc,currentOrganism)
-                    multiSequenceProjection.chunks.addAll(projectionChunk)
+
+                    MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
+                    multiSequenceProjection.chunks = projectionChunkList
+                    projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
 
                     JSONObject trackObject = trackService.mergeTrackObject(trackObjectList)
                     response.outputStream << trackObject.toString()
                     return
                 }
-                if(fileName.startsWith("lf-")){
+                if (fileName.startsWith("lf-")) {
                     List<JSONArray> trackArrayList = new ArrayList<>()
                     List<Integer> sequenceLengths = []
 
-                    MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc,currentOrganism)
+                    MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
                     List<String> projectionSequences = multiSequenceProjection.chunks
 
                     println "projection sequences ${projectionSequences}"
 
+                    Integer chunkIndex = getChunkIndex(fileName)-1
+                    String sequenceString = projectionSequences.get(chunkIndex)
+                    // calculate offset for chunk and replace the filename
+                    // should be the start of the string
+                    String originalFileName = calculateOriginalChunkName(projectionSequences, sequenceString, chunkIndex)
+                    dataFileName = dataFileName.replaceAll(fileName, originalFileName)
 
-                    for (sequenceString in sequenceStrings) {
-                        // next we want to load tracks from the REAL paths . .  .
+//                    for (sequenceString in sequenceStrings) {
+                    // next we want to load tracks from the REAL paths . .  .
 //                    String sequencePathName = dataFileName.replaceAll(putativeSequencePathName, sequence)
-                        String sequencePathName = trackService.generateTrackNameForSequence(dataFileName,sequenceString)
-                        // this loads PROJECTED
-                        JSONArray coordinateArray = trackService.loadChunkData(sequencePathName,refererLoc,currentOrganism)
-                        trackArrayList.add(coordinateArray)
-                        Sequence sequence = Sequence.findByNameAndOrganism(sequenceString,currentOrganism)
-                        sequenceLengths << sequence.end
-                    }
+                    String sequencePathName = trackService.generateTrackNameForSequence(dataFileName, sequenceString)
+                    // this loads PROJECTED
+                    JSONArray coordinateArray = trackService.loadChunkData(sequencePathName, refererLoc, currentOrganism)
+                    trackArrayList.add(coordinateArray)
+                    Sequence sequence = Sequence.findByNameAndOrganism(sequenceString, currentOrganism)
+                    sequenceLengths << sequence.end
+//                    }
 
-                    JSONArray trackArray = trackService.mergeCoordinateArray(trackArrayList,sequenceLengths)
+                    JSONArray trackArray = trackService.mergeCoordinateArray(trackArrayList, sequenceLengths)
                     response.outputStream << trackArray.toString()
                     return
                 }
@@ -273,7 +290,7 @@ class JbrowseController {
                 log.info("Could not get MIME type of " + fileName + " falling back to text/plain");
                 mimeType = "text/plain";
             }
-            if(fileName.endsWith("jsonz")||fileName.endsWith("txtz")) {
+            if (fileName.endsWith("jsonz") || fileName.endsWith("txtz")) {
                 response.setHeader 'Content-Encoding', 'x-gzip'
             }
         }
@@ -349,7 +366,7 @@ class JbrowseController {
                     MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
                     // returns projection to a string of some sort
-                    response.outputStream << refSeqProjector.projectTrack(refSeqJsonObject,projection,currentOrganism,refererLoc)
+                    response.outputStream << refSeqProjector.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
 
                 }
 //                else if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-") ) {
@@ -385,7 +402,7 @@ class JbrowseController {
 //                    response.outputStream << trackDataJsonObject.toString()
 //                    return
 //                }
-            else {
+                else {
                     // Set content size
                     response.setContentLength((int) file.length());
 
@@ -581,6 +598,16 @@ class JbrowseController {
 
         }
 
+    }
+
+    String calculateOriginalChunkName(ArrayList<String> strings, String finalSequenceString, Integer chunkIndex) {
+        for (int i = 0; i < strings.size(); i++) {
+            if (strings.get(i) == finalSequenceString) {
+                return "lf-${chunkIndex - i+1}.json"
+            }
+        }
+        println "unable to find an offset "
+        return "lf-${chunkIndex+1}.json"
     }
 
     def trackList() {

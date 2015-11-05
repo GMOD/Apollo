@@ -797,10 +797,15 @@ class ProjectionService {
         return locationList
     }
 
+    JSONObject convertProjectionToBookmarkJsonObject(String putativeProjectionLoc,Organism organism){
+        JSONObject bookmarkJsonObject = JSON.parse(putativeProjectionLoc) as JSONObject
+        bookmarkJsonObject.organism = organism.commonName
+        return bookmarkJsonObject
+    }
+
     def getProjection(String putativeProjectionLoc, Organism organism) {
         if (putativeProjectionLoc.startsWith("{\"projection\":")) {
-            JSONObject bookmarkJsonObject = JSON.parse(putativeProjectionLoc) as JSONObject
-            bookmarkJsonObject.organism = organism.commonName
+            JSONObject bookmarkJsonObject = convertProjectionToBookmarkJsonObject(putativeProjectionLoc,organism)
             return getProjection(bookmarkJsonObject)
         }
     }
@@ -859,9 +864,13 @@ class ProjectionService {
         ProjectionDescription projectionDescription = convertJsonObjecToProjectDescription(bookmarkObject)
 
         if (!multiSequenceProjectionMap.containsKey(projectionDescription)) {
+            println "does NOT contains the key! ${projectionDescription}"
             MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(projectionDescription)
 
             multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
+        }
+        else{
+            println "contains the key! ${projectionDescription}"
         }
         return multiSequenceProjectionMap.get(projectionDescription)
     }
@@ -875,5 +884,11 @@ class ProjectionService {
         // this guarantees that the query is local to the descrption
         return projectionSequenceMultiSequenceProjectionMap.containsKey(projectionSequence)
 
+    }
+
+    def storeProjection(String putativeRefererLocation, MultiSequenceProjection multiSequenceProjection,Organism organism) {
+        JSONObject bookmarkObject = convertProjectionToBookmarkJsonObject(putativeRefererLocation,organism)
+        ProjectionDescription projectionDescription = convertJsonObjecToProjectDescription(bookmarkObject)
+        multiSequenceProjectionMap.put(projectionDescription,multiSequenceProjection)
     }
 }
