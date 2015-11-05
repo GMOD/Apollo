@@ -16,6 +16,7 @@ import org.grails.plugins.metrics.groovy.Timed
 class FeatureEventService {
 
     def permissionService
+    def transcriptService
     def featureService
     def requestHandlingService
 
@@ -529,12 +530,14 @@ class FeatureEventService {
             it.uniqueName
         }
 
+
         deleteCurrentState(inputObject, uniqueName, newUniqueNames, sequence)
 
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 //        log.debug "final feature event: ${featureEvent} ->${featureEvent.operation}"
 //        log.debug "current feature events for unique name ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName, true)}"
 
+        def transcriptsToCheckForIsoformOverlap = []
         featureEventArray.each { featureEvent ->
 
             JSONArray jsonArray = (JSONArray) JSON.parse(featureEvent.newFeaturesJsonArray)
@@ -572,7 +575,10 @@ class FeatureEventService {
                     log.debug "original command object = ${originalCommandObject as JSON}"
                     log.debug "final command object = ${addCommandObject as JSON}"
 
+
                     returnObject = requestHandlingService.addTranscript(addCommandObject)
+                    transcriptsToCheckForIsoformOverlap.add(Transcript.findByUniqueName(jsonFeature.getString("uniquename")))
+
                 } else {
                     returnObject = requestHandlingService.addFeature(addCommandObject)
                 }
@@ -583,6 +589,27 @@ class FeatureEventService {
                         , operation: AnnotationEvent.Operation.UPDATE
                 )
 
+                requestHandlingService.fireAnnotationEvent(annotationEvent)
+            }
+        }
+
+        // after all the transcripts from the feature event has been added, applying isoform overlap rule
+        def transcriptsToUpdate = []
+        for (Transcript transcript : transcriptsToCheckForIsoformOverlap) {
+            Gene gene = transcriptService.getGene(transcript)
+            transcriptsToUpdate.addAll(featureService.handleDynamicIsoformOverlap(transcript))
+        }
+
+        // firing update annotation event
+        if (transcriptsToUpdate.size() > 0) {
+            JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+            transcriptsToUpdate.unique(true).each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
+            if (sequence) {
+                AnnotationEvent annotationEvent = new AnnotationEvent(
+                        features: updateFeatureContainer,
+                        sequence: sequence,
+                        operation: AnnotationEvent.Operation.UPDATE
+                )
                 requestHandlingService.fireAnnotationEvent(annotationEvent)
             }
         }
