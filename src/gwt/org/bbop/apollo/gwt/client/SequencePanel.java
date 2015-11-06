@@ -30,8 +30,10 @@ import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.gwtbootstrap3.client.ui.Alert;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -81,6 +83,8 @@ public class SequencePanel extends Composite {
     Button selectSelectedButton;
     @UiField
     Button bookmarkButton;
+    @UiField
+    Alert panelMessage;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -162,7 +166,7 @@ public class SequencePanel extends Composite {
 
                     @Override
                     public void onError(Request request, Throwable exception) {
-                        Bootbox.alert("error getting sequence info: " + exception);
+                        Bootbox.alert("Error getting sequence info: " + exception);
                     }
                 };
 
@@ -268,7 +272,7 @@ public class SequencePanel extends Composite {
     void addNewBookmark(ClickEvent clickEvent){
         BookmarkInfo bookmarkInfo = new BookmarkInfo();
         BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
-        final String name = "" ;
+        StringBuilder nameBuffer = new StringBuilder();
         for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
             bookmarkInfo.setPadding(50);
             bookmarkInfo.setType("Exon");
@@ -277,17 +281,22 @@ public class SequencePanel extends Composite {
 //            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getName()));
             sequenceArray.addSequence(sequenceObject);
 //            sequenceArray.set(sequenceArray.size(),sequenceObject);
-            name.concat(sequenceInfo.getName()+",");
+            nameBuffer.append(sequenceInfo.getName() + ",");
         }
 //        name = name.substring(0,name.length()-1);
         bookmarkInfo.setSequenceList(sequenceArray);
 
+        final String name = nameBuffer.toString() ;
 
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                new InfoDialog("Added Bookmark","Added bookmark for sequences "+name.substring(0,name.length()-1),true);
+//                new InfoDialog("Added Bookmark","Added bookmark for sequences "+name.substring(0,name.length()-1),true);
+                panelMessage.setText("Added bookmark: " + name.substring(0, name.length() - 1));
+//                panelMessage.setText("Added bookmark!");
+                panelMessage.setType(AlertType.SUCCESS);
+                panelMessage.setVisible(true);
             }
 
             @Override
