@@ -196,21 +196,21 @@ class JbrowseController {
                 if (fileName.endsWith("trackData.json")) {
                     List<JSONObject> trackObjectList = new ArrayList<>()
                     List<String> projectionChunkList = new ArrayList<>()
-                    Map<String,Integer> chunkOffset = new HashMap<>()
+                    Map<String,Integer> chunkOffsets = new HashMap<>()
 
                     // can probably store the projection chunks
+                    Integer priorIndex = 0
                     for (sequence in sequenceStrings) {
                         String sequencePathName = trackService.generateTrackNameForSequence(dataFileName, sequence)
                         // this loads PROJECTED
                         JSONObject trackObject = trackService.loadTrackData(sequencePathName, refererLoc, currentOrganism)
                         JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
                         Integer lastIndex = 0
-                        Integer priorIndex = 0
                         for (int i = 0; i < ncListArray.size(); i++) {
                             projectionChunkList.add(sequence)
                             lastIndex = ncListArray.getJSONArray(i).getInt(2)
                         }
-                        chunkOffset.put(sequence,priorIndex)
+                        chunkOffsets.put(sequence,priorIndex)
                         priorIndex = priorIndex + lastIndex
 
                         trackObjectList.add(trackObject)
@@ -218,7 +218,7 @@ class JbrowseController {
 
                     MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
                     multiSequenceProjection.chunks = projectionChunkList
-                    multiSequenceProjection.chunkOffsets = chunkOffset
+                    multiSequenceProjection.chunkOffsets = chunkOffsets
                     projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
 
                     JSONObject trackObject = trackService.mergeTrackObject(trackObjectList)
@@ -231,8 +231,6 @@ class JbrowseController {
 
                     MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
                     List<String> projectionSequences = multiSequenceProjection.chunks
-
-                    println "projection sequences ${projectionSequences}"
 
                     Integer chunkIndex = getChunkIndex(fileName)-1
                     String sequenceString = projectionSequences.get(chunkIndex)

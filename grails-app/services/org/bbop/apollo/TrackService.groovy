@@ -300,7 +300,8 @@ class TrackService {
         return null
     }
 
-    def JSONArray loadChunkData(String path, String refererLoc, Organism currentOrganism,Integer offset = 0) {
+    def JSONArray loadChunkData(String path, String refererLoc, Organism currentOrganism,Integer offset) {
+        println "loading chunk data with offset ${offset}"
         File file = new File(path)
         String inputText = file.text
         JSONArray coordinateJsonArray = new JSONArray(inputText)
@@ -347,6 +348,7 @@ class TrackService {
 
     JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate,Integer offset=0) {
 
+//        println "projection with offset ${offset}"
         // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
         for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
             def subArray = coordinate.get(subIndex)
@@ -364,8 +366,8 @@ class TrackService {
             Integer oldMax = coordinate.getInt(2)
             Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax)
             if (newCoordinate && newCoordinate.isValid()) {
-                coordinate.set(1, newCoordinate.min)
-                coordinate.set(2, newCoordinate.max)
+                coordinate.set(1, newCoordinate.min+offset)
+                coordinate.set(2, newCoordinate.max+offset)
             } else {
                 log.error("Invalid mapping of coordinate ${coordinate} -> ${newCoordinate}")
                 coordinate.set(1, -1)
