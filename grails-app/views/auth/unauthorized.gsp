@@ -12,7 +12,7 @@
 </head>
 
 <body>
-
+<g:render template="../layouts/reportHeader"/>
 <div class="jumbotron" style="padding-left: 30px;">
     <h1>
         Unauthorized

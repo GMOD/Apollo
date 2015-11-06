@@ -19,7 +19,10 @@ Features
 + Added proxy support to support https servers and general proxy support (#148).
 + Improved user experience for login, user, and group pages (#603, #601, #592).
 + Improved, expanded, and automated web services documentation (#546).
-+ Added feature to let user change their own password  (#620).
++ Added feature to let users change their own password (#620).
++ Updated the /featureEvent/changes page to show list of recently changed features (#642).
++ Enhanced the loadGroups and loadUsers API to retrieve the info of specific groups or users (#643).
+
 
 Bugfixes
 

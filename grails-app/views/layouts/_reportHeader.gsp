@@ -1,7 +1,6 @@
 <%@ page import="org.codehaus.groovy.grails.web.json.JSONArray" %>
 <nav class="navbar navbar-default">
-    %{--<div class="apollo-header row">--}%
-        <div class="apollo-header row">
+    <div class="apollo-header row">
         <g:link uri="/"><asset:image src="ApolloLogo_100x36.png"/></g:link>
         <perms:admin>
             <div class="btn btn-group">
@@ -19,15 +18,4 @@
             </div>
         </perms:admin>
     </div>
-
-    %{--<div class="container-fluid">--}%
-        <!-- Brand and toggle get grouped for better mobile display -->
-        %{--<div class="navbar-header">--}%
-            %{--<div class="input-prepend">--}%
-                %{--<a class="navbar-brand glyphicon glyphicon-home" href="${createLink(uri: '/')}">Home</a>--}%
-
-            %{--</div>--}%
-
-        %{--</div>--}%
-    %{--</div>--}%
 </nav>
