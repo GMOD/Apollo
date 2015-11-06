@@ -407,7 +407,7 @@ class TrackService {
                 finalObject.intervals = mergeIntervals(finalObject.intervals, jsonObject.intervals, endSize)
 
                 // get endSize
-                endSize = jsonObject.intervals.maxEnd
+                endSize += jsonObject.intervals.maxEnd
             }
         }
 
