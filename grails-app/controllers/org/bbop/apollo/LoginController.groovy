@@ -26,6 +26,7 @@ class LoginController extends AbstractApolloController {
 
 
     def handleOperation(String track, String operation) {
+        log.debug "handleOperation"
         JSONObject postObject = findPost()
         if(postObject?.containsKey(REST_OPERATION)){
             operation = postObject.get(REST_OPERATION)
@@ -86,6 +87,8 @@ class LoginController extends AbstractApolloController {
     def login(){
         def jsonObj
         try {
+            log.debug "loginController login"
+            log.debug "${params} "
             jsonObj = request.JSON
             if(!jsonObj){
                 jsonObj = JSON.parse(params.data)
@@ -156,6 +159,7 @@ class LoginController extends AbstractApolloController {
                     username: jsonObj.username]) as JSON
         }
         catch ( Exception e ) {
+            log.error "${e.message}"
             render ([error: e.message]) as JSON
         }
     }
