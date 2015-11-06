@@ -11,6 +11,7 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>()
     ProjectionDescription projectionDescription  // description of how this is generated
     List<String> chunks = new ArrayList<>()
+    Map<String,Integer> chunkOffsets = new HashMap<>()
 
     ProjectionSequence getReverseProjectionSequence(Integer input) {
         for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {

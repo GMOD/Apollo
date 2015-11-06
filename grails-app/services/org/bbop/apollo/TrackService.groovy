@@ -300,7 +300,7 @@ class TrackService {
         return null
     }
 
-    def JSONArray loadChunkData(String path, String refererLoc, Organism currentOrganism) {
+    def JSONArray loadChunkData(String path, String refererLoc, Organism currentOrganism,Integer offset = 0) {
         File file = new File(path)
         String inputText = file.text
         JSONArray coordinateJsonArray = new JSONArray(inputText)
@@ -308,17 +308,13 @@ class TrackService {
         // get the track from the json object
 
         // TODO: it should look up the OGS track either default or variable
-//        JSONArray projectedArray = new JSONArray()
         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
         if (projection && projection.containsSequence(sequenceName, currentOrganism)) {
-//                    if (projection) {
             println "found a projection ${projection.size()}"
-//            JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
-//            JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
             for (int i = 0; i < coordinateJsonArray.size(); i++) {
                 JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
-                projectJsonArray(projection, coordinate)
+                projectJsonArray(projection, coordinate,offset)
             }
         }
         return coordinateJsonArray
@@ -349,20 +345,14 @@ class TrackService {
     }
 
 
-    JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate) {
+    JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate,Integer offset=0) {
 
         // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
         for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
             def subArray = coordinate.get(subIndex)
-//            if(subArray?.size()>4 && (0..5).contains(subArray.getInt(0)) ){
             if (subArray instanceof JSONArray) {
-//                println "rewriting subArray ${subArray}"
-                projectJsonArray(projection, subArray)
+                projectJsonArray(projection, subArray,offset)
             }
-//            else{
-//                println "not rewriting ${coordinate.get(subIndex)}"
-//            }
-//            }
         }
 
         if (coordinate.size() >= 3
