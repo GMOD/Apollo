@@ -31,9 +31,6 @@ class OrganismController {
     def organismService
     def reportService
 
-    def chooseOrganismForJbrowse() {
-        [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
-    }
 
     @RestApiMethod(description = "Remove an organism", path = "/organism/deleteOrganism", verb = RestApiVerb.POST)
     @RestApiParams(params = [
