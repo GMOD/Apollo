@@ -46,7 +46,31 @@ abstract class AbstractApolloController {
                     key = fixProjectionJson(key)
                 }
 //                { "track": "{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}", "operation": "get_user_permission" }
-                return (JSONObject) JSON.parse(key)
+                // have to remove:
+//                :-1..-1
+                Integer firstIndex = key.indexOf("}:")
+                Integer nextIndex = key.indexOf("\\.\\.")
+                Integer lastIndex = key.indexOf("\"",firstIndex)
+                if(firstIndex>0 && lastIndex>0){
+//                    :-1..-1"
+//                    Integer firstIndex = key.indexOf(":")
+//                    Integer lastIndex = key.indexOf("\"",firstIndex)
+                    def replaceString
+                    if(key.contains("\"{")){
+                        replaceString = key.substring(firstIndex+1,lastIndex)
+                    }
+                    else{
+                        replaceString = key.substring(firstIndex+1,lastIndex+1)
+                    }
+                    key = key.replaceAll(replaceString,"")
+                }
+
+                try{
+                    return (JSONObject) JSON.parse(key)
+                }
+                catch (e){
+                    return (JSONObject) JSON.parse(key)
+                }
             }
         }
     }
