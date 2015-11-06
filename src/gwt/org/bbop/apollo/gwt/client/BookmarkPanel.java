@@ -10,9 +10,7 @@ import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -24,6 +22,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.view.client.*;
+import grails.converters.JSON;
 import org.bbop.apollo.gwt.client.dto.bookmark.*;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
@@ -201,72 +200,110 @@ public class BookmarkPanel extends Composite {
 //    }
 
 
+    /**
+     * This methods views whatever is in the genome locator.
+     * @param event
+     */
     @UiHandler("viewButton")
     public void view(ClickEvent event){
         Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
         if(bookmarkInfoSet.size()==0){
-            Window.alert("You must select at least one bookmark to project");
+//            Window.alert("You must select at least one bookmark to project");
             return ;
         }
         String foldingType = foldType.getSelectedValue();
-//        if(foldingType.equals("None")){
-//            Window.alert("Must select a folding method");
-//            return ;
-//        }
         Integer foldPaddingValue = Integer.parseInt(foldPadding.getText());
         String referenceTrackString = referenceTrack.getSelectedValue() ;
 
         // it will be an ordered list of bookmarks ;
         List<String> bookmarkList = new ArrayList<>();
 
-//        BookmarkInfo mergedBookmark = new BookmarkInfo();
         for(BookmarkInfo bookmarkInfo : bookmarkInfoSet){
             bookmarkList.add(bookmarkInfo.getName());
         }
-//        Window.alert("viein g "+ mergedBookmark);
 
-        JSONObject mergedSequence = BookmarkInfoConverter.generateSequenceString(bookmarkInfoSet,foldingType,foldPaddingValue,referenceTrackString);
-        GWT.log(mergedSequence.toString());
+//        Window.alert(dragAndDropPanel.getWidgetCount()+"");
 
-        MainPanel.updateGenomicViewerForLocation(mergedSequence.toString(),-1,-1);
-//        MainPanel.updateGenomicViewerForBookmark(mergedBookmark);
-
-
-//        JSONArray newArray = new JSONArray();
-//        for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
-//            Widget widget = dragAndDropPanel.getWidget(i);
-//            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
-//            if(groupName.contains("(")){
-//                Integer startIndex = groupName.indexOf("(");
-//                Integer endIndex = groupName.indexOf(")");
-//                String featureString = groupName.substring(startIndex+1,endIndex-1);
-//                groupName = groupName.substring(0,startIndex);
-//                JSONObject featureObject = new JSONObject();
-//                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
-//                JSONArray featuresArray = new JSONArray() ;
-//                String[] features = featureString.split(",");
-//                for(String feature : features){
-//                    JSONObject fI = new JSONObject();
-//                    fI.put(FeatureStringEnum.NAME.getValue(),new JSONString(feature));
-//                    featuresArray.set(featuresArray.size(),fI) ;
-//                }
-//                featureObject.put(FeatureStringEnum.FEATURES.getValue(),featuresArray);
+//        Window.alert(getBookmarksAsJson().toString());
+        JSONObject merge1 = getBookmarksAsJson() ;
+//        JSONObject mergedSequence = getBookmarksAsJson();
+//        Window.alert("bookmarks as JSON: " + mergedSequence.toString());
+//        MainPanel.updateGenomicViewerForLocation(mergedSequence.toString(),-1,-1);
 //
-//                newArray.set(newArray.size(),featureObject);
-//            }
-//            else{
-//                JSONObject featureObject = new JSONObject();
-//                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
-//                newArray.set(newArray.size(),featureObject);
+//        {"padding":"50", "type":"None", "reference":"Official Gene Set v3.2", "sequence":[{"name":"Group12.13"},{"name":"Group9.10"}]}
+
+//          {"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group12.13"},{"name":"Group9.10"}]}
+////        {"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group12.13"},{"name":"Group9.10"}]}
+//
+//        JSONObject mergedSequence = BookmarkInfoConverter.generateSequenceString(bookmarkInfoSet,foldingType,foldPaddingValue,referenceTrackString);
+//
+//        GWT.log( (merge1.keySet().size() == mergedSequence.keySet().size()) + "");
+//        for(String key : merge1.keySet()){
+//            GWT.log(key + ": " + merge1.get(key).toString().equals(mergedSequence.get(key).toString()));
+//            if(!merge1.get(key).toString().equals(mergedSequence.get(key).toString())){
+//                GWT.log(merge1.get(key).toString());
+//                GWT.log(mergedSequence.get(key).toString());
 //            }
 //        }
 //
-//        JSONObject genomicObject = new JSONObject();
-//        genomicObject.put("padding",new JSONString(foldPadding.getText()));
-//        genomicObject.put("type",new JSONString(foldType.getSelectedValue()));
-//        genomicObject.put("reference",new JSONString(referenceTrack.getSelectedValue()));
-//        genomicObject.put(FeatureStringEnum.SEQUENCE.getValue(),newArray);
+//        Window.alert(merge1.toString());
+//        BookmarkInfo bookmarkInfo = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(merge1) ;
+//        JSONObject merge2 = BookmarkInfoConverter.convertBookmarkInfoToJSONObject(bookmarkInfo);
+//        merge2.put("projection",new JSONString("None"));
+//        Window.alert(merge2.toString());
+////        merge2.put()
+////        merge2.put()
+//        Window.alert(mergedSequence.toString());
+//        merge1 = JSONParser.parseStrict(merge1.toString()).isObject();
+
+
+
+        MainPanel.updateGenomicViewerForLocation(merge1.toString().trim(),-1,-1);
+//        MainPanel.updateGenomicViewerForLocation("{\"padding\":50, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group12.13\"},{\"name\":\"Group9.10\"}]}",-1,-1);
+//        MainPanel.updateGenomicViewerForLocation(mergedSequence.toString(),-1,-1);
+
+
+
+    }
+
+    private JSONObject getBookmarksAsJson() {
+        JSONArray newArray = new JSONArray();
+        for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
+            Widget widget = dragAndDropPanel.getWidget(i);
+            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
+            if(groupName.contains("(")){
+                Integer startIndex = groupName.indexOf("(");
+                Integer endIndex = groupName.indexOf(")");
+                String featureString = groupName.substring(startIndex+1,endIndex-1);
+                groupName = groupName.substring(0,startIndex);
+                JSONObject featureObject = new JSONObject();
+                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
+                JSONArray featuresArray = new JSONArray() ;
+                String[] features = featureString.split(",");
+                for(String feature : features){
+                    JSONObject fI = new JSONObject();
+                    fI.put(FeatureStringEnum.NAME.getValue(),new JSONString(feature));
+                    featuresArray.set(featuresArray.size(),fI) ;
+                }
+                featureObject.put(FeatureStringEnum.FEATURES.getValue(),featuresArray);
+
+                newArray.set(newArray.size(),featureObject);
+            }
+            else{
+                JSONObject featureObject = new JSONObject();
+                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
+                newArray.set(newArray.size(),featureObject);
+            }
+        }
+
+        JSONObject genomicObject = new JSONObject();
+        genomicObject.put("padding",new JSONNumber(Integer.parseInt(foldPadding.getText())));
+        genomicObject.put("projection",new JSONString(foldType.getSelectedValue()));
+        genomicObject.put("referenceTrack",new JSONString(referenceTrack.getSelectedValue()));
+        genomicObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(),newArray);
 //        MainPanel.getInstance().updateGenomicViewer(genomicObject);
+
+        return genomicObject;
     }
 
     /**

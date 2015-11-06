@@ -42,27 +42,27 @@ abstract class AbstractApolloController {
             String key = p.key
             if (key.contains("operation")) {
 //                {"track":"Group9.10","operation":"get_translation_table"}
-                if(key.contains("\"{\"projection")){
+                if(BookmarkService.isProjectionString(key)){
                     key = fixProjectionJson(key)
                 }
 //                { "track": "{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}", "operation": "get_user_permission" }
                 // have to remove:
 //                :-1..-1
+                // in some cases the JSON starts as a string '"{' and in other cases it does not '{' and need to handle both cases
+                key = key.replaceAll("\\\\\"","\"")
                 Integer firstIndex = key.indexOf("}:")
-                Integer nextIndex = key.indexOf("\\.\\.")
                 Integer lastIndex = key.indexOf("\"",firstIndex)
                 if(firstIndex>0 && lastIndex>0){
 //                    :-1..-1"
-//                    Integer firstIndex = key.indexOf(":")
-//                    Integer lastIndex = key.indexOf("\"",firstIndex)
                     def replaceString
-                    if(key.contains("\"{")){
-                        replaceString = key.substring(firstIndex+1,lastIndex)
-                    }
-                    else{
+//                    if(key.contains("\"{")){
+//                        replaceString = key.substring(firstIndex+1,lastIndex)
+//                    }
+//                    else{
                         replaceString = key.substring(firstIndex+1,lastIndex+1)
-                    }
+//                    }
                     key = key.replaceAll(replaceString,"")
+                    key = key.replaceAll("\"\\{\"","{\"")
                 }
 
                 try{

@@ -74,8 +74,12 @@ class BookmarkService {
         return generateBookmarkForSequence(sequences as Sequence[])
     }
 
+    static Boolean isProjectionString(String inputString ){
+        return (inputString.startsWith("{") && inputString.contains("projection"))
+    }
+
     Bookmark convertStringToBookmark(String inputString, Organism organism) {
-        if (inputString.startsWith("{\"projection\":")) {
+        if (isProjectionString(inputString)) {
             JSONObject jsonObject = JSON.parse(inputString) as JSONObject
             return convertJsonToBookmark(jsonObject)
         } else {

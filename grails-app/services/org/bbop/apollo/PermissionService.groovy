@@ -245,7 +245,7 @@ class PermissionService {
         }
         else
         if (inputObject.has(FeatureStringEnum.SEQUENCE.value)) {
-            if(inputObject.sequence.startsWith("{\"projection")){
+            if(BookmarkService.isProjectionString(inputObject.sequence)){
                 inputObject.sequences.each{ it ->
                     sequences << it.name
                 }
@@ -256,9 +256,9 @@ class PermissionService {
         }
         else
         if (inputObject.has(FeatureStringEnum.TRACK.value)) {
-            if(inputObject.track.startsWith("{\"projection")){
-                JSONObject sequenceObject = JSON.parse(inputObject.track) as JSONObject
-                sequenceObject.sequenceList.each{ it ->
+            if(BookmarkService.isProjectionString(inputObject.track.toString())){
+//                JSONObject sequenceObject = inputObject.track
+                inputObject.track.sequenceList.each{ it ->
                     sequences << it.name
                 }
             }
@@ -400,7 +400,7 @@ class PermissionService {
                 // find a random organism based on sequence
 
                 List<String> sequenceStrings = []
-                if(trackName.startsWith("{\"projection")){
+                if(BookmarkService.isProjectionString(trackName)){
                     sequenceStrings = extractSequenceNamesFromJson(new JSONObject(trackName))
                 }
                 else{

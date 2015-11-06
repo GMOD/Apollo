@@ -804,7 +804,7 @@ class ProjectionService {
     }
 
     def getProjection(String putativeProjectionLoc, Organism organism) {
-        if (putativeProjectionLoc.startsWith("{\"projection\":")) {
+        if(BookmarkService.isProjectionString(putativeProjectionLoc)){
             JSONObject bookmarkJsonObject = convertProjectionToBookmarkJsonObject(putativeProjectionLoc,organism)
             return getProjection(bookmarkJsonObject)
         }
