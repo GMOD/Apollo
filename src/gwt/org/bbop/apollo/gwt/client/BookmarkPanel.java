@@ -22,7 +22,6 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.view.client.*;
-import grails.converters.JSON;
 import org.bbop.apollo.gwt.client.dto.bookmark.*;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
@@ -31,6 +30,7 @@ import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
 
@@ -314,49 +314,71 @@ public class BookmarkPanel extends Composite {
     public void save(ClickEvent clickEvent) {
         Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
         assert bookmarkInfoSet.size()==1;
-        BookmarkInfo bookmarkInfo = bookmarkInfoSet.iterator().next();
-        BookmarkSequenceList oldArray = bookmarkInfo.getSequenceList();
-        Integer removing = oldArray.size() - dragAndDropPanel.getWidgetCount();
-        if(removing>0){
-            Boolean doRemove= Window.confirm("Remove "+removing + " objects");
-            if(!doRemove) return ;
-        }
-        BookmarkSequenceList newArray = new BookmarkSequenceList();
-        for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
-            Widget widget = dragAndDropPanel.getWidget(i);
-            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
-            if(groupName.contains("(")){
-                Integer startIndex = groupName.indexOf("(");
-                Integer endIndex = groupName.indexOf(")");
-                String featureString = groupName.substring(startIndex+1,endIndex-1);
-                groupName = groupName.substring(0,startIndex);
-                BookmarkSequence sequenceFeature = new BookmarkSequence();
-                sequenceFeature.setName(groupName);
-                SequenceFeatureList featuresArray = new SequenceFeatureList() ;
-                String[] features = featureString.split(",");
-                for(String feature : features){
-                    SequenceFeatureInfo fI = new SequenceFeatureInfo();
-                    fI.setName(feature);
-//                    fI.put(FeatureStringEnum.NAME.getValue(),new JSONString(feature));
-                    featuresArray.set(featuresArray.size(),fI) ;
-                }
-                sequenceFeature.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+//        BookmarkInfo bookmarkInfo = bookmarkInfoSet.iterator().next();
+//        BookmarkSequenceList oldArray = bookmarkInfo.getSequenceList();
+//        Integer removing = oldArray.size() - dragAndDropPanel.getWidgetCount();
+//        if(removing>0){
+//            Boolean doRemove= Window.confirm("Remove "+removing + " objects");
+//            if(!doRemove) return ;
+//        }
 
-                newArray.addSequence(sequenceFeature);
-//                newArray.set(newArray.size(),featureObject);
-            }
-            else{
-                BookmarkSequence bookmarkSequence = new BookmarkSequence();
-                bookmarkSequence.setName(groupName);
-//                JSONObject featureObject = new JSONObject();
-//                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
-//                newArray.set(newArray.size(),featureObject);
-                newArray.addSequence(bookmarkSequence);
-            }
-        }
-        bookmarkInfo.setSequenceList(newArray);
+//        List<BookmarkInfo> bookmarkInfoList = new ArrayList<>();
 
-        reload();
+        JSONObject bookmarkObjects = getBookmarksAsJson();
+        Window.alert(bookmarkObjects.toString());
+        BookmarkInfo bookmarkInfo =  BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(bookmarkObjects);
+        Window.alert(BookmarkInfoConverter.convertBookmarkInfoToJSONObject(bookmarkInfo).toString());
+
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                Window.alert("received");
+                reload();
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("error");
+                Bootbox.alert("Failed to save: "+exception.getMessage());
+            }
+        };
+        BookmarkRestService.addBookmark(requestCallback,bookmarkInfo);
+//        BookmarkSequenceList newArray = new BookmarkSequenceList();
+//        for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
+//            Widget widget = dragAndDropPanel.getWidget(i);
+//            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
+//            if(groupName.contains("(")){
+//                Integer startIndex = groupName.indexOf("(");
+//                Integer endIndex = groupName.indexOf(")");
+//                String featureString = groupName.substring(startIndex+1,endIndex-1);
+//                groupName = groupName.substring(0,startIndex);
+//                BookmarkSequence sequenceFeature = new BookmarkSequence();
+//                sequenceFeature.setName(groupName);
+//                SequenceFeatureList featuresArray = new SequenceFeatureList() ;
+//                String[] features = featureString.split(",");
+//                for(String feature : features){
+//                    SequenceFeatureInfo fI = new SequenceFeatureInfo();
+//                    fI.setName(feature);
+////                    fI.put(FeatureStringEnum.NAME.getValue(),new JSONString(feature));
+//                    featuresArray.set(featuresArray.size(),fI) ;
+//                }
+//                sequenceFeature.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+//
+//                newArray.addSequence(sequenceFeature);
+////                newArray.set(newArray.size(),featureObject);
+//            }
+//            else{
+//                BookmarkSequence bookmarkSequence = new BookmarkSequence();
+//                bookmarkSequence.setName(groupName);
+////                JSONObject featureObject = new JSONObject();
+////                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
+////                newArray.set(newArray.size(),featureObject);
+//                newArray.addSequence(bookmarkSequence);
+//            }
+//        }
+//        bookmarkInfo.setSequenceList(newArray);
+
     }
 
     @UiHandler("mergeButton")

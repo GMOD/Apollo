@@ -51,6 +51,7 @@ class BookmarkController {
         Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkArray.getJSONObject(0))
 
 
+
         return list()
     }
 
