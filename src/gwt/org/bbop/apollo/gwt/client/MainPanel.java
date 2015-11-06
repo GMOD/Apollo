@@ -463,10 +463,10 @@ public class MainPanel extends Composite {
         String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
         if(selectedSequence.startsWith("{")){
             trackListString += URL.encodeQueryString(selectedSequence);
+            trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
+            trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
         }
         else{
-//            trackListString += selectedSequence;
-//            trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
             trackListString += selectedSequence;
             trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
             trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
