@@ -26,11 +26,17 @@ class LoginController extends AbstractApolloController {
 
 
     def handleOperation(String track, String operation) {
-        log.debug "handleOperation"
+        log.debug "request stuff ${request.parameterMap.keySet()}"
+        log.debug "upstream params ${params}"
         JSONObject postObject = findPost()
+        log.debug "postObject ${postObject as JSON}"
         if(postObject?.containsKey(REST_OPERATION)){
             operation = postObject.get(REST_OPERATION)
         }
+        if(postObject?.containsKey(REST_TRACK)){
+            track = postObject.get(REST_TRACK)
+        }
+        log.info "updated operation: ${operation}"
         if(!operation){
             forward action: "doLogin"
             return
@@ -84,11 +90,13 @@ class LoginController extends AbstractApolloController {
         return login()
     }
 
+    /**
+     * Merging Login.java (old) and  AuthController.groovy
+     * @return
+     */
     def login(){
         def jsonObj
         try {
-            log.debug "loginController login"
-            log.debug "${params} "
             jsonObj = request.JSON
             if(!jsonObj){
                 jsonObj = JSON.parse(params.data)
@@ -135,6 +143,7 @@ class LoginController extends AbstractApolloController {
 
             User user = User.findByUsername(username)
 
+
             Map<String, Integer> permissions = permissionService.getPermissionsForUser(user)
             if(permissions){
                 session.setAttribute("permissions", permissions);
@@ -142,25 +151,53 @@ class LoginController extends AbstractApolloController {
             JSONObject responseJSON = new JSONObject();
             render responseJSON as JSON
         } catch(IncorrectCredentialsException ex) {
-            render ([error: "Incorrect login",
-                     rememberMe: jsonObj.rememberMe,
-                     targetUri: jsonObj.targetUri,
-                     username: jsonObj.username]) as JSON
+            // Keep the username and "remember me" setting so that the
+            // user doesn't have to enter them again.
+            def m = [ username: jsonObj.username ]
+            if (jsonObj.rememberMe) {
+                m["rememberMe"] = true
+            }
+
+            // Remember the target URI too.
+            if (jsonObj.targetUri) {
+                m["targetUri"] = jsonObj.targetUri
+            }
+            m.error="Incorrect login"
+            // Now redirect back to the login page.
+            //redirect(action: "login", params: m)
+            render m as JSON
         } catch(UnknownAccountException ex) {
-            render ([error: "Unknown account",
-                     rememberMe: jsonObj.rememberMe,
-                     targetUri: jsonObj.targetUri,
-                     username: jsonObj.username]) as JSON
+
+            def m = [ username: jsonObj.username ]
+            if (jsonObj.rememberMe) {
+                m["rememberMe"] = true
+            }
+
+            // Remember the target URI too.
+            if (jsonObj.targetUri) {
+                m["targetUri"] = jsonObj.targetUri
+            }
+            m.error="Unknown account"
+            render m as JSON
 
         } catch ( AuthenticationException ae ) {
-            render ([error: "Unknown authentication error",
-                    rememberMe: jsonObj.rememberMe,
-                    targetUri: jsonObj.targetUri,
-                    username: jsonObj.username]) as JSON
+
+            def m = [ username: jsonObj.username ]
+            if (jsonObj.rememberMe) {
+                m["rememberMe"] = true
+            }
+
+            // Remember the target URI too.
+            if (jsonObj.targetUri) {
+                m["targetUri"] = jsonObj.targetUri
+            }
+            m.error="Unknown authentication error"
+            render m as JSON
+            //unexpected condition - error?
         }
         catch ( Exception e ) {
-            log.error "${e.message}"
-            render ([error: e.message]) as JSON
+            def error=[error: e.message]
+            render error as JSON
         }
     }
 
