@@ -8,13 +8,7 @@ class SecurityFilters {
     def filters = {
         all(uri: "/**") {
             before = {
-                // validate everyone right now
-//                return  true
-
-                // Ignore direct views (e.g. the default main index page).
-                if (!controllerName) return true
-//
-//                // Access control by convention.
+                log.debug "apollo filter ${controllerName}::${actionName}"
 //                accessControl()
             }
         }
