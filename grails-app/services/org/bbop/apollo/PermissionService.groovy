@@ -41,7 +41,7 @@ class PermissionService {
     }
 
     Set<Organism> getOrganisms(User user) {
-        if (isAdmin()) {
+        if (isUserAdmin(user)) {
             return Organism.listOrderByCommonName()
         }
         Set<Organism> organismList = new HashSet<>()
@@ -219,8 +219,8 @@ class PermissionService {
         return toJSON
     }
 
-    def getOrganismsForCurrentUser() {
-        User thisUser = currentUser
+    def getOrganismsForCurrentUser(JSONObject jsonObject) {
+        User thisUser = getCurrentUser(jsonObject)
         if (thisUser) {
             return getOrganisms(thisUser) as List<Organism>
         }
@@ -246,7 +246,7 @@ class PermissionService {
         }
 
         String username
-        if (inputObject.has(FeatureStringEnum.USERNAME.value)) {
+        if (inputObject?.has(FeatureStringEnum.USERNAME.value)) {
             username = inputObject.getString(FeatureStringEnum.USERNAME.value)
         }
         if (!username) {
