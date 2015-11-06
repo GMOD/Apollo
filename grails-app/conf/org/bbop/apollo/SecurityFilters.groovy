@@ -9,7 +9,7 @@ class SecurityFilters {
         all(uri: "/**") {
             before = {
                 log.debug "apollo filter ${controllerName}::${actionName}"
-//                accessControl()
+                accessControl()
             }
         }
     }
