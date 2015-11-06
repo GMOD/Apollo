@@ -75,8 +75,8 @@ public class BookmarkPanel extends Composite {
     Button mergeButton;
     @UiField
     Button removeButton;
-    @UiField
-    Button copyButton;
+//    @UiField
+//    Button copyButton;
     @UiField
     Button saveButton;
     @UiField
@@ -188,17 +188,17 @@ public class BookmarkPanel extends Composite {
         dragAndDropPanel.clear();
     }
 
-    @UiHandler("copyButton")
-    public void copy(ClickEvent clickEvent) {
-        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
-        BookmarkInfo[] bookmarkInfoCopy = new BookmarkInfo[bookmarkInfoSet.size()];
-        int index = 0 ;
-        for(BookmarkInfo bookmarkInfo : bookmarkInfoSet){
-//            bookmarkInfoCopy.add(bookmarkInfo.copy());
-            bookmarkInfoCopy[index++] = bookmarkInfo ;
-        }
-        addBookmark(new UpdateBookmarksCallback(),bookmarkInfoCopy);
-    }
+//    @UiHandler("copyButton")
+//    public void copy(ClickEvent clickEvent) {
+//        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
+//        BookmarkInfo[] bookmarkInfoCopy = new BookmarkInfo[bookmarkInfoSet.size()];
+//        int index = 0 ;
+//        for(BookmarkInfo bookmarkInfo : bookmarkInfoSet){
+////            bookmarkInfoCopy.add(bookmarkInfo.copy());
+//            bookmarkInfoCopy[index++] = bookmarkInfo ;
+//        }
+//        addBookmark(new UpdateBookmarksCallback(),bookmarkInfoCopy);
+//    }
 
 
     @UiHandler("viewButton")
@@ -352,7 +352,7 @@ public class BookmarkPanel extends Composite {
             }
 
         }
-        bookmarkInfoList.removeAll(bookmarkInfoSet);
+//        bookmarkInfoList.removeAll(bookmarkInfoSet);
         bookmarkInfoList.add(bookmarkInfo);
 //        reload();
     }
@@ -363,7 +363,7 @@ public class BookmarkPanel extends Composite {
             removeButton.setText("Remove ");
             saveButton.setText("Save");
             mergeButton.setEnabled(false);
-            copyButton.setEnabled(false);
+//            copyButton.setEnabled(false);
             removeButton.setEnabled(false);
             saveButton.setEnabled(false);
             viewButton.setEnabled(false);
@@ -372,7 +372,7 @@ public class BookmarkPanel extends Composite {
             removeButton.setText("Remove");
             saveButton.setText("Save");
             mergeButton.setEnabled(false);
-            copyButton.setEnabled(true);
+//            copyButton.setEnabled(true);
             removeButton.setEnabled(true);
             if(selectedObject.iterator().next().getSequenceList().size()>1){
                 saveButton.setEnabled(true);
@@ -388,7 +388,7 @@ public class BookmarkPanel extends Composite {
             removeButton.setText("Remove: " + selectedObject.size());
             saveButton.setText("Save");
             mergeButton.setEnabled(true);
-            copyButton.setEnabled(false);
+//            copyButton.setEnabled(false);
             removeButton.setEnabled(true);
             saveButton.setEnabled(false);
             viewButton.setEnabled(true);
@@ -458,7 +458,6 @@ public class BookmarkPanel extends Composite {
 
     public void addBookmark(RequestCallback requestCallback,BookmarkInfo... bookmarkInfoCollection) {
         BookmarkRestService.addBookmark(requestCallback,bookmarkInfoCollection);
-        reload();
     }
 
 }

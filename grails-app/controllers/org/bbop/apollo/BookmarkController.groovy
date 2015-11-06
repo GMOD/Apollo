@@ -49,7 +49,9 @@ class BookmarkController {
 //        Organism organism = preferenceService.getCurrentOrganism(user)
 //        println "bookmark array ${bookmarkArray as JSON}"
         Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkArray.getJSONObject(0))
-        render bookmark as JSON
+
+
+        return list()
     }
 
     @Transactional

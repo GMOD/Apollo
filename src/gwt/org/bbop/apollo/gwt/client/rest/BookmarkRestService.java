@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client.rest;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfoConverter;
 
