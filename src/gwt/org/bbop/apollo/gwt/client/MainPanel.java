@@ -246,6 +246,9 @@ public class MainPanel extends Composite {
 
     private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end, final boolean updateViewer, final boolean blocking) {
 
+        if(blocking){
+            Window.alert("setting current sequence");
+        }
         final LoadingDialog loadingDialog = new LoadingDialog(false);
         if (blocking) {
             loadingDialog.show();
@@ -875,7 +878,8 @@ public class MainPanel extends Composite {
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
 
         if (!sequenceNameString.equals(currentBookmark.getName())) {
-            setCurrentSequence(sequenceNameString, start, end, false, true);
+//            setCurrentSequence(sequenceNameString, start, end, false, true);
+            setCurrentSequence(sequenceNameString, start, end, false, false);
             Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
                 @Override
                 public boolean execute() {
