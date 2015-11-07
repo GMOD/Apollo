@@ -35,7 +35,7 @@ public class GroupRestService {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
-                for (int i = 0; i < array.size(); i++) {
+                for (int i = 0; array!=null && i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
 
                     GroupInfo groupInfo = new GroupInfo();
