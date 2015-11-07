@@ -96,8 +96,9 @@ public class RegisterDialog extends DialogBox {
 
         String usernameText = username.getText();
         // TODO: use a better regexp search
-        if (!usernameText.contains("@") && !usernameText.contains(".")) {
+        if (!usernameText.contains("@") || !usernameText.contains(".")) {
             setError("Username does not appear to be an email");
+            return;
         }
         registerAdmin(username.getText().trim(), passwordTextBox.getText(), rememberMeCheckBox.getValue(),firstNameBox.getText().trim(),lastNameBox.getText().trim());
     }
@@ -110,7 +111,7 @@ public class RegisterDialog extends DialogBox {
 //                Window.alert(response.getStatusText());
 //                Window.alert(response.getText());
                 if (response.getStatusCode() < 200 || response.getStatusCode() > 299) {
-                    setError("Problem registering adming . . check logs for more details");
+                    setError("Problem during registration");
                 }
                 else{
                     Window.Location.reload();
