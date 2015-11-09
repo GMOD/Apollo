@@ -51,12 +51,12 @@ class PermissionService {
             }
         }
         for (UserGroup userGroup in user?.userGroups) {
-            organismList.addAll(getOrganisms(userGroup))
+            organismList.addAll(getOrganismsForGroup(userGroup))
         }
         return organismList
     }
 
-    List<Organism> getOrganisms(UserGroup group) {
+    List<Organism> getOrganismsForGroup(UserGroup group) {
         if (isAdmin()) {
             return Organism.listOrderByCommonName()
         }
