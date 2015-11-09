@@ -45,12 +45,12 @@ class BookmarkController {
     @Transactional
     def addBookmark() {
         JSONArray bookmarkArray = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
-        User user = permissionService.currentUser
-//        Organism organism = preferenceService.getCurrentOrganism(user)
-//        println "bookmark array ${bookmarkArray as JSON}"
+//        User user = permissionService.currentUser
         Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkArray.getJSONObject(0))
 
+        println "bookmarkArray ${bookmarkArray as JSON}"
 
+        println "bookmark ${bookmark as JSON}"
 
         return list()
     }

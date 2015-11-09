@@ -206,63 +206,20 @@ public class BookmarkPanel extends Composite {
      */
     @UiHandler("viewButton")
     public void view(ClickEvent event){
-        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
-        if(bookmarkInfoSet.size()==0){
-//            Window.alert("You must select at least one bookmark to project");
-            return ;
-        }
-        String foldingType = foldType.getSelectedValue();
-        Integer foldPaddingValue = Integer.parseInt(foldPadding.getText());
-        String referenceTrackString = referenceTrack.getSelectedValue() ;
 
-        // it will be an ordered list of bookmarks ;
-        List<String> bookmarkList = new ArrayList<>();
-
-        for(BookmarkInfo bookmarkInfo : bookmarkInfoSet){
-            bookmarkList.add(bookmarkInfo.getName());
-        }
-
-//        Window.alert(dragAndDropPanel.getWidgetCount()+"");
-
-//        Window.alert(getBookmarksAsJson().toString());
-        JSONObject merge1 = getBookmarksAsJson() ;
-//        JSONObject mergedSequence = getBookmarksAsJson();
-//        Window.alert("bookmarks as JSON: " + mergedSequence.toString());
-//        MainPanel.updateGenomicViewerForLocation(mergedSequence.toString(),-1,-1);
-//
-//        {"padding":"50", "type":"None", "reference":"Official Gene Set v3.2", "sequence":[{"name":"Group12.13"},{"name":"Group9.10"}]}
-
-//          {"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group12.13"},{"name":"Group9.10"}]}
-////        {"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group12.13"},{"name":"Group9.10"}]}
-//
-//        JSONObject mergedSequence = BookmarkInfoConverter.generateSequenceString(bookmarkInfoSet,foldingType,foldPaddingValue,referenceTrackString);
-//
-//        GWT.log( (merge1.keySet().size() == mergedSequence.keySet().size()) + "");
-//        for(String key : merge1.keySet()){
-//            GWT.log(key + ": " + merge1.get(key).toString().equals(mergedSequence.get(key).toString()));
-//            if(!merge1.get(key).toString().equals(mergedSequence.get(key).toString())){
-//                GWT.log(merge1.get(key).toString());
-//                GWT.log(mergedSequence.get(key).toString());
-//            }
+//        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
+//        if(bookmarkInfoSet.size()==0){
+//            return ;
 //        }
-//
-//        Window.alert(merge1.toString());
-//        BookmarkInfo bookmarkInfo = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(merge1) ;
-//        JSONObject merge2 = BookmarkInfoConverter.convertBookmarkInfoToJSONObject(bookmarkInfo);
-//        merge2.put("projection",new JSONString("None"));
-//        Window.alert(merge2.toString());
-////        merge2.put()
-////        merge2.put()
-//        Window.alert(mergedSequence.toString());
-//        merge1 = JSONParser.parseStrict(merge1.toString()).isObject();
+//        String foldingType = foldType.getSelectedValue();
+//        Integer foldPaddingValue = Integer.parseInt(foldPadding.getText());
+//        String referenceTrackString = referenceTrack.getSelectedValue() ;
 
+
+        JSONObject merge1 = getBookmarksAsJson() ;
 
 
         MainPanel.updateGenomicViewerForLocation(merge1.toString().trim(),-1,-1);
-//        MainPanel.updateGenomicViewerForLocation("{\"padding\":50, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group12.13\"},{\"name\":\"Group9.10\"}]}",-1,-1);
-//        MainPanel.updateGenomicViewerForLocation(mergedSequence.toString(),-1,-1);
-
-
 
     }
 
@@ -314,15 +271,6 @@ public class BookmarkPanel extends Composite {
     public void save(ClickEvent clickEvent) {
         Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
         assert bookmarkInfoSet.size()==1;
-//        BookmarkInfo bookmarkInfo = bookmarkInfoSet.iterator().next();
-//        BookmarkSequenceList oldArray = bookmarkInfo.getSequenceList();
-//        Integer removing = oldArray.size() - dragAndDropPanel.getWidgetCount();
-//        if(removing>0){
-//            Boolean doRemove= Window.confirm("Remove "+removing + " objects");
-//            if(!doRemove) return ;
-//        }
-
-//        List<BookmarkInfo> bookmarkInfoList = new ArrayList<>();
 
         JSONObject bookmarkObjects = getBookmarksAsJson();
         Window.alert(bookmarkObjects.toString());

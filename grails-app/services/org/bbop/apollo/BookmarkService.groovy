@@ -36,16 +36,26 @@ class BookmarkService {
 
     List<Sequence> getSequencesFromBookmark(Bookmark bookmark) {
         JSONArray sequeneArray = JSON.parse(bookmark.sequenceList) as JSONArray
-        List<String> sequenceNames = []
+//        List<String> sequenceNames = []
+        List<Sequence> sequenceList = []
+        println "input sequence array ${sequeneArray}"
         for (int i = 0; i < sequeneArray.size(); i++) {
-            sequenceNames << sequeneArray.getJSONObject(i).name
+//            sequenceNames << sequeneArray.getJSONObject(i).name
+            String sequenceName = sequeneArray.getJSONObject(i).name
+            if (bookmark.organism) {
+                sequenceList << Sequence.findByOrganismAndName(bookmark.organism, sequenceName)
+            } else {
+                sequenceList << Sequence.findByName(sequenceName)
+            }
         }
         // if unsaved without the organism
-        if (bookmark.organism) {
-            return Sequence.findAllByOrganismAndNameInList(bookmark.organism, sequenceNames)
-        } else {
-            Sequence.findAllByNameInList(sequenceNames)
-        }
+//        println "output sequence names ${sequenceNames}"
+//        if (bookmark.organism) {
+//            sequenceList = Sequence.findAllByOrganismAndNameInList(bookmark.organism, sequenceNames)
+//        } else {
+//            sequenceList = Sequence.findAllByNameInList(sequenceNames)
+//        }
+        return sequenceList
     }
 
     // should match ProjectionDescription
@@ -66,8 +76,10 @@ class BookmarkService {
 
     Bookmark convertJsonToBookmark(JSONObject jsonObject) {
         Bookmark bookmark = new Bookmark()
-        bookmark.sequenceList = jsonObject.sequenceList.toString()
+        bookmark.sequenceList = jsonObject.sequenceList
+        println "bookmark convert ${bookmark.sequenceList}"
         List<Sequence> sequences = getSequencesFromBookmark(bookmark)
+        println "sequences from bookmars: ${sequences.name}"
         bookmark.organism = sequences.first().organism
 
 
