@@ -30,7 +30,7 @@ Furthermore, the `apollo-config.groovy` has different groovy environments for te
 The environment will be selected automatically selected depending on how it is run, e.g:
 
 * `apollo deploy` or `apollo release` use the production environment (i.e. when you copy the war file to your production
-* server) `apollo run-local` or `apollo debug` use the development environment (i.e. when you are running it locally)
+server `apollo run-local` or `apollo debug` use the development environment (i.e. when you are running it locally)
 * `apollo test` uses the test environment (i.e. only when running unit tests)
 
 
@@ -40,8 +40,20 @@ The environment will be selected automatically selected depending on how it is r
   apollo-config.groovy.
 
 #### Configure for PostgreSQL:
-- Create a new database with postgres for production mode (i.e. via the command line `createdb apollo-production`) and
-  copy the sample-postgres-apollo-config.groovy to apollo-config.groovy.
+- Create a new database with postgres and add a user for production mode 
+   - On debian/ubuntu/redhat/centOS,requires postgres user to execute command, hence "sudo su postgres"
+  ```
+  sudo su postgres -c "createuser -RDIElPS $PGUSER"
+  sudo su postgres -c "createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE"
+  ```
+  - On macOSX/homebrew , not necessary to login to postgres user
+  ```
+  createuser -RDIElPS $PGUSER
+  createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE
+  ```
+- Copy the sample-postgres-apollo-config.groovy to apollo-config.groovy.
+
+
 
 #### Configure for MySQL:
 - Create a new MySQL database for production mode (i.e. run ``create database `apollo-production``` in the mysql
