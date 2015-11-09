@@ -22,6 +22,13 @@ class JbrowseController {
     def preferenceService
     def servletContext
 
+
+
+    def chooseOrganismForJbrowse() {
+        [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
+    }
+
+
     def indexRouter(){
         log.debug "indexRouter ${params}"
 
@@ -57,7 +64,7 @@ class JbrowseController {
             }
             if(!organism) {
                 String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-                forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString,error:"Unable to find organism '${params.organism}'"])
+                forward(controller: "jbrowse", action: "chooseOrganismForJbrowse",params:[urlString:urlString,error:"Unable to find organism '${params.organism}'"])
             }
 
 
@@ -75,7 +82,7 @@ class JbrowseController {
         // case 2 - anonymous login with-OUT organism ID, show organism list
         paramList.add("organism=${params.organism}")
         String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-        forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
+        forward(controller: "jbrowse", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
     }
 
 
