@@ -390,7 +390,7 @@ public class AnnotatorPanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
-                for (int i = 0; i < array.size(); i++) {
+                for (int i = 0; array!=null && i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
                     UserInfo userInfo = UserInfoConverter.convertToUserInfoFromJSON(object);
                     userField.addItem(userInfo.getName(), userInfo.getEmail());

@@ -18,7 +18,6 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import static org.springframework.http.HttpStatus.*
 
-//@CompileStatic
 class JbrowseController {
 
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
@@ -31,51 +30,57 @@ class JbrowseController {
     def projectionService
     def trackService
 
-    // move to a type of a service?
+
+    // TODO: move to a service instead?
     RefSeqProjector refSeqProjector = new RefSeqProjector()
+
+    def chooseOrganismForJbrowse() {
+        [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
+    }
+
 
     def indexRouter() {
         log.debug "indexRouter ${params}"
 
         List<String> paramList = new ArrayList<>()
-        params.eachWithIndex { entry, int i ->
-            if (entry.key != "action" && entry.key != "controller" && entry.key != "organism") {
-                paramList.add(entry.key + "=" + entry.value)
+        params.eachWithIndex{ entry, int i ->
+            if(entry.key!="action" && entry.key!="controller"&& entry.key!="organism" ){
+                paramList.add(entry.key+"="+entry.value)
             }
         }
         // case 3 - validated login (just read from preferences, then
-        if (permissionService.currentUser && params.organism) {
+        if(permissionService.currentUser&&params.organism){
             Organism organism = Organism.findById(params.organism)
-            preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
+            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
         }
 
-        if (permissionService.currentUser) {
+        if(permissionService.currentUser) {
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
             render file.text
             return
         }
 
         // case 1 - anonymous login with organism ID, show organism
-        if (params.organism) {
+        if(params.organism){
             log.debug "organism ID specified: ${params.organism}"
 
             // set the organism
 
 
             Organism organism = Organism.findByCommonName(params.organism)
-            if (!organism && params.organism.isInteger()) {
+            if(!organism&&params.organism.isInteger()) {
                 organism = Organism.findById(params.organism.toInteger())
             }
-            if (!organism) {
+            if(!organism) {
                 String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-                forward(controller: "organism", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "Unable to find organism '${params.organism}'"])
+                forward(controller: "jbrowse", action: "chooseOrganismForJbrowse",params:[urlString:urlString,error:"Unable to find organism '${params.organism}'"])
             }
 
 
             def session = request.getSession(true)
-            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
-            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
+            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
+            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value,organism.commonName)
 
             // create an anonymous login
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
@@ -86,12 +91,12 @@ class JbrowseController {
         // case 2 - anonymous login with-OUT organism ID, show organism list
         paramList.add("organism=${params.organism}")
         String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-        forward(controller: "organism", action: "chooseOrganismForJbrowse", params: [urlString: urlString])
+        forward(controller: "jbrowse", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
     }
 
 
     private String getJBrowseDirectoryForSession() {
-        if (!permissionService.currentUser) {
+        if(!permissionService.currentUser){
             return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         }
 
@@ -376,39 +381,6 @@ class JbrowseController {
                     response.outputStream << refSeqProjector.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
 
                 }
-//                else if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-") ) {
-//                    // TODO: project trackData.json
-//                    // if we are a projection, then we are going to want to merge multiple sequences
-//                    // into a single trackData.json
-//                    println "trying to get trackData for ${file.absolutePath}"
-//                    println "fileNAme is NOT lf-type ${fileName}"
-//                    // transform 2nd and 3rd array object in intervals/ncList
-//                    JSONObject trackDataJsonObject = trackService.loadTrackData(file.absolutePath,refererLoc,currentOrganism)
-//                    response.outputStream << trackDataJsonObject.toString()
-//
-//                    return
-//                } else if (fileName.startsWith("lf-")) {
-//                    // TODO: project trackData.json
-//                    JSONArray trackDataJsonObject = new JSONArray(file.text)
-//                    String sequenceName = projectionService.getSequenceName(file.absolutePath)
-//                    // get the track from the json object
-//
-//                    // TODO: it should look up the OGS track either default or variable
-//                    ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
-//
-//                    if (projection) {
-////                        println "re-writing the LF array ${trackDataJsonObject.size()}"
-////                        println "coordinates are ${projection.toString()}"
-//                        for (int i = 0; i < trackDataJsonObject.size(); i++) {
-//                            JSONArray coordinate = trackDataJsonObject.getJSONArray(i)
-////                            println "lf-from ${coordinate as JSON}"
-//                            trackService.projectJsonArray(projection, coordinate)
-////                            println "lf-to ${coordinate as JSON}"
-//                        }
-//                    }
-//                    response.outputStream << trackDataJsonObject.toString()
-//                    return
-//                }
                 else {
                     // Set content size
                     response.setContentLength((int) file.length());
@@ -663,23 +635,23 @@ class JbrowseController {
         JSONObject organismObjectContainer = new JSONObject()
         for (organism in list) {
             JSONObject organismObject = new JSONObject()
-            organismObject.put("name", organism.commonName)
+            organismObject.put("name",organism.commonName)
             String url = "javascript:window.top.location.href = '../annotator/loadLink?"
             url += "organism=" + organism.getId();
             url += "&highlight=0";
             url += "&tracks='";
-            organismObject.put("url", url)
+            organismObject.put("url",url)
             organismObjectContainer.put(organism.id, organismObject)
         }
 
-        if (list.size() == 0) {
+        if(list.size()==0) {
             JSONObject organismObject = new JSONObject()
-            organismObject.put("name", Organism.findById(id).commonName)
-            organismObject.put("url", "#")
+            organismObject.put("name",Organism.findById(id).commonName)
+            organismObject.put("url","#")
             organismObjectContainer.put(id, organismObject)
         }
 
-        jsonObject.put("datasets", organismObjectContainer)
+        jsonObject.put("datasets",organismObjectContainer)
 
         if (jsonObject.include == null) jsonObject.put("include", new JSONArray())
         jsonObject.include.add("../plugins/WebApollo/json/annot.json")

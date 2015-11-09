@@ -85,8 +85,9 @@ class LoginController extends AbstractApolloController {
                 ,passwordHash: new Sha256Hash(password).toHex()
                 ,firstName: jsonObj.firstName
                 ,lastName: jsonObj.lastName
-        ).save()
+        ).save(failOnError: true,flush:true)
         user.addToRoles(adminRole)
+
         return login()
     }
 

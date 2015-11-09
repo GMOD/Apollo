@@ -19,7 +19,6 @@ class UrlMappings {
         "/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
-//        "/proxy/request/${protocol}/${url}/${returnType}/**"(controller:"proxy", action: "request")
         "/proxy/request/${url}"(controller:"proxy", action: "request")
 
 
@@ -28,7 +27,7 @@ class UrlMappings {
         "/ProxyService"(controller:"ncbiProxyService",action: "index",params:params)
         "/IOService"(controller:"IOService",action: "handleOperation",params:params)
         "/IOService/download"(controller:"IOService",action: "download", params:params)
-        "/web_services/api"(controller:"webServices",action: "index", params:params)
+        "/jbrowse/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
         "/jbrowse/web_services/api"(controller:"webServices",action: "index", params:params)
 
         // add other types

@@ -31,9 +31,6 @@ class OrganismController {
     def organismService
     def reportService
 
-    def chooseOrganismForJbrowse() {
-        [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
-    }
 
     @RestApiMethod(description = "Remove an organism", path = "/organism/deleteOrganism", verb = RestApiVerb.POST)
     @RestApiParams(params = [
@@ -283,23 +280,24 @@ class OrganismController {
     def findAllOrganisms() {
         try {
             JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
-            List<Organism> putativeOrganismList = permissionService.getOrganismsForCurrentUser()
+
+            List<Organism> putativeOrganismList = permissionService.getOrganismsForCurrentUser(organismJson)
             List<Organism> organismList = []
 
             putativeOrganismList.each {
-                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(it,permissionService.currentUser)
+                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(it,permissionService.getCurrentUser(organismJson))
                 if(permissionEnumList.contains(PermissionEnum.ADMINISTRATE)){
                     organismList.add(it)
                 }
             }
 
             if(!organismList){
-                def error = [error: 'Must be admin to see organisms']
+                def error = [error: 'Not authorized']
                 render error as JSON
                 return
             }
 
-            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.currentUser, true)
+            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(organismJson), true)
             Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
 
             JSONArray jsonArray = new JSONArray()

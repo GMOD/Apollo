@@ -35,15 +35,19 @@ export CATALINA_OPTS="-Xmx12288m -Xms8192m \
         -XX:+PrintGCTimeStamps"
 ```
 
-To change your settings, you can edit the setenv.sh script in `$TOMCAT_BIN_DIR/setenv.sh` where `$TOMCAT_BIN_DIR` is
-where the directory where the Tomcat binaries reside, or on Ubuntu, the file /etc/default/tomcat7 contains these
-settings. It is possible that this file doesn't exist by default, but it will be picked up when Tomcat restarts.
+To change your settings, you can *usually* edit the setenv.sh script in `$TOMCAT_BIN_DIR/setenv.sh` where
+`$TOMCAT_BIN_DIR` is  the directory where the Tomcat binaries reside.  It is possible that this file doesn't exist by default, but it will be picked up when Tomcat restarts.  Make sure that tomcat can read the file.  
 
+In most cases, creating the setenv.sh should be sufficient but you may have to edit a catalina.sh or another file directly depending on your system and tomcat setup.  For example, on Ubuntu, the file /etc/default/tomcat7 often contains these settings. 
 
 #### Confirm your settings
 
 Your CATALINA_OPTS settings from setenv.sh can be confirmed with a tool like jvisualvm or via the command line with the
-`ps` tool.
+`ps` tool.  e.g. `ps -ef | grep java`  should yield something like the following allowing you to confirm that your memory settings have been picked up.
+
+```
+root      9848     1  0 Oct22 ?        00:36:44 /usr/lib/jvm/java-7-openjdk-amd64/bin/java -Djava.util.logging.config.file=/usr/local/tomcat/current/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Xms1g -Xmx2g -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Dj
+```
 
 #### Re-install after changing settings
 
