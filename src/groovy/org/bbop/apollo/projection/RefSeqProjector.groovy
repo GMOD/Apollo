@@ -22,8 +22,6 @@ class RefSeqProjector implements TrackProjector{
 
             String sequenceName = sequenceValue.getString("name")
             if (projection && projection.containsSequence(sequenceName, sequenceValue.id, currentOrganism)) {
-
-//                log.debug "input sequence ${sequenceValue as JSON}"
                 Integer projectedSequenceLength = projection.findProjectSequenceLength(sequenceName)
                 sequenceValue.put("length", projectedSequenceLength)
                 sequenceValue.put("end", projectedSequenceLength)

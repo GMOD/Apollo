@@ -329,7 +329,6 @@ class TrackService {
         // get the track from the json object
 
         // TODO: it should look up the OGS track either default or variable
-//        JSONArray projectedArray = new JSONArray()
         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
         if (projection && projection.containsSequence(sequenceName, currentOrganism)) {

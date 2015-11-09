@@ -63,19 +63,19 @@
                             <b>Folding</b>
                         </gwt:HTML>
                     </b:Column>
-                    <b:Column size="MD_2">
+                    <b:Column size="MD_3">
                         <b:ListBox ui:field="foldType"/>
                     </b:Column>
                     <b:Column size="MD_2">
-                        <gwt:HTML>Padding</gwt:HTML>
+                        <gwt:HTML><b>Padding</b></gwt:HTML>
                     </b:Column>
-                    <b:Column size="MD_2">
+                    <b:Column size="MD_3">
                         <b:TextBox ui:field="foldPadding"/>
                     </b:Column>
                 </b:Row>
                 <b:Row styleName="{style.rowNorth}">
                     <b:Column size="MD_2">
-                        <gwt:HTML>Reference</gwt:HTML>
+                        <gwt:HTML><b>Reference</b></gwt:HTML>
                     </b:Column>
                     <b:Column size="MD_6">
                         <!--<b:TextBox ui:field="referenceTrack" enabled="false"/>-->

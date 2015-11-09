@@ -4,6 +4,7 @@ import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
@@ -105,9 +106,10 @@ public class BookmarkPanel extends Composite {
         dataGrid.setWidth("100%");
         foldType.addItem("None");
         foldType.addItem("Exon");
-        foldType.addItem("Transcript");
+//        foldType.addItem("Transcript");
 
-        foldPadding.setText("50");
+//        foldPadding.setText("50");
+        foldPadding.setText("0");
 
         referenceTrack.addItem("Official Gene Set v3.2");
 
@@ -304,6 +306,11 @@ public class BookmarkPanel extends Composite {
 //        bookmarkInfoList.removeAll(bookmarkInfoSet);
         bookmarkInfoList.add(bookmarkInfo);
 //        reload();
+    }
+
+    @UiHandler(value = {"foldType", "foldPadding"})
+    public void changeFoldType(ChangeEvent changeEvent){
+        view(null);
     }
 
     private void setBookmarkInfo(Set<BookmarkInfo> selectedObject) {

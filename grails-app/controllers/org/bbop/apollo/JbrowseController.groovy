@@ -617,7 +617,7 @@ class JbrowseController {
 //                projectionDescription.featureNames = ["ALL"]
                 projectionDescription.referenceTracks = ["Official Gene Set v3.2"]
                 // TODO: get the proper name from the UI
-                projectionDescription.type = "EXON"
+                projectionDescription.projection = "EXON"
                 List<Location> locationList = projectionService.extractExonLocations(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), projectionDescription)
                 projectionService.createMultiSequenceProjection(projectionDescription, locationList)
             } else {

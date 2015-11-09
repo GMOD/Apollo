@@ -289,7 +289,7 @@ class MultiSequenceProjectionSpec extends Specification {
         ProjectionDescription projectionDescription = new ProjectionDescription(
                 referenceTracks: []
                 ,sequenceList: [sequence1]
-                ,type: "exon" // probably ignored here
+                , projection: "exon" // probably ignored here
                 ,padding: 0
         )
         MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
@@ -360,7 +360,7 @@ class MultiSequenceProjectionSpec extends Specification {
         ProjectionDescription projectionDescription = new ProjectionDescription(
                 referenceTracks: []
                 ,sequenceList: [sequence1]
-                ,type: "exon" // probably ignored here
+                , projection: "exon" // probably ignored here
                 ,padding: 0
         )
         MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
@@ -518,7 +518,7 @@ class MultiSequenceProjectionSpec extends Specification {
         ProjectionDescription projectionDescription = new ProjectionDescription(
                 referenceTracks: []
                 ,sequenceList: [sequence1]
-                ,type: "exon" // probably ignored here
+                , projection: "exon" // probably ignored here
                 ,padding: 0
         )
         MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
@@ -618,7 +618,7 @@ class MultiSequenceProjectionSpec extends Specification {
         ProjectionDescription projectionDescription = new ProjectionDescription(
                 referenceTracks: []
                 ,sequenceList: [sequence1]
-                ,type: "exon" // probably ignored here
+                , projection: "exon" // probably ignored here
                 ,padding: 0
         )
         MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
@@ -713,7 +713,7 @@ class MultiSequenceProjectionSpec extends Specification {
         ProjectionDescription projectionDescription = new ProjectionDescription(
                 referenceTracks: []
                 ,sequenceList: [sequence1]
-                ,type: "exon" // probably ignored here
+                , projection: "exon" // probably ignored here
                 ,padding: 0
         )
         MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
@@ -776,7 +776,7 @@ class MultiSequenceProjectionSpec extends Specification {
         ProjectionDescription projectionDescription = new ProjectionDescription(
                 referenceTracks: []
                 ,sequenceList: [sequence1]
-                ,type: "exon" // probably ignored here
+                , projection: "exon" // probably ignored here
                 ,padding: 0
         )
         MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
@@ -877,7 +877,7 @@ class MultiSequenceProjectionSpec extends Specification {
         ProjectionDescription projectionDescription = new ProjectionDescription(
                 referenceTracks: []
                 ,sequenceList: [sequence1,sequence2]
-                ,type: "exon" // probably ignored here
+                , projection: "exon" // probably ignored here
                 ,padding: 0
         )
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(projectionDescription: projectionDescription)

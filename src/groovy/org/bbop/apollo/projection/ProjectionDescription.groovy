@@ -8,7 +8,7 @@ class ProjectionDescription {
 
     List<String> referenceTracks // typically one
     List<ProjectionSequence> sequenceList // an ordered array of sequences or ALL . . .if empty then all
-    String type
+    String projection
     Integer padding // the padding around the reference
     String organism // name of the organism
 
@@ -22,7 +22,7 @@ class ProjectionDescription {
         if (padding != that.padding) return false
         if (referenceTracks != that.referenceTracks) return false
         if (sequenceList != that.sequenceList) return false
-        if (type != that.type) return false
+        if (projection != that.projection) return false
 
         return true
     }
@@ -31,7 +31,7 @@ class ProjectionDescription {
         int result
         result = (referenceTracks != null ? referenceTracks.hashCode() : 0)
         result = 31 * result + sequenceList.hashCode()
-        result = 31 * result + type.hashCode()
+        result = 31 * result + projection.hashCode()
         result = 31 * result + padding.hashCode()
         result = 31 * result + organism.hashCode()
         return result
