@@ -40,18 +40,8 @@ server `apollo run-local` or `apollo debug` use the development environment (i.e
   apollo-config.groovy.
 
 #### Configure for PostgreSQL:
-- Create a new database with postgres and add a user for production mode 
-   - On debian/ubuntu/redhat/centOS,requires postgres user to execute command, hence "sudo su postgres"
-  ```
-  sudo su postgres -c "createuser -RDIElPS $PGUSER"
-  sudo su postgres -c "createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE"
-  ```
-  - On macOSX/homebrew , not necessary to login to postgres user
-  ```
-  createuser -RDIElPS $PGUSER
-  createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE
-  ```
-- Copy the sample-postgres-apollo-config.groovy to apollo-config.groovy.
+- Create a new database with postgres and add a user for production mode.  Here are [a few ways to do this in PostgreSQL](PostgreSQLSetup.md).
+- Copy the sample-postgres-apollo-config.groovy to apollo-config.groovy. 
 
 
 
