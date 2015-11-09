@@ -31,10 +31,6 @@ public class BookmarkRestService {
     }
 
     public static void getBookmarks(RequestCallback requestCallback, BookmarkInfo bookmarkInfo) {
-//        JSONArray bookmarkInfoArray = new JSONArray();
-//        for(Long id : bookmarkList){
-//            bookmarkInfoArray.set(bookmarkInfoArray.size(),new JSONNumber(id));
-//        }
         RestService.sendRequest(requestCallback, "bookmark/getBookmark",BookmarkInfoConverter.convertBookmarkInfoToJSONObject(bookmarkInfo));
     }
 }

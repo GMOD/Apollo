@@ -183,22 +183,14 @@ public class BookmarkPanel extends Composite {
     @UiHandler("removeButton")
     public void remove(ClickEvent clickEvent) {
         BookmarkRestService.removeBookmarks(new UpdateBookmarksCallback(),selectionModel.getSelectedSet().toArray(new BookmarkInfo[selectionModel.getSelectedSet().size()]));
-//        bookmarkInfoList.removeAll(selectionModel.getSelectedSet());
-        dragAndDropPanel.clear();
+        resetPanel();
     }
 
-//    @UiHandler("copyButton")
-//    public void copy(ClickEvent clickEvent) {
-//        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
-//        BookmarkInfo[] bookmarkInfoCopy = new BookmarkInfo[bookmarkInfoSet.size()];
-//        int index = 0 ;
-//        for(BookmarkInfo bookmarkInfo : bookmarkInfoSet){
-////            bookmarkInfoCopy.add(bookmarkInfo.copy());
-//            bookmarkInfoCopy[index++] = bookmarkInfo ;
-//        }
-//        addBookmark(new UpdateBookmarksCallback(),bookmarkInfoCopy);
-//    }
-
+    private void resetPanel() {
+        dragAndDropPanel.clear();
+        absolutePanel.clear();
+        absolutePanel.add(dragAndDropPanel);
+    }
 
     /**
      * This methods views whatever is in the genome locator.
@@ -206,21 +198,8 @@ public class BookmarkPanel extends Composite {
      */
     @UiHandler("viewButton")
     public void view(ClickEvent event){
-
-//        Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
-//        if(bookmarkInfoSet.size()==0){
-//            return ;
-//        }
-//        String foldingType = foldType.getSelectedValue();
-//        Integer foldPaddingValue = Integer.parseInt(foldPadding.getText());
-//        String referenceTrackString = referenceTrack.getSelectedValue() ;
-
-
         JSONObject merge1 = getBookmarksAsJson() ;
-
-
         MainPanel.updateGenomicViewerForLocation(merge1.toString().trim(),-1,-1);
-
     }
 
     private JSONObject getBookmarksAsJson() {
@@ -258,7 +237,6 @@ public class BookmarkPanel extends Composite {
         genomicObject.put("projection",new JSONString(foldType.getSelectedValue()));
         genomicObject.put("referenceTrack",new JSONString(referenceTrack.getSelectedValue()));
         genomicObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(),newArray);
-//        MainPanel.getInstance().updateGenomicViewer(genomicObject);
 
         return genomicObject;
     }
@@ -273,15 +251,13 @@ public class BookmarkPanel extends Composite {
         assert bookmarkInfoSet.size()==1;
 
         JSONObject bookmarkObjects = getBookmarksAsJson();
-        Window.alert(bookmarkObjects.toString());
         BookmarkInfo bookmarkInfo =  BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(bookmarkObjects);
-        Window.alert(BookmarkInfoConverter.convertBookmarkInfoToJSONObject(bookmarkInfo).toString());
 
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                Window.alert("received");
+                resetPanel();
                 reload();
             }
 
@@ -292,40 +268,6 @@ public class BookmarkPanel extends Composite {
             }
         };
         BookmarkRestService.addBookmark(requestCallback,bookmarkInfo);
-//        BookmarkSequenceList newArray = new BookmarkSequenceList();
-//        for(int i = 0 ; i < dragAndDropPanel.getWidgetCount() ; i++){
-//            Widget widget = dragAndDropPanel.getWidget(i);
-//            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
-//            if(groupName.contains("(")){
-//                Integer startIndex = groupName.indexOf("(");
-//                Integer endIndex = groupName.indexOf(")");
-//                String featureString = groupName.substring(startIndex+1,endIndex-1);
-//                groupName = groupName.substring(0,startIndex);
-//                BookmarkSequence sequenceFeature = new BookmarkSequence();
-//                sequenceFeature.setName(groupName);
-//                SequenceFeatureList featuresArray = new SequenceFeatureList() ;
-//                String[] features = featureString.split(",");
-//                for(String feature : features){
-//                    SequenceFeatureInfo fI = new SequenceFeatureInfo();
-//                    fI.setName(feature);
-////                    fI.put(FeatureStringEnum.NAME.getValue(),new JSONString(feature));
-//                    featuresArray.set(featuresArray.size(),fI) ;
-//                }
-//                sequenceFeature.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
-//
-//                newArray.addSequence(sequenceFeature);
-////                newArray.set(newArray.size(),featureObject);
-//            }
-//            else{
-//                BookmarkSequence bookmarkSequence = new BookmarkSequence();
-//                bookmarkSequence.setName(groupName);
-////                JSONObject featureObject = new JSONObject();
-////                featureObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
-////                newArray.set(newArray.size(),featureObject);
-//                newArray.addSequence(bookmarkSequence);
-//            }
-//        }
-//        bookmarkInfo.setSequenceList(newArray);
 
     }
 
