@@ -1,5 +1,8 @@
 package org.bbop.apollo
 
+
+import groovy.transform.EqualsAndHashCode
+@EqualsAndHashCode
 class Organism {
 
     static auditable = true
@@ -14,7 +17,6 @@ class Organism {
         commonName nullable: false
     }
 
-    //Integer organismId;
     String abbreviation;
     String genus;
     String species;
@@ -52,4 +54,5 @@ class Organism {
     static mapping = {
         publicMode defaultValue: true
     }
+
 }
