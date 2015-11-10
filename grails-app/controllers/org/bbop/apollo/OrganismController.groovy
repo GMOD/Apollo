@@ -288,7 +288,7 @@ class OrganismController {
                 Organism organism=Organism.findByCommonName(organismJson.organism)
                 if(!organism) organism=Organism.findById(organismJson.organism)
                 if(!organism) render ([error:"Organism not found"] as JSON)
-                List<PermissionEnum> permissionEnumList = getOrganismPermissionsForUser(organism,permissionService.getCurrentUser(organismJson))
+                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism,permissionService.getCurrentUser(organismJson))
                 if(permissionEnumList.contains(PermissionEnum.ADMINISTRATE)){
                     organismList.add(organism)
                 }
