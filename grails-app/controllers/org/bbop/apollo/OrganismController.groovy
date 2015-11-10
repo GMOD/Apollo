@@ -272,27 +272,41 @@ class OrganismController {
         }
     }
 
-    @RestApiMethod(description = "Returns a JSON array of all organisms", path = "/organism/findAllOrganisms", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Returns a JSON array of all organisms, or optionally, get's information about a specific organism", path = "/organism/findAllOrganisms", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY)
     ])
     def findAllOrganisms() {
         try {
             JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
-
-            List<Organism> putativeOrganismList = permissionService.getOrganismsForCurrentUser(organismJson)
             List<Organism> organismList = []
 
-            putativeOrganismList.each {
-                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(it,permissionService.getCurrentUser(organismJson))
+            if(organismJson.organism) {
+                log.debug "finding info for specific organism"
+                Organism organism=Organism.findByCommonName(organismJson.organism)
+                if(!organism) organism=Organism.findById(organismJson.organism)
+                if(!organism) render ([error:"Organism not found"] as JSON)
+                List<PermissionEnum> permissionEnumList = getOrganismPermissionsForUser(organism,permissionService.getCurrentUser(organismJson))
                 if(permissionEnumList.contains(PermissionEnum.ADMINISTRATE)){
-                    organismList.add(it)
+                    organismList.add(organism)
+                }
+            }
+            else {
+                log.debug "finding all info"
+                List<Organism> putativeOrganismList = permissionService.getOrganismsForCurrentUser(organismJson)
+
+                putativeOrganismList.each {
+                    List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(it,permissionService.getCurrentUser(organismJson))
+                    if(permissionEnumList.contains(PermissionEnum.ADMINISTRATE)){
+                        organismList.add(it)
+                    }
                 }
             }
 
             if(!organismList){
-                def error = [error: 'Not authorized']
+                def error = [error: 'Not authorized for any organisms']
                 render error as JSON
                 return
             }
@@ -302,10 +316,21 @@ class OrganismController {
 
             JSONArray jsonArray = new JSONArray()
             for (Organism organism in organismList) {
-                Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])[0] as Integer
+
+                def c = Feature.createCriteria()
+
+                def list = c.list {
+                    featureLocations {
+                        sequence {
+                            eq('organism',organism)
+                        }
+                    }
+                    'in'('class',requestHandlingService.viewableAnnotationList)
+                }
+                log.debug "${list}"
+                Integer annotationCount = list.size()
                 Integer sequenceCount = Sequence.countByOrganism(organism)
 
-                log.debug "findAllOrganismsfindAllOrganisms ${organism.publicMode}"
                 JSONObject jsonObject = [
                         id             : organism.id,
                         commonName     : organism.commonName,
@@ -324,6 +349,7 @@ class OrganismController {
             render jsonArray as JSON
         }
         catch (Exception e) {
+            e.printStackTrace()
             def error = [error: e.message]
             render error as JSON
         }
