@@ -203,7 +203,7 @@ class OrganismController {
             return
         }
 
-        render ([username: organismJson.username, organism: organismJson.organism, sequences: sequenceList as JSONArray] as JSON)
+        render ([username: organismJson.username, organism: organismJson.organism, sequences: sequenceList] as JSON)
     }
 
     private boolean checkOrganism(Organism organism) {
