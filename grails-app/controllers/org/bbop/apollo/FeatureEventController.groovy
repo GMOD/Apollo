@@ -79,7 +79,7 @@ class FeatureEventController {
             }
 
 
-            'in'('class',requestHandlingService.viewableFeatureList)
+            'in'('class',requestHandlingService.viewableAnnotationList)
         }
 
 
