@@ -344,8 +344,11 @@ class TrackService {
         return trackDataJsonObject
     }
 
+    JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate) {
+        return projectJsonArray(projection,coordinate,0)
+    }
 
-    JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate,Integer offset=0) {
+    JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate,Integer offset) {
 
 //        println "projection with offset ${offset}"
         // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .

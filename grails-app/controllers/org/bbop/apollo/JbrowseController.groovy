@@ -6,6 +6,8 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.DiscontinuousChunkProjector
 import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionChunk
+import org.bbop.apollo.projection.ProjectionChunkList
 import org.bbop.apollo.projection.ProjectionDescription
 import org.bbop.apollo.projection.ProjectionInterface
 import org.bbop.apollo.projection.RefSeqProjector
@@ -200,43 +202,57 @@ class JbrowseController {
 
                 if (fileName.endsWith("trackData.json")) {
                     List<JSONObject> trackObjectList = new ArrayList<>()
-                    List<String> projectionChunkList = new ArrayList<>()
-                    Map<String,Integer> chunkOffsets = new HashMap<>()
+//                    List<String> projectionChunkList = new ArrayList<>()
+                    ProjectionChunkList projectionChunkList = new ProjectionChunkList()
+//                    Map<String,Integer> chunkOffsets = new HashMap<>()
 
                     // can probably store the projection chunks
-                    Integer priorIndex = 0
+                    Integer priorSequenceLength = 0
+                    Integer priorChunkArrayOffset = 0
                     for (sequence in sequenceStrings) {
+                        ProjectionChunk projectionChunk = new ProjectionChunk(
+                                sequence: sequence
+                        )
                         boolean sequenceHasChunks = false
                         String sequencePathName = trackService.generateTrackNameForSequence(dataFileName, sequence)
                         // this loads PROJECTED
                         JSONObject trackObject = trackService.loadTrackData(sequencePathName, refererLoc, currentOrganism)
                         JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
-                        Integer lastIndex = 0
+                        Integer lastLength = 0
+                        Integer lastChunkArrayOffset = 0
                         for (int i = 0; i < ncListArray.size(); i++) {
                             JSONArray internalArray = ncListArray.getJSONArray(i)
                             if(internalArray.getInt(0)==4){
-                                projectionChunkList.add(sequence)
-                                lastIndex = internalArray.getInt(2)
+//                                projectionChunkList.add(sequence)
+                                projectionChunk.addChunk()
+                                lastLength = internalArray.getInt(2)
                                 sequenceHasChunks = true
                             }
+                            ++lastChunkArrayOffset
                         }
-                        if(!sequenceHasChunks){
-                            projectionChunkList.add(sequence)
-                        }
-                        chunkOffsets.put(sequence,priorIndex)
-                        priorIndex = priorIndex + lastIndex
+
+//                        if(!sequenceHasChunks){
+//                            projectionChunkList << projectionChunk
+//                        }
+                        projectionChunk.chunkArrayOffset = priorChunkArrayOffset
+                        projectionChunk.sequenceOffset = priorSequenceLength
+
+                        priorSequenceLength = priorSequenceLength + lastLength
+                        priorChunkArrayOffset = priorChunkArrayOffset + lastChunkArrayOffset
+
+                        projectionChunkList.addChunk(projectionChunk)
 
                         trackObjectList.add(trackObject)
                     }
 
+
+
                     MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
-                    multiSequenceProjection.chunks = projectionChunkList
-                    multiSequenceProjection.chunkOffsets = chunkOffsets
+                    multiSequenceProjection.projectionChunkList = projectionChunkList
+//                    multiSequenceProjection.chunkOffsets = chunkOffsets
                     projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
 
                     JSONObject trackObject = trackService.mergeTrackObject(trackObjectList)
-
-//                    multiSequenceProjection.projectValue(startSize)
 
                     trackObject.intervals.minStart = multiSequenceProjection.projectValue(trackObject.intervals.minStart)
                     trackObject.intervals.maxEnd = multiSequenceProjection.projectValue(trackObject.intervals.maxEnd)
@@ -249,14 +265,18 @@ class JbrowseController {
                     List<Integer> sequenceLengths = []
 
                     MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
-                    List<String> projectionSequences = multiSequenceProjection.chunks
+//                    List<String> projectionSequences = multiSequenceProjection.chunks
 
                     Integer chunkIndex = getChunkIndex(fileName)-1
-                    String sequenceString = projectionSequences.get(chunkIndex)
-                    Integer chunkOffset = multiSequenceProjection.chunkOffsets.get(sequenceString)
+                    ProjectionChunk projectionChunk=  multiSequenceProjection.projectionChunkList.findProjectChunkForIndex(chunkIndex)
+//                    String sequenceString = projectionSequences.get(chunkIndex)
+                    String sequenceString = projectionChunk.sequence
+//                    Integer chunkOffset = multiSequenceProjection.chunkOffsets.get(sequenceString)
+                    Integer chunkOffset = projectionChunk.sequenceOffset
+//                    Integer chunkOffset = multiSequenceProjection.chunkOffsets.get(sequenceString)
                     // calculate offset for chunk and replace the filename
                     // should be the start of the string
-                    String originalFileName = calculateOriginalChunkName(projectionSequences, sequenceString, chunkIndex)
+                    String originalFileName = calculateOriginalChunkName(multiSequenceProjection.projectionChunkList, sequenceString, chunkIndex)
                     dataFileName = dataFileName.replaceAll(fileName, originalFileName)
 
 //                    for (sequenceString in sequenceStrings) {
@@ -593,9 +613,9 @@ class JbrowseController {
 
     }
 
-    private String calculateOriginalChunkName(ArrayList<String> strings, String finalSequenceString, Integer chunkIndex) {
-        for (int i = 0; i < strings.size(); i++) {
-            if (strings.get(i) == finalSequenceString) {
+    private String calculateOriginalChunkName(List<ProjectionChunk> projectionChunks, String finalSequenceString, Integer chunkIndex) {
+        for (int i = 0; i < projectionChunks.size(); i++) {
+            if (projectionChunks.get(i).sequence == finalSequenceString) {
                 return "lf-${chunkIndex - i+1}.json"
             }
         }
