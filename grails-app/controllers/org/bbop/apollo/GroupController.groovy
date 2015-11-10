@@ -45,16 +45,15 @@ class GroupController {
         render groupOrganismPermissions as JSON
     }
 
-    // TODO: may need to have more restrictive permissions
     @RestApiMethod(description="Load all groups",path="/group/loadGroups",verb = RestApiVerb.POST)
     @RestApiParams(params=[
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="groupId", type="long", paramType = RestApiParamType.QUERY,description="Optional only load a specific groupId")
-    ]
-    )
+    ])
     def loadGroups() {
         try {
+            log.debug "loadGroups"
             JSONArray returnArray = new JSONArray()
             JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data?:"{}"))) as JSONObject
             if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
@@ -75,7 +74,7 @@ class GroupController {
                 groupOrganismPermissionMap.put(groupOrganismPermission.group.name,groupOrganismPermissionListTemp)
             }
             for(v in groupOrganismPermissionMap){
-                log.debug "${v.key} ${v.value}"
+                log.debug "GROUPORGANISM ${v.key} ${v.value}"
             }
 
 
@@ -108,10 +107,10 @@ class GroupController {
                 for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList3){
                     if(groupOrganismPermission.organism in allowableOrganisms){
                         JSONObject organismJSON = new JSONObject()
-                        organismJSON.put("organism", groupOrganismPermission.organism.commonName)
-                        organismJSON.put("permissions",groupOrganismPermission.permissions)
-                        organismJSON.put("groupId",groupOrganismPermission.groupId)
-                        organismJSON.put("id",groupOrganismPermission.id)
+                        organismJSON.organism=groupOrganismPermission.organism.commonName
+                        organismJSON.permissions=groupOrganismPermission.permissions
+                        organismJSON.groupId=groupOrganismPermission.groupId
+                        organismJSON.id=groupOrganismPermission.id
                         organismPermissionsArray.add(organismJSON)
                         organismsWithPermissions.add(groupOrganismPermission.organism.id)
                     }
@@ -123,9 +122,9 @@ class GroupController {
 
                 for(Organism organism in organismList){
                     JSONObject organismJSON = new JSONObject()
-                    organismJSON.put("organism", organism.commonName)
-                    organismJSON.put("permissions","[]")
-                    organismJSON.put("groupId",it.id)
+                    organismJSON.organism= organism.commonName
+                    organismJSON.permissions=[]
+                    organismJSON.groupId=it.id
                     organismPermissionsArray.add(organismJSON)
                 }
 
@@ -134,6 +133,7 @@ class GroupController {
                 returnArray.put(groupObject)
             }
 
+            log.debug "${returnArray}"
             render returnArray as JSON
         }
         catch(Exception e) {
@@ -273,24 +273,18 @@ class GroupController {
         if(dataObject.groupId){
             group = UserGroup.findById(dataObject.groupId)
         }
-
         if(!group){
             group = UserGroup.findByName(dataObject.name)
         }
         if(!group){
-            JSONObject jsonObject = new JSONObject()
-            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to find group" )
-            render jsonObject as JSON
+            render ([(FeatureStringEnum.ERROR.value):"Failed to find group"] as JSON)
             return
         }
 
         Organism organism =  Organism.findByCommonName(dataObject.organism)
-
-
-        if(!organism){
-            JSONObject jsonObject = new JSONObject()
-            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to find organism" )
-            render jsonObject as JSON
+        if(!organism)  Organism.findById(dataObject.organism)
+        if(!organism) {
+            render ([(FeatureStringEnum.ERROR.value):"Failed to find organism"] as JSON)
             return
         }
 
