@@ -22,7 +22,7 @@ Features
 + Added feature to let users change their own password (#620).
 + Updated the /featureEvent/changes page to show list of recently changed features (#642).
 + Enhanced the loadGroups and loadUsers API to retrieve the info of specific groups or users (#643).
-
++ Added ability to reference the organism by name in the jbrowse URL for easier to remember URL formats (#653).
 
 Bugfixes
 
