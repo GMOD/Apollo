@@ -167,54 +167,43 @@ class OrganismController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Common name for the organism")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Common name or ID for the organism")
     ])
     def getSequencesForOrganism() {
         JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
         if (organismJson.username == "" || organismJson.organism == "" || organismJson.password == "") {
-            def error = ['error': 'Empty fields in request JSON']
-            render error as JSON
-            log.error(error.error)
+            render (['error': 'Empty fields in request JSON'] as JSON)
             return
         }
-        if (!permissionService.hasPermissions(organismJson, PermissionEnum.READ)) {
-            render new JSONObject() as JSON
-            return
-        }
-        String username = organismJson.username
-        String organismCommonName = organismJson.organism
-        JSONObject returnObject = new JSONObject()
+
         List<Sequence> sequenceList
-        List<User> userList = User.executeQuery("select distinct u from User u where u.username = :username", [username: username])
-        if (userList.size() == 0) {
-            def error = ['error': 'Cannot find username ' + username + ' in the database']
+
+        Organism organism = Organism.findByCommonName(organismJson.organism)
+        if(!organism) {
+            organism = Organism.findById(organismJson.organism)
+        }
+        if(!organism) {
+            def error = ['error': 'Organism not found '+organismJson.organism]
             render error as JSON
             log.error(error.error)
             return
         }
 
-        List<Organism> organismList = Organism.executeQuery("select distinct o from Organism o where o.commonName = :organismCommonName", [organismCommonName: organismCommonName])
-        if (organismList.size() == 0) {
-            def error = ['error': 'Cannot find organism ' + organismCommonName + ' in the database']
-            render error as JSON
-            log.error(error.error)
-            return
-        }
 
-        if (permissionService.getOrganismPermissionsForUser(organismList[0], userList[0])[0].rank >= PermissionEnum.EXPORT.rank) {
-            sequenceList = Sequence.executeQuery("select distinct s.name from Sequence s join s.featureLocations sf where s.organism.commonName = :organismCommonName", [organismCommonName: organismCommonName])
+        if (permissionService.findHighestOrganismPermissionForUser(organism,permissionService.getCurrentUser(organismJson)).rank >= PermissionEnum.EXPORT.rank) {
+            def c = Sequence.createCriteria()
+            sequenceList = c.list {
+                eq('organism',organism)
+            }
             println "Sequence list fetched at getSequencesForOrganism: ${sequenceList}"
         } else {
-            def error = ['error': 'Username ' + username + ' does not have export permissions for organism ' + organismCommonName]
+            def error = ['error': 'Username ' + organismJson.username + ' does not have export permissions for organism ' + organismJson.organism]
             render error as JSON
             log.error(error.error)
             return
         }
 
-        returnObject.username = organismJson.username
-        returnObject.organism = organismJson.organism
-        returnObject.sequences = sequenceList as JSONArray
-        render returnObject as JSON
+        render ([username: organismJson.username, organism: organismJson.organism, sequences: sequenceList as JSONArray] as JSON)
     }
 
     private boolean checkOrganism(Organism organism) {
