@@ -73,10 +73,6 @@ class GroupController {
                 groupOrganismPermissionListTemp.add(groupOrganismPermission)
                 groupOrganismPermissionMap.put(groupOrganismPermission.group.name,groupOrganismPermissionListTemp)
             }
-            for(v in groupOrganismPermissionMap){
-                log.debug "GROUPORGANISM ${v.key} ${v.value}"
-            }
-
 
 
             def groups = dataObject.groupId?[UserGroup.findById(dataObject.groupId)]:UserGroup.all
@@ -105,7 +101,7 @@ class GroupController {
                 def  groupOrganismPermissionList3 = groupOrganismPermissionMap.get(it.name)
                 List<Long> organismsWithPermissions = new ArrayList<>()
                 for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList3){
-                    if(groupOrganismPermission.organism in allowableOrganisms){
+                    if(allowableOrganisms.contains(groupOrganismPermission.organism )){
                         JSONObject organismJSON = new JSONObject()
                         organismJSON.organism=groupOrganismPermission.organism.commonName
                         organismJSON.permissions=groupOrganismPermission.permissions
@@ -123,7 +119,7 @@ class GroupController {
                 for(Organism organism in organismList){
                     JSONObject organismJSON = new JSONObject()
                     organismJSON.organism= organism.commonName
-                    organismJSON.permissions=[]
+                    organismJSON.permissions="[]"
                     organismJSON.groupId=it.id
                     organismPermissionsArray.add(organismJSON)
                 }
@@ -133,7 +129,6 @@ class GroupController {
                 returnArray.put(groupObject)
             }
 
-            log.debug "${returnArray}"
             render returnArray as JSON
         }
         catch(Exception e) {
