@@ -21,20 +21,20 @@ class ProjectionSequence implements Comparable<ProjectionSequence>{
 
         ProjectionSequence that = (ProjectionSequence) o
 
-        if (id != that.id) return false
+//        if (id != that.id) return false
         if (name != that.name) return false
 //        if (offset != that.offset) return false
 //        if (order != that.order) return false
-        if (organism != that.organism) return false
+//        if (organism != that.organism) return false
 
         return true
     }
 
     int hashCode() {
         int result
-        result = (id != null ? id.hashCode() : 0)
+//        result = (id != null ? id.hashCode() : 0)
         result = 31 * result + (name != null ? name.hashCode() : 0)
-        result = 31 * result + (organism != null ? organism.hashCode() : 0)
+//        result = 31 * result + (organism != null ? organism.hashCode() : 0)
 //        result = 31 * result + (order != null ? order.hashCode() : 0)
 //        result = 31 * result + (offset != null ? offset.hashCode() : 0)
         return result
@@ -42,9 +42,9 @@ class ProjectionSequence implements Comparable<ProjectionSequence>{
 
     @Override
     int compareTo(ProjectionSequence o) {
-        id <=> o.id
+//        id <=> o.id
         name <=> o.name
-        order <=> o.order
+//        order <=> o.order
 //        organism <=> o.organism
     }
 }

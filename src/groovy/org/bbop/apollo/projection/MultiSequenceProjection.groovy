@@ -11,7 +11,7 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>()
     ProjectionDescription projectionDescription  // description of how this is generated
     List<String> chunks = new ArrayList<>()
-    Map<String,Integer> chunkOffsets = new HashMap<>()
+    Map<String, Integer> chunkOffsets = new HashMap<>()
 
     ProjectionSequence getReverseProjectionSequence(Integer input) {
         for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
@@ -47,7 +47,7 @@ class MultiSequenceProjection extends DiscontinuousProjection {
         ProjectionSequence projectionSequence = getProjectionSequence(input)
         if (!projectionSequence) return -1
         return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectValue(input - projectionSequence.originalOffset)  \
-         + projectionSequence.offset
+          + projectionSequence.offset
     }
 
     @Override
@@ -68,22 +68,6 @@ class MultiSequenceProjection extends DiscontinuousProjection {
         // not really used .  .. .  but otherwise would carve up into different bits
         return null
     }
-
-//    @Override
-//    Track projectTrack(Track trackIn) {
-//        return null
-//    }
-//
-//    @Override
-//    Coordinate projectCoordinate(int min, int max) {
-//        return null
-//    }
-//
-//    @Override
-//    Coordinate projectReverseCoordinate(int min, int max) {
-//        return null
-//    }
-
 
     List<Coordinate> listCoordinates() {
         List<Coordinate> coordinateList = new ArrayList<>()
@@ -120,6 +104,7 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     Integer clear() {
         return sequenceDiscontinuousProjectionMap.clear()
     }
+
 // here we are adding a location to project
     def addLocation(Location location) {
         // if a single projection . . the default .. then assert that it is the same sequence / projection
@@ -151,14 +136,14 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     }
 
     ProjectionSequence getProjectionSequence(Location location) {
-        if (sequenceDiscontinuousProjectionMap.containsKey(location.sequence)) {
-            // should be a pretty limited set
-            for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
-                if (projectionSequence.equals(location.sequence)) {
-                    return projectionSequence
-                }
+//        if (sequenceDiscontinuousProjectionMap.containsKey(location.sequence)) {
+        // should be a pretty limited set
+        for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
+            if (projectionSequence.equals(location.sequence)) {
+                return projectionSequence
             }
         }
+//        }
         return null
     }
 
@@ -183,7 +168,7 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     }
 
     Boolean containsSequence(String sequenceName, Organism organism) {
-        return containsSequence(sequenceName,null,organism)
+        return containsSequence(sequenceName, null, organism)
     }
 
     Boolean containsSequence(String sequenceName, Long sequenceId, Organism organism) {
