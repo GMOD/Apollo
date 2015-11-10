@@ -22,7 +22,9 @@ Features
 + Added feature to let users change their own password (#620).
 + Updated the /featureEvent/changes page to show list of recently changed features (#642).
 + Enhanced the loadGroups and loadUsers API to retrieve the info of specific groups or users (#643).
++ Enhanced the findAllOrganisms API to retrieve the info of specific organisms (#666).
 + Added ability to reference the organism by name in the jbrowse URL for easier to remember URL formats (#653).
+
 
 Bugfixes
 
@@ -35,6 +37,7 @@ Bugfixes
 + Fixed a bug that prevented multiple values for an attribute in the Information Editor (#579). 
 + Fixed a bug preventing features with long names (#580).
 + Fixed a bug where a closed track in the genome browser was not showing up as un-checked in the side-panel (#554). 
++ Fixed a bug where the group permissions where not being displayed correctly on the Group panel (#664).
 
 
 ## 2.0.0
