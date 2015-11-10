@@ -206,14 +206,22 @@ class JbrowseController {
                     // can probably store the projection chunks
                     Integer priorIndex = 0
                     for (sequence in sequenceStrings) {
+                        boolean sequenceHasChunks = false
                         String sequencePathName = trackService.generateTrackNameForSequence(dataFileName, sequence)
                         // this loads PROJECTED
                         JSONObject trackObject = trackService.loadTrackData(sequencePathName, refererLoc, currentOrganism)
                         JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
                         Integer lastIndex = 0
                         for (int i = 0; i < ncListArray.size(); i++) {
+                            JSONArray internalArray = ncListArray.getJSONArray(i)
+                            if(internalArray.getInt(0)==4){
+                                projectionChunkList.add(sequence)
+                                lastIndex = internalArray.getInt(2)
+                                sequenceHasChunks = true
+                            }
+                        }
+                        if(!sequenceHasChunks){
                             projectionChunkList.add(sequence)
-                            lastIndex = ncListArray.getJSONArray(i).getInt(2)
                         }
                         chunkOffsets.put(sequence,priorIndex)
                         priorIndex = priorIndex + lastIndex
@@ -227,6 +235,12 @@ class JbrowseController {
                     projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
 
                     JSONObject trackObject = trackService.mergeTrackObject(trackObjectList)
+
+//                    multiSequenceProjection.projectValue(startSize)
+
+                    trackObject.intervals.minStart = multiSequenceProjection.projectValue(trackObject.intervals.minStart)
+                    trackObject.intervals.maxEnd = multiSequenceProjection.projectValue(trackObject.intervals.maxEnd)
+
                     response.outputStream << trackObject.toString()
                     return
                 }
@@ -579,7 +593,7 @@ class JbrowseController {
 
     }
 
-    String calculateOriginalChunkName(ArrayList<String> strings, String finalSequenceString, Integer chunkIndex) {
+    private String calculateOriginalChunkName(ArrayList<String> strings, String finalSequenceString, Integer chunkIndex) {
         for (int i = 0; i < strings.size(); i++) {
             if (strings.get(i) == finalSequenceString) {
                 return "lf-${chunkIndex - i+1}.json"
