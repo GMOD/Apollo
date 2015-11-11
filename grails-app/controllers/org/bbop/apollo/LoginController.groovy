@@ -26,15 +26,9 @@ class LoginController extends AbstractApolloController {
 
 
     def handleOperation(String track, String operation) {
-        log.debug "request stuff ${request.parameterMap.keySet()}"
-        log.debug "upstream params ${params}"
         JSONObject postObject = findPost()
-        log.debug "postObject ${postObject as JSON}"
         if(postObject?.containsKey(REST_OPERATION)){
             operation = postObject.get(REST_OPERATION)
-        }
-        if(postObject?.containsKey(REST_TRACK)){
-            track = postObject.get(REST_TRACK)
         }
         log.info "updated operation: ${operation}"
         if(!operation){
@@ -76,7 +70,6 @@ class LoginController extends AbstractApolloController {
         log.debug "register -> the jsonObj ${jsonObj}"
         String username = jsonObj.username
         String password = jsonObj.password
-        Boolean rememberMe = jsonObj.rememberMe
 
         def adminRole = Role.findByName(UserService.ADMIN)
 
@@ -92,7 +85,6 @@ class LoginController extends AbstractApolloController {
     }
 
     /**
-     * Merging Login.java (old) and  AuthController.groovy
      * @return
      */
     def login(){

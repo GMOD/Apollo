@@ -107,7 +107,7 @@ public class GroupRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Bootbox.alert("errror retrieving groups");
+                Bootbox.alert("error retrieving groups");
             }
         };
 

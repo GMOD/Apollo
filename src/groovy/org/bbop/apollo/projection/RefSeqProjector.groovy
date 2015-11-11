@@ -28,6 +28,9 @@ class RefSeqProjector implements TrackProjector{
                 sequenceValue.put("name", refererLoc)
                 projectedArray = mergeRefseqProjections(projectedArray,sequenceValue)
             }
+            else{
+                println "projeciton does not contain sequence ${sequenceName}"
+            }
         }
 
         if (projection) {

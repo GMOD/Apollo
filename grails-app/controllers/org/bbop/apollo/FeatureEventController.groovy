@@ -12,31 +12,14 @@ import grails.transaction.Transactional
 @Transactional(readOnly = true)
 class FeatureEventController {
 
+    def requestHandlingService
+    def permissionService
+
+
+
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def changesValues(){
 
-        JSONObject jsonObject = new JSONObject()
-
-        jsonObject.testValue = "yeah its working"
-        JSONArray changesArray = new JSONArray()
-        for(FeatureEvent featureEvent : FeatureEvent.list([max:10])){
-            JSONObject jsonObject1 = new JSONObject()
-            jsonObject1.operation = featureEvent.operation.name()
-            changesArray.add(jsonObject1)
-        }
-
-        jsonObject.changes = changesArray
-
-
-        render jsonObject as JSON
-    }
-
-    def changes2(){
-        render view:"changes2",model:[organismInstance:Organism.first()]
-    }
-
-    def permissionService
 
     def changes(Integer max) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
@@ -44,20 +27,6 @@ class FeatureEventController {
             return
         }
 
-        def viewableFeatureList = [
-                RepeatRegion.class.name,
-                TransposableElement.class.name,
-                Gene.class.name,
-                Pseudogene.class.name,
-                Transcript.class.name,
-                MRNA.class.name,
-                TRNA.class.name,
-                SnRNA.class.name,
-                SnoRNA.class.name,
-                NcRNA.class.name,
-                RRNA.class.name,
-                MiRNA.class.name,
-        ]
 
         log.debug "${params}"
 
@@ -110,7 +79,7 @@ class FeatureEventController {
             }
 
 
-            'in'('class',viewableFeatureList)
+            'in'('class',requestHandlingService.viewableAnnotationList)
         }
 
 
