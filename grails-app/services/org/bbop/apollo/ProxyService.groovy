@@ -5,7 +5,7 @@ import grails.transaction.Transactional
 @Transactional(readOnly = true)
 class ProxyService {
 
-    private final static List<String> defaultProxies = ["http://golr.geneontology.org/solr/select"]
+    private final static List<String> defaultProxies = ["http://golr.berkeleybop.org/solr/select"]
 
     /**
      * Looks through all proxies to return valid proxies
