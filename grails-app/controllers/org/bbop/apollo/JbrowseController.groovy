@@ -249,7 +249,6 @@ class JbrowseController {
 
                     MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
                     multiSequenceProjection.projectionChunkList = projectionChunkList
-//                    multiSequenceProjection.chunkOffsets = chunkOffsets
                     projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
 
                     JSONObject trackObject = trackService.mergeTrackObject(trackObjectList)
