@@ -575,7 +575,7 @@ class PermissionService {
     }
 
     PermissionEnum findHighestOrganismPermissionForCurrentUser(Organism organism) {
-        findHighestOrganismPermissionForCurrentUser(organism, currentUser)
+        findHighestOrganismPermissionForUser(organism, currentUser)
     }
     PermissionEnum findHighestOrganismPermissionForUser(Organism organism,User user) {
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism,user)
