@@ -16,13 +16,13 @@ class ProjectionChunkList {
     }
 
     ProjectionChunk findProjectChunkForIndex(Integer index){
-        Integer counter = 0
+//        Integer counter = 0
         for(ProjectionChunk projectionChunk : projectionChunkList){
-            if(index >= counter && index < projectionChunk.numChunks + counter){
+            if(index >= projectionChunk.chunkArrayOffset && index < projectionChunk.numChunks + projectionChunk.chunkArrayOffset){
                 return projectionChunk
             }
 //            counter += projectionChunk.end
-            ++counter
+//            counter += projectionChunk.numChunks
         }
         return null
     }
