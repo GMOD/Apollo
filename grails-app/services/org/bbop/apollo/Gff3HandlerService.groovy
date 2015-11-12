@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import org.apache.commons.lang.WordUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import org.bbop.apollo.sequence.Strand
@@ -20,7 +21,7 @@ public class Gff3HandlerService {
     def overlapperService
     def featurePropertyService
 
-
+    static final def unusedStandardAttributes = ["Alias", "Target", "Gap", "Derives_from", "Ontology_term", "Is_circular"];
     @Timed
     public void writeFeaturesToText(String path, Collection<? extends Feature> features, String source, Boolean exportSequence = false, Collection<Sequence> sequences = null) throws IOException {
         WriteObject writeObject = new WriteObject()
@@ -377,12 +378,17 @@ public class Gff3HandlerService {
                     props.append(encodeString(prop.getValue()));
                 }
                 for (Map.Entry<String, StringBuilder> iter : properties.entrySet()) {
-                    attributes.put(encodeString(iter.getKey()), iter.getValue().toString());
+                    if (iter.getKey() in unusedStandardAttributes) {
+                        attributes.put(encodeString(WordUtils.capitalizeFully(iter.getKey())), iter.getValue().toString());
+                    }
+                    else {
+                        attributes.put(encodeString(WordUtils.uncapitalize(iter.getKey())), iter.getValue().toString());
+                    }
                 }
             }
         }
         if (writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value) && feature.getOwner()) {
-            attributes.put(FeatureStringEnum.OWNER.value, encodeString(feature.getOwner().username));
+            attributes.put(FeatureStringEnum.OWNER.value.toLowerCase(), encodeString(feature.getOwner().username));
         }
         if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_CREATION.value)) {
             Calendar calendar = Calendar.getInstance();
