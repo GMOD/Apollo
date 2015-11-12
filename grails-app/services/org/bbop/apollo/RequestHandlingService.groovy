@@ -596,7 +596,6 @@ class RequestHandlingService {
         log.debug "sequence: ${bookmark}"
         log.debug "organism: ${bookmark.organism}"
         featuresArray = featureProjectionService.projectTrack(featuresArray,bookmark,true)
-//        featuresArray = featureProjectionService.projectTrack(bookmark, "", featuresArray, true)
         log.info "number of features: ${featuresArray?.size()}"
         boolean suppressHistory = false
         boolean suppressEvents = false
@@ -620,10 +619,7 @@ class RequestHandlingService {
             // https://github.com/GMOD/Apollo/issues/453
             // enforce calculation for ALL created transcripts
             // checking for overlapping Sequence Alterations
-//            List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin > :fmin and fl.fmax < :fmax and fl.sequence = :seqId", [seqId: transcript.featureLocation.sequence, fmin: transcript.featureLocation.fmin, fmax: transcript.featureLocation.fmax])
-//            if (sequenceAlterationList.size() > 0) {
             featureService.setLongestORF(transcript)
-//            }
             Gene gene = transcriptService.getGene(transcript)
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
 

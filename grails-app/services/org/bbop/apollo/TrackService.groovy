@@ -553,10 +553,6 @@ class TrackService {
 
     }
 
-    JSONArray loadChunkArray(String refererLoc, Organism organism, String fileName) {
-
-    }
-
     JSONObject projectTrackData(ArrayList<String> sequenceStrings, String dataFileName, String refererLoc, Organism currentOrganism) {
         List<JSONObject> trackObjectList = new ArrayList<>()
         ProjectionChunkList projectionChunkList = new ProjectionChunkList()
@@ -578,8 +574,8 @@ class TrackService {
                 JSONArray internalArray = ncListArray.getJSONArray(i)
                 if(internalArray.getInt(0)==4){
                     projectionChunk.addChunk()
-                    lastLength = internalArray.getInt(2)
                 }
+                lastLength = internalArray.getInt(2)
                 ++lastChunkArrayOffset
             }
 
