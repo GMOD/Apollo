@@ -17,7 +17,7 @@ class ProjectionChunkList {
 
     ProjectionChunk findProjectChunkForIndex(Integer index){
         for(ProjectionChunk projectionChunk : projectionChunkList){
-            if(index >= projectionChunk.chunkArrayOffset && index < projectionChunk.numChunks + projectionChunk.chunkArrayOffset){
+            if(index >= projectionChunk.chunkArrayOffset && index <= projectionChunk.numChunks + projectionChunk.chunkArrayOffset){
                 return projectionChunk
             }
         }
