@@ -1,7 +1,5 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -10,6 +8,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -18,26 +17,30 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.*;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfoConverter;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequence;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequenceList;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.gwtbootstrap3.client.ui.Alert;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
 
 /**
- * Created by ndunn on 12/17/14.
+ * Created by Nathan Dunn on 12/17/14.
  */
 public class SequencePanel extends Composite {
 
@@ -78,6 +81,10 @@ public class SequencePanel extends Composite {
     //    Button exportChadoButton;
     @UiField
     Button selectSelectedButton;
+    @UiField
+    Button bookmarkButton;
+    @UiField
+    Alert panelMessage;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -125,8 +132,10 @@ public class SequencePanel extends Composite {
                 }
                 if (selectedSequenceInfo.size() > 0) {
                     exportSelectedButton.setText("Selected (" + selectedSequenceInfo.size() + ")");
+                    bookmarkButton.setEnabled(true);
                 } else {
                     exportSelectedButton.setText("Selected");
+                    bookmarkButton.setEnabled(false);
                 }
                 exportSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
 
@@ -157,7 +166,7 @@ public class SequencePanel extends Composite {
 
                     @Override
                     public void onError(Request request, Throwable exception) {
-                        Bootbox.alert("error getting sequence info: " + exception);
+                        Bootbox.alert("Error getting sequence info: " + exception);
                     }
                 };
 
@@ -256,6 +265,48 @@ public class SequencePanel extends Composite {
                     }
                 }
         );
+
+    }
+
+    @UiHandler("bookmarkButton")
+    void addNewBookmark(ClickEvent clickEvent){
+        BookmarkInfo bookmarkInfo = new BookmarkInfo();
+        BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
+        StringBuilder nameBuffer = new StringBuilder();
+        for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
+            bookmarkInfo.setPadding(50);
+            bookmarkInfo.setType("Exon");
+            BookmarkSequence sequenceObject =new BookmarkSequence();
+            sequenceObject.setName(sequenceInfo.getName());
+//            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getName()));
+            sequenceArray.addSequence(sequenceObject);
+//            sequenceArray.set(sequenceArray.size(),sequenceObject);
+            nameBuffer.append(sequenceInfo.getName() + ",");
+        }
+//        name = name.substring(0,name.length()-1);
+        bookmarkInfo.setSequenceList(sequenceArray);
+
+        final String name = nameBuffer.toString() ;
+
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+//                new InfoDialog("Added Bookmark","Added bookmark for sequences "+name.substring(0,name.length()-1),true);
+                panelMessage.setText("Added bookmark: " + name.substring(0, name.length() - 1));
+//                panelMessage.setText("Added bookmark!");
+                panelMessage.setType(AlertType.SUCCESS);
+                panelMessage.setVisible(true);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error adding bookmark: "+exception);
+            }
+        };
+
+        MainPanel.getInstance().addBookmark(requestCallback,bookmarkInfo);
+
 
     }
 

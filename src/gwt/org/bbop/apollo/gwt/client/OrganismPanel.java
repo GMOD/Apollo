@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.bbop.apollo.gwt.client.WebApolloSimplePager;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.OrganismInfoConverter;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
@@ -42,7 +41,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by ndunn on 12/17/14.
+ * Created by Nathan Dunn on 12/17/14.
  */
 public class OrganismPanel extends Composite {
 

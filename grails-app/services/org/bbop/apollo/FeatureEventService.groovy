@@ -19,6 +19,8 @@ class FeatureEventService {
     def transcriptService
     def featureService
     def requestHandlingService
+    def featureProjectionService
+    def bookmarkService
 
     /**
      *
@@ -31,9 +33,9 @@ class FeatureEventService {
      * @return
      */
     FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String geneName, String transcriptUniqueName, JSONObject commandObject, JSONObject jsonObject, User user) {
-        if (Environment.current == Environment.TEST) {
-            return addNewFeatureEventWithUser(featureOperation, geneName, transcriptUniqueName, commandObject, jsonObject, (User) null)
-        }
+//        if (Environment.current == Environment.TEST) {
+//            return addNewFeatureEventWithUser(featureOperation, geneName, transcriptUniqueName, commandObject, jsonObject, (User) null)
+//        }
         addNewFeatureEventWithUser(featureOperation, geneName, transcriptUniqueName, commandObject, jsonObject, user)
     }
 
@@ -523,6 +525,7 @@ class FeatureEventService {
         }
 
         Sequence sequence = Feature.findByUniqueName(uniqueName).featureLocation.sequence
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
         log.debug "sequence: ${sequence}"
 
 
@@ -574,12 +577,16 @@ class FeatureEventService {
 //                }
                     log.debug "original command object = ${originalCommandObject as JSON}"
                     log.debug "final command object = ${addCommandObject as JSON}"
+                    JSONArray returnArray = featureProjectionService.projectTrack(addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),bookmark,false)
+                    addCommandObject.put(FeatureStringEnum.FEATURES.value, returnArray)
 
 
                     returnObject = requestHandlingService.addTranscript(addCommandObject)
                     transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
 
                 } else {
+                    JSONArray returnArray = featureProjectionService.projectTrack(addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),bookmark,false)
+                    addCommandObject.put(FeatureStringEnum.FEATURES.value, returnArray)
                     returnObject = requestHandlingService.addFeature(addCommandObject)
                 }
 
@@ -607,11 +614,11 @@ class FeatureEventService {
                 Transcript transcript = Transcript.findByUniqueName(it)
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript))
             }
-            if (sequence) {
+            if (bookmark) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: updateFeatureContainer,
-                        sequence: sequence,
-                        operation: AnnotationEvent.Operation.UPDATE
+                        features: updateFeatureContainer
+                        , bookmark: bookmark
+                        , operation: AnnotationEvent.Operation.UPDATE
                 )
                 requestHandlingService.fireAnnotationEvent(annotationEvent)
             }

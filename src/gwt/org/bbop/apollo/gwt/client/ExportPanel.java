@@ -16,7 +16,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import java.util.List;
 
 /**
- * Created by ndunn on 1/27/15.
+ * Created by Nathan Dunn on 1/27/15.
  */
 public class ExportPanel extends DialogBox{
     private String type;

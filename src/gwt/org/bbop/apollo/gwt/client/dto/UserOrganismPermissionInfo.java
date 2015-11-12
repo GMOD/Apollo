@@ -6,7 +6,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
 /**
- * Created by ndunn on 3/24/15.
+ * Created by Nathan Dunn on 3/24/15.
  */
 public class UserOrganismPermissionInfo extends OrganismPermissionInfo{
 

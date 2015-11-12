@@ -1,12 +1,14 @@
 package org.bbop.apollo.projection
 
 /**
- * Created by ndunn on 8/24/15.
+ * Created by Nathan Dunn on 8/24/15.
  */
 class Coordinate implements Comparable<Coordinate>{
 
     Integer min
     Integer max
+//    String sequence
+//    String organism
 
 
     @Override
@@ -31,5 +33,24 @@ class Coordinate implements Comparable<Coordinate>{
         result = (min != null ? min.hashCode() : 0)
         result = 31 * result + (max != null ? max.hashCode() : 0)
         return result
+    }
+
+
+    @Override
+    public String toString() {
+        return "Coordinate{" +
+                "min=" + min +
+                ", max=" + max +
+//                sequence ? ", sequence=" + sequence : "" +
+//                organism ? ", organism=" + organism : "" +
+                '}';
+    }
+
+    Boolean isValid() {
+        return min>=0 && max>=0
+    }
+
+    Integer getLength(){
+        return Math.abs(max - min)
     }
 }

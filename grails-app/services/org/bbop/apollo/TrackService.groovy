@@ -1,19 +1,22 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.Coordinate
+import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionInterface
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
 class TrackService {
 
-    def serviceMethod() {
-
-    }
-
 
     public static String TRACK_NAME_SPLITTER = "::"
+
+    def projectionService
 
     String getTracks(User user, Organism organism) {
         String trackList = ""
@@ -34,6 +37,7 @@ class TrackService {
         }
         return trackList.trim()
     }
+
     String getTrackPermissions(UserGroup userGroup, Organism organism) {
         JSONArray jsonArray = new JSONArray()
         for (GroupPermission groupPermission in GroupPermission.findAllByGroupAndOrganism(userGroup, organism)) {
@@ -160,12 +164,394 @@ class TrackService {
     }
 
 
-
     private String convertHashMapToJsonString(Map map) {
         JSONObject jsonObject = new JSONObject()
         map.keySet().each {
             jsonObject.put(it, map.get(it))
         }
         return jsonObject.toString()
+    }
+
+    /**
+     * For the track in question, grab the array that matches the top-level name.
+     * @param sequence
+     * @param trackName
+     * @param nameLookup
+     * @return
+     */
+    JSONArray getTrackData(Sequence sequence, String trackName, String nameLookup) {
+        String jbrowseDirectory = sequence.organism.directory + "/tracks/" + trackName
+        File trackDirectory = new File(jbrowseDirectory)
+        println "track directory ${trackDirectory.absolutePath}"
+        String sequenceDirectory = jbrowseDirectory + "/" + sequence.name
+        File trackDataFile = new File(sequenceDirectory + "/trackData.json")
+        println "track data file ${trackDataFile.absolutePath}"
+        assert trackDataFile.exists()
+        println "looking up ${nameLookup}"
+
+        JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
+        JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+        for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
+            JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
+            // TODO: use enums to better track format
+            if (coordinate.getInt(0) == 4 || coordinate.getInt(0) == 3) {
+                // projecess the file lf-${coordIndex} instead
+                File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
+                JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
+
+                for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
+                    JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
+                    JSONArray returnArray = findCoordinateName(chunkArrayCoordinate, nameLookup)
+                    if (returnArray) return returnArray
+                }
+
+            } else {
+                JSONArray returnArray = findCoordinateName(coordinate, nameLookup)
+                if (returnArray) return returnArray
+//                discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2),padding)
+            }
+        }
+
+        // return an empty array if not found
+        return new JSONArray()
+    }
+
+    JSONArray findCoordinateName(JSONArray coordinate, String nameLookup) {
+        String name = nameLookup.toLowerCase()
+
+        int classType = coordinate.getInt(0)
+        for (int i = 0; i < coordinate.size(); i++) {
+            switch (classType) {
+                case 0:
+                    if (coordinate.getString(6).toLowerCase().contains(name)) {
+                        return coordinate
+                    }
+                    // search sublist
+                    if (coordinate.size() > 11) {
+                        println "coordinate > 11 ${coordinate as JSON}"
+                        JSONObject subList = coordinate.getJSONObject(11)
+//                        println "subList ${subList as JSON}"
+//                        JSONObject subOject = subList.getJSONObject("Sublist")
+                        JSONArray subArray = subList.getJSONArray("Sublist")
+                        for (int subIndex = 0; subIndex < subArray.size(); ++subIndex) {
+                            println "subArray ${subArray as JSON}"
+
+                            JSONArray subSubArray = subArray.getJSONArray(subIndex)
+                            if (subSubArray.getInt(0) == 0) {
+                                if (subSubArray.getString(6).toLowerCase().contains(name)) {
+                                    return subSubArray
+                                }
+                            }
+                        }
+                    }
+                    break
+                case 1:
+                    if (coordinate.getString(8).toLowerCase().contains(name)) {
+                        return coordinate
+                    }
+                    break
+                case 2:
+                case 3:
+                    if (coordinate.getString(8).toLowerCase().contains(name)) {
+                        return coordinate
+                    }
+                    break
+                case 4:
+                    println "can not process case 4 ${coordinate as JSON}"
+                    break
+            }
+
+
+        }
+
+
+        return null
+    }
+
+
+    def String getSequencePathName(String inputName) {
+        if (inputName.contains("/")) {
+            String[] tokens = inputName.split("/")
+            // the sequence path should be the second to the last one
+            return tokens.length >= 2 ? tokens[tokens.length - 2] : null
+        }
+        return null
+    }
+
+    // replace index - 2 with sequenceName
+    String generateTrackNameForSequence(String inputName, String sequenceName) {
+        if (inputName.contains("/")) {
+            String[] tokens = inputName.split("/")
+            // the sequence path should be the second to the last one
+            if (tokens.length >= 2) {
+                tokens[tokens.length - 2] = sequenceName
+                return tokens.join("/")
+            }
+        }
+        return null
+    }
+
+    def String getTrackPathName(String inputName) {
+        if (inputName.contains("/")) {
+            String[] tokens = inputName.split("/")
+            // the sequence path should be the second to the last one
+            return tokens.length >= 3 ? tokens[tokens.length - 3] : null
+        }
+        return null
+    }
+
+    def JSONArray loadChunkData(String path, String refererLoc, Organism currentOrganism,Integer offset) {
+        println "loading chunk data with offset ${offset}"
+        File file = new File(path)
+        String inputText = file.text
+        JSONArray coordinateJsonArray = new JSONArray(inputText)
+        String sequenceName = projectionService.getSequenceName(file.absolutePath)
+        // get the track from the json object
+
+        // TODO: it should look up the OGS track either default or variable
+        MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+
+        if (projection && projection.containsSequence(sequenceName, currentOrganism)) {
+            println "found a projection ${projection.size()}"
+            for (int i = 0; i < coordinateJsonArray.size(); i++) {
+                JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
+                projectJsonArray(projection, coordinate,offset)
+            }
+        }
+        return coordinateJsonArray
+    }
+
+    def JSONObject loadTrackData(String path, String refererLoc, Organism currentOrganism) {
+        File file = new File(path)
+        String inputText = file.text
+        JSONObject trackDataJsonObject = new JSONObject(inputText)
+        String sequenceName = projectionService.getSequenceName(file.absolutePath)
+        // get the track from the json object
+
+        // TODO: it should look up the OGS track either default or variable
+        MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+
+        if (projection && projection.containsSequence(sequenceName, currentOrganism)) {
+//                    if (projection) {
+            println "found a projection ${projection.size()}"
+            JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
+            JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
+            for (int i = 0; i < coordinateJsonArray.size(); i++) {
+                JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
+                projectJsonArray(projection, coordinate)
+            }
+        }
+        return trackDataJsonObject
+    }
+
+    JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate) {
+        return projectJsonArray(projection,coordinate,0)
+    }
+
+    JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate,Integer offset) {
+
+//        println "projection with offset ${offset}"
+        // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
+        for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
+            def subArray = coordinate.get(subIndex)
+            if (subArray instanceof JSONArray) {
+                projectJsonArray(projection, subArray,offset)
+            }
+        }
+
+        if (coordinate.size() >= 3
+                && coordinate.get(0) instanceof Integer
+                && coordinate.get(1) instanceof Integer
+                && coordinate.get(2) instanceof Integer
+        ) {
+            Integer oldMin = coordinate.getInt(1)
+            Integer oldMax = coordinate.getInt(2)
+            Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax)
+            if (newCoordinate && newCoordinate.isValid()) {
+                coordinate.set(1, newCoordinate.min+offset)
+                coordinate.set(2, newCoordinate.max+offset)
+            } else {
+                log.error("Invalid mapping of coordinate ${coordinate} -> ${newCoordinate}")
+                coordinate.set(1, -1)
+                coordinate.set(2, -1)
+            }
+        }
+
+        return coordinate
+    }
+
+    /**
+     * merge trackData.json objects from different sequence sources . . .
+     *
+     * 1 - assume already projected
+     * 2 - assume in the correct order
+     * @param mergeTrackObject
+     * @return
+     */
+    def JSONObject mergeTrackObject(List<JSONObject> trackList) {
+
+        JSONObject finalObject = null
+        int endSize = 0
+        for (JSONObject jsonObject in trackList) {
+            if (finalObject == null) {
+                finalObject = jsonObject
+                // get endSize
+                endSize = jsonObject.intervals.maxEnd
+            } else {
+                // ignore formatVersion
+                // add featureCount
+                finalObject.featureCount = finalObject.featureCount + jsonObject.featureCount
+
+                // somehow add histograms together
+                finalObject.histograms = mergeHistograms(finalObject.histograms, jsonObject.histograms)
+
+                // add intervals together starting at end and adding
+                finalObject.intervals = mergeIntervals(finalObject.intervals, jsonObject.intervals, endSize)
+
+                // get endSize
+                endSize += jsonObject.intervals.maxEnd
+            }
+        }
+
+
+        return finalObject
+    }
+
+    /**
+     * "histograms": * {* "stats":
+     * [{"max": 4,
+     "basesPerBin": "200000",
+     "mean": 3}],
+     "meta":
+     [{"arrayParams": {"chunkSize": 10000,
+     "length": 3,
+     "urlTemplate": "hist-200000-{Chunk}.json"},
+     "basesPerBin": "200000"}]}* @param o
+     * @param o
+     */
+    JSONObject mergeHistograms(JSONObject first, JSONObject second) {
+        // for stats . . just always take the higher between the two
+        JSONObject firstStat = first.getJSONArray("stats").getJSONObject(0)
+        JSONObject secondStat = second.getJSONArray("stats").getJSONObject(0)
+        Integer firstMax = firstStat.getInt("max")
+        Integer secondMax = secondStat.getInt("max")
+        Integer firstMean = firstStat.getInt("mean")
+        Integer secondMean = secondStat.getInt("mean")
+        firstStat.put("max", Math.max(firstMax, secondMax))
+        firstStat.put("max", Math.max(firstMax, secondMax))
+        // not exactly right . . but would need to be re-aculcated thought evertying likely otherwise
+        firstStat.put("mean", Math.max(firstMean, secondMean))
+        firstStat.put("mean", Math.max(firstMean, secondMean))
+
+        // for meta . . add length, but everything else should stay the same
+
+        JSONObject firstMeta = first.getJSONArray("meta").getJSONObject(0)
+        JSONObject firstArrayParams = firstMeta.getJSONObject("arrayParams")
+        JSONObject secondMeta = second.getJSONArray("meta").getJSONObject(0)
+        JSONObject secondArrayParams = secondMeta.getJSONObject("arrayParams")
+        firstArrayParams.put("length", Math.max(firstArrayParams.getInt("length"), secondArrayParams.getInt("length")))
+
+        return first
+    }
+
+    JSONArray nudgeNcListArray(JSONArray coordinate, Integer nudgeAmount,Integer nudgeIndex) {
+        // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
+        for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
+            def subArray = coordinate.get(subIndex)
+            if (subArray instanceof JSONArray) {
+                nudgeNcListArray(subArray, nudgeAmount,nudgeIndex)
+            }
+        }
+
+        if (coordinate.size() >= 3
+                && coordinate.get(0) instanceof Integer
+                && coordinate.get(1) instanceof Integer
+                && coordinate.get(2) instanceof Integer
+                && coordinate.get(3) instanceof Integer
+        ) {
+            coordinate.set(1, coordinate.getInt(1) + nudgeAmount)
+            coordinate.set(2, coordinate.getInt(2) + nudgeAmount)
+            coordinate.set(3, coordinate.getInt(3) + nudgeIndex)
+        }
+
+        return coordinate
+    }
+
+    /**
+     * count,
+     * minStart,(add from the end of the previous one [endSize])
+     * maxEnd, (add endSize to this like minStart)
+     * lazyClass (just always take the largest between the two)
+     * nclist (append the arrays . . . but add the previous endSize)
+     * @param first
+     * @param second
+     * @return
+     */
+    JSONObject mergeIntervals(JSONObject first, JSONObject second, int endSize) {
+        first.put("minStart", first.getInt("minStart") + endSize)
+        first.put("maxEnd", first.getInt("maxEnd") + endSize)
+        first.put("count", first.getInt("count") + second.getInt("count"))
+
+        // we'll assume that the first and second are consistent ..
+        // except that sometimes there is more in onne than the other
+        // and we should tkae the largest between the two
+        JSONArray firstClassesArray = first.getJSONArray("classes")
+        JSONArray secondClassesArray = second.getJSONArray("classes")
+        if (secondClassesArray.size() > firstClassesArray.size()) {
+            first.put("classes", secondClassesArray)
+            first.put("lazyClass", second.getInt("lazyClass"))
+        }
+
+        // add the second to the first with endSize added
+        JSONArray firstNcListArray = first.getJSONArray("nclist")
+        JSONArray secondNcListArray = second.getJSONArray("nclist")
+
+
+        mergeCoordinateArray(firstNcListArray,secondNcListArray,endSize)
+
+        return first
+    }
+
+    /**
+     * This is a destructive method .. . putting everythin on the second onto the first with an alignment
+     * @param firstNcListArray
+     * @param secondNcListArray
+     * @return
+     */
+    JSONArray mergeCoordinateArray(JSONArray firstNcListArray,JSONArray secondNcListArray,int endSize) {
+        int nudgeIndex = firstNcListArray.size()
+        for (int i = 0; i < secondNcListArray.size(); i++) {
+            def ncListArray = secondNcListArray.get(i)
+            if (ncListArray instanceof JSONArray) {
+                nudgeNcListArray(ncListArray, endSize,nudgeIndex)
+                firstNcListArray.add(ncListArray)
+            }
+        }
+        return firstNcListArray
+    }
+
+    JSONArray mergeCoordinateArray(ArrayList<JSONArray> jsonArrays,List<Integer> endSizes) {
+
+        JSONArray firstNcListArray = jsonArrays.first()
+
+        for(int i = 1 ; i < jsonArrays.size() ; i++){
+            JSONArray secondArray = jsonArrays.get(i)
+            mergeCoordinateArray(firstNcListArray,secondArray,endSizes.get(i-1))
+        }
+
+//        for (int i = 0; i < secondNcListArray.size(); i++) {
+//            def ncListArray = secondNcListArray.get(i)
+//            if (ncListArray instanceof JSONArray) {
+//                nudgeNcListArray(ncListArray, endSize)
+//                firstNcListArray.add(ncListArray)
+//            }
+//        }
+
+        return firstNcListArray
+
+    }
+
+    JSONArray loadChunkArray(String refererLoc, Organism organism, String fileName) {
+
     }
 }

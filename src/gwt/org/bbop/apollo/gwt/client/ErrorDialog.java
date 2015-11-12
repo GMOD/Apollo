@@ -12,7 +12,7 @@ import org.gwtbootstrap3.client.ui.ModalBody;
 import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 
 /**
- * Created by ndunn on 3/17/15.
+ * Created by Nathan Dunn on 3/17/15.
  */
 //  TODO: this needs to be moved into UIBinder into its own class
 public class ErrorDialog extends Modal{

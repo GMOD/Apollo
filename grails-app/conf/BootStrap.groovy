@@ -1,15 +1,7 @@
 import grails.converters.JSON
 import grails.util.Environment
-import org.bbop.apollo.FeatureType
-import org.bbop.apollo.Gene
-import org.bbop.apollo.MRNA
-import org.bbop.apollo.SnRNA
-import org.bbop.apollo.Organism
-import org.bbop.apollo.Pseudogene
-import org.bbop.apollo.Role
-import org.bbop.apollo.Transcript
-import org.bbop.apollo.User
-import org.bbop.apollo.UserService
+import groovy.lang.Sequence
+import org.bbop.apollo.*
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 class BootStrap {
@@ -49,6 +41,18 @@ class BootStrap {
             returnArray['length'] = it?.length
             returnArray['start'] = it?.start
             returnArray['end'] = it.end
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(Bookmark) {
+            def returnArray = [:]
+            returnArray['id'] = it?.id
+            returnArray['type'] = it?.type ?: "NONE"
+            returnArray['padding'] = it?.padding ?: 0
+            returnArray['payload'] = it?.payload ?: "{}"
+            returnArray['start'] = it?.start
+            returnArray['end'] = it?.end
+            returnArray['sequenceList'] = it?.sequenceList
             return returnArray
         }
 

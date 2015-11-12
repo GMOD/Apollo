@@ -119,7 +119,13 @@
                             <b:Button ui:field="exportSelectedButton" size="EXTRA_SMALL" text="Selected"
                                       enabled="false"/>
                             <b:Button ui:field="exportSingleButton" size="EXTRA_SMALL" text="Single"/>
+                            <b:Button ui:field="bookmarkButton" icon="BOOKMARK" size="EXTRA_SMALL" text="+" enabled="false"/>
                         </b:ButtonGroup>
+                    </b:Column>
+                </b:Row>
+                <b:Row>
+                    <b:Column size="MD_12" offset="MD_2">
+                        <b:Alert ui:field="panelMessage" visible="false" dismissable="true" />
                     </b:Column>
                 </b:Row>
             </b:Container>

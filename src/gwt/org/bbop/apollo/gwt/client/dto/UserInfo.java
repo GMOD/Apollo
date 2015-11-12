@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by ndunn on 12/18/14.
+ * Created by Nathan Dunn on 12/18/14.
  */
 public class UserInfo implements HasJSON {
     private Long userId;

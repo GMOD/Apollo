@@ -8,7 +8,7 @@ import org.gwtbootstrap3.client.ui.ModalBody;
 import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 
 /**
- * Created by ndunn on 4/30/15.
+ * Created by Nathan Dunn on 4/30/15.
  */
 public class LoadingDialog extends Modal{
 

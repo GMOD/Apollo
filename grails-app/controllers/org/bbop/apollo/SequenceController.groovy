@@ -24,6 +24,7 @@ class SequenceController {
     def permissionService
     def preferenceService
     def reportService
+    def bookmarkService
 
     def permissions() {  }
 
@@ -37,7 +38,7 @@ class SequenceController {
                 render new JSONObject() as JSON
             }
             else{
-                render userOrganismPreference.sequence as JSON
+                render userOrganismPreference.bookmark as JSON
             }
         } catch (NumberFormatException e) {
             //  we can ignore this specific exception as null is an acceptable value for start / end
@@ -66,15 +67,16 @@ class SequenceController {
         User currentUser = permissionService.currentUser
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser, organism)
 
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequenceInstance)
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: currentUser
                     , organism: organism
-                    , sequence: sequenceInstance
+                    , bookmark: bookmark
                     , currentOrganism: true
             ).save(insert: true, flush: true, failOnError: true)
         } else {
-            userOrganismPreference.sequence = sequenceInstance
+            userOrganismPreference.bookmark = bookmark
             userOrganismPreference.currentOrganism = true
             userOrganismPreference.save(flush: true, failOnError: true)
         }
@@ -82,12 +84,13 @@ class SequenceController {
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
-        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceInstance.name)
+//        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceInstance.name)
+        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, bookmark.sequenceList.toString())
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
         session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequenceInstance.organismId)
 
 
-        render userOrganismPreference.sequence.name as String
+        render userOrganismPreference.bookmark.sequenceList
     }
 
 
@@ -100,16 +103,16 @@ class SequenceController {
 
         User currentUser = permissionService.currentUser
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser, organism)
-        if (userOrganismPreference?.sequence?.name) {
+        if (userOrganismPreference?.bookmark) {
             userOrganismPreference.currentOrganism = true
-            request.session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, userOrganismPreference.sequence.name)
+            request.session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, userOrganismPreference.bookmark.sequenceList.toString())
             userOrganismPreference.save(flush: true)
         } else {
             userOrganismPreference = new UserOrganismPreference(
                     user: currentUser
                     , organism: organism
                     , currentOrganism: true
-                    , sequence: Sequence.findByOrganism(organism)
+                    , bookmark: Bookmark.findByOrganism(organism)
             ).save(insert: true, flush: true)
         }
         UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ", [prefId: userOrganismPreference.id])

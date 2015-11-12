@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by ndunn on 6/15/15.
+ * Created by Nathan Dunn on 6/15/15.
  */
 public class FeatureEventUnit  implements Comparable<FeatureEventUnit>{
 

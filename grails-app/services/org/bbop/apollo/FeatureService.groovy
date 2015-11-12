@@ -38,6 +38,7 @@ class FeatureService {
     def sequenceService
     def permissionService
     def overlapperService
+    def bookmarkService
 
 
     @Timed
@@ -90,13 +91,20 @@ class FeatureService {
             Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax))",[fmin:location.fmin,fmax:location.fmax,sequence:location.sequence])
         }
     }
-    
+
+    @Transactional
+    void updateNewGsolFeatureAttributes(Feature gsolFeature, Bookmark bookmark) {
+        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+        sequenceList.each { updateNewGsolFeatureAttributes(gsolFeature,it) }
+    }
+
     @Transactional
     void updateNewGsolFeatureAttributes(Feature gsolFeature, Sequence sequence = null) {
 
         gsolFeature.setIsAnalysis(false);
         gsolFeature.setIsObsolete(false);
         if (sequence) {
+            // TODO: this needs to handle muliple featre locations
             gsolFeature.getFeatureLocations().iterator().next().sequence = sequence;
         }
 
@@ -121,13 +129,17 @@ class FeatureService {
 
     @Timed
     @Transactional
-    def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory) {
+    def generateTranscript(JSONObject jsonTranscript, Bookmark bookmark, boolean suppressHistory) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         log.debug "JSON transcript ${jsonTranscript}"
         log.debug "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
         log.debug "gene ${gene}"
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
+
+        // TODO: make multisequence plausible . . . based on location
+        log.warn "Fix generateTranscript to allow for multiple sequences"
+        Sequence sequence = bookmarkService.getSequencesFromBookmark(bookmark).first()
 
         User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
@@ -139,14 +151,14 @@ class FeatureService {
             }
 
             //this one is working, but was marked as needing improvement
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
+//            if (grails.util.Environment.current != grails.util.Environment.TEST) {
                 log.debug "setting owner for gene and transcript per: ${permissionService.getCurrentUser(jsonTranscript)}"
                 if (owner) {
                     setOwner(transcript, owner);
                 } else {
                     log.error("Unable to find valid user to set on transcript!" + jsonTranscript)
                 }
-            }
+//            }
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -181,14 +193,14 @@ class FeatureService {
                     }
 
                     //this one is working, but was marked as needing improvement
-                    if (grails.util.Environment.current != grails.util.Environment.TEST) {
+//                    if (grails.util.Environment.current != grails.util.Environment.TEST) {
                         log.debug "setting owner for gene and transcript per: ${permissionService.getCurrentUser(jsonTranscript)}"
                         if (owner) {
                             setOwner(tmpTranscript, owner);
                         } else {
                             log.error("Unable to find valid user to set on transcript!" + jsonTranscript)
                         }
-                    }
+//                    }
 
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
@@ -230,7 +242,6 @@ class FeatureService {
                 geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
             }
             else{
-//                geneName = nameService.makeUniqueFeatureName(sequence.organism, sequence.name, new LetterPaddingStrategy(), false)
                 geneName = nameService.makeUniqueGeneName(sequence.organism, sequence.name, false)
             }
             if (!suppressHistory) {
@@ -263,7 +274,7 @@ class FeatureService {
             transcript.save(flush: true)
 
             // doesn't work well for testing
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
+//            if (grails.util.Environment.current != grails.util.Environment.TEST) {
                 log.debug "setting owner for gene and transcript per: ${permissionService.getCurrentUser(jsonTranscript)}"
                 if (owner) {
                     setOwner(gene, owner);
@@ -271,7 +282,7 @@ class FeatureService {
                 } else {
                     log.error("Unable to find valid user to set on transcript!" + jsonTranscript)
                 }
-            }
+//            }
         }
         return transcript;
 
@@ -1060,6 +1071,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     }
 
+
+    @Timed
+    @Transactional
+    public Feature convertJSONToFeature(JSONObject jsonFeature, Bookmark bookmark) {
+        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+        if(!sequenceList || sequenceList.size()>1){
+            log.error("trying to convert a feature that has multiple sequences: ${bookmark}")
+        }
+        return convertJSONToFeature(jsonFeature,sequenceList.first())
+    }
 
     @Timed
     @Transactional

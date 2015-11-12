@@ -20,7 +20,7 @@ import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
- * Created by ndunn on 1/9/15.
+ * Created by Nathan Dunn on 1/9/15.
  */
 public class CDSDetailPanel extends Composite {
 

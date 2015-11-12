@@ -6,8 +6,8 @@ import spock.lang.Specification
 /**
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */
-@TestFor(JbrowseController)
-class JbrowseControllerSpec extends Specification {
+@TestFor(TrackController)
+class TrackControllerSpec extends Specification {
 
     def setup() {
     }

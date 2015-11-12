@@ -4,6 +4,11 @@
          "location" : "./plugins/WebApollo",
          "name" : "WebApollo"
       }
+      ,
+      {
+        "location" : "./plugins/NeatFeatures",
+        "name" : "NeatFeatures"
+      }
    ],
     "share_link" : 0,
     "tracks" : [

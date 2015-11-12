@@ -188,7 +188,8 @@
         </exec>
         <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
             <arg value="checkout"/>
-            <arg value="tags/${jbrowse.release.version}"/>
+            <!--<arg value="tags/${jbrowse.release.version}"/>-->
+            <arg value="Eric_work_f1"/>
         </exec>
     </target>
 

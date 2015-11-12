@@ -3,6 +3,14 @@ package org.bbop.apollo
 import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.DiscontinuousChunkProjector
+import org.bbop.apollo.projection.Location
+import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionChunk
+import org.bbop.apollo.projection.ProjectionChunkList
+import org.bbop.apollo.projection.ProjectionDescription
+import org.bbop.apollo.projection.ProjectionInterface
+import org.bbop.apollo.projection.RefSeqProjector
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -12,24 +20,28 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import static org.springframework.http.HttpStatus.*
 
-//@CompileStatic
 class JbrowseController {
 
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
 
+    def grailsApplication
     def sequenceService
     def permissionService
     def preferenceService
     def servletContext
+    def projectionService
+    def trackService
 
 
+    // TODO: move to a service instead?
+    RefSeqProjector refSeqProjector = new RefSeqProjector()
 
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
     }
 
 
-    def indexRouter(){
+    def indexRouter() {
         log.debug "indexRouter ${params}"
 
         List<String> paramList = new ArrayList<>()
@@ -49,7 +61,6 @@ class JbrowseController {
             render file.text
             return
         }
-
 
         // case 1 - anonymous login with organism ID, show organism
         if(params.organism){
@@ -101,27 +112,40 @@ class JbrowseController {
 
                 if (organism.sequences) {
                     User user = permissionService.currentUser
-                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user,organism)
-                    Sequence sequence = organism?.sequences?.first()
-                    if(userOrganismPreference ==null){
+                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
+//                    String sequenceList = userOrganismPreference.bookmark.sequenceList
+                    List<Sequence> sequences = organism?.sequences
+//                    List<String> sequenceList = []
+                    JSONArray sequenceArray = new JSONArray()
+                    sequences.each {
+                        JSONObject jsonObject = new JSONObject()
+                        jsonObject.name = it.name
+                        sequenceArray.add(jsonObject)
+                    }
+
+                    if (userOrganismPreference == null) {
+                        Bookmark bookmark = new Bookmark(
+                                organism: organism
+                                , sequenceList: sequenceArray.toString()
+                                , user: user
+                        ).save(insert: true, flush: true, failOnError: true)
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
-                                ,organism: organism
-                                ,sequence: sequence
-                                ,currentOrganism: true
-                        ).save(insert:true,flush:true)
-                    }
-                    else{
-                        userOrganismPreference.sequence = sequence
+                                , organism: organism
+                                , bookmark: bookmark
+                                , currentOrganism: true
+                        ).save(insert: true, flush: true)
+                    } else {
+                        userOrganismPreference.bookmark = userOrganismPreference.bookmark
                         userOrganismPreference.currentOrganism = true
                         userOrganismPreference.save()
                     }
 
                     organismJBrowseDirectory = organism.directory
                     session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)
-                    session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequence.name)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequence.organismId)
-                    session.setAttribute(FeatureStringEnum.ORGANISM.value, sequence.organism.commonName)
+                    session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceArray.toString())
+                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
+                    session.setAttribute(FeatureStringEnum.ORGANISM.value, organism.commonName)
                     return organismJBrowseDirectory
                 }
             }
@@ -129,16 +153,147 @@ class JbrowseController {
         return organismJBrowseDirectory
     }
 
+    private static String extractLocation(String referer) {
+        int startIndex = referer.indexOf("?loc=")
+        int endIndex = referer.contains("&") ? referer.indexOf("&") : referer.length()
+        String refererLoc = referer.subSequence(startIndex + 5, endIndex)
+        refererLoc = URLDecoder.decode(refererLoc, "UTF-8")
+        return refererLoc
+    }
 
+    /**
+     * Get chunk index for files of the pattern: lf-${X}.json
+     * @param fileName
+     * @return
+     */
+    private Integer getChunkIndex(String fileName) {
+        String finalString = fileName.substring(3, fileName.length() - 5)
+//        println finalString
+        return Integer.parseInt(finalString)
+    }
 
     /**
      * Handles data directory serving for jbrowse
      */
     def data() {
+        Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
         String dataDirectory = getJBrowseDirectoryForSession()
         String dataFileName = dataDirectory + "/" + params.path
         String fileName = FilenameUtils.getName(params.path)
+
+        String referer = request.getHeader("Referer")
+        String refererLoc = extractLocation(referer)
+
+        String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
+        println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
+//        /opt/apollo/honeybee/data//tracks/Official Gene Set v3.2/{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}/trackData.json
+        if (putativeSequencePathName.contains("projection")) {
+            if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
+                JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
+                JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
+                List<String> sequenceStrings = new ArrayList<>()
+                for (int i = 0; i < sequenceArray.size(); i++) {
+                    JSONObject sequenceObject = sequenceArray.getJSONObject(i)
+                    sequenceStrings.add(sequenceObject.name)
+                }
+
+
+                if (fileName.endsWith("trackData.json")) {
+                    List<JSONObject> trackObjectList = new ArrayList<>()
+                    ProjectionChunkList projectionChunkList = new ProjectionChunkList()
+
+                    // can probably store the projection chunks
+                    Integer priorSequenceLength = 0
+                    Integer priorChunkArrayOffset = 0
+                    for (sequence in sequenceStrings) {
+                        ProjectionChunk projectionChunk = new ProjectionChunk(
+                                sequence: sequence
+                        )
+                        String sequencePathName = trackService.generateTrackNameForSequence(dataFileName, sequence)
+                        // this loads PROJECTED
+                        JSONObject trackObject = trackService.loadTrackData(sequencePathName, refererLoc, currentOrganism)
+                        JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+                        Integer lastLength = 0
+                        Integer lastChunkArrayOffset = 0
+                        for (int i = 0; i < ncListArray.size(); i++) {
+                            JSONArray internalArray = ncListArray.getJSONArray(i)
+                            if(internalArray.getInt(0)==4){
+                                projectionChunk.addChunk()
+                                lastLength = internalArray.getInt(2)
+                            }
+                            ++lastChunkArrayOffset
+                        }
+
+                        projectionChunk.chunkArrayOffset = priorChunkArrayOffset
+                        projectionChunk.sequenceOffset = priorSequenceLength
+
+                        priorSequenceLength = priorSequenceLength + lastLength
+                        priorChunkArrayOffset = priorChunkArrayOffset + lastChunkArrayOffset
+
+                        projectionChunkList.addChunk(projectionChunk)
+
+                        trackObjectList.add(trackObject)
+                    }
+
+
+
+                    MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
+                    multiSequenceProjection.projectionChunkList = projectionChunkList
+                    projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
+
+                    JSONObject trackObject = trackService.mergeTrackObject(trackObjectList)
+
+                    trackObject.intervals.minStart = multiSequenceProjection.projectValue(trackObject.intervals.minStart)
+                    trackObject.intervals.maxEnd = multiSequenceProjection.projectValue(trackObject.intervals.maxEnd)
+
+                    response.outputStream << trackObject.toString()
+                    return
+                }
+                if (fileName.startsWith("lf-")) {
+                    List<JSONArray> trackArrayList = new ArrayList<>()
+                    List<Integer> sequenceLengths = []
+
+                    MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
+
+                    Integer chunkIndex = getChunkIndex(fileName)
+                    ProjectionChunk projectionChunk=  multiSequenceProjection.projectionChunkList.findProjectChunkForIndex(chunkIndex)
+                    String sequenceString = projectionChunk.sequence
+                    Integer sequenceOffset = projectionChunk.sequenceOffset
+                    // calculate offset for chunk and replace the filename
+                    // should be the start of the string
+                    String originalFileName = "lf-${chunkIndex-projectionChunk.chunkArrayOffset}.json"
+                    dataFileName = dataFileName.replaceAll(fileName, originalFileName)
+
+                    // next we want to load tracks from the REAL paths . .  .
+                    String sequencePathName = trackService.generateTrackNameForSequence(dataFileName, sequenceString)
+                    // this loads PROJECTED
+                    JSONArray coordinateArray = trackService.loadChunkData(sequencePathName, refererLoc, currentOrganism,sequenceOffset)
+                    trackArrayList.add(coordinateArray)
+                    Sequence sequence = Sequence.findByNameAndOrganism(sequenceString, currentOrganism)
+                    sequenceLengths << sequence.end
+
+                    JSONArray trackArray = trackService.mergeCoordinateArray(trackArrayList, sequenceLengths)
+
+//                    JSONArray trackArray = trackService.loadChunkArray(refererLoc,currentOrganism,fileName)
+
+                    response.outputStream << trackArray.toString()
+                    return
+                }
+
+
+            }
+        }
+        // 1 - if endsWith trackData and the "sequence" contains a projection then
+//        if(fileName.endsWith("trackData.json"))
+        //  a - extract the trackData (refactor into its own method)
+        //  b - merge them together
+        //  c - return that
+
         File file = new File(dataFileName);
+
+//        http://localhost:8080/apollo/jbrowse/index.html?loc=[proj=None,padding=50,sequences=[Group11.18::Group9.10,Group1.1(GB42145-RA)]]%3A-1..-1&highlight=&tracklist=0
+
+        log.debug "processing path ${params.path} -> ${dataFileName}"
 
         if (!file.exists()) {
             log.warn("File not found: " + dataFileName);
@@ -166,7 +321,7 @@ class JbrowseController {
                 log.info("Could not get MIME type of " + fileName + " falling back to text/plain");
                 mimeType = "text/plain";
             }
-            if(fileName.endsWith("jsonz")||fileName.endsWith("txtz")) {
+            if (fileName.endsWith("jsonz") || fileName.endsWith("txtz")) {
                 response.setHeader 'Content-Encoding', 'x-gzip'
             }
         }
@@ -228,20 +383,178 @@ class JbrowseController {
         response.setContentType(mimeType);
         if (ranges.isEmpty() || ranges.get(0) == full) {
             // Set content size
-            response.setContentLength((int) file.length());
+//            response.setContentLength((int) file.length());
 
-            // Open the file and output streams
-            FileInputStream inputStream = new FileInputStream(file);
-            OutputStream out = response.getOutputStream();
+            if (fileName.endsWith(".json") || params.format == "json") {
+//            [{"length":1382403,"name":"Group1.1","seqChunkSize":20000,"end":1382403,"start":0},{"length":1405242,"name":"Group1.10","seqChunkSize":20000,"end":1405242,"start":0},{"length":2557,"name":"Group1.11","seqChunkSize":20000,"end":2557,"start":0},
+                // this returns ALL of the sequences . . but if we project, we'll want to grab only certain ones
+                if (fileName.endsWith("refSeqs.json")) {
+                    JSONArray refSeqJsonObject = new JSONArray(file.text)
+                    // TODO: it should look up the OGS track either default or variable
+//                    if (projectionService.hasProjection(preferenceService.currentOrganismForCurrentUser,projectionService.getTrackName(file.absolutePath))) {
+                    println "refseq size ${refSeqJsonObject.size()}"
 
-            // Copy the contents of the file to the output stream
-            byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-            int count = 0;
-            while ((count = inputStream.read(buf)) >= 0) {
-                out.write(buf, 0, count);
+                    MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+
+                    // returns projection to a string of some sort
+                    response.outputStream << refSeqProjector.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
+
+                }
+                else {
+                    // Set content size
+                    response.setContentLength((int) file.length());
+
+                    // Open the file and output streams
+                    FileInputStream inputStream = new FileInputStream(file);
+                    OutputStream out = response.getOutputStream();
+
+                    // Copy the contents of the file to the output stream
+                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+                    int count = 0;
+                    while ((count = inputStream.read(buf)) >= 0) {
+                        out.write(buf, 0, count);
+                    }
+                    inputStream.close();
+                    out.close();
+                }
+            } else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+                // Set content size
+                // fileName
+//                Group1.22-18.txt
+                String parentFile = file.parent
+                println "HANDINGL SEQ DATA ${fileName}"
+                String sequenceName = fileName.split("-")[0]
+
+                // if getting
+//                ProjectionInterface projection = projectionMap.values().iterator().next().get(sequenceName)
+                ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
+                if (projection) {
+                    DiscontinuousChunkProjector discontinuousChunkProjector = DiscontinuousChunkProjector.instance
+                    // TODO: get proper chunk size from the RefSeq
+                    Integer defaultChunkSize = 20000
+                    Integer chunkNumber = discontinuousChunkProjector.getChunkNumberFromFileName(fileName)
+                    println "projected length ${projection.length}"
+                    println "maping chunk ${chunkNumber} on proj"
+                    List<Integer> chunks = discontinuousChunkProjector.getChunksForPath(parentFile)
+                    for (Integer chunk in chunks) {
+                        println "chunk ${chunk} / ${chunks.size()}"
+                    }
+                    Integer startProjectedChunk = discontinuousChunkProjector.getStartChunk(chunkNumber, defaultChunkSize)
+                    Integer endProjectedChunk = discontinuousChunkProjector.getEndChunk(chunkNumber, defaultChunkSize)
+                    println "projected chunk ${startProjectedChunk}::${endProjectedChunk}"
+                    Integer startOriginal = projection.projectReverseValue(startProjectedChunk)
+                    Integer endOriginal = projection.projectReverseValue(endProjectedChunk)
+                    println "original coord values ${startOriginal}::${endOriginal}"
+
+//                    Integer startOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(startOriginal,defaultChunkSize)
+//                    Integer endOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(endOriginal,defaultChunkSize)
+//                    println "original chunk number ${startOriginalChunkNumber}::${endOriginalChunkNumber}"
+//                    Integer startOriginalChunkCoordinate = startOriginalChunkNumber * defaultChunkSize
+//                    Integer endOriginalChunkCoordinate = (endOriginalChunkNumber+1) * defaultChunkSize
+//                    println "original chunk coordinate ${startOriginalChunkCoordinate}::${endOriginalChunkCoordinate}"
+
+
+                    Organism organism = preferenceService.currentOrganismForCurrentUser
+                    Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
+                    println "ffound sequence ${sequence} for org ${organism.commonName}"
+                    // TODO: fix the offsets here
+                    String concatenatedSequence = sequenceService.getRawResiduesFromSequence(sequence, startOriginal, endOriginal)
+                    println "concatenated length ${concatenatedSequence.length()}"
+
+                    // re-project
+//                    String inputText = concatenatedSequence
+//                    String inputText = projection.projectSequence(concatenatedSequence,startOriginal,endOriginal,startOriginal)
+                    String inputText = concatenatedSequence
+                    println "return string length ${inputText.length()}"
+
+                    // TODO: get chunks needed for cuts . . ..
+                    // TODO: get substrings from start / end
+//                    projection.cutToProjection()
+
+                    response.setContentLength((int) inputText.bytes.length);
+
+                    // Open the file and output streams
+//                    FileInputStream inputStream = new FileInputStream(file);
+//                    OutputStream out = response.getOutputStream();
+
+                    // Copy the contents of the file to the output stream
+//                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+//                    int count = 0;
+//                    while ((count = inputStream.read(buf)) >= 0) {
+//                        out.write(buf, 0, count);
+//                    }
+
+                    response.outputStream << inputText
+                    response.outputStream.close()
+
+                } else {
+                    response.setContentLength((int) file.length());
+
+                    // Open the file and output streams
+                    FileInputStream inputStream = new FileInputStream(file);
+                    OutputStream out = response.getOutputStream();
+
+                    // Copy the contents of the file to the output stream
+                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+                    int count = 0;
+                    while ((count = inputStream.read(buf)) >= 0) {
+                        out.write(buf, 0, count);
+                    }
+                    inputStream.close();
+                    out.close();
+                }
             }
-            inputStream.close();
-            out.close();
+//            else if (fileName.endsWith(".bai")) {
+//                println "processing bai file"
+//
+//                // TODO: read in . . . write out another one to process . . . which will be alternate index?
+//                // file, index file, etc. etc. etc.
+//                // generate the BAM
+//                if (projectionMap) {
+//                    // TODO: implement
+////                    String bamfileName = findBamFileName(fileName)
+////                    File bamFile = new File(bamfileName)
+////                    File newIndexFile = new File(generateBamIndexFileForProjection())
+//////                    BAMIndexer.createIndex(new SAMFileReader(bamFile),newIndexFile)
+////                    ProjectionBAMIndexer.createIndex(new SAMFileReader(bamFile),newIndexFile)
+////                    BAMFileReader reader = new BAMFileReader(bamFile,file,false)
+//                }
+//
+////                SAMFileReader samFileReader = new SAMFileReader()
+//                // Set content size
+//                response.setContentLength((int) file.length());
+//
+//                // Open the file and output streams
+//                FileInputStream inputStream = new FileInputStream(file);
+//                OutputStream out = response.getOutputStream();
+//
+//                // Copy the contents of the file to the output stream
+//                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+//                int count = 0;
+//                while ((count = inputStream.read(buf)) >= 0) {
+//                    out.write(buf, 0, count);
+//                }
+//                inputStream.close();
+//                out.close();
+//            }
+            else {
+                // Set content size
+                response.setContentLength((int) file.length());
+
+                // Open the file and output streams
+                FileInputStream inputStream = new FileInputStream(file);
+                OutputStream out = response.getOutputStream();
+
+                // Copy the contents of the file to the output stream
+                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+                int count = 0;
+                while ((count = inputStream.read(buf)) >= 0) {
+                    out.write(buf, 0, count);
+                }
+                inputStream.close();
+                out.close();
+
+            }
         } else if (ranges.size() == 1) {
             // Return single part of file.
             Range r = ranges.get(0);
@@ -249,32 +562,31 @@ class JbrowseController {
             response.setHeader("Content-Length", String.valueOf(r.length));
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
 
-            BufferedInputStream bis= new BufferedInputStream(new FileInputStream(file));
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
 
             OutputStream output = response.getOutputStream();
             byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-            long count=r.start;
+            long count = r.start;
             try {
 
                 // Copy single part range.
-                long ret=bis.skip(r.start);
-                if(ret != r.start) {
+                long ret = bis.skip(r.start);
+                if (ret != r.start) {
                     log.error("Failed to read range request!");
                     bis.close();
                     output.close();
                     return;
                 }
 
-                while (count<r.end) {
-                    int bret=bis.read(buf,0,DEFAULT_BUFFER_SIZE);
-                    if(bret!=-1) {
+                while (count < r.end) {
+                    int bret = bis.read(buf, 0, DEFAULT_BUFFER_SIZE);
+                    if (bret != -1) {
                         output.write(buf, 0, bret);
-                        count+=bret;
-                    }
-                    else break;
+                        count += bret;
+                    } else break;
                 }
 
-            } catch(Exception e) {
+            } catch (Exception e) {
                 log.error(e.message);
                 e.printStackTrace();
             }
@@ -284,6 +596,16 @@ class JbrowseController {
 
         }
 
+    }
+
+    private String calculateOriginalChunkName(List<ProjectionChunk> projectionChunks, String finalSequenceString, Integer chunkIndex) {
+        for (int i = 0; i < projectionChunks.size(); i++) {
+            if (projectionChunks.get(i).sequence == finalSequenceString) {
+                return "lf-${chunkIndex - i+1}.json"
+            }
+        }
+        println "unable to find an offset "
+        return "lf-${chunkIndex+1}.json"
     }
 
     def trackList() {
@@ -304,17 +626,33 @@ class JbrowseController {
         // add datasets to the configuration
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
         Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
-        if(currentOrganism!=null) {
-            jsonObject.put("dataset_id",currentOrganism.id)
+//        projectionService.createTranscriptProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),50)
+
+        // this comes from the
+        if (grailsApplication.config.apollo.doProjection) {
+            if (grailsApplication.config.apollo.useMultiSequence) {
+                ProjectionDescription projectionDescription = new ProjectionDescription()
+                projectionDescription.padding = 50
+//                projectionDescription.featureNames = ["ALL"]
+                projectionDescription.referenceTracks = ["Official Gene Set v3.2"]
+                // TODO: get the proper name from the UI
+                projectionDescription.projection = "EXON"
+                List<Location> locationList = projectionService.extractExonLocations(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), projectionDescription)
+                projectionService.createMultiSequenceProjection(projectionDescription, locationList)
+            } else {
+                projectionService.createExonLevelProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), 50)
+            }
         }
 
-        else {
-            id=request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
-            jsonObject.put("dataset_id",id);
+        if (currentOrganism != null) {
+            jsonObject.put("dataset_id", currentOrganism.id)
+        } else {
+            id = request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
+            jsonObject.put("dataset_id", id);
         }
-        List<Organism> list=permissionService.getOrganismsForCurrentUser()
+        List<Organism> list = permissionService.getOrganismsForCurrentUser()
         JSONObject organismObjectContainer = new JSONObject()
-        for(organism in list) {
+        for (organism in list) {
             JSONObject organismObject = new JSONObject()
             organismObject.put("name",organism.commonName)
             String url = "javascript:window.top.location.href = '../annotator/loadLink?"
@@ -334,7 +672,7 @@ class JbrowseController {
 
         jsonObject.put("datasets",organismObjectContainer)
 
-        if(jsonObject.include==null) jsonObject.put("include",new JSONArray())
+        if (jsonObject.include == null) jsonObject.put("include", new JSONArray())
         jsonObject.include.add("../plugins/WebApollo/json/annot.json")
 
         response.outputStream << jsonObject.toString()
@@ -342,8 +680,8 @@ class JbrowseController {
     }
 
     private static boolean isCacheableFile(String fileName) {
-        if (fileName.endsWith(".txt")||fileName.endsWith("txtz")) return true;
-        if (fileName.endsWith(".json")||fileName.endsWith("jsonz")) {
+        if (fileName.endsWith(".txt") || fileName.endsWith("txtz")) return true;
+        if (fileName.endsWith(".json") || fileName.endsWith("jsonz")) {
             String[] names = fileName.split("\\/");
             String requestName = names[names.length - 1];
             return requestName.startsWith("lf-");

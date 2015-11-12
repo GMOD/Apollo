@@ -5,7 +5,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.HTML;
 
 /**
- * Created by ndunn on 1/8/15.
+ * Created by Nathan Dunn on 1/8/15.
  */
 public class AnnotationContainerWidget extends HTML{
 

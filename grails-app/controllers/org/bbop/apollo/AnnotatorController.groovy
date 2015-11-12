@@ -2,8 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.session.Session
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -29,6 +27,7 @@ class AnnotatorController {
     def annotatorService
     def preferenceService
     def reportService
+    def bookmarkService
     def featureRelationshipService
 
     /**
@@ -141,7 +140,7 @@ class AnnotatorController {
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
-                , sequence: sequence
+                , bookmark: bookmarkService.generateBookmarkForSequence(sequence)
                 , operation: AnnotationEvent.Operation.UPDATE
                 , sequenceAlterationEvent: false
         )
@@ -185,7 +184,7 @@ class AnnotatorController {
         Sequence sequence = feature?.featureLocation?.sequence
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
-                , sequence: sequence
+                , bookmark: bookmarkService.generateBookmarkForSequence(sequence)
                 , operation: AnnotationEvent.Operation.UPDATE
                 , sequenceAlterationEvent: false
         )
@@ -221,17 +220,21 @@ class AnnotatorController {
     def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String order, String sort) {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
-            if (sequenceName && !Sequence.countByName(sequenceName)) return
+            String[] sequenceNames = sequenceName.split("\\:\\:")
+            List<Sequence> sequences = Sequence.findAllByNameInList(sequenceNames as List<String>)
+            String bookmarkString = bookmarkService.convertBookmarkToJson(bookmarkService.generateBookmarkForSequence(sequences as Sequence[])).toString()
+            if (!sequences) return
 
             if (sequenceName) {
-                returnObject.track = sequenceName
+                returnObject.track = bookmarkString
             }
 
-            Sequence sequence
-            Organism organism
+            Bookmark bookmark
+            Organism organism = permissionService.currentOrganismPreference.organism
+
+            returnObject.organism = organism.id
             if (returnObject.has("track")) {
-                sequence = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
-                organism = sequence.organism
+                bookmark = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             } else {
                 organism = permissionService.checkPermissionsForOrganism(returnObject, PermissionEnum.READ)
             }
@@ -284,7 +287,7 @@ class AnnotatorController {
             }
 
             if (organism) {
-                if (!sequence) {
+                if (!bookmark?.sequenceList) {
                     try {
                         final long start = System.currentTimeMillis();
                         allFeatures = Feature.executeQuery("select distinct f, abs(fl.fmax-fl.fmin) as seqLength, s from Feature f join f.owners own left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes) and upper(f.name) like :annotationName and own.username like :username " + sortString, [organism: organism, viewableTypes: viewableTypes, offset: offset, max: max, annotationName: '%' + annotationName.toUpperCase() + "%", username: '%' + user + '%']).collect {

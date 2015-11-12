@@ -3,19 +3,23 @@ package org.bbop.apollo.gwt.client.dto;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfoConverter;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.List;
 
 /**
- * Created by ndunn on 4/17/15.
+ * Created by Nathan Dunn on 4/17/15.
  */
 public class AppStateInfo implements HasJSON{
 
     private OrganismInfo currentOrganism ;
     private List<OrganismInfo> organismList ;
-    private SequenceInfo currentSequence ;
+//    private SequenceInfo currentSequence ;
     private Integer currentStartBp;
     private Integer currentEndBp;
+    private BookmarkInfo currentBookmark;
 
     public OrganismInfo getCurrentOrganism() {
         return currentOrganism;
@@ -33,13 +37,13 @@ public class AppStateInfo implements HasJSON{
         this.organismList = organismList;
     }
 
-    public SequenceInfo getCurrentSequence() {
-        return currentSequence;
-    }
+//    public SequenceInfo getCurrentSequence() {
+//        return currentSequence;
+//    }
 
-    public void setCurrentSequence(SequenceInfo currentSequence) {
-        this.currentSequence = currentSequence;
-    }
+//    public void setCurrentSequence(SequenceInfo currentSequence) {
+//        this.currentSequence = currentSequence;
+//    }
 
 
     @Override
@@ -47,11 +51,15 @@ public class AppStateInfo implements HasJSON{
         JSONObject returnObject = new JSONObject();
 
         if(currentOrganism!=null){
-            returnObject.put("currentOrganism",currentOrganism.toJSON());
+            returnObject.put(FeatureStringEnum.CURRENT_ORGANISM.getValue(),currentOrganism.toJSON());
         }
-        if(currentSequence!=null){
-            returnObject.put("currentSequence",currentSequence.toJSON());
+
+        if(currentBookmark!=null){
+            returnObject.put(FeatureStringEnum.CURRENT_BOOKMARK.getValue(), BookmarkInfoConverter.convertBookmarkInfoToJSONObject(currentBookmark));
         }
+//        if(currentSequence!=null){
+//            returnObject.put("currentSequence",currentSequence.toJSON());
+//        }
 //        if(currentSequenceList!=null){
 //            JSONArray sequenceListArray = new JSONArray();
 //            for(SequenceInfo sequenceInfo : currentSequenceList){
@@ -91,5 +99,13 @@ public class AppStateInfo implements HasJSON{
 
     public void setCurrentEndBp(Integer currentEndBp) {
         this.currentEndBp = currentEndBp;
+    }
+
+    public void setCurrentBookmark(BookmarkInfo bookmark) {
+        this.currentBookmark = bookmark;
+    }
+
+    public BookmarkInfo getCurrentBookmark() {
+        return currentBookmark;
     }
 }

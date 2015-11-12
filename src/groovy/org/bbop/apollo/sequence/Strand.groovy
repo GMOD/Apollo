@@ -1,7 +1,7 @@
 package org.bbop.apollo.sequence
 
 /**
- * Created by ndunn on 2/19/15.
+ * Created by Nathan Dunn on 2/19/15.
  */
 enum Strand {
 

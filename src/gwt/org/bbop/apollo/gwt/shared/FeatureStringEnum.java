@@ -1,7 +1,7 @@
 package org.bbop.apollo.gwt.shared;
 
 /**
- * Created by ndunn on 4/2/15.
+ * Created by Nathan Dunn on 4/2/15.
  */
 public enum FeatureStringEnum {
         ID("id"),
@@ -35,6 +35,8 @@ public enum FeatureStringEnum {
         DATE_CREATION,
         DATE,
         CURRENT,
+        CURRENT_ORGANISM("currentOrganism"),
+        CURRENT_BOOKMARK("currentBookmark"),
         COMMENT("Comment"),
         OLD_COMMENTS,
         NEW_COMMENTS,
@@ -56,11 +58,15 @@ public enum FeatureStringEnum {
         IS_FMAX_PARTIAL,
         STRAND,
         NAME,
+        INTERVALS,
+        NCLIST,
         GENE_NAME,
         VALUE,
         CV,
         SEQUENCE,
+        SEQUENCE_LIST("sequenceList"),
         TRACK,
+        TRACKS,
         DB,
         DBXREFS,
         ACCESSION,

@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import grails.util.Environment
 import org.apache.shiro.SecurityUtils
@@ -16,6 +17,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class PermissionService {
 
     def preferenceService
+    def bookmarkService
 
     boolean isUserAdmin(User user) {
         if(user!=null) {
@@ -209,7 +211,6 @@ class PermissionService {
 
 
 
-
     JSONObject copyUserName(JSONObject fromJSON, JSONObject toJSON) {
         if (fromJSON.containsKey(FeatureStringEnum.USERNAME.value)) {
             toJSON.put(FeatureStringEnum.USERNAME.value, fromJSON.getString(FeatureStringEnum.USERNAME.value))
@@ -227,23 +228,61 @@ class PermissionService {
         return []
     }
 
-    public static String getSequenceNameFromInput(JSONObject inputObject) {
-        String trackName = null
+    /**
+     * Have to handle the cases when it is a simple "sequence' or "track" or contains multiple sequences.
+     * {"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group5.7"},{"name":"Group9.2"}]}:1..53600 (53.6 Kb)
+     *
+     * @param inputObject
+     * @return
+     */
+    @NotTransactional
+    public static List<String> extractSequenceNamesFromJson(JSONObject inputObject) {
+        def sequences = []
+        if (inputObject.has(FeatureStringEnum.SEQUENCE_LIST.value)) {
+            inputObject.sequenceList.each{ it ->
+                sequences << it.name
+            }
+        }
+        else
         if (inputObject.has(FeatureStringEnum.SEQUENCE.value)) {
-            trackName = inputObject.sequence
+            if(BookmarkService.isProjectionString(inputObject.sequence)){
+                inputObject.sequences.each{ it ->
+                    sequences << it.name
+                }
+            }
+            else{
+                sequences << inputObject.getString(FeatureStringEnum.SEQUENCE.value)
+            }
         }
+        else
         if (inputObject.has(FeatureStringEnum.TRACK.value)) {
-            trackName = inputObject.track
+            if(BookmarkService.isProjectionString(inputObject.track.toString())){
+//                JSONObject sequenceObject = inputObject.track
+                inputObject.track.sequenceList.each{ it ->
+                    sequences << it.name
+                }
+            }
+            else
+            if(inputObject.track.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
+                JSONObject sequenceObject = JSON.parse(inputObject.track) as JSONObject
+                sequenceObject.sequenceList.each{ it ->
+                    sequences << it.name
+                }
+            }
+            else{
+                sequences << inputObject.track
+            }
         }
-        return trackName
+        return sequences
     }
+
 
 
     // get current user from session or input object
     User getCurrentUser(JSONObject inputObject = new JSONObject()) {
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            return null
-        }
+//        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
+//            return null
+//        }
 
         String username
         if (inputObject?.has(FeatureStringEnum.USERNAME.value)) {
@@ -273,9 +312,9 @@ class PermissionService {
         Organism organism
 
         // this is for testing only
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            return null
-        }
+//        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
+//            return null
+//        }
 
         //def session = RequestContextHolder.currentRequestAttributes().getSession()
         User user = getCurrentUser(inputObject)
@@ -305,7 +344,7 @@ class PermissionService {
                         user: user
                         , organism: organism
                         , currentOrganism: true
-                        , sequence: Sequence.findByOrganism(organism)
+                        , bookmark: Bookmark.findByOrganism(organism)
                 ).save(insert: true)
             }
             else{
@@ -349,26 +388,42 @@ class PermissionService {
     }
 
     Organism getOrganismFromPreferences(User user, String trackName) {
-        Organism organism
+        Organism organism = null
 
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
         if(user!=null) {
-
-
             if (!userOrganismPreference) {
                 userOrganismPreference = UserOrganismPreference.findByUser(user)
             }
 
             if (!userOrganismPreference) {
                 // find a random organism based on sequence
-                Sequence sequence = Sequence.findByName(trackName)
-                organism  = sequence.organism
+
+                List<String> sequenceStrings = []
+                if(BookmarkService.isProjectionString(trackName)){
+                    sequenceStrings = extractSequenceNamesFromJson(new JSONObject(trackName))
+                }
+                else{
+                    sequenceStrings << trackName
+                }
+                List<Sequence> sequenceList = Sequence.findAllByNameInList(sequenceStrings)
+
+                // TODO: assume that these are ordered correctly .  . a bad assumption
+                organism  = sequenceList.first().organism
+
+                Bookmark bookmark = new Bookmark(
+                        organism: organism
+                        ,sequenceList: sequenceStrings
+                        ,user: user
+                        ,start: 0
+                        ,end: sequenceList.last().end
+                ).save(flush: true, insert:true,failOnError: true)
 
                 userOrganismPreference = new UserOrganismPreference(
                         user: user
                         , organism: organism
                         , currentOrganism: true
-                        , sequence: sequence
+                        , bookmark: bookmark
                 ).save(insert: true)
             }
 
@@ -385,23 +440,36 @@ class PermissionService {
      * @param requiredPermissionEnum
      * @return
      */
-    Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
+    Bookmark checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
-        String trackName = getSequenceNameFromInput(inputObject)
+        println "input object ${inputObject as JSON}"
+        List<String> sequenceStrings = extractSequenceNamesFromJson(inputObject)
+        if(!sequenceStrings){
+            throw new RuntimeException("Unable to process sequences: "+sequenceStrings)
+        }
 
         // this is for testing only
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            Sequence sequence = trackName ? Sequence.findByName(trackName) : null
-            return sequence
-        }
+//        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
+//            List<Sequence> sequenceObjects = []
+//            sequenceStrings.each { it
+//                Sequence sequence = sequenceStrings ? Sequence.findByName(it) : null
+//                if(sequence==null){
+//                    throw new RuntimeException("Unable to find sequence for ${it}")
+//                }
+//                sequenceObjects << sequence
+//            }
+//            return bookmarkService.generateBookmarkForSequence(sequenceObjects as Sequence[])
+//        }
 
         User user = getCurrentUser(inputObject)
         organism = getOrganismFromInput(inputObject)
-        if(!organism) organism = getOrganismFromPreferences(user,trackName)
+        if(!organism) {
+            organism = getOrganismFromPreferences(user,sequenceStrings.first())
+        }
 
-
-        Sequence sequence = Sequence.findByNameAndOrganism(trackName,organism)
+        List<Sequence> foundSequences = Sequence.findAllByNameInListAndOrganism(sequenceStrings,organism)
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
+
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
         if (highestValue.rank < requiredPermissionEnum.rank) {
@@ -411,7 +479,8 @@ class PermissionService {
             log.debug "permission display ${requiredPermissionEnum.display}"
             throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
-        return sequence
+//        return foundSequences
+        return bookmarkService.generateBookmarkForSequence(foundSequences as Sequence[])
     }
 
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {

@@ -4,11 +4,16 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
+
+import java.awt.print.Book
 
 @Transactional
 class PreferenceService {
 
     def permissionService
+    def bookmarkService
 
     Organism getCurrentOrganismForCurrentUser() {
         return permissionService.currentUser == null ? null : getCurrentOrganism(permissionService.currentUser);
@@ -32,7 +37,7 @@ class PreferenceService {
                     userOrganismPreference = new UserOrganismPreference(
                             user: user
                             , organism: organism
-                            , sequence: Sequence.findByOrganism(organism)
+                            , bookmark: Bookmark.findByOrganism(organism)
                             , currentOrganism: true
                     ).save()
                 } else {
@@ -57,7 +62,7 @@ class PreferenceService {
      * @param user
      * @return
      */
-    Sequence getCurrentSequence(User user) {
+    String getCurrentSequence(User user) {
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByCurrentOrganismAndUser(true, user)
         if (!userOrganismPreference) {
             userOrganismPreference = UserOrganismPreference.findByUser(user)
@@ -69,7 +74,7 @@ class PreferenceService {
                     userOrganismPreference = new UserOrganismPreference(
                             user: user
                             , organism: organism
-                            , sequence: Sequence.findByOrganism(organism)
+                            , bookmark: Bookmark.findByOrganism(organism)
                             , currentOrganism: true
                     ).save()
                 } else {
@@ -80,8 +85,10 @@ class PreferenceService {
             userOrganismPreference.currentOrganism = true
             userOrganismPreference.save(flush: true)
         }
+        Bookmark bookmark = userOrganismPreference.bookmark
+        String sequenceList = bookmark.sequenceList
 
-        return userOrganismPreference.sequence
+        return sequenceList
     }
 
     def setCurrentOrganism(User user, Organism organism) {
@@ -91,7 +98,7 @@ class PreferenceService {
                     user: user
                     , organism: organism
                     , currentOrganism: true
-                    , sequence: Sequence.findByOrganism(organism)
+                    , bookmark: Bookmark.findByOrganism(organism)
             ).save(flush: true)
             setOtherCurrentOrganismsFalse(userOrganismPreference, user)
         } else if (!userOrganismPreference.currentOrganism) {
@@ -111,18 +118,20 @@ class PreferenceService {
     def setCurrentSequence(User user, Sequence sequence) {
         Organism organism = sequence.organism
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
                     , currentOrganism: true
-                    , sequence: sequence
+                    , bookmark: bookmark
             ).save(flush: true)
             setOtherCurrentOrganismsFalse(userOrganismPreference, user)
-        } else
+        }
+        else
         if(!userOrganismPreference.currentOrganism) {
             userOrganismPreference.currentOrganism = true;
-            userOrganismPreference.sequence = sequence
+            userOrganismPreference.bookmark = bookmark
             userOrganismPreference.save()
             setOtherCurrentOrganismsFalse(userOrganismPreference, user)
         }
@@ -138,19 +147,24 @@ class PreferenceService {
             throw new AnnotationException("Organism preference is not set for user")
         }
 
-        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
-        if (!sequence) {
-            throw new AnnotationException("Sequence name is invalid ${sequenceName}")
-        }
+        println "sequenceName ${sequenceName}"
+        Bookmark bookmark = bookmarkService.convertStringToBookmark(sequenceName,userOrganismPreference.organism)
 
-        log.debug "version ${userOrganismPreference.version} for ${userOrganismPreference.organism.commonName} ${userOrganismPreference.currentOrganism}"
+//        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
+//        if (!sequence) {
+//            throw new AnnotationException("Sequence name is invalid ${sequenceName}")
+//        }
+//
+//        log.debug "version ${userOrganismPreference.version} for ${userOrganismPreference.organism.commonName} ${userOrganismPreference.currentOrganism}"
+//
+//        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
 
         userOrganismPreference.refresh()
 
         userOrganismPreference.currentOrganism = true
-        userOrganismPreference.sequence = sequence
+        userOrganismPreference.bookmark = bookmark
         userOrganismPreference.setStartbp(startBp ?: 0)
-        userOrganismPreference.setEndbp(endBp ?: sequence.end)
+        userOrganismPreference.setEndbp(endBp ?: bookmark.end)
         userOrganismPreference.save()
     }
 

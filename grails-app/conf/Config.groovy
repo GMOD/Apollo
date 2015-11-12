@@ -176,6 +176,8 @@ log4j.main = {
     //debug 'grails.app.services.org.bbop.apollo.FeatureService'
     info 'grails.app.controllers.org.bbop.apollo.GroupController'
     info 'grails.app.controllers.org.bbop.apollo.UserController'
+//    debug 'grails.app.services.org.bbop.apollo.FeatureService'
+//    debug 'grails.app.services.org.bbop.apollo.ProjectionService'
     //info 'grails.app.services'
     //debug 'grails.app.jobs'
     //debug 'grails.app.taglib'
@@ -293,6 +295,10 @@ apollo {
         //['name':'GenSas2','link':'http://localhost/gensas2']
     ]
 
+    doProjection = false
+    useMultiSequence = false
+//    useMultiSequence = true
+
     // comment out if you don't want this to be reported
     google_analytics = "UA-62921593-1"
 
@@ -317,5 +323,5 @@ auditLog {
     disabled = true
     //verbose = true // verbosely log all changed values to db
     logIds = true  // log db-ids of associated objects.
-
 }
+

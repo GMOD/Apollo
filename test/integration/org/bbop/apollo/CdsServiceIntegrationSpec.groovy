@@ -2,33 +2,25 @@ package org.bbop.apollo
 
 import grails.test.spock.IntegrationSpec
 import grails.converters.JSON
+import org.apache.shiro.SecurityUtils
+import org.apache.shiro.authc.UsernamePasswordToken
+import org.apache.shiro.crypto.hash.Sha256Hash
+import org.apache.shiro.session.Session
+import org.apache.shiro.subject.Subject
+import org.apache.shiro.util.ThreadContext
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.lang.Ignore
 
-class CdsServiceIntegrationSpec extends IntegrationSpec {
+class CdsServiceIntegrationSpec extends AbstractIntegrationSpec{
     
-    def cdsService
     def sequenceService
     def requestHandlingService
     def transcriptService
-    def featureService
-    
+
     def setup() {
-        Organism organism = new Organism(
-                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-                ,commonName: "sampleAnimal"
-        ).save(flush: true)
-        
-        Sequence sequence = new Sequence(
-                length: 1405242
-                ,seqChunkSize: 20000
-                ,start: 0
-                ,end: 1405242
-                ,organism: organism
-                ,name: "Group1.10"
-        ).save()
+        setupDefaultUserOrg()
     }
 
     def cleanup() {

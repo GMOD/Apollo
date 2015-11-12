@@ -11,16 +11,14 @@ import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.json.client.*;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -29,17 +27,21 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.*;
+import org.bbop.apollo.gwt.client.dto.bookmark.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.WebApolloSimplePager;
+import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
-import org.gwtbootstrap3.client.ui.Container;
+import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -48,7 +50,7 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import java.util.*;
 
 /**
- * Created by ndunn on 12/17/14.
+ * Created by Nathan Dunn on 12/17/14.
  */
 public class AnnotatorPanel extends Composite {
 
@@ -94,11 +96,14 @@ public class AnnotatorPanel extends Composite {
     SplitLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
+    @UiField
+    static Button addNewBookmark;
 
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private static AsyncDataProvider<AnnotationInfo> dataProvider;
+    private static AnnotationInfo currentAnnotationInfo = null;
     //    private static List<AnnotationInfo> annotationInfoList = new ArrayList<>();
     //    private static List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     private final Set<String> showingTranscripts = new HashSet<String>();
@@ -157,7 +162,7 @@ public class AnnotatorPanel extends Composite {
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
                 Column<AnnotationInfo, ?> sortColumn = (Column<AnnotationInfo, ?>) sortList.get(0).getColumn();
                 Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
-                String searchColumnString = null ;
+                String searchColumnString = null;
                 switch (columnIndex) {
                     case 0:
                         searchColumnString = "name";
@@ -182,12 +187,14 @@ public class AnnotatorPanel extends Composite {
                     public void onResponseReceived(Request request, Response response) {
                         JSONValue returnValue = null;
                         try {
+//                            Window.alert(response.getText());
                             returnValue = JSONParser.parseStrict(response.getText());
                         } catch (Exception e) {
                             Bootbox.alert(e.getMessage());
+                            return ;
                         }
                         JSONValue localRequestObject = returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue());
-                        if(localRequestObject!=null) {
+                        if (localRequestObject != null) {
                             long localRequestValue = (long) localRequestObject.isNumber().doubleValue();
                             if (localRequestValue <= requestIndex) {
                                 return;
@@ -320,6 +327,60 @@ public class AnnotatorPanel extends Composite {
     }
 
 
+    @UiHandler("addNewBookmark")
+    void addNewBookmark(ClickEvent clickEvent) {
+        BookmarkInfo bookmarkInfo = new BookmarkInfo();
+        BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
+//        JSONArray sequenceArray = new JSONArray();
+        String name = "";
+
+        bookmarkInfo.setPadding(50);
+        bookmarkInfo.setType("Exon");
+//        JSONObject sequenceObject = new JSONObject();
+        SequenceFeatureInfo sequenceObject = new SequenceFeatureInfo();
+        sequenceObject.setName(currentAnnotationInfo.getSequence());
+//        sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(currentAnnotationInfo.getSequence()));
+        SequenceFeatureList featuresArray = new SequenceFeatureList();
+//        JSONArray featuresArray = new JSONArray();
+        SequenceFeatureInfo featuresObject = new SequenceFeatureInfo() ;
+//        JSONObject featuresObject = new JSONObject();
+        featuresObject.setName(currentAnnotationInfo.getName());
+//        featuresObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(currentAnnotationInfo.getName()));
+
+        featuresArray.addFeature(featuresObject);
+//        featuresArray.set(featuresArray.size(),featuresObject);
+//        sequenceObject.put(FeatureStringEnum.FEATURES.getValue(),featuresArray);
+        sequenceObject.setFeatures(featuresArray);
+        sequenceArray.set(sequenceArray.size(), sequenceObject);
+
+//        for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
+//            bookmarkInfo.setPadding(50);
+//            bookmarkInfo.setType("Exon");
+//            JSONObject sequenceObject =new JSONObject();
+//            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getName()));
+//            sequenceArray.set(sequenceArray.size(),sequenceObject);
+//            name += sequenceInfo.getName()+",";
+//        }
+//        name = name.substring(0, name.length() - 1);
+        bookmarkInfo.setSequenceList(sequenceArray);
+
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                new InfoDialog("Added Bookmark", "Added bookmark for " + currentAnnotationInfo.getName(), true);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error adding bookmark: "+exception);
+            }
+        };
+
+        MainPanel.getInstance().addBookmark(requestCallback,bookmarkInfo);
+    }
+
+
     private void initializeUsers() {
         userField.clear();
         userField.addItem("All Users", "");
@@ -361,6 +422,10 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
+        currentAnnotationInfo = annotationInfo;
+        addNewBookmark.setEnabled(currentAnnotationInfo != null);
+        if (currentAnnotationInfo == null) return;
+
         String type = annotationInfo.getType();
         GWT.log("annotation type: " + type);
         geneDetailPanel.setVisible(false);
@@ -533,6 +598,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload() {
+        updateAnnotationInfo(null);
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 

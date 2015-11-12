@@ -6,7 +6,7 @@ class UserOrganismPreference extends UserPreference{
         organism nullable: false
         currentOrganism nullable: false
         nativeTrackList nullable: true
-        sequence nullable: true, blank: false
+        bookmark nullable: true, blank: false
         startbp nullable: true, blank: false
         endbp nullable: true, blank: false
     }
@@ -14,7 +14,8 @@ class UserOrganismPreference extends UserPreference{
     Organism organism
     Boolean currentOrganism
     Boolean nativeTrackList
-    Sequence sequence
+    Bookmark bookmark
+//    Sequence sequence
     Integer startbp
     Integer endbp
 

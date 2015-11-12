@@ -152,6 +152,10 @@
                             <apollo:SequencePanel ui:field="sequencePanel"/>
                         </gwt:tab>
                         <gwt:tab>
+                            <gwt:header>Bookmark</gwt:header>
+                            <apollo:BookmarkPanel ui:field="bookmarkPanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
                             <gwt:header>Organism</gwt:header>
                             <apollo:OrganismPanel ui:field="organismPanel"/>
                         </gwt:tab>

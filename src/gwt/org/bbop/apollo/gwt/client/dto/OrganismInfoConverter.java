@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by ndunn on 3/31/15.
+ * Created by Nathan Dunn on 3/31/15.
  */
 public class OrganismInfoConverter {
 

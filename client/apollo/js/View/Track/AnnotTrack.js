@@ -326,9 +326,9 @@ define([
                         client.connect({}, function () {
                             // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
                             var organism = JSON.parse(window.parent.getCurrentOrganism());
-                            var sequence = JSON.parse(window.parent.getCurrentSequence());
+                            var bookmark = JSON.parse(window.parent.getCurrentBookmark());
                             var user = JSON.parse(window.parent.getCurrentUser());
-                            client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
+                            client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + bookmark.id, dojo.hitch(track, 'annotationNotification'));
                             client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
                         });
                         console.log('connection established');
