@@ -550,4 +550,8 @@ class TrackService {
         return firstNcListArray
 
     }
+
+    JSONArray loadChunkArray(String refererLoc, Organism organism, String fileName) {
+
+    }
 }

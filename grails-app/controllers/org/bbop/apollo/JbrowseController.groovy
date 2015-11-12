@@ -186,14 +186,12 @@ class JbrowseController {
 
         String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
         println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
-//        String putativeTrackPathName = getTrackPathName(dataFileName)
 //        /opt/apollo/honeybee/data//tracks/Official Gene Set v3.2/{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}/trackData.json
         if (putativeSequencePathName.contains("projection")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
                 List<String> sequenceStrings = new ArrayList<>()
-//                "sequences":[{"n
                 for (int i = 0; i < sequenceArray.size(); i++) {
                     JSONObject sequenceObject = sequenceArray.getJSONObject(i)
                     sequenceStrings.add(sequenceObject.name)
@@ -202,9 +200,7 @@ class JbrowseController {
 
                 if (fileName.endsWith("trackData.json")) {
                     List<JSONObject> trackObjectList = new ArrayList<>()
-//                    List<String> projectionChunkList = new ArrayList<>()
                     ProjectionChunkList projectionChunkList = new ProjectionChunkList()
-//                    Map<String,Integer> chunkOffsets = new HashMap<>()
 
                     // can probably store the projection chunks
                     Integer priorSequenceLength = 0
@@ -213,7 +209,6 @@ class JbrowseController {
                         ProjectionChunk projectionChunk = new ProjectionChunk(
                                 sequence: sequence
                         )
-                        boolean sequenceHasChunks = false
                         String sequencePathName = trackService.generateTrackNameForSequence(dataFileName, sequence)
                         // this loads PROJECTED
                         JSONObject trackObject = trackService.loadTrackData(sequencePathName, refererLoc, currentOrganism)
@@ -223,17 +218,12 @@ class JbrowseController {
                         for (int i = 0; i < ncListArray.size(); i++) {
                             JSONArray internalArray = ncListArray.getJSONArray(i)
                             if(internalArray.getInt(0)==4){
-//                                projectionChunkList.add(sequence)
                                 projectionChunk.addChunk()
                                 lastLength = internalArray.getInt(2)
-                                sequenceHasChunks = true
                             }
                             ++lastChunkArrayOffset
                         }
 
-//                        if(!sequenceHasChunks){
-//                            projectionChunkList << projectionChunk
-//                        }
                         projectionChunk.chunkArrayOffset = priorChunkArrayOffset
                         projectionChunk.sequenceOffset = priorSequenceLength
 
@@ -264,34 +254,28 @@ class JbrowseController {
                     List<Integer> sequenceLengths = []
 
                     MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
-//                    List<String> projectionSequences = multiSequenceProjection.chunks
 
-//                    Integer chunkIndex = getChunkIndex(fileName)-1
                     Integer chunkIndex = getChunkIndex(fileName)
                     ProjectionChunk projectionChunk=  multiSequenceProjection.projectionChunkList.findProjectChunkForIndex(chunkIndex)
-//                    String sequenceString = projectionSequences.get(chunkIndex)
                     String sequenceString = projectionChunk.sequence
-//                    Integer chunkOffset = multiSequenceProjection.chunkOffsets.get(sequenceString)
                     Integer sequenceOffset = projectionChunk.sequenceOffset
-//                    Integer chunkOffset = multiSequenceProjection.chunkOffsets.get(sequenceString)
                     // calculate offset for chunk and replace the filename
                     // should be the start of the string
-//                    String originalFileName = calculateOriginalChunkName(multiSequenceProjection.projectionChunkList.projectionChunkList, sequenceString, chunkIndex)
                     String originalFileName = "lf-${chunkIndex-projectionChunk.chunkArrayOffset}.json"
                     dataFileName = dataFileName.replaceAll(fileName, originalFileName)
 
-//                    for (sequenceString in sequenceStrings) {
                     // next we want to load tracks from the REAL paths . .  .
-//                    String sequencePathName = dataFileName.replaceAll(putativeSequencePathName, sequence)
                     String sequencePathName = trackService.generateTrackNameForSequence(dataFileName, sequenceString)
                     // this loads PROJECTED
                     JSONArray coordinateArray = trackService.loadChunkData(sequencePathName, refererLoc, currentOrganism,sequenceOffset)
                     trackArrayList.add(coordinateArray)
                     Sequence sequence = Sequence.findByNameAndOrganism(sequenceString, currentOrganism)
                     sequenceLengths << sequence.end
-//                    }
 
                     JSONArray trackArray = trackService.mergeCoordinateArray(trackArrayList, sequenceLengths)
+
+//                    JSONArray trackArray = trackService.loadChunkArray(refererLoc,currentOrganism,fileName)
+
                     response.outputStream << trackArray.toString()
                     return
                 }
