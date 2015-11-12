@@ -614,10 +614,10 @@ class FeatureEventService {
                 Transcript transcript = Transcript.findByUniqueName(it)
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript))
             }
-            if (sequence) {
+            if (bookmark) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer
-                        , sequence: sequence
+                        , bookmark: bookmark
                         , operation: AnnotationEvent.Operation.UPDATE
                 )
                 requestHandlingService.fireAnnotationEvent(annotationEvent)
