@@ -29,7 +29,7 @@ class RefSeqProjector implements TrackProjector{
                 projectedArray = mergeRefseqProjections(projectedArray,sequenceValue)
             }
             else{
-                println "projeciton does not contain sequence ${sequenceName}"
+                log.debug "projeciton does not contain sequence ${sequenceName}"
             }
         }
 

@@ -161,16 +161,6 @@ class JbrowseController {
         return refererLoc
     }
 
-    /**
-     * Get chunk index for files of the pattern: lf-${X}.json
-     * @param fileName
-     * @return
-     */
-    private Integer getChunkIndex(String fileName) {
-        String finalString = fileName.substring(3, fileName.length() - 5)
-//        println finalString
-        return Integer.parseInt(finalString)
-    }
 
     /**
      * Handles data directory serving for jbrowse
@@ -189,6 +179,7 @@ class JbrowseController {
 //        /opt/apollo/honeybee/data//tracks/Official Gene Set v3.2/{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}/trackData.json
         if (putativeSequencePathName.contains("projection")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
+
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
                 List<String> sequenceStrings = new ArrayList<>()
@@ -197,85 +188,14 @@ class JbrowseController {
                     sequenceStrings.add(sequenceObject.name)
                 }
 
-
                 if (fileName.endsWith("trackData.json")) {
-                    List<JSONObject> trackObjectList = new ArrayList<>()
-                    ProjectionChunkList projectionChunkList = new ProjectionChunkList()
-
-                    // can probably store the projection chunks
-                    Integer priorSequenceLength = 0
-                    Integer priorChunkArrayOffset = 0
-                    for (sequence in sequenceStrings) {
-                        ProjectionChunk projectionChunk = new ProjectionChunk(
-                                sequence: sequence
-                        )
-                        String sequencePathName = trackService.generateTrackNameForSequence(dataFileName, sequence)
-                        // this loads PROJECTED
-                        JSONObject trackObject = trackService.loadTrackData(sequencePathName, refererLoc, currentOrganism)
-                        JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
-                        Integer lastLength = 0
-                        Integer lastChunkArrayOffset = 0
-                        for (int i = 0; i < ncListArray.size(); i++) {
-                            JSONArray internalArray = ncListArray.getJSONArray(i)
-                            if(internalArray.getInt(0)==4){
-                                projectionChunk.addChunk()
-                                lastLength = internalArray.getInt(2)
-                            }
-                            ++lastChunkArrayOffset
-                        }
-
-                        projectionChunk.chunkArrayOffset = priorChunkArrayOffset
-                        projectionChunk.sequenceOffset = priorSequenceLength
-
-                        priorSequenceLength = priorSequenceLength + lastLength
-                        priorChunkArrayOffset = priorChunkArrayOffset + lastChunkArrayOffset
-
-                        projectionChunkList.addChunk(projectionChunk)
-
-                        trackObjectList.add(trackObject)
-                    }
-
-
-
-                    MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
-                    multiSequenceProjection.projectionChunkList = projectionChunkList
-                    projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
-
-                    JSONObject trackObject = trackService.mergeTrackObject(trackObjectList)
-
-                    trackObject.intervals.minStart = multiSequenceProjection.projectValue(trackObject.intervals.minStart)
-                    trackObject.intervals.maxEnd = multiSequenceProjection.projectValue(trackObject.intervals.maxEnd)
-
+                    JSONObject trackObject = trackService.projectTrackData(sequenceStrings,dataFileName,refererLoc,currentOrganism)
                     response.outputStream << trackObject.toString()
                     return
                 }
+                else
                 if (fileName.startsWith("lf-")) {
-                    List<JSONArray> trackArrayList = new ArrayList<>()
-                    List<Integer> sequenceLengths = []
-
-                    MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
-
-                    Integer chunkIndex = getChunkIndex(fileName)
-                    ProjectionChunk projectionChunk=  multiSequenceProjection.projectionChunkList.findProjectChunkForIndex(chunkIndex)
-                    String sequenceString = projectionChunk.sequence
-                    Integer sequenceOffset = projectionChunk.sequenceOffset
-                    // calculate offset for chunk and replace the filename
-                    // should be the start of the string
-                    String originalFileName = "lf-${chunkIndex-projectionChunk.chunkArrayOffset}.json"
-                    dataFileName = dataFileName.replaceAll(fileName, originalFileName)
-
-                    // next we want to load tracks from the REAL paths . .  .
-                    String sequencePathName = trackService.generateTrackNameForSequence(dataFileName, sequenceString)
-                    // this loads PROJECTED
-                    JSONArray coordinateArray = trackService.loadChunkData(sequencePathName, refererLoc, currentOrganism,sequenceOffset)
-                    trackArrayList.add(coordinateArray)
-                    Sequence sequence = Sequence.findByNameAndOrganism(sequenceString, currentOrganism)
-                    sequenceLengths << sequence.end
-
-                    JSONArray trackArray = trackService.mergeCoordinateArray(trackArrayList, sequenceLengths)
-
-//                    JSONArray trackArray = trackService.loadChunkArray(refererLoc,currentOrganism,fileName)
-
+                    JSONArray trackArray = trackService.projectTrackChunk(fileName,dataFileName,refererLoc,currentOrganism)
                     response.outputStream << trackArray.toString()
                     return
                 }

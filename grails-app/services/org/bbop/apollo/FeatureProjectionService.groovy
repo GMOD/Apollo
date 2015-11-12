@@ -31,31 +31,6 @@ class FeatureProjectionService {
             println "no conversion?? "
         }
         return inputFeaturesArray
-
-//        JSONArray projectedArray = new JSONArray()
-//
-//        for (int i = 0; i < refSeqJsonObject.size(); i++) {
-//
-//            JSONObject sequenceValue = refSeqJsonObject.getJSONObject(i)
-//
-//            String sequenceName = sequenceValue.getString("name")
-//            if (projection && projection.containsSequence(sequenceName, sequenceValue.id, currentOrganism)) {
-//
-////                log.debug "input sequence ${sequenceValue as JSON}"
-//                Integer projectedSequenceLength = projection.findProjectSequenceLength(sequenceName)
-//                sequenceValue.put("length", projectedSequenceLength)
-//                sequenceValue.put("end", projectedSequenceLength)
-//                sequenceValue.put("name", refererLoc)
-//                projectedArray = mergeRefseqProjections(projectedArray,sequenceValue)
-//            }
-//        }
-//
-//        if (projection) {
-//            return projectedArray.toString()
-//        } else {
-//            return refSeqJsonObject.toString()
-//        }
-//        return
     }
 
 

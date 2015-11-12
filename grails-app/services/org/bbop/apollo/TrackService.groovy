@@ -6,6 +6,8 @@ import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionChunk
+import org.bbop.apollo.projection.ProjectionChunkList
 import org.bbop.apollo.projection.ProjectionInterface
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -553,5 +555,94 @@ class TrackService {
 
     JSONArray loadChunkArray(String refererLoc, Organism organism, String fileName) {
 
+    }
+
+    JSONObject projectTrackData(ArrayList<String> sequenceStrings, String dataFileName, String refererLoc, Organism currentOrganism) {
+        List<JSONObject> trackObjectList = new ArrayList<>()
+        ProjectionChunkList projectionChunkList = new ProjectionChunkList()
+
+        // can probably store the projection chunks
+        Integer priorSequenceLength = 0
+        Integer priorChunkArrayOffset = 0
+        for (sequence in sequenceStrings) {
+            ProjectionChunk projectionChunk = new ProjectionChunk(
+                    sequence: sequence
+            )
+            String sequencePathName = generateTrackNameForSequence(dataFileName, sequence)
+            // this loads PROJECTED
+            JSONObject trackObject = loadTrackData(sequencePathName, refererLoc, currentOrganism)
+            JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+            Integer lastLength = 0
+            Integer lastChunkArrayOffset = 0
+            for (int i = 0; i < ncListArray.size(); i++) {
+                JSONArray internalArray = ncListArray.getJSONArray(i)
+                if(internalArray.getInt(0)==4){
+                    projectionChunk.addChunk()
+                    lastLength = internalArray.getInt(2)
+                }
+                ++lastChunkArrayOffset
+            }
+
+            projectionChunk.chunkArrayOffset = priorChunkArrayOffset
+            projectionChunk.sequenceOffset = priorSequenceLength
+
+            priorSequenceLength = priorSequenceLength + lastLength
+            priorChunkArrayOffset = priorChunkArrayOffset + lastChunkArrayOffset
+
+            projectionChunkList.addChunk(projectionChunk)
+
+            trackObjectList.add(trackObject)
+        }
+
+
+
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
+        multiSequenceProjection.projectionChunkList = projectionChunkList
+        projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
+
+        JSONObject trackObject = mergeTrackObject(trackObjectList)
+
+        trackObject.intervals.minStart = multiSequenceProjection.projectValue(trackObject.intervals.minStart)
+        trackObject.intervals.maxEnd = multiSequenceProjection.projectValue(trackObject.intervals.maxEnd)
+
+        return trackObject
+
+    }
+
+    /**
+     * Get chunk index for files of the pattern: lf-${X}.json
+     * @param fileName
+     * @return
+     */
+    private Integer getChunkIndex(String fileName) {
+        String finalString = fileName.substring(3, fileName.length() - 5)
+        return Integer.parseInt(finalString)
+    }
+
+    JSONArray projectTrackChunk(String fileName, String dataFileName, String refererLoc, Organism currentOrganism) {
+        List<JSONArray> trackArrayList = new ArrayList<>()
+        List<Integer> sequenceLengths = []
+
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
+
+        Integer chunkIndex = getChunkIndex(fileName)
+        ProjectionChunk projectionChunk=  multiSequenceProjection.projectionChunkList.findProjectChunkForIndex(chunkIndex)
+        String sequenceString = projectionChunk.sequence
+        Integer sequenceOffset = projectionChunk.sequenceOffset
+        // calculate offset for chunk and replace the filename
+        // should be the start of the string
+        String originalFileName = "lf-${chunkIndex-projectionChunk.chunkArrayOffset}.json"
+        dataFileName = dataFileName.replaceAll(fileName, originalFileName)
+
+        // next we want to load tracks from the REAL paths . .  .
+        String sequencePathName = generateTrackNameForSequence(dataFileName, sequenceString)
+        // this loads PROJECTED
+        JSONArray coordinateArray = loadChunkData(sequencePathName, refererLoc, currentOrganism,sequenceOffset)
+        trackArrayList.add(coordinateArray)
+        Sequence sequence = Sequence.findByNameAndOrganism(sequenceString, currentOrganism)
+        sequenceLengths << sequence.end
+
+        JSONArray trackArray = mergeCoordinateArray(trackArrayList, sequenceLengths)
+        return trackArray
     }
 }
