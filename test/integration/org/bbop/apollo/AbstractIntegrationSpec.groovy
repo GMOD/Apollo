@@ -39,7 +39,7 @@ class AbstractIntegrationSpec extends IntegrationSpec{
         Organism organism = new Organism(
                 directory: "test/integration/resources/sequences/honeybee-Group1.10/"
                 ,commonName: "sampleAnimal"
-        ).save(flush: true)
+        ).save(failOnError: true)
 
         Sequence sequence = new Sequence(
                 length: 1405242
@@ -48,7 +48,10 @@ class AbstractIntegrationSpec extends IntegrationSpec{
                 ,end: 1405242
                 ,organism: organism
                 ,name: "Group1.10"
-        ).save()
+        ).save(failOnError: true)
+
+        organism.addToSequences(sequence)
+        organism.save(flush: true, failOnError: true)
     }
 
 }
