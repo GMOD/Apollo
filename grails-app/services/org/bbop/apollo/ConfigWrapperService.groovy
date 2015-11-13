@@ -25,11 +25,6 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.get_translation_code
     }
 
-    Overlapper getOverlapper(){
-        (Overlapper) Class.forName(grailsApplication.config.apollo.overlapper_class).newInstance();
-    }
-
-
     Boolean hasDbxrefs(){
         return grailsApplication.config.apollo.feature_has_dbxrefs
     }

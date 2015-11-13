@@ -14,24 +14,12 @@ class OverlapperService implements Overlapper{
 
     @Override
     boolean overlaps(Transcript transcript, Gene gene) {
-        //log.debug("overlaps(Transcript transcript, Gene gene) ")
-        String overlapperName = configWrapperService.overlapper.class.name
-        if(overlapperName.contains("Orf")){
-            return overlapsOrf(transcript,gene)
-        }
-        throw new AnnotationException("Only ORF overlapper supported right now")
+        return overlapsOrf(transcript,gene)
     }
 
     @Override
     boolean overlaps(Transcript transcript1, Transcript transcript2) {
-        //log.debug("overlaps(Transcript transcript1, Transcript transcript2) ")
-        String overlapperName = configWrapperService.overlapper.class.name
-
-        
-        if(overlapperName.contains("Orf")){
-            return overlapsOrf(transcript1,transcript2)
-        }
-        throw new AnnotationException("Only ORF overlapper supported right now")
+        return overlapsOrf(transcript1,transcript2)
     }
 
 
