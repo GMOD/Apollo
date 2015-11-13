@@ -43,8 +43,8 @@ class ProjectionSequence implements Comparable<ProjectionSequence>{
     @Override
     int compareTo(ProjectionSequence o) {
 //        id <=> o.id
-        name <=> o.name
-//        order <=> o.order
+//        name <=> o.name
+        order <=> o.order
 //        organism <=> o.organism
     }
 }

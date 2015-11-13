@@ -33,14 +33,19 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     ProjectionSequence getProjectionSequence(Integer input) {
 
         Integer offset = 0
+        // should deliver these in order
         for (projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
             DiscontinuousProjection projection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
-            for (coordinate in projection.minMap.values()) {
-                if (input >= coordinate.min + offset && input <= coordinate.max + offset) {
-                    return projectionSequence
-                }
+            if(input >= offset && input <= projection.originalLength + offset){
+                return projectionSequence
             }
-            offset += projection.minMap.values().last().max
+            offset += projection.originalLength
+//            for (coordinate in projection.minMap.values()) {
+//                if (input >= coordinate.min + offset && input <= coordinate.max + offset) {
+//                    return projectionSequence
+//                }
+//            }
+//            offset += projection.minMap.values().last().max
         }
         return null
     }
@@ -141,6 +146,7 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     ProjectionSequence getProjectionSequence(Location location) {
 //        if (sequenceDiscontinuousProjectionMap.containsKey(location.sequence)) {
         // should be a pretty limited set
+        if(!location) return null
         for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
             if (projectionSequence.equals(location.sequence)) {
                 return projectionSequence
