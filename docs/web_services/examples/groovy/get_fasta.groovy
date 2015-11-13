@@ -20,6 +20,7 @@ cli.username('username', required: false, args: 1)
 cli.password('password', required: false, args: 1)
 cli.password('url', required: false, args: 1)
 cli.seqtype('seqtype', required: true, args: 1)
+cli.output('output file', required: false, args: 1)
 cli.organism('organism', required: false, args: 1)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)
 OptionAccessor options
@@ -34,11 +35,21 @@ try {
     }
 
     def cons = System.console()
-    if (!(admin_username=options?.username)) {
-        admin_username = new String(cons.readPassword('Enter admin username: ') )
+    if(cons) {
+        if (!(admin_username=options?.username)) {
+            admin_username = new String(cons.readPassword('Username: ') )
+        }
+        if (!(admin_password=options?.password)) {
+            admin_password = new String(cons.readPassword('Password: ') )
+        }
     }
-    if (!(admin_password=options?.password)) {
-        admin_password = new String(cons.readPassword('Enter admin password: ') )
+    else if(!options.username||!options.password){
+        System.err.println("Error: missing -username and -password and can't read them when using redirect");
+        if(!options.output) throw "Require output file"  
+    }
+    else {
+        admin_username=options.username
+        admin_password=options.password
     }
 } catch (e) {
     println(e)
@@ -46,20 +57,43 @@ try {
 }
 
 // just get data
-println "fetching url: "+options.url
 def client = new RESTClient(options.url,'text/plain')
 if (options.ignoressl) { client.ignoreSSLIssues() }
-def response = client.post(path:options.url+'/IOService/write',body: [username: admin_username, password: admin_password, format: 'plain',seqType: options.seqtype, type: 'FASTA',exportSequence: false,exportAllSequences: true,organism: options.organism, output:'text'])
+def post = [
+    username: admin_username,
+    password: admin_password,
+    format: 'plain',
+    seqType: options.seqtype,
+    type: 'FASTA',
+    exportSequence: false,
+    exportAllSequences: true,
+    organism: options.organism,
+    output:'text'
+]
+def response = client.post(path:options.url+'/IOService/write',body: post)
 
 assert response.status == 200
-StringBuilder builder = new StringBuilder();
-int charsRead = -1;
-char[] chars = new char[100];
-charsRead = response.data.read(chars,0,chars.length);
-while(charsRead>0){
-    //if we have valid chars, append them to end of string.
-    builder.append(chars,0,charsRead);
-    charsRead = response.data.read(chars,0,chars.length);
+
+
+StringBuilder builder = new StringBuilder();                                                                        
+int charsRead = -1;                                                                                                 
+char[] chars = new char[100];                                                                                       
+charsRead = response.data.read(chars,0,chars.length);                                                               
+while(charsRead>0){                                                                                                 
+    //if we have valid chars, append them to end of string.                                                         
+    builder.append(chars,0,charsRead);                                                                              
+    charsRead = response.data.read(chars,0,chars.length);                                                           
+} 
+
+if(options.output) {
+    def file=new File(options.output)
+    def writer = new PrintWriter(file)
+    writer.println builder.toString();  
+    writer.close()
 }
-print builder.toString();
+else {
+    print builder.toString();
+}
+
+
 

@@ -18,27 +18,22 @@ Example:
 get_gff3.groovy -organism Amel_4.5 -username admin@webapollo.com \
     -password admin_password -url http://localhost:8080/apollo > my output.gff3
 ```
-This command outputs the gff3 to standard output and can be redirected.
+This command can accept an -output argument to output to file, or the stdout can be redirected.
 
-
-The -username and -password refer to the admin user, and they can also be specified via stdin instead of the command
-line if they are omitted.
+The -username and -password can be specified via the command line or if omitted, the user will be prompted.
 
 ### get_gff3.groovy
 
 Example:
 
 ``` 
-get_fasta.groovy -organism Amel_4.5 -seqtype cds/cdna/peptide -url http://localhost:8080/apollo > output.fa
+get_fasta.groovy -organism Amel_4.5 -username admin@webapollo.com \                                                      
+    -password admin_password -seqtype cds/cdna/peptide -url http://localhost:8080/apollo > output.fa
 ```
+This command can accept an -output argument to output to file, or the stdout can be redirected.   
 
-
-This command outputs the FASTA to standard output and can be redirected to an output file.
-
-
-There will be a prompt for user/pass, or the -username and -password can be specified via the command line (similar to
-`get_gff3.groovy`)
-
+The -username and -password can be specified via the command line (similar to `get_gff3.groovy`) or if omitted, the user
+will be prompted.
 
 ### add_users.groovy
 
