@@ -42,9 +42,13 @@ try {
             admin_password = new String(cons.readPassword('Password: ') )
         }
     }
-    else {
+    else if(!options?.username||!options?.password) {
         System.err.println("Error: missing -username and -password and can't read them when using redirect");
         if(!options.output) throw "Require output file"
+    }
+    else {
+        admin_password=options.password
+        admin_username=options.username
     }
 } catch (e) {
     println(e)
