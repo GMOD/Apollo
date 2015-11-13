@@ -56,10 +56,20 @@ try {
 }
 
 // just get data
-println "fetching url: "+options.url
 def client = new RESTClient(options.url,'text/plain')
 if (options.ignoressl) { client.ignoreSSLIssues() }
-def response = client.post(path:options.url+'/IOService/write',body: [username: admin_username, password: admin_password, format: 'plain', type: 'GFF3',exportSequence: false,exportAllSequences: true,organism: options.organism, output:'text'])
+
+def post=[
+    username: admin_username,
+    password: admin_password,
+    format: 'plain',
+    type: 'GFF3',
+    exportSequence: false,
+    exportAllSequences: true,
+    organism: options.organism,
+    output:'text'
+]
+def response = client.post(path:options.url+'/IOService/write',body: post)
 
 assert response.status == 200
 
