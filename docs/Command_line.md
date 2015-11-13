@@ -24,6 +24,21 @@ This command outputs the gff3 to standard output and can be redirected.
 The -username and -password refer to the admin user, and they can also be specified via stdin instead of the command
 line if they are omitted.
 
+### get_gff3.groovy
+
+Example:
+
+``` 
+get_fasta.groovy -organism Amel_4.5 -seqtype cds/cdna/peptide -url http://localhost:8080/apollo > output.fa
+```
+
+
+This command outputs the FASTA to standard output and can be redirected to an output file.
+
+
+There will be a prompt for user/pass, or the -username and -password can be specified via the command line (similar to
+`get_gff3.groovy`)
+
 
 ### add_users.groovy
 
