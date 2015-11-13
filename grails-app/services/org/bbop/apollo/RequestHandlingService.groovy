@@ -611,7 +611,6 @@ class RequestHandlingService {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
             jsonTranscript = permissionService.copyUserName(inputObject, jsonTranscript)
             Transcript transcript = featureService.generateTranscript(jsonTranscript, bookmark, suppressHistory)
-
             // should automatically write to history
             transcript.save(flush: true)
             transcriptList.add(transcript)
@@ -628,7 +627,10 @@ class RequestHandlingService {
             }
         }
 
-        JSONArray returnArray = featureProjectionService.projectTrack(featuresArray,bookmark,false)
+        // should this be a call with featuresArray or with the transcriptList converted to featuresArray
+        //JSONArray returnArray = featureProjectionService.projectTrack(featuresArray,bookmark,false)
+        JSONArray transcriptFeaturesArray = transcriptService.convertTranscriptsToJSON(transcriptList)
+        JSONArray returnArray = featureProjectionService.projectTrack(transcriptFeaturesArray, bookmark, false)
         returnObject.put(FeatureStringEnum.FEATURES.value, returnArray)
 
 
@@ -1501,7 +1503,8 @@ class RequestHandlingService {
 
 
         Exon splitExon = exonService.splitExon(exon, exonLocation.getInt(FeatureStringEnum.FMAX.value), exonLocation.getInt(FeatureStringEnum.FMIN.value))
-        featureService.updateNewGsolFeatureAttributes(splitExon, sequence)
+        //featureService.updateNewGsolFeatureAttributes(splitExon, sequence)
+        featureService.updateNewGsolFeatureAttributes(splitExon, bookmark)
         featureService.calculateCDS(transcript)
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
