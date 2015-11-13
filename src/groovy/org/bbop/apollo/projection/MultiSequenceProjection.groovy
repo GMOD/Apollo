@@ -17,7 +17,7 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     ProjectionChunkList projectionChunkList = new ProjectionChunkList()
 
     ProjectionSequence getReverseProjectionSequence(Integer input) {
-        for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
+        for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort(){ a,b -> a.order <=> b.order }) {
             if (input >= projectionSequence.offset && input <= projectionSequence.offset + sequenceDiscontinuousProjectionMap.get(projectionSequence).bufferedLength) {
                 return projectionSequence
             }
@@ -34,7 +34,7 @@ class MultiSequenceProjection extends DiscontinuousProjection {
 
         Integer offset = 0
         // should deliver these in order
-        for (projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
+        for (projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort(){ a,b -> a.order <=> b.order }) {
             DiscontinuousProjection projection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
             if(input >= offset && input <= projection.originalLength + offset){
                 return projectionSequence
@@ -53,7 +53,9 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     @Override
     Integer projectValue(Integer input) {
         ProjectionSequence projectionSequence = getProjectionSequence(input)
-        if (!projectionSequence) return -1
+        if (!projectionSequence) {
+            return -1
+        }
         return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectValue(input - projectionSequence.originalOffset)  \
           + projectionSequence.offset
     }
@@ -103,8 +105,8 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     }
 
     def addLocations(List<Location> locationList) {
-        locationList.each {
-            addLocation(it)
+        for(Location location in locationList){
+            addLocation(location)
         }
     }
 
@@ -116,18 +118,21 @@ class MultiSequenceProjection extends DiscontinuousProjection {
 // here we are adding a location to project
     def addLocation(Location location) {
         // if a single projection . . the default .. then assert that it is the same sequence / projection
-        ProjectionSequence projectionSequence = getProjectionSequence(location)
-        if (!projectionSequence) {
-            projectionSequence = location.sequence
-
-            Integer order = findSequenceOrder(projectionSequence)
-            projectionSequence.order = order
-
-            DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
+//        ProjectionSequence projectionSequence = getProjectionSequence(location)
+        DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(location.sequence)
+        if(discontinuousProjection){
             discontinuousProjection.addInterval(location.min, location.max, projectionDescription.padding)
-            sequenceDiscontinuousProjectionMap.put(projectionSequence, discontinuousProjection)
-        } else {
-            sequenceDiscontinuousProjectionMap.get(projectionSequence).addInterval(location.min, location.max, projectionDescription.padding)
+        }
+        else{
+//        if (!projectionSequence) {
+            ProjectionSequence internalProjectionSequence = location.sequence
+
+            Integer order = findSequenceOrder(internalProjectionSequence)
+            internalProjectionSequence.order = order
+
+            DiscontinuousProjection thisDiscontinuousProjection = new DiscontinuousProjection()
+            thisDiscontinuousProjection.addInterval(location.min, location.max, projectionDescription.padding)
+            sequenceDiscontinuousProjectionMap.put(internalProjectionSequence, thisDiscontinuousProjection)
         }
     }
 
@@ -135,7 +140,7 @@ class MultiSequenceProjection extends DiscontinuousProjection {
         List<ProjectionSequence> projectionSequenceList = projectionDescription.sequenceList
         int index = 0
         for (ProjectionSequence projectionSequence1 in projectionSequenceList) {
-            if (projectionSequence1.id == projectionSequence.id) {
+            if (projectionSequence1.name == projectionSequence.name) {
                 return index
             }
             ++index

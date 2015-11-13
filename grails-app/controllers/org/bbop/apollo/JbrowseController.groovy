@@ -548,20 +548,20 @@ class JbrowseController {
 //        projectionService.createTranscriptProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),50)
 
         // this comes from the
-        if (grailsApplication.config.apollo.doProjection) {
-            if (grailsApplication.config.apollo.useMultiSequence) {
-                ProjectionDescription projectionDescription = new ProjectionDescription()
-                projectionDescription.padding = 50
-//                projectionDescription.featureNames = ["ALL"]
-                projectionDescription.referenceTracks = ["Official Gene Set v3.2"]
-                // TODO: get the proper name from the UI
-                projectionDescription.projection = "EXON"
-                List<Location> locationList = projectionService.extractExonLocations(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), projectionDescription)
-                projectionService.createMultiSequenceProjection(projectionDescription, locationList)
-            } else {
-                projectionService.createExonLevelProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), 50)
-            }
-        }
+//        if (grailsApplication.config.apollo.doProjection) {
+//            if (grailsApplication.config.apollo.useMultiSequence) {
+//                ProjectionDescription projectionDescription = new ProjectionDescription()
+//                projectionDescription.padding = 50
+////                projectionDescription.featureNames = ["ALL"]
+//                projectionDescription.referenceTracks = ["Official Gene Set v3.2"]
+//                // TODO: get the proper name from the UI
+//                projectionDescription.projection = "EXON"
+//                List<Location> locationList = projectionService.extractExonLocations(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), projectionDescription)
+//                projectionService.createMultiSequenceProjection(projectionDescription, locationList)
+//            } else {
+//                projectionService.createExonLevelProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), 50)
+//            }
+//        }
 
         if (currentOrganism != null) {
             jsonObject.put("dataset_id", currentOrganism.id)
