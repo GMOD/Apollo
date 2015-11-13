@@ -239,8 +239,21 @@ public class BookmarkPanel extends Composite {
         genomicObject.put("projection",new JSONString(foldType.getSelectedValue()));
         genomicObject.put("referenceTrack",new JSONString(referenceTrack.getSelectedValue()));
         genomicObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(),newArray);
+        genomicObject.put("label",new JSONString(createLabelFromBookmark(genomicObject)));
 
         return genomicObject;
+    }
+
+    private String createLabelFromBookmark(JSONObject genomicObject) {
+        String returnString = "";
+        JSONArray sequenceArray = genomicObject.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray() ;
+        for(int i = 0 ; i < sequenceArray.size() ; i++){
+            returnString += sequenceArray.get(i).isObject().get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
+            if(i < sequenceArray.size()-1){
+                returnString += "::";
+            }
+        }
+        return returnString ;
     }
 
     /**
