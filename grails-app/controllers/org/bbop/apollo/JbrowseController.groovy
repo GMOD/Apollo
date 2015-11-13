@@ -7,7 +7,6 @@ import org.bbop.apollo.projection.DiscontinuousChunkProjector
 import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionChunk
-import org.bbop.apollo.projection.ProjectionChunkList
 import org.bbop.apollo.projection.ProjectionDescription
 import org.bbop.apollo.projection.ProjectionInterface
 import org.bbop.apollo.projection.RefSeqProjector

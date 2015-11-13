@@ -217,7 +217,7 @@ class MultiSequenceProjection extends DiscontinuousProjection {
         for (ProjectionSequence projectionSequence1 in sequenceDiscontinuousProjectionMap.keySet()) {
             if (projectionSequence1.name == sequenceName) {
                 DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence1)
-//                println "projected sequecne ${discontinuousProjection.projectSequence(sequenceName)}"
+//                println "projected sequence ${discontinuousProjection.projectSequence(sequenceName)}"
                 Integer calculatedLength = discontinuousProjection.projectValue(discontinuousProjection.originalLength)
                 println "calculated length ${calculatedLength} from ${discontinuousProjection.originalLength}"
                 return calculatedLength

@@ -447,23 +447,28 @@ class ProjectionService {
 
     JSONArray loadTrackJson(String referenceTrackName, Organism organism, ProjectionDescription projectionDescription) {
         Map<String, ProjectionSequence> sequenceNames = new HashMap<>()
+        List<String> orderedSequences = new ArrayList<>()
         projectionDescription.sequenceList.each {
             sequenceNames.put(it.name, it)
+            orderedSequences.add(it.name)
         }
+
         JSONArray returnArray = new JSONArray()
 
         String jbrowseDirectory = organism.directory + "/tracks/" + referenceTrackName
-        File trackDirectory = new File(jbrowseDirectory)
-        File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
-        for (File trackDataFile in files) {
+        for(String sequenceName in orderedSequences) {
+            String fileName = jbrowseDirectory + "/" + sequenceName + "/trackData.json"
+            File trackDataFile = new File(fileName)
             String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
+//            String sequenceFileName = trackDataFile.absolutePath.split("/").last()
             if (sequenceNames.containsKey(sequenceFileName)) {
                 JSONObject trackObject = new JSONObject(trackDataFile.text)
                 trackObject.directory = trackDataFile.parent
                 trackObject.sequenceName = sequenceNames.get(sequenceFileName) as JSON
-                returnArray.add(trackObject)
+                returnArray.add(returnArray.size(), trackObject)
             }
         }
+//        }
         return returnArray
     }
 
