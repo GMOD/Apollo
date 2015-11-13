@@ -63,11 +63,9 @@
 }
 
 .search_sequence_matches_row {
-}
-
-.search_sequence_matches_row-firefox {
 	display: table-row;
 }
+
 
 .search_sequence_message {
 	font-size: 1.6em;
