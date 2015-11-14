@@ -1,13 +1,12 @@
 #!/usr/bin/env groovy
 scriptDir = new File(getClass().protectionDomain.codeSource.location.path).parent
 
-import net.sf.json.JSONArray
-import net.sf.json.JSONObject
-import groovyx.net.http.RESTClient
-
-
 @Grab(group = 'org.json', module = 'json', version = '20140107')
 @Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7.2')
+
+
+import groovyx.net.http.HTTPBuilder
+
 
 String usageString = "get_gff3.groovy <options>" +
         "Example: \n" +
@@ -55,10 +54,11 @@ try {
     return
 }
 
-// just get data
-def client = new RESTClient(options.url,'text/plain')
-if (options.ignoressl) { client.ignoreSSLIssues() }
 
+def http = new HTTPBuilder(options.url)
+
+
+// just get data
 def post=[
     username: admin_username,
     password: admin_password,
@@ -69,27 +69,15 @@ def post=[
     organism: options.organism,
     output:'text'
 ]
-def response = client.post(path:options.url+'/IOService/write',body: post)
 
-assert response.status == 200
-
+http.get(path: options.url+'/IOService/write/',query: post) { resp, reader ->
+  println "response status: ${resp.statusLine}"
+  println 'Headers: -----------'
+  resp.headers.each { h ->
+    println " ${h.name} : ${h.value}"
+  }
+  println 'Response data: -----'
+  System.out << reader
+  println '\n--------------------'   
+}
                                                                                                                        
-StringBuilder builder = new StringBuilder();                                                                            
-int charsRead = -1;                                                                                                     
-char[] chars = new char[100];                                                                                           
-charsRead = response.data.read(chars,0,chars.length);                                                                   
-while(charsRead>0){                                                                                                     
-    //if we have valid chars, append them to end of string.                                                             
-    builder.append(chars,0,charsRead);                                                                                  
-    charsRead = response.data.read(chars,0,chars.length);                                                               
-}                                                                                                                       
-                                                                                                                        
-if(options.output) {                                                                                                    
-    def file=new File(options.output)                                                                                   
-    def writer = new PrintWriter(file)                                                                                  
-    writer.println builder.toString();                                                                                  
-    writer.close()                                                                                                      
-}                                                                                                                       
-else {                                                                                                                  
-    print builder.toString();                                                                                           
-}                                                                                                                       
