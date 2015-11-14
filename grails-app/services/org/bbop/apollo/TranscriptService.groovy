@@ -125,7 +125,6 @@ class TranscriptService {
         if (fmax != null) {
             setFmax(transcript, fmax)
         }
-//        transcript.save(flush: true )
     }
 
     /** Retrieve all the transcripts associated with this gene.  Uses the configuration to determine
@@ -422,10 +421,11 @@ class TranscriptService {
             gene1.save(flush: true)
         }
 
+        boolean flag=false
+
         // if the parent genes aren't the same, this leads to a merge of the genes
         if (gene1 && gene2) {
             if (gene1 != gene2) {
-                // if gene1 != gene2
                 log.debug "Gene1 != Gene2; merging genes together"
                 List<Transcript> gene2Transcripts = getTranscripts(gene2)
                 for (Transcript transcript : gene2Transcripts) {
@@ -435,18 +435,18 @@ class TranscriptService {
                         featureService.addTranscriptToGene(gene1, transcript)
                     }
                 }
+                flag=true
                 featureRelationshipService.deleteFeatureAndChildren(gene2)
             }
         }
 
         // Delete the empty transcript from the gene, if gene not already deleted
-        if (getGene(transcript2)) {
+        if (!flag) {
             def childFeatures = featureRelationshipService.getChildren(transcript2)
             featureRelationshipService.deleteChildrenForTypes(transcript2)
             Feature.deleteAll(childFeatures)
             deleteTranscript(gene2, transcript2);
             featureRelationshipService.deleteFeatureAndChildren(transcript2);
-//            featureEventService.deleteHistory(transcript2.uniqueName)
         } else {
             // if gene for transcript2 doesn't exist then transcript2 is orphan
             // no outstanding relationships that need to be deleted
