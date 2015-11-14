@@ -9,6 +9,7 @@ import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionChunk
 import org.bbop.apollo.projection.ProjectionChunkList
 import org.bbop.apollo.projection.ProjectionInterface
+import org.bbop.apollo.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -332,8 +333,9 @@ class TrackService {
 
         // TODO: it should look up the OGS track either default or variable
         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+        ProjectionSequence projectionSequence = projection.getProjectionSequence(sequenceName,currentOrganism)
 
-        if (projection && projection.containsSequence(sequenceName, currentOrganism)) {
+        if (projection && projectionSequence) {
 //                    if (projection) {
             println "found a projection ${projection.size()}"
             JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)

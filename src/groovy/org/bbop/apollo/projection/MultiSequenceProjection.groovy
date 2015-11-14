@@ -56,8 +56,33 @@ class MultiSequenceProjection extends DiscontinuousProjection {
         if (!projectionSequence) {
             return -1
         }
-        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectValue(input - projectionSequence.originalOffset)  \
-          + projectionSequence.offset
+        if(projectionSequence.offset>0){
+            println "projection sequence ${projectionSequence}"
+        }
+        DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
+//        Integer alteredInput = input - projectionSequence.originalOffset
+        Integer projectedValue = discontinuousProjection.projectValue(input)
+        ProjectionSequence previousProjectionSequence = findPreviousProjectionSequence(projectionSequence)
+        if(previousProjectionSequence){
+            return projectedValue + previousProjectionSequence.offset
+        }
+        else{
+            return projectedValue
+        }
+//        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectValue(input - projectionSequence.originalOffset)  \
+//          + projectionSequence.offset
+    }
+
+    ProjectionSequence findPreviousProjectionSequence(ProjectionSequence projectionSequence) {
+        Integer order = projectionSequence.order
+        if(order <= 0 ) return null
+
+        for(ProjectionSequence projectionSequence1 in sequenceDiscontinuousProjectionMap.keySet()){
+            if(projectionSequence1.order== (order-1)){
+                return projectionSequence1
+            }
+        }
+        return null
     }
 
     @Override
@@ -181,27 +206,51 @@ class MultiSequenceProjection extends DiscontinuousProjection {
         }
     }
 
+    ProjectionSequence getProjectionSequence(String sequenceName,Organism organism) {
+        return getProjectionSequence(sequenceName,null,organism)
+    }
+
+    ProjectionSequence getProjectionSequence(String sequenceName,Long sequenceId, Organism organism) {
+        for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
+            if (projectionSequence.name == sequenceName) {
+                if (projectionSequence.organism && organism) {
+                    if (projectionSequence.organism != organism.commonName) {
+                        return projectionSequence
+                    }
+                }
+                if (projectionSequence.id && sequenceId) {
+                    if (projectionSequence.id != sequenceId) {
+                        return null
+                    }
+                }
+                return projectionSequence
+            }
+        }
+        return null
+    }
+
     Boolean containsSequence(String sequenceName, Organism organism) {
         return containsSequence(sequenceName, null, organism)
     }
 
     Boolean containsSequence(String sequenceName, Long sequenceId, Organism organism) {
-        for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
-            if (projectionSequence.name == sequenceName) {
-                if (projectionSequence.organism && organism) {
-                    if (projectionSequence.organism != organism.commonName) {
-                        return false
-                    }
-                }
-                if (projectionSequence.id && sequenceId) {
-                    if (projectionSequence.id != sequenceId) {
-                        return false
-                    }
-                }
-                return true
-            }
-        }
-        return false
+        return getProjectionSequence(sequenceName,sequenceId,organism)!=null
+//        for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
+//            if (projectionSequence.name == sequenceName) {
+//                if (projectionSequence.organism && organism) {
+//                    if (projectionSequence.organism != organism.commonName) {
+//                        return false
+//                    }
+//                }
+//                if (projectionSequence.id && sequenceId) {
+//                    if (projectionSequence.id != sequenceId) {
+//                        return false
+//                    }
+//                }
+//                return true
+//            }
+//        }
+//        return false
     }
 
 

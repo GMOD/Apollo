@@ -510,6 +510,7 @@ class ProjectionService {
     MultiSequenceProjection createMultiSequenceProjection(ProjectionDescription description, List<Location> locationList) {
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(projectionDescription: description)
         multiSequenceProjection.addLocations(locationList)
+        multiSequenceProjection.calculateOffsets()
         return multiSequenceProjection
     }
 
