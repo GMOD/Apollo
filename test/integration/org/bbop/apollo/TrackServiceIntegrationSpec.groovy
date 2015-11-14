@@ -18,6 +18,14 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec{
     def cleanup() {
     }
 
+
+
+    /**
+     * TODO: make a test for unprojected as WELL
+     *
+     *  GroupUn87: Projected: 0,213 <-> 723,843   (4 groups), Unprojected: 9966,10179 (first)  45455,45575 (last)
+     *  Group1..4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,185696 (first) 62507,64197 (last)
+     */
     void "exon projections of contiguous tracks should work"() {
 
         given: "proper inputs"
@@ -29,17 +37,18 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec{
         JSONObject trackObject = trackService.projectTrackData(sequenceStrings,dataFileName,refererLoc,Organism.first())
 
         then: "we expect to get sane results"
-        assert trackObject.featureCount == "10"
+        assert trackObject.featureCount == 10
         def minStart = trackObject.minStart
         def maxEnd = trackObject.maxEnd
-        JSONArray nclist = trackObject.getJSONArray(FeatureStringEnum.NCLIST.value)
+        JSONArray nclist = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+        assert nclist.size()==9
         JSONArray firstArray = nclist.getJSONArray(0)
-        assert firstArray.getInt(2)==0
-        assert firstArray.getInt(3)==213
+        assert firstArray.getInt(1)==0
+        assert firstArray.getInt(2)==213
 
         JSONArray lastFirstArray = nclist.getJSONArray(3)
 //        assert firstArray.getInt(2)==0
-        assert lastFirstArray.getInt(3)==843  // end of the first set
+        assert lastFirstArray.getInt(2)==843  // end of the first set
 
         // the next array should go somewhere completely else
     }

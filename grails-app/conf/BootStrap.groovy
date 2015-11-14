@@ -2,6 +2,7 @@ import grails.converters.JSON
 import grails.util.Environment
 import groovy.lang.Sequence
 import org.bbop.apollo.*
+import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 class BootStrap {
@@ -41,6 +42,18 @@ class BootStrap {
             returnArray['length'] = it?.length
             returnArray['start'] = it?.start
             returnArray['end'] = it.end
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(ProjectionSequence) {
+            def returnArray = [:]
+            returnArray['id'] = it.id
+            returnArray['name'] = it.name
+            returnArray['organism'] = it.organism
+            returnArray['order'] = it.order
+            returnArray['offset'] = it.offset
+            returnArray['originalOffset'] = it.originalOffset
+            returnArray['features'] = it.features?.join("::")
             return returnArray
         }
 

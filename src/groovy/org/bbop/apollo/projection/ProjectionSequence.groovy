@@ -1,5 +1,8 @@
 package org.bbop.apollo.projection
 
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
+
 /**
  * Created by nathandunn on 9/24/15.
  */
@@ -54,5 +57,24 @@ class ProjectionSequence implements Comparable<ProjectionSequence>{
 //        }
 
 //        organism <=> o.organism
+    }
+
+    JSONObject toJSONObject(){
+        JSONObject jsonObject = new JSONObject()
+        jsonObject.id = id
+        jsonObject.name = name
+        jsonObject.organism = organism
+        jsonObject.order = order
+        jsonObject.offset = offset
+        jsonObject.originalOffset = originalOffset
+
+        JSONArray featuresArray  = new JSONArray()
+        features.each {
+            featuresArray.add(it)
+        }
+        jsonObject.features = featuresArray
+
+
+        return jsonObject
     }
 }

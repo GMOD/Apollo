@@ -464,7 +464,8 @@ class ProjectionService {
             if (sequenceNames.containsKey(sequenceFileName)) {
                 JSONObject trackObject = new JSONObject(trackDataFile.text)
                 trackObject.directory = trackDataFile.parent
-                trackObject.sequenceName = sequenceNames.get(sequenceFileName) as JSON
+//                trackObject.sequenceName = sequenceNames.get(sequenceFileName) as JSON
+                trackObject.sequenceName = sequenceNames.get(sequenceFileName).toJSONObject()
                 returnArray.add(returnArray.size(), trackObject)
             }
         }
