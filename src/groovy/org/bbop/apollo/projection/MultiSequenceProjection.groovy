@@ -59,18 +59,18 @@ class MultiSequenceProjection extends DiscontinuousProjection {
         if(projectionSequence.offset>0){
             println "projection sequence ${projectionSequence}"
         }
-        DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
-//        Integer alteredInput = input - projectionSequence.originalOffset
-        Integer projectedValue = discontinuousProjection.projectValue(input)
-        ProjectionSequence previousProjectionSequence = findPreviousProjectionSequence(projectionSequence)
-        if(previousProjectionSequence){
-            return projectedValue + previousProjectionSequence.offset
-        }
-        else{
-            return projectedValue
-        }
-//        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectValue(input - projectionSequence.originalOffset)  \
-//          + projectionSequence.offset
+//        DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
+////        Integer alteredInput = input - projectionSequence.originalOffset
+//        Integer projectedValue = discontinuousProjection.projectValue(input)
+//        ProjectionSequence previousProjectionSequence = findPreviousProjectionSequence(projectionSequence)
+//        if(previousProjectionSequence){
+//            return projectedValue + previousProjectionSequence.offset
+//        }
+//        else{
+//            return projectedValue
+//        }
+        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectValue(input - projectionSequence.originalOffset)  \
+          + projectionSequence.offset
     }
 
     ProjectionSequence findPreviousProjectionSequence(ProjectionSequence projectionSequence) {
