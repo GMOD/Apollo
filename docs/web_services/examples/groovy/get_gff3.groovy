@@ -71,13 +71,13 @@ def post=[
 ]
 
 http.get(path: options.url+'/IOService/write/',query: post) { resp, reader ->
-  println "response status: ${resp.statusLine}"
-  println 'Headers: -----------'
-  resp.headers.each { h ->
-    println " ${h.name} : ${h.value}"
+  if(options.output) {
+      def file=new File(options.output)
+      def writer = new PrintWriter(file)
+      writer << reader
+      writer.close()
   }
-  println 'Response data: -----'
-  System.out << reader
-  println '\n--------------------'   
+  else
+      System.out << reader
 }
-                                                                                                                       
+
