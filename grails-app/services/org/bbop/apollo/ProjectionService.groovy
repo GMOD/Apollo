@@ -484,6 +484,7 @@ class ProjectionService {
         }
         Organism organism = Organism.findByCommonName(organismName)
         Map<String, Sequence> sequencMap = new TreeMap<>()
+        def allSequences = Sequence.all
         Sequence.findAllByNameInListAndOrganism(sequenceList, organism).each {
             sequencMap.put(it.name, it)
         }
