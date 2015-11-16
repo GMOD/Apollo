@@ -53,4 +53,9 @@ class Coordinate implements Comparable<Coordinate>{
     Integer getLength(){
         return Math.abs(max - min)
     }
+
+    void addOffset(Integer offset){
+        min = min+offset
+        max = max+offset
+    }
 }

@@ -8,9 +8,6 @@ import spock.lang.Specification
  */
 class MultiSequenceProjectionSpec extends Specification {
 
-    // TODO: move this to a test esrvice class?
-    ProjectionService projectionService = new ProjectionService()
-
     def setup() {
     }
 
@@ -20,11 +17,14 @@ class MultiSequenceProjectionSpec extends Specification {
     void "when adding intervals overlapping intervals should merge"() {
 
         given: "some intervals"
-        ProjectionInterface projection = new MultiSequenceProjection()
+        ProjectionDescription projectionDescription = new ProjectionDescription()
+        ProjectionSequence projectionSequence = new ProjectionSequence(order: 0)
+        projectionDescription.sequenceList = [projectionSequence]
+        ProjectionInterface projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
 
 
         when: "we add an interval to a null one"
-        projection.addInterval(45, 55)
+        projection.addInterval(45, 55, projectionSequence)
         Coordinate coordinate = projection.minMap.values().iterator().next()
 
         then: "it shows up"
@@ -34,7 +34,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert coordinate.max == 55
 
         when: "we add within that one"
-        projection.addInterval(47, 53)
+        projection.addInterval(47, 53, projectionSequence)
         coordinate = projection.minMap.values().iterator().next()
 
         then: "nothing happens"
@@ -44,7 +44,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert coordinate.max == 55
 
         when: "we add a larger one over it"
-        projection.addInterval(40, 60)
+        projection.addInterval(40, 60, projectionSequence)
         coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge and expand on both sides"
@@ -55,7 +55,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add to the continuous right edge"
-        projection.addInterval(60, 65)
+        projection.addInterval(60, 65, projectionSequence)
         coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge the two on the right edge"
@@ -65,7 +65,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert coordinate.max == 65
 
         when: "we add to the continuous left edge"
-        projection.addInterval(35, 40)
+        projection.addInterval(35, 40, projectionSequence)
         coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge the two on the left edge"
@@ -75,7 +75,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert coordinate.max == 65
 
         when: "we add to the continuous right overlap"
-        projection.addInterval(62, 70)
+        projection.addInterval(62, 70, projectionSequence)
         coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge the two on the right overlap"
@@ -85,7 +85,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert coordinate.max == 70
 
         when: "we add to the continuous left overlap"
-        projection.addInterval(30, 37)
+        projection.addInterval(30, 37, projectionSequence)
         coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge the two on the left overlap"
@@ -95,7 +95,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert coordinate.max == 70
 
         when: "we add another one to the left of all of the others"
-        projection.addInterval(10, 15)
+        projection.addInterval(10, 15, projectionSequence)
         Coordinate coordinate0 = projection.minMap.values().getAt(0)
         Coordinate coordinate1 = projection.minMap.values().getAt(1)
 
@@ -110,7 +110,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add another one to the right of all of the others"
-        projection.addInterval(80, 85)
+        projection.addInterval(80, 85, projectionSequence)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         Coordinate coordinate2 = projection.minMap.values().getAt(2)
@@ -130,7 +130,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add another one in the middle of all of the others"
-        projection.addInterval(75, 77)
+        projection.addInterval(75, 77, projectionSequence)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
@@ -150,7 +150,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add another one in the middle of all of the others again"
-        projection.addInterval(20, 25)
+        projection.addInterval(20, 25, projectionSequence)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
@@ -173,7 +173,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we project outside of the center on both sides"
-        projection.addInterval(19, 26)
+        projection.addInterval(19, 26, projectionSequence)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
@@ -197,7 +197,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add another to overlap "
-        projection.addInterval(22, 76)
+        projection.addInterval(22, 76, projectionSequence)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
@@ -213,7 +213,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert coordinate2.max == 85
 
         when: "we add LHS to center"
-        projection.addInterval(18, 22)
+        projection.addInterval(18, 22, projectionSequence)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
@@ -229,7 +229,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert coordinate2.max == 85
 
         when: "we add RHS to center"
-        projection.addInterval(76, 78)
+        projection.addInterval(76, 78, projectionSequence)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)
@@ -247,7 +247,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we project in the center of the center"
-        projection.addInterval(30, 40)
+        projection.addInterval(30, 40, projectionSequence)
         coordinate0 = projection.minMap.values().getAt(0)
         coordinate1 = projection.minMap.values().getAt(1)
         coordinate2 = projection.minMap.values().getAt(2)

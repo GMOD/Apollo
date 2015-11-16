@@ -5,7 +5,7 @@ import org.bbop.apollo.Organism
 /**
  * Created by nathandunn on 9/24/15.
  */
-class MultiSequenceProjection extends DiscontinuousProjection {
+class MultiSequenceProjection extends AbstractProjection{
 
     // if a projection includes multiple sequences, this will include greater than one
     TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>()
@@ -50,8 +50,7 @@ class MultiSequenceProjection extends DiscontinuousProjection {
         return null
     }
 
-    @Override
-    Integer projectValue(Integer input) {
+        Integer projectValue(Integer input) {
         ProjectionSequence projectionSequence = getProjectionSequence(input)
         if (!projectionSequence) {
             return -1
@@ -90,21 +89,18 @@ class MultiSequenceProjection extends DiscontinuousProjection {
         return null
     }
 
-    @Override
     Integer projectReverseValue(Integer input) {
         ProjectionSequence projectionSequence = getReverseProjectionSequence(input)
         if (!projectionSequence) return -1
         return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectReverseValue(input - projectionSequence.offset) + projectionSequence.originalOffset
     }
 
-    @Override
-    Integer getLength() {
+     Integer getLength() {
         Map.Entry<ProjectionSequence, DiscontinuousProjection> entry = sequenceDiscontinuousProjectionMap.lastEntry()
         return entry.key.offset + entry.value.length
     }
 
-    @Override
-    String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate, Integer offset) {
+     String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate, Integer offset) {
         // not really used .  .. .  but otherwise would carve up into different bits
         return null
     }
@@ -123,10 +119,8 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     }
 
 
-    @Override
     Integer size() {
         Integer count = 0
-
         for (def projection in sequenceDiscontinuousProjectionMap.values()) {
             count += projection.size()
         }
@@ -142,7 +136,9 @@ class MultiSequenceProjection extends DiscontinuousProjection {
 
     @Override
     Integer clear() {
-        return sequenceDiscontinuousProjectionMap.clear()
+        int size = sequenceDiscontinuousProjectionMap.size()
+        sequenceDiscontinuousProjectionMap.clear()
+        return size
     }
 
 // here we are adding a location to project
@@ -259,7 +255,6 @@ class MultiSequenceProjection extends DiscontinuousProjection {
     }
 
 
-    @Override
     public String toString() {
         return "MultiSequenceProjection{" +
                 "sequenceDiscontinuousProjectionMap=" + sequenceDiscontinuousProjectionMap +
@@ -283,5 +278,27 @@ class MultiSequenceProjection extends DiscontinuousProjection {
             }
         }
         null
+    }
+
+    TreeMap<Integer,Coordinate> getMinMap(){
+        TreeMap<Integer,Coordinate> minMap = new TreeMap<>()
+        List<ProjectionSequence> projectionSequenceList = sequenceDiscontinuousProjectionMap.keySet().sort(){ a,b -> a.order <=> b.order } as List
+
+        for(ProjectionSequence projectionSequence : projectionSequenceList){
+            minMap.putAll(sequenceDiscontinuousProjectionMap.get(projectionSequence).minMap)
+        }
+
+        return minMap
+    }
+
+    TreeMap<Integer,Coordinate> getMaxMap(){
+        TreeMap<Integer,Coordinate> maxMap = new TreeMap<>()
+        List<ProjectionSequence> projectionSequenceList = sequenceDiscontinuousProjectionMap.keySet().sort(){ a,b -> a.order <=> b.order } as List
+
+        for(ProjectionSequence projectionSequence : projectionSequenceList){
+            maxMap.putAll(sequenceDiscontinuousProjectionMap.get(projectionSequence).maxMap)
+        }
+
+        return maxMap
     }
 }

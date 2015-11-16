@@ -55,7 +55,7 @@ class FeatureProjectionService {
 //        return inputFeaturesArray
 //    }
 
-    private JSONObject projectFeature(JSONObject inputFeature, DiscontinuousProjection projection, Boolean reverseProjection) {
+    private JSONObject projectFeature(JSONObject inputFeature, MultiSequenceProjection projection, Boolean reverseProjection) {
         if (!inputFeature.has(FeatureStringEnum.LOCATION.value)) return inputFeature
 
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
@@ -80,7 +80,7 @@ class FeatureProjectionService {
         return inputFeature
     }
 
-    private JSONArray projectFeaturesArray(JSONArray inputFeaturesArray, DiscontinuousProjection projection, Boolean reverseProjection) {
+    private JSONArray projectFeaturesArray(JSONArray inputFeaturesArray, MultiSequenceProjection projection, Boolean reverseProjection) {
         for (int i = 0; i < inputFeaturesArray.size(); i++) {
             JSONObject inputFeature = inputFeaturesArray.getJSONObject(i)
             projectFeature(inputFeature, projection, reverseProjection)
