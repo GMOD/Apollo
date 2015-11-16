@@ -19,6 +19,10 @@ public class WebApolloSimplePager extends SimplePager {
         super(location);
         this.setRangeLimited(true);
     }
+    public WebApolloSimplePager(TextLocation location, boolean showFastForwardButton, int fastForwardRows, boolean showLastPageButton) {
+        super(location, showFastForwardButton, fastForwardRows, showLastPageButton);
+        this.setRangeLimited(true);
+    }
 
 
     public void setPageStart(int index) {
