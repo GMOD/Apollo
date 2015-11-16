@@ -69,8 +69,13 @@ class MultiSequenceProjection extends DiscontinuousProjection {
 //        else{
 //            return projectedValue
 //        }
-        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectValue(input - projectionSequence.originalOffset)  \
-          + projectionSequence.offset
+        Integer returnValue = sequenceDiscontinuousProjectionMap.get(projectionSequence).projectValue(input - projectionSequence.originalOffset)
+        if(returnValue==UNMAPPED_VALUE){
+            return UNMAPPED_VALUE
+        }
+        else{
+            return returnValue + projectionSequence.offset
+        }
     }
 
     ProjectionSequence findPreviousProjectionSequence(ProjectionSequence projectionSequence) {

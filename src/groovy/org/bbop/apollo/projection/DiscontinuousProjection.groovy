@@ -53,7 +53,7 @@ public class DiscontinuousProjection extends AbstractProjection {
         }
 
         if (input == null) {
-            return -1
+            return UNMAPPED_VALUE
         }
 
         Integer floorMinKey = minMap.floorKey(input)
