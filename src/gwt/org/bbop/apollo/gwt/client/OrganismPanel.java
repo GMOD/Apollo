@@ -76,7 +76,7 @@ public class OrganismPanel extends Composite {
     @UiField
     Button deleteButton;
     @UiField(provided = true)
-    WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER, true, 50, true);
+    WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
 
     boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info

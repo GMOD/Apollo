@@ -89,9 +89,9 @@ public class UserPanel extends Composite {
     @UiField(provided = true)
     DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4, tablecss);
     @UiField(provided = true)
-    WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER, true, 50, true);
+    WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField(provided = true)
-    WebApolloSimplePager organismPager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER, true, 50, true);
+    WebApolloSimplePager organismPager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField
     org.gwtbootstrap3.client.ui.TextBox nameSearchBox;
     @UiField

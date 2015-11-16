@@ -54,7 +54,7 @@ public class SequencePanel extends Composite {
     @UiField(provided = true)
     DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>(20, tablecss);
     @UiField(provided = true)
-    WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER, true, 1000, true);
+    WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
 
 
     @UiField

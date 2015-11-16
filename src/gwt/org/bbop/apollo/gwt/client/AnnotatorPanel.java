@@ -114,7 +114,7 @@ public class AnnotatorPanel extends Composite {
         initializeTable();
 
 
-        pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER, true, 50, true);
+        pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
         pager.setRangeLimited(false);
 
         dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<AnnotationInfo>() {
