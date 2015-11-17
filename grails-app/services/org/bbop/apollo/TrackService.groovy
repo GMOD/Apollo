@@ -315,10 +315,11 @@ class TrackService {
         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
         if (projection && projection.containsSequence(sequenceName, currentOrganism)) {
+            ProjectionSequence projectionSequence = projection.getProjectionSequence(sequenceName,currentOrganism)
             println "found a projection ${projection.size()}"
             for (int i = 0; i < coordinateJsonArray.size(); i++) {
                 JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
-                projectJsonArray(projection, coordinate,offset)
+                projectJsonArray(projection, coordinate,offset,projectionSequence.originalOffset)
             }
         }
         return coordinateJsonArray
