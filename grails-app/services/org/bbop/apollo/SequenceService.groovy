@@ -216,7 +216,7 @@ class SequenceService {
         def c=SequenceChunk.createCriteria()
         def chunks=c.list() {
             eq('sequence',sequence)
-            'in'('chunkNumber',[startChunkNumber,endChunkNumber])
+            'in'('chunkNumber',startChunkNumber..endChunkNumber)
         }
         log.debug("${chunks.size()} ${endChunkNumber-startChunkNumber+1}")
         if(chunks.size()==endChunkNumber-startChunkNumber+1) {
