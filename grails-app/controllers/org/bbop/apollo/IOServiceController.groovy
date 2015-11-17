@@ -84,19 +84,23 @@ class IOServiceController extends AbstractApolloController {
             log.debug "${typeOfExport} ${output} ${sequences}"
 
 
-	    def c=Feature.createCriteria()
-	    def features=c.list() {
-	        featureLocations {
-		    sequence {
-			eq('organism',organism)
-			if(sequences) {
-                            'in'('name',sequences)
-			}
-		    }
-	        }
-	        'in'('class',Gene.class.name)
-	    }
-	    log.debug "${features}"
+            def features=Feature.createCriteria().list() {
+                featureLocations {
+                    sequence {
+                        eq('organism',organism)
+                        if(sequences) {
+                                        'in'('name',sequences)
+                        }
+                    }
+                }
+                'in'('class',Gene.class.name)
+            }
+            def sequenceList = Sequence.createCriteria().list() {
+                eq('organism',organism)
+                if(sequences) {
+                    'in'('name',sequences)
+                }
+            }
             File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
             String fileName
 
