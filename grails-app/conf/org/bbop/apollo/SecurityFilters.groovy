@@ -13,19 +13,25 @@ class SecurityFilters {
 
         all(controller: 'organism', action: '*') {
             before = {
-                log.debug "apollo filter ${controllerName}::${actionName}"
-                if (!controllerName) return true
-                Subject subject = SecurityUtils.getSubject();
-                if (!subject.isAuthenticated()) {
-                    def req = request.JSON
-                    if (req.username && req.password) {
-                        def authToken = new UsernamePasswordToken(req.username, req.password)
-                        subject.login(authToken)
-                    } else {
-                        log.warn "username/password not submitted"
-                        render text: ([error: "Not authorized"] as JSON), status: HttpStatus.UNAUTHORIZED
-                        return false
+                try {
+                    log.debug "apollo filter ${controllerName}::${actionName}"
+                    if (!controllerName) return true
+                    Subject subject = SecurityUtils.getSubject();
+                    if (!subject.isAuthenticated()) {
+                        def req = request.JSON
+                        if (req.username && req.password) {
+                            def authToken = new UsernamePasswordToken(req.username, req.password)
+                            subject.login(authToken)
+                        } else {
+                            log.warn "username/password not submitted"
+                            render text: ([error: "Not authorized"] as JSON), status: HttpStatus.UNAUTHORIZED
+                            return false
+                        }
                     }
+                }
+                catch(Exception e) {
+                    render ([error: e.message] as JSON)
+                    render false
                 }
             }
         }
