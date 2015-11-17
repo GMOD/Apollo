@@ -652,7 +652,7 @@ class PermissionService {
         PermissionEnum highestEnum = PermissionEnum.NONE
         for(PermissionEnum permissionEnum : permissionEnums){
             if(permissionEnum.rank>highestEnum.rank){
-                highestEnum = permissionEnum ;
+                highestEnum = permissionEnum
             }
         }
         return highestEnum

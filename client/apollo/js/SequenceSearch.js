@@ -193,7 +193,7 @@ searchSequence: function(trackName, refSeqName, starts) {
                         var rawscore = match.rawscore;
                         var significance = match.significance;
                         var identity = match.identity;
-                        var row = dojo.create("div", { className: "search_sequence_matches_row" + (dojo.isFF ? " search_sequence_matches_row-firefox" : "") }, matches);
+                        var row = dojo.create("div", { className: "search_sequence_matches_row" }, matches);
                         var subjectIdColumn = dojo.create("span", { innerHTML: subject.feature.uniquename, className: "search_sequence_matches_field search_sequence_matches_generic_field", title: subject.feature.uniquename }, row);
                         var subjectStartColumn = dojo.create("span", { innerHTML: subjectStart, className: "search_sequence_matches_field search_sequence_matches_generic_field" }, row);
                         var subjectEndColumn = dojo.create("span", { innerHTML: subjectEnd, className: "search_sequence_matches_field search_sequence_matches_generic_field" }, row);

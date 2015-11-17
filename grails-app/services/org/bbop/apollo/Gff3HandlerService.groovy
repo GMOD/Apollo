@@ -99,8 +99,6 @@ public class Gff3HandlerService {
 
     static private void writeGroupDirectives(WriteObject writeObject, Sequence sourceFeature) {
         if (sourceFeature.getFeatureLocations().size() == 0) return;
-        FeatureLocation loc = sourceFeature.getFeatureLocations().iterator().next();
-        //writeObject.out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, loc.getFmin() + 1, loc.getFmax()));
         writeObject.out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, sourceFeature.start + 1, sourceFeature.end));
     }
 
@@ -240,7 +238,6 @@ public class Gff3HandlerService {
 
     @Timed
     private void convertToEntry(WriteObject writeObject, CDS cds, String source, Collection<GFF3Entry> gffEntries) {
-
         log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
 
         String seqId = cds.getFeatureLocation().sequence.name
@@ -254,7 +251,6 @@ public class Gff3HandlerService {
         } else {
             strand = ".";
         }
-        //featureRelationshipService.getParentForFeature(cds,transcriptService.ontologyIds)
         Transcript transcript = transcriptService.getParentTranscriptForFeature(cds)
 
         List<Exon> exons = exonService.getSortedExons(transcript)
@@ -303,19 +299,9 @@ public class Gff3HandlerService {
             }
         }
 
-        int count = 0;
-        StringBuilder parents = new StringBuilder();
-        if (feature.ontologyId == Gene.ontologyId) {
-            log.debug "${feature.name} is a gene and hence doesn't have a parent"
-        } else {
-            for (Feature parentFeature in featureRelationshipService.getParentForFeature(feature)) {
-                count++;
-                parents.append(encodeString(parentFeature.uniqueName));
-                if (count > 1) {
-                    parents.append(","); // highly unlikely scenario for a feature to have more than one parent
-                }
-                attributes.put(FeatureStringEnum.EXPORT_PARENT.value, parents.toString());
-            }
+        if (feature.ontologyId != Gene.ontologyId) {
+            def parent= featureRelationshipService.getParentForFeature(feature)
+            attributes.put(FeatureStringEnum.EXPORT_PARENT.value, encodeString(parent.uniqueName));
         }
 
         //TODO: Target

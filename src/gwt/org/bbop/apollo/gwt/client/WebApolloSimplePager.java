@@ -16,10 +16,9 @@ public class WebApolloSimplePager extends SimplePager {
         this.setRangeLimited(true);
     }
     public WebApolloSimplePager(TextLocation location) {
-        super(location);
+        super(location, false, true);
         this.setRangeLimited(true);
     }
-
 
     public void setPageStart(int index) {
         if (this.getDisplay() != null) {
