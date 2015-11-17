@@ -336,30 +336,28 @@ class TrackService {
         ProjectionSequence projectionSequence = projection.getProjectionSequence(sequenceName,currentOrganism)
 
         if (projection && projectionSequence) {
-//                    if (projection) {
             println "found a projection ${projection.size()}"
             JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
             JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
             for (int i = 0; i < coordinateJsonArray.size(); i++) {
                 JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
-                projectJsonArray(projection, coordinate)
+                projectJsonArray(projection, coordinate,0,projectionSequence.originalOffset)
             }
         }
         return trackDataJsonObject
     }
 
-    JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate) {
-        return projectJsonArray(projection,coordinate,0)
+    JSONArray projectJsonArray(MultiSequenceProjection projection, JSONArray coordinate) {
+        return projectJsonArray(projection,coordinate,0,0)
     }
 
-    JSONArray projectJsonArray(ProjectionInterface projection, JSONArray coordinate,Integer offset) {
+    JSONArray projectJsonArray(MultiSequenceProjection projection, JSONArray coordinate,Integer offset,Integer adjustment) {
 
-//        println "projection with offset ${offset}"
         // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
         for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
             def subArray = coordinate.get(subIndex)
             if (subArray instanceof JSONArray) {
-                projectJsonArray(projection, subArray,offset)
+                projectJsonArray(projection, subArray,offset,adjustment)
             }
         }
 
@@ -368,12 +366,12 @@ class TrackService {
                 && coordinate.get(1) instanceof Integer
                 && coordinate.get(2) instanceof Integer
         ) {
-            Integer oldMin = coordinate.getInt(1)
-            Integer oldMax = coordinate.getInt(2)
+            Integer oldMin = coordinate.getInt(1)+adjustment
+            Integer oldMax = coordinate.getInt(2)+adjustment
             Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax)
             if (newCoordinate && newCoordinate.isValid()) {
-                coordinate.set(1, newCoordinate.min+offset)
-                coordinate.set(2, newCoordinate.max+offset)
+                coordinate.set(1, newCoordinate.min+offset-adjustment)
+                coordinate.set(2, newCoordinate.max+offset-adjustment)
             } else {
                 log.error("Invalid mapping of coordinate ${coordinate} -> ${newCoordinate}")
                 coordinate.set(1, -1)

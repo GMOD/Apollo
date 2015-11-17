@@ -68,13 +68,13 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         // the next array should go somewhere completely else
         JSONArray firstLastArray = nclist.getJSONArray(4)
-        assert firstLastArray.getInt(1)==10257+45575// end of the first set
+        assert firstLastArray.getInt(1)==10257+45575+1// end of the first set
 //        assert firstLastArray.getInt(2)==185696+45575// end of the first set
-        assert firstLastArray.getInt(2)==18596+45575// end of the first set
+        assert firstLastArray.getInt(2)==18596+45575+1// end of the first set
 
         JSONArray lastLastArray = nclist.getJSONArray(8)
-        assert lastLastArray.getInt(1)==62507+45575// end of the last set
-        assert lastLastArray.getInt(2)==64197+45575// end of the last set
+        assert lastLastArray.getInt(1)==62507+45575+1// end of the last set
+        assert lastLastArray.getInt(2)==64197+45575+1// end of the last set
     }
 
     /**
@@ -173,7 +173,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert firstLastArray.getInt(1)==0+843+1
         assert firstLastArray.getInt(2)==2546+843+1
 
-        JSONArray lastLastArray = nclist.getJSONArray(9)
+        JSONArray lastLastArray = nclist.getJSONArray(8)
         assert lastLastArray.getInt(1)==14601+843+1
         assert lastLastArray.getInt(2)==15764+843+1
     }

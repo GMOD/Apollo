@@ -460,11 +460,9 @@ class ProjectionService {
             String fileName = jbrowseDirectory + "/" + sequenceName + "/trackData.json"
             File trackDataFile = new File(fileName)
             String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
-//            String sequenceFileName = trackDataFile.absolutePath.split("/").last()
             if (sequenceNames.containsKey(sequenceFileName)) {
                 JSONObject trackObject = new JSONObject(trackDataFile.text)
                 trackObject.directory = trackDataFile.parent
-//                trackObject.sequenceName = sequenceNames.get(sequenceFileName) as JSON
                 trackObject.sequenceName = sequenceNames.get(sequenceFileName).toJSONObject()
                 returnArray.add(returnArray.size(), trackObject)
             }
