@@ -68,13 +68,12 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         // the next array should go somewhere completely else
         JSONArray firstLastArray = nclist.getJSONArray(4)
-        assert firstLastArray.getInt(1) == 10257 + 45575 + 1// end of the first set
-//        assert firstLastArray.getInt(2)==185696+45575// end of the first set
-        assert firstLastArray.getInt(2) == 18596 + 45575 + 1// end of the first set
+        assert firstLastArray.getInt(1) == 10257 + 45575 // end of the first set
+        assert firstLastArray.getInt(2) == 18596 + 45575 // end of the first set
 
         JSONArray lastLastArray = nclist.getJSONArray(8)
-        assert lastLastArray.getInt(1) == 62507 + 45575 + 1// end of the last set
-        assert lastLastArray.getInt(2) == 64197 + 45575 + 1// end of the last set
+        assert lastLastArray.getInt(1) == 62507 + 45575 // end of the last set
+        assert lastLastArray.getInt(2) == 64197 + 45575 // end of the last set
     }
 
     /**
@@ -170,12 +169,12 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         // the next array should start at the end of thast one
         JSONArray firstLastArray = nclist.getJSONArray(4)
-        assert firstLastArray.getInt(1) == 0 + 843 + 1
-        assert firstLastArray.getInt(2) == 2546 + 843 + 1
+        assert firstLastArray.getInt(1) == 0 + 843
+        assert firstLastArray.getInt(2) == 2546 + 843
 
         JSONArray lastLastArray = nclist.getJSONArray(8)
-        assert lastLastArray.getInt(1) == 14601 + 843 + 1
-        assert lastLastArray.getInt(2) == 15764 + 843 + 1
+        assert lastLastArray.getInt(1) == 14601 + 843
+        assert lastLastArray.getInt(2) == 15764 + 843
     }
 
     /**
@@ -222,20 +221,44 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert nclist.size() == 5
 
         when:
-        JSONArray firstArray = nclist.getJSONArray(0)
+        array = nclist.getJSONArray(0)
 
         then:
-        assert firstArray.getInt(0) == 4 // it is a chunk
-        assert firstArray.getInt(1) == 0
-        assert firstArray.getInt(2) == 91398
+        assert array.getInt(0) == 4 // it is a chunk
+        assert array.getInt(1) == 0
+        assert array.getInt(2) == 91398
 
-        JSONArray lastFirstArray = nclist.getJSONArray(1)
-        assert lastFirstArray.getInt(0) == 4
-        assert lastFirstArray.getInt(1) == 91399
-        assert lastFirstArray.getInt(2) == 169359 // end of the first set
+        when:
+        array = nclist.getJSONArray(1)
 
-        JSONArray lastLastArray = nclist.getJSONArray(4)
-        assert lastLastArray.getInt(0) == 4
+        then:
+        assert array.getInt(0) == 4
+        assert array.getInt(1) == 91399
+        assert array.getInt(2) == 169359 // end of the first set
+
+        when:
+        array = nclist.getJSONArray(2)
+
+        then:
+        assert array.getInt(0) == 4
+        assert array.getInt(1) == 0 + 169359
+        assert array.getInt(2) == 108503 + 169359
+
+        when:
+        array = nclist.getJSONArray(3)
+
+        then:
+        assert array.getInt(0) == 4
+        assert array.getInt(1) == 108504 + 169359
+        assert array.getInt(2) == 201343 + 169359
+
+        when:
+        array = nclist.getJSONArray(4)
+
+        then:
+        assert array.getInt(0) == 4
+        assert array.getInt(1) == 201344 + 169359
+        assert array.getInt(2) == 230587 + 169359
 
         when: "we load the first of the chunk data"
         JSONArray chunk1Data = trackService.loadChunkData(chunk1, refererLoc, Organism.first(), 0)
@@ -270,36 +293,36 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert array.getInt(2) == 169359
 
         when: "we load the third chunk"
-        JSONArray chunk3Data = trackService.loadChunkData(chunk3, refererLoc, Organism.first(), 0)
+        JSONArray chunk3Data = trackService.loadChunkData(chunk3, refererLoc, Organism.first(), 169359)
         array = chunk3Data.getJSONArray(0)
 
         then: "confirm that chunk 3 is projected "
         assert chunk3Data.size() == 57
-        assert array.getInt(1) == 0 + 1 + 169359
-        assert array.getInt(2) == 874 + 1 + 169359
+        assert array.getInt(1) == 0 + 169359
+        assert array.getInt(2) == 874 + 169359
 
         when:
         array = chunk3Data.getJSONArray(56)
 
         then:
-        assert array.getInt(1) == 107145 + 1 + 169359
-        assert array.getInt(2) == 108503 + 1 + 169359
+        assert array.getInt(1) == 107145 + 169359
+        assert array.getInt(2) == 108503 + 169359
 
         when: "we load the third chunk"
 //        *  (lf-3 . . 16 pieces, 201344 <=>  206511 first, 227803 <=> 230587 last ) ,
-        JSONArray chunk5Data = trackService.loadChunkData(chunk5, refererLoc, Organism.first(), 0)
+        JSONArray chunk5Data = trackService.loadChunkData(chunk5, refererLoc, Organism.first(), 201343)
         array = chunk5Data.getJSONArray(0)
 
         then: "confirm that chunk 3 is projected "
         assert chunk5Data.size() == 16
-        assert array.getInt(1) == 201344 + 1 + 169359
-        assert array.getInt(2) == 206511+ 1 + 169359
+        assert array.getInt(1) == 201344 + 169359
+        assert array.getInt(2) == 206511 + 169359
 
         when:
         array = chunk5Data.getJSONArray(15)
 
         then:
-        assert array.getInt(1) == 227803 + 1 + 169359
-        assert array.getInt(2) == 230587 + 1 + 169359
+        assert array.getInt(1) == 227803 + 169359
+        assert array.getInt(2) == 230587 + 169359
     }
 }
