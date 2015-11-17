@@ -292,7 +292,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert array.getInt(1) == 169097
         assert array.getInt(2) == 169359
 
-        when: "we load the third chunk"
+        when: "we load the third chunk using the offset from previous sequence group"
         JSONArray chunk3Data = trackService.loadChunkData(chunk3, refererLoc, Organism.first(), 169359)
         array = chunk3Data.getJSONArray(0)
 
@@ -308,12 +308,12 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert array.getInt(1) == 107145 + 169359
         assert array.getInt(2) == 108503 + 169359
 
-        when: "we load the third chunk"
+        when: "we load the last chunk using the offset from previous sequence group"
 //        *  (lf-3 . . 16 pieces, 201344 <=>  206511 first, 227803 <=> 230587 last ) ,
-        JSONArray chunk5Data = trackService.loadChunkData(chunk5, refererLoc, Organism.first(), 201343)
+        JSONArray chunk5Data = trackService.loadChunkData(chunk5, refererLoc, Organism.first(), 169359)
         array = chunk5Data.getJSONArray(0)
 
-        then: "confirm that chunk 3 is projected "
+        then: "confirm that chunk 5 is projected "
         assert chunk5Data.size() == 16
         assert array.getInt(1) == 201344 + 169359
         assert array.getInt(2) == 206511 + 169359
