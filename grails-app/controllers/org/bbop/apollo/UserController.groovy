@@ -57,8 +57,13 @@ class UserController {
                 log.debug "${v.key} ${v.value}"
             }
 
-            def users = dataObject.userId?[User.findById(dataObject.userId)]:User.all
             log.debug "${users}"
+            def c=User.createCriteria()
+            def users = c.list() {
+                if(dataObject.userId) {
+                    eq('id',dataObject.userId)
+                }
+            }
             users.each {
                 def userObject = new JSONObject()
 
