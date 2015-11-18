@@ -7,6 +7,7 @@ import org.apache.commons.io.FilenameUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionChunk
 import org.bbop.apollo.projection.ProjectionInterface
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -48,26 +49,22 @@ class BigwigController {
         returnObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
 
         Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
-//        String dataDirectory = getJBrowseDirectoryForSession()
-//        String dataFileName = dataDirectory + "/" + params.path
-//        String fileName = FilenameUtils.getName(params.path)
-//        String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
 
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
 
-        List<String> sequenceStrings = new ArrayList<>()
-        if(sequenceName.contains("{")){
-            JSONObject projectionSequenceObject = (JSONObject) JSON.parse(sequenceName)
-            JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
-            for (int i = 0; i < sequenceArray.size(); i++) {
-                JSONObject sequenceObject = sequenceArray.getJSONObject(i)
-                sequenceStrings.add(sequenceObject.name)
-            }
-        }
-        else{
-            sequenceStrings.add(sequenceName)
-        }
+//        List<String> sequenceStrings = new ArrayList<>()
+//        if(sequenceName.contains("{")){
+//            JSONObject projectionSequenceObject = (JSONObject) JSON.parse(sequenceName)
+//            JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
+//            for (int i = 0; i < sequenceArray.size(); i++) {
+//                JSONObject sequenceObject = sequenceArray.getJSONObject(i)
+//                sequenceStrings.add(sequenceObject.name)
+//            }
+//        }
+//        else{
+//            sequenceStrings.add(sequenceName)
+//        }
 
 
         BigWigFileReader bigWigFileReader
@@ -82,9 +79,9 @@ class BigwigController {
 //            ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, "", sequenceName)
             MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
-            for(String sequenceString in sequenceStrings){
-                Integer chrStart = bigWigFileReader.getChrStart(sequenceString)
-                Integer chrStop = bigWigFileReader.getChrStop(sequenceString)
+            for(ProjectionChunk projectionChunk in projection.projectionChunkList.projectionChunkList){
+                Integer chrStart = bigWigFileReader.getChrStart(projectionChunk.sequence)
+                Integer chrStop = bigWigFileReader.getChrStop(projectionChunk.sequence)
                 double mean = bigWigFileReader.mean()
                 double max = bigWigFileReader.max()
                 double min = bigWigFileReader.min()
@@ -105,7 +102,7 @@ class BigwigController {
                         globalFeature.put("end", endStep)
                         Integer reverseStart = projection.projectReverseValue(i)
                         Integer reverseEnd = projection.projectReverseValue(endStep)
-                        edu.unc.genomics.Contig innerContig = bigWigFileReader.query(sequenceString, reverseStart, reverseEnd)
+                        edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionChunk.sequence, reverseStart, reverseEnd)
                         Integer value = innerContig.mean()
 
                         if (value >= 0) {
@@ -117,7 +114,7 @@ class BigwigController {
                         featuresArray.add(globalFeature)
                     }
                 } else {
-                    Interval interval = new Interval(sequenceString, chrStart, chrStop)
+                    Interval interval = new Interval(projectionChunk.sequence, chrStart, chrStop)
                     edu.unc.genomics.Contig contig = bigWigFileReader.query(interval)
                     float[] values = contig.values
 
@@ -134,19 +131,11 @@ class BigwigController {
                         }
                     }
                 }
-
             }
-
             println "end array ${featuresArray.size()}"
-
-
         } catch (e) {
             println "baddness ${e} -> ${path}"
         }
-
-
-
-
 
         render returnObject as JSON
     }
