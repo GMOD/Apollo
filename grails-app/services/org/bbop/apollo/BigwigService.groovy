@@ -49,14 +49,25 @@ class BigwigService {
 
     @NotTransactional
     def processProjection(JSONArray featuresArray,MultiSequenceProjection projection,BigWigFileReader bigWigFileReader,int start,int end){
+
+        int maxInView = 500
+
+        Integer realStart = 0
+        Integer realEnd = 0
+        int stepSize = 1
+
         for (ProjectionChunk projectionChunk in projection.projectionChunkList.projectionChunkList) {
-            Integer actualStart = start
-            Integer actualStop = end
+            realEnd += bigWigFileReader.getChrStop(projectionChunk.sequence)
+        }
+
+        Integer actualStart = start
+        Integer actualStop = end
+        stepSize = maxInView < (actualStop - actualStart) ? (actualStop - actualStart) / maxInView : 1
+
+        for (ProjectionChunk projectionChunk in projection.projectionChunkList.projectionChunkList) {
 
             // let 500 be max in view
-            int maxInView = 500
             // calculate step size
-            int stepSize = maxInView < (actualStop - actualStart) ? (actualStop - actualStart) / maxInView : 1
 
             for (Integer i = actualStart; i < actualStop; i += stepSize) {
                 JSONObject globalFeature = new JSONObject()
