@@ -5,6 +5,7 @@ import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionChunk
+import org.bbop.apollo.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import edu.unc.genomics.Interval
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -78,6 +79,20 @@ class BigwigService {
                 Integer reverseEnd = projection.projectReverseValue(endStep)
                 edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionChunk.sequence, reverseStart, reverseEnd)
                 Integer value = innerContig.mean()
+//                ProjectionSequence startProjectionSequence = projection.getProjectionSequence(reverseStart)
+//                ProjectionSequence endProjectionSequence = projection.getProjectionSequence(reverseEnd)
+//                Integer value
+//                if(startProjectionSequence.name==endProjectionSequence.name){
+//                    edu.unc.genomics.Contig innerContig = bigWigFileReader.query(startProjectionSequence.name, reverseStart, reverseEnd)
+//                    value = innerContig.mean()
+//                }
+//                else{
+//                    Integer firstChromStop = bigWigFileReader.getChrStop(startProjectionSequence.name)
+//                    Integer lastChromStart = bigWigFileReader.getChrStart(endProjectionSequence.name)
+//                    edu.unc.genomics.Contig innerConti1 = bigWigFileReader.query(startProjectionSequence.name, reverseStart, firstChromStop)
+//                    edu.unc.genomics.Contig innerConti2 = bigWigFileReader.query(endProjectionSequence.name, lastChromStart, reverseEnd)
+//                    value = (innerConti1.total() + innerConti2.total()) / ((float) (innerConti1.actualNumberOfValues() + innerConti2.actualNumberOfValues()))
+//                }
 
                 if (value >= 0) {
 //                        // TODO: this should be th mean value
