@@ -1,14 +1,10 @@
 package org.bbop.apollo
 
-import edu.unc.genomics.Interval
 import edu.unc.genomics.io.BigWigFileReader
 import grails.converters.JSON
-import org.apache.commons.io.FilenameUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionChunk
-import org.bbop.apollo.projection.ProjectionInterface
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -23,6 +19,7 @@ class BigwigController {
     def projectionService
     def bookmarkService
     def trackService
+    def bigwigService
 
     /**
      *{"features": [
@@ -53,19 +50,6 @@ class BigwigController {
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
 
-//        List<String> sequenceStrings = new ArrayList<>()
-//        if(sequenceName.contains("{")){
-//            JSONObject projectionSequenceObject = (JSONObject) JSON.parse(sequenceName)
-//            JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
-//            for (int i = 0; i < sequenceArray.size(); i++) {
-//                JSONObject sequenceObject = sequenceArray.getJSONObject(i)
-//                sequenceStrings.add(sequenceObject.name)
-//            }
-//        }
-//        else{
-//            sequenceStrings.add(sequenceName)
-//        }
-
 
         BigWigFileReader bigWigFileReader
         Path path
@@ -75,26 +59,18 @@ class BigwigController {
             // TODO: should cache these if open
             bigWigFileReader = new BigWigFileReader(path)
 
-
-//            ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, "", sequenceName)
             MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
-            for(ProjectionChunk projectionChunk in projection.projectionChunkList.projectionChunkList){
-                Integer chrStart = bigWigFileReader.getChrStart(projectionChunk.sequence)
-                Integer chrStop = bigWigFileReader.getChrStop(projectionChunk.sequence)
-                double mean = bigWigFileReader.mean()
-                double max = bigWigFileReader.max()
-                double min = bigWigFileReader.min()
+            if (projection) {
+                for (ProjectionChunk projectionChunk in projection.projectionChunkList.projectionChunkList) {
+                    Integer actualStart = start
+                    Integer actualStop = end
 
-                Integer actualStart = start
-                Integer actualStop = end
+                    // let 500 be max in view
+                    int maxInView = 500
+                    // calculate step size
+                    int stepSize = maxInView < (actualStop - actualStart) ? (actualStop - actualStart) / maxInView : 1
 
-                // let 500 be max in view
-                int maxInView = 500
-                // calculate step size
-                int stepSize = maxInView < (actualStop - actualStart) ? (actualStop - actualStart) / maxInView : 1
-
-                if (projection) {
                     for (Integer i = actualStart; i < actualStop; i += stepSize) {
                         JSONObject globalFeature = new JSONObject()
                         Integer endStep = i + stepSize
@@ -113,24 +89,9 @@ class BigwigController {
                         }
                         featuresArray.add(globalFeature)
                     }
-                } else {
-                    Interval interval = new Interval(projectionChunk.sequence, chrStart, chrStop)
-                    edu.unc.genomics.Contig contig = bigWigFileReader.query(interval)
-                    float[] values = contig.values
-
-                    for (Integer i = actualStart; i < actualStop; i += stepSize) {
-                        JSONObject globalFeature = new JSONObject()
-                        globalFeature.put("start", i)
-                        Integer endStep = i + stepSize
-                        globalFeature.put("end", endStep)
-
-                        if (values[i] < max && values[i] > min) {
-                            // TODO: this should be th mean value
-                            globalFeature.put("score", values[i])
-                            featuresArray.add(globalFeature)
-                        }
-                    }
                 }
+            } else {
+                bigwigService.processSequence(featuresArray, sequenceName, bigWigFileReader, start, end)
             }
             println "end array ${featuresArray.size()}"
         } catch (e) {
