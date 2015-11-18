@@ -79,7 +79,6 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "un-projected 11.4 individually"() {
         given: "proper inputs"
         List<String> sequenceStrings = ["Group11.4"]
-        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1/trackData.json"
         String refererLoc = "{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1:1..16607"
 
         when: "we get the projected track data "
@@ -96,7 +95,6 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         given: "proper inputs"
         List<String> sequenceStrings = ["GroupUn87", "Group11.4"]
-        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1/trackData.json"
         String refererLoc = "{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1:1..16607"
 
         when: "we get the projected track data "
@@ -112,7 +110,6 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "Projected 11.4 individually"() {
         given: "proper inputs"
         List<String> sequenceStrings = ["Group11.4"]
-        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1/trackData.json"
         String refererLoc = "{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1:1..16607"
 
         when: "we get the projected track data "
@@ -130,7 +127,6 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         given: "proper inputs"
         List<String> sequenceStrings = ["GroupUn87", "Group11.4"]
-        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1/trackData.json"
         String refererLoc = "{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1:1..16607"
 
         when: "we get the projected track data "
@@ -166,12 +162,6 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         given: "proper inputs"
         List<String> sequenceStrings = ["Group11.6", "Group1.10"]
-        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceStrings[0]}\"},{\"name\":\"${sequenceStrings[1]}\"}], \"label\":\"${sequenceStrings.join('::')}\"}:-1..-1/trackData.json"
-        String chunk1 = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${sequenceStrings[0]}/lf-1.json"
-        String chunk2 = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${sequenceStrings[0]}/lf-2.json"
-        String chunk3 = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${sequenceStrings[1]}/lf-1.json"
-        // don't need to test chunk5 as well
-        String chunk5 = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${sequenceStrings[1]}/lf-3.json"
         String refererLoc = "{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceStrings[0]}\"},{\"name\":\"${sequenceStrings[1]}\"}], \"label\":\"${sequenceStrings.join('::')}\"}:-1..-1:1..16607"
         JSONArray array
 
