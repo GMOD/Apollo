@@ -62,34 +62,7 @@ class BigwigController {
             MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
             if (projection) {
-                for (ProjectionChunk projectionChunk in projection.projectionChunkList.projectionChunkList) {
-                    Integer actualStart = start
-                    Integer actualStop = end
-
-                    // let 500 be max in view
-                    int maxInView = 500
-                    // calculate step size
-                    int stepSize = maxInView < (actualStop - actualStart) ? (actualStop - actualStart) / maxInView : 1
-
-                    for (Integer i = actualStart; i < actualStop; i += stepSize) {
-                        JSONObject globalFeature = new JSONObject()
-                        Integer endStep = i + stepSize
-                        globalFeature.put("start", i)
-                        globalFeature.put("end", endStep)
-                        Integer reverseStart = projection.projectReverseValue(i)
-                        Integer reverseEnd = projection.projectReverseValue(endStep)
-                        edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionChunk.sequence, reverseStart, reverseEnd)
-                        Integer value = innerContig.mean()
-
-                        if (value >= 0) {
-//                        // TODO: this should be th mean value
-                            globalFeature.put("score", value)
-                        } else {
-                            globalFeature.put("score", 0)
-                        }
-                        featuresArray.add(globalFeature)
-                    }
-                }
+                bigwigService.processProjection(featuresArray, projection, bigWigFileReader, start, end)
             } else {
                 bigwigService.processSequence(featuresArray, sequenceName, bigWigFileReader, start, end)
             }
