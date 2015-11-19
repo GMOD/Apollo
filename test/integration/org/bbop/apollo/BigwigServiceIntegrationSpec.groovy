@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
 import edu.unc.genomics.io.BigWigFileReader
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 
 import java.nio.file.FileSystems
@@ -10,6 +10,7 @@ import java.nio.file.Path
 class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     def bigwigService
+    def projectionService
 
     String bigwigFile = "test/integration/resources/sequences/honeybee-bigwig/forager-small.bw"
 
@@ -65,11 +66,23 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "ref-seq only projection for a baseline on 11.4 individually"() {
         given: "proper inputs"
         List<String> sequenceStrings = ["Group11.4"]
+        JSONArray featuresArray = new JSONArray()
+        File file = new File(bigwigFile)
+        Path path = FileSystems.getDefault().getPath(file.absolutePath)
+        BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
 
         when: "we get the projected track data "
-//        JSONObject trackObject = bigwigService.processProjection(sequenceStrings, dataFileName, refererLoc, Organism.first())
+        JSONArray resultArray = bigwigService.processSequence(featuresArray, sequenceStrings.first(), bigWigFileReader,-25001,0)
 
         then: "we expect to get sane results"
+        assert resultArray.size()==232
+
+        when: "we get the projected track data "
+        featuresArray = new JSONArray()
+        resultArray = bigwigService.processSequence(featuresArray, sequenceStrings.first(), bigWigFileReader,49999,75000)
+
+        then: "we expect to get sane results"
+        assert resultArray.size()==190
     }
 
     /**
@@ -79,12 +92,25 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "un-projected 11.4 individually"() {
         given: "proper inputs"
         List<String> sequenceStrings = ["Group11.4"]
+        JSONArray featuresArray = new JSONArray()
         String refererLoc = "{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1:1..16607"
+        File file = new File(bigwigFile)
+        Path path = FileSystems.getDefault().getPath(file.absolutePath)
+        BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
 
         when: "we get the projected track data "
-//        JSONObject trackObject = bigwigService.processProjection(sequenceStrings, dataFileName, refererLoc, Organism.first())
+        MultiSequenceProjection projection = projectionService.getProjection(refererLoc, Organism.first())
+        JSONArray resultArray = bigwigService.processProjection(featuresArray, projection, bigWigFileReader, -50001,0)
 
         then: "we expect to get sane results"
+        assert featuresArray.size()==501
+
+        when: "we get the projected track data "
+        featuresArray = new JSONArray()
+        resultArray = bigwigService.processProjection(featuresArray, projection, bigWigFileReader, 149999,200000)
+
+        then: "we expect to get sane results"
+        assert resultArray.size()==501
     }
 
     /**
