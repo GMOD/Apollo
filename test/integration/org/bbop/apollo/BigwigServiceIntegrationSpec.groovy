@@ -114,6 +114,33 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
     /**
+     *  GroupUn87
+     */
+    void "un-projected Un87 individually"() {
+        given: "proper inputs"
+        List<String> sequenceStrings = ["GroupUn87"]
+        JSONArray featuresArray = new JSONArray()
+        String refererLoc = "{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"}], \"label\":\"GroupUn87\"}:-1..-1:1..16607"
+        File file = new File(bigwigFile)
+        Path path = FileSystems.getDefault().getPath(file.absolutePath)
+        BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
+
+        when: "we get the projected track data "
+        MultiSequenceProjection projection = projectionService.getProjection(refererLoc, Organism.first())
+        JSONArray resultArray = bigwigService.processProjection(featuresArray, projection, bigWigFileReader, -50001,0)
+
+        then: "we expect to get sane results"
+        assert featuresArray.size()==501
+
+        when: "we get the projected track data "
+        featuresArray = new JSONArray()
+        resultArray = bigwigService.processProjection(featuresArray, projection, bigWigFileReader, 149999,200000)
+
+        then: "we expect to get sane results"
+        assert resultArray.size()==501
+    }
+
+    /**
      *  GroupUn87: Projected: 0,213 <-> 723,843   (4 groups), Unprojected: 9966,10179 (first)  45455,45575 (last)
      *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
      */
@@ -121,12 +148,25 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         given: "proper inputs"
         List<String> sequenceStrings = ["GroupUn87", "Group11.4"]
+        JSONArray featuresArray = new JSONArray()
         String refererLoc = "{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1:1..16607"
+        File file = new File(bigwigFile)
+        Path path = FileSystems.getDefault().getPath(file.absolutePath)
+        BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
 
         when: "we get the projected track data "
-//        JSONObject trackObject = bigwigService.processProjection(sequenceStrings, dataFileName, refererLoc, Organism.first())
+        MultiSequenceProjection projection = projectionService.getProjection(refererLoc, Organism.first())
+        JSONArray resultArray = bigwigService.processProjection(featuresArray, projection, bigWigFileReader, -50001,0)
 
         then: "we expect to get sane results"
+        assert featuresArray.size()==501
+
+        when: "we get the projected track data "
+        featuresArray = new JSONArray()
+        resultArray = bigwigService.processProjection(featuresArray, projection, bigWigFileReader, 149999,200000)
+
+        then: "we expect to get sane results"
+        assert resultArray.size()==501
     }
 
     /**
