@@ -25,10 +25,20 @@ class SequenceService {
     def exonService
     def cdsService
     def gff3HandlerService
+    def overlapperService
+    def sessionFactory
 
-//    List<FeatureLocation> getFeatureLocations(Sequence sequence){
-//        FeatureLocation.findAllBySequence(sequence)
-//    }
+    def cleanUpGorm() {
+        def session = sessionFactory.currentSession
+        session.flush()
+        session.clear()
+   //     propertyInstanceMap.get().clear()
+    }
+
+
+    List<FeatureLocation> getFeatureLocations(Sequence sequence){
+        FeatureLocation.findAllBySequence(sequence)
+    }
 
     /**
      * Get residues from sequence . . . could be multiple locations
@@ -203,9 +213,23 @@ class SequenceService {
         int startChunkNumber = fmin / sequence.seqChunkSize;
         int endChunkNumber = (fmax - 1 ) / sequence.seqChunkSize;
 
-        for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
-            SequenceChunk sequenceChunk = getSequenceChunkForChunk(sequence,i)
-            sequenceString.append(sequenceChunk.residue)
+        def c=SequenceChunk.createCriteria()
+        def chunks=c.list() {
+            eq('sequence',sequence)
+            'in'('chunkNumber',startChunkNumber..endChunkNumber)
+        }
+        log.debug("${chunks.size()} ${endChunkNumber-startChunkNumber+1}")
+        if(chunks.size()==endChunkNumber-startChunkNumber+1) {
+            chunks.each {
+                sequenceString.append(it.residue)
+            }
+        }
+        else {
+            for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
+                SequenceChunk sequenceChunk = getSequenceChunkForChunk(sequence,i)
+                sequenceString.append(sequenceChunk.residue)
+            }
+            cleanUpGorm()
         }
 
 
