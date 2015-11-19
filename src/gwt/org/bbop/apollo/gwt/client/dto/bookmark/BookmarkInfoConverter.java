@@ -7,7 +7,9 @@ import org.bbop.apollo.gwt.shared.BookmarkKeyEnum;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.awt.print.Book;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -119,5 +121,13 @@ public class BookmarkInfoConverter {
         }
 
         return jsonArray;
+    }
+
+    public static List<BookmarkInfo> convertFromJsonArray (JSONArray bookmarkList) {
+        List<BookmarkInfo> bookmarkInfoArrayList = new ArrayList<>();
+        for (int i = 0; bookmarkList != null && i < bookmarkList.size(); i++) {
+            bookmarkInfoArrayList.add(convertJSONObjectToBookmarkInfo(bookmarkList.get(i).isObject()));
+        }
+        return bookmarkInfoArrayList;
     }
 }

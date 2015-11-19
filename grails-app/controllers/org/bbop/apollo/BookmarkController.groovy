@@ -72,4 +72,23 @@ class BookmarkController {
         def bookmarks = Bookmark.findAllByUserAndOrganism(user,organism)
         render bookmarks as JSON
     }
+
+    def searchBookmarks(String searchQuery) {
+        JSONArray requestJSONObject = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray;
+        User user = permissionService.currentUser;
+        Organism organism = preferenceService.getCurrentOrganism(user);
+
+        ArrayList<Bookmark> bookmarkResults = new ArrayList<Bookmark>();
+        for (Bookmark bookmark : user.bookmarks) {
+            if (bookmark.sequenceList.toLowerCase().contains(searchQuery)) {
+                bookmarkResults.add(bookmark);
+            }
+        }
+
+        if (bookmarkResults.size() > 0) {
+            render bookmarkResults.sort() { a, b -> a.sequenceList <=> b.sequenceList } as JSON
+        } else {
+            render new JSONObject() as JSON
+        }
+    }
 }

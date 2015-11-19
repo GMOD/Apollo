@@ -33,4 +33,9 @@ public class BookmarkRestService {
     public static void getBookmarks(RequestCallback requestCallback, BookmarkInfo bookmarkInfo) {
         RestService.sendRequest(requestCallback, "bookmark/getBookmark",BookmarkInfoConverter.convertBookmarkInfoToJSONObject(bookmarkInfo));
     }
+
+    public static void searchBookmarks(RequestCallback requestCallback, String searchString) {
+        String requestString = "bookmark/searchBookmarks/?searchQuery=" + searchString;
+        RestService.sendRequest(requestCallback, requestString);
+    }
 }

@@ -4,10 +4,7 @@ import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -85,6 +82,8 @@ public class BookmarkPanel extends Composite {
     AbsolutePanel absolutePanel;
     @UiField
     Button viewButton;
+    @UiField
+    org.gwtbootstrap3.client.ui.TextBox searchBox;
 
     final LoadingDialog loadingDialog;
     private PickupDragController dragController ;
@@ -429,4 +428,29 @@ public class BookmarkPanel extends Composite {
         BookmarkRestService.addBookmark(requestCallback,bookmarkInfoCollection);
     }
 
+    @UiHandler("searchBox")
+    public void searchForBookmark(KeyUpEvent keyUpEvent) {
+        BookmarkRestService.searchBookmarks(new SearchAndUpdateBookmarksCallback(), searchBox.getText());
+        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+        dataGrid.redraw();
+    }
+
+    private class SearchAndUpdateBookmarksCallback implements  RequestCallback {
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+            JSONArray jsonValue = JSONParser.parseStrict(response.getText()).isArray();
+            // cleaning up bookmarkInfoList
+            bookmarkInfoList.clear();
+
+            // adding bookmarks from response
+            bookmarkInfoList.addAll(BookmarkInfoConverter.convertFromJsonArray(jsonValue));
+            loadingDialog.hide();
+        }
+
+        @Override
+        public void onError(Request request, Throwable exception) {
+            loadingDialog.hide();
+            new ErrorDialog("Error", "There was an error: " + exception, true, true);
+        }
+    }
 }
