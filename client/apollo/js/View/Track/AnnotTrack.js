@@ -2814,8 +2814,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                         }
                                     });
                                     // replaced with valid GOLR URL in build.xml file during copy process #148
-                                    //var gserv = 'http://golr.berkeleybop.org/';
-                                    var gserv = 'http://golr.geneontology.org/solr/';
+                                    var gserv = 'http://golr.berkeleybop.org/solr/';
+                                    //var gserv = 'http://golr.geneontology.org/solr/';
                                     //var gserv = 'http://a2-proxy2.stanford.edu:8080/solr/';
                                     //var gserv = 'http://a2-proxy1.stanford.edu:8080/solr/';
 
