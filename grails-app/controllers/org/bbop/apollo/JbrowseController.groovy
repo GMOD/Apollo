@@ -112,9 +112,7 @@ class JbrowseController {
                 if (organism.sequences) {
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
-//                    String sequenceList = userOrganismPreference.bookmark.sequenceList
                     List<Sequence> sequences = organism?.sequences
-//                    List<String> sequenceList = []
                     JSONArray sequenceArray = new JSONArray()
                     sequences.each {
                         JSONObject jsonObject = new JSONObject()
@@ -152,13 +150,6 @@ class JbrowseController {
         return organismJBrowseDirectory
     }
 
-    private static String extractLocation(String referer) {
-        int startIndex = referer.indexOf("?loc=")
-        int endIndex = referer.contains("&") ? referer.indexOf("&") : referer.length()
-        String refererLoc = referer.subSequence(startIndex + 5, endIndex)
-        refererLoc = URLDecoder.decode(refererLoc, "UTF-8")
-        return refererLoc
-    }
 
 
     /**
@@ -171,7 +162,7 @@ class JbrowseController {
         String fileName = FilenameUtils.getName(params.path)
 
         String referer = request.getHeader("Referer")
-        String refererLoc = extractLocation(referer)
+        String refererLoc = trackService.extractLocation(referer)
 
         String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
         println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "

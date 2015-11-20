@@ -563,6 +563,15 @@ class TrackService {
 
     }
 
+    @NotTransactional
+    String extractLocation(String referer) {
+        int startIndex = referer.indexOf("?loc=")
+        int endIndex = referer.contains("&") ? referer.indexOf("&") : referer.length()
+        String refererLoc = referer.subSequence(startIndex + 5, endIndex)
+        refererLoc = URLDecoder.decode(refererLoc, "UTF-8")
+        return refererLoc
+    }
+
     JSONObject projectTrackData(ArrayList<String> sequenceStrings, String dataFileName, String refererLoc, Organism currentOrganism) {
         Map<String, JSONObject> trackObjectList = new HashMap<>()
         ProjectionChunkList projectionChunkList = new ProjectionChunkList()

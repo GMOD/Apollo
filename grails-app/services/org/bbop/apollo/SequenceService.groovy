@@ -25,15 +25,7 @@ class SequenceService {
     def exonService
     def cdsService
     def gff3HandlerService
-    def overlapperService
     def sessionFactory
-
-    def cleanUpGorm() {
-        def session = sessionFactory.currentSession
-        session.flush()
-        session.clear()
-   //     propertyInstanceMap.get().clear()
-    }
 
 
     List<FeatureLocation> getFeatureLocations(Sequence sequence){
@@ -229,7 +221,6 @@ class SequenceService {
                 SequenceChunk sequenceChunk = getSequenceChunkForChunk(sequence,i)
                 sequenceString.append(sequenceChunk.residue)
             }
-            cleanUpGorm()
         }
 
 
