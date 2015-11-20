@@ -74,7 +74,7 @@ class BigwigService {
 
         Integer actualStart = start
         Integer actualStop = end
-        stepSize = maxInView < (actualStop - actualStart) ? (actualStop - actualStart) / maxInView : 1
+//        stepSize = maxInView < (actualStop - actualStart) ? (actualStop - actualStart) / maxInView : 1
 
 //        if(projection?.projectionChunkList?.projectionChunkList){
 //        for (String sequenceName in projection.projectionChunkList.projectionChunkList.sequence) {
@@ -90,6 +90,8 @@ class BigwigService {
             // recalculate start and stop for each sequence
             Integer calculatedStart = actualStart + offset
             Integer calculatedStop = lengthMap.get(order)
+            Integer ratio = ((calculatedStop-calculatedStart) / ( (float) actualStop-actualStart)) / (float) maxInView
+            stepSize = maxInView < (calculatedStop - calculatedStart) ? (calculatedStop- calculatedStart) / maxInView : 1
             calculateFeatureArray(featuresArray, calculatedStart, calculatedStop, stepSize, bigWigFileReader, projection, projectionSequence.name)
 
             offset = lengthMap.get(order)+1
