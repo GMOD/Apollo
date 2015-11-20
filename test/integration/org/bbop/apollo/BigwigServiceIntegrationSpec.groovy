@@ -21,19 +21,19 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
         organism.save(failOnError: true, flush: true)
 
         new Sequence(
-                length: 1405242
+                length: 75085
                 , seqChunkSize: 20000
                 , start: 0
-                , end: 1405242
+                , end: 75085
                 , organism: organism
                 , name: "Group11.4"
         ).save(failOnError: true)
 
         new Sequence(
-                length: 1405242
+                length: 78258
                 , seqChunkSize: 20000
                 , start: 0
-                , end: 1405242
+                , end: 78258
                 , organism: organism
                 , name: "GroupUn87"
         ).save(failOnError: true)

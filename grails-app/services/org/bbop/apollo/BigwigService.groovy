@@ -3,6 +3,7 @@ package org.bbop.apollo
 import edu.unc.genomics.io.BigWigFileReader
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionChunk
 import org.bbop.apollo.projection.ProjectionSequence
@@ -57,8 +58,18 @@ class BigwigService {
         Integer realEnd = 0
         int stepSize = 1
 
-        for (ProjectionChunk projectionChunk in projection.projectionChunkList.projectionChunkList) {
-            realEnd += bigWigFileReader.getChrStop(projectionChunk.sequence)
+//        for (ProjectionChunk projectionChunk in projection.projectionChunkList.projectionChunkList) {
+//            realEnd += bigWigFileReader.getChrStop(projectionChunk.sequence)
+//        }
+//
+//        for (ProjectionSequence projectionSequence in projection.sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
+//            realEnd += bigWigFileReader.getChrStop(projectionSequence.name)
+//        }
+
+        Map<Integer,Integer> lengthMap = new TreeMap<>()
+        for (ProjectionSequence projectionSequence in projection.sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
+            lengthMap.put(projectionSequence.order,projection.sequenceDiscontinuousProjectionMap.get(projectionSequence).length)
+            realEnd += bigWigFileReader.getChrStop(projectionSequence.name)
         }
 
         Integer actualStart = start
@@ -73,8 +84,16 @@ class BigwigService {
 //        }
 //        }
 //        else{
-        for (String sequenceName in projection.sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }.name) {
-            calculateFeatureArray(featuresArray, actualStart, actualStop, stepSize, bigWigFileReader, projection, sequenceName)
+        Integer offset = 0
+        Integer order = 0
+        for (ProjectionSequence projectionSequence in projection.sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
+            // recalculate start and stop for each sequence
+            Integer calculatedStart = actualStart + offset
+            Integer calculatedStop = lengthMap.get(order)
+            calculateFeatureArray(featuresArray, calculatedStart, calculatedStop, stepSize, bigWigFileReader, projection, projectionSequence.name)
+
+            offset = lengthMap.get(order)+1
+            ++order
         }
 //        }
         return featuresArray
