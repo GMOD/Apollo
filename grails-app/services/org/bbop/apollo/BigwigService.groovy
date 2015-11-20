@@ -74,16 +74,7 @@ class BigwigService {
 
         Integer actualStart = start
         Integer actualStop = end
-//        stepSize = maxInView < (actualStop - actualStart) ? (actualStop - actualStart) / maxInView : 1
 
-//        if(projection?.projectionChunkList?.projectionChunkList){
-//        for (String sequenceName in projection.projectionChunkList.projectionChunkList.sequence) {
-//            // let 500 be max in view
-//            // calculate step size
-//            calculateFeatureArray(featuresArray, actualStart, actualStop, stepSize, bigWigFileReader, projection, sequenceName)
-//        }
-//        }
-//        else{
         Integer offset = 0
         Integer order = 0
         for (ProjectionSequence projectionSequence in projection.sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
@@ -92,7 +83,7 @@ class BigwigService {
             Integer calculatedStop = lengthMap.get(order)
             Integer ratio = ((calculatedStop-calculatedStart) / ( (float) actualStop-actualStart)) / (float) maxInView
             stepSize = maxInView < (calculatedStop - calculatedStart) ? (calculatedStop- calculatedStart) / maxInView : 1
-            calculateFeatureArray(featuresArray, calculatedStart, calculatedStop, stepSize, bigWigFileReader, projection, projectionSequence.name)
+            calculateFeatureArray(featuresArray, calculatedStart, calculatedStop, stepSize, bigWigFileReader, projection, projectionSequence)
 
             offset = lengthMap.get(order)+1
             ++order
@@ -102,15 +93,15 @@ class BigwigService {
 
     }
 
-    def calculateFeatureArray(JSONArray featuresArray, int actualStart, int actualStop, int stepSize, BigWigFileReader bigWigFileReader, MultiSequenceProjection projection, String sequenceName) {
+    def calculateFeatureArray(JSONArray featuresArray, int actualStart, int actualStop, int stepSize, BigWigFileReader bigWigFileReader, MultiSequenceProjection projection, ProjectionSequence projectionSequence) {
         for (Integer i = actualStart; i < actualStop; i += stepSize) {
             JSONObject globalFeature = new JSONObject()
             Integer endStep = i + stepSize
-            globalFeature.put("start", i)
-            globalFeature.put("end", endStep)
+            globalFeature.put("start", i+projectionSequence.offset)
+            globalFeature.put("end", endStep+projectionSequence.offset)
             Integer reverseStart = projection.projectReverseValue(i)
             Integer reverseEnd = projection.projectReverseValue(endStep)
-            edu.unc.genomics.Contig innerContig = bigWigFileReader.query(sequenceName, reverseStart, reverseEnd)
+            edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionSequence.name, reverseStart, reverseEnd)
             Integer value = innerContig.mean()
 //                ProjectionSequence startProjectionSequence = projection.getProjectionSequence(reverseStart)
 //                ProjectionSequence endProjectionSequence = projection.getProjectionSequence(reverseEnd)
