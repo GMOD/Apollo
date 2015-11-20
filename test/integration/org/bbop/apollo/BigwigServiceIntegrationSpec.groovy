@@ -3,6 +3,7 @@ package org.bbop.apollo
 import edu.unc.genomics.io.BigWigFileReader
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
+import spock.lang.Ignore
 
 import java.nio.file.FileSystems
 import java.nio.file.Path
@@ -211,6 +212,7 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
      *  GroupUn87: Projected: 0,213 <-> 723,843   (4 groups), Unprojected: 9966,10179 (first)  45455,45575 (last)
      *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
      */
+    @Ignore
     void "non-projection of contiguous tracks should work"() {
 
         given: "proper inputs"
@@ -241,6 +243,7 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
      *  GroupUn87: Projected: 0,213 <-> 723,843   (4 groups), Unprojected: 9966,10179 (first)  45455,45575 (last)
      *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
      */
+    @Ignore
     void "exon projections of contiguous tracks should work"() {
 
         given: "proper inputs"
@@ -289,6 +292,7 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
      *  (lf-2 . . 61 pieces, 108504 <=> 109549  first, 195958 <=> 201343 last ) ,
      *  (lf-3 . . 16 pieces, 201344 <=>  206511 first, 227803 <=> 230587 last ) ,
      */
+    @Ignore
     void "chunking / chunking projection"() {
 
         given: "proper inputs"
