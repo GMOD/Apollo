@@ -2814,10 +2814,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                         }
                                     });
                                     // replaced with valid GOLR URL in build.xml file during copy process #148
-                                    var gserv = 'http://golr.berkeleybop.org/solr/';
-                                    //var gserv = 'http://golr.geneontology.org/solr/';
-                                    //var gserv = 'http://a2-proxy2.stanford.edu:8080/solr/';
-                                    //var gserv = 'http://a2-proxy1.stanford.edu:8080/solr/';
+                                    var gserv = 'http://golr.geneontology.org/'; // first-choice
+                                    //var gserv = 'http://golr.berkeleybop.org/';  // second-choice
+                                    //var gserv = 'http://golr.berkeleybop.org/solr/'; // experimental last-choice
 
                                     var gconf = new bbop.golr.conf(amigo.data.golr);
                                     var args = {
