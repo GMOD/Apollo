@@ -19,38 +19,14 @@ class BootStrap {
     def configWrapperService
     def grailsApplication
     def featureTypeService
+    def domainMarshallerService
+    def proxyService
 
 
     def init = { servletContext ->
 
-        JSON.registerObjectMarshaller(User) {
-            def returnArray = [:]
-            returnArray['userId'] = it.id
-            returnArray['username'] = it.username
-            returnArray['firstName'] = it.firstName
-            returnArray['lastName'] = it.lastName
-            return returnArray
-        }
-
-        JSON.registerObjectMarshaller(Organism) {
-            def returnArray = [:]
-            returnArray['id'] = it.id
-            returnArray['commonName'] = it.commonName
-            returnArray['genus'] = it?.genus
-            returnArray['species'] = it?.species
-            returnArray['directory'] = it.directory
-            return returnArray
-        }
-
-        JSON.registerObjectMarshaller(Sequence) {
-            def returnArray = [:]
-            returnArray['id'] = it.id
-            returnArray['name'] = it.name
-            returnArray['length'] = it?.length
-            returnArray['start'] = it?.start
-            returnArray['end'] = it.end
-            return returnArray
-        }
+        domainMarshallerService.registerObjects()
+        proxyService.initProxies()
 
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
         SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
@@ -68,8 +44,6 @@ class BootStrap {
             def adminRole = new Role(name: UserService.ADMIN).save()
             adminRole.addToPermissions("*:*")
         }
-
-
 
         if (grailsApplication.config.apollo.bootstrap || Environment.current == Environment.TEST) {
             log.debug "attempting to bootstrap the data "

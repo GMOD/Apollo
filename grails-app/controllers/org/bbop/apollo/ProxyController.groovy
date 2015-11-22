@@ -49,21 +49,17 @@ class ProxyController {
 
 
         if(!proxy){
-            proxy = proxyService.findDefaultProxy(referenceUrl)
-        }
-        if(!proxy){
             log.error "Proxy not found for ${referenceUrl}.  Please add a proxy (see the config guide)."
             render status: NOT_FOUND
             return
         }
-
-
 
         log.info "using proxy ${proxy?.targetUrl}"
 
         String targetUrl = proxy ? proxy.targetUrl : referenceUrl
 
         targetUrl += "?"+request.queryString
+        println "target url: ${targetUrl}"
         URL returnUrl = new URL(targetUrl)
 
         log.debug "input URI ${request.requestURI}"
