@@ -10,8 +10,8 @@ class BookmarkService {
 
     def permissionService
 
-    Bookmark generateBookmarkForSequence(Sequence... sequences) {
-        User user = permissionService.currentUser
+
+    Bookmark generateBookmarkForSequence(User user,Sequence... sequences) {
         Organism organism = null
         JSONArray sequenceArray = new JSONArray()
         int end = 0;
@@ -32,6 +32,11 @@ class BookmarkService {
         ).save(insert: true, flush: true, failOnError: true)
 
         return bookmark
+    }
+
+    Bookmark generateBookmarkForSequence(Sequence... sequences) {
+        User user = permissionService.currentUser
+        return generateBookmarkForSequence(user,sequences)
     }
 
     List<Sequence> getSequencesFromBookmark(Bookmark bookmark) {

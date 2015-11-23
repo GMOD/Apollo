@@ -20,7 +20,7 @@ class PermissionService {
     def bookmarkService
 
     boolean isUserAdmin(User user) {
-        if(user!=null) {
+        if (user != null) {
             for (Role role in user.roles) {
                 if (role.name == UserService.ADMIN) {
                     return true
@@ -73,7 +73,6 @@ class PermissionService {
     }
 
 
-
     static Collection<PermissionEnum> mergeOrganismPermissions(Collection<PermissionEnum> permissionsA, Collection<PermissionEnum> permissionsB) {
         Set<PermissionEnum> permissionEnums = new HashSet<>()
         permissionEnums.addAll(permissionsA)
@@ -88,7 +87,7 @@ class PermissionService {
 
     List<PermissionEnum> getOrganismPermissionsForUser(Organism organism, User user) {
         Set<PermissionEnum> permissions = new HashSet<>()
-        if(isUserAdmin(user)){
+        if (isUserAdmin(user)) {
             permissions.addAll(PermissionEnum.ADMINISTRATE as List)
         }
 
@@ -101,12 +100,11 @@ class PermissionService {
                 permissions.add(permissionEnum)
             }
         }
-        if(user!=null) {
+        if (user != null) {
             for (UserGroup group in user.userGroups) {
                 permissions = mergeOrganismPermissions(permissions, getOrganismPermissionsForUserGroup(organism, group))
             }
-        }
-        else {
+        } else {
             permissions.add(PermissionEnum.NONE)
         }
 
@@ -170,7 +168,6 @@ class PermissionService {
         return jsonArray.toString()
     }
 
-
     /**
      * Get all of the highest organism permissions for a user
      * @param user
@@ -210,7 +207,6 @@ class PermissionService {
     }
 
 
-
     JSONObject copyUserName(JSONObject fromJSON, JSONObject toJSON) {
         if (fromJSON.containsKey(FeatureStringEnum.USERNAME.value)) {
             toJSON.put(FeatureStringEnum.USERNAME.value, fromJSON.getString(FeatureStringEnum.USERNAME.value))
@@ -230,7 +226,7 @@ class PermissionService {
 
     /**
      * Have to handle the cases when it is a simple "sequence' or "track" or contains multiple sequences.
-     * {"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group5.7"},{"name":"Group9.2"}]}:1..53600 (53.6 Kb)
+     *{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group5.7"},{"name":"Group9.2"}]}:1..53600 (53.6 Kb)
      *
      * @param inputObject
      * @return
@@ -239,44 +235,38 @@ class PermissionService {
     public static List<String> extractSequenceNamesFromJson(JSONObject inputObject) {
         def sequences = []
         if (inputObject.has(FeatureStringEnum.SEQUENCE_LIST.value)) {
-            inputObject.sequenceList.each{ it ->
+            inputObject.sequenceList.each { it ->
                 sequences << it.name
             }
-        }
-        else
-        if (inputObject.has(FeatureStringEnum.SEQUENCE.value)) {
-            if(BookmarkService.isProjectionString(inputObject.sequence)){
-                inputObject.sequences.each{ it ->
+        } else if (inputObject.has(FeatureStringEnum.SEQUENCE.value)) {
+            if (BookmarkService.isProjectionString(inputObject.sequence)) {
+                inputObject.sequences.each { it ->
                     sequences << it.name
                 }
-            }
-            else{
+            } else {
                 sequences << inputObject.getString(FeatureStringEnum.SEQUENCE.value)
             }
-        }
-        else
-        if (inputObject.has(FeatureStringEnum.TRACK.value)) {
-            if(BookmarkService.isProjectionString(inputObject.track.toString())){
+        } else if (inputObject.has(FeatureStringEnum.TRACK.value)) {
+            if (BookmarkService.isProjectionString(inputObject.track.toString())) {
 //                JSONObject sequenceObject = inputObject.track
-                inputObject.track.sequenceList.each{ it ->
+                def track = inputObject.track
+                if (track instanceof String) {
+                    track = JSON.parse(inputObject.track) as JSONObject
+                }
+                track.sequenceList.each { it ->
                     sequences << it.name
                 }
-            }
-            else
-            if(inputObject.track.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
+            } else if (inputObject.track.contains(FeatureStringEnum.SEQUENCE_LIST.value)) {
                 JSONObject sequenceObject = JSON.parse(inputObject.track) as JSONObject
-                sequenceObject.sequenceList.each{ it ->
+                sequenceObject.sequenceList.each { it ->
                     sequences << it.name
                 }
-            }
-            else{
+            } else {
                 sequences << inputObject.track
             }
         }
         return sequences
     }
-
-
 
     // get current user from session or input object
     User getCurrentUser(JSONObject inputObject = new JSONObject()) {
@@ -291,7 +281,7 @@ class PermissionService {
         if (!username) {
             username = SecurityUtils.subject.principal
         }
-        if(!username) {
+        if (!username) {
             return null;
         }
 
@@ -299,7 +289,6 @@ class PermissionService {
         return user
 
     }
-
 
     /**
      * This method finds the proper username with their proper organism for the current organism.
@@ -329,29 +318,26 @@ class PermissionService {
         if (!userOrganismPreference) {
             // see if this user has any permissions or an organism . . just grab the first one
             UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByUser(user)
-            if(userOrganismPermission){
+            if (userOrganismPermission) {
                 organism = userOrganismPermission.organism
-            }
-            else
+            } else
             // if not, but we are admin, then just grab the first organism
-            if(!userOrganismPermission && isAdmin() && Organism.count>0){
+            if (!userOrganismPermission && isAdmin() && Organism.count > 0) {
                 organism = Organism.list().iterator().next()
             }
 
 
-            if(organism){
+            if (organism) {
                 userOrganismPreference = new UserOrganismPreference(
                         user: user
                         , organism: organism
                         , currentOrganism: true
                         , bookmark: Bookmark.findByOrganism(organism)
                 ).save(insert: true)
-            }
-            else{
-                if(Organism.count>0){
+            } else {
+                if (Organism.count > 0) {
                     throw new PermissionException("User has no access to an organism and/or is not admin")
-                }
-                else{
+                } else {
                     return null
                 }
             }
@@ -378,9 +364,9 @@ class PermissionService {
         if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
             String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
             organism = Organism.findByCommonName(organismString)
-            if(!organism)
-                organism=Organism.findById(organismString as Long);
-            if(!organism)
+            if (!organism)
+                organism = Organism.findById(organismString as Long);
+            if (!organism)
                 log.info "organism not found ${organismString}"
         }
 
@@ -391,7 +377,7 @@ class PermissionService {
         Organism organism = null
 
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
-        if(user!=null) {
+        if (user != null) {
             if (!userOrganismPreference) {
                 userOrganismPreference = UserOrganismPreference.findByUser(user)
             }
@@ -400,24 +386,23 @@ class PermissionService {
                 // find a random organism based on sequence
 
                 List<String> sequenceStrings = []
-                if(BookmarkService.isProjectionString(trackName)){
+                if (BookmarkService.isProjectionString(trackName)) {
                     sequenceStrings = extractSequenceNamesFromJson(new JSONObject(trackName))
-                }
-                else{
+                } else {
                     sequenceStrings << trackName
                 }
                 List<Sequence> sequenceList = Sequence.findAllByNameInList(sequenceStrings)
 
                 // TODO: assume that these are ordered correctly .  . a bad assumption
-                organism  = sequenceList.first().organism
+                organism = sequenceList.first().organism
 
                 Bookmark bookmark = new Bookmark(
                         organism: organism
-                        ,sequenceList: sequenceStrings
-                        ,user: user
-                        ,start: 0
-                        ,end: sequenceList.last().end
-                ).save(flush: true, insert:true,failOnError: true)
+                        , sequenceList: sequenceStrings
+                        , user: user
+                        , start: 0
+                        , end: sequenceList.last().end
+                ).save(flush: true, insert: true, failOnError: true)
 
                 userOrganismPreference = new UserOrganismPreference(
                         user: user
@@ -444,8 +429,8 @@ class PermissionService {
         Organism organism
         println "input object ${inputObject as JSON}"
         List<String> sequenceStrings = extractSequenceNamesFromJson(inputObject)
-        if(!sequenceStrings){
-            throw new RuntimeException("Unable to process sequences: "+sequenceStrings)
+        if (!sequenceStrings) {
+            throw new RuntimeException("Unable to process sequences: " + sequenceStrings)
         }
 
         // this is for testing only
@@ -463,11 +448,11 @@ class PermissionService {
 
         User user = getCurrentUser(inputObject)
         organism = getOrganismFromInput(inputObject)
-        if(!organism) {
-            organism = getOrganismFromPreferences(user,sequenceStrings.first())
+        if (!organism) {
+            organism = getOrganismFromPreferences(user, sequenceStrings.first())
         }
 
-        List<Sequence> foundSequences = Sequence.findAllByNameInListAndOrganism(sequenceStrings,organism)
+        List<Sequence> foundSequences = Sequence.findAllByNameInListAndOrganism(sequenceStrings, organism)
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
 
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
@@ -480,15 +465,15 @@ class PermissionService {
             throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
 //        return foundSequences
-        return bookmarkService.generateBookmarkForSequence(foundSequences as Sequence[])
+        return bookmarkService.generateBookmarkForSequence(user, foundSequences as Sequence[])
     }
 
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
         try {
             Session session = SecurityUtils.subject.getSession(false)
-            if(session) {
+            if (session) {
                 Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
-                if(permissions) {
+                if (permissions) {
                     Integer permission = permissions.get(SecurityUtils.subject.principal)
                     PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
 
@@ -502,12 +487,10 @@ class PermissionService {
                         return false
                     }
                     return true
-                }
-                else {
+                } else {
                     log.debug "No permissions found on session"
                 }
-            }
-            else {
+            } else {
                 log.debug "No session found"
                 return false
             }
@@ -558,11 +541,9 @@ class PermissionService {
                 log.error("Problem authenticating: " + ae.fillInStackTrace())
                 return false
             }
-        }
-        else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
+        } else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
             jsonObject.username = SecurityUtils?.subject?.principal
-        }
-        else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
+        } else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
             jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
         }
 
@@ -582,7 +563,7 @@ class PermissionService {
             if (!thisOrganism) {
                 thisOrganism = Organism.findByAbbreviation(jsonObject.organism)
             }
-            if(organism.id!=thisOrganism.id){
+            if (organism.id != thisOrganism.id) {
                 log.debug "switching organism from ${organism.commonName} -> ${thisOrganism.commonName}"
                 organism = thisOrganism
             }
@@ -590,11 +571,11 @@ class PermissionService {
             preferenceService.setCurrentOrganism(getCurrentUser(), organism)
         }
 
-        return checkPermissions(jsonObject,organism,permissionEnum)
+        return checkPermissions(jsonObject, organism, permissionEnum)
 
     }
 
-    UserOrganismPreference getCurrentOrganismPreference(){
+    UserOrganismPreference getCurrentOrganismPreference() {
         User currentUser = getCurrentUser()
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser, true)
         if (userOrganismPreference) {
@@ -610,11 +591,10 @@ class PermissionService {
         }
 
         def organisms = getOrganisms(currentUser)
-        if(!organisms){
-            if(isAdmin()){
+        if (!organisms) {
+            if (isAdmin()) {
                 return null
-            }
-            else{
+            } else {
                 throw new PermissionException("User does not have permission for any organisms.")
             }
         }
@@ -629,13 +609,13 @@ class PermissionService {
 
     Boolean hasAnyPermissions(User user) {
 
-        Map<String,Integer> permissions = getPermissionsForUser(user)
-        if(!permissions){
+        Map<String, Integer> permissions = getPermissionsForUser(user)
+        if (!permissions) {
             return false
         }
 
-        for(Integer value : permissions.values()){
-            if(value > PermissionEnum.NONE.value){
+        for (Integer value : permissions.values()) {
+            if (value > PermissionEnum.NONE.value) {
                 return true
             }
         }
@@ -646,19 +626,20 @@ class PermissionService {
     PermissionEnum findHighestOrganismPermissionForCurrentUser(Organism organism) {
         findHighestOrganismPermissionForUser(organism, currentUser)
     }
-    PermissionEnum findHighestOrganismPermissionForUser(Organism organism,User user) {
-        List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism,user)
+
+    PermissionEnum findHighestOrganismPermissionForUser(Organism organism, User user) {
+        List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
 
         PermissionEnum highestEnum = PermissionEnum.NONE
-        for(PermissionEnum permissionEnum : permissionEnums){
-            if(permissionEnum.rank>highestEnum.rank){
+        for (PermissionEnum permissionEnum : permissionEnums) {
+            if (permissionEnum.rank > highestEnum.rank) {
                 highestEnum = permissionEnum
             }
         }
         return highestEnum
     }
 
-    Boolean userHasOrganismPermission(Organism organism,PermissionEnum permissionEnum){
+    Boolean userHasOrganismPermission(Organism organism, PermissionEnum permissionEnum) {
         return findHighestOrganismPermissionForCurrentUser(organism).rank >= permissionEnum.rank
     }
 
@@ -686,14 +667,12 @@ class PermissionService {
                 log.error("Problem authenticating: " + ae.fillInStackTrace())
                 return false
             }
-        }
-        else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
+        } else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
             jsonObject.username = SecurityUtils?.subject?.principal
-        }
-        else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
+        } else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
             jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
         }
-        if(jsonObject.username){
+        if (jsonObject.username) {
             User user = User.findByUsername(jsonObject.username)
             return user?.id == jsonObject.userId
         }
