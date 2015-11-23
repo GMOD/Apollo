@@ -818,6 +818,7 @@ class ProjectionService {
             JSONObject bookmarkJsonObject = convertProjectionToBookmarkJsonObject(putativeProjectionLoc,organism)
             return getProjection(bookmarkJsonObject)
         }
+        return null
     }
 
 
@@ -853,7 +854,7 @@ class ProjectionService {
 
     MultiSequenceProjection getProjection(Bookmark bookmark) {
         JSONObject jsonObject = bookmarkService.convertBookmarkToJson(bookmark)
-        getProjection(jsonObject)
+        return getProjection(jsonObject)
     }
 /**
  * TODO:
@@ -874,7 +875,7 @@ class ProjectionService {
         println "JSON PROJECTION OBJECT: ${bookmarkObject as JSON}"
         ProjectionDescription projectionDescription = convertJsonObjecToProjectDescription(bookmarkObject)
 
-        if (!multiSequenceProjectionMap.containsKey(projectionDescription)) {
+        if (true || !multiSequenceProjectionMap.containsKey(projectionDescription)) {
             println "does NOT contains the key! ${projectionDescription}"
             MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(projectionDescription)
             multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)

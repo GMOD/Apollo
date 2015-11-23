@@ -80,7 +80,7 @@ class TrackController {
 
             println "bookmark ${bookmark}"
             assert bookmark!=null
-            assert bookmark.sequenceList==bookmarkName
+            assert bookmark.sequenceList==sequenceName
 
 //            render retrieveSequence(sequence,trackName,nameLookup) as JSON
             render retrieveBookmarkSequence(bookmark,trackName,nameLookup) as JSON

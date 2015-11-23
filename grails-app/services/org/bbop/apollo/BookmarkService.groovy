@@ -67,7 +67,9 @@ class BookmarkService {
     JSONObject convertBookmarkToJson(Bookmark bookmark) {
         JSONObject jsonObject = new JSONObject()
         jsonObject.id = bookmark.id
-        jsonObject.type = bookmark.type ?: "NONE"
+        jsonObject.projection = bookmark.projection ?: "NONE"
+
+
         jsonObject.padding = bookmark.padding ?: 0
         jsonObject.payload = bookmark.payload ?: "{}"
         jsonObject.organism = bookmark.organism.commonName
@@ -81,6 +83,7 @@ class BookmarkService {
 
     Bookmark convertJsonToBookmark(JSONObject jsonObject) {
         Bookmark bookmark = new Bookmark()
+        bookmark.projection = jsonObject.projection
         bookmark.sequenceList = jsonObject.sequenceList
         println "bookmark convert ${bookmark.sequenceList}"
         List<Sequence> sequences = getSequencesFromBookmark(bookmark)

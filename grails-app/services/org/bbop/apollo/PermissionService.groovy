@@ -464,8 +464,15 @@ class PermissionService {
             log.debug "permission display ${requiredPermissionEnum.display}"
             throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
-//        return foundSequences
-        return bookmarkService.generateBookmarkForSequence(user, foundSequences as Sequence[])
+
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(user, foundSequences as Sequence[])
+        if((inputObject.track instanceof JSONObject) && inputObject?.track?.projection){
+            bookmark.projection = inputObject.track.projection
+            bookmark.padding = inputObject.track?.padding
+            bookmark.referenceTracks = inputObject.track?.referenceTracks
+            bookmark.save(flush: true )
+        }
+        return bookmark
     }
 
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {

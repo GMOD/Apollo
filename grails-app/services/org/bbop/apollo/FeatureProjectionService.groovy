@@ -16,7 +16,7 @@ class FeatureProjectionService {
 
     JSONArray projectTrack(JSONArray inputFeaturesArray, Bookmark bookmark,Boolean reverseProjection = false ) {
         MultiSequenceProjection projection = projectionService.getProjection(bookmark)
-        projectTrack(inputFeaturesArray,projection,bookmark.organism,(bookmark as JSON).toString(),reverseProjection)
+        return projectTrack(inputFeaturesArray,projection,bookmark.organism,(bookmark as JSON).toString(),reverseProjection)
     }
 
     JSONArray projectTrack(JSONArray inputFeaturesArray, MultiSequenceProjection projection,Organism currentOrganism,String refererLoc,Boolean reverseProjection = false ) {
