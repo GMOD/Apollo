@@ -101,6 +101,7 @@
     <property name="apollo.webapp.directory" location="web-app" relative="true" basedir="."/>
     <property name="apollo.jbrowse.directory" location="${apollo.webapp.directory}/jbrowse"/>
     <property name="apollo.client.directory" location="${basedir}/client/apollo" basedir="." relative="true"/>
+    <property name="apollo.label.client.directory" location="${basedir}/client/ApolloLabelProc" basedir="." relative="true"/>
     <property name="apollo.plugin.directory" location="${apollo.jbrowse.directory}/plugins/WebApollo"/>
     <property name="jbrowse.download.directory" location="jbrowse-download"/>
     <property name="jbrowse.webapp.test.file" location="${apollo.jbrowse.directory}/src/dojo/dojo.js"/>
@@ -246,6 +247,9 @@
         <copy todir="${jbrowse.download.directory}/plugins/WebApollo" failonerror="true">
             <fileset dir="${apollo.client.directory}"/>
         </copy>
+        <copy todir="${jbrowse.download.directory}/plugins/ApolloLabelProc" failonerror="true">
+            <fileset dir="${apollo.label.client.directory}"/>
+        </copy>
     </target>
 
     <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed"
@@ -253,6 +257,9 @@
         <echo>Copying WebApollo plugin to jbrowse webapp ...</echo>
         <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
             <fileset dir="${apollo.client.directory}"/>
+        </copy>
+        <copy todir="${apollo.jbrowse.directory}/plugins/ApolloLabelProc" failonerror="true">
+            <fileset dir="${apollo.label.client.directory}"/>
         </copy>
     </target>
 

@@ -9,6 +9,11 @@
         "location" : "./plugins/NeatFeatures",
         "name" : "NeatFeatures"
       }
+    ,
+      {
+        "location" : "./plugins/ApolloLabelProc",
+        "name" : "ApolloLabelProc"
+      }
    ],
     "share_link" : 0,
     "tracks" : [
