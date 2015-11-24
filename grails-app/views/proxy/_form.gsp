@@ -38,21 +38,4 @@
 
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: proxyInstance, field: 'lastSuccess', 'error')} ">
-	<label for="lastSuccess">
-		<g:message code="proxy.lastSuccess.label" default="Last Success" />
-		
-	</label>
-	<g:datePicker name="lastSuccess" precision="day"  value="${proxyInstance?.lastSuccess}" default="none" noSelection="['': '']" />
-
-</div>
-
-<div class="fieldcontain ${hasErrors(bean: proxyInstance, field: 'lastFail', 'error')} ">
-	<label for="lastFail">
-		<g:message code="proxy.lastFail.label" default="Last Fail" />
-		
-	</label>
-	<g:datePicker name="lastFail" precision="day"  value="${proxyInstance?.lastFail}" default="none" noSelection="['': '']" />
-
-</div>
-
+<br/>

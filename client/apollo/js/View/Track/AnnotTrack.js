@@ -2816,9 +2816,9 @@ define([
                                                     }
                                                 }
                                             });
-                                            var original = 'http://golr.berkeleybop.org/solr/';
-                                            //var gserv = 'http://golr.geneontology.org/solr/';
+                                            var original = 'http://golr.geneontology.org/';
                                             //var original = 'http://golr.geneontology.org/solr/';
+                                            //var original = 'http://golr.berkeleybop.org/solr/';
                                             var encoded_original = encodeURI(original);
                                             encoded_original = encoded_original.replace(/:/g,"%3A");
                                             encoded_original = encoded_original.replace(/\//g,"%2F");
