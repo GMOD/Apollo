@@ -85,6 +85,7 @@
       }
     ],
    "favicon" : "./plugins/WebApollo/img/webapollo_favicon.ico",
+   "locationBox": "searchBox",
    "alwaysOnTracks" : "DNA,Annotations",
    "formatVersion" : 1
 }
