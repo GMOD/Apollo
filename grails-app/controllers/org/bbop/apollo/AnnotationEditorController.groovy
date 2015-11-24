@@ -1043,7 +1043,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @SendTo("/topic/AnnotationNotification")
     @Timed
     protected String annotationEditor(String inputString, Principal principal) {
-        log.debug "Input String: annotation editor service ${inputString}"
+        println  "Input String: annotation editor service ${inputString}"
+        inputString = fixTrackString(inputString)
+        println  "fixed string ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 

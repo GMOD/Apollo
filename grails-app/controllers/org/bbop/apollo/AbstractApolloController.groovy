@@ -49,21 +49,7 @@ abstract class AbstractApolloController {
                 // have to remove:
 //                :-1..-1
                 // in some cases the JSON starts as a string '"{' and in other cases it does not '{' and need to handle both cases
-                key = key.replaceAll("\\\\\"","\"")
-                Integer firstIndex = key.indexOf("}:")
-                Integer lastIndex = key.indexOf("\"",firstIndex)
-                if(firstIndex>0 && lastIndex>0){
-//                    :-1..-1"
-                    def replaceString
-//                    if(key.contains("\"{")){
-//                        replaceString = key.substring(firstIndex+1,lastIndex)
-//                    }
-//                    else{
-                        replaceString = key.substring(firstIndex+1,lastIndex+1)
-//                    }
-                    key = key.replaceAll(replaceString,"")
-                    key = key.replaceAll("\"\\{\"","{\"")
-                }
+                key = fixTrackString(key)
 
                 try{
                     return (JSONObject) JSON.parse(key)
@@ -73,6 +59,25 @@ abstract class AbstractApolloController {
                 }
             }
         }
+    }
+
+    protected def fixTrackString(String key){
+        key = key.replaceAll("\\\\\"","\"")
+        Integer firstIndex = key.indexOf("}:")
+        Integer lastIndex = key.indexOf("\"",firstIndex)
+        if(firstIndex>0 && lastIndex>0){
+//                    :-1..-1"
+            def replaceString
+//                    if(key.contains("\"{")){
+//                        replaceString = key.substring(firstIndex+1,lastIndex)
+//                    }
+//                    else{
+            replaceString = key.substring(firstIndex+1,lastIndex+1)
+//                    }
+            key = key.replaceAll(replaceString,"")
+            key = key.replaceAll("\"\\{\"","{\"")
+        }
+        return key
     }
 
     String fixProjectionJson(String s) {
