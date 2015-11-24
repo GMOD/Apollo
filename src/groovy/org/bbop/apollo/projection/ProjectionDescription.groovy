@@ -6,7 +6,7 @@ package org.bbop.apollo.projection
  */
 class ProjectionDescription {
 
-    List<String> referenceTracks // typically one
+    List<String> referenceTrack // typically one
     List<ProjectionSequence> sequenceList // an ordered array of sequences or ALL . . .if empty then all
     String projection
     Integer padding // the padding around the reference
@@ -20,7 +20,7 @@ class ProjectionDescription {
 
         if (organism != that.organism) return false
         if (padding != that.padding) return false
-        if (referenceTracks != that.referenceTracks) return false
+        if (referenceTrack != that.referenceTrack) return false
         if (sequenceList != that.sequenceList) return false
         if (projection != that.projection) return false
 
@@ -29,7 +29,7 @@ class ProjectionDescription {
 
     int hashCode() {
         int result
-        result = (referenceTracks != null ? referenceTracks.hashCode() : 0)
+        result = (referenceTrack != null ? referenceTrack.hashCode() : 0)
         result = 31 * result + sequenceList.hashCode()
         result = 31 * result + projection.hashCode()
         result = 31 * result + padding.hashCode()

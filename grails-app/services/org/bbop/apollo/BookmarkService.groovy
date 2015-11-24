@@ -10,8 +10,8 @@ class BookmarkService {
 
     def permissionService
 
-    Bookmark generateBookmarkForSequence(Sequence... sequences) {
-        User user = permissionService.currentUser
+
+    Bookmark generateBookmarkForSequence(User user,Sequence... sequences) {
         Organism organism = null
         JSONArray sequenceArray = new JSONArray()
         int end = 0;
@@ -32,6 +32,11 @@ class BookmarkService {
         ).save(insert: true, flush: true, failOnError: true)
 
         return bookmark
+    }
+
+    Bookmark generateBookmarkForSequence(Sequence... sequences) {
+        User user = permissionService.currentUser
+        return generateBookmarkForSequence(user,sequences)
     }
 
     List<Sequence> getSequencesFromBookmark(Bookmark bookmark) {
@@ -62,8 +67,12 @@ class BookmarkService {
     JSONObject convertBookmarkToJson(Bookmark bookmark) {
         JSONObject jsonObject = new JSONObject()
         jsonObject.id = bookmark.id
-        jsonObject.type = bookmark.type ?: "NONE"
+        jsonObject.projection = bookmark.projection ?: "NONE"
+
+
         jsonObject.padding = bookmark.padding ?: 0
+        jsonObject.referenceTrack = bookmark.referenceTrack
+
         jsonObject.payload = bookmark.payload ?: "{}"
         jsonObject.organism = bookmark.organism.commonName
         jsonObject.start = bookmark.start
@@ -76,6 +85,7 @@ class BookmarkService {
 
     Bookmark convertJsonToBookmark(JSONObject jsonObject) {
         Bookmark bookmark = new Bookmark()
+        bookmark.projection = jsonObject.projection
         bookmark.sequenceList = jsonObject.sequenceList
         println "bookmark convert ${bookmark.sequenceList}"
         List<Sequence> sequences = getSequencesFromBookmark(bookmark)
