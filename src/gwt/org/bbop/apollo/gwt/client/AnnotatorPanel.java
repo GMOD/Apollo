@@ -115,7 +115,6 @@ public class AnnotatorPanel extends Composite {
 
 
         pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
-        pager.setRangeLimited(false);
 
         dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<AnnotationInfo>() {
             @Override
@@ -306,14 +305,7 @@ public class AnnotatorPanel extends Composite {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-//                if (MainPanel.getInstance().isCurrentUserAdmin()) {
-//                    splitPanel.setWidgetSize(northPanelContainer, 150);
                 userField.setVisible(true);
-//                    groupField.setVisible(true);
-//                } else {
-//                    userField.setVisible(false);
-////                    splitPanel.setWidgetSize(northPanelContainer, 100);
-//                }
             }
         });
 
@@ -349,15 +341,8 @@ public class AnnotatorPanel extends Composite {
         typeList.addItem("All Types", "");
         typeList.addItem("Gene");
         typeList.addItem("Pseudogene");
-//        typeList.addItem("tRNA");
-//        typeList.addItem("snRNA");
-//        typeList.addItem("snoRNA");
-//        typeList.addItem("ncRNA");
-//        typeList.addItem("rRNA");
-//        typeList.addItem("miRNA");
         typeList.addItem("Transposable Element", "transposable_element");
         typeList.addItem("Repeat Region", "repeat_region");
-        // TODO: add rest
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
@@ -388,7 +373,6 @@ public class AnnotatorPanel extends Composite {
                 transcriptDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo);
-//                exonDetailPanel.setVisible(true);
                 break;
             case "transposable_element":
             case "repeat_region":
@@ -447,7 +431,6 @@ public class AnnotatorPanel extends Composite {
             @Override
             public String getValue(AnnotationInfo annotationInfo) {
                 return annotationInfo.getSequence();
-//                return "cats";
             }
         };
         sequenceColumn.setSortable(true);
@@ -491,41 +474,6 @@ public class AnnotatorPanel extends Composite {
         dataGrid.setColumnWidth(1, "15%");
         dataGrid.setColumnWidth(2, "15%");
         dataGrid.setColumnWidth(3, "15%");
-
-
-//        ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(organism);
-//        dataGrid.addColumnSortHandler(sortHandler);
-//
-//        sortHandler.setComparator(nameColumn, new Comparator<AnnotationInfo>() {
-//            @Override
-//            public int compare(AnnotationInfo o1, AnnotationInfo o2) {
-//                return o1.getName().compareToIgnoreCase(o2.getName());
-//            }
-//        });
-//
-//        sortHandler.setComparator(sequenceColumn, new Comparator<AnnotationInfo>() {
-//            @Override
-//            public int compare(AnnotationInfo o1, AnnotationInfo o2) {
-//                return o1.getSequence().compareToIgnoreCase(o2.getSequence());
-//            }
-//        });
-//
-//
-//        sortHandler.setComparator(typeColumn, new Comparator<AnnotationInfo>() {
-//            @Override
-//            public int compare(AnnotationInfo o1, AnnotationInfo o2) {
-//                return o1.getType().compareToIgnoreCase(o2.getType());
-//            }
-//        });
-//
-//        sortHandler.setComparator(lengthColumn, new Comparator<AnnotationInfo>() {
-//            @Override
-//            public int compare(AnnotationInfo o1, AnnotationInfo o2) {
-//                return o1.getLength() - o2.getLength();
-//            }
-//        });
-
-
     }
 
     private String getType(JSONObject internalData) {
@@ -664,9 +612,6 @@ public class AnnotatorPanel extends Composite {
             td.endTD();
 
             row.endTR();
-
         }
-
-
     }
 }

@@ -1,13 +1,12 @@
 #!/usr/bin/env groovy
 scriptDir = new File(getClass().protectionDomain.codeSource.location.path).parent
 
-import net.sf.json.JSONArray
-import net.sf.json.JSONObject
-import groovyx.net.http.RESTClient
-
-
 @Grab(group = 'org.json', module = 'json', version = '20140107')
 @Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7.2')
+
+
+import groovyx.net.http.HTTPBuilder
+
 
 String usageString = "get_gff3.groovy <options>" +
         "Example: \n" +
@@ -19,6 +18,7 @@ cli.url('URL of Apollo from which GFF3 is to be fetched', required: true, args: 
 cli.username('username', required: false, args: 1)
 cli.password('password', required: false, args: 1)
 cli.password('url', required: false, args: 1)
+cli.output('output file', required: false, args: 1)
 cli.organism('organism', required: false, args: 1)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)
 OptionAccessor options
@@ -33,32 +33,51 @@ try {
     }
 
     def cons = System.console()
-    if (!(admin_username=options?.username)) {
-        admin_username = new String(cons.readPassword('Enter admin username: ') )
+    if(cons) {
+        if (!(admin_username=options?.username)) {
+            admin_username = new String(cons.readPassword('Username: ') )
+        }
+        if (!(admin_password=options?.password)) {
+            admin_password = new String(cons.readPassword('Password: ') )
+        }
     }
-    if (!(admin_password=options?.password)) {
-        admin_password = new String(cons.readPassword('Enter admin password: ') )
+    else if(!options?.username||!options?.password) {
+        System.err.println("Error: missing -username and -password and can't read them when using redirect");
+        if(!options.output) throw "Require output file"
+    }
+    else {
+        admin_password=options.password
+        admin_username=options.username
     }
 } catch (e) {
     println(e)
     return
 }
 
-// just get data
-println "fetching url: "+options.url
-def client = new RESTClient(options.url,'text/plain')
-if (options.ignoressl) { client.ignoreSSLIssues() }
-def response = client.post(path:options.url+'/IOService/write',body: [username: admin_username, password: admin_password, format: 'plain', type: 'GFF3',exportSequence: false,exportAllSequences: true,organism: options.organism, output:'text'])
 
-assert response.status == 200
-StringBuilder builder = new StringBuilder();
-int charsRead = -1;
-char[] chars = new char[100];
-charsRead = response.data.read(chars,0,chars.length);
-while(charsRead>0){
-    //if we have valid chars, append them to end of string.
-    builder.append(chars,0,charsRead);
-    charsRead = response.data.read(chars,0,chars.length);
+def http = new HTTPBuilder(options.url)
+
+
+// just get data
+def post=[
+    username: admin_username,
+    password: admin_password,
+    format: 'plain',
+    type: 'GFF3',
+    exportSequence: false,
+    exportAllSequences: true,
+    organism: options.organism,
+    output:'text'
+]
+
+http.get(path: options.url+'/IOService/write/',query: post) { resp, reader ->
+  if(options.output) {
+      def file=new File(options.output)
+      def writer = new PrintWriter(file)
+      writer << reader
+      writer.close()
+  }
+  else
+      System.out << reader
 }
-print builder.toString();
 

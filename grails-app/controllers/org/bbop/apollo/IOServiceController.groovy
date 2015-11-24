@@ -25,9 +25,9 @@ class IOServiceController extends AbstractApolloController {
     def fastaHandlerService
     def preferenceService
     def permissionService
+    def configWrapperService
 
-    //
-    // this is a map of uuid / filename
+    // fileMap of uuid / filename
     // see #464
     private Map<String,DownloadFile> fileMap = new HashMap<>()
 
@@ -37,8 +37,6 @@ class IOServiceController extends AbstractApolloController {
         log.debug "Requested parameterMap: ${request.parameterMap.keySet()}"
         log.debug "upstream params: ${params}"
         JSONObject postObject = findPost()
-        //operation = postObject.get(REST_OPERATION)
-        //TODO: Currently not using the findPost()
         def mappedAction = underscoreToCamelCase(operation)
         forward action: "${mappedAction}", params: params
     }
@@ -83,36 +81,31 @@ class IOServiceController extends AbstractApolloController {
             log.debug "${dataObject.sequences}"
             def sequences = dataObject.sequences // can be array or string
             Organism organism = dataObject.organism?Organism.findByCommonName(dataObject.organism):preferenceService.getCurrentOrganismForCurrentUser()
-            log.debug "JERE ${typeOfExport} ${output} ${sequences}"
+            log.debug "${typeOfExport} ${output} ${sequences}"
 
-            def sequenceList
-            if (exportAllSequences == "true") {
-                // HQL for all sequences
-                sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.organism = :organism order by s.name asc ",[organism: organism])
-            } else {
-                // HQL for a single sequence or selected sequences
-                sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.organism = :organism and s.name in (:sequenceNames) order by s.name asc ", [sequenceNames: sequences,organism: organism])
+
+            def features=Feature.createCriteria().list() {
+                featureLocations {
+                    sequence {
+                        eq('organism',organism)
+                        if(sequences) {
+                                        'in'('name',sequences)
+                        }
+                    }
+                }
+                'in'('class',Gene.class.name)
             }
-            log.debug "# of sequences to export ${sequenceList.size()}"
-
-            List<String> ontologyIdList = [Gene.class.name]
-            List<String> alterationTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
-            List<Feature> listOfFeatures = new ArrayList<>()
-            List<Feature> listOfSequenceAlterations = new ArrayList<>()
-
-            if(sequenceList){
-                listOfFeatures.addAll(Feature.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s in (:sequenceList) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceList: sequenceList, ontologyIdList: ontologyIdList]))
-            }
-            else{
-                log.warn "There are no annotations to be exported in this list of sequences ${sequences}"
+            def sequenceList = Sequence.createCriteria().list() {
+                eq('organism',organism)
+                if(sequences) {
+                    'in'('name',sequences)
+                }
             }
             File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
             String fileName
 
             if (typeOfExport == "GFF3") {
                 // adding sequence alterations to list of features to export
-                listOfSequenceAlterations = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in :sequenceList and f.class in :alterationTypes", [sequenceList: sequenceList, alterationTypes: alterationTypes])
-                listOfFeatures.addAll(listOfSequenceAlterations)
                 if(exportAllSequences!="true"&&sequences!=null&&!(sequences.class == JSONArray.class)) {
                     fileName = "Annotations-" + sequences + "." + typeOfExport.toLowerCase() + (format=="gzip"?".gz":"")
                 }
@@ -121,9 +114,9 @@ class IOServiceController extends AbstractApolloController {
                 }
                 // call gff3HandlerService
                 if (exportGff3Fasta == "true") {
-                    gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String, true, sequenceList)
+                    gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String, true, sequenceList)
                 } else {
-                    gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String)
+                    gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
                 }
             } else if (typeOfExport == "FASTA") {
                 if(exportAllSequences!="true"&&sequences!=null&&!(sequences.class == JSONArray.class)) {
@@ -134,7 +127,7 @@ class IOServiceController extends AbstractApolloController {
                 }
 
                 // call fastaHandlerService
-                fastaHandlerService.writeFeatures(listOfFeatures, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
+                fastaHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
             }
 
 
@@ -177,8 +170,6 @@ class IOServiceController extends AbstractApolloController {
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="uuid", type="string", paramType = RestApiParamType.QUERY,description = "UUID that holds the key to the stored download.")
-//            ,@RestApiParam(name="type", type="string", paramType = RestApiParamType.QUERY,description = "Type of export 'FASTA','GFF3'")
-//            ,@RestApiParam(name="seqType", type="string", paramType = RestApiParamType.QUERY,description = "Type of output sequence 'peptide','cds','cdna','genomic'")
             ,@RestApiParam(name="format", type="string", paramType = RestApiParamType.QUERY,description = "'gzip' or 'text'")
     ]
     )
@@ -201,7 +192,8 @@ class IOServiceController extends AbstractApolloController {
 
         response.setHeader("Content-disposition", "attachment; filename=${downloadFile.fileName}")
         if(params.format=="gzip") {
-            new GZIPOutputStream(response.outputStream).withWriter{ it << file.text }
+            def output = new BufferedOutputStream(new GZIPOutputStream(response.outputStream))
+            output << file.text
         }
         else {
             def outputStream = response.outputStream

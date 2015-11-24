@@ -24,7 +24,7 @@ Features
 + Enhanced the loadGroups and loadUsers API to retrieve the info of specific groups or users (#643).
 + Enhanced the findAllOrganisms API to retrieve the info of specific organisms (#666).
 + Added ability to reference the organism by name in the jbrowse URL for easier to remember URL formats (#653).
-
++ Added a get_fasta.groovy script to fetch FASTA for annotations via web services.
 
 Bugfixes
 

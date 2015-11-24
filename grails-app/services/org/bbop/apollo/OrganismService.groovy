@@ -9,12 +9,6 @@ class OrganismService {
     def featureService
 
     def deleteAllFeaturesForOrganism(Organism organism) {
-
-        // the very slow way
-
-        int count = 0
-        //final Session session = sessionFactory.currentSession
-
         def list=Feature.withCriteria() {
             featureLocations {
                 sequence {
@@ -27,8 +21,6 @@ class OrganismService {
         def uniqueNames=list.collect {
             it.uniqueName
         }
-
-
 
         list.each {
             it.delete();
@@ -46,6 +38,6 @@ class OrganismService {
 
 
         organism.save(flush: true )
-        return count
+        return list.size()
     }
 }

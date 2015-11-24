@@ -27,6 +27,8 @@ class SequenceService {
     def gff3HandlerService
     def overlapperService
 
+
+
     List<FeatureLocation> getFeatureLocations(Sequence sequence){
         FeatureLocation.findAllBySequence(sequence)
     }
@@ -204,9 +206,22 @@ class SequenceService {
         int startChunkNumber = fmin / sequence.seqChunkSize;
         int endChunkNumber = (fmax - 1 ) / sequence.seqChunkSize;
 
-        for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
-            SequenceChunk sequenceChunk = getSequenceChunkForChunk(sequence,i)
-            sequenceString.append(sequenceChunk.residue)
+        def c=SequenceChunk.createCriteria()
+        def chunks=c.list() {
+            eq('sequence',sequence)
+            'in'('chunkNumber',startChunkNumber..endChunkNumber)
+        }
+        log.debug("${chunks.size()} ${endChunkNumber-startChunkNumber+1}")
+        if(chunks.size()==endChunkNumber-startChunkNumber+1) {
+            chunks.each {
+                sequenceString.append(it.residue)
+            }
+        }
+        else {
+            for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
+                SequenceChunk sequenceChunk = getSequenceChunkForChunk(sequence,i)
+                sequenceString.append(sequenceChunk.residue)
+            }
         }
 
 

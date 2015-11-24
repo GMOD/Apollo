@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import grails.transaction.NotTransactional
+
 @Transactional(readOnly = true)
 class FeatureRelationshipService {
 
@@ -51,11 +51,16 @@ class FeatureRelationshipService {
     }
 
     List<Feature> getParentsForFeature(Feature feature, String... ontologyIds) {
-        List<String> ontologyIdList = new ArrayList<>()
-        ontologyIdList.addAll(ontologyIds)
-        return FeatureRelationship.findAllByChildFeature(feature)*.parentFeature.findAll() {
-            ontologyIdList.empty || (it && ontologyIdList.contains(it.ontologyId))
-        }.unique()
+        def list=new ArrayList<Feature>()
+        if(feature?.childFeatureRelationships!=null) {
+            feature.childFeatureRelationships.each { it ->
+                if(ontologyIds.size()==0 || (it && ontologyIds.contains(it.parentFeature.ontologyId))) {
+                    list.push(it.parentFeature)
+                }
+            }
+        }
+
+        return list
     }
 
     @Transactional
@@ -100,7 +105,6 @@ class FeatureRelationshipService {
         for(int i = 0 ; i < numRelationships ; i++){
             FeatureRelationship featureRelationship = featureRelationships.get(i)
             removeFeatureRelationship(featureRelationship.parentFeature,featureRelationship.childFeature)
-//            featureRelationship.childFeature.delete()
         }
     }
 
@@ -151,7 +155,6 @@ class FeatureRelationshipService {
         FeatureRelationship fr = new FeatureRelationship(
                 parentFeature: parent
                 , childFeature: child
-                , rank: 0 // TODO: Do we need to rank the order of any other transcripts?
         ).save(flush: true);
         parent.addToParentFeatureRelationships(fr)
         child.addToChildFeatureRelationships(fr)
@@ -176,15 +179,10 @@ class FeatureRelationshipService {
     }
 
     List<Feature> getChildren(Feature feature) {
-//        List<Feature> childFeatures = (List<Feature>) Feature.executeQuery("select fr.childFeature from FeatureRelationship fr where fr.parentFeature = :parentFeature",["parentFeature":feature])
-//        return childFeatures
-        // HQL commented out due to issue with exporting GFF3 (inability of calculating CDS segments)
         def exonRelations=feature.parentFeatureRelationships.findAll()
         return exonRelations.collect { it ->
             it.childFeature
         }
-        //slow query
-        //return FeatureRelationship.findAllByParentFeature(feature)*.childFeature
     }
 
     /**
@@ -195,12 +193,6 @@ class FeatureRelationshipService {
     @Transactional
     def deleteFeatureAndChildren(Feature feature) {
 
-//        Feature.withNewTransaction {
-////            featureEventService.deleteHistory(featureId)
-////            FeatureEvent.executeUpdate("delete  from FeatureEvent fe where fe.featureId = :featureId",[featureId:feature.id])
-//            FeatureEvent.executeUpdate("delete  from FeatureEvent fe where fe.uniqueName = :uniqueName",[uniqueName:feature.uniqueName])
-//        }
-
         if(feature.parentFeatureRelationships){
             def parentFeatureRelationships = feature.parentFeatureRelationships
             Iterator<FeatureRelationship> featureRelationshipIterator = parentFeatureRelationships.iterator()
@@ -210,8 +202,6 @@ class FeatureRelationshipService {
             }
         }
         feature.delete()
-
-
 
     }
 }
