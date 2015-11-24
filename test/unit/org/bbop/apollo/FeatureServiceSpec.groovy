@@ -12,7 +12,7 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
 @TestFor(FeatureService)
-@Mock([Sequence, FeatureLocation, Feature,MRNA])
+@Mock([Bookmark,Sequence, FeatureLocation, Feature,MRNA])
 class FeatureServiceSpec extends Specification {
 
     def setup() {

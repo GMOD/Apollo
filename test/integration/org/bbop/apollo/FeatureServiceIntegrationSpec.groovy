@@ -9,6 +9,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class FeatureServiceIntegrationSpec extends IntegrationSpec {
     
     def featureService
+    def bookmarkService
 
     def setup() {
         Sequence sequence = new Sequence(
@@ -30,6 +31,7 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
 
         when: "we parse it"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(Sequence.first())
 
         then: "is is a valid object"
         assert jsonObject!=null
@@ -40,7 +42,8 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
         assert childArray.size()==7
 
         when: "we convert it to a feature"
-        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject,Sequence.first())
+//        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject,Sequence.first())
+        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject,bookmark)
 
         then: "it should convert it to the same feature"
         assert feature!=null
