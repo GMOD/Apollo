@@ -287,7 +287,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,organism: "Human"
         )// from 0-99
         ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTracks: []
+                referenceTrack: []
                 ,sequenceList: [sequence1]
                 , projection: "exon" // probably ignored here
                 ,padding: 0
@@ -358,7 +358,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,organism: "Human"
         )// from 0-99
         ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTracks: []
+                referenceTrack: []
                 ,sequenceList: [sequence1]
                 , projection: "exon" // probably ignored here
                 ,padding: 0
@@ -516,7 +516,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,organism: "Human"
         )// from 0-99
         ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTracks: []
+                referenceTrack: []
                 ,sequenceList: [sequence1]
                 , projection: "exon" // probably ignored here
                 ,padding: 0
@@ -616,7 +616,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,organism: "Human"
         )// from 0-99
         ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTracks: []
+                referenceTrack: []
                 ,sequenceList: [sequence1]
                 , projection: "exon" // probably ignored here
                 ,padding: 0
@@ -711,7 +711,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,organism: "Human"
         )// from 0-99
         ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTracks: []
+                referenceTrack: []
                 ,sequenceList: [sequence1]
                 , projection: "exon" // probably ignored here
                 ,padding: 0
@@ -774,7 +774,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,organism: "Human"
         )// from 0-99
         ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTracks: []
+                referenceTrack: []
                 ,sequenceList: [sequence1]
                 , projection: "exon" // probably ignored here
                 ,padding: 0
@@ -875,7 +875,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,organism: "Human"
         ) // from 100-200
         ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTracks: []
+                referenceTrack: []
                 ,sequenceList: [sequence1,sequence2]
                 , projection: "exon" // probably ignored here
                 ,padding: 0

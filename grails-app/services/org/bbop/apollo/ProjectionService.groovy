@@ -56,7 +56,7 @@ class ProjectionService {
         if (grailsApplication.config.apollo.useMultiSequence) {
             Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
             ProjectionDescription projectionDescription = new ProjectionDescription(
-                    referenceTracks: [trackName]
+                    referenceTrack: [trackName]
                     , projection: "EXON"
                     , padding: 50
             )
@@ -373,7 +373,7 @@ class ProjectionService {
                 return getExonLocations(projectionDescription)
                 break
             case "TRANSCRIPT":
-                return getTranscriptLocations(projectionDescription.referenceTracks, projectionDescription.padding, projectionDescription)
+                return getTranscriptLocations(projectionDescription.referenceTrack, projectionDescription.padding, projectionDescription)
                 break
             case "NONE":
             default:
@@ -392,15 +392,11 @@ class ProjectionService {
      * @param projectionSequences
      * @return
      */
-    List<Location> getTranscriptLocations(List<String> referenceTracks, int padding, ProjectionDescription projectionDescription) {
+    List<Location> getTranscriptLocations(List<String> referenceTrack, int padding, ProjectionDescription projectionDescription) {
         return new ArrayList<Location>()
     }
 
     /**
-     * TODO:
-     * @param referenceTracks
-     * @param padding
-     * @param projectionSequences
      * @return
      *
      * for each reference track  (for a given organism . . . read the track for the proper sequences
@@ -408,7 +404,7 @@ class ProjectionService {
     List<Location> getExonLocations(ProjectionDescription projectionDescription) {
         List<Location> locationList = new ArrayList<>()
         Organism organism = Organism.findByCommonName(projectionDescription.organism)
-        for (String track in projectionDescription.referenceTracks) {
+        for (String track in projectionDescription.referenceTrack) {
             JSONArray tracksArray = loadTrackJson(track, organism, projectionDescription)
             List<Location> exonLocations = createExonLocations(tracksArray, projectionDescription)
             locationList.addAll(exonLocations)
@@ -830,7 +826,7 @@ class ProjectionService {
         projectionDescription.projection = bookmarkObject.projection ?: "NONE"
         projectionDescription.padding = bookmarkObject.padding ?: 0
         projectionDescription.organism = bookmarkObject.organism
-        projectionDescription.referenceTracks = [bookmarkObject.referenceTrack] as List<String>
+        projectionDescription.referenceTrack = [bookmarkObject.referenceTrack] as List<String>
         projectionDescription.sequenceList = new ArrayList<>()
 
         // TODO: reference / ?

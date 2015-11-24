@@ -8,7 +8,7 @@ class Bookmark {
     Integer padding
     String payload
     String sequenceList // JSON array of sequence list
-    String referenceTracks  // JSON array of reference tracks or single string
+    String referenceTrack  // JSON array of reference tracks or single string
     Organism organism
     User user
     Integer start
@@ -17,7 +17,7 @@ class Bookmark {
     static constraints = {
         projection nullable: true
         sequenceList nullable: false
-        referenceTracks nullable: true
+        referenceTrack nullable: true
         padding nullable: true
         payload nullable: true
         organism nullable: false
@@ -28,7 +28,7 @@ class Bookmark {
 
     static mapping = {
         sequenceList type: "text"
-        referenceTracks type: "text"
+        referenceTrack type: "text"
         payload type: "text"
         start column: "startbp"
         end column: "endbp"

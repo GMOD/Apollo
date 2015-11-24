@@ -36,7 +36,7 @@ public class BookmarkInfoConverter {
         if(bookmarkInfo.getEnd()!=null) {
             jsonObject.put("end", new JSONNumber(bookmarkInfo.getEnd()));
         }
-        jsonObject.put("sequenceList",(JSONArray) bookmarkInfo.getSequenceList());
+        jsonObject.put("sequenceList",bookmarkInfo.getSequenceList());
         if(bookmarkInfo.getPayload()!=null) {
             jsonObject.put("payload", bookmarkInfo.getPayload());
         }
@@ -44,36 +44,6 @@ public class BookmarkInfoConverter {
         return jsonObject;
     }
 
-    public static JSONObject generateSequenceString(Set<BookmarkInfo> bookmarkInfoSet, String foldingType, Integer foldPaddingValue,String referenceTrack) {
-        // merge the bookmark info's into a single one!
-        // TODO: should be JSONObject / array?
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(BookmarkKeyEnum.PROJECTION.getValue(),new JSONString(foldingType));
-        jsonObject.put(BookmarkKeyEnum.PADDING.getValue(),new JSONNumber(foldPaddingValue));
-//        JSONArray referenceTracks = new JSONArray()
-        jsonObject.put(BookmarkKeyEnum.REFERENCE_TRACK.getValue(),new JSONString(referenceTrack));
-
-//        JSONArray bookmarksArray = BookmarkInfoConverter.convertBookmarkInfoToJSONArray(bookmarkInfoSet.toArray(new BookmarkInfo[bookmarkInfoSet.size()]));
-//        jsonObject.put(BookmarkKeyEnum.BOOKMARKS.getValue(),bookmarksArray);
-
-        JSONArray sequencesArray = BookmarkInfoConverter.extractSequencesFromBookmarks(bookmarkInfoSet.toArray(new BookmarkInfo[bookmarkInfoSet.size()]));
-        jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(),sequencesArray);
-
-        return jsonObject;
-    }
-
-    private static JSONArray extractSequencesFromBookmarks(BookmarkInfo[] bookmarkInfos) {
-        JSONArray returnArray = new JSONArray();
-
-        for(BookmarkInfo bookmarkInfo : bookmarkInfos){
-            JSONArray sequenceArray = convertJSONArrayToSequenceList(bookmarkInfo.getSequenceList()) ;
-            for(int i = 0 ; i < sequenceArray.size() ; i++){
-                returnArray.set(returnArray.size(),sequenceArray.get(i));
-            }
-        }
-
-        return returnArray;
-    }
 
 
     public static BookmarkInfo convertJSONObjectToBookmarkInfo(JSONObject jsonObject) {

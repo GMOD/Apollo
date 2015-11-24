@@ -469,7 +469,7 @@ class PermissionService {
         if((inputObject.track instanceof JSONObject) && inputObject?.track?.projection){
             bookmark.projection = inputObject.track.projection
             bookmark.padding = inputObject.track?.padding
-            bookmark.referenceTracks = inputObject.track?.referenceTracks
+            bookmark.referenceTrack = inputObject.track?.referenceTrack
             bookmark.save(flush: true )
         }
         return bookmark
