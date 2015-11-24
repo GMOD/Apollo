@@ -368,7 +368,7 @@ This will get proxied to:
 
 If you choose to use another proxy service, you can go to the proxy service tab (as admin). 
 
-To use a proxy it has to be registered by an admin.   Internally used proxies are provided by default.
+To use a proxy it has to be registered by an admin on the 'Proxy' page accesses from the admin panel.   Internally used proxies are provided by default.  The order the URL's are chosen in is 'active' and then 'fallbackOrder'.  It will only choose one.
 
 
 
