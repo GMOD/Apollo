@@ -67,7 +67,7 @@ public class Gff3DataAdapter extends DataAdapter {
             path = tmpDirNode.getTextContent();
             realPath = basePath + "/" + path;
             Node sourceNode = doc.getElementsByTagName("source").item(0);
-            source = sourceNode != null ? source = sourceNode.getTextContent() : ".";
+            source = sourceNode != null ? source = sourceNode.getTextContent().trim() : ".";
             Node metaDataNode = doc.getElementsByTagName("metadata_to_export").item(0);
             if (metaDataNode != null) {
                 NodeList metaDataList = ((Element) metaDataNode).getElementsByTagName("metadata");
