@@ -191,7 +191,7 @@
         <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
             <arg value="checkout"/>
             <!--<arg value="tags/${jbrowse.release.version}"/>-->
-            <arg value="Eric_work_f1"/>
+            <arg value="master"/>
         </exec>
     </target>
 
@@ -245,10 +245,10 @@
 
     <target name="copy.apollo.plugin.jbrowse">
         <echo>copying plugin to jbrowse git ...</echo>
-        <copy todir="${jbrowse.download.directory}/plugins/WebApollo" failonerror="true">
+        <copy todir="${jbrowse.download.directory}/plugins/WebApollo" failonerror="true" overwrite="true">
             <fileset dir="${apollo.client.directory}"/>
         </copy>
-        <copy todir="${jbrowse.download.directory}/plugins/ApolloLabelProc" failonerror="true">
+        <copy todir="${jbrowse.download.directory}/plugins/ApolloLabelProc" failonerror="true" overwrite="true">
             <fileset dir="${apollo.label.client.directory}"/>
         </copy>
     </target>
@@ -256,10 +256,10 @@
     <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed"
             description="Copy client into webapp plugin directory.">
         <echo>Copying WebApollo plugin to jbrowse webapp ...</echo>
-        <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
+        <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true" overwrite="true">
             <fileset dir="${apollo.client.directory}"/>
         </copy>
-        <copy todir="${apollo.jbrowse.directory}/plugins/ApolloLabelProc" failonerror="true">
+        <copy todir="${apollo.jbrowse.directory}/plugins/ApolloLabelProc" failonerror="true" overwrite="true">
             <fileset dir="${apollo.label.client.directory}"/>
         </copy>
     </target>
