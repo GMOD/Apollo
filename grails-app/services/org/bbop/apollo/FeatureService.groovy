@@ -318,11 +318,11 @@ class FeatureService {
                 geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
             }
             else{
-                geneName = nameService.makeUniqueGeneName(sequence.organism, sequence.name, false)
+                geneName = nameService.makeUniqueGeneName(bookmark.organism, bookmark.sequenceList, false)
             }
             if (!suppressHistory) {
 //                geneName = nameService.makeUniqueFeatureName(sequence.organism, geneName, new LetterPaddingStrategy(), true)
-                geneName = nameService.makeUniqueGeneName(sequence.organism, geneName, true)
+                geneName = nameService.makeUniqueGeneName(bookmark.organism, geneName, true)
             }
             // set back to the original gene name
             if (jsonTranscript.has(FeatureStringEnum.GENE_NAME.value)) {
