@@ -2,7 +2,7 @@
 
 Features
 
-+ Added more intuitive paging for the annotator sidebar.
++ Added more intuitive paging to sidebar panels (#700).
 + Added support for flatfile-to-json tracks loaded with the `--compress` option in the data loading pipeline (#517).
 + Added right-click option to CanvasFeatures tracks to "Create new annotation" (alternative to drag and drop) (#576).
 + Added an option for enabling/disabling the public JBrowse mode (#433).
@@ -16,7 +16,7 @@ Features
 + Added some bootstrap styling to annotator panel features (#489).
 + Added a feature to remember the width of the annotator panel (#591).
 + Added scripts and web services for deleting all features from a given organism (#539).
-+ Added proxy support to support https servers and general proxy support (#148).
++ Added proxy support to support https servers and general user-configurable proxy support (#148).
 + Improved user experience for login, user, and group pages (#603, #601, #592).
 + Improved, expanded, and automated web services documentation (#546).
 + Added feature to let users change their own password (#620).
