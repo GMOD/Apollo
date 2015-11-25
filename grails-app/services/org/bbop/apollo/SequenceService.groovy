@@ -25,6 +25,7 @@ class SequenceService {
     def exonService
     def cdsService
     def gff3HandlerService
+    def overlapperService
     def sessionFactory
 
 
