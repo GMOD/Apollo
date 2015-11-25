@@ -1,5 +1,5 @@
 ApolloLabelProc is a JBrowse plugin.
-
+Update location bar with 'label' (if it exists), when the locationBar content is JSON, which is expected from Apollo.
 Install / Activate:
 
 For JBrowse 1.11.6+, copy the ApolloLabelProc directory to the 'plugins' directory.

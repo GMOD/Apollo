@@ -26,7 +26,6 @@ return declare( JBrowsePlugin,
         
         // this traps the event that happens directly after onCoarseMove function, where the label gets updates.
         dojo.subscribe("/jbrowse/v1/n/navigate", function(currRegion){
-            console.log("Trap Navigate");
             var locationStr = Util.assembleLocStringWithLength( currRegion );
             console.log("locationStr="+locationStr);
 
@@ -39,20 +38,15 @@ return declare( JBrowsePlugin,
                 if(obj.hasOwnProperty('label')) {
                     console.log("label="+obj.label);
                     
-                    if (typeof thisB.browser.config.locationBox !== 'undefined' && thisB.browser.config.locationBox==="searchBox") {
+                    if( thisB.browser.locationBox )
                         thisB.browser.locationBox.set('value',obj.label, false);
-                    }
                     
                     // update the id=location-box if it exists
-                    require(["dojo/html", "dojo/ready","dojo/fx","dojo/dom-style","dojo/domReady!"], 
-                    function(html, ready,coreFx,style){
-                        ready(function(){
-                            var node = dojo.byId("location-info");  
-                            if (node) {
-                                html.set(node, obj.label);
-                            }
-                        });
-                    });    
+                    var node = dojo.byId("location-info");  
+                    if (node) {
+                        html.set(node, obj.label);
+                        thisB.browser.locationBox.set('value',"", false);
+                    }
                 }
             }
             
