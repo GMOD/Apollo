@@ -140,10 +140,10 @@ environments {
     }
     production {
         grails.logging.jul.usebridge = false
-        grails.assets.minifyJs = true
-        grails.assets.minifyCss = true
+        grails.assets.minifyJs = false
+        grails.assets.minifyCss = false
         grails.assets.enableSourceMaps = true
-        grails.assets.bundle = true
+        grails.assets.bundle = false
     }
 }
 
