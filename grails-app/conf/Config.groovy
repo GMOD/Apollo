@@ -210,6 +210,31 @@ apollo {
     translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
     is_partial_translation_allowed = false // unused so far
     get_translation_code = 1
+    proxies = [
+            [
+                    referenceUrl: 'http://golr.geneontology.org/select',
+                    targetUrl   : 'http://golr.geneontology.org/select',
+                    active      : true,
+                    fallbackOrder: 0,
+                    replace: false
+            ]
+            ,
+            [
+                    referenceUrl: 'http://golr.geneontology.org/select',
+                    targetUrl   : 'http://golr.berkeleybop.org/select',
+                    active      : false,
+                    fallbackOrder: 1,
+                    replace: false
+            ]
+            ,
+            [
+                    referenceUrl: 'http://golr.geneontology.org/select',
+                    targetUrl   : 'http://golr.berkeleybop.org/solr/select',
+                    active      : false,
+                    fallbackOrder: 2,
+                    replace: false
+            ]
+    ]
     sequence_search_tools = [
         blat_nuc: [
             search_exe: "/usr/local/bin/blat",
@@ -292,7 +317,7 @@ apollo {
 
     // customize new tabs on the annotator panel with these links
     customPanel = [
-        //['name':'GenSas2','link':'http://localhost/gensas2']
+            //['name':'GenSas2','link':'http://localhost/gensas2']
     ]
 
     doProjection = false
@@ -307,15 +332,6 @@ apollo {
 grails.plugin.databasemigration.updateOnStart = true
 //grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.0.groovy','changelog-2.0.1.groovy']
 grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.1.groovy']
-
-
-//grails.plugins.restapidoc.basePath = "http://localhost:8080/apollo"
-//grails.plugins.restapidoc.layout = "restapidoc_layout"
-//grails.plugins.restapidoc.layout = "main"
-
-
-//grails.plugins.twitterbootstrap.defaultBundle = false
-//grails.views.javascript.library="jquery"
 
 // from: http://grails.org/plugin/audit-logging
 auditLog {

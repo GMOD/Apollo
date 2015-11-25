@@ -871,7 +871,7 @@ class ProjectionService {
         println "JSON PROJECTION OBJECT: ${bookmarkObject as JSON}"
         ProjectionDescription projectionDescription = convertJsonObjecToProjectDescription(bookmarkObject)
 
-        if (true || !multiSequenceProjectionMap.containsKey(projectionDescription)) {
+        if (!multiSequenceProjectionMap.containsKey(projectionDescription)) {
             println "does NOT contains the key! ${projectionDescription}"
             MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(projectionDescription)
             multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)

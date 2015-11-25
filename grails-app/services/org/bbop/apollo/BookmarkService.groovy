@@ -36,7 +36,7 @@ class BookmarkService {
 
     Bookmark generateBookmarkForSequence(Sequence... sequences) {
         User user = permissionService.currentUser
-        return generateBookmarkForSequence(user,sequences)
+        return sequences ? generateBookmarkForSequence(user,sequences) : null
     }
 
     List<Sequence> getSequencesFromBookmark(Bookmark bookmark) {

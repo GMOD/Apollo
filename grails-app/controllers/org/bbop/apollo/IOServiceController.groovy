@@ -192,7 +192,8 @@ class IOServiceController extends AbstractApolloController {
 
         response.setHeader("Content-disposition", "attachment; filename=${downloadFile.fileName}")
         if(params.format=="gzip") {
-            new BufferedOutputStream(new GZIPOutputStream(response.outputStream)).withWriter{ it << file.text }
+            def output = new BufferedOutputStream(new GZIPOutputStream(response.outputStream))
+            output << file.text
         }
         else {
             def outputStream = response.outputStream
