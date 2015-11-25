@@ -57,7 +57,6 @@ class UserController {
                 log.debug "${v.key} ${v.value}"
             }
 
-            log.debug "${users}"
             def c=User.createCriteria()
             def users = c.list() {
                 if(dataObject.userId) {
