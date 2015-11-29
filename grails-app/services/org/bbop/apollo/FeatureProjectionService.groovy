@@ -14,25 +14,24 @@ class FeatureProjectionService {
     def projectionService
     def bookmarkService
 
-    JSONArray projectTrack(JSONArray inputFeaturesArray, Bookmark bookmark,Boolean reverseProjection = false ) {
+    JSONArray projectTrack(JSONArray inputFeaturesArray, Bookmark bookmark, Boolean reverseProjection = false) {
         MultiSequenceProjection projection = projectionService.getProjection(bookmark)
-        return projectTrack(inputFeaturesArray,projection,bookmark.organism,(bookmark as JSON).toString(),reverseProjection)
+        return projectTrack(inputFeaturesArray, projection, bookmark.organism, (bookmark as JSON).toString(), reverseProjection)
     }
 
-    JSONArray projectTrack(JSONArray inputFeaturesArray, MultiSequenceProjection projection,Organism currentOrganism,String refererLoc,Boolean reverseProjection = false ) {
+    JSONArray projectTrack(JSONArray inputFeaturesArray, MultiSequenceProjection projection, Organism currentOrganism, String refererLoc, Boolean reverseProjection = false) {
 
 
         println "trying to convert ${inputFeaturesArray as JSON}"
         if (projection) {
             // process location . . .
-            projectFeaturesArray(inputFeaturesArray, projection, reverseProjection)
+            projectFeaturesArray(inputFeaturesArray, projection, reverseProjection,0)
             println "converted ${inputFeaturesArray as JSON}"
         } else {
             println "no conversion?? "
         }
         return inputFeaturesArray
     }
-
 
     /**
      * Anything in this space is assumed to be visible
@@ -55,20 +54,10 @@ class FeatureProjectionService {
 //        return inputFeaturesArray
 //    }
 
-    private JSONObject projectFeature(JSONObject inputFeature, MultiSequenceProjection projection, Boolean reverseProjection) {
+    private
+    static JSONObject projectFeature(JSONObject inputFeature, MultiSequenceProjection projection, Boolean reverseProjection, Integer offset) {
         if (!inputFeature.has(FeatureStringEnum.LOCATION.value)) return inputFeature
 
-        Integer offset = 0
-        if(inputFeature.containsKey(FeatureStringEnum.SEQUENCE.value)){
-            String sequenceName = inputFeature.getString(FeatureStringEnum.SEQUENCE.value)
-            offset = projection.getOffsetForSequence(sequenceName)
-            println "offset ${offset} for ${sequenceName}"
-            offset = 0
-        }
-        else{
-            println "does not contain a sequence name for reference"
-            println "${inputFeature as JSON}"
-        }
 
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
         println "loaction object ${locationObject as JSON}"
@@ -80,8 +69,8 @@ class FeatureProjectionService {
             fmin = fmin ? projection.projectReverseValue(fmin) : null
             fmax = fmax ? projection.projectReverseValue(fmax) : null
         } else {
-            fmin = fmin ? projection.projectValue(fmin+offset) : null
-            fmax = fmax ? projection.projectValue(fmax+offset) : null
+            fmin = fmin ? projection.projectValue(fmin + offset) : null
+            fmax = fmax ? projection.projectValue(fmax + offset) : null
         }
         println "new values ${fmin}-${fmax}"
         if (fmin) {
@@ -93,13 +82,23 @@ class FeatureProjectionService {
         return inputFeature
     }
 
-    private JSONArray projectFeaturesArray(JSONArray inputFeaturesArray, MultiSequenceProjection projection, Boolean reverseProjection) {
+    private JSONArray projectFeaturesArray(JSONArray inputFeaturesArray, MultiSequenceProjection projection, Boolean reverseProjection,Integer offset) {
         for (int i = 0; i < inputFeaturesArray.size(); i++) {
             JSONObject inputFeature = inputFeaturesArray.getJSONObject(i)
-            projectFeature(inputFeature, projection, reverseProjection)
+
+            if (inputFeature.containsKey(FeatureStringEnum.SEQUENCE.value)) {
+                String sequenceName = inputFeature.getString(FeatureStringEnum.SEQUENCE.value)
+                offset = projection.getOffsetForSequence(sequenceName)
+                println "offset ${offset} for ${sequenceName}"
+            } else {
+                println "does not contain a sequence name for reference"
+                println "${inputFeature as JSON}"
+            }
+
+            projectFeature(inputFeature, projection, reverseProjection,offset)
             if (inputFeature.has(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray childFeatures = inputFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
-                projectFeaturesArray(childFeatures, projection, reverseProjection)
+                projectFeaturesArray(childFeatures, projection, reverseProjection,offset)
             }
         }
         return inputFeaturesArray
