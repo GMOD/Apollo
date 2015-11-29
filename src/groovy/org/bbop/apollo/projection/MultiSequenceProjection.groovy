@@ -279,4 +279,15 @@ class MultiSequenceProjection extends AbstractProjection {
 
         return maxMap
     }
+
+    Integer getOffsetForSequence(String sequenceName) {
+        for(ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()){
+            if(sequenceName==projectionSequence.name){
+                return projectionSequence.originalOffset
+            }
+        }
+        println "no offset for sequence ${sequenceName}"
+
+        return 0
+    }
 }
