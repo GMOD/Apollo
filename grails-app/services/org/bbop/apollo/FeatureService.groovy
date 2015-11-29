@@ -6,6 +6,9 @@ import org.bbop.apollo.Feature
 import grails.transaction.Transactional
 import org.bbop.apollo.filter.Cds3Filter
 import org.bbop.apollo.filter.StopCodonFilter
+import org.bbop.apollo.projection.Coordinate
+import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.sequence.Strand
@@ -39,8 +42,52 @@ class FeatureService {
     def permissionService
     def overlapperService
     def bookmarkService
+    def projectionService
 
+    /**
+     * We assume that the jsonLocation must be reverse-projected . . . and then associated with the appropriate sequence
+     *
+     * @param jsonLocation
+     * @param bookmark
+     * @return
+     * @throws JSONException
+     */
+    @Timed
+    @Transactional
+    public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Bookmark bookmark) throws JSONException {
 
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+
+        Integer min = jsonLocation.getInt(FeatureStringEnum.FMIN.value)
+        Integer max = jsonLocation.getInt(FeatureStringEnum.FMAX.value)
+        ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(min)
+        ProjectionSequence projectionSequence2 = multiSequenceProjection.getReverseProjectionSequence(max)
+        assert projectionSequence==projectionSequence2
+
+        // TODO: add organism
+        Organism organism = Organism.findByCommonName(projectionSequence.organism)
+        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
+
+        Coordinate coordinate = multiSequenceProjection.projectReverseCoordinate(min,max)
+
+        FeatureLocation gsolLocation = new FeatureLocation();
+        if (jsonLocation.has(FeatureStringEnum.ID.value)) {
+            gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
+        }
+        gsolLocation.setFmin(coordinate.min);
+        gsolLocation.setFmax(coordinate.max);
+        gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
+        gsolLocation.setSequence(sequence)
+        return gsolLocation;
+    }
+
+    /**
+     * @deprecated
+     * @param jsonLocation
+     * @param sequence
+     * @return
+     * @throws JSONException
+     */
     @Timed
     @Transactional
     public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence) throws JSONException {
@@ -92,12 +139,41 @@ class FeatureService {
         }
     }
 
+    /**
+     * Set sequence based on FeatureLocation.
+     * If a sequence has multiple feature locations, then use the first one?
+     *
+     * @param gsolFeature
+     * @param bookmark
+     */
     @Transactional
     void updateNewGsolFeatureAttributes(Feature gsolFeature, Bookmark bookmark) {
-        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
-        sequenceList.each { updateNewGsolFeatureAttributes(gsolFeature,it) }
+
+        gsolFeature.setIsAnalysis(false);
+        gsolFeature.setIsObsolete(false);
+        if (bookmark) {
+            MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+
+            Organism organism
+            gsolFeature.featureLocations.each(){
+                ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(it.fmin)
+                String sequenceName = projectionSequence.name
+                organism = organism ?: Organism.findByCommonName(projectionSequence.organism)
+                it.sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
+            }
+        }
+
+        for (FeatureRelationship fr : gsolFeature.getParentFeatureRelationships()) {
+            updateNewGsolFeatureAttributes(fr.getChildFeature(), bookmark);
+        }
+
     }
 
+    /**
+     * @deprecated
+     * @param gsolFeature
+     * @param sequence
+     */
     @Transactional
     void updateNewGsolFeatureAttributes(Feature gsolFeature, Sequence sequence = null) {
 
@@ -139,13 +215,13 @@ class FeatureService {
 
         // TODO: make multisequence plausible . . . based on location
         log.warn "Fix generateTranscript to allow for multiple sequences"
-        Sequence sequence = bookmarkService.getSequencesFromBookmark(bookmark).first()
+//        Sequence sequence = bookmarkService.getSequencesFromBookmark(bookmark).first()
 
         User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
             log.debug "has gene: ${gene}"
-            transcript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
+            transcript = (Transcript) convertJSONToFeature(jsonTranscript, bookmark);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
             }
@@ -171,7 +247,7 @@ class FeatureService {
             }
         } else {
             log.debug "no gene given"
-            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
+            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), bookmark)
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll(){
                 it = Feature.get(it.id)
                 it instanceof Gene
@@ -186,8 +262,8 @@ class FeatureService {
                 if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
                     Gene tmpGene = (Gene) feature;
                     log.debug "found an overlapping gene ${tmpGene}"
-                    Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
-                    updateNewGsolFeatureAttributes(tmpTranscript, sequence);
+                    Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, bookmark);
+                    updateNewGsolFeatureAttributes(tmpTranscript, bookmark);
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
@@ -242,11 +318,11 @@ class FeatureService {
                 geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
             }
             else{
-                geneName = nameService.makeUniqueGeneName(sequence.organism, sequence.name, false)
+                geneName = nameService.makeUniqueGeneName(bookmark.organism, bookmark.sequenceList, false)
             }
             if (!suppressHistory) {
 //                geneName = nameService.makeUniqueFeatureName(sequence.organism, geneName, new LetterPaddingStrategy(), true)
-                geneName = nameService.makeUniqueGeneName(sequence.organism, geneName, true)
+                geneName = nameService.makeUniqueGeneName(bookmark.organism, geneName, true)
             }
             // set back to the original gene name
             if (jsonTranscript.has(FeatureStringEnum.GENE_NAME.value)) {
@@ -254,9 +330,9 @@ class FeatureService {
             }
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
-            gene = (Gene) convertJSONToFeature(jsonGene, sequence);
+            gene = (Gene) convertJSONToFeature(jsonGene, bookmark);
 
-            updateNewGsolFeatureAttributes(gene, sequence);
+            updateNewGsolFeatureAttributes(gene, bookmark);
             if (gene.getFmin() < 0 || gene.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
@@ -1072,19 +1148,32 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
 
+//    @Timed
+//    @Transactional
+//    public Feature convertJSONToFeature(JSONObject jsonFeature, Bookmark bookmark) {
+//        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+//        if(!sequenceList || sequenceList.size()>1){
+//            log.error("trying to convert a feature that has multiple sequences: ${bookmark}")
+//        }
+//        return convertJSONToFeature(jsonFeature,sequenceList.first())
+//    }
+
+    /**
+     * @deprecated
+     * @param jsonFeature
+     * @param bookmark
+     * @return
+     */
     @Timed
     @Transactional
-    public Feature convertJSONToFeature(JSONObject jsonFeature, Bookmark bookmark) {
-        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
-        if(!sequenceList || sequenceList.size()>1){
-            log.error("trying to convert a feature that has multiple sequences: ${bookmark}")
-        }
-        return convertJSONToFeature(jsonFeature,sequenceList.first())
+    public Feature convertJSONToFeature(JSONObject jsonFeature, Sequence sequence) {
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+        return convertJSONToFeature(jsonFeature,bookmark)
     }
 
     @Timed
     @Transactional
-    public Feature convertJSONToFeature(JSONObject jsonFeature, Sequence sequence) {
+    public Feature convertJSONToFeature(JSONObject jsonFeature, Bookmark bookmark) {
         Feature gsolFeature
         try {
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
@@ -1119,8 +1208,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             if (jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
                 JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
-                FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, sequence)
-                featureLocation.sequence = sequence
+                FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, bookmark)
                 featureLocation.feature = gsolFeature
                 featureLocation.save()
                 gsolFeature.addToFeatureLocations(featureLocation);
@@ -1137,7 +1225,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 log.debug "jsonFeature ${jsonFeature} has ${children?.size()} children"
                 for (int i = 0; i < children.length(); ++i) {
                     JSONObject childObject = children.getJSONObject(i)
-                    Feature child = convertJSONToFeature(childObject, sequence);
+                    Feature child = convertJSONToFeature(childObject, bookmark);
                     // if it retuns null, we ignore it
                     if (child) {
                         child.save(failOnError: true)

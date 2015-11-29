@@ -452,7 +452,18 @@ class PermissionService {
             organism = getOrganismFromPreferences(user, sequenceStrings.first())
         }
 
-        List<Sequence> foundSequences = Sequence.findAllByNameInListAndOrganism(sequenceStrings, organism)
+        List<Sequence> sequences = Sequence.findAllByNameInListAndOrganism(sequenceStrings, organism)
+        // re-order sequences by original input
+        List<Sequence> foundSequences = new ArrayList<>(sequences.size())
+        sequences.each {
+            foundSequences.add(null)
+        }
+        sequences.each {
+            Integer index = sequenceStrings.indexOf(it.name)
+            foundSequences.set(index,it)
+        }
+
+
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
 
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)

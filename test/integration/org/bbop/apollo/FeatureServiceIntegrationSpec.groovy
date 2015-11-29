@@ -6,18 +6,20 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-class FeatureServiceIntegrationSpec extends IntegrationSpec {
+class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
     
     def featureService
+    def bookmarkService
 
     def setup() {
-        Sequence sequence = new Sequence(
-                length: 3
-                ,seqChunkSize: 3
-                ,start: 5
-                ,end: 8
-                ,name: "Group1.10"
-        ).save(failOnError: true)
+        setupDefaultUserOrg()
+//        Sequence sequence = new Sequence(
+//                length: 3
+//                ,seqChunkSize: 3
+//                ,start: 5
+//                ,end: 8
+//                ,name: "Group1.10"
+//        ).save(failOnError: true)
     }
 
     def cleanup() {
@@ -30,6 +32,7 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
 
         when: "we parse it"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(Sequence.first())
 
         then: "is is a valid object"
         assert jsonObject!=null
@@ -40,7 +43,8 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
         assert childArray.size()==7
 
         when: "we convert it to a feature"
-        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject,Sequence.first())
+//        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject,Sequence.first())
+        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject,bookmark)
 
         then: "it should convert it to the same feature"
         assert feature!=null

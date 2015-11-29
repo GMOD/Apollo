@@ -445,7 +445,7 @@ class RequestHandlingService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            if (!sequence) sequence = feature.getFeatureLocation().getSequence()
+            feature.getFeatureLocation().getSequence()
             feature.name = jsonFeature.get(FeatureStringEnum.NAME.value)
 
 
@@ -1911,7 +1911,7 @@ class RequestHandlingService {
             returnContainer.put("alert", "Unable to find canonical splice sites.");
             return returnContainer
         }
-        featureService.updateNewGsolFeatureAttributes(splitExon, sequence)
+        featureService.updateNewGsolFeatureAttributes(splitExon, bookmark)
         featureService.calculateCDS(transcript)
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
