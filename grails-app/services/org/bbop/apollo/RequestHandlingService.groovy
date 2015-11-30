@@ -1088,6 +1088,14 @@ class RequestHandlingService {
             // TODO: also send to any overlapping sequences as well?
 //            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + sequence.organismId + "/" + sequence.id, returnString
             brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + bookmark.organismId + "/" + bookmark.id, returnString
+//            println "sending: /topic/AnnotationNotification/" + bookmark.organismId + "/" + bookmark.id
+
+            JSONArray sequenceArray = JSON.parse(bookmark.sequenceList) as JSONArray
+            for(int i = 0 ; i < sequenceArray.size() ; i++){
+                String sequenceName = sequenceArray.getJSONObject(i).name
+                brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + bookmark.organismId + "/" + sequenceName, returnString
+//                println "sending: /topic/AnnotationNotification/" + bookmark.organismId + "/" + sequenceName
+            }
         } catch (e) {
             log.error("problem sending message: ${e}")
         }

@@ -331,10 +331,11 @@ define([
                             //alert(JSON.stringify(bookmark));
                             // also subscribe to each sequence name in the list
                             bookmark.sequenceList.forEach(function(obj){
-                                //alert(obj.name);
+                                //alert("listening: "+"/topic/AnnotationNotification/" + organism.id + "/" + obj.name);
                                 client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + obj.name, dojo.hitch(track, 'annotationNotification'));
                             });
-                            client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + bookmark.id, dojo.hitch(track, 'annotationNotification'));
+                            //client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + bookmark.id, dojo.hitch(track, 'annotationNotification'));
+                            //alert("listening: "+"/topic/AnnotationNotification/" + organism.id + "/" + bookmark.id);
                             client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
                         });
                         console.log('connection established');
