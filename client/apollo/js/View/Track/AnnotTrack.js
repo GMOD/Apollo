@@ -328,6 +328,12 @@ define([
                             var organism = JSON.parse(window.parent.getCurrentOrganism());
                             var bookmark = JSON.parse(window.parent.getCurrentBookmark());
                             var user = JSON.parse(window.parent.getCurrentUser());
+                            //alert(JSON.stringify(bookmark));
+                            // also subscribe to each sequence name in the list
+                            bookmark.sequenceList.forEach(function(obj){
+                                //alert(obj.name);
+                                client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + obj.name, dojo.hitch(track, 'annotationNotification'));
+                            });
                             client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + bookmark.id, dojo.hitch(track, 'annotationNotification'));
                             client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
                         });

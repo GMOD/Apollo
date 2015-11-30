@@ -459,6 +459,8 @@ public class MainPanel extends Composite {
         currentStartBp = minRegion;
         currentEndBp = maxRegion;
 
+        currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
+
 
         String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
         if(selectedSequence.startsWith("{")){

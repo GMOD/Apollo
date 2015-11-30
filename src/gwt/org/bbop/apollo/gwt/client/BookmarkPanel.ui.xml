@@ -55,7 +55,7 @@
 
         </ui:style>
     <gwt:SplitLayoutPanel ui:field="layoutPanel">
-        <gwt:north size="90">
+        <gwt:north size="140">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row styleName="{style.rowNorth}">
                     <b:Column size="MD_2">
