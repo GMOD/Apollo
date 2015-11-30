@@ -1,6 +1,9 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.codehaus.groovy.grails.web.json.JSONArray
 
 @Transactional(readOnly = true)
 class NameService {
@@ -28,6 +31,17 @@ class NameService {
                         log.debug "transcript has pseudogene ${gene}"
                     }
                     principalName = gene.name
+                }
+                if(principalName.startsWith("[")){
+                    Integer lastIndex = principalName.lastIndexOf("]")
+                    String lastString = principalName.substring(0,lastIndex+1)
+                    JSONArray array = JSON.parse(lastString) as JSONArray
+                    List strings = []
+                    for(int i = 0 ; i < array.size() ; i++){
+                        strings << array.getJSONObject(i).getString(FeatureStringEnum.NAME.value)
+                    }
+//                    principalName = strings.join("::")+principalName.substring(lastIndex+1)
+                    principalName = strings.join("-")+principalName.substring(lastIndex+1)
                 }
                 return makeUniqueTranscriptName(organism,principalName.trim()+"-")
             } else
