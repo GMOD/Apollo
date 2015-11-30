@@ -7,12 +7,12 @@
     {
       "location": "./plugins/NeatHTMLFeatures",
       "name": "NeatHTMLFeatures",
-      "gradientFeatures": 0
+      "gradientFeatures": 1
     },
     {
       "location": "./plugins/NeatCanvasFeatures",
       "name": "NeatCanvasFeatures",
-      "gradientFeatures": 0
+      "gradientFeatures": 1
     },
     {
       "location": "./plugins/ApolloLabelProc",
