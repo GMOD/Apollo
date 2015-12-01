@@ -16,11 +16,10 @@ class FeatureProjectionService {
 
     JSONArray projectTrack(JSONArray inputFeaturesArray, Bookmark bookmark, Boolean reverseProjection = false) {
         MultiSequenceProjection projection = projectionService.getProjection(bookmark)
-        return projectTrack(inputFeaturesArray, projection, bookmark.organism, (bookmark as JSON).toString(), reverseProjection)
+        return projectTrack(inputFeaturesArray, projection, reverseProjection)
     }
 
-    JSONArray projectTrack(JSONArray inputFeaturesArray, MultiSequenceProjection projection, Organism currentOrganism, String refererLoc, Boolean reverseProjection = false) {
-
+    JSONArray projectTrack(JSONArray inputFeaturesArray, MultiSequenceProjection projection,Boolean reverseProjection = false) {
 
         println "trying to convert ${inputFeaturesArray as JSON}"
         if (projection) {

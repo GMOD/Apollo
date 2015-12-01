@@ -214,22 +214,6 @@ class MultiSequenceProjection extends AbstractProjection {
 
     Boolean containsSequence(String sequenceName, Long sequenceId, Organism organism) {
         return getProjectionSequence(sequenceName, sequenceId, organism) != null
-//        for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
-//            if (projectionSequence.name == sequenceName) {
-//                if (projectionSequence.organism && organism) {
-//                    if (projectionSequence.organism != organism.commonName) {
-//                        return false
-//                    }
-//                }
-//                if (projectionSequence.id && sequenceId) {
-//                    if (projectionSequence.id != sequenceId) {
-//                        return false
-//                    }
-//                }
-//                return true
-//            }
-//        }
-//        return false
     }
 
 
@@ -281,10 +265,17 @@ class MultiSequenceProjection extends AbstractProjection {
     }
 
     Integer getOffsetForSequence(String sequenceName) {
-        for(ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()){
-            if(sequenceName==projectionSequence.name){
-                return projectionSequence.originalOffset
+        Integer index = 0
+        for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
+            if (sequenceName == projectionSequence.name) {
+                if (projectionChunkList) {
+                    ProjectionChunk projectionChunk = projectionChunkList.findProjectChunkForIndex(index)
+                    return projectionChunk.sequenceOffset
+                } else {
+                    return projectionSequence.originalOffset
+                }
             }
+            ++index
         }
         println "no offset for sequence ${sequenceName}"
 
