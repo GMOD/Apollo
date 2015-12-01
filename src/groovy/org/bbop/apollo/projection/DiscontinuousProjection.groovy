@@ -152,8 +152,8 @@ public class DiscontinuousProjection extends AbstractProjection {
 
 
     def addInterval(int min, int max, Integer padding = 0) {
-        min -= padding
-        max += padding
+        min -= padding ?: 0
+        max += padding ?: 0
         min = min < 0 ? 0 : min
 //        println "${min},${max}"
 //        max = max > length ? length: max
