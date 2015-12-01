@@ -84,6 +84,7 @@ public class DiscontinuousProjection extends AbstractProjection {
             return input - floorMinKey
         }
 
+
         // if we are at the max border
         if (floorMaxKey == ceilMaxKey) {
             return input - floorMinKey + projectValue(floorMinKey)
@@ -91,6 +92,11 @@ public class DiscontinuousProjection extends AbstractProjection {
 
         // if we are inbetween a ceiling max and floor min, then we are in a viable block
         if (input > floorMinKey && input < ceilMaxKey && ceilMinKey >= ceilMaxKey) {
+            return input - floorMinKey + projectValue(floorMinKey)
+        }
+
+        // if we are inbetween for the last large one on the RHS
+        if (floorMaxKey != ceilMaxKey && ceilMinKey == null) {
             return input - floorMinKey + projectValue(floorMinKey)
         }
 
@@ -146,10 +152,8 @@ public class DiscontinuousProjection extends AbstractProjection {
 
 
     def addInterval(int min, int max, Integer padding = 0) {
-        if (padding > 0) {
-            min -= padding
-            max += padding
-        }
+        min -= padding
+        max += padding
         min = min < 0 ? 0 : min
 //        println "${min},${max}"
 //        max = max > length ? length: max
@@ -202,9 +206,9 @@ public class DiscontinuousProjection extends AbstractProjection {
             return null
         }
         if (floorMinCoord != null && ceilMinCoord != null && floorMaxCoord != null && ceilMaxCoord == null) {
-            if(floorMinCoord==floorMaxCoord && floorMaxCoord == ceilMinCoord){
-                if(max > floorMaxCoord.max){
-                    return replaceCoordinate(floorMinCoord,floorMinCoord.min,max)
+            if (floorMinCoord == floorMaxCoord && floorMaxCoord == ceilMinCoord) {
+                if (max > floorMaxCoord.max) {
+                    return replaceCoordinate(floorMinCoord, floorMinCoord.min, max)
                 }
                 println "not sure how to handle this piece "
             }
@@ -212,12 +216,12 @@ public class DiscontinuousProjection extends AbstractProjection {
         }
         // if we are right on the right edge
         if (floorMinCoord == null && ceilMinCoord != null && floorMaxCoord != null && ceilMaxCoord != null) {
-            if(floorMaxCoord==ceilMaxCoord && ceilMaxCoord==ceilMinCoord){
-               if(min < floorMaxCoord.min) {
-                   return replaceCoordinate(floorMaxCoord,min,floorMaxCoord.max)
-               }
+            if (floorMaxCoord == ceilMaxCoord && ceilMaxCoord == ceilMinCoord) {
+                if (min < floorMaxCoord.min) {
+                    return replaceCoordinate(floorMaxCoord, min, floorMaxCoord.max)
+                }
                 println "not sure how we got here"
-               return null
+                return null
             }
             println "or here either"
             return null
@@ -296,30 +300,17 @@ public class DiscontinuousProjection extends AbstractProjection {
                 return null
             }
             // in the case they are in-between an existing scaffold
-            else
-            if (floorMinCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord) {
+            else if (floorMinCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord) {
                 return null
-            }
-            else
-            if (floorMinCoord == ceilMinCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord) {
-                return replaceCoordinate(floorMinCoord,min,ceilMaxCoord.max)
-            }
-            else
-            if (floorMaxCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMinCoord != ceilMinCoord) {
-                return replaceCoordinate(floorMinCoord,floorMinCoord.min,ceilMaxCoord.max)
-            }
-            else
-            if (floorMinCoord == floorMaxCoord && floorMaxCoord == ceilMinCoord && floorMinCoord != ceilMaxCoord) {
+            } else if (floorMinCoord == ceilMinCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord) {
+                return replaceCoordinate(floorMinCoord, min, ceilMaxCoord.max)
+            } else if (floorMaxCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMinCoord != ceilMinCoord) {
+                return replaceCoordinate(floorMinCoord, floorMinCoord.min, ceilMaxCoord.max)
+            } else if (floorMinCoord == floorMaxCoord && floorMaxCoord == ceilMinCoord && floorMinCoord != ceilMaxCoord) {
 //                return replaceCoordinate(floorMinCoord,floorMinCoord.min,ceilMaxCoord.max)
                 return null
             }
 
-
-//            println "all coordinates accounted for else ${min}/${max}"
-//            println "floorMinCoord ${floorMinCoord}"
-//            println "floorMaxCoord ${floorMaxCoord}"
-//            println "ceilMinCoord ${ceilMinCoord}"
-//            println "ceilMaxCoord ${ceilMaxCoord}"
             return addCoordinate(min, max)
 
         } else {
@@ -394,8 +385,8 @@ public class DiscontinuousProjection extends AbstractProjection {
      * @param buffer
      * @return
      */
-    public Integer getBufferedLength(Integer buffer =1 ) {
-        return length + buffer*(size()-1)
+    public Integer getBufferedLength(Integer buffer = 1) {
+        return length + buffer * (size() - 1)
     }
 
     @Override

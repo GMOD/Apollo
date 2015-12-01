@@ -429,11 +429,11 @@ class ProjectionService {
                     JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
                     for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
                         JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-                        locationList.addAll(extractHighLevelLocations(chunkArrayCoordinate, projectionDescription))
+                        locationList.addAll(extractHighLevelLocations(chunkArrayCoordinate))
                     }
 
                 } else {
-                    List<Location> thisLocationList = extractHighLevelLocations(coordinate, projectionDescription)
+                    List<Location> thisLocationList = extractHighLevelLocations(coordinate)
                     locationList.addAll(thisLocationList)
                 }
             }
@@ -510,7 +510,7 @@ class ProjectionService {
         return multiSequenceProjection
     }
 
-    List<Location> extractHighLevelLocations(JSONArray coordinate, ProjectionDescription projectionDescription) {
+    List<Location> extractHighLevelLocations(JSONArray coordinate) {
         int classType = coordinate.getInt(0)
         log.debug "processing high level array  ${coordinate as JSON}"
         String featureType
@@ -518,7 +518,7 @@ class ProjectionService {
             case 0:
                 featureType = coordinate.getString(9)
                 // process array in 10
-                List<Location> localExonArray = extractExonArrayLocations(coordinate.getJSONArray(10), projectionDescription)
+                List<Location> localExonArray = extractExonArrayLocations(coordinate.getJSONArray(10))
                 return localExonArray
                 // process sublist if 11 exists
                 break
@@ -544,7 +544,7 @@ class ProjectionService {
 
     }
 
-    List<Location> extractExonArrayLocations(JSONArray coordinate, ProjectionDescription projectionDescription) {
+    List<Location> extractExonArrayLocations(JSONArray coordinate) {
         List<Location> locationList = new ArrayList<>()
         log.debug "processing exon array ${coordinate as JSON}"
         def classType = coordinate.get(0)
@@ -553,7 +553,7 @@ class ProjectionService {
         if (classType instanceof JSONArray) {
             for (int i = 0; i < coordinate.size(); i++) {
                 log.debug "subarray ${coordinate.get(i) as JSON}"
-                locationList.addAll(extractExonArrayLocations(coordinate.getJSONArray(i), projectionDescription))
+                locationList.addAll(extractExonArrayLocations(coordinate.getJSONArray(i)))
             }
             return locationList
         } else {
@@ -566,12 +566,12 @@ class ProjectionService {
                 log.debug "not sure if this will work . . check! ${coordinate.size()} > 9"
                 featureType = coordinate.getString(9)
                 if (coordinate.size() >= 10) {
-                    locationList.addAll(extractExonArrayLocations(coordinate.getJSONArray(10), projectionDescription))
+                    locationList.addAll(extractExonArrayLocations(coordinate.getJSONArray(10)))
                 }
                 if (coordinate.size() >= 11) {
                     JSONObject sublist = coordinate.getJSONObject(11)
 //                    locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection, sublist.getJSONArray("Sublist"), projectionDescription))
-                    locationList.addAll(extractHighLevelLocations(sublist.getJSONArray("Sublist"), projectionDescription))
+                    locationList.addAll(extractHighLevelLocations(sublist.getJSONArray("Sublist")))
                 }
                 break
             case 1:
@@ -588,12 +588,8 @@ class ProjectionService {
 
         // TODO: or repeat region?
         if (featureType && featureType == "exon") {
-//            discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2), projectionDescription.padding)
             String sequenceName
             switch (coordinate.getInt(0)){
-//                case 1:
-//                    println "coordinate ${coordinate as JSON}"
-//                    throw new RuntimeException("not here ")
                 case 0:
                 case 1:
                 case 2:
@@ -610,12 +606,11 @@ class ProjectionService {
             )
             locationList.add(
                     new Location(
-                            min: coordinate.getInt(1) - projectionDescription.padding
-                            , max: coordinate.getInt(2) + projectionDescription.padding
+                            min: coordinate.getInt(1)
+                            , max: coordinate.getInt(2)
                             , sequence: projectionSequence1
                     )
             )
-//                    coordinate.getInt(1), coordinate.getInt(2), projectionDescription.padding)
         }
 
         return locationList

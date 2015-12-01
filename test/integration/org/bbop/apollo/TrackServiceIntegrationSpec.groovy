@@ -143,6 +143,38 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
     /**
+     *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
+     *
+     */
+    void "Projected 11.4 individually with padding"() {
+        given: "proper inputs"
+        List<String> sequenceStrings = ["Group11.4"]
+        Integer padding = 20
+        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\": ${padding}, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1/trackData.json"
+        String refererLoc = "{\"padding\":${padding}, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1:1..16607"
+
+        when: "we get the projected track data "
+        JSONObject trackObject = trackService.projectTrackData(sequenceStrings, dataFileName, refererLoc, Organism.first())
+
+        then: "we expect to get sane results"
+        assert trackObject.featureCount == 6
+        def minStart = trackObject.minStart
+        def maxEnd = trackObject.maxEnd
+        JSONArray nclist = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+        assert nclist.size() == 5
+
+        // the next array should go somewhere completely else
+        JSONArray firstLastArray = nclist.getJSONArray(0)
+        assert firstLastArray.getInt(1) == 0 + padding // end of the first set
+        assert firstLastArray.getInt(2) == 2546 + (padding + (padding * (8 * 2))) // end of the first set
+
+        JSONArray lastLastArray = nclist.getJSONArray(4)
+        Integer paddingCount = 55
+        assert lastLastArray.getInt(1) == 14601 + (padding * paddingCount)// end of the last set
+        assert lastLastArray.getInt(2) == 15764 + (padding * (paddingCount + 6))// end of the last set . ..  including exons
+    }
+
+    /**
      *
      *  GroupUn87: Projected: 0,213 <-> 723,843   (4 groups), Unprojected: 9966,10179 (first)  45455,45575 (last)
      *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
@@ -179,6 +211,59 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         JSONArray lastLastArray = nclist.getJSONArray(8)
         assert lastLastArray.getInt(1) == 14601 + 843
         assert lastLastArray.getInt(2) == 15764 + 843
+    }
+
+    /**
+     *
+     *  GroupUn87: Projected: 0,213 <-> 723,843   (4 groups), Unprojected: 9966,10179 (first)  45455,45575 (last)
+     *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
+     */
+    void "exon projections of contiguous tracks should work with padding"() {
+
+        given: "proper inputs"
+        List<String> sequenceStrings = ["GroupUn87", "Group11.4"]
+        Integer padding = 20
+        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\":${padding}, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1/trackData.json"
+        String refererLoc = "{\"padding\":${padding}, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1:1..16607"
+
+        when: "we get the projected track data "
+        JSONObject trackObject = trackService.projectTrackData(sequenceStrings, dataFileName, refererLoc, Organism.first())
+
+        then: "we expect to get sane results"
+        assert trackObject.featureCount == 10
+        def minStart = trackObject.minStart
+        def maxEnd = trackObject.maxEnd
+        JSONArray nclist = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+        assert nclist.size() == 9
+        JSONArray firstArray = nclist.getJSONArray(0)
+        Integer paddingCount = 1
+        assert firstArray.getInt(1) == 0 + padding * paddingCount
+        assert firstArray.getInt(2) == 213 + padding * paddingCount
+
+        when: "adjust "
+        paddingCount += 10
+
+        then:
+        JSONArray lastFirstArray = nclist.getJSONArray(3)
+        assert lastFirstArray.getInt(1) == 723 + padding * paddingCount // end of first set
+        assert lastFirstArray.getInt(2) == 843 + padding * paddingCount // end of the first set
+
+        // the next array should start at the end of thast one
+        when: "adjust "
+        paddingCount += 1
+
+        then:
+        JSONArray firstLastArray = nclist.getJSONArray(4)
+        assert firstLastArray.getInt(1) == 0 + 843 + padding * paddingCount
+        assert firstLastArray.getInt(2) == 2546 + 843 + padding * (paddingCount+16)
+
+        when: "adjust "
+        paddingCount += 16 + 2 + 36 //?
+
+        then:
+        JSONArray lastLastArray = nclist.getJSONArray(8)
+        assert lastLastArray.getInt(1) == 14601 + 843 + padding * paddingCount
+        assert lastLastArray.getInt(2) == 15764 + 843 + padding * (paddingCount+6)
     }
 
     /**
