@@ -19,9 +19,12 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
+import org.bbop.apollo.Bookmark;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfoConverter;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequence;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequenceList;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
@@ -459,16 +462,23 @@ public class MainPanel extends Composite {
         currentStartBp = minRegion;
         currentEndBp = maxRegion;
 
-        currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
-
 
         String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
         if(selectedSequence.startsWith("{")){
             trackListString += URL.encodeQueryString(selectedSequence);
             trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
             trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
+            currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
         }
         else{
+            BookmarkInfo bookmark = new BookmarkInfo();
+            BookmarkSequenceList bookmarkSequenceList = new BookmarkSequenceList();
+            BookmarkSequence bookmarkSequence = new BookmarkSequence();
+            bookmarkSequence.setName(selectedSequence);
+            bookmarkSequenceList.addSequence(bookmarkSequence);
+            bookmark.setSequenceList(bookmarkSequenceList);
+            currentBookmark = bookmark ;
+//            currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
             trackListString += selectedSequence;
             trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
             trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");

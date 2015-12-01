@@ -483,7 +483,9 @@ class TrackService {
         ) {
             coordinate.set(1, coordinate.getInt(1) + nudgeAmount)
             coordinate.set(2, coordinate.getInt(2) + nudgeAmount)
-            coordinate.set(3, coordinate.getInt(3) + nudgeIndex)
+            if(coordinate.get(0)==4){
+                coordinate.set(3, coordinate.getInt(3) + nudgeIndex)
+            }
         }
 
         return coordinate
