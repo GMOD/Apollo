@@ -213,10 +213,6 @@ class FeatureService {
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
 
-        // TODO: make multisequence plausible . . . based on location
-        log.warn "Fix generateTranscript to allow for multiple sequences"
-//        Sequence sequence = bookmarkService.getSequencesFromBookmark(bookmark).first()
-
         User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {

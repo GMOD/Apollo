@@ -893,4 +893,8 @@ class ProjectionService {
         ProjectionDescription projectionDescription = convertJsonObjecToProjectDescription(bookmarkObject)
         multiSequenceProjectionMap.put(projectionDescription,multiSequenceProjection)
     }
+
+    def clearProjections(){
+        multiSequenceProjectionMap.clear()
+    }
 }
