@@ -18,9 +18,11 @@ class CdsServiceIntegrationSpec extends AbstractIntegrationSpec{
     def sequenceService
     def requestHandlingService
     def transcriptService
+    def projectionService
 
     def setup() {
         setupDefaultUserOrg()
+        projectionService.clearProjections()
     }
 
     def cleanup() {

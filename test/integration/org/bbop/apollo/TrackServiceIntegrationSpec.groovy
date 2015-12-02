@@ -7,6 +7,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     def trackService
+    def projectionService
 
     def setup() {
         setupDefaultUserOrg()
@@ -31,6 +32,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
                 , organism: organism
                 , name: "GroupUn87"
         ).save(failOnError: true)
+        projectionService.clearProjections()
     }
 
     def cleanup() {

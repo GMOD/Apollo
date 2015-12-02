@@ -10,9 +10,11 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
     
     def featureService
     def bookmarkService
+    def projectionService
 
     def setup() {
         setupDefaultUserOrg()
+        projectionService.clearProjections()
 //        Sequence sequence = new Sequence(
 //                length: 3
 //                ,seqChunkSize: 3

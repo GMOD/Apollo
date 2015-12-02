@@ -10,9 +10,11 @@ class OrganismServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     def organismService
     def requestHandlingService
+    def projectionService
 
     def setup() {
         setupDefaultUserOrg()
+        projectionService.clearProjections()
     }
 
     def cleanup() {

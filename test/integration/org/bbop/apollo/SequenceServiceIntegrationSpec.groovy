@@ -12,10 +12,11 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
     def requestHandlingService
     def sequenceService
     def exonService
-    def featureService
-    
+    def projectionService
+
     def setup() {
         setupDefaultUserOrg()
+        projectionService.clearProjections()
 //        Organism organism = new Organism(
 //                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
 //                ,commonName: "sampleAnimal"
