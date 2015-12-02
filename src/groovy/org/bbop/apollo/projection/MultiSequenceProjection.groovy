@@ -265,17 +265,16 @@ class MultiSequenceProjection extends AbstractProjection {
     }
 
     Integer getOffsetForSequence(String sequenceName) {
-        Integer index = 0
+        if (projectionChunkList) {
+            ProjectionChunk projectionChunk = projectionChunkList.findProjectChunkForName(sequenceName)
+            if (projectionChunk) {
+                return projectionChunk.sequenceOffset
+            }
+        }
         for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
             if (sequenceName == projectionSequence.name) {
-                if (projectionChunkList) {
-                    ProjectionChunk projectionChunk = projectionChunkList.findProjectChunkForName(sequenceName)
-                    return projectionChunk.sequenceOffset
-                } else {
-                    return projectionSequence.originalOffset
-                }
+                return projectionSequence.originalOffset
             }
-            ++index
         }
         println "no offset for sequence ${sequenceName}"
 
