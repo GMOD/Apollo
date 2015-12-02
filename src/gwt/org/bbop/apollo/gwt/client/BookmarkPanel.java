@@ -112,6 +112,11 @@ public class BookmarkPanel extends Composite {
 
         referenceTrack.addItem("Official Gene Set v3.2");
 
+        // Enforcing selection of foldType to 'None'
+        // fired on page refresh
+        foldType.setSelectedIndex(0);
+        foldPadding.setEnabled(false);
+        referenceTrack.setEnabled(false);
 
         // Set the message to display when the table is empty.
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
@@ -323,6 +328,14 @@ public class BookmarkPanel extends Composite {
     @UiHandler(value = {"foldType", "foldPadding"})
     public void changeFoldType(ChangeEvent changeEvent){
         view(null);
+        if ("None".equals(foldType.getSelectedValue())) {
+            foldPadding.setEnabled(false);
+            referenceTrack.setEnabled(false);
+        }
+        else {
+            foldPadding.setEnabled(true);
+            referenceTrack.setEnabled(true);
+        }
     }
 
     private void setBookmarkInfo(Set<BookmarkInfo> selectedObject) {
