@@ -269,7 +269,7 @@ class MultiSequenceProjection extends AbstractProjection {
         for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()) {
             if (sequenceName == projectionSequence.name) {
                 if (projectionChunkList) {
-                    ProjectionChunk projectionChunk = projectionChunkList.findProjectChunkForIndex(index)
+                    ProjectionChunk projectionChunk = projectionChunkList.findProjectChunkForName(sequenceName)
                     return projectionChunk.sequenceOffset
                 } else {
                     return projectionSequence.originalOffset

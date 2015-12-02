@@ -23,4 +23,13 @@ class ProjectionChunkList {
         }
         return null
     }
+
+    ProjectionChunk findProjectChunkForName(String sequenceName) {
+        for(ProjectionChunk projectionChunk : projectionChunkList){
+            if(projectionChunk.sequence==sequenceName){
+                return projectionChunk
+            }
+        }
+        return null
+    }
 }
