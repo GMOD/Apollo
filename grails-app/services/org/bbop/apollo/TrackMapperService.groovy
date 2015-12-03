@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.projection.NclistColumnEnum
 import org.bbop.apollo.projection.TrackIndex
 
 //import grails.transaction.NotTransactional
@@ -9,6 +10,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 
 //@Transactional
 class TrackMapperService {
+
 
     /**
      * Format Organism, Track, JSONArray
@@ -72,9 +74,22 @@ class TrackMapperService {
     TrackIndex getIndices(String organismName, String trackName, Integer index) {
         List<String> attributes = getAttributes(organismName,trackName,index)
         TrackIndex trackIndex = new TrackIndex()
-        trackIndex.start = attributes.indexOf("Start")+1
-        trackIndex.end = attributes.indexOf("End")+1
-        trackIndex.source = attributes.indexOf("Source")+1
+        trackIndex.start = attributes.indexOf(NclistColumnEnum.START.value)+1
+        trackIndex.end = attributes.indexOf(NclistColumnEnum.END.value)+1
+        trackIndex.source = attributes.indexOf(NclistColumnEnum.SOURCE.value)+1
+        trackIndex.chunk = attributes.indexOf(NclistColumnEnum.CHUNK.value)+1
+        trackIndex.id = attributes.indexOf(NclistColumnEnum.ID.value)+1
+        trackIndex.score = attributes.indexOf(NclistColumnEnum.SCORE.value)+1
+        trackIndex.seqId = attributes.indexOf(NclistColumnEnum.SEQ_ID.value)+1
+        trackIndex.strand = attributes.indexOf(NclistColumnEnum.STRAND.value)+1
+        trackIndex.subFeaturesColumn = attributes.indexOf(NclistColumnEnum.SUBFEATURES.value)+1
+        trackIndex.sublistColumn = attributes.indexOf(NclistColumnEnum.SUBLIST.value)+1
+        trackIndex.type = attributes.indexOf(NclistColumnEnum.TYPE.value)+1
+        trackIndex.phase = attributes.indexOf(NclistColumnEnum.PHASE.value)+1
+
+        trackIndex.fixCoordinates()
+
+
         trackIndex.trackName = trackName
         trackIndex.organism = organismName
         trackIndex.classIndex = index

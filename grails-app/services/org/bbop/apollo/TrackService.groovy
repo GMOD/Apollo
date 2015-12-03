@@ -198,7 +198,9 @@ class TrackService {
         for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
             JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
             // TODO: use enums to better track format
-            if (coordinate.getInt(0) == 4 || coordinate.getInt(0) == 3) {
+            TrackIndex trackIndex = trackMapperService.getIndices(sequence.organism.commonName,trackName,coordinate.getInt(0))
+//            if (coordinate.getInt(0) == 4 || coordinate.getInt(0) == 3) {
+            if(trackIndex.hasSubList()){
                 // projecess the file lf-${coordIndex} instead
                 File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
                 JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
@@ -376,13 +378,14 @@ class TrackService {
             }
         }
 
-        TrackIndex trackIndex = trackMapperService.getIndices(projectionSequence.organism,trackName,coordinate.getInt(0))
+
 
         if (coordinate.size() >= 3
                 && coordinate.get(0) instanceof Integer
 //                && coordinate.get(1) instanceof Integer
 //                && coordinate.get(2) instanceof Integer
         ) {
+            TrackIndex trackIndex = trackMapperService.getIndices(projectionSequence.organism,trackName,coordinate.getInt(0))
             Integer oldMin = coordinate.getInt(trackIndex.start) + projectionSequence.originalOffset
             Integer oldMax = coordinate.getInt(trackIndex.end) + projectionSequence.originalOffset
             Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax)

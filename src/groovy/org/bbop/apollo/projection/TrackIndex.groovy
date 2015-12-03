@@ -15,9 +15,29 @@ class TrackIndex {
     Integer type
     Integer seqId
     Double score
+    Integer chunk
+    Integer id
+    Integer subFeaturesColumn
+    Integer sublistColumn
 
     // set from intake
     String trackName
     String organism
-    int classIndex
+    Integer classIndex
+
+    def fixCoordinates() {
+        properties.each {
+            if(it.value instanceof Integer && it.value==0){
+                it.value = null
+            }
+        }
+    }
+
+    Boolean hasSubList() {
+        return sublistColumn && sublistColumn>0
+    }
+
+    Boolean hasSubFeatures() {
+        return subFeaturesColumn && subFeaturesColumn>0
+    }
 }
