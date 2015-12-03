@@ -8,8 +8,8 @@ import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionChunk
 import org.bbop.apollo.projection.ProjectionChunkList
-import org.bbop.apollo.projection.ProjectionInterface
 import org.bbop.apollo.projection.ProjectionSequence
+import org.bbop.apollo.projection.TrackIndex
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -20,6 +20,7 @@ class TrackService {
     public static String TRACK_NAME_SPLITTER = "::"
 
     def projectionService
+    def trackMapperService
 
     String getTracks(User user, Organism organism) {
         String trackList = ""
@@ -303,7 +304,7 @@ class TrackService {
         return null
     }
 
-    def JSONArray loadChunkData(String path, String refererLoc, Organism currentOrganism, Integer offset) {
+    def JSONArray loadChunkData(String path, String refererLoc, Organism currentOrganism, Integer offset,String trackName) {
         println "loading chunk data with offset ${offset}"
         File file = new File(path)
         String inputText = file.text
@@ -319,7 +320,7 @@ class TrackService {
             println "found a projection ${projection.size()}"
             for (int i = 0; i < coordinateJsonArray.size(); i++) {
                 JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
-                projectJsonArray(projection, coordinate, offset, projectionSequence)
+                projectJsonArray(projection, coordinate, offset, projectionSequence,trackName)
             }
         }
         return coordinateJsonArray
@@ -339,10 +340,16 @@ class TrackService {
         if (projection && projectionSequence) {
             println "found a projection ${projection.size()}"
             JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
+
+            // get track for service
+            JSONArray trackClassesArray = intervalsJsonArray.getJSONArray("classes")
+            String trackName = projectionService.getTrackName(file.absolutePath)
+            trackMapperService.storeTrack(currentOrganism.commonName,trackName,trackClassesArray)
+
             JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
             for (int i = 0; i < coordinateJsonArray.size(); i++) {
                 JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
-                projectJsonArray(projection, coordinate, 0, projectionSequence)
+                projectJsonArray(projection, coordinate, 0, projectionSequence,trackName)
             }
         }
         return trackDataJsonObject
@@ -359,31 +366,33 @@ class TrackService {
      * @param adjustment This is typically the offset from the prior sequence.
      * @return
      */
-    JSONArray projectJsonArray(MultiSequenceProjection projection, JSONArray coordinate, Integer offset, ProjectionSequence projectionSequence) {
+    JSONArray projectJsonArray(MultiSequenceProjection projection, JSONArray coordinate, Integer offset, ProjectionSequence projectionSequence,String trackName) {
 
         // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
         for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
             def subArray = coordinate.get(subIndex)
             if (subArray instanceof JSONArray) {
-                projectJsonArray(projection, subArray, offset, projectionSequence)
+                projectJsonArray(projection, subArray, offset, projectionSequence,trackName)
             }
         }
 
+        TrackIndex trackIndex = trackMapperService.getIndices(projectionSequence.organism,trackName,coordinate.getInt(0))
+
         if (coordinate.size() >= 3
                 && coordinate.get(0) instanceof Integer
-                && coordinate.get(1) instanceof Integer
-                && coordinate.get(2) instanceof Integer
+//                && coordinate.get(1) instanceof Integer
+//                && coordinate.get(2) instanceof Integer
         ) {
-            Integer oldMin = coordinate.getInt(1) + projectionSequence.originalOffset
-            Integer oldMax = coordinate.getInt(2) + projectionSequence.originalOffset
+            Integer oldMin = coordinate.getInt(trackIndex.start) + projectionSequence.originalOffset
+            Integer oldMax = coordinate.getInt(trackIndex.end) + projectionSequence.originalOffset
             Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax)
             if (newCoordinate && newCoordinate.isValid()) {
-                coordinate.set(1, newCoordinate.min + offset - projectionSequence.offset)
-                coordinate.set(2, newCoordinate.max + offset - projectionSequence.offset)
+                coordinate.set(trackIndex.start, newCoordinate.min + offset - projectionSequence.offset)
+                coordinate.set(trackIndex.end, newCoordinate.max + offset - projectionSequence.offset)
             } else {
                 log.error("Invalid mapping of coordinate ${coordinate} -> ${newCoordinate}")
-                coordinate.set(1, -1)
-                coordinate.set(2, -1)
+                coordinate.set(trackIndex.start, -1)
+                coordinate.set(trackIndex.end, -1)
             }
         }
 
@@ -636,7 +645,7 @@ class TrackService {
         return Integer.parseInt(finalString)
     }
 
-    JSONArray projectTrackChunk(String fileName, String dataFileName, String refererLoc, Organism currentOrganism) {
+    JSONArray projectTrackChunk(String fileName, String dataFileName, String refererLoc, Organism currentOrganism,String trackName) {
         List<JSONArray> trackArrayList = new ArrayList<>()
         List<Integer> sequenceLengths = []
 
@@ -654,7 +663,7 @@ class TrackService {
         // next we want to load tracks from the REAL paths . .  .
         String sequencePathName = generateTrackNameForSequence(dataFileName, sequenceString)
         // this loads PROJECTED
-        JSONArray coordinateArray = loadChunkData(sequencePathName, refererLoc, currentOrganism, sequenceOffset)
+        JSONArray coordinateArray = loadChunkData(sequencePathName, refererLoc, currentOrganism, sequenceOffset,trackName)
         trackArrayList.add(coordinateArray)
         Sequence sequence = Sequence.findByNameAndOrganism(sequenceString, currentOrganism)
         sequenceLengths << sequence.end

@@ -22,59 +22,49 @@ class ProjectionService {
     def grailsApplication
     def bookmarkService
 
-    // TODO: move to database as JSON
-    // track, sequence, projection
-    // TODO: should also include organism at some point as well
-    // TODO: just turn this into a cache file
     private Map<String, Map<String, ProjectionInterface>> projectionMap = new HashMap<>()
 
-    // description is how the projection was created
-//    private Map<ProjectionDescription, Map<ProjectionSequence, MultiSequenceProjection>> multiSequenceProjectionMap = new HashMap<>()
     private Map<ProjectionDescription, MultiSequenceProjection> multiSequenceProjectionMap = new HashMap<>()
 
-    // TODO: should do an actual lookup / query in cache and DB
-    @NotTransactional
-    Boolean hasProjection(Organism organism, String trackName) {
-        return projectionMap.size() > 0
-    }
 
-    // TODO: do re-lookup
     /**
+     * This is for the reference so this should always be null AFAIK
      *
      * @param organism
-     * @param trackName TODO: this is the REFERENCE track!! .. might be too specific
+     * @param trackName
      * @param sequenceName
      * @return
      */
     @NotTransactional
     ProjectionInterface getProjection(Organism organism, String trackName, String sequenceName) {
 
-        if (!grailsApplication.config.apollo.doProjection) {
+//        if (!grailsApplication.config.apollo.doProjection) {
             return null
-        }
+//        }
+//
+//        if (grailsApplication.config.apollo.useMultiSequence) {
+//            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
+//            ProjectionDescription projectionDescription = new ProjectionDescription(
+//                    referenceTrack: [trackName]
+//                    , projection: "Exon"
+//                    , padding: 50
+//            )
+//            ProjectionSequence projectionSequence = new ProjectionSequence(
+//                    id: sequence.id
+//                    , name: sequence.name
+//                    , organism: organism.commonName
+//            )
+//
+//            projectionDescription.sequenceList = [projectionSequence]
+//
+////            return getMultiSequenceProjection(projectionDescription, projectionSequence)
+//            return multiSequenceProjectionMap.get(projectionDescription)
 
-        if (grailsApplication.config.apollo.useMultiSequence) {
-            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
-            ProjectionDescription projectionDescription = new ProjectionDescription(
-                    referenceTrack: [trackName]
-                    , projection: "EXON"
-                    , padding: 50
-            )
-            ProjectionSequence projectionSequence = new ProjectionSequence(
-                    id: sequence.id
-                    , name: sequence.name
-                    , organism: organism.commonName
-            )
-
-            projectionDescription.sequenceList = [projectionSequence]
-
-//            return getMultiSequenceProjection(projectionDescription, projectionSequence)
-            return multiSequenceProjectionMap.get(projectionDescription)
-
-        } else {
-            // TODO . . . not if that is correct . . . or even used
-            return projectionMap ? projectionMap.values()?.iterator()?.next()?.get(sequenceName) : null
-        }
+//        }
+//    else {
+//            // TODO . . . not if that is correct . . . or even used
+//            return projectionMap ? projectionMap.values()?.iterator()?.next()?.get(sequenceName) : null
+//        }
 
     }
 
@@ -386,7 +376,7 @@ class ProjectionService {
     }
 
     /**
-     * TODO:
+     * TODO: Get transcript locations
      * @param referenceTracks
      * @param padding
      * @param projectionSequences
@@ -406,14 +396,14 @@ class ProjectionService {
         Organism organism = Organism.findByCommonName(projectionDescription.organism)
         for (String track in projectionDescription.referenceTrack) {
             JSONArray tracksArray = loadTrackJson(track, organism, projectionDescription)
-            List<Location> exonLocations = createExonLocations(tracksArray, projectionDescription)
+            List<Location> exonLocations = createExonLocations(tracksArray)
             locationList.addAll(exonLocations)
         }
 
         return locationList
     }
 
-    List<Location> createExonLocations(JSONArray jsonArray, ProjectionDescription projectionDescription) {
+    List<Location> createExonLocations(JSONArray jsonArray) {
         List<Location> locationList = new ArrayList<>()
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject referenceJsonObject = jsonArray.getJSONObject(i)
