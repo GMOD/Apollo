@@ -22,7 +22,8 @@ class TrackMapperService {
     }
 
     List<String> getAttributes(String organism,String track,Integer index){
-        JSONArray attributesArray = getClass(organism,track,index)?.getJSONArray("attributes")
+        JSONObject classObject = getClass(organism,track,index)
+        JSONArray attributesArray = classObject?.getJSONArray("attributes")
         List<String> returnAttributes = []
         for(int i = 0 ; attributesArray && i < attributesArray.size() ; i++){
             returnAttributes << attributesArray.getString(i)
@@ -69,6 +70,7 @@ class TrackMapperService {
     def storeTrack(String organismName, String trackName, JSONArray jsonArray) {
         Map<String,JSONArray> organismTracks = tracks.get(organismName) ?: new HashMap<>()
         organismTracks.put(trackName,jsonArray)
+        tracks.put(organismName,organismTracks)
     }
 
     TrackIndex getIndices(String organismName, String trackName, Integer index) {

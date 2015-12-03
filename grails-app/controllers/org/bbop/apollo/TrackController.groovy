@@ -4,6 +4,7 @@ import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.projection.TrackIndex
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -14,36 +15,37 @@ class TrackController {
     def trackService
     def sequenceService
     def bookmarkService
+    def trackMapperService
 
 
-    def featureDetail(){
+    def featureDetail() {
         println "FD params ${params}"
         JSONObject rootElement = new JSONObject()
         rootElement.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
-        Organism organism = permissionService.checkPermissionsForOrganism(rootElement,PermissionEnum.READ)
+        Organism organism = permissionService.checkPermissionsForOrganism(rootElement, PermissionEnum.READ)
         println "load sequence ! params ${params}"
         println "requestJSON ${request.JSON}"
         String trackName = params.track
         String name = params.name
 //        Organism organism = Organism.findById(params.organism)
-        Sequence sequence = Sequence.findByOrganismAndName(organism,params.sequence)
+        Sequence sequence = Sequence.findByOrganismAndName(organism, params.sequence)
 
-        JSONObject jsonObject = retrieveSequence(sequence,trackName,name)
+        JSONObject jsonObject = retrieveSequence(sequence, trackName, name)
 
         Integer start = jsonObject.getJSONArray("trackDetails").getInt(1)
         Integer end = jsonObject.getJSONArray("trackDetails").getInt(2)
         Strand strand = Strand.getStrandForValue(jsonObject.getJSONArray("trackDetails").getInt(3))
 
-        String sequenceString = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,start,end,strand)
-        render view:"featureDetail"  , model:[name:params.name,track:params.track,sequence:params.sequence,organism:organism.id,data:jsonObject,sequenceString:sequenceString,start:start,end:end]
+        String sequenceString = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence, start, end, strand)
+        render view: "featureDetail", model: [name: params.name, track: params.track, sequence: params.sequence, organism: organism.id, data: jsonObject, sequenceString: sequenceString, start: start, end: end]
     }
 
-    def angularFeatureDetail(){
+    def angularFeatureDetail() {
         println "FD params ${params}"
         JSONObject rootElement = new JSONObject()
         rootElement.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
-        Organism organism = permissionService.checkPermissionsForOrganism(rootElement,PermissionEnum.READ)
-        render view:"angularFeatureDetail"  , model:[name:params.name,track:params.track,sequence:params.sequence,organism:organism.id]
+        Organism organism = permissionService.checkPermissionsForOrganism(rootElement, PermissionEnum.READ)
+        render view: "angularFeatureDetail", model: [name: params.name, track: params.track, sequence: params.sequence, organism: organism.id]
     }
 
     /**
@@ -64,7 +66,7 @@ class TrackController {
         String organismString = params.organism
         println "organism ${organismString}"
         println "trackName ${trackName}"
-        JSONArray inputArray= JSON.parse(params.input) as JSONArray
+        JSONArray inputArray = JSON.parse(params.input) as JSONArray
         println "inputJson ${inputArray as JSON}"
 
 
@@ -79,13 +81,13 @@ class TrackController {
             Bookmark bookmark = permissionService.checkPermissions(rootElement, PermissionEnum.READ)
 
             println "bookmark ${bookmark}"
-            assert bookmark!=null
-            assert bookmark.sequenceList==sequenceName
+            assert bookmark != null
+            assert bookmark.sequenceList == sequenceName
 
 //            render retrieveSequence(sequence,trackName,nameLookup) as JSON
-            render retrieveBookmarkSequence(bookmark,trackName,nameLookup) as JSON
+            render retrieveBookmarkSequence(bookmark, trackName, nameLookup) as JSON
         } catch (e) {
-            def error= [error: 'problem retrieving track: '+e]
+            def error = [error: 'problem retrieving track: ' + e]
             render error as JSON
             e.printStackTrace()
             log.error(error.error)
@@ -96,29 +98,29 @@ class TrackController {
      * Used by angular service.
      * @return
      */
-    def loadSequence(){
+    def loadSequence() {
 //        JSONObject requestJson = request.JSON?:JSON.parse(params.data) as JSONObject
         println "load sequence ! params ${params}"
         println "requestJSON ${request.JSON}"
         String trackName = params.track
         String name = params.name
         Organism organism = Organism.findById(params.organism)
-        Sequence sequence = Sequence.findByOrganismAndName(organism,params.sequence)
+        Sequence sequence = Sequence.findByOrganismAndName(organism, params.sequence)
 
-        JSONObject jsonObject = retrieveSequence(sequence,trackName,name)
+        JSONObject jsonObject = retrieveSequence(sequence, trackName, name)
         println "${jsonObject as JSON}"
         render jsonObject as JSON
     }
 
-    private JSONObject retrieveBookmarkSequence(Bookmark bookmark,String trackName,String nameLookup){
+    private JSONObject retrieveBookmarkSequence(Bookmark bookmark, String trackName, String nameLookup) {
         List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
         // TODO: need to merge these!!!
-        return retrieveSequence(sequenceList.first(),trackName,nameLookup)
+        return retrieveSequence(sequenceList.first(), trackName, nameLookup)
     }
 
 
-    private JSONObject retrieveSequence(Sequence sequence,String trackName,String nameLookup){
-        JSONArray returnData = trackService.getTrackData(sequence,trackName,nameLookup)
+    private JSONObject retrieveSequence(Sequence sequence, String trackName, String nameLookup) {
+        JSONArray returnData = trackService.getTrackData(sequence, trackName, nameLookup)
         println "returnData ${returnData as JSON}"
 
 //            render inputArray as JSONArray
@@ -126,16 +128,16 @@ class TrackController {
         responseObject.organismId = sequence.organismId
         responseObject.trackDetails = returnData
 
-        if(returnData.getInt(0)==0){
-            responseObject.start = returnData.getInt(1)
-            responseObject.end = returnData.getInt(2)
-            responseObject.strand = returnData.getInt(3)
-            responseObject.note = returnData.getString(4) // not sure if this is correct or not . . .
-            responseObject.seq = returnData.getString(5) // not sure if this is correct or not . . .
-            responseObject.name = returnData.getString(6)
-            responseObject.score = returnData.getDouble(7)
-            responseObject.type = returnData.getString(9)
-        }
+        TrackIndex trackIndex = trackMapperService.getIndices(sequence.organism.commonName, trackName, returnData.getInt(0))
+
+        responseObject.start = returnData.getInt(trackIndex.start)
+        responseObject.end = returnData.getInt(trackIndex.end)
+        responseObject.strand = returnData.getInt(trackIndex.strand)
+//        responseObject.note = returnData.getString(4) // not sure if this is correct or not . . .
+        responseObject.seq = returnData.getString(trackIndex.source) // not sure if this is correct or not . . .
+//        responseObject.name = returnData.getString(6)
+        responseObject.score = returnData.getDouble(trackIndex.score)
+        responseObject.type = returnData.getString(trackIndex.type)
 
         return responseObject
     }

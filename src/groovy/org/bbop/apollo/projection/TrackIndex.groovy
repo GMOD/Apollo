@@ -4,21 +4,20 @@ package org.bbop.apollo.projection
  * Created by nathandunn on 12/2/15.
  */
 class TrackIndex {
-    // pulled
+    // index locations . . .
     Integer start
     Integer end
-    String source
-
-    // need to pull
+    Integer source
     Integer strand
     Integer phase
     Integer type
     Integer seqId
-    Double score
+    Integer score
     Integer chunk
     Integer id
     Integer subFeaturesColumn
-    Integer sublistColumn
+
+    Integer sublistColumn // unclear if this has a column . . I think its just the last column . . or just implies "chunk"
 
     // set from intake
     String trackName
@@ -34,7 +33,8 @@ class TrackIndex {
     }
 
     Boolean hasSubList() {
-        return sublistColumn && sublistColumn>0
+        return chunk>0
+//        return sublistColumn && sublistColumn>0
     }
 
     Boolean hasSubFeatures() {
