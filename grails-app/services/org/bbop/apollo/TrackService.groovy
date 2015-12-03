@@ -406,7 +406,7 @@ class TrackService {
      * @param mergeTrackObject
      * @return
      */
-    def JSONObject mergeTrackObject(Map<String, JSONObject> trackList, MultiSequenceProjection multiSequenceProjection) {
+    def JSONObject mergeTrackObject(Map<String, JSONObject> trackList, MultiSequenceProjection multiSequenceProjection,Organism organism,String trackName) {
 
         JSONObject finalObject = null
         int endSize = 0
@@ -426,7 +426,7 @@ class TrackService {
                 finalObject.histograms = mergeHistograms(finalObject.histograms, jsonObject.histograms)
 
                 // add intervals together starting at end and adding
-                finalObject.intervals = mergeIntervals(finalObject.intervals, jsonObject.intervals, chunk.sequenceOffset)
+                finalObject.intervals = mergeIntervals(finalObject.intervals, jsonObject.intervals, chunk.sequenceOffset,organism,trackName)
 
                 // get endSize
                 endSize += jsonObject.intervals.maxEnd
@@ -479,7 +479,7 @@ class TrackService {
         for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
             def subArray = coordinate.get(subIndex)
             if (subArray instanceof JSONArray) {
-                nudgeNcListArray(subArray, nudgeAmount, nudgeIndex)
+                nudgeNcListArray(subArray, nudgeAmount, nudgeIndex,organismName,trackName)
             }
         }
 
@@ -514,7 +514,7 @@ class TrackService {
      * @param second
      * @return
      */
-    JSONObject mergeIntervals(JSONObject first, JSONObject second, int endSize) {
+    JSONObject mergeIntervals(JSONObject first, JSONObject second, int endSize,Organism organism,String trackName) {
         first.put("minStart", first.getInt("minStart") + endSize)
         first.put("maxEnd", first.getInt("maxEnd") + endSize)
         first.put("count", first.getInt("count") + second.getInt("count"))
@@ -534,7 +534,7 @@ class TrackService {
         JSONArray secondNcListArray = second.getJSONArray("nclist")
 
 
-        mergeCoordinateArray(firstNcListArray, secondNcListArray, endSize)
+        mergeCoordinateArray(firstNcListArray, secondNcListArray, endSize,organism.commonName,trackName)
 
         return first
     }
@@ -594,12 +594,13 @@ class TrackService {
         // can probably store the projection chunks
         Integer priorSequenceLength = 0
         Integer priorChunkArrayOffset = 0
+        String trackName = null
         for (sequence in sequenceStrings) {
             ProjectionChunk projectionChunk = new ProjectionChunk(
                     sequence: sequence
             )
             String sequencePathName = generateTrackNameForSequence(dataFileName, sequence)
-            String trackName = getTrackPathName(sequencePathName)
+            trackName = getTrackPathName(sequencePathName)
 
             // this loads PROJECTED
             JSONObject trackObject = loadTrackData(sequencePathName, refererLoc, currentOrganism)
@@ -631,12 +632,11 @@ class TrackService {
         }
 
 
-
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
         multiSequenceProjection.projectionChunkList = projectionChunkList
         projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
 
-        JSONObject trackObject = mergeTrackObject(trackObjectList, multiSequenceProjection)
+        JSONObject trackObject = mergeTrackObject(trackObjectList, multiSequenceProjection,currentOrganism,trackName)
 
         trackObject.intervals.minStart = multiSequenceProjection.projectValue(trackObject.intervals.minStart)
         trackObject.intervals.maxEnd = multiSequenceProjection.projectValue(trackObject.intervals.maxEnd)
@@ -650,7 +650,7 @@ class TrackService {
      * @param fileName
      * @return
      */
-    private Integer getChunkIndex(String fileName) {
+    private static Integer getChunkIndex(String fileName) {
         String finalString = fileName.substring(3, fileName.length() - 5)
         return Integer.parseInt(finalString)
     }
