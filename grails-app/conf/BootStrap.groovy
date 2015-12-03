@@ -1,6 +1,5 @@
 import grails.converters.JSON
 import grails.util.Environment
-import groovy.lang.Sequence
 import org.bbop.apollo.*
 import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.SequenceTranslationHandler
@@ -21,29 +20,6 @@ class BootStrap {
         domainMarshallerService.registerObjects()
         proxyService.initProxies()
 
-        JSON.registerObjectMarshaller(ProjectionSequence) {
-            def returnArray = [:]
-            returnArray['id'] = it.id
-            returnArray['name'] = it.name
-            returnArray['organism'] = it.organism
-            returnArray['order'] = it.order
-            returnArray['offset'] = it.offset
-            returnArray['originalOffset'] = it.originalOffset
-            returnArray['features'] = it.features?.join("::")
-            return returnArray
-        }
-
-        JSON.registerObjectMarshaller(Bookmark) {
-            def returnArray = [:]
-            returnArray['id'] = it?.id
-            returnArray['projection'] = it?.projection ?: "NONE"
-            returnArray['padding'] = it?.padding ?: 0
-            returnArray['payload'] = it?.payload ?: "{}"
-            returnArray['start'] = it?.start
-            returnArray['end'] = it?.end
-            returnArray['sequenceList'] = it?.sequenceList
-            return returnArray
-        }
 
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
         SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)

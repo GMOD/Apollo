@@ -357,10 +357,6 @@ class TrackService {
         return trackDataJsonObject
     }
 
-//    JSONArray projectJsonArray(MultiSequenceProjection projection, JSONArray coordinate) {
-//        return projectJsonArray(projection,coordinate,0,0)
-//    }
-
     /**
      * @param projection What is used to do the projection
      * @param coordinate JSONArray to project

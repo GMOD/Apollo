@@ -133,8 +133,9 @@ class TrackController {
         responseObject.start = returnData.getInt(trackIndex.start)
         responseObject.end = returnData.getInt(trackIndex.end)
         responseObject.strand = returnData.getInt(trackIndex.strand)
-//        responseObject.note = returnData.getString(4) // not sure if this is correct or not . . .
-        responseObject.seq = returnData.getString(trackIndex.source) // not sure if this is correct or not . . .
+        responseObject.note = returnData.getString(trackIndex.source) // not sure if this is correct or not . . .
+        responseObject.seq = returnData.getString(trackIndex.seqId) // not sure if this is correct or not . . .
+        responseObject.name = returnData.getString(trackIndex.seqId) // not sure if this is correct or not . . .
 //        responseObject.name = returnData.getString(6)
         responseObject.score = returnData.getDouble(trackIndex.score)
         responseObject.type = returnData.getString(trackIndex.type)

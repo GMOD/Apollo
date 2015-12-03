@@ -310,7 +310,8 @@ class JbrowseController {
                     MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
                     // returns projection to a string of some sort
-                    response.outputStream << refSeqProjector.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
+                    String results = refSeqProjector.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
+                    response.outputStream << results
 
                 }
                 else {

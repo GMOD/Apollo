@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import net.sf.ehcache.search.parser.MCriteria.Or
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
 import org.apache.commons.io.filefilter.TrueFileFilter
@@ -13,60 +14,19 @@ import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionDescription
 import org.bbop.apollo.projection.ProjectionInterface
 import org.bbop.apollo.projection.ProjectionSequence
+import org.bbop.apollo.projection.TrackIndex
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional(readOnly = true)
 class ProjectionService {
 
-    def grailsApplication
     def bookmarkService
+    def trackMapperService
 
     private Map<String, Map<String, ProjectionInterface>> projectionMap = new HashMap<>()
 
     private Map<ProjectionDescription, MultiSequenceProjection> multiSequenceProjectionMap = new HashMap<>()
-
-
-    /**
-     * This is for the reference so this should always be null AFAIK
-     *
-     * @param organism
-     * @param trackName
-     * @param sequenceName
-     * @return
-     */
-    @NotTransactional
-    ProjectionInterface getProjection(Organism organism, String trackName, String sequenceName) {
-
-//        if (!grailsApplication.config.apollo.doProjection) {
-            return null
-//        }
-//
-//        if (grailsApplication.config.apollo.useMultiSequence) {
-//            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
-//            ProjectionDescription projectionDescription = new ProjectionDescription(
-//                    referenceTrack: [trackName]
-//                    , projection: "Exon"
-//                    , padding: 50
-//            )
-//            ProjectionSequence projectionSequence = new ProjectionSequence(
-//                    id: sequence.id
-//                    , name: sequence.name
-//                    , organism: organism.commonName
-//            )
-//
-//            projectionDescription.sequenceList = [projectionSequence]
-//
-////            return getMultiSequenceProjection(projectionDescription, projectionSequence)
-//            return multiSequenceProjectionMap.get(projectionDescription)
-
-//        }
-//    else {
-//            // TODO . . . not if that is correct . . . or even used
-//            return projectionMap ? projectionMap.values()?.iterator()?.next()?.get(sequenceName) : null
-//        }
-
-    }
 
 
     @NotTransactional
@@ -82,7 +42,7 @@ class ProjectionService {
     }
 
     // TODO: do re-lookup
-    def createTranscriptProjection(Organism organism, JSONArray tracksArray, Integer padding = 0) {
+    def createTranscriptProjection(Organism organism, JSONArray tracksArray, Integer padding, String trackName) {
         // TODO: this is only here for debugging . .
         projectionMap.clear()
         long startTime = System.currentTimeMillis()
@@ -115,8 +75,10 @@ class ProjectionService {
                     JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
                     for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
                         JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
+                        TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
                         // TODO: use enums to better track format
-                        if (coordinate.getInt(0) == 4) {
+//                        if (coordinate.getInt(0) == 4) {
+                        if (trackIndex.hasSubList()) {
                             // projecess the file lf-${coordIndex} instead
                             File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
                             JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
@@ -164,7 +126,7 @@ class ProjectionService {
      * @param tracksArray
      * @return
      */
-    def createExonLevelProjection(Organism organism, JSONArray tracksArray, Integer padding = 0) {
+    def createExonLevelProjection(Organism organism, JSONArray tracksArray, Integer padding) {
         // TODO: this is only here for debugging . .
 //        projectionMap.clear()
         long startTime = System.currentTimeMillis()
@@ -185,6 +147,7 @@ class ProjectionService {
                 for (File trackDataFile in files) {
 //                    String sequenceFileName = trackDataFile.absolutePath.substring(trackDirectory.absolutePath.length(),trackDataFile.absolutePath.length()-"trackData.json".length()).replaceAll("/","")
                     String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
+                    String trackName = getTrackName(trackDataFile.absolutePath)
 
                     JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
                     if (sequenceFileName.contains("1.10")) {
@@ -198,19 +161,21 @@ class ProjectionService {
 
                         // TODO: this needs to be recursive
                         JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
+                        TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
 
-                        if (coordinate.getInt(0) == 4) {
+//                        if (coordinate.getInt(0) == 4) {
+                        if (trackIndex.hasSubList()) {
                             // projecess the file lf-${coordIndex} instead
                             File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
                             JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
 
                             for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
                                 JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-                                processHighLevelArray(discontinuousProjection, chunkArrayCoordinate, padding)
+                                processHighLevelArray(discontinuousProjection, chunkArrayCoordinate, padding, organism, trackName)
                             }
 
                         } else {
-                            processHighLevelArray(discontinuousProjection, coordinate, padding)
+                            processHighLevelArray(discontinuousProjection, coordinate, padding, organism, trackName)
                         }
                     }
 
@@ -231,81 +196,68 @@ class ProjectionService {
     }
 
 
-    def processHighLevelArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, Integer padding) {
+    def processHighLevelArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, Integer padding, Organism organism, String trackName) {
 //                        // TODO: use enums to better track format
-        int classType = coordinate.getInt(0)
+        TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
         log.debug "processing high level array  ${coordinate as JSON}"
-        String featureType
-        switch (classType) {
-            case 0:
-                featureType = coordinate.getString(9)
-                // process array in 10
-                processExonArray(discontinuousProjection, coordinate.getJSONArray(10), padding)
-                // process sublist if 11 exists
-                break
-            case 1:
-                featureType = coordinate.getString(7)
-                println "1 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
-                // no subarrays
-                break
-            case 2:
-            case 3:
-                featureType = coordinate.getString(6)
-                println "2/3 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
-                // process array in 10
-                // process sublist if 11 exists
-                break
-            case 4:
-                println "not sure how to handle case 4 ${coordinate as JSON}"
-                // ignore .  . . not an exon
-                break
+        String featureType = coordinate.getString(trackIndex.type)
+        if (featureType.equalsIgnoreCase("exon")) {
+            processExonArray(discontinuousProjection, coordinate.getJSONArray(trackIndex.subFeaturesColumn), padding, organism, trackName)
         }
+//        switch (classType) {
+//            case 0:
+//                featureType = coordinate.getString(9)
+//                // process array in 10
+//                processExonArray(discontinuousProjection, coordinate.getJSONArray(10), padding)
+//                // process sublist if 11 exists
+//                break
+//            case 1:
+//                featureType = coordinate.getString(7)
+//                println "1 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
+//                // no subarrays
+//                break
+//            case 2:
+//            case 3:
+//                featureType = coordinate.getString(6)
+//                println "2/3 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
+//                // process array in 10
+//                // process sublist if 11 exists
+//                break
+//            case 4:
+//                println "not sure how to handle case 4 ${coordinate as JSON}"
+//                // ignore .  . . not an exon
+//                break
+//        }
 
     }
 
-    def processExonArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, Integer padding) {
+    def processExonArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, Integer padding, Organism organism, String trackName) {
         log.debug "processing exon array ${coordinate as JSON}"
         def classType = coordinate.get(0)
-
         // then we assume that the rest are arrays if the first are . . and process them accordingly
         if (classType instanceof JSONArray) {
             for (int i = 0; i < coordinate.size(); i++) {
                 log.debug "subarray ${coordinate.get(i) as JSON}"
-                processExonArray(discontinuousProjection, coordinate.getJSONArray(i), padding)
+                processExonArray(discontinuousProjection, coordinate.getJSONArray(i), padding, organism, trackName)
             }
             return
-        } else {
-            // integer
-            classType = coordinate.getInt(0)
         }
-        String featureType
-        switch (classType) {
-            case 0:
-                log.debug "not sure if this will work . . check! ${coordinate.size()} > 9"
-                featureType = coordinate.getString(9)
-                if (coordinate.size() >= 10) {
-                    processExonArray(discontinuousProjection, coordinate.getJSONArray(10), padding)
-                }
-                if (coordinate.size() >= 11) {
-                    JSONObject sublist = coordinate.getJSONObject(11)
-                    processHighLevelArray(discontinuousProjection, sublist.getJSONArray("Sublist"), padding)
-                }
-                break
-            case 1:
-            case 2:
-                featureType = coordinate.getString(7)
-                break
-            case 3:
-                featureType = coordinate.getString(6)
-                break
-            case 4:
-                println "not sure how to handle case 4 ${coordinate as JSON}"
-                break
+        TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
+        log.debug "not sure if this will work . . check! ${coordinate.size()} > 9"
+        String featureType = coordinate.getString(trackIndex.type)
+        if (coordinate.size() >= 10) {
+            processExonArray(discontinuousProjection, coordinate.getJSONArray(10), padding, organism, trackName)
         }
+        if (coordinate.size() >= 11) {
+            JSONObject sublist = coordinate.getJSONObject(11)
+            processHighLevelArray(discontinuousProjection, sublist.getJSONArray("Sublist"), padding, organism, trackName)
+        }
+//                break
+//        }
 
         // TODO: or repeat region?
-        if (featureType && featureType == "exon") {
-            discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2), padding)
+        if (featureType && featureType.equalsIgnoreCase("exon")) {
+            discontinuousProjection.addInterval(coordinate.getInt(trackIndex.start), coordinate.getInt(trackIndex.end), padding)
         }
 
     }
@@ -396,14 +348,14 @@ class ProjectionService {
         Organism organism = Organism.findByCommonName(projectionDescription.organism)
         for (String track in projectionDescription.referenceTrack) {
             JSONArray tracksArray = loadTrackJson(track, organism, projectionDescription)
-            List<Location> exonLocations = createExonLocations(tracksArray)
+            List<Location> exonLocations = createExonLocations(tracksArray, organism, track)
             locationList.addAll(exonLocations)
         }
 
         return locationList
     }
 
-    List<Location> createExonLocations(JSONArray jsonArray) {
+    List<Location> createExonLocations(JSONArray jsonArray, Organism organism, String trackName) {
         List<Location> locationList = new ArrayList<>()
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject referenceJsonObject = jsonArray.getJSONObject(i)
@@ -412,18 +364,20 @@ class ProjectionService {
             for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
 
                 JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
+                TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
 
-                if (coordinate.getInt(0) == 4) {
+//                if (coordinate.getInt(0) == 4) {
+                if (trackIndex.hasSubList()) {
                     // projecess the file lf-${coordIndex} instead
                     File chunkFile = new File("${referenceJsonObject.directory}/lf-${coordIndex + 1}.json")
                     JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
                     for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
                         JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-                        locationList.addAll(extractHighLevelLocations(chunkArrayCoordinate))
+                        locationList.addAll(extractHighLevelLocations(chunkArrayCoordinate, organism, trackName))
                     }
 
                 } else {
-                    List<Location> thisLocationList = extractHighLevelLocations(coordinate)
+                    List<Location> thisLocationList = extractHighLevelLocations(coordinate, organism, trackName)
                     locationList.addAll(thisLocationList)
                 }
             }
@@ -442,7 +396,7 @@ class ProjectionService {
         JSONArray returnArray = new JSONArray()
 
         String jbrowseDirectory = organism.directory + "/tracks/" + referenceTrackName
-        for(String sequenceName in orderedSequences) {
+        for (String sequenceName in orderedSequences) {
             String fileName = jbrowseDirectory + "/" + sequenceName + "/trackData.json"
             File trackDataFile = new File(fileName)
             String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
@@ -468,7 +422,6 @@ class ProjectionService {
         }
         Organism organism = Organism.findByCommonName(organismName)
         Map<String, Sequence> sequencMap = new TreeMap<>()
-        def allSequences = Sequence.all
         Sequence.findAllByNameInListAndOrganism(sequenceList, organism).each {
             sequencMap.put(it.name, it)
         }
@@ -500,41 +453,20 @@ class ProjectionService {
         return multiSequenceProjection
     }
 
-    List<Location> extractHighLevelLocations(JSONArray coordinate) {
-        int classType = coordinate.getInt(0)
-        log.debug "processing high level array  ${coordinate as JSON}"
-        String featureType
-        switch (classType) {
-            case 0:
-                featureType = coordinate.getString(9)
-                // process array in 10
-                List<Location> localExonArray = extractExonArrayLocations(coordinate.getJSONArray(10))
-                return localExonArray
-                // process sublist if 11 exists
-                break
-            case 1:
-                featureType = coordinate.getString(7)
-                println "1 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
-                // no subarrays
-                break
-            case 2:
-            case 3:
-                featureType = coordinate.getString(6)
-                println "2/3 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
-                // process array in 10
-                // process sublist if 11 exists
-                break
-            case 4:
-                println "not sure how to handle case 4 ${coordinate as JSON}"
-                // ignore .  . . not an exon
-                break
-        }
+    List<Location> extractHighLevelLocations(JSONArray coordinate, Organism organism, String trackName) {
+        TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
 
+        log.debug "processing high level array  ${coordinate as JSON}"
+        // process array in 10
+        if (trackIndex.hasSubFeatures()) {
+            List<Location> localExonArray = extractExonArrayLocations(coordinate.getJSONArray(trackIndex.subFeaturesColumn), organism, trackName)
+            return localExonArray
+        }
         return new ArrayList<Location>()
 
     }
 
-    List<Location> extractExonArrayLocations(JSONArray coordinate) {
+    List<Location> extractExonArrayLocations(JSONArray coordinate, Organism organism, String trackName) {
         List<Location> locationList = new ArrayList<>()
         log.debug "processing exon array ${coordinate as JSON}"
         def classType = coordinate.get(0)
@@ -543,61 +475,35 @@ class ProjectionService {
         if (classType instanceof JSONArray) {
             for (int i = 0; i < coordinate.size(); i++) {
                 log.debug "subarray ${coordinate.get(i) as JSON}"
-                locationList.addAll(extractExonArrayLocations(coordinate.getJSONArray(i)))
+                locationList.addAll(extractExonArrayLocations(coordinate.getJSONArray(i), organism, trackName))
             }
             return locationList
-        } else {
-            // integer
-            classType = coordinate.getInt(0)
         }
-        String featureType
-        switch (classType) {
-            case 0:
-                log.debug "not sure if this will work . . check! ${coordinate.size()} > 9"
-                featureType = coordinate.getString(9)
-                if (coordinate.size() >= 10) {
-                    locationList.addAll(extractExonArrayLocations(coordinate.getJSONArray(10)))
-                }
-                if (coordinate.size() >= 11) {
-                    JSONObject sublist = coordinate.getJSONObject(11)
+        TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
+        String featureType = coordinate.getString(trackIndex.type)
+//        if (coordinate.size() >= 10) {
+        if (trackIndex.hasSubFeatures()) {
+            locationList.addAll(extractExonArrayLocations(coordinate.getJSONArray(trackIndex.subFeaturesColumn), organism, trackName))
+        }
+//        if (coordinate.size() >= 11) {
+        if (trackIndex.hasSubList()) {
+            JSONObject sublist = coordinate.getJSONObject(coordinate.size() - 1)
 //                    locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection, sublist.getJSONArray("Sublist"), projectionDescription))
-                    locationList.addAll(extractHighLevelLocations(sublist.getJSONArray("Sublist")))
-                }
-                break
-            case 1:
-            case 2:
-                featureType = coordinate.getString(7)
-                break
-            case 3:
-                featureType = coordinate.getString(6)
-                break
-            case 4:
-                println "not sure how to handle case 4 ${coordinate as JSON}"
-                break
+            locationList.addAll(extractHighLevelLocations(sublist.getJSONArray("Sublist"), organism, trackName))
         }
 
         // TODO: or repeat region?
         if (featureType && featureType == "exon") {
-            String sequenceName
-            switch (coordinate.getInt(0)){
-                case 0:
-                case 1:
-                case 2:
-                case 3:
-                    sequenceName = coordinate.getString(5)
-                    break
-                default:
-                    println "coordinate ${coordinate as JSON}"
-                    throw new RuntimeException("not here ")
-            }
-
+            String sequenceName = coordinate.getString(trackIndex.seqId)
             ProjectionSequence projectionSequence1 = new ProjectionSequence(
                     name: sequenceName
+                    ,organism: organism.commonName
+
             )
             locationList.add(
                     new Location(
-                            min: coordinate.getInt(1)
-                            , max: coordinate.getInt(2)
+                            min: coordinate.getInt(trackIndex.start)
+                            , max: coordinate.getInt(trackIndex.end)
                             , sequence: projectionSequence1
                     )
             )
@@ -605,198 +511,44 @@ class ProjectionService {
 
         return locationList
     }
-/**
- * @deprecated . .. don't want to pass a projection here
- * @param discontinuousProjection
- * @param coordinate
- * @param projectionDescription
- * @return
- */
-    List<Location> extractHighLevelArrayLocations(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, ProjectionDescription projectionDescription) {
-//                        // TODO: use enums to better track format
-        int classType = coordinate.getInt(0)
-        log.debug "processing high level array  ${coordinate as JSON}"
-        String featureType
-        switch (classType) {
-            case 0:
-                featureType = coordinate.getString(9)
-                // process array in 10
-                List<Location> localExonArray = extractExonArray(discontinuousProjection, coordinate.getJSONArray(10), projectionDescription)
-                return localExonArray
-                // process sublist if 11 exists
-                break
-            case 1:
-                featureType = coordinate.getString(7)
-                println "1 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
-                // no subarrays
-                break
-            case 2:
-            case 3:
-                featureType = coordinate.getString(6)
-                println "2/3 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
-                // process array in 10
-                // process sublist if 11 exists
-                break
-            case 4:
-                println "not sure how to handle case 4 ${coordinate as JSON}"
-                // ignore .  . . not an exon
-                break
-        }
 
-        return new ArrayList<Location>()
-
-    }
-
-    /**
-     * @deprecated
-     * @param discontinuousProjection
-     * @param coordinate
-     * @param projectionDescription
-     * @return
-     */
-    List<Location> extractExonArray(DiscontinuousProjection discontinuousProjection, JSONArray coordinate, ProjectionDescription projectionDescription) {
-        List<Location> locationList = new ArrayList<>()
-        log.debug "processing exon array ${coordinate as JSON}"
-        def classType = coordinate.get(0)
-
-        // then we assume that the rest are arrays if the first are . . and process them accordingly
-        if (classType instanceof JSONArray) {
-            for (int i = 0; i < coordinate.size(); i++) {
-                log.debug "subarray ${coordinate.get(i) as JSON}"
-                locationList.addAll(extractExonArray(discontinuousProjection, coordinate.getJSONArray(i), projectionDescription))
-            }
-            return locationList
-        } else {
-            // integer
-            classType = coordinate.getInt(0)
-        }
-        String featureType
-        switch (classType) {
-            case 0:
-                log.debug "not sure if this will work . . check! ${coordinate.size()} > 9"
-                featureType = coordinate.getString(9)
-                if (coordinate.size() >= 10) {
-                    locationList.addAll(extractExonArray(discontinuousProjection, coordinate.getJSONArray(10), projectionDescription))
-                }
-                if (coordinate.size() >= 11) {
-                    JSONObject sublist = coordinate.getJSONObject(11)
-                    locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection, sublist.getJSONArray("Sublist"), projectionDescription))
-                }
-                break
-            case 1:
-            case 2:
-                featureType = coordinate.getString(7)
-                break
-            case 3:
-                featureType = coordinate.getString(6)
-                break
-            case 4:
-                println "not sure how to handle case 4 ${coordinate as JSON}"
-                break
-        }
-
-        // TODO: or repeat region?
-        if (featureType && featureType == "exon") {
-//            discontinuousProjection.addInterval(coordinate.getInt(1), coordinate.getInt(2), projectionDescription.padding)
-            ProjectionSequence projectionSequence1 = new ProjectionSequence(
-                    // tODO: add relevant sequence stuff, etc.
-            )
-            locationList.add(
-                    new Location(
-                            min: coordinate.getInt(1) - projectionDescription.padding
-                            , max: coordinate.getInt(2) + projectionDescription.padding
-                            , sequence: projectionSequence1
-                    )
-            )
-//                    coordinate.getInt(1), coordinate.getInt(2), projectionDescription.padding)
-        }
-
-        return locationList
-    }
-
-    List<Location> extractExonLocations(Organism organism, JSONArray tracksArray, ProjectionDescription projectionDescription) {
-        List<Location> locationList = new ArrayList<>()
-
-        // TODO: this is only here for debugging . .
-//        projectionMap.clear()
-        long startTime = System.currentTimeMillis()
-        for (int i = 0; i < tracksArray.size(); i++) {
-            JSONObject trackObject = tracksArray.getJSONObject(i)
-            if (trackObject.containsKey("OGS") && trackObject.getBoolean("OGS") && !projectionMap.containsKey(trackObject.key)) {
-                println "tring to generate projection for ${trackObject.key}"
-                String jbrowseDirectory = organism.directory + "/tracks/" + trackObject.key
-                File trackDirectory = new File(jbrowseDirectory)
-                println "track directory ${trackDirectory.absolutePath}"
-
-                File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
-
-                println "# of files ${files.length}"
-
-                Map<String, ProjectionInterface> sequenceProjectionMap = new HashMap<>()
-
-                for (File trackDataFile in files) {
-//                    String sequenceFileName = trackDataFile.absolutePath.substring(trackDirectory.absolutePath.length(),trackDataFile.absolutePath.length()-"trackData.json".length()).replaceAll("/","")
-                    String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
-
-                    JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
-                    if (sequenceFileName.contains("1.10")) {
-                        println "traying to create a sequence for ${sequenceFileName} "
-                    }
-
-                    // TODO: interpret the format properly
-                    DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
-                    JSONArray coordinateReferenceJsonArray = referenceJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
-                    for (int coordIndex = 0; coordIndex < coordinateReferenceJsonArray.size(); ++coordIndex) {
-
-                        // TODO: this needs to be recursive
-                        JSONArray coordinate = coordinateReferenceJsonArray.getJSONArray(coordIndex)
-
-                        if (coordinate.getInt(0) == 4) {
-                            // projecess the file lf-${coordIndex} instead
-                            File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
-                            JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
-
-                            for (int chunkArrayIndex = 0; chunkArrayIndex < chunkReferenceJsonArray.size(); ++chunkArrayIndex) {
-                                JSONArray chunkArrayCoordinate = chunkReferenceJsonArray.getJSONArray(chunkArrayIndex)
-                                locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection, chunkArrayCoordinate, projectionDescription))
-//                                processHighLevelArray(discontinuousProjection, chunkArrayCoordinate,padding)
-                            }
-
-                        } else {
-                            List<Location> thisLocationList = extractHighLevelArrayLocations(discontinuousProjection, coordinate, projectionDescription)
-                            locationList.addAll(thisLocationList)
-//                            processHighLevelArray(discontinuousProjection, coordinate,padding)
-                        }
-                    }
-
-//                    println "# of entries: ${discontinuousProjection.minMap.size()}"
-
-                    if (sequenceFileName.contains("1.10")) {
-                        println "putting map ${sequenceFileName} into ${discontinuousProjection.size()}"
-                    }
-                    sequenceProjectionMap.put(sequenceFileName, discontinuousProjection)
-                }
-
-                println "final size: ${trackObject.key} -> ${sequenceProjectionMap.size()}"
-
-                projectionMap.put(trackObject.key, sequenceProjectionMap)
-            }
-        }
-        println "total time ${System.currentTimeMillis() - startTime}"
-
-
-        return locationList
-    }
-
-    JSONObject convertProjectionToBookmarkJsonObject(String putativeProjectionLoc,Organism organism){
+    JSONObject convertProjectionToBookmarkJsonObject(String putativeProjectionLoc, Organism organism) {
         JSONObject bookmarkJsonObject = JSON.parse(putativeProjectionLoc) as JSONObject
         bookmarkJsonObject.organism = organism.commonName
         return bookmarkJsonObject
     }
 
+    /**
+     * This is for the reference so this should always be null AFAIK
+     *
+     * @param organism
+     * @param trackName
+     * @param sequenceName
+     * @return
+     */
+    @NotTransactional
+    ProjectionInterface getProjection(Organism organism, String trackName, String sequenceName) {
+
+//
+        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
+        ProjectionDescription projectionDescription = new ProjectionDescription(
+                referenceTrack: [trackName]
+                , projection: "Exon"
+                , padding: 50
+        )
+        ProjectionSequence projectionSequence = new ProjectionSequence(
+                id: sequence.id
+                , name: sequence.name
+                , organism: organism.commonName
+        )
+
+        projectionDescription.sequenceList = [projectionSequence]
+        return getProjection(projectionDescription)
+    }
+
     def getProjection(String putativeProjectionLoc, Organism organism) {
-        if(BookmarkService.isProjectionString(putativeProjectionLoc)){
-            JSONObject bookmarkJsonObject = convertProjectionToBookmarkJsonObject(putativeProjectionLoc,organism)
+        if (BookmarkService.isProjectionString(putativeProjectionLoc)) {
+            JSONObject bookmarkJsonObject = convertProjectionToBookmarkJsonObject(putativeProjectionLoc, organism)
             return getProjection(bookmarkJsonObject)
         }
         return null
@@ -852,16 +604,17 @@ class ProjectionService {
  * @return
  */
     MultiSequenceProjection getProjection(JSONObject bookmarkObject) {
-
         println "JSON PROJECTION OBJECT: ${bookmarkObject as JSON}"
         ProjectionDescription projectionDescription = convertJsonObjecToProjectDescription(bookmarkObject)
+        return getProjection(projectionDescription)
+    }
 
+    MultiSequenceProjection getProjection(ProjectionDescription projectionDescription) {
         if (!multiSequenceProjectionMap.containsKey(projectionDescription)) {
             println "does NOT contains the key! ${projectionDescription}"
             MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(projectionDescription)
             multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
-        }
-        else{
+        } else {
             println "contains the key! ${projectionDescription}"
         }
         return multiSequenceProjectionMap.get(projectionDescription)
@@ -878,13 +631,13 @@ class ProjectionService {
 
     }
 
-    def storeProjection(String putativeRefererLocation, MultiSequenceProjection multiSequenceProjection,Organism organism) {
-        JSONObject bookmarkObject = convertProjectionToBookmarkJsonObject(putativeRefererLocation,organism)
+    def storeProjection(String putativeRefererLocation, MultiSequenceProjection multiSequenceProjection, Organism organism) {
+        JSONObject bookmarkObject = convertProjectionToBookmarkJsonObject(putativeRefererLocation, organism)
         ProjectionDescription projectionDescription = convertJsonObjecToProjectDescription(bookmarkObject)
-        multiSequenceProjectionMap.put(projectionDescription,multiSequenceProjection)
+        multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
     }
 
-    def clearProjections(){
+    def clearProjections() {
         multiSequenceProjectionMap.clear()
     }
 }
