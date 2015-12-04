@@ -4,13 +4,9 @@ import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.DiscontinuousChunkProjector
-import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionChunk
-import org.bbop.apollo.projection.ProjectionDescription
-import org.bbop.apollo.projection.ProjectionInterface
 import org.bbop.apollo.projection.RefSeqProjector
-import org.bbop.apollo.projection.TrackIndex
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -33,7 +29,6 @@ class JbrowseController {
     def trackService
     def trackMapperService
 
-
     // TODO: move to a service instead?
     RefSeqProjector refSeqProjector = new RefSeqProjector()
 
@@ -46,44 +41,44 @@ class JbrowseController {
         log.debug "indexRouter ${params}"
 
         List<String> paramList = new ArrayList<>()
-        params.eachWithIndex{ entry, int i ->
-            if(entry.key!="action" && entry.key!="controller"&& entry.key!="organism" ){
-                paramList.add(entry.key+"="+entry.value)
+        params.eachWithIndex { entry, int i ->
+            if (entry.key != "action" && entry.key != "controller" && entry.key != "organism") {
+                paramList.add(entry.key + "=" + entry.value)
             }
         }
         // case 3 - validated login (just read from preferences, then
-        if(permissionService.currentUser&&params.organism){
+        if (permissionService.currentUser && params.organism) {
             Organism organism = Organism.findById(params.organism)
-            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
+            preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
         }
 
-        if(permissionService.currentUser) {
+        if (permissionService.currentUser) {
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
             render file.text
             return
         }
 
         // case 1 - anonymous login with organism ID, show organism
-        if(params.organism){
+        if (params.organism) {
             log.debug "organism ID specified: ${params.organism}"
 
             // set the organism
 
 
             Organism organism = Organism.findByCommonName(params.organism)
-            if(!organism&&params.organism.isInteger()) {
+            if (!organism && params.organism.isInteger()) {
                 organism = Organism.findById(params.organism.toInteger())
             }
-            if(!organism) {
+            if (!organism) {
                 String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-                forward(controller: "jbrowse", action: "chooseOrganismForJbrowse",params:[urlString:urlString,error:"Unable to find organism '${params.organism}'"])
+                forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "Unable to find organism '${params.organism}'"])
             }
 
 
             def session = request.getSession(true)
-            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
-            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
-            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value,organism.commonName)
+            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
+            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
 
             // create an anonymous login
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
@@ -94,12 +89,12 @@ class JbrowseController {
         // case 2 - anonymous login with-OUT organism ID, show organism list
         paramList.add("organism=${params.organism}")
         String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-        forward(controller: "jbrowse", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
+        forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString])
     }
 
 
     private String getJBrowseDirectoryForSession() {
-        if(!permissionService.currentUser){
+        if (!permissionService.currentUser) {
             return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         }
 
@@ -152,8 +147,6 @@ class JbrowseController {
         return organismJBrowseDirectory
     }
 
-
-
     /**
      * Handles data directory serving for jbrowse
      */
@@ -181,14 +174,12 @@ class JbrowseController {
                 }
 
                 if (fileName.endsWith("trackData.json")) {
-                    JSONObject trackObject = trackService.projectTrackData(sequenceStrings,dataFileName,refererLoc,currentOrganism)
+                    JSONObject trackObject = trackService.projectTrackData(sequenceStrings, dataFileName, refererLoc, currentOrganism)
                     response.outputStream << trackObject.toString()
                     return
-                }
-                else
-                if (fileName.startsWith("lf-")) {
+                } else if (fileName.startsWith("lf-")) {
                     String trackName = projectionService.getTrackName(dataFileName)
-                    JSONArray trackArray = trackService.projectTrackChunk(fileName,dataFileName,refererLoc,currentOrganism,trackName)
+                    JSONArray trackArray = trackService.projectTrackChunk(fileName, dataFileName, refererLoc, currentOrganism, trackName)
                     response.outputStream << trackArray.toString()
                     return
                 }
@@ -312,9 +303,7 @@ class JbrowseController {
                     // returns projection to a string of some sort
                     String results = refSeqProjector.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
                     response.outputStream << results
-
-                }
-                else {
+                } else {
                     // Set content size
                     response.setContentLength((int) file.length());
 
@@ -340,8 +329,14 @@ class JbrowseController {
                 String sequenceName = fileName.split("-")[0]
 
                 // if getting
+//                MultiSequenceProjection projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
 //                ProjectionInterface projection = projectionMap.values().iterator().next().get(sequenceName)
-                ProjectionInterface projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
+//                MultiSequenceProjection projection = null
+//                if(BookmarkService.isProjectionString(refererLoc)){
+//
+//                    projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
+//                }
+                MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
                 if (projection) {
                     DiscontinuousChunkProjector discontinuousChunkProjector = DiscontinuousChunkProjector.instance
                     // TODO: get proper chunk size from the RefSeq
@@ -515,11 +510,11 @@ class JbrowseController {
     private String calculateOriginalChunkName(List<ProjectionChunk> projectionChunks, String finalSequenceString, Integer chunkIndex) {
         for (int i = 0; i < projectionChunks.size(); i++) {
             if (projectionChunks.get(i).sequence == finalSequenceString) {
-                return "lf-${chunkIndex - i+1}.json"
+                return "lf-${chunkIndex - i + 1}.json"
             }
         }
         println "unable to find an offset "
-        return "lf-${chunkIndex+1}.json"
+        return "lf-${chunkIndex + 1}.json"
     }
 
     def trackList() {
@@ -568,23 +563,23 @@ class JbrowseController {
         JSONObject organismObjectContainer = new JSONObject()
         for (organism in list) {
             JSONObject organismObject = new JSONObject()
-            organismObject.put("name",organism.commonName)
+            organismObject.put("name", organism.commonName)
             String url = "javascript:window.top.location.href = '../annotator/loadLink?"
             url += "organism=" + organism.getId();
             url += "&highlight=0";
             url += "&tracks='";
-            organismObject.put("url",url)
+            organismObject.put("url", url)
             organismObjectContainer.put(organism.id, organismObject)
         }
 
-        if(list.size()==0) {
+        if (list.size() == 0) {
             JSONObject organismObject = new JSONObject()
-            organismObject.put("name",Organism.findById(id).commonName)
-            organismObject.put("url","#")
+            organismObject.put("name", Organism.findById(id).commonName)
+            organismObject.put("url", "#")
             organismObjectContainer.put(id, organismObject)
         }
 
-        jsonObject.put("datasets",organismObjectContainer)
+        jsonObject.put("datasets", organismObjectContainer)
 
         if (jsonObject.include == null) jsonObject.put("include", new JSONArray())
         jsonObject.include.add("../plugins/WebApollo/json/annot.json")

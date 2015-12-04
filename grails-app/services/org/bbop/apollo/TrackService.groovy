@@ -179,6 +179,15 @@ class TrackService {
 
 
     def String getSequencePathName(String inputName) {
+//        if(BookmarkService.isProjectionString(inputName)){
+//            Integer firstIndex = inputName.indexOf("{")
+//            Integer lastIndex = inputName.lastIndexOf("}")
+//            String sequenceString = inputName.substring(firstIndex,lastIndex+1)
+//            JSONObject jsonObject = JSON.parse(sequenceString)
+//            String firstSequence = jsonObject.sequenceList.first().name
+//            return firstSequence
+//        }
+//        else
         if (inputName.contains("/")) {
             String[] tokens = inputName.split("/")
             // the sequence path should be the second to the last one
