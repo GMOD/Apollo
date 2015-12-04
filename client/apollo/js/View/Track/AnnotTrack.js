@@ -298,6 +298,7 @@ define([
 
                             //console.log('AnnotTrack::returning filtered track list: ' + filteredTrackList.length);
                             window.parent.loadTracks(JSON.stringify(filteredTrackList));
+                            window.parent.loadTracksForReference(JSON.stringify(filteredTrackList));
                         };
 
                         var handleTrackVisibility = function (trackInfo) {
