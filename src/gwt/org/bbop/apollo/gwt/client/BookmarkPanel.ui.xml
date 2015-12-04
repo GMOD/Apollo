@@ -72,6 +72,10 @@
                     <b:Column size="MD_3">
                         <b:TextBox ui:field="foldPadding"/>
                     </b:Column>
+                    <b:Column size="MD_2">
+                        <!--<b:Button ui:field="goButton"/>-->
+                        <b:Button text="GO" icon="ROCKET" enabled="true" ui:field="goButton"/>
+                    </b:Column>
                 </b:Row>
                 <b:Row styleName="{style.rowNorth}">
                     <b:Column size="MD_2">
@@ -84,6 +88,14 @@
                     <!--<b:Column size="MD_4" styleName="{style.widgetPanel}">-->
                     <!--<b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>-->
                     <!--</b:Column>-->
+                </b:Row>
+                <b:Row styleName="{style.rowNorth}">
+                    <b:Column size="MD_2">
+                        <gwt:HTML><b>Reference Track Selector</b></gwt:HTML>
+                    </b:Column>
+                    <b:Column size="MD_6">
+                        <b:ListBox ui:field="staticReferenceTrack" width="300px" enabled="true"/>
+                    </b:Column>
                 </b:Row>
                 <b:Row styleName="{style.rowNorth}">
                     <b:Column size="MD_2">
