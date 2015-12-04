@@ -490,11 +490,17 @@ public class BookmarkPanel extends Composite {
     public static void getTracks(String jsonString) {
         GWT.log("@getTracks: " + jsonString);
         JSONArray returnValueObject = JSONParser.parseStrict(jsonString).isArray();
-
+        staticReferenceTrack.clear();
         for (int i = 0; i < returnValueObject.size(); i++) {
             JSONObject eachTrackObject = (JSONObject) returnValueObject.get(i);
             String key = eachTrackObject.get("key").toString().replaceAll("\"", "");
-            staticReferenceTrack.addItem(key);
+            if ("reference sequence".equals(key.toLowerCase())) {
+                // not adding 'reference sequence' track for selection
+                continue;
+            }
+            else {
+                staticReferenceTrack.addItem(key);
+            }
         }
     }
 
