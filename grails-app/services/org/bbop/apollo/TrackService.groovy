@@ -390,11 +390,11 @@ class TrackService {
                 && coordinate.get(0) instanceof Integer
                 && coordinate.get(1) instanceof Integer
                 && coordinate.get(2) instanceof Integer
-                && coordinate.get(3) instanceof Integer
+//                && coordinate.get(3) instanceof Integer
         ) {
             TrackIndex trackIndex = trackMapperService.getIndices(organismName, trackName, coordinate.getInt(0))
-            coordinate.set(trackIndex.getStart(), trackIndex.getStart() + nudgeAmount)
-            coordinate.set(trackIndex.getEnd(), trackIndex.getEnd() + nudgeAmount)
+            coordinate.set(trackIndex.getStart(), coordinate.getInt(trackIndex.getStart()) + nudgeAmount)
+            coordinate.set(trackIndex.getEnd(), coordinate.getInt(trackIndex.getEnd()) + nudgeAmount)
 //            if(coordinate.get(0)==4){
             if (trackIndex.hasSubList()) {
 //                trackIndex.sublistColumn
