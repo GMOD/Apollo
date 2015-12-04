@@ -95,6 +95,10 @@ class TrackMapperService {
         trackIndex.trackName = trackName
         trackIndex.organism = organismName
         trackIndex.classIndex = index
+
+        assert trackIndex.start != 0
+        assert trackIndex.end != 0
+
         return trackIndex
     }
 }

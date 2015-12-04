@@ -187,7 +187,7 @@ class JbrowseController {
                 }
                 else
                 if (fileName.startsWith("lf-")) {
-                    String trackName = projectionService.getTrackName(new File(fileName).absolutePath)
+                    String trackName = projectionService.getTrackName(dataFileName)
                     JSONArray trackArray = trackService.projectTrackChunk(fileName,dataFileName,refererLoc,currentOrganism,trackName)
                     response.outputStream << trackArray.toString()
                     return
