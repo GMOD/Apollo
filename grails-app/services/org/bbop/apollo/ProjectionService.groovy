@@ -402,6 +402,7 @@ class ProjectionService {
             String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
             if (sequenceNames.containsKey(sequenceFileName)) {
                 JSONObject trackObject = new JSONObject(trackDataFile.text)
+                trackMapperService.storeTrack(organism.commonName,referenceTrackName,trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray("classes"))
                 trackObject.directory = trackDataFile.parent
                 trackObject.sequenceName = sequenceNames.get(sequenceFileName).toJSONObject()
                 returnArray.add(returnArray.size(), trackObject)
