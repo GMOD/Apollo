@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.projection.ProjectionSequence
 
 @Transactional
 class DomainMarshallerService {
@@ -34,6 +35,30 @@ class DomainMarshallerService {
             returnArray['length'] = it?.length
             returnArray['start'] = it?.start
             returnArray['end'] = it.end
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(ProjectionSequence) {
+            def returnArray = [:]
+            returnArray['id'] = it.id
+            returnArray['name'] = it.name
+            returnArray['organism'] = it.organism
+            returnArray['order'] = it.order
+            returnArray['offset'] = it.offset
+            returnArray['originalOffset'] = it.originalOffset
+            returnArray['features'] = it.features?.join("::")
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(Bookmark) {
+            def returnArray = [:]
+            returnArray['id'] = it?.id
+            returnArray['projection'] = it?.projection ?: "NONE"
+            returnArray['padding'] = it?.padding ?: 0
+            returnArray['payload'] = it?.payload ?: "{}"
+            returnArray['start'] = it?.start
+            returnArray['end'] = it?.end
+            returnArray['sequenceList'] = it?.sequenceList
             return returnArray
         }
     }

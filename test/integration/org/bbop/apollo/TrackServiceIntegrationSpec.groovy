@@ -295,13 +295,14 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         given: "proper inputs"
         List<String> sequenceStrings = ["Group11.6", "Group1.10"]
-        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceStrings[0]}\"},{\"name\":\"${sequenceStrings[1]}\"}], \"label\":\"${sequenceStrings.join('::')}\"}:-1..-1/trackData.json"
-        String chunk1 = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${sequenceStrings[0]}/lf-1.json"
-        String chunk2 = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${sequenceStrings[0]}/lf-2.json"
-        String chunk3 = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${sequenceStrings[1]}/lf-1.json"
+        String trackName = "Official Gene Set v3.2"
+        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceStrings[0]}\"},{\"name\":\"${sequenceStrings[1]}\"}], \"label\":\"${sequenceStrings.join('::')}\"}:-1..-1/trackData.json"
+        String chunk1 = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${sequenceStrings[0]}/lf-1.json"
+        String chunk2 = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${sequenceStrings[0]}/lf-2.json"
+        String chunk3 = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${sequenceStrings[1]}/lf-1.json"
         // don't need to test chunk5 as well
-        String chunk5 = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${sequenceStrings[1]}/lf-3.json"
-        String refererLoc = "{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceStrings[0]}\"},{\"name\":\"${sequenceStrings[1]}\"}], \"label\":\"${sequenceStrings.join('::')}\"}:-1..-1:1..16607"
+        String chunk5 = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${sequenceStrings[1]}/lf-3.json"
+        String refererLoc = "{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"${trackName}\", \"sequenceList\":[{\"name\":\"${sequenceStrings[0]}\"},{\"name\":\"${sequenceStrings[1]}\"}], \"label\":\"${sequenceStrings.join('::')}\"}:-1..-1:1..16607"
         JSONArray array
 
         when: "we get the projected track data "
@@ -352,7 +353,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert array.getInt(2) == 230587 + 169359
 
         when: "we load the first of the chunk data"
-        JSONArray chunk1Data = trackService.loadChunkData(chunk1, refererLoc, Organism.first(), 0)
+        JSONArray chunk1Data = trackService.loadChunkData(chunk1, refererLoc, Organism.first(), 0,trackName)
         array = chunk1Data.getJSONArray(0)
 
         then: "confirm that chunk 1 is projected "
@@ -369,7 +370,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         when: "we load the second chunk"
-        JSONArray chunk2Data = trackService.loadChunkData(chunk2, refererLoc, Organism.first(), 0)
+        JSONArray chunk2Data = trackService.loadChunkData(chunk2, refererLoc, Organism.first(), 0,trackName)
         array = chunk2Data.getJSONArray(0)
 
         then: "we should get the properly projected chunks for 2"
@@ -384,7 +385,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert array.getInt(2) == 169359
 
         when: "we load the third chunk using the offset from previous sequence group"
-        JSONArray chunk3Data = trackService.loadChunkData(chunk3, refererLoc, Organism.first(), 169359)
+        JSONArray chunk3Data = trackService.loadChunkData(chunk3, refererLoc, Organism.first(), 169359,trackName)
         array = chunk3Data.getJSONArray(0)
 
         then: "confirm that chunk 3 is projected "
@@ -401,7 +402,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we load the last chunk using the offset from previous sequence group"
 //        *  (lf-3 . . 16 pieces, 201344 <=>  206511 first, 227803 <=> 230587 last ) ,
-        JSONArray chunk5Data = trackService.loadChunkData(chunk5, refererLoc, Organism.first(), 169359)
+        JSONArray chunk5Data = trackService.loadChunkData(chunk5, refererLoc, Organism.first(), 169359,trackName)
         array = chunk5Data.getJSONArray(0)
 
         then: "confirm that chunk 5 is projected "

@@ -10,6 +10,7 @@ import org.bbop.apollo.projection.ProjectionChunk
 import org.bbop.apollo.projection.ProjectionDescription
 import org.bbop.apollo.projection.ProjectionInterface
 import org.bbop.apollo.projection.RefSeqProjector
+import org.bbop.apollo.projection.TrackIndex
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -30,6 +31,7 @@ class JbrowseController {
     def servletContext
     def projectionService
     def trackService
+    def trackMapperService
 
 
     // TODO: move to a service instead?
@@ -185,7 +187,8 @@ class JbrowseController {
                 }
                 else
                 if (fileName.startsWith("lf-")) {
-                    JSONArray trackArray = trackService.projectTrackChunk(fileName,dataFileName,refererLoc,currentOrganism)
+                    String trackName = projectionService.getTrackName(dataFileName)
+                    JSONArray trackArray = trackService.projectTrackChunk(fileName,dataFileName,refererLoc,currentOrganism,trackName)
                     response.outputStream << trackArray.toString()
                     return
                 }
@@ -307,7 +310,8 @@ class JbrowseController {
                     MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
                     // returns projection to a string of some sort
-                    response.outputStream << refSeqProjector.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
+                    String results = refSeqProjector.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
+                    response.outputStream << results
 
                 }
                 else {

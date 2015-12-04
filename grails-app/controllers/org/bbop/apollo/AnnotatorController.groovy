@@ -222,8 +222,12 @@ class AnnotatorController {
             JSONObject returnObject = createJSONFeatureContainer()
             String[] sequenceNames = sequenceName.split("\\:\\:")
             List<Sequence> sequences = Sequence.findAllByNameInList(sequenceNames as List<String>)
-            String bookmarkString = bookmarkService.convertBookmarkToJson(bookmarkService.generateBookmarkForSequence(sequences as Sequence[])).toString()
-            if (!sequences) return
+            if (!sequences){
+                render returnObject as JSON
+              return
+            }
+            Bookmark generatedBookmark = bookmarkService.generateBookmarkForSequence(sequences as Sequence[])
+            String bookmarkString = bookmarkService.convertBookmarkToJson(generatedBookmark).toString()
 
             if (sequenceName) {
                 returnObject.track = bookmarkString
