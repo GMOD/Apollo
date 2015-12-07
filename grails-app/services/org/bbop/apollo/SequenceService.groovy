@@ -462,4 +462,21 @@ class SequenceService {
         }
         gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
     }
+
+    /**
+     * /opt/apollo/honeybee/data/seq/50e/b7a/08/{"padding":0, "projection":"None", "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group1.1"}], "label":"Group1.1"}:-1..-1-7.txt
+     * @param inputSequence
+     * @return  return from first { to last }
+     */
+    String getSequencePathName(String inputSequence) {
+        return inputSequence.substring(inputSequence.indexOf("{"),inputSequence.lastIndexOf("}")+1)
+    }
+
+    String getSequencePrefixPath(String inputFileName) {
+        return inputFileName.substring(0,inputFileName.indexOf("{"))
+    }
+
+    String getChunkSuffix(String inputFileName) {
+        return inputFileName.substring(inputFileName.lastIndexOf("-"))
+    }
 }

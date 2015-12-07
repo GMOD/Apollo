@@ -2,6 +2,9 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.filefilter.FileFilterUtils
+import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.DiscontinuousChunkProjector
 import org.bbop.apollo.projection.MultiSequenceProjection
@@ -159,11 +162,11 @@ class JbrowseController {
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
 
-        String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
-        println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
 //        /opt/apollo/honeybee/data//tracks/Official Gene Set v3.2/{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}/trackData.json
-        if (putativeSequencePathName.contains("projection")) {
+        if (dataFileName.contains("projection")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
+                String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
+                println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
 
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
@@ -185,81 +188,115 @@ class JbrowseController {
                 }
 
 
-            } else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+            }
+            else
+//                /opt/apollo/honeybee/data/seq/50e/b7a/08/{"padding":0, "projection":"None", "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group1.1"}], "label":"Group1.1"}:-1..-1-7.txt
+            if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
                 // Set content size
                 // fileName
 //                Group1.22-18.txt
-                String parentFile = file.parent
-                println "HANDINGL SEQ DATA ${fileName}"
-                String sequenceName = fileName.split("-")[0]
-
-                // if getting
-//                MultiSequenceProjection projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
-//                ProjectionInterface projection = projectionMap.values().iterator().next().get(sequenceName)
-//                MultiSequenceProjection projection = null
-//                if(BookmarkService.isProjectionString(refererLoc)){
-//
-//                    projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
-//                }
-                MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
-//                if (projection) {
-                DiscontinuousChunkProjector discontinuousChunkProjector = DiscontinuousChunkProjector.instance
-                // TODO: get proper chunk size from the RefSeq
-                Integer defaultChunkSize = 20000
-                Integer chunkNumber = discontinuousChunkProjector.getChunkNumberFromFileName(fileName)
-                println "projected length ${projection.length}"
-                println "maping chunk ${chunkNumber} on proj"
-                List<Integer> chunks = discontinuousChunkProjector.getChunksForPath(parentFile)
-                for (Integer chunk in chunks) {
-                    println "chunk ${chunk} / ${chunks.size()}"
+                String putativeSequencePathName = sequenceService.getSequencePathName(dataFileName)
+                JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
+                JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
+                List<String> sequenceStrings = new ArrayList<>()
+                for (int i = 0; i < sequenceArray.size(); i++) {
+                    JSONObject sequenceObject = sequenceArray.getJSONObject(i)
+                    sequenceStrings.add(sequenceObject.name)
                 }
-                Integer startProjectedChunk = discontinuousChunkProjector.getStartChunk(chunkNumber, defaultChunkSize)
-                Integer endProjectedChunk = discontinuousChunkProjector.getEndChunk(chunkNumber, defaultChunkSize)
-                println "projected chunk ${startProjectedChunk}::${endProjectedChunk}"
-                Integer startOriginal = projection.projectReverseValue(startProjectedChunk)
-                Integer endOriginal = projection.projectReverseValue(endProjectedChunk)
-                println "original coord values ${startOriginal}::${endOriginal}"
+//                File file = new File(dataFileName);
 
-//                    Integer startOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(startOriginal,defaultChunkSize)
-//                    Integer endOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(endOriginal,defaultChunkSize)
-//                    println "original chunk number ${startOriginalChunkNumber}::${endOriginalChunkNumber}"
-//                    Integer startOriginalChunkCoordinate = startOriginalChunkNumber * defaultChunkSize
-//                    Integer endOriginalChunkCoordinate = (endOriginalChunkNumber+1) * defaultChunkSize
-//                    println "original chunk coordinate ${startOriginalChunkCoordinate}::${endOriginalChunkCoordinate}"
+                String prefixPathName = sequenceService.getSequencePrefixPath(dataFileName)
+                String chunkFileName = sequenceService.getChunkSuffix(dataFileName)
+                String actualFileName = sequenceStrings.first() + chunkFileName
+                String sequenceDirectory = dataDirectory + "/seq"
+//                FileUtils
+                File[] files = FileUtils.listFiles(new File(sequenceDirectory), FileFilterUtils.nameFileFilter(actualFileName), TrueFileFilter.INSTANCE)
+                assert files.length==1
+                File file = files.first()
+//                String updatedFileName = prefixPathName + sequenceStrings.first() + chunkFileName
+
+                // just handle the first one
+
+//                String parentFile = file.parent
 
 
-                Organism organism = preferenceService.currentOrganismForCurrentUser
-                Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
-                println "ffound sequence ${sequence} for org ${organism.commonName}"
-                // TODO: fix the offsets here
-                String concatenatedSequence = sequenceService.getRawResiduesFromSequence(sequence, startOriginal, endOriginal)
-                println "concatenated length ${concatenatedSequence.length()}"
-
-                // re-project
-//                    String inputText = concatenatedSequence
-//                    String inputText = projection.projectSequence(concatenatedSequence,startOriginal,endOriginal,startOriginal)
-                String inputText = concatenatedSequence
-                println "return string length ${inputText.length()}"
-
-                // TODO: get chunks needed for cuts . . ..
-                // TODO: get substrings from start / end
-//                    projection.cutToProjection()
-
-                response.setContentLength((int) inputText.bytes.length);
-
+                response.setContentLength((int) file.length());
                 // Open the file and output streams
-//                    FileInputStream inputStream = new FileInputStream(file);
-//                    OutputStream out = response.getOutputStream();
-
+                FileInputStream inputStream = new FileInputStream(file);
+                OutputStream out = response.getOutputStream();
                 // Copy the contents of the file to the output stream
-//                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-//                    int count = 0;
-//                    while ((count = inputStream.read(buf)) >= 0) {
-//                        out.write(buf, 0, count);
-//                    }
+                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+                int count = 0
+                while ((count = inputStream.read(buf)) >= 0) {
+                    out.write(buf, 0, count);
+                }
+                inputStream.close();
+                out.close();
+                return
 
-                response.outputStream << inputText
-                response.outputStream.close()
+
+//                println "HANDINGL SEQ DATA ${fileName}"
+//                String sequenceName = fileName.split("-")[0]
+//
+//                // if getting
+////                MultiSequenceProjection projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
+////                ProjectionInterface projection = projectionMap.values().iterator().next().get(sequenceName)
+////                MultiSequenceProjection projection = null
+////                if(BookmarkService.isProjectionString(refererLoc)){
+////
+////                    projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
+////                }
+//                MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+////                if (projection) {
+//                DiscontinuousChunkProjector discontinuousChunkProjector = DiscontinuousChunkProjector.instance
+//                // TODO: get proper chunk size from the RefSeq
+//                Integer defaultChunkSize = 20000
+//                Integer chunkNumber = discontinuousChunkProjector.getChunkNumberFromFileName(fileName)
+//                println "projected length ${projection.length}"
+//                println "maping chunk ${chunkNumber} on proj"
+//                List<Integer> chunks = discontinuousChunkProjector.getChunksForPath(parentFile)
+//                for (Integer chunk in chunks) {
+//                    println "chunk ${chunk} / ${chunks.size()}"
+//                }
+//                Integer startProjectedChunk = discontinuousChunkProjector.getStartChunk(chunkNumber, defaultChunkSize)
+//                Integer endProjectedChunk = discontinuousChunkProjector.getEndChunk(chunkNumber, defaultChunkSize)
+//                println "projected chunk ${startProjectedChunk}::${endProjectedChunk}"
+//                Integer startOriginal = projection.projectReverseValue(startProjectedChunk)
+//                Integer endOriginal = projection.projectReverseValue(endProjectedChunk)
+//                println "original coord values ${startOriginal}::${endOriginal}"
+//
+//                Organism organism = preferenceService.currentOrganismForCurrentUser
+//                Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
+//                println "ffound sequence ${sequence} for org ${organism.commonName}"
+//                // TODO: fix the offsets here
+//                String concatenatedSequence = sequenceService.getRawResiduesFromSequence(sequence, startOriginal, endOriginal)
+//                println "concatenated length ${concatenatedSequence.length()}"
+//
+//                // re-project
+////                    String inputText = concatenatedSequence
+////                    String inputText = projection.projectSequence(concatenatedSequence,startOriginal,endOriginal,startOriginal)
+//                String inputText = concatenatedSequence
+//                println "return string length ${inputText.length()}"
+//
+//                // TODO: get chunks needed for cuts . . ..
+//                // TODO: get substrings from start / end
+////                    projection.cutToProjection()
+//
+//                response.setContentLength((int) inputText.bytes.length);
+//
+//                // Open the file and output streams
+////                    FileInputStream inputStream = new FileInputStream(file);
+////                    OutputStream out = response.getOutputStream();
+//
+//                // Copy the contents of the file to the output stream
+////                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+////                    int count = 0;
+////                    while ((count = inputStream.read(buf)) >= 0) {
+////                        out.write(buf, 0, count);
+////                    }
+//
+//                response.outputStream << inputText
+//                response.outputStream.close()
 
 //                }
 
