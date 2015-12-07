@@ -2,6 +2,9 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.projection.DiscontinuousProjection
+import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -21,7 +24,8 @@ class BookmarkController {
         User user = permissionService.getCurrentUser(bookmarkJson)
         if(Organism.count>0){
             preferenceService.getCurrentOrganism(user)
-            render user.bookmarks.sort(){ a,b -> a.sequenceList <=> b.sequenceList} as JSON
+            render Bookmark.findAllByUser(user).sort(){ a,b -> a.sequenceList <=> b.sequenceList} as JSON
+//            render user.bookmarks.sort(){ a,b -> a.sequenceList <=> b.sequenceList} as JSON
 //            render (user.bookmarks ?: new JSONObject()) as JSON
         }
         else{
