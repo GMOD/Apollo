@@ -80,8 +80,22 @@ class MultiSequenceProjection extends AbstractProjection {
     }
 
     String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate, Integer offset) {
+        String returnSequence = ""
+        Integer index = minCoordinate
+
+        // we start at the very bottom and go up
+        for(ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet()){
+            DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
+            Integer projectionLength = discontinuousProjection.originalLength
+            Integer max = projectionLength > maxCoordinate ? maxCoordinate : projectionLength
+            if(index < projectionLength){
+                returnSequence += discontinuousProjection.projectSequence(inputSequence,index, max)
+            }
+            index += projectionLength
+        }
+
         // not really used .  .. .  but otherwise would carve up into different bits
-        return null
+        return returnSequence
     }
 
     List<Coordinate> listCoordinates() {

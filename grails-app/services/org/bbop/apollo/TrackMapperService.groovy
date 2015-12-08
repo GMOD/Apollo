@@ -1,14 +1,14 @@
 package org.bbop.apollo
 
+import grails.transaction.NotTransactional
+import grails.transaction.Transactional
 import org.bbop.apollo.projection.NclistColumnEnum
 import org.bbop.apollo.projection.TrackIndex
 
-//import grails.transaction.NotTransactional
-//import grails.transaction.Transactional
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-//@Transactional
+@Transactional(readOnly = true)
 class TrackMapperService {
 
 
@@ -17,10 +17,12 @@ class TrackMapperService {
      */
     Map<String,Map<String,JSONArray>> tracks = new HashMap<>()
 
+    @NotTransactional
     JSONObject getClass(String organism,String track,Integer index){
         return tracks.get(organism)?.get(track)?.getJSONObject(index)
     }
 
+    @NotTransactional
     List<String> getAttributes(String organism,String track,Integer index){
         JSONObject classObject = getClass(organism,track,index)
         JSONArray attributesArray = classObject?.getJSONArray("attributes")
@@ -31,48 +33,14 @@ class TrackMapperService {
         return returnAttributes
     }
 
-    /**
-     * Indicates that it is a "chunk"
-     * @return
-     */
-    Boolean hasSubList(String organism,String track,Integer index){
-        // will asume that the key is always 1
-        JSONObject rootJsonObject = getClass(organism,track,index)
-        if(rootJsonObject.containsKey("isArrayAttr")){
-            return rootJsonObject.getJSONObject("isArrayAttr").containsKey("Sublist")
-        }
-        return false
-    }
-
-    /**
-     * Indicates if a column has subFeatures
-     * @return
-     */
-    Boolean hasSubFeatures(String organism,String track,Integer index){
-        JSONObject rootJsonObject = getClass(organism,track,index)
-        if(rootJsonObject.containsKey("isArrayAttr")){
-            return rootJsonObject.getJSONObject("isArrayAttr").containsKey("Subfeatures")
-        }
-        return false
-    }
-
-    /**
-     * Returns the SubFeatures array if it exists or null
-     * @return
-     */
-    Integer getSubFeaturesIndex(String organism,String track,Integer index){
-        if(hasSubFeatures(organism,track,index)){
-            return getAttributes(organism,track,index).indexOf("Subfeatures")
-        }
-        return -1
-    }
-
+    @NotTransactional
     def storeTrack(String organismName, String trackName, JSONArray jsonArray) {
         Map<String,JSONArray> organismTracks = tracks.get(organismName) ?: new HashMap<>()
         organismTracks.put(trackName,jsonArray)
         tracks.put(organismName,organismTracks)
     }
 
+    @NotTransactional
     TrackIndex getIndices(String organismName, String trackName, Integer index) {
         List<String> attributes = getAttributes(organismName,trackName,index)
         TrackIndex trackIndex = new TrackIndex()

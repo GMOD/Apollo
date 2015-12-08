@@ -1,18 +1,17 @@
-package org.bbop.apollo.projection
+package org.bbop.apollo
 
 import grails.converters.JSON
-import org.bbop.apollo.Organism
+import grails.transaction.NotTransactional
+import grails.transaction.Transactional
+import org.bbop.apollo.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-/**
- * Created by nathandunn on 8/11/15.
- */
-class RefSeqProjector implements TrackProjector{
+@Transactional(readOnly = true)
+class RefSeqProjectorService {
 
-
-    @Override
-    String projectTrack(JSONArray refSeqJsonObject, MultiSequenceProjection projection,Organism currentOrganism,String refererLoc) {
+    @NotTransactional
+    String projectTrack(JSONArray refSeqJsonObject, MultiSequenceProjection projection, Organism currentOrganism, String refererLoc) {
 
         JSONArray projectedArray = new JSONArray()
 
@@ -58,7 +57,7 @@ class RefSeqProjector implements TrackProjector{
      * @param refSeq   JSONObject to add
      * @return
      */
-    private JSONArray mergeRefseqProjections(JSONArray projectedArray, JSONObject refSeq) {
+    private static JSONArray mergeRefseqProjections(JSONArray projectedArray, JSONObject refSeq) {
         if (projectedArray.size() == 0) {
             projectedArray.add(refSeq)
         } else if (projectedArray.size() == 1) {

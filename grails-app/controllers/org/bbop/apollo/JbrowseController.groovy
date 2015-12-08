@@ -6,10 +6,9 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
 import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.projection.DiscontinuousChunkProjector
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionChunk
-import org.bbop.apollo.projection.RefSeqProjector
+import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -30,10 +29,7 @@ class JbrowseController {
     def servletContext
     def projectionService
     def trackService
-    def trackMapperService
-
-    // TODO: move to a service instead?
-    RefSeqProjector refSeqProjector = new RefSeqProjector()
+    def refSeqProjectorService
 
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
@@ -197,45 +193,93 @@ class JbrowseController {
 //                Group1.22-18.txt
                 String putativeSequencePathName = sequenceService.getSequencePathName(dataFileName)
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
+                if(!projectionSequenceObject.organism){
+                    projectionSequenceObject.organism = currentOrganism.commonName
+                }
+
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
-                List<String> sequenceStrings = new ArrayList<>()
+                List<Sequence> sequenceStrings = new ArrayList<>()
                 for (int i = 0; i < sequenceArray.size(); i++) {
                     JSONObject sequenceObject = sequenceArray.getJSONObject(i)
-                    sequenceStrings.add(sequenceObject.name)
+                    sequenceStrings.add(Sequence.findByName(sequenceObject.name))
                 }
-//                File file = new File(dataFileName);
 
-                String prefixPathName = sequenceService.getSequencePrefixPath(dataFileName)
+                MultiSequenceProjection projection = projectionService.getProjection(projectionSequenceObject)
                 String chunkFileName = sequenceService.getChunkSuffix(dataFileName)
-                String actualFileName = sequenceStrings.first() + chunkFileName
-                String sequenceDirectory = dataDirectory + "/seq"
-//                FileUtils
-                File[] files = FileUtils.listFiles(new File(sequenceDirectory), FileFilterUtils.nameFileFilter(actualFileName), TrueFileFilter.INSTANCE)
-                assert files.length == 1
-                File file = files.first()
+                Integer chunkNumber = Integer.parseInt(chunkFileName.substring(1,chunkFileName.indexOf(".txt")))
+//                String sequenceDirectory = dataDirectory + "/seq"
 
-                cacheFile(file)
+                // so based on the "chunk" we need to retrieve the appropriate data set and then re-project it.
+                // for this sequence that chunk that starts with "7" for that sequence would correspond to (and most likely be more than one file):
 
-//                String updatedFileName = prefixPathName + sequenceStrings.first() + chunkFileName
-
-                // just handle the first one
-
-//                String parentFile = file.parent
+                // TODO: should do this for each, but for now this is okay
+                Integer chunkSize = sequenceStrings.first().seqChunkSize
+                Integer projectedStart = chunkSize * chunkNumber
+                Integer projectedEnd = chunkSize * (chunkNumber+1)
 
 
-                response.setContentLength((int) file.length());
-                // Open the file and output streams
-                FileInputStream inputStream = new FileInputStream(file);
-                OutputStream out = response.getOutputStream();
-                // Copy the contents of the file to the output stream
-                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-                int count = 0
-                while ((count = inputStream.read(buf)) >= 0) {
-                    out.write(buf, 0, count);
+                // determine the current "offsets" based on the chunk
+                String unprojectedString = ""
+                Integer unprojectedStart = projection.projectReverseValue(projectedStart)
+                Integer unprojectedEnd = projection.projectReverseValue(projectedEnd)
+
+
+                ProjectionSequence startSequence = projection.getReverseProjectionSequence(projectedStart)
+                ProjectionSequence endSequence= projection.getReverseProjectionSequence(projectedEnd)
+
+
+                // determine files to read for cu
+                if(startSequence.name == endSequence.name){
+                    unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name),unprojectedStart,unprojectedEnd)
                 }
-                inputStream.close();
-                out.close();
+                // TODO: handle intermediate sequences?
+                else{
+                    unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name),unprojectedStart)
+                    unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(endSequence.name),0,unprojectedEnd)
+                }
+
+
+
+                // read files to a string
+
+//                String actualFileName = sequenceStrings.first() + chunkFileName
+////                FileUtils
+//                File[] files = FileUtils.listFiles(new File(sequenceDirectory), FileFilterUtils.nameFileFilter(actualFileName), TrueFileFilter.INSTANCE)
+//                assert files.length == 1
+//                File file = files.first()
+//
+//                List<File> fileList = new ArrayList<>()
+//                String unprojectedString = ""
+
+
+
+                // re-project the string
+//                String projectedString = projection.projectSequence(unprojectedString,unprojectedStart,unprojectedEnd,0)
+                String projectedString = projection.projectionDescription.projection.equalsIgnoreCase("none") ? unprojectedString : projection.projectSequence(unprojectedString,0,unprojectedString.length()-1,unprojectedStart)
+
+
+
+                // TODO: cache the response for this "unique" file
+//                Date lastModifiedDate = getLastModifiedDate(files);
+//                String dateString = formatLastModifiedDate(files);
+//                String eTag = createHash(putativeSequencePathName,(long) projectedString.bytes.length, (long) lastModifiedDate.time);
+//                response.setHeader("ETag", eTag);
+//                response.setHeader("Last-Modified", dateString);
+
+
+                // output the string the response
+                // TODO: optimize this to not store in memory?
+                response.setContentLength((int) projectedString.bytes.length);
+                response.outputStream << projectedString
+                response.outputStream.close()
                 return
+
+
+
+
+
+
+
 
 //                println "HANDINGL SEQ DATA ${fileName}"
 //                String sequenceName = fileName.split("-")[0]
@@ -419,7 +463,7 @@ class JbrowseController {
                     MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
                     // returns projection to a string of some sort
-                    String results = refSeqProjector.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
+                    String results = refSeqProjectorService.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
                     response.outputStream << results
                 } else {
                     // Set content size
@@ -652,16 +696,41 @@ class JbrowseController {
         return false;
     }
 
-    private static String formatLastModifiedDate(File file) {
-        DateFormat simpleDateFormat = SimpleDateFormat.getDateInstance();
-        return simpleDateFormat.format(new Date(file.lastModified()));
+    /**
+     * We choose a date to use for last modified
+     * @param files
+     * @return
+     */
+    private static String formatLastModifiedDate(File... files) {
+        Date earliestDate = getLastModifiedDate(files)
+        return SimpleDateFormat.getDateInstance().format(earliestDate)
+    }
+
+    /**
+     * We choose a date to use for last modified
+     * @param files
+     * @return
+     */
+    private static Date getLastModifiedDate(File... files) {
+        Date earliestDate = new Date()
+        for(File file : files){
+            Date lastModifiedDate = new Date(file.lastModified())
+            if(lastModifiedDate.before(earliestDate)){
+                earliestDate = lastModifiedDate
+            }
+        }
+        return earliestDate
+    }
+
+    private static String createHash(String name,long length,long lastModified) {
+        return name + "_" + length + "_" + lastModified;
     }
 
     private static String createHashFromFile(File file) {
         String fileName = file.getName();
         long length = file.length();
         long lastModified = file.lastModified();
-        return fileName + "_" + length + "_" + lastModified;
+        return createHash(fileName,length,lastModified)
     }
 
     /**
