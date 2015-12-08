@@ -59,8 +59,11 @@ class UserController {
 
             def c=User.createCriteria()
             def users = c.list() {
-                if(dataObject.userId) {
-                    eq('id',dataObject.userId)
+                if(dataObject.userId && dataObject.userId in Integer) {
+                    eq('id', (Long)dataObject.userId)
+                }
+                if(dataObject.userId && dataObject.userId in String) {
+                    eq('username', dataObject.userId)
                 }
             }
             users.each {
