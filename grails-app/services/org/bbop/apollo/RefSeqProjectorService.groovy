@@ -3,12 +3,17 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional(readOnly = true)
 class RefSeqProjectorService {
+
+    def projectionService
+    def sequenceService
 
     @NotTransactional
     String projectTrack(JSONArray refSeqJsonObject, MultiSequenceProjection projection, Organism currentOrganism, String refererLoc) {
@@ -71,5 +76,89 @@ class RefSeqProjectorService {
             throw new RuntimeException("wrong number of input projected arrays ${projectedArray?.size()}: ${projectedArray as JSON} . .. ${refSeq as JSON}")
         }
         return projectedArray
+    }
+
+    String projectSequence(String dataFileName,Organism currentOrganism) {
+        // Set content size
+        // fileName
+//                Group1.22-18.txt
+        String putativeSequencePathName = sequenceService.getSequencePathName(dataFileName)
+        JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
+        if(!projectionSequenceObject.organism){
+            projectionSequenceObject.organism = currentOrganism.commonName
+        }
+
+        JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
+        List<Sequence> sequenceStrings = new ArrayList<>()
+        for (int i = 0; i < sequenceArray.size(); i++) {
+            JSONObject sequenceObject = sequenceArray.getJSONObject(i)
+            sequenceStrings.add(Sequence.findByName(sequenceObject.name))
+        }
+
+        MultiSequenceProjection projection = projectionService.getProjection(projectionSequenceObject)
+        String chunkFileName = sequenceService.getChunkSuffix(dataFileName)
+        Integer chunkNumber = Integer.parseInt(chunkFileName.substring(1,chunkFileName.indexOf(".txt")))
+//                String sequenceDirectory = dataDirectory + "/seq"
+
+        // so based on the "chunk" we need to retrieve the appropriate data set and then re-project it.
+        // for this sequence that chunk that starts with "7" for that sequence would correspond to (and most likely be more than one file):
+
+        // TODO: should do this for each, but for now this is okay
+        Integer chunkSize = sequenceStrings.first().seqChunkSize
+        Integer projectedStart = chunkSize * chunkNumber
+        Integer projectedEnd = chunkSize * (chunkNumber+1)
+
+
+        // determine the current "offsets" based on the chunk
+        String unprojectedString = ""
+        Integer unprojectedStart = projection.projectReverseValue(projectedStart)
+        Integer unprojectedEnd = projection.projectReverseValue(projectedEnd)
+
+
+        ProjectionSequence startSequence = projection.getReverseProjectionSequence(projectedStart)
+        ProjectionSequence endSequence= projection.getReverseProjectionSequence(projectedEnd)
+
+
+        // determine files to read for cu
+        if(startSequence.name == endSequence.name){
+            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name),unprojectedStart,unprojectedEnd)
+        }
+        // TODO: handle intermediate sequences?
+        else{
+            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name),unprojectedStart)
+            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(endSequence.name),0,unprojectedEnd)
+        }
+
+
+
+        // read files to a string
+
+//                String actualFileName = sequenceStrings.first() + chunkFileName
+////                FileUtils
+//                File[] files = FileUtils.listFiles(new File(sequenceDirectory), FileFilterUtils.nameFileFilter(actualFileName), TrueFileFilter.INSTANCE)
+//                assert files.length == 1
+//                File file = files.first()
+//
+//                List<File> fileList = new ArrayList<>()
+//                String unprojectedString = ""
+
+
+
+        // re-project the string
+//                String projectedString = projection.projectSequence(unprojectedString,unprojectedStart,unprojectedEnd,0)
+        String projectedString = projection.projectionDescription.projection.equalsIgnoreCase("none") ? unprojectedString : projection.projectSequence(unprojectedString,0,unprojectedString.length()-1,unprojectedStart)
+
+
+
+        // TODO: cache the response for this "unique" file
+//                Date lastModifiedDate = getLastModifiedDate(files);
+//                String dateString = formatLastModifiedDate(files);
+//                String eTag = createHash(putativeSequencePathName,(long) projectedString.bytes.length, (long) lastModifiedDate.time);
+//                response.setHeader("ETag", eTag);
+//                response.setHeader("Last-Modified", dateString);
+
+
+        return projectedString
+
     }
 }
