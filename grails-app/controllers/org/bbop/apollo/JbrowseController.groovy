@@ -188,10 +188,10 @@ class JbrowseController {
                 }
 
 
-            }
-            else
+            } else
 //                /opt/apollo/honeybee/data/seq/50e/b7a/08/{"padding":0, "projection":"None", "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group1.1"}], "label":"Group1.1"}:-1..-1-7.txt
             if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+
                 // Set content size
                 // fileName
 //                Group1.22-18.txt
@@ -211,8 +211,11 @@ class JbrowseController {
                 String sequenceDirectory = dataDirectory + "/seq"
 //                FileUtils
                 File[] files = FileUtils.listFiles(new File(sequenceDirectory), FileFilterUtils.nameFileFilter(actualFileName), TrueFileFilter.INSTANCE)
-                assert files.length==1
+                assert files.length == 1
                 File file = files.first()
+
+                cacheFile(file)
+
 //                String updatedFileName = prefixPathName + sequenceStrings.first() + chunkFileName
 
                 // just handle the first one
@@ -233,7 +236,6 @@ class JbrowseController {
                 inputStream.close();
                 out.close();
                 return
-
 
 //                println "HANDINGL SEQ DATA ${fileName}"
 //                String sequenceName = fileName.split("-")[0]
@@ -348,11 +350,12 @@ class JbrowseController {
 
 
         if (isCacheableFile(fileName)) {
-            String eTag = createHashFromFile(file);
-            String dateString = formatLastModifiedDate(file);
-
-            response.setHeader("ETag", eTag);
-            response.setHeader("Last-Modified", dateString);
+            cacheFile(file)
+//            String eTag = createHashFromFile(file);
+//            String dateString = formatLastModifiedDate(file);
+//
+//            response.setHeader("ETag", eTag);
+//            response.setHeader("Last-Modified", dateString);
         }
 
         String range = request.getHeader("range");
@@ -544,6 +547,16 @@ class JbrowseController {
             bis.close();
 
         }
+
+    }
+
+    def cacheFile(File file) {
+//        if (isCacheableFile(fileName)) {
+        String eTag = createHashFromFile(file);
+        String dateString = formatLastModifiedDate(file);
+        response.setHeader("ETag", eTag);
+        response.setHeader("Last-Modified", dateString);
+//        }
 
     }
 
