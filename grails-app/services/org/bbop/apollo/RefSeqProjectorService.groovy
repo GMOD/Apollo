@@ -111,7 +111,6 @@ class RefSeqProjectorService {
 
 
         // determine the current "offsets" based on the chunk
-        String unprojectedString = ""
         Integer unprojectedStart = projection.projectReverseValue(projectedStart)
         Integer unprojectedEnd = projection.projectReverseValue(projectedEnd)
 
@@ -121,6 +120,7 @@ class RefSeqProjectorService {
 
 
         // determine files to read for cu
+        String unprojectedString = ""
         if(startSequence.name == endSequence.name){
             unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name),unprojectedStart-startSequence.originalOffset,unprojectedEnd-endSequence.originalOffset)
         }
@@ -131,26 +131,6 @@ class RefSeqProjectorService {
         }
 
 
-
-        // read files to a string
-
-//                String actualFileName = sequenceStrings.first() + chunkFileName
-////                FileUtils
-//                File[] files = FileUtils.listFiles(new File(sequenceDirectory), FileFilterUtils.nameFileFilter(actualFileName), TrueFileFilter.INSTANCE)
-//                assert files.length == 1
-//                File file = files.first()
-//
-//                List<File> fileList = new ArrayList<>()
-//                String unprojectedString = ""
-
-
-
-        // re-project the string
-//                String projectedString = projection.projectSequence(unprojectedString,unprojectedStart,unprojectedEnd,0)
-        String projectedString = projection.projectionDescription.projection.equalsIgnoreCase("none") ? unprojectedString : projection.projectSequence(unprojectedString,0,unprojectedString.length()-1,unprojectedStart)
-
-
-
         // TODO: cache the response for this "unique" file
 //                Date lastModifiedDate = getLastModifiedDate(files);
 //                String dateString = formatLastModifiedDate(files);
@@ -158,8 +138,18 @@ class RefSeqProjectorService {
 //                response.setHeader("ETag", eTag);
 //                response.setHeader("Last-Modified", dateString);
 
+        // re-project the string
+//                String projectedString = projection.projectSequence(unprojectedString,unprojectedStart,unprojectedEnd,0)
+        switch (projection.projectionDescription.projection.toUpperCase()){
+            case "EXON":
+                String returnString = projection.projectSequence(unprojectedString,0,unprojectedString.length()-1,unprojectedStart)
+                return returnString
+            default:
+                return unprojectedString
 
-        return projectedString
+        }
+
+
 
     }
 }
