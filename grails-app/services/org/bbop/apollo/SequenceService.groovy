@@ -210,6 +210,7 @@ class SequenceService {
         def chunks=c.list() {
             eq('sequence',sequence)
             'in'('chunkNumber',startChunkNumber..endChunkNumber)
+            order("chunkNumber", "asc")
         }
         log.debug("${chunks.size()} ${endChunkNumber-startChunkNumber+1}")
         if(chunks.size()==endChunkNumber-startChunkNumber+1) {
