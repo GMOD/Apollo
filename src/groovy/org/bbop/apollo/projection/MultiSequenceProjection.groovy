@@ -89,7 +89,7 @@ class MultiSequenceProjection extends AbstractProjection {
             Integer projectionLength = discontinuousProjection.originalLength
             Integer max = projectionLength > maxCoordinate ? maxCoordinate : projectionLength
             if(index < projectionLength){
-                returnSequence += discontinuousProjection.projectSequence(inputSequence,index, max)
+                returnSequence += discontinuousProjection.projectSequence(inputSequence,index, max,offset)
             }
             index += projectionLength
         }

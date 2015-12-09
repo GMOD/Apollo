@@ -40,7 +40,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         given:
         String sequenceName = "GroupUn87"
         Integer chunkNumber = 0
-        String dataFileName = "${Organism.first().directory}/seq/2e1/534/6d/{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceName}\"}], \"label\":\"${sequenceName}\"}:-1..-1-${chunkNumber}.txt"
+        String dataFileName = "${Organism.first().directory}/seq/155/73d/94/{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceName}\"}], \"label\":\"${sequenceName}\"}:-1..-1-${chunkNumber}.txt"
 
         when:
         String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
