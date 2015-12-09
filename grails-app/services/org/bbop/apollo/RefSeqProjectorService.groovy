@@ -78,6 +78,7 @@ class RefSeqProjectorService {
         return projectedArray
     }
 
+    @Transactional
     String projectSequence(String dataFileName,Organism currentOrganism) {
         // Set content size
         // fileName
@@ -121,12 +122,12 @@ class RefSeqProjectorService {
 
         // determine files to read for cu
         if(startSequence.name == endSequence.name){
-            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name),unprojectedStart,unprojectedEnd)
+            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name),unprojectedStart-startSequence.originalOffset,unprojectedEnd-endSequence.originalOffset)
         }
         // TODO: handle intermediate sequences?
         else{
-            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name),unprojectedStart)
-            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(endSequence.name),0,unprojectedEnd)
+            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name),unprojectedStart-startSequence.originalOffset)
+            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(endSequence.name),0,unprojectedEnd-endSequence.originalOffset)
         }
 
 
