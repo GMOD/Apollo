@@ -119,7 +119,8 @@ class RefSeqProjectorService {
 
         ProjectionSequence startSequence = projection.getReverseProjectionSequence(projectedStart)
         ProjectionSequence endSequence = projection.getReverseProjectionSequence(projectedEnd)
-        endSequence = endSequence ?: startSequence
+
+        endSequence = endSequence ?: projection.getLastSequence()
 
         // determine files to read for cu
         String unprojectedString = ""

@@ -257,22 +257,43 @@ class MultiSequenceProjection extends AbstractProjection {
     }
 
     TreeMap<Integer, Coordinate> getMinMap() {
-        TreeMap<Integer, Coordinate> minMap = new TreeMap<>()
+        Map<Integer, Coordinate> minMap = new TreeMap<>()
         List<ProjectionSequence> projectionSequenceList = sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order } as List
 
         for (ProjectionSequence projectionSequence : projectionSequenceList) {
-            minMap.putAll(sequenceDiscontinuousProjectionMap.get(projectionSequence).minMap)
+            Map<Integer,Coordinate>  returnMap = new TreeMap<>()
+
+            sequenceDiscontinuousProjectionMap.get(projectionSequence).minMap.each {
+                Coordinate coordinate = new Coordinate(min: it.value.min,max:it.value.max)
+                coordinate.addOffset(projectionSequence.originalOffset)
+                returnMap.put(it.key+projectionSequence.originalOffset,coordinate)
+            }
+//
+            minMap.putAll(returnMap)
+
+//            minMap.putAll(sequenceDiscontinuousProjectionMap.get(projectionSequence).minMap)
         }
 
         return minMap
     }
 
     TreeMap<Integer, Coordinate> getMaxMap() {
-        TreeMap<Integer, Coordinate> maxMap = new TreeMap<>()
+        Map<Integer, Coordinate> maxMap = new TreeMap<>()
         List<ProjectionSequence> projectionSequenceList = sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order } as List
 
         for (ProjectionSequence projectionSequence : projectionSequenceList) {
-            maxMap.putAll(sequenceDiscontinuousProjectionMap.get(projectionSequence).maxMap)
+            Map<Integer,Coordinate>  returnMap = new TreeMap<>()
+            // add a set with an offset
+            sequenceDiscontinuousProjectionMap.get(projectionSequence).maxMap.each {
+                Coordinate coordinate = new Coordinate(min: it.value.min,max:it.value.max)
+                coordinate.addOffset(projectionSequence.originalOffset)
+                returnMap.put(it.key+projectionSequence.originalOffset,coordinate)
+            }
+//
+            maxMap.putAll(returnMap)
+
+//            maxMap.putAll(sequenceDiscontinuousProjectionMap.get(projectionSequence).maxMap)
+
         }
 
         return maxMap
@@ -301,5 +322,9 @@ class MultiSequenceProjection extends AbstractProjection {
         println "no offset for sequence ${sequenceName}"
 
         return 0
+    }
+
+    ProjectionSequence getLastSequence() {
+        return sequenceDiscontinuousProjectionMap.keySet().sort(){a,b -> a.order <=> b.order }.last()
     }
 }
