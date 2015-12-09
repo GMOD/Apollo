@@ -101,11 +101,8 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
 
         then:
-//        assert returnedSequence.split("ATGAAAGGTGAC").length==2
         assert returnedSequence.length()==843
         assert returnedSequence.indexOf("ATGCACTGTC")==0
-        // confirmed in other one
-        // original is 78K . . one chunk of that
     }
 
     void "get OTHER projected single"() {
@@ -121,8 +118,6 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 //        assert returnedSequence.split("ATGAAAGGTGAC").length==2
         assert returnedSequence.length()==15764
         assert returnedSequence.indexOf("ATGTTTGCTTGGG")==0
-        // confirmed in other one
-        // original is 78K . . one chunk of that
     }
 
 
@@ -137,7 +132,8 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
 
         then:
-        assert returnedSequence.split("ATGAAAG").length==2
-        assert returnedSequence.length()==19999
+        assert returnedSequence.length()==843+15764
+        assert returnedSequence.indexOf("ATGCACTGTC")==0
+        assert returnedSequence.split("ATGTTTGCTTGGG").length==2
     }
 }
