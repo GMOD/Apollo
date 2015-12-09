@@ -110,14 +110,21 @@ class RefSeqProjectorService {
         Integer unprojectedStart = projection.projectReverseValue(projectedStart)
         Integer unprojectedEnd = projection.projectReverseValue(projectedEnd)
 
+        if(unprojectedEnd<0){
+//            unprojectedEnd = projection.maxCoordinate.max+unprojectedStart
+            unprojectedEnd = projection.getMaxCoordinate().getMax()
+        }
+        Integer startOffset = unprojectedStart - projectedStart
+
 
         ProjectionSequence startSequence = projection.getReverseProjectionSequence(projectedStart)
         ProjectionSequence endSequence = projection.getReverseProjectionSequence(projectedEnd)
+        endSequence = endSequence ?: startSequence
 
         // determine files to read for cu
         String unprojectedString = ""
-        if (startSequence.name == endSequence.name) {
-            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name), unprojectedStart - startSequence.originalOffset, unprojectedEnd - endSequence.originalOffset)
+        if ( startSequence.name == endSequence.name) {
+            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name), unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
         }
         // TODO: handle intermediate sequences?
         else {
@@ -136,7 +143,7 @@ class RefSeqProjectorService {
 //                String projectedString = projection.projectSequence(unprojectedString,unprojectedStart,unprojectedEnd,0)
         switch (projection.projectionDescription.projection.toUpperCase()) {
             case "EXON":
-                String returnString = projection.projectSequence(unprojectedString, 0, unprojectedString.length() - 1, unprojectedStart)
+                String returnString = projection.projectSequence(unprojectedString, 0, unprojectedString.length() - 1, unprojectedStart-projectedStart)
                 return returnString
             default:
                 return unprojectedString

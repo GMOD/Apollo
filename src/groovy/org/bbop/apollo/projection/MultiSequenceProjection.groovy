@@ -278,6 +278,14 @@ class MultiSequenceProjection extends AbstractProjection {
         return maxMap
     }
 
+    Coordinate getMaxCoordinate(){
+        return getMaxMap().lastEntry().value
+    }
+
+    Coordinate getMinCoordinate(){
+        return getMinMap().firstEntry().value
+    }
+
     Integer getOffsetForSequence(String sequenceName) {
         if (projectionChunkList) {
             ProjectionChunk projectionChunk = projectionChunkList.findProjectChunkForName(sequenceName)
