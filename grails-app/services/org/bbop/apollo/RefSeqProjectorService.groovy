@@ -30,9 +30,8 @@ class RefSeqProjectorService {
                 sequenceValue.put("length", projectedSequenceLength)
                 sequenceValue.put("end", projectedSequenceLength)
                 sequenceValue.put("name", refererLoc)
-                projectedArray = mergeRefseqProjections(projectedArray,sequenceValue)
-            }
-            else{
+                projectedArray = mergeRefseqProjections(projectedArray, sequenceValue)
+            } else {
                 log.debug "projeciton does not contain sequence ${sequenceName}"
             }
         }
@@ -44,13 +43,11 @@ class RefSeqProjectorService {
         }
     }
 
-
     /**
      [{"seqChunkSize": 20000, "start": 0,
      "name": "{\"projection\":\"None\", \"padding\":50, \"referenceTrack\":\"Official Gene Set v3.2\", \"sequences\":[{\"name\":\"Group5.7\"},{\"name\":\"Group9.2\"}]}",
      "length": 471578, "end": 471578},
-     *
-     {"seqChunkSize": 20000, "start": 0,
+     *{"seqChunkSize": 20000, "start": 0,
      "name": "{\"projection\":\"None\", \"padding\":50, \"referenceTrack\":\"Official Gene Set v3.2\", \"sequences\":[{\"name\":\"Group5.7\"},{\"name\":\"Group9.2\"}]}",
      "length": 456816, "end": 456816}]
      *
@@ -59,7 +56,7 @@ class RefSeqProjectorService {
      *  sum: length / end
      *
      * @param jsonArray
-     * @param refSeq   JSONObject to add
+     * @param refSeq JSONObject to add
      * @return
      */
     private static JSONArray mergeRefseqProjections(JSONArray projectedArray, JSONObject refSeq) {
@@ -70,8 +67,8 @@ class RefSeqProjectorService {
             Integer existingLength = existingObject.getInt("length")
             Integer nextLength = refSeq.getInt("length")
 
-            existingObject.put("length",existingLength+nextLength)
-            existingObject.put("end",existingLength+nextLength)
+            existingObject.put("length", existingLength + nextLength)
+            existingObject.put("end", existingLength + nextLength)
         } else {
             throw new RuntimeException("wrong number of input projected arrays ${projectedArray?.size()}: ${projectedArray as JSON} . .. ${refSeq as JSON}")
         }
@@ -79,13 +76,13 @@ class RefSeqProjectorService {
     }
 
     @Transactional
-    String projectSequence(String dataFileName,Organism currentOrganism) {
+    String projectSequence(String dataFileName, Organism currentOrganism) {
         // Set content size
         // fileName
 //                Group1.22-18.txt
         String putativeSequencePathName = sequenceService.getSequencePathName(dataFileName)
         JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
-        if(!projectionSequenceObject.organism){
+        if (!projectionSequenceObject.organism) {
             projectionSequenceObject.organism = currentOrganism.commonName
         }
 
@@ -98,7 +95,7 @@ class RefSeqProjectorService {
 
         MultiSequenceProjection projection = projectionService.getProjection(projectionSequenceObject)
         String chunkFileName = sequenceService.getChunkSuffix(dataFileName)
-        Integer chunkNumber = Integer.parseInt(chunkFileName.substring(1,chunkFileName.indexOf(".txt")))
+        Integer chunkNumber = Integer.parseInt(chunkFileName.substring(1, chunkFileName.indexOf(".txt")))
 //                String sequenceDirectory = dataDirectory + "/seq"
 
         // so based on the "chunk" we need to retrieve the appropriate data set and then re-project it.
@@ -107,8 +104,7 @@ class RefSeqProjectorService {
         // TODO: should do this for each, but for now this is okay
         Integer chunkSize = sequenceStrings.first().seqChunkSize
         Integer projectedStart = chunkSize * chunkNumber
-        Integer projectedEnd = chunkSize * (chunkNumber+1)
-
+        Integer projectedEnd = chunkSize * (chunkNumber + 1)
 
         // determine the current "offsets" based on the chunk
         Integer unprojectedStart = projection.projectReverseValue(projectedStart)
@@ -116,20 +112,18 @@ class RefSeqProjectorService {
 
 
         ProjectionSequence startSequence = projection.getReverseProjectionSequence(projectedStart)
-        ProjectionSequence endSequence= projection.getReverseProjectionSequence(projectedEnd)
-
+        ProjectionSequence endSequence = projection.getReverseProjectionSequence(projectedEnd)
 
         // determine files to read for cu
         String unprojectedString = ""
-        if(startSequence.name == endSequence.name){
-            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name),unprojectedStart-startSequence.originalOffset,unprojectedEnd-endSequence.originalOffset)
+        if (startSequence.name == endSequence.name) {
+            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name), unprojectedStart - startSequence.originalOffset, unprojectedEnd - endSequence.originalOffset)
         }
         // TODO: handle intermediate sequences?
-        else{
-            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name),unprojectedStart-startSequence.originalOffset)
-            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(endSequence.name),0,unprojectedEnd-endSequence.originalOffset)
+        else {
+            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name), unprojectedStart - startSequence.originalOffset)
+            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(endSequence.name), 0, unprojectedEnd - endSequence.originalOffset)
         }
-
 
         // TODO: cache the response for this "unique" file
 //                Date lastModifiedDate = getLastModifiedDate(files);
@@ -140,15 +134,14 @@ class RefSeqProjectorService {
 
         // re-project the string
 //                String projectedString = projection.projectSequence(unprojectedString,unprojectedStart,unprojectedEnd,0)
-        switch (projection.projectionDescription.projection.toUpperCase()){
+        switch (projection.projectionDescription.projection.toUpperCase()) {
             case "EXON":
-                String returnString = projection.projectSequence(unprojectedString,0,unprojectedString.length()-1,unprojectedStart)
+                String returnString = projection.projectSequence(unprojectedString, 0, unprojectedString.length() - 1, unprojectedStart)
                 return returnString
             default:
                 return unprojectedString
 
         }
-
 
 
     }
