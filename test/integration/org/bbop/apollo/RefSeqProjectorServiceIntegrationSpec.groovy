@@ -132,7 +132,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
 
         then:
-        assert returnedSequence.length()==843+15764
+        assert 843+15764+1==returnedSequence.length()
         assert returnedSequence.indexOf("ATGCACTGTC")==0
         assert returnedSequence.split("ATGTTTGCTTGGG").length==2
     }

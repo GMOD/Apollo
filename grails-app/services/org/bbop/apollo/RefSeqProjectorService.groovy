@@ -110,7 +110,7 @@ class RefSeqProjectorService {
         Integer unprojectedStart = projection.projectReverseValue(projectedStart)
         Integer unprojectedEnd = projection.projectReverseValue(projectedEnd)
 
-        if(unprojectedEnd<0){
+        if (unprojectedEnd < 0) {
 //            unprojectedEnd = projection.maxCoordinate.max+unprojectedStart
             unprojectedEnd = projection.getMaxCoordinate().getMax()
         }
@@ -120,19 +120,47 @@ class RefSeqProjectorService {
         ProjectionSequence startSequence = projection.getReverseProjectionSequence(projectedStart)
         ProjectionSequence endSequence = projection.getReverseProjectionSequence(projectedEnd)
         endSequence = endSequence ?: projection.getLastSequence()
+        List<ProjectionSequence> sequences = projection.getReverseProjectionSequences(projectedStart, projectedEnd)
 
         // determine files to read for cu
-        String unprojectedString = ""
-        if ( startSequence.name == endSequence.name) {
-            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name), unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
+        def stringList = []
+        Integer index = 0
+        for (ProjectionSequence projectionSequence in sequences) {
+            Sequence sequence = Sequence.findByName(projectionSequence.name)
+            // start case
+            // could be only one, any portion
+            if (index == 0) {
+                if(sequences.size()==1){
+                    stringList << sequenceService.getRawResiduesFromSequence(sequence, unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
+                }
+                else{
+                    stringList << sequenceService.getRawResiduesFromSequence(sequence, unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
+                }
+            }
+            // end case
+                // implied at least 2, so the start will always be 0
+                // ends with the end sequence
+            else if (index == sequences.size() - 1) {
+                stringList << sequenceService.getRawResiduesFromSequence(sequence, 0, unprojectedEnd - endSequence.originalOffset)
+            }
+            // middle case
+            else {
+                stringList << sequenceService.getRawResiduesFromSequence(sequence, 0, sequence.length)
+            }
+            ++index
         }
-        // TODO: handle intermediate sequences?
-        else {
-            def stringList = []
-            stringList <<  sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name), unprojectedStart - startSequence.originalOffset)
-            stringList <<  sequenceService.getRawResiduesFromSequence(Sequence.findByName(endSequence.name), 0, unprojectedEnd - endSequence.originalOffset)
-            unprojectedString = stringList.join("")
-        }
+//        if ( startSequence.name == endSequence.name) {
+//            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name), unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
+//        }
+//        // TODO: handle intermediate sequences?
+//        else {
+//            def stringList = []
+//            stringList <<  sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name), unprojectedStart - startSequence.originalOffset)
+//            stringList <<  sequenceService.getRawResiduesFromSequence(Sequence.findByName(endSequence.name), 0, unprojectedEnd - endSequence.originalOffset)
+//            unprojectedString = stringList.join("")
+//        }
+
+        String unprojectedString = stringList.join("")
 
         // TODO: cache the response for this "unique" file
 //                Date lastModifiedDate = getLastModifiedDate(files);

@@ -23,6 +23,23 @@ class MultiSequenceProjection extends AbstractProjection {
         return null
     }
 
+    List<ProjectionSequence> getReverseProjectionSequences(Integer minInput, Integer maxInput) {
+        List<ProjectionSequence> orderedSequences = []
+        Integer startOrder  = getReverseProjectionSequence(minInput)?.order
+        Integer endOrder = getReverseProjectionSequence(maxInput)?.order
+        if(endOrder==null ){
+            endOrder = getLastSequence().order
+        }
+
+        for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
+            if(projectionSequence.order>=startOrder && projectionSequence.order <= endOrder){
+                orderedSequences << projectionSequence
+            }
+        }
+
+        return orderedSequences
+    }
+
     /**
      * Find which sequence I am on by iterating over coordinates
      * @param input
@@ -327,4 +344,5 @@ class MultiSequenceProjection extends AbstractProjection {
     ProjectionSequence getLastSequence() {
         return sequenceDiscontinuousProjectionMap.keySet().sort(){a,b -> a.order <=> b.order }.last()
     }
+
 }
