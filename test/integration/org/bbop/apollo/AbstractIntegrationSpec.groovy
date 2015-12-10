@@ -7,6 +7,9 @@ import org.apache.shiro.crypto.hash.Sha256Hash
 import org.apache.shiro.subject.Subject
 import org.apache.shiro.util.ThreadContext
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 /**
  * Created by nathandunn on 11/4/15.
@@ -54,4 +57,9 @@ class AbstractIntegrationSpec extends IntegrationSpec{
         organism.save(flush: true, failOnError: true)
     }
 
+    JSONArray getCodingArray(JSONObject jsonObject) {
+        JSONArray mrnaArray = jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert 1 == mrnaArray.size()
+        return mrnaArray.getJSONObject(0).getJSONArray(FeatureStringEnum.CHILDREN.value)
+    }
 }
