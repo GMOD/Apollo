@@ -557,6 +557,7 @@ public class UserPanel extends Composite {
             }
 
         } else {
+            createButton.setEnabled(true);
             addGroupButton.setEnabled(true);
             addGroupButton.setColor("blue");
             firstName.setText(selectedUserInfo.getFirstName());
