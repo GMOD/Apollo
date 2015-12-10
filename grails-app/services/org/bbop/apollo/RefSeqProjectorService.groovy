@@ -119,7 +119,6 @@ class RefSeqProjectorService {
 
         ProjectionSequence startSequence = projection.getReverseProjectionSequence(projectedStart)
         ProjectionSequence endSequence = projection.getReverseProjectionSequence(projectedEnd)
-
         endSequence = endSequence ?: projection.getLastSequence()
 
         // determine files to read for cu
@@ -129,8 +128,10 @@ class RefSeqProjectorService {
         }
         // TODO: handle intermediate sequences?
         else {
-            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name), unprojectedStart - startSequence.originalOffset)
-            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(endSequence.name), 0, unprojectedEnd - endSequence.originalOffset)
+            def stringList = []
+            stringList <<  sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name), unprojectedStart - startSequence.originalOffset)
+            stringList <<  sequenceService.getRawResiduesFromSequence(Sequence.findByName(endSequence.name), 0, unprojectedEnd - endSequence.originalOffset)
+            unprojectedString = stringList.join("")
         }
 
         // TODO: cache the response for this "unique" file
