@@ -1,12 +1,16 @@
 package org.bbop.apollo
 
+import grails.transaction.NotTransactional
 import org.apache.commons.lang.WordUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import org.bbop.apollo.sequence.Strand
-import org.grails.plugins.metrics.groovy.Timed;
+import org.grails.plugins.metrics.groovy.Timed
+import org.springframework.format.datetime.DateFormatter
+import org.springframework.format.datetime.joda.JodaTimeContext;
 
-import java.io.*;
+import java.io.*
+import java.text.SimpleDateFormat;
 import java.util.*
 //import groovy.transform.CompileStatic
 //@CompileStatic
@@ -20,6 +24,8 @@ public class Gff3HandlerService {
     def featureService
     def overlapperService
     def featurePropertyService
+
+    SimpleDateFormat gff3DateFormat = new SimpleDateFormat("YYYY-MM-dd")
 
     static final def unusedStandardAttributes = ["Alias", "Target", "Gap", "Derives_from", "Ontology_term", "Is_circular"];
     @Timed
@@ -379,14 +385,19 @@ public class Gff3HandlerService {
         if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_CREATION.value)) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(feature.dateCreated);
-            attributes.put(FeatureStringEnum.DATE_CREATION.value, encodeString(String.format("%d-%02d-%d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))));
+            attributes.put(FeatureStringEnum.DATE_CREATION.value, encodeString(formatDate(calendar.time)));
         }
         if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_LAST_MODIFIED.value)) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(feature.lastUpdated);
-            attributes.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, encodeString(String.format("%d-%02d-%d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))));
+            attributes.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, encodeString(formatDate(calendar.time)));
         }
         return attributes;
+    }
+
+    @NotTransactional
+    String formatDate(Date date){
+        return gff3DateFormat.format(date)
     }
 
     static private String encodeString(String str) {
