@@ -8,6 +8,7 @@ import org.bbop.apollo.gwt.shared.PermissionEnum
 
 //import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.history.FeatureOperation
+import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -2100,6 +2101,12 @@ class RequestHandlingService {
             throw new AnnotationException("You cannot merge transcripts on opposite strands");
         }
 
+        List<Transcript> sortedTranscripts = [ transcript1, transcript2 ].sort { a,b ->
+            a.fmin <=> b.fmin
+        }
+        if (transcript1.strand == Strand.NEGATIVE.value) {sortedTranscripts.reverse(true)}
+        transcript1 = sortedTranscripts.get(0)
+        transcript2 = sortedTranscripts.get(1)
         Gene gene1 = transcriptService.getGene(transcript1)
         Gene gene2 = transcriptService.getGene(transcript2)
         String gene1Name = gene1.name
