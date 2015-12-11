@@ -868,11 +868,15 @@ class MultiSequenceProjectionSpec extends Specification {
                id: 1
                 ,name: "Sequence1"
                 ,organism: "Human"
+                ,order: 0
+                ,unprojectedLength: 100
         )// from 0-99
         ProjectionSequence sequence2 = new ProjectionSequence(
                 id: 2
                 ,name: "Sequence2"
                 ,organism: "Human"
+                ,order: 1
+                ,unprojectedLength: 100
         ) // from 100-200
         ProjectionDescription projectionDescription = new ProjectionDescription(
                 referenceTrack: []
@@ -934,6 +938,21 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 25+60==multiSequenceProjection.projectReverseValue(12)
         assert 25+63==multiSequenceProjection.projectReverseValue(15)
 
+        when: "we project a sequence through these coordinates"
+        // length should be 200
+        String inputSequence = "ATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCA"
+        String projectedSequence = multiSequenceProjection.projectSequence(inputSequence,0,200,0)
+        Integer offset = multiSequenceProjection.getLastSequence().originalOffset
+
+        then: "we should confirm that both the input and retrieved sequence are correct"
+        assert 200==inputSequence.length()
+        assert 100==offset
+        assert inputSequence.substring(10,12)==projectedSequence.substring(0,2)
+        assert inputSequence.substring(22,25)==projectedSequence.substring(3,6)
+        assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(7,11)
+        assert inputSequence.substring(60+offset,63+offset)==projectedSequence.substring(12,15)
+        assert 16==projectedSequence.length()
     }
+
 
 }
