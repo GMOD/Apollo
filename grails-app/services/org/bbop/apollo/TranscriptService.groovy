@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import grails.util.CollectionUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -232,7 +233,7 @@ class TranscriptService {
     }
 
     @Transactional
-    def addExon(Transcript transcript, Exon exon,Boolean fixTranscript = true ) {
+    def addExon(Transcript transcript, Exon exon, Boolean fixTranscript = true) {
 
         log.debug "exon feature locations ${exon.featureLocation}"
         log.debug "transcript feature locations ${transcript.featureLocation}"
@@ -266,7 +267,7 @@ class TranscriptService {
         log.debug "final size: ${finalSize}" // 4 (+1 exon)
 
 
-        if(fixTranscript){
+        if (fixTranscript) {
             featureService.removeExonOverlapsAndAdjacencies(transcript)
             log.debug "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
 //
@@ -411,6 +412,8 @@ class TranscriptService {
             featureRelationshipService.removeFeatureRelationship(transcript2, exon)
             addExon(transcript1, exon)
         }
+        // we have to do this here to calculate overlaps later
+        featureService.calculateCDS(transcript1)
         transcript1.save(flush: true)
 
         Gene gene1 = getGene(transcript1)
@@ -421,22 +424,31 @@ class TranscriptService {
             gene1.save(flush: true)
         }
 
-        boolean flag=false
+        boolean flag = false
 
-        // if the parent genes aren't the same, this leads to a merge of the genes
+        // if the parent genes aren't the same
+        // we move transcript2 to the other gene if they overlap any remaining transcripts
+        // , this leads to a merge of the genes
         if (gene1 && gene2) {
             if (gene1 != gene2) {
                 log.debug "Gene1 != Gene2; merging genes together"
                 List<Transcript> gene2Transcripts = getTranscripts(gene2)
-                for (Transcript transcript : gene2Transcripts) {
-                    // moving all transcripts of gene2 to gene1, except for transcripts2 which needs to be deleted
-                    if (transcript != transcript2) {
-                        deleteTranscript(gene2, transcript)
-                        featureService.addTranscriptToGene(gene1, transcript)
+                if (gene2Transcripts) {
+                    gene2Transcripts.retainAll(featureService.getTranscriptsWithOverlappingOrf(transcript1))
+
+                    for (Transcript transcript : gene2Transcripts) {
+                        // moving all transcripts of gene2 to gene1, except for transcripts2 which needs to be deleted
+                        // only move if it overlapps.
+                        if (transcript != transcript2) {
+                            deleteTranscript(gene2, transcript)
+                            featureService.addTranscriptToGene(gene1, transcript)
+                        }
                     }
                 }
-                flag=true
-                featureRelationshipService.deleteFeatureAndChildren(gene2)
+                if (getTranscripts(gene2).size() == 0) {
+                    featureRelationshipService.deleteFeatureAndChildren(gene2)
+                    flag = true
+                }
             }
         }
 
@@ -447,6 +459,9 @@ class TranscriptService {
             Feature.deleteAll(childFeatures)
             deleteTranscript(gene2, transcript2);
             featureRelationshipService.deleteFeatureAndChildren(transcript2);
+            if (getTranscripts(gene2).size() == 0) {
+                featureRelationshipService.deleteFeatureAndChildren(gene2)
+            }
         } else {
             // if gene for transcript2 doesn't exist then transcript2 is orphan
             // no outstanding relationships that need to be deleted
@@ -524,7 +539,7 @@ class TranscriptService {
      * @return
      */
     @Timed
-    JSONObject convertTranscriptToJSON(Transcript gsolFeature, List<Feature> childFeatures , List<FeatureLocation> childFeatureLocations ) {
+    JSONObject convertTranscriptToJSON(Transcript gsolFeature, List<Feature> childFeatures, List<FeatureLocation> childFeatureLocations) {
         JSONObject jsonFeature = new JSONObject();
         try {
             if (gsolFeature.id) {
