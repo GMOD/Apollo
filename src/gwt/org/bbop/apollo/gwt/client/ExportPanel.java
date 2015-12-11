@@ -11,6 +11,7 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
+import org.gwtbootstrap3.client.ui.constants.IconRotate;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.client.ui.constants.Toggle;
 
@@ -182,6 +183,8 @@ public class ExportPanel extends Modal {
 
     public void doExport() {
         exportButton.setEnabled(false);
+        exportButton.setIcon(IconType.REFRESH);
+        exportButton.setIconSpin(true);
         generateLink();
     }
 
