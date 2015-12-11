@@ -2136,15 +2136,19 @@ class RequestHandlingService {
             }
         }
 
-        gene1 = transcriptService.getGene(transcript1)
-        gene1 = gene1.refresh()
+        Gene mergedTranscriptGene = transcriptService.getGene(transcript1)
+        mergedTranscriptGene = mergedTranscriptGene.refresh()
         transcript1.name = transcript1.name ?: nameService.generateUniqueName(transcript1)
 
         JSONObject returnObject = createJSONFeatureContainerFromFeatures(featureService.getTopLevelFeature(transcript1))
 
         // update feature container for update annotation event for transcripts of gene1
         JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        gene1.refresh()
         for (Transcript transcript : transcriptService.getTranscripts(gene1)) {
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
+        }
+        for (Transcript transcript : transcriptService.getTranscripts(mergedTranscriptGene)) {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
         }
 
