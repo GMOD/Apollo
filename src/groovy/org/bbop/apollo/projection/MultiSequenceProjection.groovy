@@ -73,17 +73,17 @@ class MultiSequenceProjection extends AbstractProjection {
         }
     }
 
-    ProjectionSequence findPreviousProjectionSequence(ProjectionSequence projectionSequence) {
-        Integer order = projectionSequence.order
-        if (order <= 0) return null
-
-        for (ProjectionSequence projectionSequence1 in sequenceDiscontinuousProjectionMap.keySet()) {
-            if (projectionSequence1.order == (order - 1)) {
-                return projectionSequence1
-            }
-        }
-        return null
-    }
+//    ProjectionSequence findPreviousProjectionSequence(ProjectionSequence projectionSequence) {
+//        Integer order = projectionSequence.order
+//        if (order <= 0) return null
+//
+//        for (ProjectionSequence projectionSequence1 in sequenceDiscontinuousProjectionMap.keySet()) {
+//            if (projectionSequence1.order == (order - 1)) {
+//                return projectionSequence1
+//            }
+//        }
+//        return null
+//    }
 
     Integer projectReverseValue(Integer input) {
         ProjectionSequence projectionSequence = getReverseProjectionSequence(input)
@@ -345,10 +345,15 @@ class MultiSequenceProjection extends AbstractProjection {
     }
 
     ProjectionSequence getLastSequence() {
-        return sequenceDiscontinuousProjectionMap.keySet().sort(){a,b -> a.order <=> b.order }.last()
+        return projectedSequences.last()
     }
 
-    DiscontinuousProjection getProjectionForSequence(ProjectionSequence projectionSequence) {
-        return sequenceDiscontinuousProjectionMap.get(projectionSequence)
+//    DiscontinuousProjection getProjectionForSequence(ProjectionSequence projectionSequence) {
+//        return sequenceDiscontinuousProjectionMap.get(projectionSequence)
+//    }
+
+    List<ProjectionSequence> getProjectedSequences(){
+        return sequenceDiscontinuousProjectionMap.keySet().sort(){a,b -> a.order <=> b.order }
     }
+
 }

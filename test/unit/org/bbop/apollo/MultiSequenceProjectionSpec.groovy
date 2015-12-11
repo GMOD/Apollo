@@ -942,7 +942,7 @@ class MultiSequenceProjectionSpec extends Specification {
         // length should be 200
         String inputSequence = "ATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCA"
         String projectedSequence = multiSequenceProjection.projectSequence(inputSequence,0,200,0)
-        Integer offset = multiSequenceProjection.getLastSequence().originalOffset
+        Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
 
         then: "we should confirm that both the input and retrieved sequence are correct"
         assert 200==inputSequence.length()
