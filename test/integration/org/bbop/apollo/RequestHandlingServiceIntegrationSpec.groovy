@@ -2680,4 +2680,43 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
 
     }
+
+    void "when we merge two transcript where transcript1 is not the 5' most transcript, isoform overlap should be applied consistently"() {
+
+        given: "GB40857-RA and GB40858-RA"
+        String transcript1String = "{\"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":1242150,\"strand\":1,\"fmax\":1247022},\"name\":\"GB40857-RA\",\"children\":[{\"location\":{\"fmin\":1246797,\"strand\":1,\"fmax\":1247022},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1242150,\"strand\":1,\"fmax\":1242169},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1242732,\"strand\":1,\"fmax\":1243098},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1245018,\"strand\":1,\"fmax\":1245488},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1245952,\"strand\":1,\"fmax\":1246251},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1246355,\"strand\":1,\"fmax\":1246459},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1246555,\"strand\":1,\"fmax\":1247022},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1242150,\"strand\":1,\"fmax\":1246797},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String transcript2String = "{\"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":1248775,\"strand\":1,\"fmax\":1253496},\"name\":\"GB40858-RA\",\"children\":[{\"location\":{\"fmin\":1248775,\"strand\":1,\"fmax\":1248881},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1248959,\"strand\":1,\"fmax\":1249093},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1250262,\"strand\":1,\"fmax\":1250390},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1252434,\"strand\":1,\"fmax\":1253496},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1248775,\"strand\":1,\"fmax\":1248881},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1248959,\"strand\":1,\"fmax\":1249093},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1250262,\"strand\":1,\"fmax\":1250459},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1250660,\"strand\":1,\"fmax\":1250754},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1250852,\"strand\":1,\"fmax\":1251017},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1251094,\"strand\":1,\"fmax\":1251261},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1251327,\"strand\":1,\"fmax\":1251564},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1251639,\"strand\":1,\"fmax\":1251863},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1251940,\"strand\":1,\"fmax\":1252202},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1252293,\"strand\":1,\"fmax\":1253496},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1250390,\"strand\":1,\"fmax\":1252434},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String transcript3String = "{\"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":1245018,\"strand\":1,\"fmax\":1245488},\"name\":\"GB40857-RA\",\"children\":[{\"location\":{\"fmin\":1245018,\"strand\":1,\"fmax\":1245488},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String mergeTranscriptOperation = "{\"features\":[{\"uniquename\":\"@TRANSCRIPT1_UNIQUENAME@\"},{\"uniquename\":\"@TRANSCRIPT2_UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"merge_transcripts\"}"
+
+        when: "we add transcripts"
+        requestHandlingService.addTranscript(JSON.parse(transcript1String) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(transcript3String) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(transcript2String) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(transcript2String) as JSONObject)
+
+        then: "we should have 4 transcripts, 2 genes"
+        assert Gene.count == 2
+        assert MRNA.count == 4
+        assert CDS.count == 4
+
+        Transcript transcript1 = MRNA.findByName("GB40857-RA-00001")
+        Transcript transcript2 = MRNA.findByName("GB40857-RA-00002")
+        Transcript transcript3 = MRNA.findByName("GB40858-RA-00001")
+        Transcript transcript4 = MRNA.findByName("GB40858-RA-00002")
+
+        when: "we merge GB40857-RA-00002 and GB40858-RA-00002"
+        String mergeTranscriptString = mergeTranscriptOperation.replace("@TRANSCRIPT1_UNIQUENAME@", transcript2.uniqueName).replace("@TRANSCRIPT2_UNIQUENAME@", transcript4.uniqueName)
+        JSONObject mergeTranscriptReturnObject = requestHandlingService.mergeTranscripts(JSON.parse(mergeTranscriptString) as JSONObject)
+
+        then: "there should be 2 genes and 3 transcripts"
+        assert Gene.count == 2
+        assert MRNA.count == 3
+
+        List<Gene> geneList = Gene.all.sort {a,b ->
+            a.fmin <=> b.fmin
+        }
+        assert transcriptService.getTranscripts(geneList.get(0)).size() == 1
+        assert transcriptService.getTranscripts(geneList.get(1)).size() == 2
+    }
 }
