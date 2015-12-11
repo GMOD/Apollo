@@ -414,6 +414,7 @@ class TranscriptService {
         }
         // we have to do this here to calculate overlaps later
         featureService.calculateCDS(transcript1)
+        featureService.handleDynamicIsoformOverlap(transcript1)
         transcript1.save(flush: true)
 
         Gene gene1 = getGene(transcript1)
