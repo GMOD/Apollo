@@ -1,26 +1,54 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:gwt='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:gwt='urn:import:com.google.gwt.user.client.ui'
+             xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
+>
     <ui:style>
 
         .exportStyle {
             width: 400px;
         }
     </ui:style>
-    <gwt:FlowPanel>
-        <gwt:HTMLPanel styleName="{style.exportStyle}">
-            <gwt:HTML ui:field="organismLabel"/>
-            <gwt:HTML ui:field="sequenceInfoLabel"/>
-            <gwt:HTML ui:field="typeLabel"/>
-            <gwt:RadioButton ui:field='gff3Button' name="export" text="GFF3" checked="true" visible="false"/>
-            <gwt:RadioButton ui:field='gff3WithFastaButton' name="export" text="GFF3 with FASTA" checked="false" visible="false"/>
-            <gwt:RadioButton ui:field='genomicRadioButton' name="export" text="Genomic" checked="true" visible="false"/>
-            <gwt:RadioButton ui:field='cdnaRadioButton' name="export" text="cDNA" checked="false" visible="false"/>
-            <gwt:RadioButton ui:field='cdsRadioButton' name="export" text="CDS" checked="false" visible="false"/>
-            <gwt:RadioButton ui:field='peptideRadioButton' name="export" text="Peptide" checked="false" visible="false"/>
-            <gwt:HTML ui:field="sequenceTypeLabel" visible="false"/>
-            <!--<gwt:HTML ui:field="urlLink"/>-->
-            <gwt:Button ui:field="exportButton" text="Export Annotations" enabled="true"/>
-            <gwt:Button ui:field="closeButton" text="Close" enabled="true"/>
-        </gwt:HTMLPanel>
-    </gwt:FlowPanel>
+    <!--<gwt:FlowPanel>-->
+    <!--<gwt:HTMLPanel styleName="{style.exportStyle}">-->
+    <b:Modal closable="true" dataBackdrop="FALSE">
+        <b:ModalHeader>
+            <gwt:HTML ui:field="exportHeader"/>
+        </b:ModalHeader>
+        <b:ModalBody>
+            <b:Container>
+                <b:Row>
+                    <b:Column size="MD_6">
+                        <gwt:HTML>Modal body...</gwt:HTML>
+                        <gwt:HTML ui:field="organismLabel"/>
+                        <gwt:HTML ui:field="sequenceInfoLabel"/>
+                        <gwt:HTML ui:field="typeLabel"/>
+                        <gwt:RadioButton ui:field='gff3Button' name="export" text="GFF3" checked="true"
+                                         visible="false"/>
+                        <gwt:RadioButton ui:field='gff3WithFastaButton' name="export" text="GFF3 with FASTA"
+                                         checked="false"
+                                         visible="false"/>
+                        <gwt:RadioButton ui:field='genomicRadioButton' name="export" text="Genomic" checked="true"
+                                         visible="false"/>
+                        <gwt:RadioButton ui:field='cdnaRadioButton' name="export" text="cDNA" checked="false"
+                                         visible="false"/>
+                        <gwt:RadioButton ui:field='cdsRadioButton' name="export" text="CDS" checked="false"
+                                         visible="false"/>
+                        <gwt:RadioButton ui:field='peptideRadioButton' name="export" text="Peptide" checked="false"
+                                         visible="false"/>
+                        <gwt:HTML ui:field="sequenceTypeLabel" visible="false"/>
+                    </b:Column>
+                </b:Row>
+            </b:Container>
+        </b:ModalBody>
+        <b:ModalFooter>
+            <b:Container>
+                <b:Row>
+                    <b:Column size="MD_6">
+                        <gwt:Button ui:field="exportButton" text="Export Annotations" enabled="true"/>
+                        <gwt:Button ui:field="closeButton" text="Close" enabled="true"/>
+                    </b:Column>
+                </b:Row>
+            </b:Container>
+        </b:ModalFooter>
+    </b:Modal>
 </ui:UiBinder>

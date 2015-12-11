@@ -28,10 +28,13 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
+import org.gwtbootstrap3.client.ui.html.Paragraph;
+import org.gwtbootstrap3.client.ui.html.Span;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
@@ -361,17 +364,42 @@ public class SequencePanel extends Composite {
 //            type = exportChadoButton.getText();
 //        }
         GWT.log("Type selected is " + type);
+//        Modal modal = new Modal();
+//        modal.setTitle("Java Created Modal");
+//        modal.setClosable(true);
+//        modal.setRemoveOnHide(true);
+//        final ModalBody modalBody = new ModalBody();
+//        modalBody.add(new Span("Create in Java Code!"));
+//
+//        final ModalFooter modalFooter = new ModalFooter();
+//        modalFooter.add(new Button("Click ME!", new ClickHandler() {
+//            @Override
+//            public void onClick(final ClickEvent event) {
+//                Window.alert("clicked!");
+////                final Paragraph logEntry = new Paragraph();
+////                logEntry.setText("Click Event from Modal! (Java Created Modal)");
+////                logRow.add(logEntry);
+//            }
+//        }));
+//
+//        modal.add(modalBody);
+//        modal.add(modalFooter);
+//
+//        modal.show();
 
-        ExportPanel exportPanel = new ExportPanel();
-        exportPanel.setOrganismInfo(organismInfo);
-        exportPanel.setType(type);
-        exportPanel.setExportAll(exportAll);
-        exportPanel.setSequenceList(sequenceInfoList);
-        if (type.equals("FASTA")) {
-            exportPanel.renderFastaSelection();
-        } else if (type.equals("GFF3")) {
-            exportPanel.renderGff3Selection();
-        }
+
+
+
+        ExportPanel exportPanel = new ExportPanel(organismInfo,type,exportAll,sequenceInfoList);
+//        exportPanel.setOrganismInfo(organismInfo);
+//        exportPanel.setType(type);
+//        exportPanel.setExportAll(exportAll);
+//        exportPanel.setSequenceList(sequenceInfoList);
+//        if (type.equals("FASTA")) {
+//            exportPanel.renderFastaSelection();
+//        } else if (type.equals("GFF3")) {
+//            exportPanel.renderGff3Selection();
+//        }
         exportPanel.show();
     }
 
