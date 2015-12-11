@@ -123,8 +123,9 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     void "get projected contiguous"() {
         given:
-        String sequenceName1 = "GroupUn87"
-        String sequenceName2 = "Group11.4"
+        String sequenceName1 = "GroupUn87"  // 78K unprojected . . . projected: 9966  -> 45575 (4 projections, length ~800)
+        String sequenceName2 = "Group11.4"  // 75K unprojected . . . projected: 10257 -> 64197 (31 projections, length ~15K)
+        // total input should 78258 + 75085 = 153343
         Integer chunkNumber = 0
         String dataFileName = "${Organism.first().directory}/seq/aa2/286/99/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceName1}\"},{\"name\":\"${sequenceName2}\"}], \"label\":\"${sequenceName1}::${sequenceName2}\"}:-1..-1-${chunkNumber}.txt"
 

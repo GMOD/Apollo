@@ -117,9 +117,9 @@ class RefSeqProjectorService {
         Integer startOffset = unprojectedStart - projectedStart
 
 
-        ProjectionSequence startSequence = projection.getReverseProjectionSequence(projectedStart)
-        ProjectionSequence endSequence = projection.getReverseProjectionSequence(projectedEnd)
-        endSequence = endSequence ?: projection.getLastSequence()
+//        ProjectionSequence startSequence = projection.getReverseProjectionSequence(projectedStart)
+//        ProjectionSequence endSequence = projection.getReverseProjectionSequence(projectedEnd)
+//        endSequence = endSequence ?: projection.getLastSequence()
         List<ProjectionSequence> sequences = projection.getReverseProjectionSequences(projectedStart, projectedEnd)
 
         // determine files to read for cu
@@ -129,24 +129,37 @@ class RefSeqProjectorService {
             Sequence sequence = Sequence.findByName(projectionSequence.name)
             // start case
             // could be only one, any portion
+            Integer startIndex, endIndex
             if (index == 0) {
                 if(sequences.size()==1){
-                    stringList << sequenceService.getRawResiduesFromSequence(sequence, unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
+                    startIndex = unprojectedStart - projectionSequence.originalOffset - startOffset
+                    endIndex = unprojectedEnd - projectionSequence.originalOffset
+//                    stringList << sequenceService.getRawResiduesFromSequence(sequence, unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
                 }
                 else{
-                    stringList << sequenceService.getRawResiduesFromSequence(sequence, unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
+                    startIndex = unprojectedStart - projectionSequence.originalOffset - startOffset
+//                    endIndex = projection.getMaxCoordinate(projectionSequence).max
+                    endIndex = sequence.length
+//                    stringList << sequenceService.getRawResiduesFromSequence(sequence, unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
                 }
             }
             // end case
                 // implied at least 2, so the start will always be 0
                 // ends with the end sequence
             else if (index == sequences.size() - 1) {
-                stringList << sequenceService.getRawResiduesFromSequence(sequence, 0, unprojectedEnd - endSequence.originalOffset)
+                startIndex = 0
+//                endIndex = unprojectedEnd - projectionSequence.originalOffset
+                endIndex = sequence.length
+//                stringList << sequenceService.getRawResiduesFromSequence(sequence, 0, unprojectedEnd - endSequence.originalOffset )
             }
             // middle case
             else {
-                stringList << sequenceService.getRawResiduesFromSequence(sequence, 0, sequence.length)
+                startIndex = 0
+//                endIndex = projection.getMaxCoordinate(projectionSequence).max
+                endIndex = sequence.length
+//                stringList << sequenceService.getRawResiduesFromSequence(sequence, 0, sequence.length)
             }
+            stringList << sequenceService.getRawResiduesFromSequence(sequence, startIndex, endIndex)
             ++index
         }
 //        if ( startSequence.name == endSequence.name) {
@@ -175,6 +188,7 @@ class RefSeqProjectorService {
             case "EXON":
 //                String returnString = projection.projectSequence(unprojectedString, 0, unprojectedString.length() - 1, unprojectedStart-projectedStart)
                 String returnString = projection.projectSequence(unprojectedString, 0, unprojectedString.length() - 1, 0)
+//                String returnString = projection.projectSequence(unprojectedString, unprojectedStart, unprojectedEnd, 0)
                 return returnString
             default:
                 return unprojectedString
