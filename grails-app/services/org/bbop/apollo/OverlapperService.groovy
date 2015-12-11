@@ -99,6 +99,9 @@ class OverlapperService implements Overlapper{
     
     private boolean cdsOverlap(List<Exon> exons1, List<Exon> exons2, boolean checkStrand) {
         // implementation for determining isoforms based on CDS overlaps
+        if(exons1.size()==0 || exons2.size()==0){
+            return false
+        }
         CDS cds1 = transcriptService.getCDS( exonService.getTranscript(exons1.get(0)) )
         CDS cds2 = transcriptService.getCDS( exonService.getTranscript(exons2.get(0)) )
         ArrayList<CDSEntity> cdsEntitiesForTranscript1 = getCDSEntities(cds1, exons1)
