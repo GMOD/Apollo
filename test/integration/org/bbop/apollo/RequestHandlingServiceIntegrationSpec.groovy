@@ -807,7 +807,9 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert NonCanonicalThreePrimeSpliceSite.count == 1
 
         when: "we get the transcripts and gene that should be left"
-        MRNA bigMRNA = MRNA.findByName("GB40788-RA-00001")
+        // MRNA bigMRNA = MRNA.findByName("GB40788-RA-00001")
+        // the big mRNA will be GB40787-RA-00001, since its the 5' most transcript
+        MRNA bigMRNA = MRNA.findByName("GB40787-RA-00001")
         def remainingMRNA = MRNA.all - bigMRNA
         MRNA undisturbedMRNA = remainingMRNA.get(0)
 
@@ -816,7 +818,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert bigMRNA != null
         assert undisturbedMRNA.featureLocation.fmax > undisturbedMRNA.featureLocation.fmin
         assert undisturbedMRNA.featureLocation.fmax - undisturbedMRNA.featureLocation.fmin > 0
-        assert 0 == MRNA.countByName("GB40787-RA-00001")
+        assert 0 == MRNA.countByName("GB40788-RA-00001")
         assert undisturbedMRNA.parentFeatureRelationships.size() == 2 + 1 + 0
         assert bigMRNA.parentFeatureRelationships.size() == 5 + 1 + 2
 
@@ -2661,7 +2663,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert transcriptService.getTranscripts(genes[1]).size() == 1
 
         when: "we undo the operation"
-        String undoMergeTranscriptString = undoOperation.replace("@UNIQUENAME@", transcript4.uniqueName)
+        String undoMergeTranscriptString = undoOperation.replace("@UNIQUENAME@", transcript2.uniqueName)
         requestHandlingService.undo(JSON.parse(undoMergeTranscriptString) as JSONObject)
 
         then: "we should have 2 genes and 4 transcripts"
