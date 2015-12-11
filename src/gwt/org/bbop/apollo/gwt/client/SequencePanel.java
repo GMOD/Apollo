@@ -360,46 +360,9 @@ public class SequencePanel extends Composite {
         } else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportFastaButton.getText();
         }
-//        else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
-//            type = exportChadoButton.getText();
-//        }
-        GWT.log("Type selected is " + type);
-//        Modal modal = new Modal();
-//        modal.setTitle("Java Created Modal");
-//        modal.setClosable(true);
-//        modal.setRemoveOnHide(true);
-//        final ModalBody modalBody = new ModalBody();
-//        modalBody.add(new Span("Create in Java Code!"));
-//
-//        final ModalFooter modalFooter = new ModalFooter();
-//        modalFooter.add(new Button("Click ME!", new ClickHandler() {
-//            @Override
-//            public void onClick(final ClickEvent event) {
-//                Window.alert("clicked!");
-////                final Paragraph logEntry = new Paragraph();
-////                logEntry.setText("Click Event from Modal! (Java Created Modal)");
-////                logRow.add(logEntry);
-//            }
-//        }));
-//
-//        modal.add(modalBody);
-//        modal.add(modalFooter);
-//
-//        modal.show();
-
-
-
+//        GWT.log("Type selected is " + type);
 
         ExportPanel exportPanel = new ExportPanel(organismInfo,type,exportAll,sequenceInfoList);
-//        exportPanel.setOrganismInfo(organismInfo);
-//        exportPanel.setType(type);
-//        exportPanel.setExportAll(exportAll);
-//        exportPanel.setSequenceList(sequenceInfoList);
-//        if (type.equals("FASTA")) {
-//            exportPanel.renderFastaSelection();
-//        } else if (type.equals("GFF3")) {
-//            exportPanel.renderGff3Selection();
-//        }
         exportPanel.show();
     }
 

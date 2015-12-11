@@ -1,13 +1,8 @@
 package org.bbop.apollo.gwt.client;
 
-//import com.google.gwt.core.client.GWT;
-//import com.google.gwt.dom.client.Document;
 
 import com.google.gwt.event.dom.client.ClickEvent;
-//import com.google.gwt.uibinder.client.UiBinder;
-//import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
@@ -26,67 +21,31 @@ import java.util.List;
  */
 public class ExportPanel extends Modal {
     private String type;
-    private String url;
-    private OrganismInfo organismInfo;
     private List<SequenceInfo> sequenceList;
-    private String sequenceType = "genomic";
-    private Boolean exportGff3Fasta = false;
     private Boolean exportAll = false;
 
 
-//    interface ExportPanelUiBinder extends UiBinder<Widget, ExportPanel> {
-//    }
-
-    //    private static ExportPanelUiBinder ourUiBinder = GWT.create(ExportPanelUiBinder.class);
-//    @UiField
-    HTML organismLabel = new HTML();
-    //    @UiField
     HTML sequenceInfoLabel = new HTML();
-    //    @UiField
     HTML typeLabel = new HTML();
-    //    @UiField
-//    HTML urlLink;
-//    @UiField
     HTML sequenceTypeLabel = new HTML();
-    //    @UiField
     Button closeButton = new Button("Cancel");
-    //    @UiField
     Button exportButton = new Button("Export");
-    //    @UiField
     RadioButton gff3Button = new RadioButton("GFF3", "GFF3", true);
-    //    @UiField
     RadioButton gff3WithFastaButton = new RadioButton("GFF3 with FASTA", "GFF3 with FASTA", true);
-    //    @UiField
     RadioButton genomicRadioButton = new RadioButton("Genomic", "Genomic", true);
-    //    @UiField
     RadioButton cdnaRadioButton = new RadioButton("cDNA", "cDNA", true);
-    //    @UiField
     RadioButton cdsRadioButton = new RadioButton("CDS", "CDS", true);
-    //    @UiField
     RadioButton peptideRadioButton = new RadioButton("Peptide", "Peptide", true);
-    //    @UiField
-//    HTML exportHeader =new ;
 
     ModalBody modalBody = new ModalBody();
     ModalHeader modalHeader = new ModalHeader();
     ModalFooter modalFooter = new ModalFooter();
 
-//    public ExportPanel() {
-////        show();
-////        ourUiBinder.createAndBindUi(this);
-////        exportHeader.setHTML("asdfdasf");
-////        setAutoHideEnabled(true);
-////        setText("Export");
-////        setGlassEnabled(true);
-////        center();
-//
-//    }
 
     public ExportPanel(OrganismInfo organismInfo, String type, Boolean exportAll, List<SequenceInfo> sequenceInfoList) {
         setTitle("Export");
         setClosable(true);
         setRemoveOnHide(true);
-
 
         Integer count = exportAll ? -1 : sequenceInfoList.size();
         String countText = count < 0 ? "all" : count + "";
@@ -121,17 +80,11 @@ public class ExportPanel extends Modal {
         modalFooter.add(closeButton);
         add(modalFooter);
 
-        setOrganismInfo(organismInfo);
         setType(type);
         setExportAll(exportAll);
         setSequenceList(sequenceInfoList);
 
         setUiHandlers();
-    }
-
-    @Override
-    public void show() {
-        super.show();
     }
 
     private void setUiHandlers() {
@@ -151,11 +104,6 @@ public class ExportPanel extends Modal {
 
     }
 
-
-    public void setOrganismInfo(OrganismInfo organismInfo) {
-        this.organismInfo = organismInfo;
-        organismLabel.setHTML(organismInfo.getName());
-    }
 
     public void setSequenceList(List<SequenceInfo> sequenceList) {
         this.sequenceList = sequenceList;
@@ -212,16 +160,6 @@ public class ExportPanel extends Modal {
         return gff3WithFastaButton.isActive();
     }
 
-//    @UiHandler("closeButton")
-//    public void closeExportPanel(ClickEvent clickEvent) {
-//        hide();
-//    }
-
-//    public void enableCloseButton() {
-//        closeButton.setEnabled(true);
-//    }
-
-    //    @UiHandler("exportButton")
     public void doExport() {
         exportButton.setEnabled(false);
         generateLink();
@@ -231,62 +169,6 @@ public class ExportPanel extends Modal {
         SequenceRestService.generateLink(this);
     }
 
-//    public void showSequenceTypeLabel() {
-//        sequenceTypeLabel.setHTML("Sequence Type: " + this.sequenceType);
-//        sequenceTypeLabel.setVisible(true);
-//    }
-//
-//    public void renderFastaSelection() {
-//        genomicRadioButton.setVisible(true);
-//        cdnaRadioButton.setVisible(true);
-//        cdsRadioButton.setVisible(true);
-//        peptideRadioButton.setVisible(true);
-//
-//        // hide these
-//        gff3Button.setVisible(false);
-//        gff3WithFastaButton.setVisible(false);
-//    }
-//
-//    public void renderGff3Selection() {
-//        genomicRadioButton.setVisible(false);
-//        cdnaRadioButton.setVisible(false);
-//        cdsRadioButton.setVisible(false);
-//        peptideRadioButton.setVisible(false);
-//
-//        // show these
-//        gff3Button.setVisible(true);
-//        gff3WithFastaButton.setVisible(true);
-//    }
-
-//    @UiHandler("genomicRadioButton")
-//    public void selectGenomic(ClickEvent clickEvent) {
-//        sequenceType = FeatureStringEnum.TYPE_GENOMIC.getValue();
-//    }
-//
-//    @UiHandler("cdnaRadioButton")
-//    public void selectCDNA(ClickEvent clickEvent) {
-//        sequenceType = FeatureStringEnum.TYPE_CDNA.getValue();
-//    }
-//
-//    @UiHandler("cdsRadioButton")
-//    public void selectCDS(ClickEvent clickEvent) {
-//        sequenceType = FeatureStringEnum.TYPE_CDS.getValue();
-//    }
-//
-//    @UiHandler("peptideRadioButton")
-//    public void selectPeptide(ClickEvent clickEvent) {
-//        sequenceType = FeatureStringEnum.TYPE_PEPTIDE.getValue();
-//    }
-
-//    @UiHandler("gff3Button")
-//    public void selectOnlyGff3(ClickEvent clickEvent) {
-//        exportGff3Fasta = false;
-//    }
-//
-//    @UiHandler("gff3WithFastaButton")
-//    public void selectGff3WithFasta(ClickEvent clickEvent) {
-//        exportGff3Fasta = true;
-//    }
 
     public List<SequenceInfo> getSequenceList() {
         return sequenceList;
