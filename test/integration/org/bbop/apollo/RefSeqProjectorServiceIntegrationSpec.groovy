@@ -125,6 +125,15 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         given:
         String sequenceName1 = "GroupUn87"  // 78K unprojected . . . projected: 9966  -> 45575 (4 projections, length ~800)
         String sequenceName2 = "Group11.4"  // 75K unprojected . . . projected: 10257 -> 64197 (31 projections, length ~15K)
+
+        String un87StartSequence = "ATGCACTGTCAACGTACACGGG" // starts at 0
+        String un87EndSequence = "AAAACATAA" // starts at 0
+        Integer un87Length = 843
+        Integer elevenFourLength = 15764
+        String elevenFourStartSequence = "ATGTTTGCTTGGGGAACTTGTG"
+        String elevenFourEndSequence = "AGTAAGCTTATTATATTG"
+        Integer elevenFourStartSequenceIndex = un87Length +1
+        Integer elevenFourEndSequenceIndex = un87Length + elevenFourLength
         // total input should 78258 + 75085 = 153343
         Integer chunkNumber = 0
         String dataFileName = "${Organism.first().directory}/seq/aa2/286/99/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceName1}\"},{\"name\":\"${sequenceName2}\"}], \"label\":\"${sequenceName1}::${sequenceName2}\"}:-1..-1-${chunkNumber}.txt"
@@ -133,8 +142,110 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
 
         then:
-        assert 843+15764+1==returnedSequence.length()
-        assert returnedSequence.indexOf("ATGCACTGTC")==0
-        assert returnedSequence.split("ATGTTTGCTTGGG").length==2
+        assert returnedSequence.indexOf(un87StartSequence)==0
+        assert returnedSequence.indexOf(un87EndSequence)==un87Length-un87EndSequence.length()
+        assert returnedSequence.split(un87EndSequence).length==2
+
+        assert returnedSequence.indexOf(elevenFourStartSequence)==elevenFourStartSequenceIndex
+        assert returnedSequence.indexOf(elevenFourEndSequence)==elevenFourEndSequenceIndex
+        assert returnedSequence.split(elevenFourStartSequence).length==2
+        assert un87Length+elevenFourLength==returnedSequence.length()
+    }
+
+    void "get projected contiguous - reverse"() {
+        given:
+        String sequenceName1 = "Group11.4"  // 78K unprojected . . . projected: 9966  -> 45575 (4 projections, length ~800)
+        String sequenceName2 = "GroupUn87"  // 75K unprojected . . . projected: 10257 -> 64197 (31 projections, length ~15K)
+        // total input should 78258 + 75085 = 153343
+        Integer chunkNumber = 0
+        String dataFileName = "${Organism.first().directory}/seq/aa2/286/99/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceName1}\"},{\"name\":\"${sequenceName2}\"}], \"label\":\"${sequenceName1}::${sequenceName2}\"}:-1..-1-${chunkNumber}.txt"
+
+        Integer elevenFourLength = 15764
+        Integer un87Length = 843
+        String elevenFourStartSequence = "ATGTTTGCTTGGGGAACTTGTG"
+        String elevenFourEndSequence = "AGTAAGCTTATTATATTG"
+        String un87StartSequence = "ATGCACTGTCAACGTACACGGG" // starts at 0
+        String un87EndSequence = "AAAACATAA" // starts at 0
+
+        when:
+        String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
+
+        then:
+//        assert 843+15764+1==returnedSequence.length()
+        assert un87Length+elevenFourLength==returnedSequence.length()
+
+
+        assert returnedSequence.indexOf(elevenFourStartSequence)==0
+        assert returnedSequence.indexOf(elevenFourEndSequence)==elevenFourLength-elevenFourEndSequence.length()
+        assert returnedSequence.split(elevenFourEndSequence).length==2
+
+        assert returnedSequence.indexOf(un87StartSequence)==elevenFourLength
+        assert returnedSequence.indexOf(un87EndSequence)==elevenFourLength+un87Length-un87EndSequence.length()
+        assert returnedSequence.split(un87EndSequence).length==2
+
+        assert un87Length+elevenFourLength==returnedSequence.length()
+    }
+
+//    void "get unprojected contiguous - three sequences"() {
+//        given:
+//        String sequenceName1 = "GroupUn87"  // 78K unprojected . . . projected: 9966  -> 45575 (4 projections, length ~800)
+//        String sequenceName2 = "Group11.4"  // 75K unprojected . . . projected: 10257 -> 64197 (31 projections, length ~15K)
+//
+//        String un87StartSequence = "ATGCACTGTCAACGTACACGGG" // starts at 0
+//        String un87EndSequence = "AAAACATAA" // starts at 0
+//        Integer un87Length = 843
+//        Integer elevenFourLength = 15764
+//        String elevenFourStartSequence = "ATGTTTGCTTGGGGAACTTGTG"
+//        String elevenFourEndSequence = "AGTAAGCTTATTATATTG"
+//        Integer elevenFourStartSequenceIndex = un87Length +1
+//        Integer elevenFourEndSequenceIndex = un87Length + elevenFourLength
+//        // total input should 78258 + 75085 = 153343
+//        Integer chunkNumber = 0
+//        String dataFileName = "${Organism.first().directory}/seq/aa2/286/99/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceName1}\"},{\"name\":\"${sequenceName2}\"}], \"label\":\"${sequenceName1}::${sequenceName2}\"}:-1..-1-${chunkNumber}.txt"
+//
+//        when:
+//        String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
+//
+//        then:
+//        assert returnedSequence.indexOf(un87StartSequence)==0
+//        assert returnedSequence.indexOf(un87EndSequence)==un87Length-un87EndSequence.length()
+//        assert returnedSequence.split(un87EndSequence).length==2
+//
+//        assert returnedSequence.indexOf(elevenFourStartSequence)==elevenFourStartSequenceIndex
+//        assert returnedSequence.indexOf(elevenFourEndSequence)==elevenFourEndSequenceIndex
+//        assert returnedSequence.split(elevenFourStartSequence).length==2
+//        assert un87Length+elevenFourLength==returnedSequence.length()
+//    }
+
+    void "get projected contiguous - three sequences"() {
+        given:
+        String sequenceName1 = "GroupUn87"  // 78K unprojected . . . projected: 9966  -> 45575 (4 projections, length ~800)
+        String sequenceName2 = "Group11.4"  // 75K unprojected . . . projected: 10257 -> 64197 (31 projections, length ~15K)
+        String sequenceName3 = "Group1.1"  // 75K unprojected . . . projected: 10257 -> 64197 (31 projections, length ~15K)
+
+        String un87StartSequence = "ATGCACTGTCAACGTACACGGG" // starts at 0
+        String un87EndSequence = "AAAACATAA" // starts at 0
+        Integer un87Length = 843
+        Integer elevenFourLength = 15764
+        String elevenFourStartSequence = "ATGTTTGCTTGGGGAACTTGTG"
+        String elevenFourEndSequence = "AGTAAGCTTATTATATTG"
+        Integer elevenFourStartSequenceIndex = un87Length +1
+        Integer elevenFourEndSequenceIndex = un87Length + elevenFourLength
+        // total input should 78258 + 75085 = 153343
+        Integer chunkNumber = 0
+        String dataFileName = "${Organism.first().directory}/seq/aa2/286/99/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceName1}\"},{\"name\":\"${sequenceName2}\"},{\"name\":\"${sequenceName3}\"}], \"label\":\"${sequenceName1}::${sequenceName2}::${sequenceName3}\"}:-1..-1-${chunkNumber}.txt"
+
+        when:
+        String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
+
+        then:
+        assert returnedSequence.indexOf(un87StartSequence)==0
+        assert returnedSequence.indexOf(un87EndSequence)==un87Length-un87EndSequence.length()
+        assert returnedSequence.split(un87EndSequence).length==2
+
+        assert returnedSequence.indexOf(elevenFourStartSequence)==elevenFourStartSequenceIndex
+        assert returnedSequence.indexOf(elevenFourEndSequence)==elevenFourEndSequenceIndex
+        assert returnedSequence.split(elevenFourStartSequence).length==2
+        assert un87Length+elevenFourLength==returnedSequence.length()
     }
 }
