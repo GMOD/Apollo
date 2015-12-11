@@ -76,6 +76,7 @@ public class ExportPanel extends Modal {
 
         exportButton.setIcon(IconType.DOWNLOAD);
         exportButton.setType(ButtonType.PRIMARY);
+        exportButton.setEnabled(false);
         modalFooter.add(exportButton);
         modalFooter.add(closeButton);
         add(modalFooter);
@@ -85,6 +86,13 @@ public class ExportPanel extends Modal {
         setSequenceList(sequenceInfoList);
 
         setUiHandlers();
+    }
+
+    private class ExportClickHandler implements ClickHandler{
+        @Override
+        public void onClick(ClickEvent event) {
+            exportButton.setEnabled(true);
+        }
     }
 
     private void setUiHandlers() {
@@ -102,6 +110,15 @@ public class ExportPanel extends Modal {
             }
         });
 
+        ExportClickHandler exportClickHandler = new ExportClickHandler();
+
+        genomicRadioButton.addClickHandler(exportClickHandler);
+        cdnaRadioButton.addClickHandler(exportClickHandler);
+        cdsRadioButton.addClickHandler(exportClickHandler);
+        peptideRadioButton.addClickHandler(exportClickHandler);
+
+        gff3WithFastaButton.addClickHandler(exportClickHandler);
+        gff3Button.addClickHandler(exportClickHandler);
     }
 
 
@@ -153,7 +170,10 @@ public class ExportPanel extends Modal {
         if(peptideRadioButton.isActive()){
             return FeatureStringEnum.TYPE_PEPTIDE.getValue();
         }
-        return null ;
+        // this is the default . . . may handle to GFF3 with FASTA
+        else{
+            return FeatureStringEnum.TYPE_GENOMIC.getValue();
+        }
     }
 
     public Boolean getExportGff3Fasta() {
