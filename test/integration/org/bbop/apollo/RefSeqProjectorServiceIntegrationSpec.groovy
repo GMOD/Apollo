@@ -186,6 +186,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert un87Length+elevenFourLength==returnedSequence.length()
     }
 
+    // TODO: add this test for verification
 //    void "get unprojected contiguous - three sequences"() {
 //        given:
 //        String sequenceName1 = "GroupUn87"  // 78K unprojected . . . projected: 9966  -> 45575 (4 projections, length ~800)

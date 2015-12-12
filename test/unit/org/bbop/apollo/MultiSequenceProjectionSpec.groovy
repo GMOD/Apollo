@@ -952,6 +952,20 @@ class MultiSequenceProjectionSpec extends Specification {
         assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(7,11)
         assert inputSequence.substring(60+offset,63+offset)==projectedSequence.substring(12,15)
         assert 16==projectedSequence.length()
+
+        when: "we project a sequence through these smaller coordinates"
+        // length should be 200
+        projectedSequence = multiSequenceProjection.projectSequence(inputSequence,50,150,0)
+//        Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
+
+        then: "we should confirm that both the input and retrieved sequence are correct"
+//        assert 200==inputSequence.length()
+        assert 100==offset
+//        assert inputSequence.substring(10,12)==projectedSequence.substring(0,2)
+//        assert inputSequence.substring(22,25)==projectedSequence.substring(3,6)
+        assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(7,11)
+        assert inputSequence.substring(60+offset,63+offset)==projectedSequence.substring(12,15)
+        assert 9==projectedSequence.length()
     }
 
 
