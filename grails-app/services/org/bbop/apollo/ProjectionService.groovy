@@ -446,11 +446,22 @@ class ProjectionService {
         return locationList
     }
 
-    @NotTransactional
+//    @NotTransactional
     MultiSequenceProjection createMultiSequenceProjection(ProjectionDescription description, List<Location> locationList) {
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(projectionDescription: description)
         multiSequenceProjection.addLocations(locationList)
         multiSequenceProjection.calculateOffsets()
+        Map<String,ProjectionSequence> projectionSequenceMap = [:]
+
+        multiSequenceProjection.projectedSequences.each {
+            projectionSequenceMap.put(it.name,it)
+        }
+//        List<String> sequenceNames = multiSequenceProjection.projectedSequences.name
+        Sequence.findAllByNameInList(projectionSequenceMap.keySet() as List<String>).each {
+            def projectionSequence = projectionSequenceMap.get(it.name)
+            projectionSequence.unprojectedLength = it.length
+        }
+
         return multiSequenceProjection
     }
 
@@ -621,16 +632,16 @@ class ProjectionService {
         return multiSequenceProjectionMap.get(projectionDescription)
     }
 
-    Boolean containsSequence(Map<ProjectionSequence, MultiSequenceProjection> projectionSequenceMultiSequenceProjectionMap, String sequenceName, Long sequenceId, Organism currentOrganism) {
-        ProjectionSequence projectionSequence = new ProjectionSequence(
-                id: sequenceId
-                , name: sequenceName
-                , organism: currentOrganism.commonName
-        )
-        // this guarantees that the query is local to the descrption
-        return projectionSequenceMultiSequenceProjectionMap.containsKey(projectionSequence)
-
-    }
+//    Boolean containsSequence(Map<ProjectionSequence, MultiSequenceProjection> projectionSequenceMultiSequenceProjectionMap, String sequenceName, Long sequenceId, Organism currentOrganism) {
+//        ProjectionSequence projectionSequence = new ProjectionSequence(
+//                id: sequenceId
+//                , name: sequenceName
+//                , organism: currentOrganism.commonName
+//        )
+//        // this guarantees that the query is local to the descrption
+//        return projectionSequenceMultiSequenceProjectionMap.containsKey(projectionSequence)
+//
+//    }
 
     def storeProjection(String putativeRefererLocation, MultiSequenceProjection multiSequenceProjection, Organism organism) {
         JSONObject bookmarkObject = convertProjectionToBookmarkJsonObject(putativeRefererLocation, organism)

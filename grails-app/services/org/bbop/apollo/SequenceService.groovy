@@ -200,6 +200,10 @@ class SequenceService {
         return residues.toString()
     }
 
+    String getRawResiduesFromSequence(Sequence sequence, int fmin) {
+        return getRawResiduesFromSequence(sequence,fmin,sequence.length)
+    }
+
     String getRawResiduesFromSequence(Sequence sequence, int fmin, int fmax) {
         StringBuilder sequenceString = new StringBuilder()
 
@@ -210,6 +214,7 @@ class SequenceService {
         def chunks=c.list() {
             eq('sequence',sequence)
             'in'('chunkNumber',startChunkNumber..endChunkNumber)
+            order("chunkNumber", "asc")
         }
         log.debug("${chunks.size()} ${endChunkNumber-startChunkNumber+1}")
         if(chunks.size()==endChunkNumber-startChunkNumber+1) {
@@ -461,5 +466,22 @@ class SequenceService {
             featuresToWrite += listOfSequenceAlterations
         }
         gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
+    }
+
+    /**
+     * /opt/apollo/honeybee/data/seq/50e/b7a/08/{"padding":0, "projection":"None", "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group1.1"}], "label":"Group1.1"}:-1..-1-7.txt
+     * @param inputSequence
+     * @return  return from first { to last }
+     */
+    String getSequencePathName(String inputSequence) {
+        return inputSequence.substring(inputSequence.indexOf("{"),inputSequence.lastIndexOf("}")+1)
+    }
+
+    String getSequencePrefixPath(String inputFileName) {
+        return inputFileName.substring(0,inputFileName.indexOf("{"))
+    }
+
+    String getChunkSuffix(String inputFileName) {
+        return inputFileName.substring(inputFileName.lastIndexOf("-"))
     }
 }

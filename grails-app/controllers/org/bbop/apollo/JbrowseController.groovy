@@ -2,11 +2,13 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.filefilter.FileFilterUtils
+import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.projection.DiscontinuousChunkProjector
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionChunk
-import org.bbop.apollo.projection.RefSeqProjector
+import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -27,10 +29,7 @@ class JbrowseController {
     def servletContext
     def projectionService
     def trackService
-    def trackMapperService
-
-    // TODO: move to a service instead?
-    RefSeqProjector refSeqProjector = new RefSeqProjector()
+    def refSeqProjectorService
 
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
@@ -159,11 +158,11 @@ class JbrowseController {
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
 
-        String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
-        println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
 //        /opt/apollo/honeybee/data//tracks/Official Gene Set v3.2/{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}/trackData.json
-        if (putativeSequencePathName.contains("projection")) {
+        if (dataFileName.contains("projection")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
+                String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
+                println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
 
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
@@ -184,6 +183,84 @@ class JbrowseController {
                     return
                 }
 
+
+            } else
+//                /opt/apollo/honeybee/data/seq/50e/b7a/08/{"padding":0, "projection":"None", "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group1.1"}], "label":"Group1.1"}:-1..-1-7.txt
+            if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+
+
+                String returnSequence = refSeqProjectorService.projectSequence(dataFileName,currentOrganism)
+                // output the string the response
+                // TODO: optimize this to not store in memory?
+                response.setContentLength((int) returnSequence.bytes.length);
+                response.outputStream << returnSequence
+                response.outputStream.close()
+
+
+//                println "HANDINGL SEQ DATA ${fileName}"
+//                String sequenceName = fileName.split("-")[0]
+//
+//                // if getting
+////                MultiSequenceProjection projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
+////                ProjectionInterface projection = projectionMap.values().iterator().next().get(sequenceName)
+////                MultiSequenceProjection projection = null
+////                if(BookmarkService.isProjectionString(refererLoc)){
+////
+////                    projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
+////                }
+//                MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+////                if (projection) {
+//                DiscontinuousChunkProjector discontinuousChunkProjector = DiscontinuousChunkProjector.instance
+//                // TODO: get proper chunk size from the RefSeq
+//                Integer defaultChunkSize = 20000
+//                Integer chunkNumber = discontinuousChunkProjector.getChunkNumberFromFileName(fileName)
+//                println "projected length ${projection.length}"
+//                println "maping chunk ${chunkNumber} on proj"
+//                List<Integer> chunks = discontinuousChunkProjector.getChunksForPath(parentFile)
+//                for (Integer chunk in chunks) {
+//                    println "chunk ${chunk} / ${chunks.size()}"
+//                }
+//                Integer startProjectedChunk = discontinuousChunkProjector.getStartChunk(chunkNumber, defaultChunkSize)
+//                Integer endProjectedChunk = discontinuousChunkProjector.getEndChunk(chunkNumber, defaultChunkSize)
+//                println "projected chunk ${startProjectedChunk}::${endProjectedChunk}"
+//                Integer startOriginal = projection.projectReverseValue(startProjectedChunk)
+//                Integer endOriginal = projection.projectReverseValue(endProjectedChunk)
+//                println "original coord values ${startOriginal}::${endOriginal}"
+//
+//                Organism organism = preferenceService.currentOrganismForCurrentUser
+//                Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
+//                println "ffound sequence ${sequence} for org ${organism.commonName}"
+//                // TODO: fix the offsets here
+//                String concatenatedSequence = sequenceService.getRawResiduesFromSequence(sequence, startOriginal, endOriginal)
+//                println "concatenated length ${concatenatedSequence.length()}"
+//
+//                // re-project
+////                    String inputText = concatenatedSequence
+////                    String inputText = projection.projectSequence(concatenatedSequence,startOriginal,endOriginal,startOriginal)
+//                String inputText = concatenatedSequence
+//                println "return string length ${inputText.length()}"
+//
+//                // TODO: get chunks needed for cuts . . ..
+//                // TODO: get substrings from start / end
+////                    projection.cutToProjection()
+//
+//                response.setContentLength((int) inputText.bytes.length);
+//
+//                // Open the file and output streams
+////                    FileInputStream inputStream = new FileInputStream(file);
+////                    OutputStream out = response.getOutputStream();
+//
+//                // Copy the contents of the file to the output stream
+////                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+////                    int count = 0;
+////                    while ((count = inputStream.read(buf)) >= 0) {
+////                        out.write(buf, 0, count);
+////                    }
+//
+//                response.outputStream << inputText
+//                response.outputStream.close()
+
+//                }
 
             }
         }
@@ -233,11 +310,12 @@ class JbrowseController {
 
 
         if (isCacheableFile(fileName)) {
-            String eTag = createHashFromFile(file);
-            String dateString = formatLastModifiedDate(file);
-
-            response.setHeader("ETag", eTag);
-            response.setHeader("Last-Modified", dateString);
+            cacheFile(file)
+//            String eTag = createHashFromFile(file);
+//            String dateString = formatLastModifiedDate(file);
+//
+//            response.setHeader("ETag", eTag);
+//            response.setHeader("Last-Modified", dateString);
         }
 
         String range = request.getHeader("range");
@@ -301,7 +379,7 @@ class JbrowseController {
                     MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
                     // returns projection to a string of some sort
-                    String results = refSeqProjector.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
+                    String results = refSeqProjectorService.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
                     response.outputStream << results
                 } else {
                     // Set content size
@@ -321,97 +399,22 @@ class JbrowseController {
                     out.close();
                 }
             } else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
-                // Set content size
-                // fileName
-//                Group1.22-18.txt
-                String parentFile = file.parent
-                println "HANDINGL SEQ DATA ${fileName}"
-                String sequenceName = fileName.split("-")[0]
+//                else {
+                response.setContentLength((int) file.length());
 
-                // if getting
-//                MultiSequenceProjection projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
-//                ProjectionInterface projection = projectionMap.values().iterator().next().get(sequenceName)
-//                MultiSequenceProjection projection = null
-//                if(BookmarkService.isProjectionString(refererLoc)){
-//
-//                    projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
-//                }
-                MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
-                if (projection) {
-                    DiscontinuousChunkProjector discontinuousChunkProjector = DiscontinuousChunkProjector.instance
-                    // TODO: get proper chunk size from the RefSeq
-                    Integer defaultChunkSize = 20000
-                    Integer chunkNumber = discontinuousChunkProjector.getChunkNumberFromFileName(fileName)
-                    println "projected length ${projection.length}"
-                    println "maping chunk ${chunkNumber} on proj"
-                    List<Integer> chunks = discontinuousChunkProjector.getChunksForPath(parentFile)
-                    for (Integer chunk in chunks) {
-                        println "chunk ${chunk} / ${chunks.size()}"
-                    }
-                    Integer startProjectedChunk = discontinuousChunkProjector.getStartChunk(chunkNumber, defaultChunkSize)
-                    Integer endProjectedChunk = discontinuousChunkProjector.getEndChunk(chunkNumber, defaultChunkSize)
-                    println "projected chunk ${startProjectedChunk}::${endProjectedChunk}"
-                    Integer startOriginal = projection.projectReverseValue(startProjectedChunk)
-                    Integer endOriginal = projection.projectReverseValue(endProjectedChunk)
-                    println "original coord values ${startOriginal}::${endOriginal}"
+                // Open the file and output streams
+                FileInputStream inputStream = new FileInputStream(file);
+                OutputStream out = response.getOutputStream();
 
-//                    Integer startOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(startOriginal,defaultChunkSize)
-//                    Integer endOriginalChunkNumber = discontinuousChunkProjector.getChunkForCoordinate(endOriginal,defaultChunkSize)
-//                    println "original chunk number ${startOriginalChunkNumber}::${endOriginalChunkNumber}"
-//                    Integer startOriginalChunkCoordinate = startOriginalChunkNumber * defaultChunkSize
-//                    Integer endOriginalChunkCoordinate = (endOriginalChunkNumber+1) * defaultChunkSize
-//                    println "original chunk coordinate ${startOriginalChunkCoordinate}::${endOriginalChunkCoordinate}"
-
-
-                    Organism organism = preferenceService.currentOrganismForCurrentUser
-                    Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
-                    println "ffound sequence ${sequence} for org ${organism.commonName}"
-                    // TODO: fix the offsets here
-                    String concatenatedSequence = sequenceService.getRawResiduesFromSequence(sequence, startOriginal, endOriginal)
-                    println "concatenated length ${concatenatedSequence.length()}"
-
-                    // re-project
-//                    String inputText = concatenatedSequence
-//                    String inputText = projection.projectSequence(concatenatedSequence,startOriginal,endOriginal,startOriginal)
-                    String inputText = concatenatedSequence
-                    println "return string length ${inputText.length()}"
-
-                    // TODO: get chunks needed for cuts . . ..
-                    // TODO: get substrings from start / end
-//                    projection.cutToProjection()
-
-                    response.setContentLength((int) inputText.bytes.length);
-
-                    // Open the file and output streams
-//                    FileInputStream inputStream = new FileInputStream(file);
-//                    OutputStream out = response.getOutputStream();
-
-                    // Copy the contents of the file to the output stream
-//                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-//                    int count = 0;
-//                    while ((count = inputStream.read(buf)) >= 0) {
-//                        out.write(buf, 0, count);
-//                    }
-
-                    response.outputStream << inputText
-                    response.outputStream.close()
-
-                } else {
-                    response.setContentLength((int) file.length());
-
-                    // Open the file and output streams
-                    FileInputStream inputStream = new FileInputStream(file);
-                    OutputStream out = response.getOutputStream();
-
-                    // Copy the contents of the file to the output stream
-                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-                    int count = 0;
-                    while ((count = inputStream.read(buf)) >= 0) {
-                        out.write(buf, 0, count);
-                    }
-                    inputStream.close();
-                    out.close();
+                // Copy the contents of the file to the output stream
+                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+                int count = 0;
+                while ((count = inputStream.read(buf)) >= 0) {
+                    out.write(buf, 0, count);
                 }
+                inputStream.close();
+                out.close();
+//                }
             }
 //            else if (fileName.endsWith(".bai")) {
 //                println "processing bai file"
@@ -507,6 +510,16 @@ class JbrowseController {
 
     }
 
+    def cacheFile(File file) {
+//        if (isCacheableFile(fileName)) {
+        String eTag = createHashFromFile(file);
+        String dateString = formatLastModifiedDate(file);
+        response.setHeader("ETag", eTag);
+        response.setHeader("Last-Modified", dateString);
+//        }
+
+    }
+
     private String calculateOriginalChunkName(List<ProjectionChunk> projectionChunks, String finalSequenceString, Integer chunkIndex) {
         for (int i = 0; i < projectionChunks.size(); i++) {
             if (projectionChunks.get(i).sequence == finalSequenceString) {
@@ -599,16 +612,41 @@ class JbrowseController {
         return false;
     }
 
-    private static String formatLastModifiedDate(File file) {
-        DateFormat simpleDateFormat = SimpleDateFormat.getDateInstance();
-        return simpleDateFormat.format(new Date(file.lastModified()));
+    /**
+     * We choose a date to use for last modified
+     * @param files
+     * @return
+     */
+    private static String formatLastModifiedDate(File... files) {
+        Date earliestDate = getLastModifiedDate(files)
+        return SimpleDateFormat.getDateInstance().format(earliestDate)
+    }
+
+    /**
+     * We choose a date to use for last modified
+     * @param files
+     * @return
+     */
+    private static Date getLastModifiedDate(File... files) {
+        Date earliestDate = new Date()
+        for(File file : files){
+            Date lastModifiedDate = new Date(file.lastModified())
+            if(lastModifiedDate.before(earliestDate)){
+                earliestDate = lastModifiedDate
+            }
+        }
+        return earliestDate
+    }
+
+    private static String createHash(String name,long length,long lastModified) {
+        return name + "_" + length + "_" + lastModified;
     }
 
     private static String createHashFromFile(File file) {
         String fileName = file.getName();
         long length = file.length();
         long lastModified = file.lastModified();
-        return fileName + "_" + length + "_" + lastModified;
+        return createHash(fileName,length,lastModified)
     }
 
     /**
