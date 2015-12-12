@@ -24,6 +24,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
     }
 
     def cleanup() {
+        FeatureEvent.deleteAll(FeatureEvent.all)
         Feature.deleteAll(Feature.all)
     }
 
