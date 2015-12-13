@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.test.spock.IntegrationSpec
+import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
@@ -155,6 +156,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert Gene.count == 1
         assert FeatureEvent.count == 3
         assert FeatureEvent.countByCurrent(true) == 1
+        assert FeatureEvent.findByCurrent(true).operation == FeatureOperation.MERGE_TRANSCRIPTS
 
 
         when: "when we undo transcript A"
