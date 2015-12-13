@@ -237,6 +237,10 @@ class TrackService {
                 projectJsonArray(projection, coordinate, offset, projectionSequence, trackName)
             }
         }
+        // at this point do a sanity check on the projected coordinateJsonArray
+        sanitizeCoordinateArray(coordinateJsonArray, currentOrganism, trackName)
+
+        // TODO: How to handle scenarios where coordinateJsonArray is empty
         return coordinateJsonArray
     }
 
@@ -265,8 +269,65 @@ class TrackService {
                 JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
                 projectJsonArray(projection, coordinate, 0, projectionSequence, trackName)
             }
+            // at this point do a sanity check on the projected coordinateJsonArray
+            sanitizeCoordinateArray(coordinateJsonArray, currentOrganism, trackName)
+
         }
+        // TODO: How to handle scenarios where trackDataJsonObject is empty
         return trackDataJsonObject
+    }
+
+    /**
+     * Method traverses, recursively, through a given coordinateJsonArray
+     * checks if the coordinates of top-level feature and sub-features are valid
+     * and eliminates those that are invalid by modifying the input coordinateJsonArray
+     *
+     * @param coordinateJsonArray
+     * @param currentOrganism
+     * @param trackName
+     */
+    private JSONArray sanitizeCoordinateArray(JSONArray coordinateJsonArray, Organism currentOrganism, String trackName) {
+        for (int i = 0; i < coordinateJsonArray.size(); i++) {
+            JSONArray coordinateArray = coordinateJsonArray.getJSONArray(i)
+            TrackIndex trackIndex = trackMapperService.getIndices(currentOrganism.commonName, trackName, coordinateArray.getInt(0))
+            if (coordinateArray.size() == 4) {
+                // [4,19636,588668,1]
+                if (coordinateArray.getInt(trackIndex.start) == -1 && coordinateArray.getInt(trackIndex.end)) {
+                    coordinateJsonArray.remove(coordinateArray)
+                    --i
+                }
+            }
+            else {
+                if (coordinateArray.getInt(trackIndex.start) == -1 && coordinateArray.get(trackIndex.end) == -1) {
+                    // eliminate coordinate array since top level feature has -1 coordinates
+                    coordinateJsonArray.remove(coordinateArray)
+                    --i
+                }
+                else {
+                    if (trackIndex.hasSubFeatures() && coordinateArray.get(trackIndex.subFeaturesColumn)) {
+                        // coordinateArray has subFeaturesColumn
+                        JSONArray subFeaturesArray = coordinateArray.getJSONArray(trackIndex.subFeaturesColumn)
+                        for (int j = 0; j < subFeaturesArray.size(); j++) {
+                            JSONArray subFeature = subFeaturesArray.getJSONArray(j)
+                            TrackIndex subFeatureTrackIndex = trackMapperService.getIndices(currentOrganism.commonName, trackName, subFeature.getInt(0))
+                            if (subFeature.getInt(subFeatureTrackIndex.start) == -1 && subFeature.getInt(subFeatureTrackIndex.end) == -1) {
+                                // eliminate sub feature from subFeaturesColumn of coordinate array
+                                coordinateJsonArray.getJSONArray(i).getJSONArray(trackIndex.subFeaturesColumn).remove(subFeature)
+                            }
+                        }
+                    }
+                    // TODO: TrackIndex doesn't return the proper value when a coordinateArray has a subList
+                    //if (trackIndex.hasSubList() && coordinateArray.get(trackIndex.sublistColumn)) {
+                    if (coordinateArray.size() == 12) {
+                        // coordinateArray has subList and has the same form as that of the coordinateJsonArray which enables recursion
+                        JSONArray sanitizedSubListArray = sanitizeCoordinateArray(coordinateArray.getJSONObject(11).get("Sublist"), currentOrganism, trackName)
+                        coordinateArray.getJSONObject(11).put("Sublist", sanitizedSubListArray)
+                    }
+                }
+            }
+        }
+
+        return coordinateJsonArray
     }
 
     /**
