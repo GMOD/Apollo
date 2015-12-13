@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -378,7 +379,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert array.getInt(2) == 95943
 
         when:
-        array = chunk2Data.getJSONArray(42)
+        array = chunk2Data.getJSONArray(chunk2Data.size() - 1)
 
         then:
         assert array.getInt(1) == 169097
@@ -406,15 +407,77 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         array = chunk5Data.getJSONArray(0)
 
         then: "confirm that chunk 5 is projected "
-        assert chunk5Data.size() == 16
+        assert chunk5Data.size() == 15
         assert array.getInt(1) == 201344 + 169359
         assert array.getInt(2) == 206511 + 169359
 
         when:
-        array = chunk5Data.getJSONArray(15)
+        array = chunk5Data.getJSONArray(chunk5Data.size() - 1)
 
         then:
         assert array.getInt(1) == 227803 + 169359
         assert array.getInt(2) == 230587 + 169359
     }
+
+    void "test sanitizeCoordinateArray method"() {
+
+        given: "a user, organism, and group"
+        User user = User.first()
+        Organism organism = Organism.first()
+        UserGroup group = UserGroup.first()
+        String trackName = "Official Gene Set v3.2"
+
+        // top-level feature has -1 coordinates
+        String payloadOneString = "[[0,-1,-1,-1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42155-RA\",1,\"GB42155-RA\",\"mRNA\",[[1,38227,38597,-1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,37711,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",2,\"CDS\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,38597,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,37229,37711,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,37229,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38227,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"]],{\"Sublist\":[[0,509862,511494,1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42176-RA\",0.999828,\"GB42176-RA\",\"mRNA\",[[1,510317,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,511377,511494,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,510289,510317,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510289,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,511377,511494,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"]]]]}]]"
+        String sanitizedPayloadOneString = "[]"
+
+        // 2 sub-features have -1 coordinates
+        String payloadTwoString = "[[0,35285,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42155-RA\",1,\"GB42155-RA\",\"mRNA\",[[1,38227,38597,-1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,37711,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",2,\"CDS\"],[2,-1,-1,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,38597,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,37229,37711,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,37229,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38227,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,-1,-1,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"]],{\"Sublist\":[[0,509862,511494,1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42176-RA\",0.999828,\"GB42176-RA\",\"mRNA\",[[1,510317,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,511377,511494,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,510289,510317,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510289,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,511377,511494,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"]]]]}]]"
+        String sanitizedPayloadTwoString = "[[0,35285,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42155-RA\",1,\"GB42155-RA\",\"mRNA\",[[1,38227,38597,-1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,37711,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",2,\"CDS\"],[2,38597,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,37229,37711,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,37229,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38227,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"]],{\"Sublist\":[[0,509862,511494,1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42176-RA\",0.999828,\"GB42176-RA\",\"mRNA\",[[1,510317,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,511377,511494,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,510289,510317,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510289,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,511377,511494,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"]]]]}]]"
+
+        // top-level feature in subListColumn has -1 coordinates
+        String payloadThreeString = "[[0,35285,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42155-RA\",1,\"GB42155-RA\",\"mRNA\",[[1,38227,38597,-1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,37711,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",2,\"CDS\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,38597,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,37229,37711,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,37229,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38227,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"]],{\"Sublist\":[[0,-1,-1,1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42176-RA\",0.999828,\"GB42176-RA\",\"mRNA\",[[1,510317,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,511377,511494,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,510289,510317,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510289,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,511377,511494,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"]]]]}]]"
+        String sanitizedPayloadThreeString = "[[0,35285,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42155-RA\",1,\"GB42155-RA\",\"mRNA\",[[1,38227,38597,-1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,37711,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",2,\"CDS\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,38597,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,37229,37711,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,37229,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38227,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"]],{\"Sublist\":[]}]]"
+
+        // 2 sub-features in subListColumn has -1 coordinates
+        String payloadFourString = "[[0,35285,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42155-RA\",1,\"GB42155-RA\",\"mRNA\",[[1,38227,38597,-1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,37711,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",2,\"CDS\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,38597,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,37229,37711,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,37229,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38227,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"]],{\"Sublist\":[[0,509862,511494,1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42176-RA\",0.999828,\"GB42176-RA\",\"mRNA\",[[1,510317,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,-1,-1,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,510289,510317,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510289,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,-1,-1,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"]]]]}]]"
+        String sanitizedPayloadFourString = "[[0,35285,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42155-RA\",1,\"GB42155-RA\",\"mRNA\",[[1,38227,38597,-1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,37711,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",2,\"CDS\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,38597,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,37229,37711,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,37229,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38227,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"]],{\"Sublist\":[[0,509862,511494,1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42176-RA\",0.999828,\"GB42176-RA\",\"mRNA\",[[1,510317,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,510289,510317,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510289,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"]]]]}]]"
+
+        when: "we try to sanitize a coordinate JSON array that has a top-level feature with invalid coordinates"
+        JSONArray payloadOneArray = JSON.parse(payloadOneString) as JSONArray
+        JSONArray payloadOneReturnArray = trackService.sanitizeCoordinateArray(payloadOneArray, organism, trackName)
+
+        then: "we should see an empty coordinate JSON array"
+        println "PAYLOAD ONE RETURN ARRAY: ${payloadOneReturnArray.toString()}"
+        assert payloadOneReturnArray.size() == 0
+        assert payloadOneArray.size() == payloadOneReturnArray.size()
+
+        when: "we try to sanitize a coordinate JSON array that has 2 sub-features with invalid coordinates"
+        JSONArray payloadTwoArray = JSON.parse(payloadTwoString) as JSONArray
+        JSONArray payloadTwoReturnArray = trackService.sanitizeCoordinateArray(payloadTwoArray, organism, trackName)
+
+        then: "we should see a valid coordinate JSON array without those 2 sub-features"
+        println "PAYLOAD TWO RETURN ARRAY: ${payloadTwoReturnArray.toString()}"
+        assert payloadTwoReturnArray.toString() == sanitizedPayloadTwoString
+        assert payloadTwoArray.size() == payloadTwoReturnArray.size()
+
+        when: "we try to sanitize a coordinate JSON array that has a subList whose top-level feature has invalid coordinates"
+        JSONArray payloadThreeArray = JSON.parse(payloadThreeString) as JSONArray
+        JSONArray payloadThreeReturnArray = trackService.sanitizeCoordinateArray(payloadThreeArray, organism, trackName)
+
+        then:" we should see a valid coordinate JSON array with an empty subList"
+        println "PAYLOAD THREE RETURN ARRAY: ${payloadThreeReturnArray.toString()}"
+        assert payloadThreeReturnArray.toString() == sanitizedPayloadThreeString
+        assert payloadThreeArray.size() == payloadThreeReturnArray.size()
+
+        when: "we try to sanitize a coordinate JSON array that has a subList whose sub-features have invalid coordinates"
+        JSONArray payloadFourArray = JSON.parse(payloadFourString) as JSONArray
+        JSONArray payloadFourReturnArray = trackService.sanitizeCoordinateArray(payloadFourArray, organism, trackName)
+
+        then: "we should see a valid coordinate JSON array that has a subList without those sub-features"
+        println "PAYLOAD FOUR RETURN ARRAY: ${payloadFourReturnArray.toString()}"
+        assert payloadFourReturnArray.toString() == sanitizedPayloadFourString
+        assert payloadFourArray.size() == payloadFourReturnArray.size()
+    }
+
 }
