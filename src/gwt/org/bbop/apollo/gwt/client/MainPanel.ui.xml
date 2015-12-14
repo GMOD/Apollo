@@ -113,7 +113,7 @@
                         </b:Modal>
                         <b:Modal ui:field="editUserModal" closable="true" dataBackdrop="FALSE">
                             <b:ModalHeader>
-                                <gwt:HTML>Edit Password</gwt:HTML>
+                                <gwt:HTML ui:field="editUserHeader"/>
                             </b:ModalHeader>
                             <b:ModalBody>
                                 <b:Alert ui:field="editUserAlertText" visible="false" dismissable="true"/>

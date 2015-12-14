@@ -2,20 +2,18 @@ package org.bbop.apollo
 
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
-import spock.lang.Ignore
 import spock.lang.Specification
 
 /**
  * See the API for {@link grails.test.mixin.support.GrailsUnitTestMixin} for usage instructions
  */
-//@TestMixin(GrailsUnitTestMixin)
 @TestFor(Gff3HandlerService)
 @Mock([Sequence,Gene,MRNA,Exon,CDS,Feature,FeatureLocation,FeatureRelationship,FeatureRelationshipService ])
 class Gff3HandlerServiceSpec extends Specification {
     
 
     def setup() {
-        Sequence refSequence = new Sequence(
+        new Sequence(
                 length: 3
                 ,seqChunkSize: 3
                 ,start: 5

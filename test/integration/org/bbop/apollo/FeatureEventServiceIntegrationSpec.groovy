@@ -1,8 +1,9 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.test.spock.IntegrationSpec
+import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.lang.Ignore
 
 class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
 
@@ -27,16 +28,10 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
     }
 
     def cleanup() {
+        FeatureEvent.deleteAll(FeatureEvent.all)
         Feature.deleteAll(Feature.all)
     }
 
-    /**
-     * For some reason the transcript CDS is failing when splitting the transcript.
-     * This succeeds for the individual test, but fails when all are run.
-     *
-     * TODO: re-fix this
-     */
-    @Ignore
     void "we can undo and redo a transcript split"() {
 
         given: "transcript data"
@@ -138,6 +133,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert CDS.count == 2
         assert MRNA.count == 2
         assert Gene.count == 2
+        assert FeatureEvent.count == 2
         def mrnas = MRNA.all.sort(){ a,b -> a.name <=> b.name }
         assert mrnas[0].name == "GB40736-RA-00001"
         assert mrnas[1].name == "GB40736-RAa-00001"
@@ -145,14 +141,15 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         when: "we merge the transcript"
         def allFeatures = Feature.all
-        String transcript1UniqueName = MRNA.all[0].uniqueName
-        String transcript2UniqueName = MRNA.all[1].uniqueName
+        String transcript1UniqueName = mrnas[0].uniqueName
+        String transcript2UniqueName = mrnas[1].uniqueName
         mergeString = mergeString.replaceAll("@TRANSCRIPT_1@",transcript1UniqueName)
         mergeString = mergeString.replaceAll("@TRANSCRIPT_2@",transcript2UniqueName)
-        undoString = undoString.replaceAll("@TRANSCRIPT_1@",transcript1UniqueName)
         redoString1 = redoString1.replaceAll("@TRANSCRIPT_1@",transcript1UniqueName)
         redoString2 = redoString2.replaceAll("@TRANSCRIPT_2@",transcript2UniqueName)
         JSONObject mergeJsonObject = requestHandlingService.mergeTranscripts(JSON.parse(mergeString))
+        FeatureEvent currentFeatureEvent = FeatureEvent.findByCurrent(true)
+        undoString = undoString.replaceAll("@TRANSCRIPT_1@",currentFeatureEvent.uniqueName)
         allFeatures = Feature.all
 
         then: "we should have two of everything now"
@@ -160,9 +157,13 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert CDS.count == 1
         assert MRNA.count == 1
         assert Gene.count == 1
+        assert FeatureEvent.count == 3
+        assert FeatureEvent.countByCurrent(true) == 1
+        assert FeatureEvent.findByCurrent(true).operation == FeatureOperation.MERGE_TRANSCRIPTS
 
 
         when: "when we undo transcript A"
+        def allFeatureEvents = FeatureEvent.all
         requestHandlingService.undo(JSON.parse(undoString))
 
         then: "we should have the original transcript"
@@ -170,6 +171,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert CDS.count == 2
         assert MRNA.count == 2
         assert Gene.count == 2
+        assert FeatureEvent.count == 3
 
         when: "when we redo transcript on 1"
         requestHandlingService.redo(JSON.parse(redoString1))
@@ -180,18 +182,20 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert CDS.count == 1
         assert MRNA.count == 1
         assert Gene.count == 1
+        assert FeatureEvent.count == 3
 
 
         when: "when we undo transcript B"
         requestHandlingService.undo(JSON.parse(undoString))
         allFeatures = Feature.all
-        def allFeatureEvents = FeatureEvent.all
+        allFeatureEvents = FeatureEvent.all
 
         then: "we should have the original transcript"
         assert Exon.count == 2
         assert CDS.count == 2
         assert MRNA.count == 2
         assert Gene.count == 2
+        assert FeatureEvent.count == 3
 
         when: "when we redo transcript on 2"
         requestHandlingService.redo(JSON.parse(redoString2))

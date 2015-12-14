@@ -7,6 +7,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 
+import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -2055,6 +2056,12 @@ class RequestHandlingService {
             throw new AnnotationException("You cannot merge transcripts on opposite strands");
         }
 
+        List<Transcript> sortedTranscripts = [ transcript1, transcript2 ].sort { a,b ->
+            a.fmin <=> b.fmin
+        }
+        if (transcript1.strand == Strand.NEGATIVE.value) {sortedTranscripts.reverse(true)}
+        transcript1 = sortedTranscripts.get(0)
+        transcript2 = sortedTranscripts.get(1)
         Gene gene1 = transcriptService.getGene(transcript1)
         Gene gene2 = transcriptService.getGene(transcript2)
         String gene1Name = gene1.name
@@ -2079,15 +2086,19 @@ class RequestHandlingService {
             fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
         }
 
-        gene1 = transcriptService.getGene(transcript1)
-        gene1 = gene1.refresh()
+        Gene mergedTranscriptGene = transcriptService.getGene(transcript1)
+        mergedTranscriptGene = mergedTranscriptGene.refresh()
         transcript1.name = transcript1.name ?: nameService.generateUniqueName(transcript1)
 
         JSONObject returnObject = createJSONFeatureContainerFromFeatures(featureService.getTopLevelFeature(transcript1))
 
         // update feature container for update annotation event for transcripts of gene1
         JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        gene1.refresh()
         for (Transcript transcript : transcriptService.getTranscripts(gene1)) {
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
+        }
+        for (Transcript transcript : transcriptService.getTranscripts(mergedTranscriptGene)) {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
         }
 

@@ -16,10 +16,13 @@ import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.*;
-import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfoConverter;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequence;
@@ -408,21 +411,9 @@ public class SequencePanel extends Composite {
         } else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportFastaButton.getText();
         }
-//        else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
-//            type = exportChadoButton.getText();
-//        }
-        GWT.log("Type selected is " + type);
+//        GWT.log("Type selected is " + type);
 
-        ExportPanel exportPanel = new ExportPanel();
-        exportPanel.setOrganismInfo(organismInfo);
-        exportPanel.setType(type);
-        exportPanel.setExportAll(exportAll);
-        exportPanel.setSequenceList(sequenceInfoList);
-        if (type.equals("FASTA")) {
-            exportPanel.renderFastaSelection();
-        } else if (type.equals("GFF3")) {
-            exportPanel.renderGff3Selection();
-        }
+        ExportPanel exportPanel = new ExportPanel(organismInfo,type,exportAll,sequenceInfoList);
         exportPanel.show();
     }
 

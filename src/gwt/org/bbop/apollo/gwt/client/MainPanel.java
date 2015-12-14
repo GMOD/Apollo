@@ -136,6 +136,8 @@ public class MainPanel extends Composite {
     Input editMyPasswordInputRepeat;
     @UiField
     Alert editUserAlertText;
+    @UiField
+    HTML editUserHeader;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
@@ -655,6 +657,7 @@ public class MainPanel extends Composite {
 
     @UiHandler("userName")
     void editUserPassword(ClickEvent event) {
+        editUserHeader.setHTML("Edit password for "+currentUser.getName() + "("+currentUser.getEmail()+")");
         editUserAlertText.setText("");
         editUserAlertText.setVisible(false);
         editMyPasswordInput.setText("");

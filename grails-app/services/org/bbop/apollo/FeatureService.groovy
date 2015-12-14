@@ -1935,10 +1935,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Transactional
     def handleDynamicIsoformOverlap(Transcript transcript) {
         // Get all transcripts that overlap transcript and verify if they have the proper parent gene assigned
-        ArrayList<Transcript> allOverlappingTranscripts = getTranscriptsWithOverlappingOrf(transcript)
-        ArrayList<Transcript> allTranscriptsForCurrentGene = transcriptService.getTranscripts(transcriptService.getGene(transcript))
-        ArrayList<Transcript> allTranscripts = (allOverlappingTranscripts + allTranscriptsForCurrentGene).unique()
-        ArrayList<Transcript> allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
+        List<Transcript> allOverlappingTranscripts = getTranscriptsWithOverlappingOrf(transcript)
+        List<Transcript> allTranscriptsForCurrentGene = transcriptService.getTranscripts(transcriptService.getGene(transcript))
+        List<Transcript> allTranscripts = (allOverlappingTranscripts + allTranscriptsForCurrentGene).unique()
+        List<Transcript> allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
         if (transcript.strand == Strand.POSITIVE.value) {
             allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
         }
