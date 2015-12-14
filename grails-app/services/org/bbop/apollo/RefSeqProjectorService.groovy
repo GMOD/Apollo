@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -107,13 +108,20 @@ class RefSeqProjectorService {
         Integer projectedEnd = chunkSize * (chunkNumber + 1)
 
         // determine the current "offsets" based on the chunk
-        Integer unprojectedStart = projection.projectReverseValue(projectedStart)
-        Integer unprojectedEnd = projection.projectReverseValue(projectedEnd)
+        Coordinate unprojectedCoordinate = projection.projectReverseCoordinate(projectedStart,projectedEnd)
 
-        if (unprojectedEnd < 0) {
-//            unprojectedEnd = projection.maxCoordinate.max+unprojectedStart
-            unprojectedEnd = projection.getMaxCoordinate().getMax()
+        // if it projects off the edge of known space .  . we just take it to the maximum in the projection realm . . .
+        if(unprojectedCoordinate.max < 0){
+            unprojectedCoordinate.max = projection.getMaxCoordinate().max
         }
+
+        if (!unprojectedCoordinate.isValid()) {
+            throw new AnnotationException("No valid coordinate was found for ${projectedStart}-${projectedEnd}")
+        }
+
+        Integer unprojectedStart = unprojectedCoordinate.min
+        Integer unprojectedEnd = unprojectedCoordinate.max
+
         Integer startOffset = unprojectedStart - projectedStart
 
 
