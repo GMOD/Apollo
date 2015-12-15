@@ -32,7 +32,7 @@ class TrackIndex {
         }
     }
 
-    Boolean hasSubList() {
+    Boolean hasChunk() {
         return chunk>0
 //        return sublistColumn && sublistColumn>0
     }
@@ -40,4 +40,9 @@ class TrackIndex {
     Boolean hasSubFeatures() {
         return subFeaturesColumn && subFeaturesColumn>0
     }
+
+    Boolean hasSubList() {
+        return sublistColumn && sublistColumn > 0
+    }
+
 }
