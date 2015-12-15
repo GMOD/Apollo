@@ -240,7 +240,6 @@ class TrackService {
         // at this point do a sanity check on the projected coordinateJsonArray
         sanitizeCoordinateArray(coordinateJsonArray, currentOrganism, trackName)
 
-        // TODO: How to handle scenarios where coordinateJsonArray is empty
         return coordinateJsonArray
     }
 
@@ -273,7 +272,7 @@ class TrackService {
             sanitizeCoordinateArray(coordinateJsonArray, currentOrganism, trackName)
 
         }
-        // TODO: How to handle scenarios where trackDataJsonObject is empty
+
         return trackDataJsonObject
     }
 
@@ -466,7 +465,7 @@ class TrackService {
             coordinate.set(trackIndex.getStart(), coordinate.getInt(trackIndex.getStart()) + nudgeAmount)
             coordinate.set(trackIndex.getEnd(), coordinate.getInt(trackIndex.getEnd()) + nudgeAmount)
 //            if(coordinate.get(0)==4){
-            if (trackIndex.hasSubList()) {
+            if (trackIndex.hasChunk()) {
 //                trackIndex.sublistColumn
                 // sublist column is the last one?
                 Integer arrayIndex = coordinate.size()-1
@@ -586,7 +585,7 @@ class TrackService {
                 JSONArray internalArray = ncListArray.getJSONArray(i)
                 TrackIndex trackIndex = trackMapperService.getIndices(currentOrganism.commonName, trackName, internalArray.getInt(0))
 //                if (internalArray.getInt(0) == 4) {
-                if (trackIndex.hasSubList()) {
+                if (trackIndex.hasChunk()) {
                     projectionChunk.addChunk()
                 }
                 lastLength = internalArray.getInt(trackIndex.end)
