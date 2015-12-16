@@ -576,6 +576,7 @@ class ProjectionService {
         }
         return false;
     }
+
     ProjectionDescription convertJsonObjecToProjectDescription(JSONObject bookmarkObject) {
         println "gettting projeciton ${bookmarkObject}"
         ProjectionDescription projectionDescription = new ProjectionDescription()
