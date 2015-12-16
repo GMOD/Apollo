@@ -585,7 +585,7 @@ class ProjectionService {
         projectionDescription.organism = bookmarkObject.organism
         //projectionDescription.referenceTrack = [bookmarkObject.referenceTrack] as List<String>
         projectionDescription.referenceTrack = new ArrayList<String>()
-        if (isValidJson(bookmarkObject.getString("referenceTrack"))) {
+        if (isValidJson((String) bookmarkObject.referenceTrack)) {
             JSONArray referenceTrackJsonArray = JSON.parse(bookmarkObject.referenceTrack.toString()) as JSONArray
             println referenceTrackJsonArray
             for (int i = 0; i < referenceTrackJsonArray.size(); i++) {
