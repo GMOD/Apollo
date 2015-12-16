@@ -29,6 +29,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.select.client.ui.Option;
 
 import java.util.*;
 
@@ -66,10 +67,8 @@ public class BookmarkPanel extends Composite {
     ListBox foldType;
     @UiField
     TextBox foldPadding;
-//    @UiField
-//    org.gwtbootstrap3.client.ui.ListBox referenceTrack;
     @UiField
-    static org.gwtbootstrap3.client.ui.ListBox staticReferenceTrack;
+    static org.gwtbootstrap3.extras.select.client.ui.Select referenceTrackSelector;
     @UiField
     Button mergeButton;
     @UiField
@@ -120,9 +119,7 @@ public class BookmarkPanel extends Composite {
         // fired on page refresh
         foldType.setSelectedIndex(0);
         foldPadding.setEnabled(false);
-//        referenceTrack.setEnabled(false);
-        staticReferenceTrack.setEnabled(false);
-
+        referenceTrackSelector.setEnabled(false);
         // Set the message to display when the table is empty.
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
         dataGrid.setEmptyTableWidget(new Label("No bookmarks!"));
@@ -247,7 +244,15 @@ public class BookmarkPanel extends Composite {
         genomicObject.put("padding",new JSONNumber(Integer.parseInt(foldPadding.getText())));
         genomicObject.put("projection",new JSONString(foldType.getSelectedValue()));
         //genomicObject.put("referenceTrack",new JSONString(referenceTrack.getSelectedValue()));
-        genomicObject.put("referenceTrack",new JSONString(staticReferenceTrack.getSelectedValue()));
+        //genomicObject.put("referenceTrack",new JSONString(staticReferenceTrack.getSelectedValue()));
+
+        JSONArray selectedTracksJsonArray = new JSONArray();
+        List<String> selectedTracks = referenceTrackSelector.getAllSelectedValues();
+        for (int i = 0; i < selectedTracks.size(); i++) {
+            selectedTracksJsonArray.set(i, new JSONString(selectedTracks.get(i).replace("\"", "")));
+        }
+        genomicObject.put("referenceTrack", selectedTracksJsonArray);
+
         genomicObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(),newArray);
         genomicObject.put("label",new JSONString(createLabelFromBookmark(genomicObject)));
         GWT.log("GenomicObject @getBookmarksAsJson: " + genomicObject.toString());
@@ -336,17 +341,24 @@ public class BookmarkPanel extends Composite {
         //view(null);
         if ("None".equals(foldType.getSelectedValue())) {
             foldPadding.setEnabled(false);
-            staticReferenceTrack.setEnabled(false);
+            referenceTrackSelector.setEnabled(false);
+            referenceTrackSelector.refresh();
         }
         else {
             foldPadding.setEnabled(true);
-            staticReferenceTrack.setEnabled(true);
+            referenceTrackSelector.setEnabled(true);
+            referenceTrackSelector.refresh();
         }
     }
 
     @UiHandler("goButton")
     public void fireView(ClickEvent c) {
-        view(null);
+        if (referenceTrackSelector.getAllSelectedValues().size() != 0) {
+            view(null);
+        }
+        else {
+            Bootbox.alert("Please select one or more reference tracks for folding");
+        }
     }
 
     private void setBookmarkInfo(Set<BookmarkInfo> selectedObject) {
@@ -490,7 +502,7 @@ public class BookmarkPanel extends Composite {
     public static void getTracks(String jsonString) {
         GWT.log("@getTracks: " + jsonString);
         JSONArray returnValueObject = JSONParser.parseStrict(jsonString).isArray();
-        staticReferenceTrack.clear();
+        referenceTrackSelector.clear();
         for (int i = 0; i < returnValueObject.size(); i++) {
             JSONObject eachTrackObject = (JSONObject) returnValueObject.get(i);
             String key = eachTrackObject.get("key").toString().replaceAll("\"", "");
@@ -499,13 +511,14 @@ public class BookmarkPanel extends Composite {
                 continue;
             }
             else {
-                staticReferenceTrack.addItem(key);
+                Option option = new Option();
+                option.setName(key);
+                option.setTitle(key);
+                option.setValue(key);
+                option.setText(key);
+                referenceTrackSelector.add(option);
             }
         }
-    }
-
-    @UiHandler("staticReferenceTrack")
-    public static void handleSelection(ClickEvent c) {
-        GWT.log("Reference track selection: " + staticReferenceTrack.getSelectedValue());
+        referenceTrackSelector.refresh();
     }
 }
