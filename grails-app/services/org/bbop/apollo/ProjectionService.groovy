@@ -3,7 +3,6 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import net.sf.ehcache.search.parser.MCriteria.Or
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.FileFilterUtils
 import org.apache.commons.io.filefilter.TrueFileFilter
@@ -346,7 +345,8 @@ class ProjectionService {
     List<Location> getExonLocations(ProjectionDescription projectionDescription) {
         List<Location> locationList = new ArrayList<>()
         Organism organism = Organism.findByCommonName(projectionDescription.organism)
-        for (String track in projectionDescription.referenceTrack) {
+        List<String> referenceTracks = projectionDescription.referenceTrack
+        for (String track in referenceTracks) {
             JSONArray tracksArray = loadTrackJson(track, organism, projectionDescription)
             List<Location> exonLocations = createExonLocations(tracksArray, organism, track)
             locationList.addAll(exonLocations)
@@ -566,16 +566,36 @@ class ProjectionService {
         return null
     }
 
+    def isValidJson(String queryString) {
+        try {
+            if (JSON.parse(queryString)) {
+                return true;
+            }
+        } catch (Exception e) {
 
+        }
+        return false;
+    }
     ProjectionDescription convertJsonObjecToProjectDescription(JSONObject bookmarkObject) {
-
         println "gettting projeciton ${bookmarkObject}"
         ProjectionDescription projectionDescription = new ProjectionDescription()
 
         projectionDescription.projection = bookmarkObject.projection ?: "NONE"
         projectionDescription.padding = bookmarkObject.padding ?: 0
         projectionDescription.organism = bookmarkObject.organism
-        projectionDescription.referenceTrack = [bookmarkObject.referenceTrack] as List<String>
+        //projectionDescription.referenceTrack = [bookmarkObject.referenceTrack] as List<String>
+        projectionDescription.referenceTrack = new ArrayList<String>()
+        if (isValidJson(bookmarkObject.getString("referenceTrack"))) {
+            JSONArray referenceTrackJsonArray = JSON.parse(bookmarkObject.referenceTrack.toString()) as JSONArray
+            println referenceTrackJsonArray
+            for (int i = 0; i < referenceTrackJsonArray.size(); i++) {
+                projectionDescription.referenceTrack.add(i, referenceTrackJsonArray.getString(i));
+            }
+        }
+        else {
+            projectionDescription.referenceTrack.add(bookmarkObject.referenceTrack)
+        }
+
         projectionDescription.sequenceList = new ArrayList<>()
 
         // TODO: reference / ?
