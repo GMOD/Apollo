@@ -77,7 +77,7 @@ class ProjectionService {
                         TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
                         // TODO: use enums to better track format
 //                        if (coordinate.getInt(0) == 4) {
-                        if (trackIndex.hasSubList()) {
+                        if (trackIndex.hasChunk()) {
                             // projecess the file lf-${coordIndex} instead
                             File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
                             JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
@@ -163,7 +163,7 @@ class ProjectionService {
                         TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
 
 //                        if (coordinate.getInt(0) == 4) {
-                        if (trackIndex.hasSubList()) {
+                        if (trackIndex.hasChunk()) {
                             // projecess the file lf-${coordIndex} instead
                             File chunkFile = new File(trackDataFile.parent + "/lf-${coordIndex + 1}.json")
                             JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
@@ -241,6 +241,7 @@ class ProjectionService {
             }
             return
         }
+
         TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
         log.debug "not sure if this will work . . check! ${coordinate.size()} > 9"
         String featureType = coordinate.getString(trackIndex.type)
@@ -367,7 +368,7 @@ class ProjectionService {
                 TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
 
 //                if (coordinate.getInt(0) == 4) {
-                if (trackIndex.hasSubList()) {
+                if (trackIndex.hasChunk()) {
                     // projecess the file lf-${coordIndex} instead
                     File chunkFile = new File("${referenceJsonObject.directory}/lf-${coordIndex + 1}.json")
                     JSONArray chunkReferenceJsonArray = new JSONArray(chunkFile.text)
@@ -498,7 +499,7 @@ class ProjectionService {
             locationList.addAll(extractExonArrayLocations(coordinate.getJSONArray(trackIndex.subFeaturesColumn), organism, trackName))
         }
 //        if (coordinate.size() >= 11) {
-        if (trackIndex.hasSubList()) {
+        if (trackIndex.hasChunk()) {
             JSONObject sublist = coordinate.getJSONObject(coordinate.size() - 1)
 //                    locationList.addAll(extractHighLevelArrayLocations(discontinuousProjection, sublist.getJSONArray("Sublist"), projectionDescription))
             locationList.addAll(extractHighLevelLocations(sublist.getJSONArray("Sublist"), organism, trackName))

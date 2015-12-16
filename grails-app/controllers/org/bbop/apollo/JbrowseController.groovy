@@ -174,12 +174,22 @@ class JbrowseController {
 
                 if (fileName.endsWith("trackData.json")) {
                     JSONObject trackObject = trackService.projectTrackData(sequenceStrings, dataFileName, refererLoc, currentOrganism)
-                    response.outputStream << trackObject.toString()
+                    if (trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value).size() == 0) {
+                        response.setStatus(HttpServletResponse.SC_NOT_FOUND)
+                    }
+                    else {
+                        response.outputStream << trackObject.toString()
+                    }
                     return
                 } else if (fileName.startsWith("lf-")) {
                     String trackName = projectionService.getTrackName(dataFileName)
                     JSONArray trackArray = trackService.projectTrackChunk(fileName, dataFileName, refererLoc, currentOrganism, trackName)
-                    response.outputStream << trackArray.toString()
+                    if (trackArray.size() == 0) {
+                        response.setStatus(HttpServletResponse.SC_NOT_FOUND)
+                    }
+                    else {
+                        response.outputStream << trackArray.toString()
+                    }
                     return
                 }
 
