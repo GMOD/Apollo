@@ -9,6 +9,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.*;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -94,6 +95,9 @@ public class BookmarkPanel extends Composite {
     private static List<BookmarkInfo> bookmarkInfoList = dataProvider.getList();
     private MultiSelectionModel<BookmarkInfo> selectionModel = new MultiSelectionModel<BookmarkInfo>();
 
+    private static Storage preferenceStore = Storage.getLocalStorageIfSupported();
+    private static final String SELECTED_REFERENCE_TRACKS = "SELECTED_REFERENCE_TRACKS";
+
     public BookmarkPanel() {
         exportStaticMethod();
         Widget rootElement = ourUiBinder.createAndBindUi(this);
@@ -119,6 +123,26 @@ public class BookmarkPanel extends Composite {
         // fired on page refresh
         foldType.setSelectedIndex(0);
         foldPadding.setEnabled(false);
+
+        if (preferenceStore != null) {
+            if (getPreference(SELECTED_REFERENCE_TRACKS) != null) {
+                String[] previouslySelectedTracks = getPreference(SELECTED_REFERENCE_TRACKS).split(",");
+                referenceTrackSelector.setValues(previouslySelectedTracks);
+            }
+            referenceTrackSelector.refresh();
+        }
+
+        referenceTrackSelector.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                List<String> selectedTracks = referenceTrackSelector.getAllSelectedValues();
+                if (preferenceStore != null) {
+                    setPreference(SELECTED_REFERENCE_TRACKS, selectedTracks);
+                    GWT.log("OnChangeEvent: setting preference to " + selectedTracks);
+                }
+            }
+        });
+
         referenceTrackSelector.setEnabled(false);
         // Set the message to display when the table is empty.
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
@@ -181,7 +205,6 @@ public class BookmarkPanel extends Composite {
                 }, 2000);
             }
         });
-
 
 //        stubBackingData(10);
 //        reload();
@@ -252,7 +275,6 @@ public class BookmarkPanel extends Composite {
             selectedTracksJsonArray.set(i, new JSONString(selectedTracks.get(i).replace("\"", "")));
         }
         genomicObject.put("referenceTrack", selectedTracksJsonArray);
-
         genomicObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(),newArray);
         genomicObject.put("label",new JSONString(createLabelFromBookmark(genomicObject)));
         GWT.log("GenomicObject @getBookmarksAsJson: " + genomicObject.toString());
@@ -496,7 +518,8 @@ public class BookmarkPanel extends Composite {
     }-*/;
 
     /**
-     *
+     * This method is called by the JavaScript client-code which passes all the available
+     * tracks as argument, which is used to populate the reference track selection
      * @param jsonString
      */
     public static void getTracks(String jsonString) {
@@ -519,6 +542,56 @@ public class BookmarkPanel extends Composite {
                 referenceTrackSelector.add(option);
             }
         }
+        if (preferenceStore != null) {
+            if (getPreference(SELECTED_REFERENCE_TRACKS) != null) {
+                String[] previouslySelectedTracks = getPreference(SELECTED_REFERENCE_TRACKS).split(",");
+                referenceTrackSelector.setValues(previouslySelectedTracks);
+            }
+        }
         referenceTrackSelector.refresh();
+    }
+
+    /**
+     * Stores the user selected preferences as key, value pairs in Storage
+     * @param key
+     * @param value
+     */
+    private static void setPreference(String key, List<String> value) {
+        if (preferenceStore != null) {
+            preferenceStore.setItem(key, joinCollection(value, ","));
+        }
+    }
+
+    /**
+     * Checks if a preference already exists in the Storage
+     * @param key
+     * @return
+     */
+    private static String getPreference(String key) {
+        if (preferenceStore != null) {
+            String returnValue = preferenceStore.getItem(key);
+            return returnValue;
+        }
+        return null;
+    }
+
+    /**
+     * A simple method to join a collection based on a separator
+     * @param collection
+     * @param separator
+     * @return
+     */
+    private static String joinCollection(Collection collection, String separator) {
+        Iterator iterator = collection.iterator();
+        String returnString = "";
+        while(iterator.hasNext()) {
+            if ("".equals(returnString)) {
+                returnString += iterator.next().toString();
+            }
+            else {
+                returnString += separator + iterator.next().toString();
+            }
+        }
+        return returnString;
     }
 }
