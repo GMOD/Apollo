@@ -32,26 +32,18 @@
             margin-bottom: 30px;
         }
 
-        /* ------------ FlowPanelExample ------------ */
-        .demo-FlowPanelExample-draggable {
-            padding: 0.1em;
-            margin: 0.1em;
-            border: 1px solid blue;
-            background-color: #B3FF87; /* bright green */
-        }
 
-        .demo-FlowPanelExample-draggable,
-        .demo-FlowPanelExample-draggable DIV {
-            display: inline;
-        }
+        /*Bookmark draggable panel*/
 
-        .demo-FlowPanelExample-label {
-            font-size: 1.2em;
-            line-height: 1.3em;
-        }
+        /*Most CSS in in annotator.css*/
+        /*This is here so it init on bind, but otherwise can move  */
 
         .dragdrop-flow-panel-positioner {
-            color: blue;
+            /*color: blue;*/
+            /*color: #396494;*/
+            padding-top: 2px;
+            color: black;
+            font-weight: 200;
         }
 
         </ui:style>

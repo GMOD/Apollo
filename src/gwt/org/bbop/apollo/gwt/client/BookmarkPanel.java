@@ -103,6 +103,7 @@ public class BookmarkPanel extends Composite {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
 
         initWidget(rootElement);
+//        absolutePanel.setStyleName("bookmark-FlowPanel-positioner");
 
         loadingDialog = new LoadingDialog("Processing ...",null, false);
 
@@ -436,11 +437,11 @@ public class BookmarkPanel extends Composite {
                 FocusPanel focusPanel = new FocusPanel();
 
                 FlowPanel flowPanel = new FlowPanel();
-                focusPanel.setStyleName("demo-FlowPanelExample-draggable");
+                focusPanel.setStyleName("bookmark-FlowPanel-draggable");
                 focusPanel.add(flowPanel);
 
                 HTML label = new HTML(name);
-                label.setStyleName("demo-FlowPanelExample-label");
+                label.setStyleName("bookmark-FlowPanel-label");
                 HTML spacer = new HTML(" ");
                 flowPanel.add(label);
                 flowPanel.add(spacer);
@@ -449,6 +450,7 @@ public class BookmarkPanel extends Composite {
                 dragAndDropPanel.add(focusPanel);
             }
         }
+
 
     }
 

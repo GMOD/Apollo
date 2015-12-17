@@ -116,24 +116,41 @@ h1 {
 }
 
 
-/* ------------ FlowPanelExample ------------ */
-.demo-FlowPanelExample-draggable {
-  padding: 0.1em;
-  margin: 0.1em;
-  border: 1px solid blue;
-  background-color: #B3FF87; /* bright green */
+/* ------------ Bookmark Draggable Panel ------------ */
+
+.bookmark-FlowPanel-draggable {
+  padding: 5px;
+  margin: 5px;
+  border-radius: 15px;
+  /*padding: 0.1em;*/
+  /*margin: 0.1em;*/
+  /*border: 1px solid blue;*/
+  border: 0;
+  /*background-color: #B3FF87; !* bright green *!*/
+  background-color: #396494; /* bright green */
 }
 
-.demo-FlowPanelExample-draggable ,
-.demo-FlowPanelExample-draggable DIV {
+.bookmark-FlowPanel-draggable ,
+.bookmark-FlowPanel-draggable DIV {
   display: inline;
 }
 
-.demo-FlowPanelExample-label {
+.bookmark-FlowPanel-label {
   font-size: 1.2em;
   line-height: 1.3em;
+  font-weight: 200;
+  color: white;
 }
 
-.dragdrop-flow-panel-positioner {
-  color: blue;
+.dragdrop-FlowPanel-positioner {
+  /*color: blue;*/
+  /*color: #396494;*/
+  padding-top: 5px;
+  color: black;
+  font-weight: 200;
 }
+
+/* Defined in the UI.xml file */
+/*.dragdrop-flow-panel-positioner {*/
+  /*color: blue;*/
+/*}*/
