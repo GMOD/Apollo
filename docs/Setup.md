@@ -77,9 +77,11 @@ command:
 
 
 This command will package the application and it will download any missing pre-requisites (jbrowse) into a WAR file in
-the "target/" subfolder. After it completes, you can then copy the WAR file from the target folder to your webapps
-folder. If you name the file apollo.war in your webapps folder, then you can access your app at
-"http://localhost:8080/apollo"
+the "target/" subfolder. After it completes, you can then copy the WAR file (e.g. ```apollo-2.0.1.war```) from the target folder 
+to the ```webapps``` folder of your [web container](https://en.wikipedia.org/wiki/Web_container#open_source_Web_containers) installation.  If you name the file ```apollo.war``` in your webapps folder, then you can access your app at "http://localhost:8080/apollo"
+
+We test primarly on [Apache Tomcat (7.0.62+ and 8)](http://tomcat.apache.org/).  **Make sure to [set your Tomcat memory](https://github.com/GMOD/Apollo/blob/master/docs/Troubleshooting.md#tomcat-memory) to an appropriate size or Apollo will run slow / crash.**
+
 
 
 Alternatively, as we alluded to previously, you can also launch a temporary instance of the server which is useful for
