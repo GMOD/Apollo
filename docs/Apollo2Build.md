@@ -57,8 +57,14 @@ Also note: if there are any errors at this step, check the setup.log file for er
 Also also note: the "development mode" uses an in-memory H2 database for storing data by default. The setup guide will
 show you how to configure custom database settings.
 
+
 ## Setting up the application
 
+### Setup a production server
+
+To setup a production server (as opposed to a development server as above), you must [properly configure a servlet container like Tomcat or Jetty](Setup.md) with [sufficient memory](Troubleshooting.md#tomcat-memory).
+
+### Adding data to Apollo
 
 After we have a server setup, we will want to add a new organism to the panel. If you are a new user, you will want to
 setup this data with the jbrowse pre-processing scripts. You can see the [data loading guide](Data_loading.md) for more
@@ -70,7 +76,6 @@ bin/prepare-refseqs.pl --fasta yourgenome.fasta --out /opt/apollo/data
 bin/flatfile-to-json.pl --gff yourannotations.gff --type mRNA \
         --trackLabel AnnotationsGff --out /opt/apollo/data
 ```
-
 
 
 ### Login to the web interface
