@@ -17,6 +17,9 @@ You will minimally need to have Java 7 or greater, [Grails](https://grails.org/)
 external database such as PostgreSQL or MySQL is generally used for production, but instructions for the H2 database is
 also provided.
 
+**Important note**:  The default memory for Tomcat and Jetty is insufficient to run Apollo (and most other web apps).   
+You should [increase the memory according to these instructions](Troubleshooting.md#tomcat-memory).
+
 ### Database configuration
 
 Apollo supports several database backends, and you can choose sample configurations from using H2, Postgres, or
