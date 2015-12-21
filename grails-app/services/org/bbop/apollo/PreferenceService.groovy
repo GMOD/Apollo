@@ -147,18 +147,7 @@ class PreferenceService {
             throw new AnnotationException("Organism preference is not set for user")
         }
 
-        println "sequenceName ${sequenceName}"
         Bookmark bookmark = bookmarkService.convertStringToBookmark(sequenceName,userOrganismPreference.organism)
-
-//        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
-//        if (!sequence) {
-//            throw new AnnotationException("Sequence name is invalid ${sequenceName}")
-//        }
-//
-//        log.debug "version ${userOrganismPreference.version} for ${userOrganismPreference.organism.commonName} ${userOrganismPreference.currentOrganism}"
-//
-//        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
-
         userOrganismPreference.refresh()
 
         userOrganismPreference.currentOrganism = true

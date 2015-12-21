@@ -40,7 +40,7 @@ class JbrowseController {
         log.debug "indexRouter ${params}"
 
         List<String> paramList = new ArrayList<>()
-        params.eachWithIndex { entry, int i ->
+        params.each { entry ->
             if (entry.key != "action" && entry.key != "controller" && entry.key != "organism") {
                 paramList.add(entry.key + "=" + entry.value)
             }
@@ -59,11 +59,6 @@ class JbrowseController {
 
         // case 1 - anonymous login with organism ID, show organism
         if (params.organism) {
-            log.debug "organism ID specified: ${params.organism}"
-
-            // set the organism
-
-
             Organism organism = Organism.findByCommonName(params.organism)
             if (!organism && params.organism.isInteger()) {
                 organism = Organism.findById(params.organism.toInteger())
@@ -145,7 +140,51 @@ class JbrowseController {
         }
         return organismJBrowseDirectory
     }
+    
+    def getSeqBoundaries() {
+        try {
+            Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
+            String dataDirectory = getJBrowseDirectoryForSession()
+            String dataFileName = dataDirectory + "/seq/refSeqs.json"
+            String referer = request.getHeader("Referer")
+            String refererLoc = trackService.extractLocation(referer) 
+            int spaceIndex = refererLoc.indexOf("-1..-1");
+            if (spaceIndex != -1)
+            {
+                refererLoc = refererLoc.substring(0, spaceIndex+6);
+            }
+            File file = new File(dataFileName);
 
+            if (!file.exists()) {
+                log.warn("File not found: " + dataFileName);
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            JSONArray refSeqJsonObject = new JSONArray(file.text)
+            
+            MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+            
+            String results = refSeqProjectorService.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
+            def resultObject = JSON.parse(results)
+            def refererLocObject = JSON.parse(refererLoc)
+            def sequenceList = refererLocObject.sequenceList
+            def sequenceAndTheirLengths = new JSONArray()
+            int pos = 0;
+            if (sequenceList != null) {
+                for (int i = 0; i < sequenceList.size()-1; i++) {
+                    JSONObject thisSeq = sequenceList.get(i)
+                    JSONObject nextSeq = sequenceList.get(i+1)
+                    pos+=projection.findProjectSequenceLength(thisSeq.name)
+                    sequenceAndTheirLengths.add(i, [label: thisSeq.name, rlabel: nextSeq.name, start: pos, end: pos+1, ref: refererLoc,color:'black'] as JSONObject)
+                }
+            }
+            render ([features: sequenceAndTheirLengths] as JSON)
+        }
+        catch(Exception e) {
+            log.error e.message
+            render ([error: e.message] as JSON)
+        }
+    }
     /**
      * Handles data directory serving for jbrowse
      */
@@ -154,11 +193,8 @@ class JbrowseController {
         String dataDirectory = getJBrowseDirectoryForSession()
         String dataFileName = dataDirectory + "/" + params.path
         String fileName = FilenameUtils.getName(params.path)
-
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
-
-//        /opt/apollo/honeybee/data//tracks/Official Gene Set v3.2/{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}/trackData.json
         if (dataFileName.contains("projection")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
                 String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
@@ -195,7 +231,6 @@ class JbrowseController {
 
 
             } else
-//                /opt/apollo/honeybee/data/seq/50e/b7a/08/{"padding":0, "projection":"None", "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group1.1"}], "label":"Group1.1"}:-1..-1-7.txt
             if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
 
 
@@ -205,86 +240,9 @@ class JbrowseController {
                 response.setContentLength((int) returnSequence.bytes.length);
                 response.outputStream << returnSequence
                 response.outputStream.close()
-
-
-//                println "HANDINGL SEQ DATA ${fileName}"
-//                String sequenceName = fileName.split("-")[0]
-//
-//                // if getting
-////                MultiSequenceProjection projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
-////                ProjectionInterface projection = projectionMap.values().iterator().next().get(sequenceName)
-////                MultiSequenceProjection projection = null
-////                if(BookmarkService.isProjectionString(refererLoc)){
-////
-////                    projection = projectionService.getProjection(preferenceService.currentOrganismForCurrentUser, projectionService.getTrackName(file.absolutePath), sequenceName)
-////                }
-//                MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
-////                if (projection) {
-//                DiscontinuousChunkProjector discontinuousChunkProjector = DiscontinuousChunkProjector.instance
-//                // TODO: get proper chunk size from the RefSeq
-//                Integer defaultChunkSize = 20000
-//                Integer chunkNumber = discontinuousChunkProjector.getChunkNumberFromFileName(fileName)
-//                println "projected length ${projection.length}"
-//                println "maping chunk ${chunkNumber} on proj"
-//                List<Integer> chunks = discontinuousChunkProjector.getChunksForPath(parentFile)
-//                for (Integer chunk in chunks) {
-//                    println "chunk ${chunk} / ${chunks.size()}"
-//                }
-//                Integer startProjectedChunk = discontinuousChunkProjector.getStartChunk(chunkNumber, defaultChunkSize)
-//                Integer endProjectedChunk = discontinuousChunkProjector.getEndChunk(chunkNumber, defaultChunkSize)
-//                println "projected chunk ${startProjectedChunk}::${endProjectedChunk}"
-//                Integer startOriginal = projection.projectReverseValue(startProjectedChunk)
-//                Integer endOriginal = projection.projectReverseValue(endProjectedChunk)
-//                println "original coord values ${startOriginal}::${endOriginal}"
-//
-//                Organism organism = preferenceService.currentOrganismForCurrentUser
-//                Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
-//                println "ffound sequence ${sequence} for org ${organism.commonName}"
-//                // TODO: fix the offsets here
-//                String concatenatedSequence = sequenceService.getRawResiduesFromSequence(sequence, startOriginal, endOriginal)
-//                println "concatenated length ${concatenatedSequence.length()}"
-//
-//                // re-project
-////                    String inputText = concatenatedSequence
-////                    String inputText = projection.projectSequence(concatenatedSequence,startOriginal,endOriginal,startOriginal)
-//                String inputText = concatenatedSequence
-//                println "return string length ${inputText.length()}"
-//
-//                // TODO: get chunks needed for cuts . . ..
-//                // TODO: get substrings from start / end
-////                    projection.cutToProjection()
-//
-//                response.setContentLength((int) inputText.bytes.length);
-//
-//                // Open the file and output streams
-////                    FileInputStream inputStream = new FileInputStream(file);
-////                    OutputStream out = response.getOutputStream();
-//
-//                // Copy the contents of the file to the output stream
-////                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-////                    int count = 0;
-////                    while ((count = inputStream.read(buf)) >= 0) {
-////                        out.write(buf, 0, count);
-////                    }
-//
-//                response.outputStream << inputText
-//                response.outputStream.close()
-
-//                }
-
             }
         }
-        // 1 - if endsWith trackData and the "sequence" contains a projection then
-//        if(fileName.endsWith("trackData.json"))
-        //  a - extract the trackData (refactor into its own method)
-        //  b - merge them together
-        //  c - return that
-
         File file = new File(dataFileName);
-
-//        http://localhost:8080/apollo/jbrowse/index.html?loc=[proj=None,padding=50,sequences=[Group11.18::Group9.10,Group1.1(GB42145-RA)]]%3A-1..-1&highlight=&tracklist=0
-
-        log.debug "processing path ${params.path} -> ${dataFileName}"
 
         if (!file.exists()) {
             log.warn("File not found: " + dataFileName);
@@ -296,7 +254,6 @@ class JbrowseController {
 
         String mimeType = getServletContext().getMimeType(fileName);
         if (!mimeType) {
-            log.debug("No input MIME type of " + fileName);
             if (fileName.endsWith(".json") || params.format == "json") {
                 mimeType = "application/json";
                 response.setContentType(mimeType);

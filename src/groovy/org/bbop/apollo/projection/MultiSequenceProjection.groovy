@@ -264,9 +264,7 @@ class MultiSequenceProjection extends AbstractProjection {
         for (ProjectionSequence projectionSequence1 in sequenceDiscontinuousProjectionMap.keySet()) {
             if (projectionSequence1.name == sequenceName) {
                 DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence1)
-//                println "projected sequence ${discontinuousProjection.projectSequence(sequenceName)}"
                 Integer calculatedLength = discontinuousProjection.projectValue(discontinuousProjection.originalLength)
-                println "calculated length ${calculatedLength} from ${discontinuousProjection.originalLength}"
                 return calculatedLength
             }
         }
@@ -339,18 +337,12 @@ class MultiSequenceProjection extends AbstractProjection {
                 return projectionSequence.originalOffset
             }
         }
-        println "no offset for sequence ${sequenceName}"
-
         return 0
     }
 
     ProjectionSequence getLastSequence() {
         return projectedSequences.last()
     }
-
-//    DiscontinuousProjection getProjectionForSequence(ProjectionSequence projectionSequence) {
-//        return sequenceDiscontinuousProjectionMap.get(projectionSequence)
-//    }
 
     List<ProjectionSequence> getProjectedSequences(){
         return sequenceDiscontinuousProjectionMap.keySet().sort(){a,b -> a.order <=> b.order }

@@ -139,7 +139,6 @@ public class BookmarkPanel extends Composite {
                 List<String> selectedTracks = referenceTrackSelector.getAllSelectedValues();
                 if (preferenceStore != null) {
                     setPreference(SELECTED_REFERENCE_TRACKS, selectedTracks);
-                    GWT.log("OnChangeEvent: setting preference to " + selectedTracks);
                 }
             }
         });
@@ -278,7 +277,6 @@ public class BookmarkPanel extends Composite {
         genomicObject.put("referenceTrack", selectedTracksJsonArray);
         genomicObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(),newArray);
         genomicObject.put("label",new JSONString(createLabelFromBookmark(genomicObject)));
-        GWT.log("GenomicObject @getBookmarksAsJson: " + genomicObject.toString());
         return genomicObject;
     }
 
@@ -457,7 +455,6 @@ public class BookmarkPanel extends Composite {
     private class UpdateBookmarksCallback implements RequestCallback{
         @Override
         public void onResponseReceived(Request request, Response response) {
-            GWT.log(response.getText());
             JSONArray jsonValue = JSONParser.parseStrict(response.getText()).isArray();
             bookmarkInfoList.clear();
 
@@ -525,14 +522,12 @@ public class BookmarkPanel extends Composite {
      * @param jsonString
      */
     public static void getTracks(String jsonString) {
-        GWT.log("@getTracks: " + jsonString);
         JSONArray returnValueObject = JSONParser.parseStrict(jsonString).isArray();
         referenceTrackSelector.clear();
         for (int i = 0; i < returnValueObject.size(); i++) {
             JSONObject eachTrackObject = (JSONObject) returnValueObject.get(i);
             String key = eachTrackObject.get("key").toString().replaceAll("\"", "");
             if ("reference sequence".equals(key.toLowerCase())) {
-                // not adding 'reference sequence' track for selection
                 continue;
             }
             else {

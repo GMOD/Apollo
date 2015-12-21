@@ -3,20 +3,6 @@
     {
       "location": "./plugins/WebApollo",
       "name": "WebApollo"
-    },
-    {
-      "location": "./plugins/NeatHTMLFeatures",
-      "name": "NeatHTMLFeatures",
-      "gradientFeatures": 1
-    },
-    {
-      "location": "./plugins/NeatCanvasFeatures",
-      "name": "NeatCanvasFeatures",
-      "gradientFeatures": 1
-    },
-    {
-      "location": "./plugins/ApolloLabelProc",
-      "name": "ApolloLabelProc"
     }
   ],
   "share_link": 0,
@@ -91,5 +77,6 @@
   "favicon": "./plugins/WebApollo/img/webapollo_favicon.ico",
   "locationBox": "searchBox",
   "alwaysOnTracks": "DNA,Annotations",
+  "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
   "formatVersion": 1
 }

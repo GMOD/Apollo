@@ -43,7 +43,7 @@ class BookmarkService {
         JSONArray sequeneArray = JSON.parse(bookmark.sequenceList) as JSONArray
 //        List<String> sequenceNames = []
         List<Sequence> sequenceList = []
-        println "input sequence array ${sequeneArray}"
+        
         for (int i = 0; i < sequeneArray.size(); i++) {
 //            sequenceNames << sequeneArray.getJSONObject(i).name
             String sequenceName = sequeneArray.getJSONObject(i).name
@@ -54,7 +54,7 @@ class BookmarkService {
             }
         }
         // if unsaved without the organism
-//        println "output sequence names ${sequenceNames}"
+//        
 //        if (bookmark.organism) {
 //            sequenceList = Sequence.findAllByOrganismAndNameInList(bookmark.organism, sequenceNames)
 //        } else {
@@ -87,9 +87,9 @@ class BookmarkService {
         Bookmark bookmark = new Bookmark()
         bookmark.projection = jsonObject.projection
         bookmark.sequenceList = jsonObject.sequenceList
-        println "bookmark convert ${bookmark.sequenceList}"
+        
         List<Sequence> sequences = getSequencesFromBookmark(bookmark)
-        println "sequences from bookmars: ${sequences.name}"
+        
         bookmark.organism = sequences.first().organism
 
 

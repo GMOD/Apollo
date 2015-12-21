@@ -427,7 +427,6 @@ class PermissionService {
      */
     Bookmark checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
-        println "input object ${inputObject as JSON}"
         List<String> sequenceStrings = extractSequenceNamesFromJson(inputObject)
         if (!sequenceStrings) {
             throw new RuntimeException("Unable to process sequences: " + sequenceStrings)

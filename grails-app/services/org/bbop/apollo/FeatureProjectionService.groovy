@@ -21,13 +21,13 @@ class FeatureProjectionService {
 
     JSONArray projectTrack(JSONArray inputFeaturesArray, MultiSequenceProjection projection,Boolean reverseProjection = false) {
 
-        println "trying to convert ${inputFeaturesArray as JSON}"
+        
         if (projection) {
             // process location . . .
             projectFeaturesArray(inputFeaturesArray, projection, reverseProjection,0)
-            println "converted ${inputFeaturesArray as JSON}"
+            
         } else {
-            println "no conversion?? "
+            
         }
         return inputFeaturesArray
     }
@@ -42,13 +42,13 @@ class FeatureProjectionService {
 ////    @Transactional(readOnly = true)
 //    JSONArray projectFeatures(Sequence sequence, String referenceTrackName, JSONArray inputFeaturesArray, Boolean reverseProjection) {
 ////        DiscontinuousProjection projection = (DiscontinuousProjection) getProjection(sequence.organism, referenceTrackName, sequence.name)
-//        println "trying to convert ${inputFeaturesArray as JSON}"
+//        
 //        if (projection) {
 //            // process location . . .
 //            projectFeaturesArray(inputFeaturesArray, projection, reverseProjection)
-//            println "converted ${inputFeaturesArray as JSON}"
+//            
 //        } else {
-//            println "no conversion?? "
+//            
 //        }
 //        return inputFeaturesArray
 //    }
@@ -59,10 +59,10 @@ class FeatureProjectionService {
 
 
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
-        println "loaction object ${locationObject as JSON}"
+        
         Integer fmin = locationObject.has(FeatureStringEnum.FMIN.value) ? locationObject.getInt(FeatureStringEnum.FMIN.value) : null
         Integer fmax = locationObject.has(FeatureStringEnum.FMAX.value) ? locationObject.getInt(FeatureStringEnum.FMAX.value) : null
-        println "old values ${fmin}-${fmax}"
+        
         if (reverseProjection) {
             // TODO: add reverse offset?
             fmin = fmin ? projection.projectReverseValue(fmin) : null
@@ -71,7 +71,7 @@ class FeatureProjectionService {
             fmin = fmin ? projection.projectValue(fmin + offset) : null
             fmax = fmax ? projection.projectValue(fmax + offset) : null
         }
-        println "new values ${fmin}-${fmax}"
+        
         if (fmin) {
             locationObject.put(FeatureStringEnum.FMIN.value, fmin)
         }
@@ -88,10 +88,10 @@ class FeatureProjectionService {
             if (inputFeature.containsKey(FeatureStringEnum.SEQUENCE.value)) {
                 String sequenceName = inputFeature.getString(FeatureStringEnum.SEQUENCE.value)
                 offset = projection.getOffsetForSequence(sequenceName)
-                println "offset ${offset} for ${sequenceName}"
+                
             } else {
-                println "does not contain a sequence name for reference"
-                println "${inputFeature as JSON}"
+                
+                
             }
 
             projectFeature(inputFeature, projection, reverseProjection,offset)

@@ -32,8 +32,6 @@ class RefSeqProjectorService {
                 sequenceValue.put("end", projectedSequenceLength)
                 sequenceValue.put("name", refererLoc)
                 projectedArray = mergeRefseqProjections(projectedArray, sequenceValue)
-            } else {
-                log.debug "projeciton does not contain sequence ${sequenceName}"
             }
         }
 
