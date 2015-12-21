@@ -22,6 +22,13 @@ or just the annotations:
 If you want to start from scratch (including reloading organisms and users), you can just drop the database (when the
 server is not running) and the proper tables will be recreated on startup.
 
+## Migration from 2.0.X to 2.0.Y on production:
+- Backup your database (to be safe).
+- Use your old apollo-config.groovy to create a new war file.
+- Turn off tomcat and remove the old apollo directory in the webapps folder.
+- Copy in new .war file with the same name.
+- Restart tomcat and you are ready to go.
+
 ## Migration from 1.0 to 2.0:
 
 We provide examples in the form of [migration scripts](https://github.com/gmod/apollo/tree/master/docs/web_services/
