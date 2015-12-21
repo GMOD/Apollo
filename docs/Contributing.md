@@ -73,10 +73,10 @@ The easiest way to fork the `apollo` repository is via the GitHub web interface:
 - Ensure you are logged into GitHub as your GitHub user.
 - Navigate to the apollo shared repo at [https://github.com/GMOD/apollo](https://github.com/GMOD/apollo).
 - Notice the 'Fork' button in the upper right corner. It has a number to the right of the button.
-![](docs/images/githubForkButton.png)
+![](images/githubForkButton.png)
 - Click the Fork button. The resulting behavior will depend upon whether your GitHub user is a member of a GitHub organization. If not a member of an organization, then the fork operation will be performed and the forked repo will be created in the user's account.
 - If your user is a member of an organization (e.g., GMOD or acme-incorporated), then GitHub will present a dialog for the user to choose where to place the forked repo. The user should click on the icon corresponding to their username.
-![](docs/images/githubForkTarget.png)
+![](images/githubForkTarget.png)
 - *If you accidentally click the number, you will be on the Network Graphs page and should go back.*
 
 ### Step 3 - Clone the Fork Locally
@@ -262,15 +262,15 @@ See [submitting a pull request](https://help.github.com/articles/creating-a-pull
 The set of open PRs for the apollo can be viewed by first visiting the shared apollo GitHub page at [https://github.com/GMOD/apollo](https://github.com/GMOD/apollo).
 
 Click on the 'Pull Requests' link on the right-side of the page:
-![](docs/images/githubPullRequest.png)
+![](images/githubPullRequest.png)
 
 Note that the Pull Request you created from your forked repo shows up in the shared repo's Pull Request list. One way to avoid confusion is to think of the shared repo's PR list as a queue of changes to be applied, pending their review and approval.
 
 ### Respond to TravisCI tests
 
 The GitHub Pull Request mechanism is designed to allow review and refinement of code prior to its final merge to the shared repo. After creating your Pull Request, the TravisCI tests for apollo will be executed automatically, ensuring that the code that 'worked fine' on your development machine also works in the production-like environment provided by TravisCI. The current status of the tests can be found near the bottom of the individual PR page, to the right of the Merge Request symbol:
-![](docs/images/githubTestProgress.png)
-![](docs/images/githubTestStatus.png)
+![](images/githubTestProgress.png)
+![](images/githubTestStatus.png)
 
 TBD - Something should be written about developers running tests PRIOR to TravisCI and the the PR. This may already be in the README.md, but should be cited.
 
