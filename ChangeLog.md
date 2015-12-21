@@ -1,4 +1,4 @@
-## 2.0.1-SNAPSHOT
+## 2.0.1
 
 Features
 
