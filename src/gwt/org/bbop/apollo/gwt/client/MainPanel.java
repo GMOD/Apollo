@@ -133,7 +133,6 @@ public class MainPanel extends Composite {
     @UiField
     HTML editUserHeader;
 
-    private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private LoginDialog loginDialog = new LoginDialog();
     private RegisterDialog registerDialog = new RegisterDialog();
@@ -149,7 +148,7 @@ public class MainPanel extends Composite {
 
     MainPanel() {
         instance = this;
-        sequenceSuggestBox = new SuggestBox(sequenceOracle);
+        sequenceSuggestBox = new SuggestBox(new ReferenceSequenceOracle());
 
         mainSplitPanel = new SplitLayoutPanel() {
             @Override
