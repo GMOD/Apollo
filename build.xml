@@ -39,8 +39,8 @@
             </classpath>
             <arg line="-war"/>
             <arg value="web-app"/>
-            <arg line="-style"/>
-            <arg value="PRETTY"/>
+            <!--<arg line="-style"/>-->
+            <!--<arg value="PRETTY"/>-->
             <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
             <arg line="${gwt.args}"/>
             <arg value="org.bbop.apollo.gwt.Annotator"/>
