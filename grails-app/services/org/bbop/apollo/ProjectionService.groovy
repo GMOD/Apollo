@@ -48,24 +48,24 @@ class ProjectionService {
         for (int i = 0; i < tracksArray.size(); i++) {
             JSONObject trackObject = tracksArray.getJSONObject(i)
             if (trackObject.containsKey("OGS") && trackObject.getBoolean("OGS") && !projectionMap.containsKey(trackObject.keys())) {
-                println "tring to generate projection for ${trackObject.key}"
+                
                 String jbrowseDirectory = organism.directory + "/tracks/" + trackObject.key
                 File trackDirectory = new File(jbrowseDirectory)
-                println "track directory ${trackDirectory.absolutePath}"
+                
 
                 File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
 
-                println "# of files ${files.length}"
+                
 
                 Map<String, ProjectionInterface> sequenceProjectionMap = new HashMap<>()
 
                 for (File trackDataFile in files) {
-//                    println "file ${trackDataFile.absolutePath}"
+//                    
 
 //                    String sequenceFileName = trackDataFile.absolutePath.substring(trackDirectory.absolutePath.length(),trackDataFile.absolutePath.length()-"trackData.json".length()).replaceAll("/","")
                     String sequenceFileName = getSequenceName(trackDataFile.absolutePath)
 
-//                    println "sequencefileName [${sequenceFileName}]"
+//                    
 
                     JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
 
@@ -95,12 +95,12 @@ class ProjectionService {
                     sequenceProjectionMap.put(sequenceFileName, discontinuousProjection)
                 }
 
-                println "final size: ${trackObject.key} -> ${sequenceProjectionMap.size()}"
+                
 
                 projectionMap.put(trackObject.key, sequenceProjectionMap)
             }
         }
-        println "total time ${System.currentTimeMillis() - startTime}"
+        
     }
 
     /**
@@ -132,14 +132,14 @@ class ProjectionService {
         for (int i = 0; i < tracksArray.size(); i++) {
             JSONObject trackObject = tracksArray.getJSONObject(i)
             if (trackObject.containsKey("OGS") && trackObject.getBoolean("OGS") && !projectionMap.containsKey(trackObject.key)) {
-                println "tring to generate projection for ${trackObject.key}"
+                
                 String jbrowseDirectory = organism.directory + "/tracks/" + trackObject.key
                 File trackDirectory = new File(jbrowseDirectory)
-                println "track directory ${trackDirectory.absolutePath}"
+                
 
                 File[] files = FileUtils.listFiles(trackDirectory, FileFilterUtils.nameFileFilter("trackData.json"), TrueFileFilter.INSTANCE)
 
-                println "# of files ${files.length}"
+                
 
                 Map<String, ProjectionInterface> sequenceProjectionMap = new HashMap<>()
 
@@ -150,7 +150,7 @@ class ProjectionService {
 
                     JSONObject referenceJsonObject = new JSONObject(trackDataFile.text)
                     if (sequenceFileName.contains("1.10")) {
-                        println "traying to create a sequence for ${sequenceFileName} "
+                        
                     }
 
                     // TODO: interpret the format properly
@@ -178,20 +178,20 @@ class ProjectionService {
                         }
                     }
 
-//                    println "# of entries: ${discontinuousProjection.minMap.size()}"
+//                    
 
                     if (sequenceFileName.contains("1.10")) {
-                        println "putting map ${sequenceFileName} into ${discontinuousProjection.size()}"
+                        
                     }
                     sequenceProjectionMap.put(sequenceFileName, discontinuousProjection)
                 }
 
-                println "final size: ${trackObject.key} -> ${sequenceProjectionMap.size()}"
+                
 
                 projectionMap.put(trackObject.key, sequenceProjectionMap)
             }
         }
-        println "total time ${System.currentTimeMillis() - startTime}"
+        
     }
 
 
@@ -212,18 +212,18 @@ class ProjectionService {
 //                break
 //            case 1:
 //                featureType = coordinate.getString(7)
-//                println "1 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
+//                
 //                // no subarrays
 //                break
 //            case 2:
 //            case 3:
 //                featureType = coordinate.getString(6)
-//                println "2/3 - doing nothing for this . . . no subarray? ${coordinate as JSON}"
+//                
 //                // process array in 10
 //                // process sublist if 11 exists
 //                break
 //            case 4:
-//                println "not sure how to handle case 4 ${coordinate as JSON}"
+//                
 //                // ignore .  . . not an exon
 //                break
 //        }
@@ -280,10 +280,10 @@ class ProjectionService {
         if (!inputFeature.has(FeatureStringEnum.LOCATION.value)) return inputFeature
 
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
-        println "loaction object ${locationObject as JSON}"
+        
         Integer fmin = locationObject.has(FeatureStringEnum.FMIN.value) ? locationObject.getInt(FeatureStringEnum.FMIN.value) : null
         Integer fmax = locationObject.has(FeatureStringEnum.FMAX.value) ? locationObject.getInt(FeatureStringEnum.FMAX.value) : null
-        println "old values ${fmin}-${fmax}"
+        
         if (reverseProjection) {
             fmin = fmin ? projection.projectReverseValue(fmin) : null
             fmax = fmax ? projection.projectReverseValue(fmax) : null
@@ -291,7 +291,7 @@ class ProjectionService {
             fmin = fmin ? projection.projectValue(fmin) : null
             fmax = fmax ? projection.projectValue(fmax) : null
         }
-        println "new values ${fmin}-${fmax}"
+        
         if (fmin) {
             locationObject.put(FeatureStringEnum.FMIN.value, fmin)
         }
@@ -579,7 +579,7 @@ class ProjectionService {
     }
 
     ProjectionDescription convertJsonObjecToProjectDescription(JSONObject bookmarkObject) {
-        println "gettting projeciton ${bookmarkObject}"
+        
         ProjectionDescription projectionDescription = new ProjectionDescription()
 
         projectionDescription.projection = bookmarkObject.projection ?: "NONE"
@@ -589,7 +589,7 @@ class ProjectionService {
         projectionDescription.referenceTrack = new ArrayList<String>()
         if (isValidJson((String) bookmarkObject.referenceTrack)) {
             JSONArray referenceTrackJsonArray = JSON.parse(bookmarkObject.referenceTrack.toString()) as JSONArray
-            println referenceTrackJsonArray
+            
             for (int i = 0; i < referenceTrackJsonArray.size(); i++) {
                 projectionDescription.referenceTrack.add(i, referenceTrackJsonArray.getString(i));
             }
@@ -638,18 +638,18 @@ class ProjectionService {
  * @return
  */
     MultiSequenceProjection getProjection(JSONObject bookmarkObject) {
-        println "JSON PROJECTION OBJECT: ${bookmarkObject as JSON}"
+        
         ProjectionDescription projectionDescription = convertJsonObjecToProjectDescription(bookmarkObject)
         return getProjection(projectionDescription)
     }
 
     MultiSequenceProjection getProjection(ProjectionDescription projectionDescription) {
         if (!multiSequenceProjectionMap.containsKey(projectionDescription)) {
-            println "does NOT contains the key! ${projectionDescription}"
+            
             MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(projectionDescription)
             multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
         } else {
-            println "contains the key! ${projectionDescription}"
+            
         }
         return multiSequenceProjectionMap.get(projectionDescription)
     }

@@ -115,7 +115,7 @@
     <property name="jbrowse.perl.dependency.test.file" value="bin/flatfile-to-json.pl"/>
 
 <!--    <property name="jbrowse.release.version" value="1.11.6-release"/>-->
-    <property name="jbrowse.release.version" value="master"/>
+    <property name="jbrowse.release.version" value="multiple_highlights"/>
 
     <available file=".git" type="dir" property="git.present"/>
     <available file="${jbrowse.git.test.file}" type="file" property="jbrowse.git.present"/>
