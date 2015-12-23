@@ -191,7 +191,8 @@
         <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
             <arg value="checkout"/>
             <!--<arg value="tags/${jbrowse.release.version}"/>-->
-            <arg value="master"/>
+            <!--<arg value="master"/>-->
+            <arg value="multiple_highlights"/>
         </exec>
     </target>
 
