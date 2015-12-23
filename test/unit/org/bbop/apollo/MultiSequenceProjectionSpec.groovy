@@ -1026,7 +1026,7 @@ class MultiSequenceProjectionSpec extends Specification {
         List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.sequenceDiscontinuousProjectionMap.keySet() as List<ProjectionSequence>
 
         then: "we should get a single projection of size 4"
-        // TODO: fix these tests
+        // TODO: TEST 4 cases in MultiSequenceProject projectSequence!!!!!!!!
         assert multiSequenceProjection.size()==6
 
         when: "we project a sequence through these coordinates"
@@ -1037,14 +1037,14 @@ class MultiSequenceProjectionSpec extends Specification {
 
         then: "we should confirm that both the input and retrieved sequence are correct"
         assert 200==inputSequence.length()
-        assert 100==offset
+        assert 50==offset
         assert inputSequence.substring(10,12)==projectedSequence.substring(0,2)
         assert inputSequence.substring(22,25)==projectedSequence.substring(3,6)
         assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(7,11)
         assert inputSequence.substring(60+offset,63+offset)==projectedSequence.substring(12,15)
         assert 16==projectedSequence.length()
 
-        when: "we project a sequence through these smaller coordinates"
+        when: "case 1 and 2: we project a sequence through these smaller coordinates "
         // length should be 200
         projectedSequence = multiSequenceProjection.projectSequence(inputSequence,50,150,0)
 //        Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
@@ -1057,6 +1057,18 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 5==projectedSequence.length()
         assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(7,11)
         assert inputSequence.substring(60+offset,63+offset)==projectedSequence.substring(12,15)
+
+        when: "we attempt case 3: a subset of a projection sequence"
+
+        then: "we should see only see that coordinate"
+
+        when: "we attempt case 4 (and also 1 and 2): we overlap the entire projection sequence space"
+
+        then: "we will just project tne entire thing"
+
+
+
+        then: "we should see only see that coordinate"
     }
 
 }
