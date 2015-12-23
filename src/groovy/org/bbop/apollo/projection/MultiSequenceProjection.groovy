@@ -97,18 +97,37 @@ class MultiSequenceProjection extends AbstractProjection {
     }
 
     String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate, Integer offset) {
-        Integer index = minCoordinate
+        Integer index = 0
         List<String> sequenceList = []
 
         // we start at the very bottom and go up
         for(ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort(){a,b -> a.order<=>b.order }){
             DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
-            Integer projectionLength = discontinuousProjection.originalLength
-            Integer max = projectionLength > maxCoordinate ? maxCoordinate : projectionLength
-            if(index < projectionLength){
-                sequenceList << discontinuousProjection.projectSequence(inputSequence,index-index, max,offset)
+            Integer sequenceLength = projectionSequence.unprojectedLength
+
+            // case 1: right edge
+            if(minCoordinate >= index && minCoordinate <= index + sequenceLength){
+                sequenceList << discontinuousProjection.projectSequence(inputSequence,minCoordinate-index, sequenceLength,offset)
             }
-            index += projectionLength
+            // case 2: left edge
+            else
+            if(index >= minCoordinate && maxCoordinate <= sequenceLength+index){
+                sequenceList << discontinuousProjection.projectSequence(inputSequence,0, maxCoordinate - index,offset)
+            }
+            // case 3: inbetween
+            else
+            if(minCoordinate > index && maxCoordinate < index + sequenceLength){
+                sequenceList << discontinuousProjection.projectSequence(inputSequence,minCoordinate-index, maxCoordinate - index,offset)
+            }
+            // case 4: overlap / all
+            else
+            if(minCoordinate <= index && maxCoordinate >= index + sequenceLength){
+                sequenceList << discontinuousProjection.projectSequence(inputSequence,0, sequenceLength,offset)
+            }
+            else{
+                throw new RuntimeException("Should not get here: ${minCoordinate},${maxCoordinate}")
+            }
+            index += sequenceLength
         }
 
         // not really used .  .. .  but otherwise would carve up into different bits
