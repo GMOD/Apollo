@@ -16,7 +16,7 @@ class BookmarkController {
     def bookmarkService
 
     def list() {
-        println "loading bookmark . . . "
+        
         JSONObject bookmarkJson = (request.JSON ?: JSON.parse(params.data.toString())) as JSONObject
         User user = permissionService.getCurrentUser(bookmarkJson)
         if(Organism.count>0){
@@ -49,9 +49,9 @@ class BookmarkController {
 //        User user = permissionService.currentUser
         Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkArray.getJSONObject(0))
 
-        println "bookmarkArray ${bookmarkArray as JSON}"
+        
 
-        println "bookmark ${bookmark as JSON}"
+        
 
         return list()
     }
@@ -61,7 +61,7 @@ class BookmarkController {
         JSONArray bookmarkJson = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
         User user = permissionService.getCurrentUser(new JSONObject())
         Organism organism = preferenceService.getCurrentOrganism(user)
-        println "trying to delete bookmarkJSON ${bookmarkJson as JSON}"
+        
 
         def idList = []
         for(int i = 0 ; i < bookmarkJson.size() ; i++){
