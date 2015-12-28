@@ -130,9 +130,9 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         String un87EndSequence = "AAAACATAA" // starts at 0
         Integer un87Length = 843
         Integer elevenFourLength = 15764
-        String elevenFourStartSequence = "ATGTTTGCTTGGGGAACTTGTG"
-        String elevenFourEndSequence = "AGTAAGCTTATTATATTG"
-        Integer elevenFourStartSequenceIndex = un87Length +1
+        String elevenFourStartSequence = "ATGTTTGCTTGGGGAACTTGTGTTCTCTATGGATGGAGGTTAAA"
+        String elevenFourEndSequence = "AAGGTTACGTTTATATCATTCGAATAATATAAC" // last projected from OGS
+        Integer elevenFourStartSequenceIndex = un87Length + 1
         Integer elevenFourEndSequenceIndex = un87Length + elevenFourLength
         // total input should 78258 + 75085 = 153343
         Integer chunkNumber = 0
@@ -142,6 +142,10 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
 
         then:
+        // returns 16609
+        // 838 + 6 *1
+        // 15734 + 31 * 1
+        assert 838 + 6 +15734 + 31 ==returnedSequence.length()
         assert returnedSequence.indexOf(un87StartSequence)==0
         assert returnedSequence.indexOf(un87EndSequence)==un87Length-un87EndSequence.length()
         assert returnedSequence.split(un87EndSequence).length==2

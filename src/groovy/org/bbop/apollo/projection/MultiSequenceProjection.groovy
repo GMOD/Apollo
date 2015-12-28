@@ -104,6 +104,7 @@ class MultiSequenceProjection extends AbstractProjection {
         for(ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort(){a,b -> a.order<=>b.order }){
             DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
             Integer sequenceLength = projectionSequence.unprojectedLength
+            Integer projectedLength = discontinuousProjection.length
 
             // case 5: no overlap
             if(index > maxCoordinate || index+sequenceLength  < minCoordinate){
