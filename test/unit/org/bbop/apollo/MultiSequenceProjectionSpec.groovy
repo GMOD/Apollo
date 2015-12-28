@@ -976,28 +976,28 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,organism: "Human"
                 ,order: 0
                 ,unprojectedLength: 50
-        )// from 0-99
+        )// from 0-49
         ProjectionSequence sequence2 = new ProjectionSequence(
                 id: 2
                 ,name: "Sequence2"
                 ,organism: "Human"
                 ,order: 1
                 ,unprojectedLength: 75
-        ) // from 100-200
+        ) // from 50-124
         ProjectionSequence sequence3 = new ProjectionSequence(
                 id: 3
                 ,name: "Sequence3"
                 ,organism: "Human"
                 ,order: 2
                 ,unprojectedLength: 25
-        ) // from 100-200
+        ) // from 125-149
         ProjectionSequence sequence4 = new ProjectionSequence(
                 id: 4
                 ,name: "Sequence4"
                 ,organism: "Human"
                 ,order: 3
                 ,unprojectedLength: 50
-        ) // from 100-200
+        ) // from 150-200
         ProjectionDescription projectionDescription = new ProjectionDescription(
                 referenceTrack: []
                 ,sequenceList: [sequence1,sequence2,sequence3,sequence4]
@@ -1042,7 +1042,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert inputSequence.substring(22,25)==projectedSequence.substring(3,6)
         assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(7,11)
         assert inputSequence.substring(60+offset,63+offset)==projectedSequence.substring(12,15)
-        assert 16==projectedSequence.length()
+        assert 25==projectedSequence.length()
 
         when: "case 1 and 2: we project a sequence through these smaller coordinates "
         // length should be 200
@@ -1050,25 +1050,20 @@ class MultiSequenceProjectionSpec extends Specification {
 //        Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
 
         then: "we should confirm that both the input and retrieved sequence are correct"
-//        assert 200==inputSequence.length()
-        assert 50==offset
-//        assert inputSequence.substring(10,12)==projectedSequence.substring(0,2)
-//        assert inputSequence.substring(22,25)==projectedSequence.substring(3,6)
-        assert 5==projectedSequence.length()
-        assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(7,11)
-        assert inputSequence.substring(60+offset,63+offset)==projectedSequence.substring(12,15)
+        assert 15==projectedSequence.length()
 
         when: "we attempt case 3: a subset of a projection sequence"
+        projectedSequence = multiSequenceProjection.projectSequence(inputSequence,60,120,0)
 
-        then: "we should see only see that coordinate"
+        then: "we should see only see all of the coordinates on sequence 3"
+        assert 9==projectedSequence.length()
 
         when: "we attempt case 4 (and also 1 and 2): we overlap the entire projection sequence space"
+        projectedSequence = multiSequenceProjection.projectSequence(inputSequence,20,8+125,0)
 
         then: "we will just project tne entire thing"
+        assert 4+9+4==projectedSequence.length()
 
-
-
-        then: "we should see only see that coordinate"
     }
 
 }
