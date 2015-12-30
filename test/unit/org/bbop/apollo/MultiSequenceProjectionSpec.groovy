@@ -1005,12 +1005,13 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,padding: 0
         )
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(projectionDescription: projectionDescription)
-        Location location1 = new Location( min: 10 ,max: 12 ,sequence: sequence1 )
-        Location location2 = new Location( min: 22 ,max: 25 ,sequence: sequence1 )
-        Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )
-        Location location4 = new Location( min: 60,max: 63,sequence: sequence2 )
-        Location location5 = new Location( min: 5,max: 10,sequence: sequence3 )
-        Location location6 = new Location( min: 10,max: 12,sequence: sequence4 )
+        Location location1 = new Location( min: 10 ,max: 12 ,sequence: sequence1 ) // 3
+        Location location2 = new Location( min: 22 ,max: 25 ,sequence: sequence1 ) // 4
+        Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )  // 5
+        Location location4 = new Location( min: 60,max: 63,sequence: sequence2 )  // 4
+        Location location5 = new Location( min: 5,max: 10,sequence: sequence3 )   // 6
+        Location location6 = new Location( min: 10,max: 12,sequence: sequence4 )  // 3
+        // total 25
 
 
 
@@ -1038,11 +1039,11 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "we should confirm that both the input and retrieved sequence are correct"
         assert 200==inputSequence.length()
         assert 50==offset
+        assert 25==projectedSequence.length()
         assert inputSequence.substring(10,12)==projectedSequence.substring(0,2)
         assert inputSequence.substring(22,25)==projectedSequence.substring(3,6)
         assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(7,11)
         assert inputSequence.substring(60+offset,63+offset)==projectedSequence.substring(12,15)
-        assert 25==projectedSequence.length()
 
         when: "case 1 and 2: we project a sequence through these smaller coordinates "
         // length should be 200

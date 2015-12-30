@@ -103,14 +103,14 @@ class RefSeqProjectorService {
         // TODO: should do this for each, but for now this is okay
         Integer chunkSize = sequenceStrings.first().seqChunkSize
         Integer projectedStart = chunkSize * chunkNumber
-        Integer projectedEnd = chunkSize * (chunkNumber + 1)
+        Integer projectedEnd = chunkSize * (chunkNumber + 1) // this an exclusive end
 
         // determine the current "offsets" based on the chunk
         Coordinate unprojectedCoordinate = projection.projectReverseCoordinate(projectedStart,projectedEnd)
 
         // if it projects off the edge of known space .  . we just take it to the maximum in the projection realm . . .
         if(unprojectedCoordinate.max < 0){
-            unprojectedCoordinate.max = projection.getMaxCoordinate().max
+            unprojectedCoordinate.max = projection.getMaxCoordinate().max + 1
         }
 
         if (!unprojectedCoordinate.isValid()) {
