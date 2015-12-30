@@ -128,7 +128,9 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         String un87StartSequence = "ATGCACTGTCAACGTACACGGG" // starts at 0
         String un87EndSequence = "AAAACATAA" // starts at 0
-        Integer un87Length = 843
+//        Integer un87Length = 843
+//        Integer un87Length = 838 + 6
+        Integer un87Length = 838
         Integer elevenFourLength = 15764
         String elevenFourStartSequence = "ATGTTTGCTTGGGGAACTTGTGTTCTCTATGGATGGAGGTTAAA"
         String elevenFourEndSequence = "AAGGTTACGTTTATATCATTCGAATAATATAAC" // last projected from OGS
@@ -145,7 +147,8 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         // returns 16609
         // 838 + 6 *1
         // 15734 + 31 * 1
-        assert 838 + 6 +15734 + 31 ==returnedSequence.length()
+//        assert 838 + 6 +15734 + 31 ==returnedSequence.length()
+        assert 838 + 15734 ==returnedSequence.length()
         assert returnedSequence.indexOf(un87StartSequence)==0
         assert returnedSequence.indexOf(un87EndSequence)==un87Length-un87EndSequence.length()
         assert returnedSequence.split(un87EndSequence).length==2
@@ -164,8 +167,12 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         Integer chunkNumber = 0
         String dataFileName = "${Organism.first().directory}/seq/aa2/286/99/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceName1}\"},{\"name\":\"${sequenceName2}\"}], \"label\":\"${sequenceName1}::${sequenceName2}\"}:-1..-1-${chunkNumber}.txt"
 
-        Integer elevenFourLength = 15764
-        Integer un87Length = 843
+//        Integer elevenFourLength = 15764
+//        Integer un87Length = 843
+//        Integer elevenFourLength = 15734 + 31
+//        Integer un87Length = 838 + 6
+        Integer elevenFourLength = 15734 // + 31
+        Integer un87Length = 838 //+ 6
         String elevenFourStartSequence = "ATGTTTGCTTGGGGAACTTGTG"
         String elevenFourEndSequence = "AGTAAGCTTATTATATTG"
         String un87StartSequence = "ATGCACTGTCAACGTACACGGG" // starts at 0
