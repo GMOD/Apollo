@@ -40,9 +40,9 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
     /**
-     *  GroupUn87: Projected: 0,213 <-> 723,843   (4 groups), Unprojected: 9966,10179 (first)  45455,45575 (last)
+     *  GroupUn87: Projected: 0,213 <-> 718,838   (4 groups), Unprojected: 9966,10179 (first)  45455,45575 (last)
      *
-     *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
+     *  Group11.4: Projected: 0,2538 <-> 14574,15734  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
      */
     void "non-projection of contiguous tracks should work"() {
 
@@ -84,7 +84,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
     /**
-     *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
+     *  Group11.4: Projected: 0,2538 <-> 14574,15734  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
      *
      */
     void "un-projected 11.4 individually"() {
@@ -115,7 +115,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
     /**
-     *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
+     *  Group11.4: Projected: 0,2538 <-> 14574,15734  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
      *
      */
     void "Projected 11.4 individually"() {
@@ -138,15 +138,16 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         JSONArray firstLastArray = nclist.getJSONArray(0)
         assert firstLastArray.getInt(1) == 0// end of the first set
 //        assert firstLastArray.getInt(2)==185696+45575// end of the first set
-        assert firstLastArray.getInt(2) == 2546// end of the first set
+//        assert firstLastArray.getInt(2) == 2538 - 8 // end of the first set - 9 exons (8 intermediate
+        assert firstLastArray.getInt(2) == 2538  // end of the first set - 9 exons (8 intermediate
 
         JSONArray lastLastArray = nclist.getJSONArray(4)
-        assert lastLastArray.getInt(1) == 14601// end of the last set
-        assert lastLastArray.getInt(2) == 15764// end of the last set
+        assert lastLastArray.getInt(1) == 14574// end of the last set
+        assert lastLastArray.getInt(2) == 15734// end of the last set
     }
 
     /**
-     *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
+     *  Group11.4: Projected: 0,2538 <-> 14574,15734  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
      *
      */
     void "Projected 11.4 individually with padding"() {
@@ -169,18 +170,18 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         // the next array should go somewhere completely else
         JSONArray firstLastArray = nclist.getJSONArray(0)
         assert firstLastArray.getInt(1) == 0 + padding // end of the first set
-        assert firstLastArray.getInt(2) == 2546 + (padding + (padding * (8 * 2))) // end of the first set
+        assert firstLastArray.getInt(2) == 2538 + (padding + (padding * (8 * 2))) // end of the first set
 
         JSONArray lastLastArray = nclist.getJSONArray(4)
         Integer paddingCount = 55
-        assert lastLastArray.getInt(1) == 14601 + (padding * paddingCount)// end of the last set
-        assert lastLastArray.getInt(2) == 15764 + (padding * (paddingCount + 6))// end of the last set . ..  including exons
+        assert lastLastArray.getInt(1) == 14574 + (padding * paddingCount)// end of the last set
+        assert lastLastArray.getInt(2) == 15734 + (padding * (paddingCount + 6))// end of the last set . ..  including exons
     }
 
     /**
      *
-     *  GroupUn87: Projected: 0,213 <-> 723,843   (4 groups), Unprojected: 9966,10179 (first)  45455,45575 (last)
-     *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
+     *  GroupUn87: Projected: 0,213 <-> 718,838   (4 groups), Unprojected: 9966,10179 (first)  45455,45575 (last)
+     *  Group11.4: Projected: 0,2538 <-> 14574,15734  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
      */
     void "exon projections of contiguous tracks should work"() {
 
@@ -203,23 +204,23 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert firstArray.getInt(2) == 213
 
         JSONArray lastFirstArray = nclist.getJSONArray(3)
-        assert lastFirstArray.getInt(1) == 723
-        assert lastFirstArray.getInt(2) == 843  // end of the first set
+        assert lastFirstArray.getInt(1) == 718
+        assert lastFirstArray.getInt(2) == 838  // end of the first set
 
         // the next array should start at the end of thast one
         JSONArray firstLastArray = nclist.getJSONArray(4)
-        assert firstLastArray.getInt(1) == 0 + 843
-        assert firstLastArray.getInt(2) == 2546 + 843
+        assert firstLastArray.getInt(1) == 0 + 838
+        assert firstLastArray.getInt(2) == 2538 + 838
 
         JSONArray lastLastArray = nclist.getJSONArray(8)
-        assert lastLastArray.getInt(1) == 14601 + 843
-        assert lastLastArray.getInt(2) == 15764 + 843
+        assert lastLastArray.getInt(1) == 14574 + 838
+        assert lastLastArray.getInt(2) == 15734 + 838
     }
 
     /**
      *
-     *  GroupUn87: Projected: 0,213 <-> 723,843   (4 groups), Unprojected: 9966,10179 (first)  45455,45575 (last)
-     *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
+     *  GroupUn87: Projected: 0,213 <-> 718,838   (4 groups), Unprojected: 9966,10179 (first)  45455,45575 (last)
+     *  Group11.4: Projected: 0,2538 <-> 14574,15734  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
      */
     void "exon projections of contiguous tracks should work with padding"() {
 
@@ -248,8 +249,9 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then:
         JSONArray lastFirstArray = nclist.getJSONArray(3)
-        assert lastFirstArray.getInt(1) == 723 + padding * paddingCount // end of first set
-        assert lastFirstArray.getInt(2) == 843 + padding * paddingCount // end of the first set
+//        assert lastFirstArray.getInt(1) == 718 + padding * paddingCount // end of first set
+        assert lastFirstArray.getInt(1) == 718 + padding * paddingCount // end of first set
+        assert lastFirstArray.getInt(2) == 838 + padding * paddingCount // end of the first set
 
         // the next array should start at the end of thast one
         when: "adjust "
@@ -257,16 +259,16 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then:
         JSONArray firstLastArray = nclist.getJSONArray(4)
-        assert firstLastArray.getInt(1) == 0 + 843 + padding * paddingCount
-        assert firstLastArray.getInt(2) == 2546 + 843 + padding * (paddingCount+16)
+        assert firstLastArray.getInt(1) == 0 + 838 + padding * paddingCount
+        assert firstLastArray.getInt(2) == 2538 + 838 + padding * (paddingCount+16)
 
         when: "adjust "
         paddingCount += 16 + 2 + 36 //?
 
         then:
         JSONArray lastLastArray = nclist.getJSONArray(8)
-        assert lastLastArray.getInt(1) == 14601 + 843 + padding * paddingCount
-        assert lastLastArray.getInt(2) == 15764 + 843 + padding * (paddingCount+6)
+        assert lastLastArray.getInt(1) == 14574 + 838 + padding * paddingCount
+        assert lastLastArray.getInt(2) == 15734 + 838 + padding * (paddingCount+6)
     }
 
     /**
@@ -275,9 +277,9 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
      *  (lf-1 . . 61 pieces, 6958 <=> 8455 first, 1078032 <=> 1080855 last ) ,
      *  (lf-2 . . 43 pieces, 1083799 <=>  1102753 first, 1494115 <=> 1494475 last ) ,
      *
-     *  Projected: (2 chunks) first chunk, 0 <=> 91398 second chunk, 91399 <=> 169359
-     *  (lf-1 . . 61 pieces, 0 <=> 1281 first, 89936 <=> 91398 last ) ,
-     *  (lf-2 . . 43 pieces, 91399 <=>  95943 first, 169097 <=> 169359 last ) ,
+     *  Projected: (2 chunks) first chunk, 0 <=> 91084 second chunk, 91399 <=> 168772
+     *  (lf-1 . . 61 pieces, 0 <=> 1281 first, 89936 <=> 91084 last ) ,
+     *  (lf-2 . . 43 pieces, 91399 <=>  95943 first, 169097 <=> 168772 last ) ,
      *
      * TODO: // look at this
      *  Group1.10: Unprojected (3 chunks)
@@ -319,39 +321,39 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         then:
         assert array.getInt(0) == 4 // it is a chunk
         assert array.getInt(1) == 0
-        assert array.getInt(2) == 91398
+        assert array.getInt(2) == 91084
 
         when:
         array = nclist.getJSONArray(1)
 
         then:
         assert array.getInt(0) == 4
-        assert array.getInt(1) == 91399
-        assert array.getInt(2) == 169359 // end of the first set
+        assert array.getInt(1) == 91084
+        assert array.getInt(2) == 168772 // end of the first set
 
         when:
         array = nclist.getJSONArray(2)
 
         then:
         assert array.getInt(0) == 4
-        assert array.getInt(1) == 0 + 169359
-        assert array.getInt(2) == 108503 + 169359
+        assert array.getInt(1) == 0 + 168772
+        assert array.getInt(2) == 108166 + 168772
 
         when:
         array = nclist.getJSONArray(3)
 
         then:
         assert array.getInt(0) == 4
-        assert array.getInt(1) == 108504 + 169359
-        assert array.getInt(2) == 201343 + 169359
+        assert array.getInt(1) == 108166  + 168772
+        assert array.getInt(2) == 200683 + 168772
 
         when:
         array = nclist.getJSONArray(4)
 
         then:
         assert array.getInt(0) == 4
-        assert array.getInt(1) == 201344 + 169359
-        assert array.getInt(2) == 230587 + 169359
+        assert array.getInt(1) == 200683 + 168772
+        assert array.getInt(2) == 229828 + 168772
 
         when: "we load the first of the chunk data"
         JSONArray chunk1Data = trackService.loadChunkData(chunk1, refererLoc, Organism.first(), 0,trackName)
@@ -360,14 +362,14 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "confirm that chunk 1 is projected "
         assert chunk1Data.size() == 61
         assert array.getInt(1) == 0
-        assert array.getInt(2) == 1281
+        assert array.getInt(2) == 1278
 
         when:
         array = chunk1Data.getJSONArray(60)
 
         then:
-        assert array.getInt(1) == 89936
-        assert array.getInt(2) == 91398
+        assert array.getInt(1) == 89628
+        assert array.getInt(2) == 91084
 
 
         when: "we load the second chunk"
@@ -375,48 +377,48 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         array = chunk2Data.getJSONArray(0)
 
         then: "we should get the properly projected chunks for 2"
-        assert array.getInt(1) == 91399
-        assert array.getInt(2) == 95943
+        assert array.getInt(1) == 91084
+        assert array.getInt(2) == 95607
 
         when:
         array = chunk2Data.getJSONArray(chunk2Data.size() - 1)
 
         then:
-        assert array.getInt(1) == 169097
-        assert array.getInt(2) == 169359
+        assert array.getInt(1) == 168511
+        assert array.getInt(2) == 168772
 
         when: "we load the third chunk using the offset from previous sequence group"
-        JSONArray chunk3Data = trackService.loadChunkData(chunk3, refererLoc, Organism.first(), 169359,trackName)
+        JSONArray chunk3Data = trackService.loadChunkData(chunk3, refererLoc, Organism.first(), 168772,trackName)
         array = chunk3Data.getJSONArray(0)
 
         then: "confirm that chunk 3 is projected "
         assert chunk3Data.size() == 57
-        assert array.getInt(1) == 0 + 169359
-        assert array.getInt(2) == 874 + 169359
+        assert array.getInt(1) == 0 + 168772
+        assert array.getInt(2) == 873 + 168772
 
         when:
         array = chunk3Data.getJSONArray(56)
 
         then:
-        assert array.getInt(1) == 107145 + 169359
-        assert array.getInt(2) == 108503 + 169359
+        assert array.getInt(1) == 106813 + 168772
+        assert array.getInt(2) == 108166 + 168772
 
         when: "we load the last chunk using the offset from previous sequence group"
 //        *  (lf-3 . . 16 pieces, 201344 <=>  206511 first, 227803 <=> 230587 last ) ,
-        JSONArray chunk5Data = trackService.loadChunkData(chunk5, refererLoc, Organism.first(), 169359,trackName)
+        JSONArray chunk5Data = trackService.loadChunkData(chunk5, refererLoc, Organism.first(), 168772,trackName)
         array = chunk5Data.getJSONArray(0)
 
         then: "confirm that chunk 5 is projected "
         assert chunk5Data.size() == 15
-        assert array.getInt(1) == 201344 + 169359
-        assert array.getInt(2) == 206511 + 169359
+        assert array.getInt(1) == 200683 + 168772
+        assert array.getInt(2) == 205830 + 168772
 
         when:
         array = chunk5Data.getJSONArray(chunk5Data.size() - 1)
 
         then:
-        assert array.getInt(1) == 227803 + 169359
-        assert array.getInt(2) == 230587 + 169359
+        assert array.getInt(1) == 227055 + 168772
+        assert array.getInt(2) == 229828 + 168772
     }
 
     void "test sanitizeCoordinateArray method"() {

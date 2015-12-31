@@ -516,7 +516,7 @@ class ProjectionService {
             locationList.add(
                     new Location(
                             min: coordinate.getInt(trackIndex.start)
-                            , max: coordinate.getInt(trackIndex.end)
+                            , max: coordinate.getInt(trackIndex.end)-1 // the end is exclusive from track, we store inclusive
                             , sequence: projectionSequence1
                     )
             )

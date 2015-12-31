@@ -11,6 +11,8 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
     def projectionService
 
     def setup() {
+        FeatureEvent.deleteAll(FeatureEvent.all)
+        Feature.deleteAll(Feature.all)
         setupDefaultUserOrg()
         projectionService.clearProjections()
 //        Organism organism = new Organism(

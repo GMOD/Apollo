@@ -356,10 +356,10 @@ class TrackService {
             TrackIndex trackIndex = trackMapperService.getIndices(projectionSequence.organism, trackName, coordinate.getInt(0))
             Integer oldMin = coordinate.getInt(trackIndex.start) + projectionSequence.originalOffset
             Integer oldMax = coordinate.getInt(trackIndex.end) + projectionSequence.originalOffset
-            Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax)
+            Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax-1)
             if (newCoordinate && newCoordinate.isValid()) {
                 coordinate.set(trackIndex.start, newCoordinate.min + offset - projectionSequence.offset)
-                coordinate.set(trackIndex.end, newCoordinate.max + offset - projectionSequence.offset)
+                coordinate.set(trackIndex.end, newCoordinate.max + offset - projectionSequence.offset+1)
             } else {
                 log.error("Invalid mapping of coordinate ${coordinate} -> ${newCoordinate}")
                 coordinate.set(trackIndex.start, -1)

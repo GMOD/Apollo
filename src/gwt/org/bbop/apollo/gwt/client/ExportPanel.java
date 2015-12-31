@@ -10,10 +10,7 @@ import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
-import org.gwtbootstrap3.client.ui.constants.ButtonType;
-import org.gwtbootstrap3.client.ui.constants.IconRotate;
-import org.gwtbootstrap3.client.ui.constants.IconType;
-import org.gwtbootstrap3.client.ui.constants.Toggle;
+import org.gwtbootstrap3.client.ui.constants.*;
 
 import java.util.List;
 
@@ -47,6 +44,7 @@ public class ExportPanel extends Modal {
         setTitle("Export");
         setClosable(true);
         setRemoveOnHide(true);
+        setDataBackdrop(ModalBackdrop.FALSE);
 
         Integer count = exportAll ? -1 : sequenceInfoList.size();
         String countText = count < 0 ? "all" : count + "";
