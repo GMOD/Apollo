@@ -87,8 +87,17 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         println "returned feature object ${returnedFeatureObject as JSON}"
 
         when: "we the get opbject"
-        JSONObject firstLocation = returnedFeatureObject.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
-        JSONObject secondLocation = returnedFeatureObject.getJSONObject(1).getJSONObject(FeatureStringEnum.LOCATION.value)
+        JSONObject aLocation = returnedFeatureObject.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
+        JSONObject bLocation = returnedFeatureObject.getJSONObject(1).getJSONObject(FeatureStringEnum.LOCATION.value)
+        JSONObject cLocation = returnedFeatureObject.getJSONObject(2).getJSONObject(FeatureStringEnum.LOCATION.value)
+
+        List<JSONObject> locationObjects = [aLocation,bLocation,cLocation].sort(true){ a,b ->
+            a.getInt(FeatureStringEnum.FMIN.value) <=> b.getInt(FeatureStringEnum.FMIN.value) ?: a.getInt(FeatureStringEnum.FMAX.value) <=> b.getInt(FeatureStringEnum.FMAX.value)
+        }
+        JSONObject firstLocation = locationObjects[0]
+        JSONObject secondLocation = locationObjects[1]
+        JSONObject thirdLocation = locationObjects[2]
+
 
         then: "we should have reasonable locations based on length or previously projected feature arrays . . . "
         assert 1==firstLocation.getInt(FeatureStringEnum.STRAND.value)
@@ -104,11 +113,20 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert 1==secondLocation.getInt(FeatureStringEnum.STRAND.value)
         // 29928 + 64197
         // 29928 + 75085
-        assert 29928 + 75085==secondLocation.getInt(FeatureStringEnum.FMIN.value)
+        assert 29396 + 75085 + 1==secondLocation.getInt(FeatureStringEnum.FMIN.value)
         // 30329 + 64197
         // 30329 + 75085
 //        assert 94526==secondLocation.getInt(FeatureStringEnum.FMAX.value)
-        assert 30329 + 75085 + 1 ==secondLocation.getInt(FeatureStringEnum.FMAX.value)
+        assert 30271 + 75085 + 1 ==secondLocation.getInt(FeatureStringEnum.FMAX.value)
+
+        assert 1==thirdLocation.getInt(FeatureStringEnum.STRAND.value)
+        // 29928 + 64197
+        // 29928 + 75085
+        assert 29928 + 75085==thirdLocation.getInt(FeatureStringEnum.FMIN.value)
+        // 30329 + 64197
+        // 30329 + 75085
+//        assert 94526==thirdLocation.getInt(FeatureStringEnum.FMAX.value)
+        assert 30329 + 75085 + 1 ==thirdLocation.getInt(FeatureStringEnum.FMAX.value)
 
     }
 }
