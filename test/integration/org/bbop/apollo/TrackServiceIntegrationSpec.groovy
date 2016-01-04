@@ -53,6 +53,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we get the projected track data "
         JSONObject trackObject = trackService.projectTrackData(sequenceStrings, dataFileName, refererLoc, Organism.first())
+        Sequence un87Sequence = Sequence.findByName("GroupUn87")
 
         then: "we expect to get sane results"
         assert trackObject.featureCount == 10
@@ -73,13 +74,13 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         // the next array should go somewhere completely else
         JSONArray firstLastArray = nclist.getJSONArray(4)
-        assert firstLastArray.getInt(1) == 10257 + 45575 // start of the last set
-        assert firstLastArray.getInt(2) == 18596 + 45575 // start of the last set
+        assert firstLastArray.getInt(1) == 10257 + un87Sequence.length // start of the last set
+        assert firstLastArray.getInt(2) == 18596 + un87Sequence.length // start of the last set
         assert firstLastArray.getInt(3) == 1
 
         JSONArray lastLastArray = nclist.getJSONArray(8)
-        assert lastLastArray.getInt(1) == 62507 + 45575 // end of the last set
-        assert lastLastArray.getInt(2) == 64197 + 45575 // end of the last set
+        assert lastLastArray.getInt(1) == 62507 + un87Sequence.length // end of the last set
+        assert lastLastArray.getInt(2) == 64197 + un87Sequence.length // end of the last set
         assert lastLastArray.getInt(3) == -1
     }
 
