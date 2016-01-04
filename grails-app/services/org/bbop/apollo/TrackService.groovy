@@ -190,7 +190,7 @@ class TrackService {
 //        else
         if (inputName.contains("/")) {
             String[] tokens = inputName.split("/")
-            // the sequence path should be the second to the last one
+            // the sequenceString path should be the second to the last one
             return tokens.length >= 2 ? tokens[tokens.length - 2] : null
         }
         return null
@@ -200,7 +200,7 @@ class TrackService {
     String generateTrackNameForSequence(String inputName, String sequenceName) {
         if (inputName.contains("/")) {
             String[] tokens = inputName.split("/")
-            // the sequence path should be the second to the last one
+            // the sequenceString path should be the second to the last one
             if (tokens.length >= 2) {
                 tokens[tokens.length - 2] = sequenceName
                 return tokens.join("/")
@@ -212,7 +212,7 @@ class TrackService {
     def String getTrackPathName(String inputName) {
         if (inputName.contains("/")) {
             String[] tokens = inputName.split("/")
-            // the sequence path should be the second to the last one
+            // the sequenceString path should be the second to the last one
             return tokens.length >= 3 ? tokens[tokens.length - 3] : null
         }
         return null
@@ -333,7 +333,7 @@ class TrackService {
      * @param projection What is used to do the projection
      * @param coordinate JSONArray to project
      * @param offset Offset of the coordinate (typically due to chunking)
-     * @param adjustment This is typically the offset from the prior sequence.
+     * @param adjustment This is typically the offset from the prior sequenceString.
      * @return
      */
     JSONArray projectJsonArray(MultiSequenceProjection projection, JSONArray coordinate, Integer offset, ProjectionSequence projectionSequence, String trackName) {
@@ -371,7 +371,7 @@ class TrackService {
     }
 
     /**
-     * merge trackData.json objects from different sequence sources . . .
+     * merge trackData.json objects from different sequenceString sources . . .
      *
      * 1 - assume already projected
      * 2 - assume in the correct order
@@ -387,7 +387,7 @@ class TrackService {
             JSONObject jsonObject = trackList.get(chunk.sequence)
             if (finalObject == null) {
                 finalObject = jsonObject
-                // get endSize
+                // get endSize  6
                 endSize = jsonObject.intervals.maxEnd
             } else {
                 // ignore formatVersion
@@ -562,16 +562,25 @@ class TrackService {
     JSONObject projectTrackData(ArrayList<String> sequenceStrings, String dataFileName, String refererLoc, Organism currentOrganism) {
         Map<String, JSONObject> trackObjectList = new HashMap<>()
         ProjectionChunkList projectionChunkList = new ProjectionChunkList()
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
 
         // can probably store the projection chunks
         Integer priorSequenceLength = 0
         Integer priorChunkArrayOffset = 0
         String trackName = null
-        for (sequence in sequenceStrings) {
+        // a sequence name
+//        List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceStrings,currentOrganism)
+        Map<String,Sequence> sequenceMap = new HashMap<>()
+        List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceStrings,currentOrganism)
+        for(Sequence sequence in sequenceList){
+            sequenceMap.put(sequence.name,sequence)
+        }
+
+        for (sequenceString in sequenceStrings) {
             ProjectionChunk projectionChunk = new ProjectionChunk(
-                    sequence: sequence
+                    sequence: sequenceString
             )
-            String sequencePathName = generateTrackNameForSequence(dataFileName, sequence)
+            String sequencePathName = generateTrackNameForSequence(dataFileName, sequenceString)
             trackName = getTrackPathName(sequencePathName)
 
             // this loads PROJECTED
@@ -581,6 +590,7 @@ class TrackService {
             trackMapperService.storeTrack(currentOrganism.commonName,trackName,intervalsObject.getJSONArray("classes"))
             Integer lastLength = 0
             Integer lastChunkArrayOffset = 0
+            Sequence sequence = sequenceMap.get(sequenceString)
             for (int i = 0; i < ncListArray.size(); i++) {
                 JSONArray internalArray = ncListArray.getJSONArray(i)
                 TrackIndex trackIndex = trackMapperService.getIndices(currentOrganism.commonName, trackName, internalArray.getInt(0))
@@ -588,7 +598,15 @@ class TrackService {
                 if (trackIndex.hasChunk()) {
                     projectionChunk.addChunk()
                 }
-                lastLength = internalArray.getInt(trackIndex.end)
+                // if the index is the last one
+                // TODO: refactor
+                if(multiSequenceProjection.projectionDescription.projection.toUpperCase()=="EXON"){
+                    lastLength = internalArray.getInt(trackIndex.end)
+                }
+                else{
+                    lastLength = sequence.length
+                }
+
                 ++lastChunkArrayOffset
             }
 
@@ -600,11 +618,10 @@ class TrackService {
 
             projectionChunkList.addChunk(projectionChunk)
 
-            trackObjectList.put(sequence, trackObject)
+            trackObjectList.put(sequenceString, trackObject)
         }
 
 
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
         multiSequenceProjection.projectionChunkList = projectionChunkList
         projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
 
