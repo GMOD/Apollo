@@ -1,0 +1,6 @@
+AGA	S
+AGG	K
+TGA	W
+TTG	L	start
+CTG	L	start
+GTG	V	start

@@ -7,9 +7,11 @@ import org.bbop.apollo.AnnotationException
  */
 class SequenceTranslationHandler {
 
-    private static TranslationTable[] translationTables = null;
+    private static Map<Integer, TranslationTable> translationTables = new HashMap<>();
     private static Set<String> spliceAcceptorSites = new HashSet<String>();
     private static Set<String> spliceDonorSites = new HashSet<String>();
+
+    public final static Integer DEFAULT_TRANSLATION_TABLE = 1
 
     /** Reverse complement a nucleotide sequence.
      *
@@ -81,8 +83,7 @@ class SequenceTranslationHandler {
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 buffer.append(aminoAcid);
             }
         }
@@ -96,13 +97,13 @@ class SequenceTranslationHandler {
      * @throws AnnotationException - If an invalid NCBI translation table code is used
      */
     public static TranslationTable getTranslationTableForGeneticCode(int code) throws AnnotationException {
-        if (translationTables == null) {
-            initTranslationTables();
+        if (!translationTables.containsKey(code)) {
+            initTranslationTables(code);
         }
-        if (code < 1 || code > translationTables.length) {
+        if (code < DEFAULT_TRANSLATION_TABLE || !translationTables.containsKey(code)) {
             throw new AnnotationException("Invalid translation table code");
         }
-        return translationTables[code - 1];
+        return translationTables.get(code);
     }
 
     /** Get the default translation table (NCBI translation table code 1).
@@ -110,15 +111,15 @@ class SequenceTranslationHandler {
      * @return Default translation table
      */
     public static TranslationTable getDefaultTranslationTable() {
-        if (translationTables == null) {
-            initTranslationTables();
-        }
-        return translationTables[0];
+        return getTranslationTableForGeneticCode(1)
     }
 
-    private static void initTranslationTables() {
-        translationTables = new TranslationTable[23];
-        translationTables[0] = new StandardTranslationTable();
+    private static void initTranslationTables(Integer code) {
+        if (code == 1) {
+            translationTables.put(code, new StandardTranslationTable())
+        } else {
+            translationTables.put(code, TranslationTableReader.readTable(new File("ncbi_${code}_translation_table.txt")))
+        }
     }
 
 /** Get the splice acceptor sites.
