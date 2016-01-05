@@ -1,24 +1,19 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.Feature
 import grails.transaction.Transactional
-import org.bbop.apollo.filter.Cds3Filter
-import org.bbop.apollo.filter.StopCodonFilter
+import org.bbop.apollo.alteration.SequenceAlterationInContext
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
-import org.bbop.apollo.sequence.Strand
-import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
-
 
 /**
  * taken from AbstractBioFeature
@@ -110,12 +105,16 @@ class FeatureService {
      */
     public Collection<Transcript> getOverlappingTranscripts(FeatureLocation location, boolean compareStrands = true) {
         List<Transcript> transcriptList = new ArrayList<>()
-        List<Transcript> overlappingFeaturesList = getOverlappingFeatures(location, compareStrands)
+        Collection<Feature> overlappingFeaturesList = getOverlappingFeatures(location, compareStrands)
 
         for (Feature eachFeature : overlappingFeaturesList) {
-            Feature feature = Feature.get(eachFeature.id)
-            if (feature instanceof Transcript) {
-                transcriptList.add((Transcript) feature)
+//            Feature feature = Feature.get(eachFeature.id)
+            if (eachFeature instanceof Transcript) {
+                if(!transcriptService.getCDS((Transcript) eachFeature)){
+                    CDS cds = transcriptService.createCDS((Transcript) eachFeature)
+                    featureRelationshipService.addChildFeature(eachFeature,cds)
+                }
+                transcriptList.add((Transcript) eachFeature)
             }
         }
 

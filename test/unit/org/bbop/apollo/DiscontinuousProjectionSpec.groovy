@@ -479,7 +479,7 @@ class DiscontinuousProjectionSpec extends Specification {
 
         when: "we add the appropriate intervals"
         DiscontinuousProjection projection = DiscontinuousProjectionFactory.getInstance().createProjection(track1)
-        String projectedSequence = projection.projectSequence(unprojected)
+        String projectedSequence = projection.projectSequence(unprojected,0,28)
 
         then: "make sure we have the same thing"
         assert projected == projectedSequence
@@ -515,7 +515,7 @@ class DiscontinuousProjectionSpec extends Specification {
 
         when: "we project a sequence"
         DiscontinuousProjection projection = DiscontinuousProjectionFactory.getInstance().createProjection(track1)
-        String projectedSequence = projection.projectSequence(inputSequence)
+        String projectedSequence = projection.projectSequence(inputSequence,0,72)
 
         then: "we should get back the projected sequence"
         assert projectedSequence == inputSequence.substring(8, 16 + 1) + inputSequence.substring(24, 32 + 1) + inputSequence.substring(40, 56 + 1)

@@ -179,7 +179,7 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
         bigwigService.processProjection(featuresArray, projection, bigWigFileReader, -1, 50000)
 
         then: "we expect to get sane results"
-        assert featuresArray.size() == 508
+        assert featuresArray.size() == 507
     }
 
     /**
@@ -206,7 +206,7 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
         bigwigService.processProjection(featuresArray, projection, bigWigFileReader, -1, 50000)
 
         then: "we expect to get sane results"
-        assert featuresArray.size() == 839
+        assert featuresArray.size() == 833
     }
 
     /**

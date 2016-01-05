@@ -398,9 +398,9 @@ public class DiscontinuousProjection extends AbstractProjection {
         return returnValue
     }
 
-    String projectSequence(String inputSequence) {
-        projectSequence(inputSequence, -1, -1, 0)
-    }
+//    String projectSequence(String inputSequence) {
+//        projectSequence(inputSequence, -1, -1, 0)
+//    }
 
     String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate) {
         projectSequence(inputSequence, minCoordinate, maxCoordinate, 0)

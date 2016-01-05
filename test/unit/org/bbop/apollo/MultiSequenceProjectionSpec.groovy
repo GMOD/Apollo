@@ -963,10 +963,108 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 100==offset
 //        assert inputSequence.substring(10,12)==projectedSequence.substring(0,2)
 //        assert inputSequence.substring(22,25)==projectedSequence.substring(3,6)
-        assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(7,11)
-        assert inputSequence.substring(60+offset,63+offset)==projectedSequence.substring(12,15)
-        assert 9==projectedSequence.length()
+        assert 5==projectedSequence.length()
+        assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(0,4)
     }
 
+    void "more multi-scaffold tests"(){
+
+        given: "a projection"
+        ProjectionSequence sequence1 = new ProjectionSequence(
+                id: 1
+                ,name: "Sequence1"
+                ,organism: "Human"
+                ,order: 0
+                ,unprojectedLength: 50
+        )// from 0-49
+        ProjectionSequence sequence2 = new ProjectionSequence(
+                id: 2
+                ,name: "Sequence2"
+                ,organism: "Human"
+                ,order: 1
+                ,unprojectedLength: 75
+        ) // from 50-124
+        ProjectionSequence sequence3 = new ProjectionSequence(
+                id: 3
+                ,name: "Sequence3"
+                ,organism: "Human"
+                ,order: 2
+                ,unprojectedLength: 25
+        ) // from 125-149
+        ProjectionSequence sequence4 = new ProjectionSequence(
+                id: 4
+                ,name: "Sequence4"
+                ,organism: "Human"
+                ,order: 3
+                ,unprojectedLength: 50
+        ) // from 150-200
+        ProjectionDescription projectionDescription = new ProjectionDescription(
+                referenceTrack: []
+                ,sequenceList: [sequence1,sequence2,sequence3,sequence4]
+                , projection: "exon" // probably ignored here
+                ,padding: 0
+        )
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(projectionDescription: projectionDescription)
+        Location location1 = new Location( min: 10 ,max: 12 ,sequence: sequence1 ) // 3
+        Location location2 = new Location( min: 22 ,max: 25 ,sequence: sequence1 ) // 4
+        Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )  // 5
+        Location location4 = new Location( min: 60,max: 63,sequence: sequence2 )  // 4
+        Location location5 = new Location( min: 5,max: 10,sequence: sequence3 )   // 6
+        Location location6 = new Location( min: 10,max: 12,sequence: sequence4 )  // 3
+        // total 25
+
+
+
+        when: "we create some intervals for a few scaffolds"
+        multiSequenceProjection.addLocation(location1)
+        multiSequenceProjection.addLocation(location2)
+        multiSequenceProjection.addLocation(location3)
+        multiSequenceProjection.addLocation(location4)
+        multiSequenceProjection.addLocation(location5)
+        multiSequenceProjection.addLocation(location6)
+        multiSequenceProjection.calculateOffsets()
+        List<Coordinate> coordinateCollection = multiSequenceProjection.listCoordinates()
+        List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.sequenceDiscontinuousProjectionMap.keySet() as List<ProjectionSequence>
+
+        then: "we should get a single projection of size 4"
+        // TODO: TEST 4 cases in MultiSequenceProject projectSequence!!!!!!!!
+        assert multiSequenceProjection.size()==6
+
+        when: "we project a sequence through these coordinates"
+        // length should be 200
+        String inputSequence = "ATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCA"
+        String projectedSequence = multiSequenceProjection.projectSequence(inputSequence,0,200,0)
+        Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
+
+        then: "we should confirm that both the input and retrieved sequence are correct"
+        assert 200==inputSequence.length()
+        assert 50==offset
+        assert 25==projectedSequence.length()
+        assert inputSequence.substring(10,12)==projectedSequence.substring(0,2)
+        assert inputSequence.substring(22,25)==projectedSequence.substring(3,6)
+        assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(7,11)
+        assert inputSequence.substring(60+offset,63+offset)==projectedSequence.substring(12,15)
+
+        when: "case 1 and 2: we project a sequence through these smaller coordinates "
+        // length should be 200
+        projectedSequence = multiSequenceProjection.projectSequence(inputSequence,50,150,0)
+//        Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
+
+        then: "we should confirm that both the input and retrieved sequence are correct"
+        assert 15==projectedSequence.length()
+
+        when: "we attempt case 3: a subset of a projection sequence"
+        projectedSequence = multiSequenceProjection.projectSequence(inputSequence,60,120,0)
+
+        then: "we should see only see all of the coordinates on sequence 3"
+        assert 9==projectedSequence.length()
+
+        when: "we attempt case 4 (and also 1 and 2): we overlap the entire projection sequence space"
+        projectedSequence = multiSequenceProjection.projectSequence(inputSequence,20,8+125,0)
+
+        then: "we will just project tne entire thing"
+        assert 4+9+4==projectedSequence.length()
+
+    }
 
 }
