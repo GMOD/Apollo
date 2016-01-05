@@ -2718,4 +2718,20 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert transcriptService.getTranscripts(geneList.get(0)).size() == 1
         assert transcriptService.getTranscripts(geneList.get(1)).size() == 2
     }
+
+    void "add transcript to second contiguous sequence"(){
+        given: "a transcript add operation"
+        String addTranscriptString = "{\"track\":{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":[\"Official Gene Set v3.2\"], \"sequenceList\":[{\"name\":\"Group11.4\"},{\"name\":\"GroupUn87\"}], \"label\":\"Group11.4::GroupUn87\"},\"features\":[{\"location\":{\"fmin\":85051,\"fmax\":85264,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53496-RA\",\"children\":[{\"location\":{\"fmin\":85051,\"fmax\":85264,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":85051,\"fmax\":85264,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+
+        when: "we add the transcript "
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+
+        then: "we should get a gene added to the appropriate space"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert CDS.count == 1
+        assert Exon.count == 1
+        MRNA.countByName("GB53496-RA-00001")==1
+    }
 }
