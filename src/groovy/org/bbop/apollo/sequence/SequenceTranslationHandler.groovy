@@ -175,6 +175,24 @@ class SequenceTranslationHandler {
         spliceDonorSites.remove(spliceDonorSite);
     }
 
+    /**
+     * Pocesses deltas from the standard (1) translation table:
+     * http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi?mode=t
+     *
+     * code, codon <start|stop|none>
+     *
+     * if stop codon (*), add to stop codon table
+     *     if "none" then remove from alternate translation table, else add to alternatetranslation table
+     * else
+     *     if "none", remove codon from stop codon, and from alternate translation table
+     *
+     *
+     * if 3 is start, add to start codons, else remove from start codons
+     *
+     *
+     * @param file
+     * @return
+     */
     public static TranslationTable readTable(File file) {
         TranslationTable ttable = new StandardTranslationTable()
 //        BufferedReader reader = new BufferedReader(new InputStreamReader(getServletContext().getResourceAsStream(track.getTranslationTable())));

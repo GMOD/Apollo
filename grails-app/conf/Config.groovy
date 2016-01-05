@@ -210,7 +210,7 @@ apollo {
     // other translation codes are of the form ncbi_KEY_translation_table.txt
     // under the web-app/translation_tables  directory
     // to add your own add them to that directory and over-ride the translation code here
-    get_translation_code = "1"
+    get_translation_code = 1
     proxies = [
             [
                     referenceUrl: 'http://golr.geneontology.org/select',

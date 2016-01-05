@@ -30,10 +30,11 @@ class TranslationTableSpec extends Specification {
 
         then: "we should get the correct results"
         assert translationTable!=null
-        translationTable.startCodons.size()==1
-        translationTable.stopCodons.size()==3
-        translationTable.alternateTranslationTable.size()==1
-        translationTable.translationTable.size()==64
+        assert translationTable.startCodons.size()==1
+        assert translationTable.stopCodons.size()==3
+        assert translationTable.alternateTranslationTable.size()==1
+        assert translationTable.translationTable.size()==64
+        assert translationTable.alternateTranslationTable.size()==1
     }
 
 
@@ -46,9 +47,10 @@ class TranslationTableSpec extends Specification {
         TranslationTable translationTable = SequenceTranslationHandler.readTable(file)
 
         then: "we should get the correct results"
-        assert translationTable.startCodons.size()==3+6
+        assert translationTable.startCodons.size()==1+6
         assert translationTable.stopCodons.size()==3
-        assert translationTable.translationTable.size()==64
+        assert translationTable.translationTable.size()==64 // start codons are existing translations
+        assert translationTable.alternateTranslationTable.size()==1
     }
 
     void "is the init behavior correct?"() {
@@ -62,9 +64,10 @@ class TranslationTableSpec extends Specification {
 
         then: "we should get the correct results"
         assert translationTable!=null
-        assert translationTable.startCodons.size()==1+2-3
-        assert translationTable.stopCodons.size()==1
+        assert translationTable.startCodons.size()==1+1-1
+        assert translationTable.stopCodons.size()==3+2-1
         assert translationTable.translationTable.size()==64
+        assert translationTable.alternateTranslationTable.size()==1-1
     }
 
 }
