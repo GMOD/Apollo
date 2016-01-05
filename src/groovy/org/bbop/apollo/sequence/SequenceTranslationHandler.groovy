@@ -176,7 +176,7 @@ class SequenceTranslationHandler {
     }
 
     public static TranslationTable readTable(File file) {
-        TranslationTable ttable = new TranslationTable()
+        TranslationTable ttable = new StandardTranslationTable()
 //        BufferedReader reader = new BufferedReader(new InputStreamReader(getServletContext().getResourceAsStream(track.getTranslationTable())));
         file.text.readLines().each { String line ->
             String[] tokens = line.split("\t");

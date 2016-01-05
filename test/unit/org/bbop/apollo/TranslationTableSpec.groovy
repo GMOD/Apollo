@@ -18,35 +18,6 @@ class TranslationTableSpec extends Specification {
     def cleanup() {
     }
 
-
-    void "can I read in translation tables"() {
-
-        given:
-        File file = new File("web-app/translation_tables/ncbi_11_translation_table.txt")
-
-        when: "we read a translation table"
-        TranslationTable translationTable = SequenceTranslationHandler.readTable(file)
-
-        then: "we should get the correct results"
-        assert translationTable.startCodons.size()==6
-        assert translationTable.stopCodons.size()==0
-    }
-
-    void "is the init behavior correct?"() {
-
-        given:
-        SequenceTranslationHandler handler = new SequenceTranslationHandler()
-
-        when: "we read a translation table"
-        // be something with STOPS, etc.
-        TranslationTable translationTable = handler.getTranslationTableForGeneticCode("2")
-
-        then: "we should get the correct results"
-        assert translationTable!=null
-        assert translationTable.startCodons.size()==1
-        assert translationTable.stopCodons.size()==1
-    }
-
     // if we init with "default" does that work?
     void "is the default behavior correct?"() {
 
@@ -64,4 +35,36 @@ class TranslationTableSpec extends Specification {
         translationTable.alternateTranslationTable.size()==1
         translationTable.translationTable.size()==64
     }
+
+
+    void "can I read in translation tables"() {
+
+        given:
+        File file = new File("web-app/translation_tables/ncbi_11_translation_table.txt")
+
+        when: "we read a translation table"
+        TranslationTable translationTable = SequenceTranslationHandler.readTable(file)
+
+        then: "we should get the correct results"
+        assert translationTable.startCodons.size()==3+6
+        assert translationTable.stopCodons.size()==3
+        assert translationTable.translationTable.size()==64
+    }
+
+    void "is the init behavior correct?"() {
+
+        given:
+        SequenceTranslationHandler handler = new SequenceTranslationHandler()
+
+        when: "we read a translation table"
+        // be something with STOPS, etc.
+        TranslationTable translationTable = handler.getTranslationTableForGeneticCode("2")
+
+        then: "we should get the correct results"
+        assert translationTable!=null
+        assert translationTable.startCodons.size()==1+2-3
+        assert translationTable.stopCodons.size()==1
+        assert translationTable.translationTable.size()==64
+    }
+
 }
