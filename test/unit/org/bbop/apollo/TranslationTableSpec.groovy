@@ -3,7 +3,7 @@ package org.bbop.apollo
 import grails.test.mixin.TestFor
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
-import org.bbop.apollo.sequence.TranslationTableReader
+import org.bbop.apollo.sequence.SequenceTranslationHandler
 import spock.lang.Specification
 
 /**
@@ -18,10 +18,6 @@ class TranslationTableSpec extends Specification {
     def cleanup() {
     }
 
-    // if we init with "default" does that work?
-    void "is the default behavior correct?"() {
-
-    }
 
     void "can I read in translation tables"() {
 
@@ -29,11 +25,11 @@ class TranslationTableSpec extends Specification {
         File file = new File("web-app/translation_tables/ncbi_11_translation_table.txt")
 
         when: "we read a translation table"
-        TranslationTable translationTable = TranslationTableReader.readTable(file)
-
+        TranslationTable translationTable = SequenceTranslationHandler.readTable(file)
 
         then: "we should get the correct results"
-        assert true==false
+        assert translationTable.startCodons.size()==6
+        assert translationTable.stopCodons.size()==0
     }
 
     void "is the init behavior correct?"() {
@@ -43,11 +39,29 @@ class TranslationTableSpec extends Specification {
 
         when: "we read a translation table"
         // be something with STOPS, etc.
-        TranslationTable translationTable = handler.getTranslationTableForGeneticCode(5)
-
+        TranslationTable translationTable = handler.getTranslationTableForGeneticCode("2")
 
         then: "we should get the correct results"
         assert translationTable!=null
-        assert true==false
+        assert translationTable.startCodons.size()==1
+        assert translationTable.stopCodons.size()==1
+    }
+
+    // if we init with "default" does that work?
+    void "is the default behavior correct?"() {
+
+        given:
+        SequenceTranslationHandler handler = new SequenceTranslationHandler()
+
+        when: "we read a translation table"
+        // be something with STOPS, etc.
+        TranslationTable translationTable = handler.getDefaultTranslationTable()
+
+        then: "we should get the correct results"
+        assert translationTable!=null
+        translationTable.startCodons.size()==1
+        translationTable.stopCodons.size()==3
+        translationTable.alternateTranslationTable.size()==1
+        translationTable.translationTable.size()==64
     }
 }

@@ -1,5 +1,9 @@
 package org.bbop.apollo.sequence
 
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.filefilter.DirectoryFileFilter
+import org.apache.commons.io.filefilter.NameFileFilter
+import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.AnnotationException
 
 /**
@@ -7,11 +11,11 @@ import org.bbop.apollo.AnnotationException
  */
 class SequenceTranslationHandler {
 
-    private static Map<Integer, TranslationTable> translationTables = new HashMap<>();
+    private static Map<String, TranslationTable> translationTables = new HashMap<>();
     private static Set<String> spliceAcceptorSites = new HashSet<String>();
     private static Set<String> spliceDonorSites = new HashSet<String>();
 
-    public final static Integer DEFAULT_TRANSLATION_TABLE = 1
+    public final static String DEFAULT_TRANSLATION_TABLE = "1"
 
     /** Reverse complement a nucleotide sequence.
      *
@@ -96,7 +100,7 @@ class SequenceTranslationHandler {
      * @return TranslationTable for the NCBI translation table code
      * @throws AnnotationException - If an invalid NCBI translation table code is used
      */
-    public static TranslationTable getTranslationTableForGeneticCode(int code) throws AnnotationException {
+    public static TranslationTable getTranslationTableForGeneticCode(String code) throws AnnotationException {
         if (!translationTables.containsKey(code)) {
             initTranslationTables(code);
         }
@@ -111,14 +115,15 @@ class SequenceTranslationHandler {
      * @return Default translation table
      */
     public static TranslationTable getDefaultTranslationTable() {
-        return getTranslationTableForGeneticCode(1)
+        return getTranslationTableForGeneticCode(DEFAULT_TRANSLATION_TABLE)
     }
 
-    private static void initTranslationTables(Integer code) {
-        if (code == 1) {
-            translationTables.put(code, new StandardTranslationTable())
+    private static void initTranslationTables(String code) {
+        if (code == DEFAULT_TRANSLATION_TABLE) {
+            translationTables.put(code.toString(), new StandardTranslationTable())
         } else {
-            translationTables.put(code, TranslationTableReader.readTable(new File("ncbi_${code}_translation_table.txt")))
+            File parentFile = FileUtils.listFiles(new File("."),new NameFileFilter("ncbi_1_translation_table.txt"),TrueFileFilter.INSTANCE).first().parentFile
+            translationTables.put(code.toString(), readTable(new File(parentFile.absolutePath+"/ncbi_${code}_translation_table.txt")))
         }
     }
 
@@ -168,5 +173,35 @@ class SequenceTranslationHandler {
  */
     public static void deleteSpliceDonorSite(String spliceDonorSite) {
         spliceDonorSites.remove(spliceDonorSite);
+    }
+
+    public static TranslationTable readTable(File file) {
+        TranslationTable ttable = new TranslationTable()
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(getServletContext().getResourceAsStream(track.getTranslationTable())));
+        file.text.readLines().each { String line ->
+            String[] tokens = line.split("\t");
+            String codon = tokens[0].toUpperCase();
+            String aa = tokens[1].toUpperCase();
+            ttable.getTranslationTable().put(codon, aa);
+            if (aa.equals(TranslationTable.STOP)) {
+                ttable.getStopCodons().add(codon);
+                if (tokens.length == 3) {
+                    ttable.getAlternateTranslationTable().put(codon, tokens[2]);
+                } else {
+                    ttable.getAlternateTranslationTable().remove(codon);
+                }
+            } else {
+                ttable.getStopCodons().remove(codon);
+                ttable.getAlternateTranslationTable().remove(codon);
+            }
+            if (tokens.length == 3) {
+                if (tokens[2].equals("start")) {
+                    ttable.getStartCodons().add(codon);
+                }
+            } else {
+                ttable.getStartCodons().remove(codon);
+            }
+        }
+        return ttable
     }
 }
