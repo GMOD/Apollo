@@ -24,6 +24,7 @@ public class Gff3HandlerService {
     def featureService
     def overlapperService
     def featurePropertyService
+    def requestHandlingService
 
     SimpleDateFormat gff3DateFormat = new SimpleDateFormat("YYYY-MM-dd")
 
@@ -304,8 +305,8 @@ public class Gff3HandlerService {
                 attributes.put(FeatureStringEnum.EXPORT_ALIAS.value, synonyms.toString());
             }
         }
-
-        if (feature.ontologyId != Gene.ontologyId) {
+        if (!(requestHandlingService.viewableAnnotationList+[Deletion.class.name,Insertion.class.name,Substitution.class.name]).contains(feature.class.name)) {
+        //if (!(feature.ontologyId in (requestHandlingService.viewableAnnotationList+[Deletion.class.name,Insertion.class.name,Substitution.class.name]))) {
             def parent= featureRelationshipService.getParentForFeature(feature)
             attributes.put(FeatureStringEnum.EXPORT_PARENT.value, encodeString(parent.uniqueName));
         }
