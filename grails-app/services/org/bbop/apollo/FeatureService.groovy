@@ -55,13 +55,18 @@ class FeatureService {
 
         Integer min = jsonLocation.getInt(FeatureStringEnum.FMIN.value)
         Integer max = jsonLocation.getInt(FeatureStringEnum.FMAX.value)
-        ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(min)
-        ProjectionSequence projectionSequence2 = multiSequenceProjection.getReverseProjectionSequence(max)
-        assert projectionSequence==projectionSequence2
-
-        // TODO: add organism
-        Organism organism = Organism.findByCommonName(projectionSequence.organism)
-        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
+        Organism organism = bookmark.organism
+        Sequence sequence
+        if(jsonLocation.containsKey(FeatureStringEnum.SEQUENCE.value)){
+            String sequenceString = jsonLocation.getString(FeatureStringEnum.SEQUENCE.value)
+            sequence = Sequence.findByNameAndOrganism(sequenceString,organism)
+        }
+        else{
+            ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(min)
+            ProjectionSequence projectionSequence2 = multiSequenceProjection.getReverseProjectionSequence(max)
+            assert projectionSequence==projectionSequence2
+            sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
+        }
 
         Coordinate coordinate = multiSequenceProjection.projectReverseCoordinate(min,max)
 
@@ -155,10 +160,13 @@ class FeatureService {
 
             Organism organism
             gsolFeature.featureLocations.each(){
-                ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(it.fmin)
-                String sequenceName = projectionSequence.name
-                organism = organism ?: Organism.findByCommonName(projectionSequence.organism)
-                it.sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
+                // if its set . . . don't reset!
+                if(!it.sequence){
+                    ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(it.fmin)
+                    String sequenceName = projectionSequence.name
+                    organism = organism ?: Organism.findByCommonName(projectionSequence.organism)
+                    it.sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
+                }
             }
         }
 
@@ -1767,6 +1775,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, true);
         }
         jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, gsolFeatureLocation.getStrand());
+        if(gsolFeatureLocation.sequence){
+            jsonFeatureLocation.put(FeatureStringEnum.SEQUENCE.value, gsolFeatureLocation.sequence.name);
+        }
         return jsonFeatureLocation;
     }
 
