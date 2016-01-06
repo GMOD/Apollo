@@ -49,7 +49,7 @@ class FeatureService {
      */
     @Timed
     @Transactional
-    public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Bookmark bookmark) throws JSONException {
+    public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Bookmark bookmark,Boolean projected = false ) throws JSONException {
 
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
 
@@ -68,14 +68,22 @@ class FeatureService {
             sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
         }
 
-        Coordinate coordinate = multiSequenceProjection.projectReverseCoordinate(min,max)
-
         FeatureLocation gsolLocation = new FeatureLocation();
+
+        // if projected we have to unproject
+        if(projected) {
+            Coordinate coordinate = multiSequenceProjection.projectReverseCoordinate(min,max)
+            gsolLocation.setFmin(coordinate.min);
+            gsolLocation.setFmax(coordinate.max);
+        }
+        else{
+            gsolLocation.setFmin(min);
+            gsolLocation.setFmax(max);
+        }
+
         if (jsonLocation.has(FeatureStringEnum.ID.value)) {
             gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
         }
-        gsolLocation.setFmin(coordinate.min);
-        gsolLocation.setFmax(coordinate.max);
         gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
         gsolLocation.setSequence(sequence)
         return gsolLocation;
@@ -250,7 +258,7 @@ class FeatureService {
             }
         } else {
             log.debug "no gene given"
-            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), bookmark)
+            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), bookmark,false)
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll(){
                 it = Feature.get(it.id)
                 it instanceof Gene

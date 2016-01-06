@@ -149,8 +149,6 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert CDS.count == 1
         assert Exon.count == 1
         MRNA.countByName("GB53496-RA-00001")==1
-//        assert locationObject.fmin == 85051 - Sequence.findByName("Group11.4").length
-//        assert locationObject.fmax == 85264 - Sequence.findByName("Group11.4").length
         assert locationObject.sequence == "GroupUn87"
         assert MRNA.first().featureLocations.first().fmin == 85051 - Sequence.findByName("Group11.4").length - 1
         assert MRNA.first().featureLocations.first().fmax == 85264 - Sequence.findByName("Group11.4").length - 1
@@ -159,38 +157,37 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert locationObject.fmin == 85051
         assert locationObject.fmax == 85264
 
-
     }
 
-    void "add transcript to second contiguous sequence with folding "(){
+    void "add transcript to second contiguous sequence with folding"(){
         given: "a transcript add operation"
-        String addTranscriptString = "{\"track\":{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":[\"Official Gene Set v3.2\"], \"sequenceList\":[{\"name\":\"Group11.4\"},{\"name\":\"GroupUn87\"}], \"label\":\"Group11.4::GroupUn87\"},\"features\":[{\"location\":{\"fmin\":85051,\"fmax\":85264,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53496-RA\",\"children\":[{\"location\":{\"fmin\":85051,\"fmax\":85264,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":85051,\"fmax\":85264,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
-        String getFeaturesString = "{\"track\":{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"},{\"name\":\"GroupUn87\"}], \"label\":\"Group11.4::GroupUn87\"},\"operation\":\"get_features\"}"
+        String addTranscriptString = "{\"track\":{\"padding\":20, \"projection\":\"Exon\", \"referenceTrack\":[\"Official Gene Set v3.2\"], \"sequenceList\":[{\"name\":\"Group11.4\"},{\"name\":\"GroupUn87\"}], \"label\":\"Group11.4::GroupUn87\"},\"features\":[{\"location\":{\"fmin\":16974,\"fmax\":17187,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53496-RA\",\"children\":[{\"location\":{\"fmin\":16974,\"fmax\":17187,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String getFeaturesString = "{\"track\":{\"padding\":20, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"},{\"name\":\"GroupUn87\"}], \"label\":\"Group11.4::GroupUn87\"},\"operation\":\"get_features\"}"
 
         when: "we add the transcript "
         JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
         JSONObject otherReturnObject = requestHandlingService.getFeatures(JSON.parse(getFeaturesString) as JSONObject)
         JSONArray featuresArray = otherReturnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject locationObject = featuresArray.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
+        def features = Feature.all
+        def featureLocations = FeatureLocation.all
 
 
         then: "we should get a gene added to the appropriate space"
-        assert true==false
         assert featuresArray.size()==1
         assert Gene.count == 1
         assert MRNA.count == 1
         assert CDS.count == 1
         assert Exon.count == 1
         MRNA.countByName("GB53496-RA-00001")==1
-//        assert locationObject.fmin == 85051 - Sequence.findByName("Group11.4").length
-//        assert locationObject.fmax == 85264 - Sequence.findByName("Group11.4").length
         assert locationObject.sequence == "GroupUn87"
+        // the features array should be relative to the contiguous sequences
+        assert locationObject.fmin == 16974
+        assert locationObject.fmax == 17187
+
         assert MRNA.first().featureLocations.first().fmin == 85051 - Sequence.findByName("Group11.4").length - 1
         assert MRNA.first().featureLocations.first().fmax == 85264 - Sequence.findByName("Group11.4").length - 1
 
-        // the features array should be relative to the contiguous sequences
-        assert locationObject.fmin == 85051
-        assert locationObject.fmax == 85264
 
 
     }

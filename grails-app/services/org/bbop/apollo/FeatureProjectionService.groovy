@@ -63,6 +63,8 @@ class FeatureProjectionService {
 
         Integer fmin = locationObject.has(FeatureStringEnum.FMIN.value) ? locationObject.getInt(FeatureStringEnum.FMIN.value) : null
         Integer fmax = locationObject.has(FeatureStringEnum.FMAX.value) ? locationObject.getInt(FeatureStringEnum.FMAX.value) : null
+        ProjectionSequence projectionSequence1 = projection.getReverseProjectionSequence(fmin)
+        ProjectionSequence projectionSequence2 = projection.getReverseProjectionSequence(fmax)
 
         if (reverseProjection) {
             // TODO: add reverse offset?
@@ -81,8 +83,6 @@ class FeatureProjectionService {
         }
         // if we don't have a sequence .. need to assign one
         if ( !locationObject.containsKey(FeatureStringEnum.SEQUENCE.value) ){
-            ProjectionSequence projectionSequence1 = projection.getReverseProjectionSequence(fmin)
-            ProjectionSequence projectionSequence2 = projection.getReverseProjectionSequence(fmax)
 //        assert projectionSequence1==projectionSequence2
             locationObject.put(FeatureStringEnum.SEQUENCE.value,projectionSequence1 ? projectionSequence1?.name : projectionSequence2?.name)
         }
