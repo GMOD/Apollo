@@ -1,0 +1,8 @@
+ATA	M	start
+CTT	T
+CTC	T
+CTA	T
+CTG	T
+TGA	W
+CGA	X
+CGC	X
