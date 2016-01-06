@@ -19,45 +19,9 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     def setup() {
         setupDefaultUserOrg()
         projectionService.clearProjections()
-
-//        Organism organism = new Organism(
-//                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-//                , commonName: "sampleAnimal"
-//        ).save(flush: true)
-//        Sequence sequence = new Sequence(
-//                length: 1405242
-//                , seqChunkSize: 20000
-//                , start: 0
-//                , organism: organism
-//                , end: 1405242
-//                , name: "Group1.10"
-//        ).save()
-
-
     }
 
     def cleanup() {
-//        Sequence.deleteAll(Sequence.all)
-//        Feature.withTransaction {
-//            FeatureLocation.executeUpdate("delete from FeatureLocation ")
-//            FeatureRelationship.executeUpdate("delete from FeatureRelationship ")
-//            Feature.executeUpdate("delete from Feature ")
-//            SequenceChunk.executeUpdate("delete from SequenceChunk ")
-//            Sequence.first().sequenceChunks?.clear()
-//            Sequence.first().save(flush: true )
-////            Sequence.executeUpdate("delete from Sequence ")
-//        }
-////
-////        assert Sequence.count == 0
-//        assert Feature.count == 0
-//        assert FeatureLocation.count == 0
-//        assert FeatureRelationship.count == 0
-
-//        Feature.deleteAll(Feature.all)
-//        Exon.deleteAll(Exon.all)
-//        Gene.deleteAll(Gene.all)
-//        MRNA.deleteAll(MRNA.all)
-//        .deleteAll(MRNA.all)
     }
 
     void "add transcript with UTR"() {
@@ -2719,19 +2683,4 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert transcriptService.getTranscripts(geneList.get(1)).size() == 2
     }
 
-    void "add transcript to second contiguous sequence"(){
-        given: "a transcript add operation"
-        String addTranscriptString = "{\"track\":{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":[\"Official Gene Set v3.2\"], \"sequenceList\":[{\"name\":\"Group11.4\"},{\"name\":\"GroupUn87\"}], \"label\":\"Group11.4::GroupUn87\"},\"features\":[{\"location\":{\"fmin\":85051,\"fmax\":85264,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53496-RA\",\"children\":[{\"location\":{\"fmin\":85051,\"fmax\":85264,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":85051,\"fmax\":85264,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
-
-        when: "we add the transcript "
-        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
-
-
-        then: "we should get a gene added to the appropriate space"
-        assert Gene.count == 1
-        assert MRNA.count == 1
-        assert CDS.count == 1
-        assert Exon.count == 1
-        MRNA.countByName("GB53496-RA-00001")==1
-    }
 }

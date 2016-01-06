@@ -595,6 +595,7 @@ class RequestHandlingService {
         Bookmark bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         log.debug "sequence: ${bookmark}"
         log.debug "organism: ${bookmark.organism}"
+        // this does a reverse projection
         featuresArray = featureProjectionService.projectTrack(featuresArray, bookmark, true)
         log.info "number of features: ${featuresArray?.size()}"
         boolean suppressHistory = false
