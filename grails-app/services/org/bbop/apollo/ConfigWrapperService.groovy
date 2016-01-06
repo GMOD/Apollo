@@ -21,8 +21,8 @@ class ConfigWrapperService {
         return SequenceTranslationHandler.getTranslationTableForGeneticCode(getTranslationCode())
     }
 
-    int getTranslationCode(){
-        return grailsApplication.config.apollo.get_translation_code
+    String getTranslationCode(){
+        return grailsApplication.config.apollo.get_translation_code.toString()
     }
 
     Boolean hasDbxrefs(){

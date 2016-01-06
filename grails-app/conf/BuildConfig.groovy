@@ -94,11 +94,11 @@ grails.project.dependency.resolution = {
         test "org.grails:grails-datastore-test-support:1.0.2-grails-2.4"
         runtime 'org.grails:grails-datastore-gorm:3.1.5.RELEASE'
 
-        test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
-        test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
-        test "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
-        test "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
-        test "org.gebish:geb-spock:$gebVersion"
+//        test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+//        test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+//        test "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
+//        test "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+//        test "org.gebish:geb-spock:$gebVersion"
         //test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
     }
 
@@ -156,7 +156,8 @@ grails.project.dependency.resolution = {
         //compile ":jasypt-encryption:1.1.0"
         //compile ":joda-time:1.4"
         runtime ":rest-client-builder:2.1.1"
-        test    ":geb:$gebVersion"
+        // TODO: re-add when ready to install functional tests
+//        test    ":geb:$gebVersion"
     }
 }
 
