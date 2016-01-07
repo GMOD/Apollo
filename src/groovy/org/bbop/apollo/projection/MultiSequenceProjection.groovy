@@ -16,7 +16,8 @@ class MultiSequenceProjection extends AbstractProjection {
 
     ProjectionSequence getReverseProjectionSequence(Integer input) {
         for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
-            if (input >= projectionSequence.offset && input <= projectionSequence.offset + sequenceDiscontinuousProjectionMap.get(projectionSequence).bufferedLength) {
+            Integer bufferedLength = sequenceDiscontinuousProjectionMap.get(projectionSequence).bufferedLength
+            if (input >= projectionSequence.offset && input <= projectionSequence.offset + bufferedLength) {
                 return projectionSequence
             }
         }
@@ -65,7 +66,8 @@ class MultiSequenceProjection extends AbstractProjection {
             return UNMAPPED_VALUE
         }
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
-        Integer returnValue = discontinuousProjection.projectValue(input - projectionSequence.originalOffset)
+        // TODO: buffer for scaffolds is currently 1 . . the order
+        Integer returnValue = discontinuousProjection.projectValue(input - projectionSequence.originalOffset )
         if (returnValue == UNMAPPED_VALUE) {
             return UNMAPPED_VALUE
         } else {
@@ -89,6 +91,7 @@ class MultiSequenceProjection extends AbstractProjection {
         ProjectionSequence projectionSequence = getReverseProjectionSequence(input)
         if (!projectionSequence) return -1
 //        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectReverseValue(input - projectionSequence.offset) + projectionSequence.originalOffset
+        // TODO: we are using order as a buffer
         return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectReverseValue(input - projectionSequence.offset)
     }
 

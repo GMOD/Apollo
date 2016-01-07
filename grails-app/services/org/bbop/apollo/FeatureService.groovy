@@ -70,7 +70,6 @@ class FeatureService {
 
         FeatureLocation gsolLocation = new FeatureLocation();
 
-        // if projected we have to unproject
         if(projected) {
             Coordinate coordinate = multiSequenceProjection.projectReverseCoordinate(min,max)
             gsolLocation.setFmin(coordinate.min);

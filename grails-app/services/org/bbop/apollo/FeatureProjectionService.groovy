@@ -69,9 +69,13 @@ class FeatureProjectionService {
         if (reverseProjection) {
             // TODO: add reverse offset?
             fmin = fmin ? projection.projectReverseValue(fmin) : null
+
+            // we are projecting a REVERSE, exclusive value
             fmax = fmax ? projection.projectReverseValue(fmax) : null
         } else {
             fmin = fmin ? projection.projectValue(fmin + offset) : null
+
+            // we are projecting an exclusive value
             fmax = fmax ? projection.projectValue(fmax + offset) : null
         }
         
@@ -102,6 +106,7 @@ class FeatureProjectionService {
             }
 
             projectFeature(inputFeature, projection, reverseProjection,offset)
+
             if (inputFeature.has(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray childFeatures = inputFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
                 projectFeaturesArray(childFeatures, projection, reverseProjection,offset)

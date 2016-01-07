@@ -557,7 +557,7 @@ class TranscriptService {
             if (gsolFeature.description) {
                 jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
             }
-            String finalOwnerString = ""
+            String finalOwnerString
             if (gsolFeature.owners) {
                 String ownerString = ""
                 for (owner in gsolFeature.owners) {
@@ -573,6 +573,7 @@ class TranscriptService {
 
 
             if (gsolFeature.featureLocations) {
+                // TODO: this is incorrect for contiguous sequences
                 Sequence sequence = gsolFeature.featureLocations.first().sequence
                 jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
             }
