@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -59,16 +60,22 @@ class FeatureProjectionService {
 
 
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
-        
+
         Integer fmin = locationObject.has(FeatureStringEnum.FMIN.value) ? locationObject.getInt(FeatureStringEnum.FMIN.value) : null
         Integer fmax = locationObject.has(FeatureStringEnum.FMAX.value) ? locationObject.getInt(FeatureStringEnum.FMAX.value) : null
-        
+        ProjectionSequence projectionSequence1 = projection.getReverseProjectionSequence(fmin)
+        ProjectionSequence projectionSequence2 = projection.getReverseProjectionSequence(fmax)
+
         if (reverseProjection) {
             // TODO: add reverse offset?
             fmin = fmin ? projection.projectReverseValue(fmin) : null
+
+            // we are projecting a REVERSE, exclusive value
             fmax = fmax ? projection.projectReverseValue(fmax) : null
         } else {
             fmin = fmin ? projection.projectValue(fmin + offset) : null
+
+            // we are projecting an exclusive value
             fmax = fmax ? projection.projectValue(fmax + offset) : null
         }
         
@@ -77,6 +84,11 @@ class FeatureProjectionService {
         }
         if (fmax) {
             locationObject.put(FeatureStringEnum.FMAX.value, fmax)
+        }
+        // if we don't have a sequence .. need to assign one
+        if ( !locationObject.containsKey(FeatureStringEnum.SEQUENCE.value) ){
+//        assert projectionSequence1==projectionSequence2
+            locationObject.put(FeatureStringEnum.SEQUENCE.value,projectionSequence1 ? projectionSequence1?.name : projectionSequence2?.name)
         }
         return inputFeature
     }
@@ -90,11 +102,11 @@ class FeatureProjectionService {
                 offset = projection.getOffsetForSequence(sequenceName)
                 
             } else {
-                
-                
+               // no offset to calculate??
             }
 
             projectFeature(inputFeature, projection, reverseProjection,offset)
+
             if (inputFeature.has(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray childFeatures = inputFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
                 projectFeaturesArray(childFeatures, projection, reverseProjection,offset)

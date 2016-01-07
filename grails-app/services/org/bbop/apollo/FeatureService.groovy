@@ -49,28 +49,40 @@ class FeatureService {
      */
     @Timed
     @Transactional
-    public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Bookmark bookmark) throws JSONException {
+    public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Bookmark bookmark,Boolean projected = false ) throws JSONException {
 
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
 
         Integer min = jsonLocation.getInt(FeatureStringEnum.FMIN.value)
         Integer max = jsonLocation.getInt(FeatureStringEnum.FMAX.value)
-        ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(min)
-        ProjectionSequence projectionSequence2 = multiSequenceProjection.getReverseProjectionSequence(max)
-        assert projectionSequence==projectionSequence2
-
-        // TODO: add organism
-        Organism organism = Organism.findByCommonName(projectionSequence.organism)
-        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
-
-        Coordinate coordinate = multiSequenceProjection.projectReverseCoordinate(min,max)
+        Organism organism = bookmark.organism
+        Sequence sequence
+        if(jsonLocation.containsKey(FeatureStringEnum.SEQUENCE.value)){
+            String sequenceString = jsonLocation.getString(FeatureStringEnum.SEQUENCE.value)
+            sequence = Sequence.findByNameAndOrganism(sequenceString,organism)
+        }
+        else{
+            ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(min)
+            ProjectionSequence projectionSequence2 = multiSequenceProjection.getReverseProjectionSequence(max)
+            assert projectionSequence==projectionSequence2
+            sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
+        }
 
         FeatureLocation gsolLocation = new FeatureLocation();
+
+        if(projected) {
+            Coordinate coordinate = multiSequenceProjection.projectReverseCoordinate(min,max)
+            gsolLocation.setFmin(coordinate.min);
+            gsolLocation.setFmax(coordinate.max);
+        }
+        else{
+            gsolLocation.setFmin(min);
+            gsolLocation.setFmax(max);
+        }
+
         if (jsonLocation.has(FeatureStringEnum.ID.value)) {
             gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
         }
-        gsolLocation.setFmin(coordinate.min);
-        gsolLocation.setFmax(coordinate.max);
         gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
         gsolLocation.setSequence(sequence)
         return gsolLocation;
@@ -155,10 +167,13 @@ class FeatureService {
 
             Organism organism
             gsolFeature.featureLocations.each(){
-                ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(it.fmin)
-                String sequenceName = projectionSequence.name
-                organism = organism ?: Organism.findByCommonName(projectionSequence.organism)
-                it.sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
+                // if its set . . . don't reset!
+                if(!it.sequence){
+                    ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(it.fmin)
+                    String sequenceName = projectionSequence.name
+                    organism = organism ?: Organism.findByCommonName(projectionSequence.organism)
+                    it.sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
+                }
             }
         }
 
@@ -242,7 +257,7 @@ class FeatureService {
             }
         } else {
             log.debug "no gene given"
-            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), bookmark)
+            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), bookmark,false)
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll(){
                 it = Feature.get(it.id)
                 it instanceof Gene
@@ -1767,6 +1782,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, true);
         }
         jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, gsolFeatureLocation.getStrand());
+        if(gsolFeatureLocation.sequence){
+            jsonFeatureLocation.put(FeatureStringEnum.SEQUENCE.value, gsolFeatureLocation.sequence.name);
+        }
         return jsonFeatureLocation;
     }
 
