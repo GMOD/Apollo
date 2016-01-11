@@ -8,6 +8,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 public class DiscontinuousProjection extends AbstractProjection {
 
+    
     // projection from X -> X'
     TreeMap<Integer, Coordinate> minMap = new TreeMap<>()
     TreeMap<Integer, Coordinate> maxMap = new TreeMap<>()
