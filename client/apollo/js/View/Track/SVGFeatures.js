@@ -42,7 +42,7 @@ define( [
                 Location
               ) {
 
-var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetailMixin, TrackDetailsStatsMixin ], {
+var SVGFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetailMixin, TrackDetailsStatsMixin ], {
     /**
      * A track that draws discrete features using `div` elements.
      * @constructs
@@ -1373,7 +1373,7 @@ var HTMLFeatures = declare( [ BlockBased, YScaleMixin, ExportMixin, FeatureDetai
     }
 });
 
-return HTMLFeatures;
+return SVGFeatures;
 });
 
 /*

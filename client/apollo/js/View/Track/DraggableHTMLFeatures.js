@@ -13,8 +13,9 @@ define( [
             'jqueryui/draggable',
             'JBrowse/Util', 
             'JBrowse/Model/SimpleFeature', 
-            'WebApollo/SequenceOntologyUtils',
-            'WebApollo/Projection/ProjectionSequence'
+            'WebApollo/SequenceOntologyUtils'
+        //'WebApollo/Projection/TestClass',
+        //    'WebApollo/Projection/ProjectionSequence'
         ],
     function( declare,
         array,
@@ -30,8 +31,9 @@ define( [
         draggable,
         Util, 
         SimpleFeature,
-        SeqOnto,
-        ProjectionSequence
+        SeqOnto
+        //TestClass,
+        //ProjectionSequence
     ) {
 
 var debugFrame = false;
@@ -88,8 +90,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
     constructor: function( args ) {
         console.log('a');
-        //var projectionSequence = ProjectionSequence;
-        ProjectionSequence.blink();
+        //var testClass = new TestClass();
+        //var projectionSequence = new ProjectionSequence();
+        //ProjectionSequence.blink();
 
         //var coordinate = new Coordinate(3,2,)
         //Coordinate.spitOutSomething;
