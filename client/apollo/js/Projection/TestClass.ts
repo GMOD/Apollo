@@ -1,2 +1,4 @@
+///<reference path="ProjectionSequence.ts"/>
 
-export class TestClass{}
+
+var projectionSequence = new Projection.ProjectionSequence();
