@@ -176,10 +176,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    @RestApiMethod(description="Returns a translation table as JSON" ,path="/annotationEditor/getTranslationTable",verb = RestApiVerb.POST )
+    @RestApiParams(params=[] )
     def getTranslationTable() {
         log.debug "getTranslationTable"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-        TranslationTable translationTable = SequenceTranslationHandler.getDefaultTranslationTable()
+        TranslationTable translationTable = configWrapperService.getTranslationTable()
         JSONObject ttable = new JSONObject();
         for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
             ttable.put(t.getKey(), t.getValue());

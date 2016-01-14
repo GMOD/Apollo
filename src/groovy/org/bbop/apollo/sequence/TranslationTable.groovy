@@ -15,6 +15,7 @@ class TranslationTable {
      */
     public static final String STOP = "*";
 
+    String name
     protected Map<String, String> translationTable;
     protected Set<String> startCodons;
     protected Set<String> stopCodons;
