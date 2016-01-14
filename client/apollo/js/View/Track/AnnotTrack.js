@@ -1932,8 +1932,15 @@ define([
                     'class': "annotation_info_editor_label"
                 }, nameDiv);
                 var nameField = new dijitTextBox({'class': "annotation_editor_field"});
-                dojo.place(nameField.domNode, nameDiv);
+                var nameLabelss = "Enter the name for the annotation";
 
+                dojo.place(nameField.domNode, nameDiv);
+                new Tooltip({
+                        connectId: nameDiv,
+                        label: nameLabelss,
+                        position: ["above"],
+                        showDelay: 600
+                    });
                 var symbolDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
                 var symbolLabel = dojo.create("label", {
                     innerHTML: "Symbol",
@@ -2135,8 +2142,16 @@ define([
                     'class': "annotation_info_editor_label"
                 }, nameDiv);
                 var nameField = new dijitTextBox({'class': "annotation_editor_field"});
+                var nameLabelss="Enter the name for the Annotation";
                 dojo.place(nameField.domNode, nameDiv);
                 // var nameField = new dojo.create("input", { type: "text" }, nameDiv);
+
+                new Tooltip({
+                        connectId: nameDiv,
+                        label: nameLabelss,
+                        position: ["above"],
+                        showDelay: 600
+                    });
 
                 var symbolDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
                 var symbolLabel = dojo.create("label", {
@@ -2258,6 +2273,26 @@ define([
                     'class': "annotation_info_editor_button"
                 }, goIdButtons);
 
+                var replacementDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var replacementLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "Replaced model(s)"
+                }, replacementDiv);
+                var replacementTable = dojo.create("div", {
+                    'class': "replacement",
+                    id: "replacement_" + (selector ? "child" : "parent")
+                }, replacementDiv);
+                var replacementButtonsContainer = dojo.create("div", {style: "text-align: center;"}, replacementDiv);
+                var replacementButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, replacementButtonsContainer);
+                var addReplaceButton = dojo.create("button", {
+                    innerHTML: "Add",
+                    'class': "annotation_info_editor_button"
+                }, replacementButtons);
+                var deleteReplaceButton = dojo.create("button", {
+                    innerHTML: "Delete",
+                    'class': "annotation_info_editor_button"
+                }, replacementButtons);
+
                 var commentsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var commentsLabel = dojo.create("div", {
                     'class': "annotation_info_editor_section_header",
@@ -2329,6 +2364,7 @@ define([
                             initPubmedIds(feature, config);
                             initGoIds(feature, config);
                             initComments(feature, config);
+                            initReplacements(feature, config);
                         }
                     });
                 };
@@ -2816,9 +2852,9 @@ define([
                                                     }
                                                 }
                                             });
-                                            //var gserv = 'http://golr.berkeleybop.org/';
-                                            //var gserv = 'http://golr.geneontology.org/solr/';
-                                            var original = 'http://golr.geneontology.org/solr/';
+                                            var original = 'http://golr.geneontology.org/';
+                                            //var original = 'http://golr.geneontology.org/solr/';
+                                            //var original = 'http://golr.berkeleybop.org/solr/';
                                             var encoded_original = encodeURI(original);
                                             encoded_original = encoded_original.replace(/:/g,"%3A");
                                             encoded_original = encoded_original.replace(/\//g,"%2F");
@@ -2917,6 +2953,120 @@ define([
                         dojo.style(goIdsDiv, "display", "none");
                     }
                 };
+
+                var initReplacements = function (feature, config) {
+                    if (config.hasReplacements) {
+                        var oldTag;
+                        var oldValue;
+                        var replacements = new dojoItemFileWriteStore({
+                            data: {
+                                items: []
+                            }
+                        });
+                        for (var i = 0; i < feature.non_reserved_properties.length; ++i) {
+                            var replacement = feature.non_reserved_properties[i];
+                            replacements.newItem({tag: replacement.tag, value: replacement.value});
+                        }
+                        var replacementTableLayout = [{
+                            cells: [
+                                {
+                                    name: 'Tag',
+                                    field: 'tag',
+                                    width: '40%',
+                                    formatter: function (tag) {
+                                        if (!tag) {
+                                            return "Enter new tag";
+                                        }
+                                        return tag;
+                                    },
+                                    editable: hasWritePermission
+                                },
+                                {
+                                    name: 'Value',
+                                    field: 'value',
+                                    width: '60%',
+                                    formatter: function (value) {
+                                        if (!value) {
+                                            return "Enter new value";
+                                        }
+                                        return value;
+                                    },
+                                    editable: hasWritePermission
+                                }
+                            ]
+                        }];
+
+                        var replacementTable = new dojoxDataGrid({
+                            singleClickEdit: true,
+                            store: replacements,
+                            updateDelay: 0,
+                            structure: replacementTableLayout
+                        });
+
+                        var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
+                            initTable(replacementTable.domNode, replacementsTable, replacementTable);
+                            dojo.disconnect(handle);
+                        });
+                        if (reload) {
+                            initTable(replacementTable.domNode, replacementsTable, replacementTable, timeout);
+                        }
+
+                        var dirty = false;
+
+                        dojo.connect(replacementTable, "onStartEdit", function (inCell, inRowIndex) {
+                            if (!dirty) {
+                                oldTag = replacementTable.store.getValue(replacementTable.getItem(inRowIndex), "tag");
+                                oldValue = replacementTable.store.getValue(replacementTable.getItem(inRowIndex), "value");
+                                dirty = true;
+                            }
+                        });
+
+                        dojo.connect(replacementTable, "onCancelEdit", function (inRowIndex) {
+                            replacementTable.store.setValue(replacementTable.getItem(inRowIndex), "tag", oldTag);
+                            replacementTable.store.setValue(replacementTable.getItem(inRowIndex), "value", oldValue);
+                            dirty = false;
+                        });
+
+                        dojo.connect(replacementTable, "onApplyEdit", function (inRowIndex) {
+                            var newTag = replacementTable.store.getValue(replacementTable.getItem(inRowIndex), "tag");
+                            var newValue = replacementTable.store.getValue(replacementTable.getItem(inRowIndex), "value");
+                            if (!newTag || !newValue) {
+                            }
+                            else if (!oldTag || !oldValue) {
+                                addReplacement(newTag, newValue);
+                            }
+                            else {
+                                if (newTag != oldTag || newValue != oldValue) {
+                                    updateReplacement(oldTag, oldValue, newTag, newValue);
+                                }
+                            }
+                            dirty = false;
+                        });
+
+                        dojo.connect(addReplacementButton, "onclick", function () {
+                            replacementTable.store.newItem({tag: "", value: ""});
+                            replacementTable.scrollToRow(replacementTable.rowCount);
+                        });
+
+                        dojo.connect(deleteReplacementButton, "onclick", function () {
+                            var toBeDeleted = new Array();
+                            var selected = replacementTable.selection.getSelected();
+                            for (var i = 0; i < selected.length; ++i) {
+                                var item = selected[i];
+                                var tag = replacementTable.store.getValue(item, "tag");
+                                var value = replacementTable.store.getValue(item, "value");
+                                toBeDeleted.push({tag: tag, value: value});
+                            }
+                            replacementTable.removeSelectedRows();
+                            deleteReplacements(toBeDeleted);
+                        });
+                    }
+                    else {
+                        dojo.style(replacementDiv, "display", "none");
+                    }
+
+                };
+
 
                 var initComments = function (feature, config) {
                     if (config.hasComments) {

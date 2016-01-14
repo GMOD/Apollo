@@ -937,11 +937,16 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         else {
             var plusDiv = dojo.create("div", { }, content);
             var minusDiv = dojo.create("div", { }, content);
+	    var comment = dojo.create("div", { }, content);
             var plusLabel = dojo.create("label", { innerHTML: "+ strand", className: "sequence_alteration_input_label" }, plusDiv);
             var plusField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, plusDiv);
             var minusLabel = dojo.create("label", { innerHTML: "- strand", className: "sequence_alteration_input_label" }, minusDiv);
             var minusField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, minusDiv);
-            $(plusField).keydown(function(e) {
+          var comLabel = dojo.create("label", { innerHTML: "Comment", className: "sequence_alteration_input_label" }, comment);
+            var comField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, comment);
+           
+
+	      $(plusField).keydown(function(e) {
                 var unicode = e.charCode || e.keyCode;
                 // ignoring delete key, doesn't do anything in input elements?
                 var isBackspace = (unicode == 8);  // 8 = BACKSPACE
@@ -1016,14 +1021,20 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         var addSequenceAlteration = function() {
             var ok = true;
             var inputField;
-            var inputField = ((type == "deletion") ? deleteField : plusField);
+            var inputField2 = comField;
+	    var inputField = ((type == "deletion") ? deleteField : plusField);
             // if (type == "deletion") { inputField = deleteField; }
             // else  { inputField = plusField; }
             var input = inputField.value.toUpperCase();
+	    var input2 = inputField2.value;
             if (input.length == 0) {
                 alert("Input cannot be empty for " + type);
                 ok = false;
             }
+	    if (input2.length == 0) {
+		alert(" Please add a justification for your Substitution");
+		ok = false;
+	    }
             if (ok) {
                 var input = inputField.value.toUpperCase();
                 if (type == "deletion") {
@@ -1066,7 +1077,13 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     if (type != "deletion") {
                         feature += ', "residues": "' + input + '"';
                     }
-                    var features = '[ { ' + feature + ' } ]';
+		    if (type == "substitution") {
+			feature += ', "properties": [{value:"Justification: ' + input2 + '", type:{name:"comment", cv: {name:"feature_property"}}}]';
+
+	alert(feature);
+                    }
+		
+		    var features = '[ { ' + feature + ' } ]';
                     var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }';
                     track.annotTrack.executeUpdateOperation(postData);
                     track.annotTrack.closeDialog();
