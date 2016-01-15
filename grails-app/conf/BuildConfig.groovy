@@ -149,7 +149,9 @@ grails.project.dependency.resolution = {
         // TODO: re-add when ready to install functional tests
 //        test    ":geb:$gebVersion"
         grails.plugin.location.'chado' = "../chado-plugin"
+//        grails.plugin.location.'test-plugin' = "../test-plugin"
 //        runtime ":chado:0.1"
+//        compile ":test-plugin:0.1"
 
     }
 }
