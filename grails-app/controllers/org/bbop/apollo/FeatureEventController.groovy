@@ -38,7 +38,13 @@ class FeatureEventController {
             if(params.sort=="owners") {
                 owners {
                     order('username', params.order)
-
+                }
+            }
+            if(params.sort=="sequencename") {
+                featureLocations {
+                    sequence {
+                        order('name', params.order)
+                    }
                 }
             }
             else if(params.sort=="name") {
