@@ -1301,7 +1301,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     var pHeight = Math.ceil(height / this.pitchY);
                     this.pTotalHeight = Math.max(this.pTotalHeight || 0, pHeight);
                 }
-                return cm ? 0 : this.inherited(arguments);
+                var ycoord = (data&&data.get('strand'))==-1?20:0;
+                return cm ? ycoord : this.inherited(arguments);
             }
         });
     },
