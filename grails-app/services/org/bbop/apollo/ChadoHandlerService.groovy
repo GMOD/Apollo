@@ -1,15 +1,17 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.Transactional
 import org.apache.commons.io.FileUtils
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.mortbay.util.ajax.JSON
 
 @Transactional
 class ChadoHandlerService {
 
     def writeFeatures(Organism organism,Collection<Feature> features){
+
         JSONObject jsonObject = JSON.parse(organism.metadata)
+
         if(!jsonObject.containsKey("chado")){
             log.error("No chado database specified")
             return

@@ -5,7 +5,6 @@ class OrganismDBXref {
     static constraints = {
     }
 
-     Integer organismDbxrefId;
      DBXref dbxref;
      Organism organism;
 
