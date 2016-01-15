@@ -12,6 +12,7 @@ class ChadoHandlerService {
 
         JSONObject jsonObject = JSON.parse(organism.metadata)
 
+
         if(!jsonObject.containsKey("chado")){
             log.error("No chado database specified")
             return
