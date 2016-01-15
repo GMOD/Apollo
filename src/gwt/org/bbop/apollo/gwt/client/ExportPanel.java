@@ -34,6 +34,7 @@ public class ExportPanel extends Modal {
     RadioButton cdnaRadioButton = new RadioButton("cDNA", "cDNA", true);
     RadioButton cdsRadioButton = new RadioButton("CDS", "CDS", true);
     RadioButton peptideRadioButton = new RadioButton("Peptide", "Peptide", true);
+    RadioButton chadoDefaultButton = new RadioButton("Chado", "Chado", true);
 
     ModalBody modalBody = new ModalBody();
     ModalHeader modalHeader = new ModalHeader();
@@ -62,9 +63,15 @@ public class ExportPanel extends Modal {
             buttonGroup.add(cdnaRadioButton);
             buttonGroup.add(cdsRadioButton);
             buttonGroup.add(peptideRadioButton);
-        } else if (type.equals("GFF3")) {
+        }
+        else
+        if (type.equals("GFF3")) {
             buttonGroup.add(gff3Button);
             buttonGroup.add(gff3WithFastaButton);
+        }
+        else
+        if (type.equals("CHADO")) {
+            buttonGroup.add(chadoDefaultButton);
         }
         modalBody.add(buttonGroup);
 
@@ -118,6 +125,8 @@ public class ExportPanel extends Modal {
 
         gff3WithFastaButton.addClickHandler(exportClickHandler);
         gff3Button.addClickHandler(exportClickHandler);
+
+        chadoDefaultButton.addClickHandler(exportClickHandler);
     }
 
 
@@ -168,6 +177,10 @@ public class ExportPanel extends Modal {
         else
         if(peptideRadioButton.isActive()){
             return FeatureStringEnum.TYPE_PEPTIDE.getValue();
+        }
+        else
+        if(chadoDefaultButton.isActive()){
+            return FeatureStringEnum.TYPE_CHADO.getValue();
         }
         // this is the default . . . may handle to GFF3 with FASTA
         else{
