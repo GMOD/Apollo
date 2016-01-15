@@ -1,6 +1,8 @@
 define([
         'dojo/_base/declare',
         'dojo/_base/array',
+        'dojo/on',
+        'dojo/request',
         'jquery',
         'jqueryui/draggable',
         'jqueryui/droppable',
@@ -44,6 +46,8 @@ define([
     ],
     function (declare,
               array,
+              on,
+              request,
               $,
               draggable,
               droppable,
@@ -1892,6 +1896,8 @@ define([
                 track.openDialog("Information Editor", content);
                 AnnotTrack.popupDialog.resize();
                 AnnotTrack.popupDialog._position();
+
+
             },
 
             getAnnotationInfoEditorConfigs: function (trackName) {
@@ -2130,7 +2136,7 @@ define([
             },
             createAnnotationInfoEditorPanelForFeature: function (uniqueName, trackName, selector, reload) {
                 var track = this;
-//      var hasWritePermission = this.hasWritePermission();
+                var feature = this.store.getFeatureById(uniqueName);
                 var hasWritePermission = this.canEdit(this.store.getFeatureById(uniqueName));
                 var content = dojo.create("span");
 
@@ -2273,25 +2279,6 @@ define([
                     'class': "annotation_info_editor_button"
                 }, goIdButtons);
 
-                var replacementDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
-                var replacementLabel = dojo.create("div", {
-                    'class': "annotation_info_editor_section_header",
-                    innerHTML: "Replaced model(s)"
-                }, replacementDiv);
-                var replacementsTable = dojo.create("div", {
-                    'class': "replacement",
-                    id: "replacement_" + (selector ? "child" : "parent")
-                }, replacementDiv);
-                var replacementButtonsContainer = dojo.create("div", {style: "text-align: center;"}, replacementDiv);
-                var replacementButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, replacementButtonsContainer);
-                var addReplacementButton = dojo.create("button", {
-                    innerHTML: "Add",
-                    'class': "annotation_info_editor_button"
-                }, replacementButtons);
-                var deleteReplacementButton = dojo.create("button", {
-                    innerHTML: "Delete",
-                    'class': "annotation_info_editor_button"
-                }, replacementButtons);
 
 
 
@@ -2314,6 +2301,44 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, commentButtons);
+
+                var replacementDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var trackNames = Object.keys(JBrowse.trackConfigsByName);
+                var replacements = new Select({
+                    name: "replacementSelection",
+                    options: array.map(trackNames, function(trackName) {
+                        return {label: track.browser.trackConfigsByName[trackName].label, value: track.browser.trackConfigsByName[trackName].key}
+                    })
+                });
+                replacements.placeAt(replacementDiv).startup();
+                track.featureReplace = track.featureReplace ||new Select({
+                    name: "featureSelection",
+                    options: []
+                });
+                on(replacements, "change", function(selection) {
+                    track.browser.getStore(track.browser.trackConfigsByName[selection].store, function(store) {
+                        console.log("Received store",store);
+                        store.getFeatures({ref: feature.afeature.sequence, start: feature.get('start'), end: feature.get('end')}, function(f) {
+                            console.log(track.featureReplace.options);
+                            track.featureReplace.options.push({label: f.get('id'), value: f.get('name')});
+                            track.featureReplace.placeAt(replacementDiv).startup();
+                        })
+                    });
+                });
+
+                on(track.featureReplace, "change", function(selection) {
+                    console.log(uniqueName);
+                    track.executeUpdateOperation(JSON.stringify({ "features": [{
+                            non_reserved_properties: [{
+                                tag: "replace",
+                                value: selection
+                            }],
+                            uniquename: uniqueName
+                        }],
+                        operation: "add_non_reserved_properties",
+                    }))
+                });
+
 
                 if (!hasWritePermission) {
                     nameField.set("disabled", true);
@@ -2366,7 +2391,6 @@ define([
                             initPubmedIds(feature, config);
                             initGoIds(feature, config);
                             initComments(feature, config);
-                            initReplacements(feature, config);
                         }
                     });
                 };
@@ -2956,109 +2980,6 @@ define([
                     }
                 };
 
-                var initReplacements = function (feature, config) {
-                    var oldTag;
-                    var oldValue;
-                    var replacements = new dojoItemFileWriteStore({
-                        data: {
-                            items: []
-                        }
-                    });
-                    
-                    var replacementTableLayout = [{
-                        cells: [
-                            {
-                                name: 'Tag',
-                                field: 'tag',
-                                width: '40%',
-                                formatter: function (tag) {
-                                    if (!tag) {
-                                        return "Select track";
-                                    }
-                                    return tag;
-                                },
-                                editable: hasWritePermission
-                            },
-                            {
-                                name: 'Value',
-                                field: 'value',
-                                width: '60%',
-                                formatter: function (value) {
-                                    if (!value) {
-                                        return "Select feature";
-                                    }
-                                    return value;
-                                },
-                                editable: hasWritePermission
-                            }
-                        ]
-                    }];
-
-                    var replacementTable = new dojoxDataGrid({
-                        singleClickEdit: true,
-                        store: replacements,
-                        updateDelay: 0,
-                        structure: replacementTableLayout
-                    });
-
-                    var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
-                        initTable(replacementTable.domNode, replacementsTable, replacementTable);
-                        dojo.disconnect(handle);
-                    });
-                    if (reload) {
-                        initTable(replacementTable.domNode, replacementsTable, replacementTable, timeout);
-                    }
-
-                    var dirty = false;
-
-                    dojo.connect(replacementTable, "onStartEdit", function (inCell, inRowIndex) {
-                        if (!dirty) {
-                            oldTag = replacementTable.store.getValue(replacementTable.getItem(inRowIndex), "tag");
-                            oldValue = replacementTable.store.getValue(replacementTable.getItem(inRowIndex), "value");
-                            dirty = true;
-                        }
-                    });
-
-                    dojo.connect(replacementTable, "onCancelEdit", function (inRowIndex) {
-                        replacementTable.store.setValue(replacementTable.getItem(inRowIndex), "tag", oldTag);
-                        replacementTable.store.setValue(replacementTable.getItem(inRowIndex), "value", oldValue);
-                        dirty = false;
-                    });
-
-                    dojo.connect(replacementTable, "onApplyEdit", function (inRowIndex) {
-                        var newTag = replacementTable.store.getValue(replacementTable.getItem(inRowIndex), "tag");
-                        var newValue = replacementTable.store.getValue(replacementTable.getItem(inRowIndex), "value");
-                        if (!newTag || !newValue) {
-                        }
-                        else if (!oldTag || !oldValue) {
-                            addReplacement(newTag, newValue);
-                        }
-                        else {
-                            if (newTag != oldTag || newValue != oldValue) {
-                                updateReplacement(oldTag, oldValue, newTag, newValue);
-                            }
-                        }
-                        dirty = false;
-                    });
-
-                    dojo.connect(addReplacementButton, "onclick", function () {
-                        replacementTable.store.newItem({tag: "", value: ""});
-                        replacementTable.scrollToRow(replacementTable.rowCount);
-                    });
-
-                    dojo.connect(deleteReplacementButton, "onclick", function () {
-                        var toBeDeleted = new Array();
-                        var selected = replacementTable.selection.getSelected();
-                        for (var i = 0; i < selected.length; ++i) {
-                            var item = selected[i];
-                            var tag = replacementTable.store.getValue(item, "tag");
-                            var value = replacementTable.store.getValue(item, "value");
-                            toBeDeleted.push({tag: tag, value: value});
-                        }
-                        replacementTable.removeSelectedRows();
-                        deleteReplacements(toBeDeleted);
-                    });
-                };
 
 
                 var initComments = function (feature, config) {
