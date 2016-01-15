@@ -12,6 +12,7 @@ class ChadoHandlerService {
 
         JSONObject jsonObject = JSON.parse(organism.metadata)
 
+//        org.gmod.chado.Feature oldFeatures =
 
         if(!jsonObject.containsKey("chado")){
             log.error("No chado database specified")
