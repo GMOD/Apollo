@@ -918,7 +918,9 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             var deleteDiv = dojo.create("div", { }, content);
             var deleteLabel = dojo.create("label", { innerHTML: "Length", className: "sequence_alteration_input_label" }, deleteDiv);
             var deleteField = dojo.create("input", { type: "text", size: 10, className: "sequence_alteration_input_field" }, deleteDiv);
-
+            var comment = dojo.create("div", { }, content);
+            var comLabel = dojo.create("label", { innerHTML: "Comment", className: "sequence_alteration_comment_label" }, comment);
+            var comField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_comment_field" }, comment);
             $(deleteField).keydown(function(e) {
                 var unicode = e.charCode || e.keyCode;
                 var isBackspace = (unicode == 8);  // 8 = BACKSPACE
@@ -941,6 +943,10 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             var plusField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, plusDiv);
             var minusLabel = dojo.create("label", { innerHTML: "- strand", className: "sequence_alteration_input_label" }, minusDiv);
             var minusField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, minusDiv);
+            var comment = dojo.create("div", { }, content);
+            var comLabel = dojo.create("label", { innerHTML: " Comment", className: "sequence_alteration_comment_label" }, comment);
+            var comField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_comment_field" }, comment);
+
             $(plusField).keydown(function(e) {
                 var unicode = e.charCode || e.keyCode;
                 // ignoring delete key, doesn't do anything in input elements?
@@ -1016,12 +1022,18 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         var addSequenceAlteration = function() {
             var ok = true;
             var inputField;
+            var commentField = comField;
             var inputField = ((type == "deletion") ? deleteField : plusField);
             // if (type == "deletion") { inputField = deleteField; }
             // else  { inputField = plusField; }
             var input = inputField.value.toUpperCase();
+            var commentFieldValue = commentField.value;
             if (input.length == 0) {
                 alert("Input cannot be empty for " + type);
+                ok = false;
+            }
+            if (commentFieldValue.length == 0) {
+                alert(" Please add a justification for your Sequence Alteration");
                 ok = false;
             }
             if (ok) {
@@ -1066,6 +1078,8 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     if (type != "deletion") {
                         feature += ', "residues": "' + input + '"';
                     }
+                    var features = '[ { ' + feature + ' } ]';
+                    feature += ', "non_reserved_properties": [{"tag": "justification", "value": ' + commentFieldValue + ' }]';
                     var features = '[ { ' + feature + ' } ]';
                     var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }';
                     track.annotTrack.executeUpdateOperation(postData);
