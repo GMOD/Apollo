@@ -1032,10 +1032,6 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                 alert("Input cannot be empty for " + type);
                 ok = false;
             }
-            if (commentFieldValue.length == 0) {
-                alert(" Please add a justification for your Sequence Alteration");
-                ok = false;
-            }
             if (ok) {
                 var input = inputField.value.toUpperCase();
                 if (type == "deletion") {
@@ -1078,8 +1074,9 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     if (type != "deletion") {
                         feature += ', "residues": "' + input + '"';
                     }
-                    var features = '[ { ' + feature + ' } ]';
-                    feature += ', "non_reserved_properties": [{"tag": "justification", "value": ' + commentFieldValue + ' }]';
+                    if (commentFieldValue.length != 0) {
+                        feature += ', "non_reserved_properties": [{"tag": "justification", "value": ' + commentFieldValue + ' }]';
+                    }
                     var features = '[ { ' + feature + ' } ]';
                     var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }';
                     track.annotTrack.executeUpdateOperation(postData);
