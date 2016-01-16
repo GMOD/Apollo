@@ -2,8 +2,8 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import org.apache.commons.io.FileUtils
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.gmod.chado.ApplicationMetadata
 
 @Transactional
 class ChadoHandlerService {
@@ -21,22 +21,37 @@ class ChadoHandlerService {
         JSONObject chado = jsonObject.chado
 
 
-        // run a script
+        // identify the features not yet in Chado
+        Collection<Long> featureIds = features.id
 
-//        ['sh', '/home/path/to/script.sh', str].execute()
 
-        String fileName = "chadoDump.sh"
-        File chadoFile = new File("script-repo/${fileName}")
-        // copy the export
-        File tempDirectory = File.createTempDir()
-        FileUtils.copyFile(chadoFile,tempDirectory)
-        def processBuilder=new ProcessBuilder(["sh",fileName,chado.url,chado.username,chado.password,organism.id])
-        processBuilder.redirectErrorStream(true)
-        processBuilder.directory(tempDirectory)
-        def process = processBuilder.start()
-        String errorString = process.err.text
-        String outputString = process.in.text
-        println "error ${errorString}"
-        println "output ${outputString}"
+        ApplicationMetadata applicationMetadata = ApplicationMetadata.findByKey("lastUpdate")
+        Date lastUpdatedDate = null
+        if(applicationMetadata){
+           lastUpdatedDate = Date.parse("YYYY-MM-DD",applicationMetadata.value)
+        }
+
+
+        List<org.gmod.chado.Feature> chadoNewFeatures = org.gmod.chado.Feature.findAllByIdNotInList(featureIds)
+        List<org.gmod.chado.Feature> chadoUpdatedFeatures = org.gmod.chado.Feature.findAllByIdInList(featureIds)
+
+
+        addFeatures(chadoNewFeatures)
+        updateFeatures(chadoUpdatedFeatures)
+
+//        deleteFeatures(chadoOldFeatures)
+
+    }
+
+    def deleteFeatures(List<org.gmod.chado.Feature> features) {
+        null
+    }
+
+    def updateFeatures(List<org.gmod.chado.Feature> features) {
+
+    }
+
+    def addFeatures(List<org.gmod.chado.Feature> features) {
+
     }
 }
