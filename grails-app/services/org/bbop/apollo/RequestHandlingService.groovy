@@ -1254,7 +1254,7 @@ class RequestHandlingService {
 
             // TODO: Should we make it compulsory for the request object to have comments
             // TODO: If so, then we should change all of our integration tests for sequence alterations to have comments
-            if (testObj.has(FeatureStringEnum.NON_RESERVED_PROPERTIES.value)) {
+            if (jsonFeature.has(FeatureStringEnum.NON_RESERVED_PROPERTIES.value)) {
                 JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.NON_RESERVED_PROPERTIES.value);
                 for (int j = 0; j < properties.length(); ++j) {
                     JSONObject property = properties.getJSONObject(i);
