@@ -2303,6 +2303,10 @@ define([
                 }, commentButtons);
 
                 var replacementDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var replacementLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "Replace model(s)"
+                }, replacementDiv);
                 var trackNames = Object.keys(JBrowse.trackConfigsByName);
                 var replacements = new Select({
                     name: "replacementSelection",
