@@ -3726,6 +3726,9 @@ define([
                                 information += "Parent ids: " + feature.parent_ids + "<br/>";
                             }
                         }
+                        if (feature.justification) {
+                            information += "Justification: " + feature.justification + "<br/>";
+                        }
                         track.openDialog("Annotation information", information);
                     },
                     // The ERROR function will be called in an error case.

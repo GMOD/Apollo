@@ -1603,6 +1603,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     properties.put(jsonProperty);
                     continue
                 }
+                if (property.tag == "justification") {
+                    jsonPropertyType.put(FeatureStringEnum.NAME.value, "justification")
+                    JSONObject jsonPropertyTypeCv = new JSONObject()
+                    jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
+                    jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
+                    jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
+                    jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
+                    properties.put(jsonProperty);
+                    continue
+                }
                 jsonPropertyType.put(FeatureStringEnum.NAME.value, property.type)
                 JSONObject jsonPropertyTypeCv = new JSONObject()
                 jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
