@@ -431,11 +431,13 @@
 .Apollo .feature {
     height: 16px;
     background-color: transparent;
+    background-image: none;
 }
  
 .Apollo .generic_parent {
     height: 16px;
     background-color: transparent;
+    background-image: none;
 }
 
 
