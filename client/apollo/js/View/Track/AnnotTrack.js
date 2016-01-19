@@ -3576,7 +3576,8 @@ define([
                         }, row);
                         var revertButton = new dijitButton({
                             label: "Revert",
-                            showLabel: false,
+                            showLabel: true,
+                            style: "color: black",
                             iconClass: "dijitIconUndo",
                             'class': "revert_button",
                             onClick: function (index) {
@@ -3725,6 +3726,9 @@ define([
                             if (feature.parent_ids) {
                                 information += "Parent ids: " + feature.parent_ids + "<br/>";
                             }
+                        }
+                        if (feature.justification) {
+                            information += "Justification: " + feature.justification + "<br/>";
                         }
                         track.openDialog("Annotation information", information);
                     },

@@ -33,6 +33,7 @@
         <tr>
             <g:sortableColumn property="lastUpdated" title="Last updated"/>
             <g:sortableColumn property="organism" title="Organism"/>
+            <g:sortableColumn property="sequencename" title="Sequence name"/>
             <g:sortableColumn property="name" title="Name"/>
             <g:sortableColumn property="owners" title="Owner"/>
             <g:sortableColumn property="cvTerm" title="Feature type"/>
@@ -46,6 +47,9 @@
                 </td>
                 <td>
                     ${feature.featureLocation.sequence.organism.commonName}
+                </td>
+                <td>
+                    ${feature.featureLocation.sequence.name}
                 </td>
                 <td>
                     <g:link target="_blank" controller="annotator" action="loadLink" params="[loc: feature.featureLocation.sequence.name+':'+feature.featureLocation.fmin+'..'+feature.featureLocation.fmax, organism: feature.featureLocation.sequence.organism.id]">

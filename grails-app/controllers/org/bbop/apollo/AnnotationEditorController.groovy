@@ -497,7 +497,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             if (parentIds.length() > 0) {
                 info.put("parent_ids", parentIds);
             }
-
+            def featureProperties = featurePropertyService.getNonReservedProperties(gbolFeature);
+            featureProperties.each {
+                info.put(it.tag, it.value);
+            }
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(info);
         }
 
@@ -609,6 +612,22 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render annotationInfoEditorConfigContainer
     }
 
+    @RestApiMethod(description="Set name of a feature" ,path="/annotationEditor/setName",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','name':'gene01'}")
+    ] )
+    def setName() {
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.setName(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
 
     @RestApiMethod(description="Set description for a feature" ,path="/annotationEditor/setDescription",verb = RestApiVerb.POST )
     @RestApiParams(params=[
