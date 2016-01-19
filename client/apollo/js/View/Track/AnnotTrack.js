@@ -2339,7 +2339,7 @@ define([
                             }],
                             uniquename: uniqueName
                         }],
-                        operation: "add_non_reserved_properties",
+                        operation: "add_non_reserved_properties"
                     }))
                 });
 
