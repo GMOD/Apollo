@@ -3576,7 +3576,8 @@ define([
                         }, row);
                         var revertButton = new dijitButton({
                             label: "Revert",
-                            showLabel: false,
+                            showLabel: true,
+                            style: "color: black",
                             iconClass: "dijitIconUndo",
                             'class': "revert_button",
                             onClick: function (index) {

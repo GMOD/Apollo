@@ -277,6 +277,7 @@ class AnnotatorController {
                         break
                     case "length": sortString += " abs(fl.fmax-fl.fmin) "
                         break
+                    case "date": sortString += " f.lastUpdated "
                 }
                 sortString += " ${order} "
 
