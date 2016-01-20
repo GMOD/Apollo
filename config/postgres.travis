@@ -4,7 +4,7 @@ environments {
         dataSource.username = "postgres"
         dataSource.driverClassName = "org.postgresql.Driver"
         dataSource.dialect = "org.bbop.apollo.ImprovedPostgresDialect"
-        dataSource.url = "jdbc:postgresql://localhost/apollo-test"
+        dataSource.url = "jdbc:postgresql://localhost/apollo"
     }
 }
 
