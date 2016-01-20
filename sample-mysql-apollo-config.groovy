@@ -17,7 +17,7 @@ environments {
             password = "<CHANGEME>"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-            url = "jdbc:mysql://localhost/apollo-test"
+            url = "jdbc:mysql://localhost/apollo_test"
         }
     }
     production {
@@ -27,7 +27,7 @@ environments {
             password = "<CHANGEME>"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-            url = "jdbc:mysql://localhost/apollo-production"
+            url = "jdbc:mysql://localhost/apollo_production"
             properties {
                 // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
                 jmxEnabled = true
