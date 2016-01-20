@@ -1,0 +1,12 @@
+
+environments {
+    test {
+        dataSource{
+            dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+            username = "root"
+            driverClassName = "com.mysql.jdbc.Driver"
+            dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+            url = "jdbc:mysql://localhost/apollo"
+        }
+    }
+}
