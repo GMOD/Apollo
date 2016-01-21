@@ -3559,6 +3559,11 @@ define([
                     selectedIndex = index;
                 };
 
+                var cleanOperation= function(inputString){
+                    return inputString.charAt(0) + inputString.toLowerCase().replace(new RegExp("_", 'g'), " ").slice(1);
+                };
+
+
                 var displayHistory = function () {
                     for (var i = 0; i < history.length; ++i) {
                         var historyItem = history[i];
@@ -3567,7 +3572,7 @@ define([
                         var columnCssClass = "history_column";
                         dojo.create("span", {
                             className: columnCssClass + " history_column_operation ",
-                            innerHTML: historyItem.operation
+                            innerHTML: cleanOperation(historyItem.operation)
                         }, row);
                         dojo.create("span", {className: columnCssClass, innerHTML: historyItem.editor}, row);
                         dojo.create("span", {
