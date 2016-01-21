@@ -247,7 +247,7 @@ class GroupController {
 
 
 
-            ,@RestApiParam(name="administrate", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has administrative privileges for the organism")
+            ,@RestApiParam(name="administrate", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has administrative (including user/group) privileges for the organism")
             ,@RestApiParam(name="write", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has write privileges for the organism")
             ,@RestApiParam(name="export", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has export privileges for the organism")
             ,@RestApiParam(name="read", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has read privileges for the organism")
