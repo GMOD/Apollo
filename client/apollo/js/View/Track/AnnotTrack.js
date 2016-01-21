@@ -3574,23 +3574,6 @@ define([
                             className: columnCssClass + " history_column_date",
                             innerHTML: historyItem.date
                         }, row);
-                        var revertButton = new dijitButton({
-                            label: "Revert",
-                            showLabel: true,
-                            style: "color: black",
-                            iconClass: "dijitIconUndo",
-                            'class': "revert_button",
-                            onClick: function (index) {
-                                return function () {
-                                    selectedIndex = index;
-                                    revert();
-                                }
-                            }(i)
-                        });
-                        if (!canEdit) {
-                            revertButton.set("disabled", true);
-                        }
-                        dojo.place(revertButton.domNode, row);
                         var afeature = historyItem.features[0];
                         var fmin = afeature.location.fmin;
                         var fmax = afeature.location.fmax;
@@ -3603,6 +3586,65 @@ define([
 
                         if (historyItem.current) {
                             current = i;
+                        }
+
+                        var labelText = "&uarr;";
+                        var isCurrent = true ;
+
+                        if(current){
+                            if(i ==current ){
+                                labelText = "";
+                                isCurrent = false ;
+                            }
+                            else
+                            if(i > current ){
+                                labelText = "&darr;";
+                            }
+                            else
+                            if(i < current ){
+                                labelText = "&uarr;";
+                            }
+                        }
+
+
+
+                        if(isCurrent){
+                            var revertButton = new dijitButton({
+                                label: labelText,
+                                showLabel: true,
+                                style: "color: black",
+                                title: labelText == "&uarr;" ? "Undo" : "Redo",
+                                //iconClass: "dijitIconUndo",
+                                'class': "revert_button",
+                                onClick: function (index) {
+                                    return function () {
+                                        selectedIndex = index;
+                                        revert();
+                                    }
+                                }(i)
+                            });
+
+                            if (!canEdit) {
+                                revertButton.set("disabled", true);
+                            }
+                            dojo.place(revertButton.domNode, row);
+                        }
+                        else{
+                            var currentLabel = new dijitButton({
+                                label: labelText,
+                                showLabel: false,
+                                style: "color: black",
+                                title: 'Original',
+                                iconClass: "dijitIconBookmark",
+                                'class': "revert_button",
+                                onClick: function (index) {
+                                    return function () {
+                                        selectedIndex = index;
+                                        revert();
+                                    }
+                                }(i)
+                            });
+                            dojo.place(currentLabel.domNode, row);
                         }
 
                         dojo.connect(row, "onclick", row, function (index) {
