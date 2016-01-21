@@ -323,7 +323,7 @@ return declare( [JBPlugin, HelpMixin],
 
     minusStrandFilter: function(feature)  {
         var strand = feature.get('strand');
-        return !(strand = -1 || strand == '-' || !strand)
+        return !(strand == -1 || strand == '-' || !strand)
     },
 
     addStrandFilterOptions: function()  {
