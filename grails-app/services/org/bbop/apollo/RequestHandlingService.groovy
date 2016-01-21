@@ -153,7 +153,6 @@ class RequestHandlingService {
         return jsonObject
     }
 
-    // is this used?
     def deleteNonPrimaryDbxrefs(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -188,7 +187,7 @@ class RequestHandlingService {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: updateFeatureContainer
                     , sequence: sequence
-                    , operation: AnnotationEvent.Operation.DELETE
+                    , operation: AnnotationEvent.Operation.UPDATE
             )
             fireAnnotationEvent(annotationEvent)
         }
