@@ -11,7 +11,6 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
     def requestHandlingService
     def featureRelationshipService
-    def featurePropertyService
     def transcriptService
     def exonService
     def sequenceService
