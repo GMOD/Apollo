@@ -15,11 +15,15 @@
 }
 
 .history_column_operation {
-	width: 21em !important;
+	width: 17em !important;
+}
+
+.history_column_action{
+	width: 5em !important;
 }
 
 .history_column {
-	/*width: 15em;*/
+	width: 15em;
 	display: inline-block;
 	background-color: inherit;
 }
@@ -40,7 +44,7 @@
 }
 
 .history_rows {
-	/*max-height: 10em;*/
+	max-height: 10em;
 	overflow-y: auto;
 }
 
