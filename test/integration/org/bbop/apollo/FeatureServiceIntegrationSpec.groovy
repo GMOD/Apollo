@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.test.spock.IntegrationSpec
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 class FeatureServiceIntegrationSpec extends IntegrationSpec {
@@ -11,6 +12,7 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
     def featureService
     def requestHandlingService
     def exonService
+    def featureEventService
 
     def setup() {
         Organism organism = new Organism(
@@ -72,6 +74,7 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
         String mergeTranscriptString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" }, { \"uniquename\": \"@TRANSCRIPT2_UNIQUENAME@\" } ], \"operation\": \"merge_transcripts\" }"
         String undoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
         String setExonBoundaryCommand = "{\"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${newFmin},\"fmax\":${newFmax}}}],\"operation\":\"set_exon_boundaries\"}"
+        String getHistoryString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" } ], \"operation\": \"get_history_for_features\" }"
 
         when: "we add both transcripts"
         requestHandlingService.addTranscript(jsonAddTranscriptObject1)
@@ -118,7 +121,7 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
         mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", uniqueName1)
         mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT2_UNIQUENAME@", uniqueName2)
         JSONObject commandObject = JSON.parse(mergeTranscriptString) as JSONObject
-        JSONObject returnedAfterExonObject = requestHandlingService.mergeTranscripts(commandObject)
+        requestHandlingService.mergeTranscripts(commandObject)
 
         then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
         def allFeatures = Feature.all
@@ -128,6 +131,16 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
         assert NonCanonicalFivePrimeSpliceSite.count == 1
         assert NonCanonicalThreePrimeSpliceSite.count == 1
         assert CDS.count == 1
+
+        when: "when we get the feature history"
+        JSONObject historyContainer = createJSONFeatureContainer();
+        getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@",MRNA.first().uniqueName)
+        historyContainer = featureEventService.generateHistory(historyContainer,(JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
+        JSONArray historyArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+
+        then: "we should see 3 events"
+        assert 3==historyArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value).size()
 
 
         when: "when we undo the merge"
@@ -149,7 +162,16 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
 
     }
 
-    /**
+    protected JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
+        JSONObject jsonFeatureContainer = new JSONObject();
+        JSONArray jsonFeatures = new JSONArray();
+        jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures);
+        for (JSONObject feature : features) {
+            jsonFeatures.put(feature);
+        }
+        return jsonFeatureContainer;
+    }
+/**
      * https://github.com/GMOD/Apollo/issues/792
      */
     void "should handle merge, change on upstream / RHS gene, and undo"(){
@@ -166,6 +188,7 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
         String mergeTranscriptString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" }, { \"uniquename\": \"@TRANSCRIPT2_UNIQUENAME@\" } ], \"operation\": \"merge_transcripts\" }"
         String undoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
         String setExonBoundaryCommand = "{\"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${allFmin},\"fmax\":${newFmax}}}],\"operation\":\"set_exon_boundaries\"}"
+        String getHistoryString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" } ], \"operation\": \"get_history_for_features\" }"
 
         when: "we add both transcripts"
         requestHandlingService.addTranscript(jsonAddTranscriptObject1)
@@ -224,6 +247,15 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
         assert NonCanonicalThreePrimeSpliceSite.count == 1
         assert CDS.count == 1
 
+        when: "when we get the feature history"
+        JSONObject historyContainer = createJSONFeatureContainer();
+        getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@",MRNA.first().uniqueName)
+        historyContainer = featureEventService.generateHistory(historyContainer,(JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
+        JSONArray historyArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+
+        then: "we should see 3 events"
+        assert 3==historyArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value).size()
 
         when: "when we undo the merge"
         String undoString = undoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)

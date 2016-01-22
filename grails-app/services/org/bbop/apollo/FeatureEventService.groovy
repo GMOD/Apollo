@@ -10,6 +10,8 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
 
+import java.text.DateFormat
+
 /**
  */
 @Transactional
@@ -411,11 +413,14 @@ class FeatureEventService {
 //            childFeatureEvent = childId ? findFeatureEventFromMap(childId,featureEventMap) : null
         }
 
-        return featureEventList.sort(true) { a, b ->
+        def sortedFeaturedEvents = featureEventList.sort(true) { a, b ->
             a[0].dateCreated <=> b[0].dateCreated
-        }.unique(true) { a, b ->
+        }
+
+        def uniqueSortedFeatureEVents = sortedFeaturedEvents.unique(true) { a, b ->
             a[0].id <=> b[0].id
         }
+        return uniqueSortedFeatureEVents
     }
 
 
@@ -804,12 +809,60 @@ class FeatureEventService {
 
         // if we have a split, it will pick up the same values twice
         // so we need to filter those out
-        return featureEvents.sort(true) { a, b ->
+        def sortedFeatureEvents = featureEvents.sort(true) { a, b ->
             a[0].dateCreated <=> b[0].dateCreated
         }
-        .unique(true) { a, b ->
+        def uniqueFeatureEvents = sortedFeatureEvents.unique(true) { a, b ->
             a[0].id <=> b[0].id
         }
+        return uniqueFeatureEvents
     }
 
+    JSONObject generateHistory(JSONObject historyContainer, JSONArray featuresArray) {
+        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+        for (int i = 0; i < featuresArray.size(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+
+            JSONArray history = new JSONArray();
+            jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
+            List<List<FeatureEvent>> transactionList = getHistory(feature.uniqueName)
+            for (int j = 0; j < transactionList.size(); ++j) {
+                FeatureEvent transaction = transactionList[j][0];
+                JSONObject historyItem = new JSONObject();
+                historyItem.put(AbstractApolloController.REST_OPERATION, transaction.operation.name());
+                historyItem.put(FeatureStringEnum.EDITOR.value, transaction.getEditor()?.username);
+                historyItem.put(FeatureStringEnum.DATE.value, dateFormat.format(transaction.dateCreated));
+                if (transaction.current) {
+                    historyItem.put(FeatureStringEnum.CURRENT.value, true);
+                } else {
+                    historyItem.put(FeatureStringEnum.CURRENT.value, false);
+                }
+                JSONArray historyFeatures = new JSONArray();
+                historyItem.put(FeatureStringEnum.FEATURES.value, historyFeatures);
+
+                if (transaction.newFeaturesJsonArray) {
+                    JSONArray newFeaturesJsonArray = (JSONArray) JSON.parse(transaction.newFeaturesJsonArray)
+                    for (int featureIndex = 0; featureIndex < newFeaturesJsonArray.size(); featureIndex++) {
+                        JSONObject featureJsonObject = newFeaturesJsonArray.getJSONObject(featureIndex)
+                        // TODO: this needs to be functional
+//                        if (transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT)) {
+//                            Feature newFeature = Feature.findByUniqueName(featureJsonObject.getString(FeatureStringEnum.UNIQUENAME.value))
+//                            if (overlapperService.overlaps(feature.featureLocation, newFeature.featureLocation, true)) {
+//                                historyFeatures.put(featureJsonObject);
+//                            }
+//                        }
+//                        else{
+//                            historyFeatures.put(featureJsonObject);
+//                        }
+                        historyFeatures.put(featureJsonObject);
+                    }
+                    history.put(historyItem);
+                }
+            }
+            historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature);
+        }
+        return historyContainer
+    }
 }
