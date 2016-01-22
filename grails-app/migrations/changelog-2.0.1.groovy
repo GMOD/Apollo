@@ -93,10 +93,12 @@ databaseChangeLog = {
     }
 
     changeSet(author: "nathandunn (generated)", id: "1445460972540-27") {
-        preConditions(onFail: 'MARK_RAN', onError: "MARK_RAN") {
+        preConditions(onFail: 'MARK_RAN', onError: "HALT") {
             and {
-                tableExists(tableName: "sequence",schemaName:"public")
-                columnExists(columnName: "seq_chunk_prefix", tableName: "sequence",schemaName:"public")
+//                tableExists(tableName: "sequence",schemaName:"public")
+//                columnExists(columnName: "seq_chunk_prefix", tableName: "sequence",schemaName:"public")
+                tableExists(tableName: "sequence")
+                columnExists(columnName: "seq_chunk_prefix", tableName: "sequence")
 //                columnExists(columnName: "splice_acceptor", tableName: "sequence")
 //                columnExists(columnName: "splice_donor", tableName: "sequence")
 //                columnExists(columnName: "translation_table_location", tableName: "sequence")

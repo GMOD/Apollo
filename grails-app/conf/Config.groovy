@@ -166,6 +166,7 @@ log4j.main = {
     // enable logging of our webapollo instance (uncomment debug for extensive output)
 	warn 'grails.app'
 //    debug 'grails.app'
+//    debug 'liquibase'
 
     // more find grained logging
     //trace 'org.hibernate.type'
@@ -328,7 +329,8 @@ apollo {
 
 grails.plugin.databasemigration.updateOnStart = true
 //grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.0.groovy','changelog-2.0.1.groovy']
-grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.1.groovy']
+//grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.1.groovy']
+grails.plugin.databasemigration.updateOnStartFileNames = ['changelog.groovy']
 
 // from: http://grails.org/plugin/audit-logging
 auditLog {
