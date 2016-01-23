@@ -515,7 +515,7 @@ public class AnnotatorPanel extends Composite {
 
     // TODO: need to cache these or retrieve from the backend
     public static void displayTranscript(int geneIndex, String uniqueName) {
-        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(geneIndex);
+        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
         AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
 
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
