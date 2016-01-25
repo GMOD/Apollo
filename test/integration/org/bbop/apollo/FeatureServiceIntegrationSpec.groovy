@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.test.spock.IntegrationSpec
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -251,11 +252,22 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
         JSONObject historyContainer = createJSONFeatureContainer();
         getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@",MRNA.first().uniqueName)
         historyContainer = featureEventService.generateHistory(historyContainer,(JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
-        JSONArray historyArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONArray featuresArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONArray historyArray= featuresArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value)
+        def recentProject = historyArray.getJSONObject(0)
+        def middleProject = historyArray.getJSONObject(1)
+        def oldestProject = historyArray.getJSONObject(2)
 
 
         then: "we should see 3 events"
-        assert 3==historyArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value).size()
+        assert 3==historyArray.size()
+
+        assert 1==historyArray.getJSONObject(0).getJSONArray(FeatureStringEnum.FEATURES.value).size()
+        assert FeatureOperation.ADD_TRANSCRIPT.name()==recentProject.getString("operation")
+        assert 1==recentProject.getJSONArray(FeatureStringEnum.FEATURES.value).size()
+        assert FeatureOperation.MERGE_TRANSCRIPTS.name()==oldestProject.getString("operation")
+        assert 1==middleProject.getJSONArray(FeatureStringEnum.FEATURES.value).size()
+        // should be ADD_TRANSCRIPT and SET_EXON_BOUNDARY
 
         when: "when we undo the merge"
         String undoString = undoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
