@@ -3596,8 +3596,8 @@ define([
                         var labelText = "&uarr;";
                         var isCurrent = true ;
 
-                        if(current){
-                            if(i ==current ){
+                        if(typeof current !== 'undefined'){
+                            if(i == current ){
                                 labelText = "";
                                 isCurrent = false ;
                             }
