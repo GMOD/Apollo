@@ -697,6 +697,14 @@ class FeatureEventService {
     int getCurrentFeatureEventIndex(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = null) {
         List<FeatureEvent> currentFeatureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true, [sort: "dateCreated", order: "asc"])
         featureEventMap = extractFeatureEventGroup(uniqueName)
+        if(!currentFeatureEventList){
+            featureEventMap.keySet().each {
+                if(!currentFeatureEventList && uniqueName!=it){
+                    currentFeatureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(it, true, [sort: "dateCreated", order: "asc"])
+                }
+            }
+        }
+
         if (currentFeatureEventList.size() != 1) {
             throw new AnnotationException("Feature event list is the wrong size ${currentFeatureEventList?.size()}")
         }
@@ -737,7 +745,7 @@ class FeatureEventService {
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
         int count = currentIndex - countBackwards
-        log.info "${count} = ${currentIndex}-${countBackwards}"
+        println  "${count} = ${currentIndex}-${countBackwards}"
         setHistoryState(inputObject, count, confirm)
     }
 
