@@ -712,12 +712,14 @@ class FeatureEventService {
         int index = -1
 ////        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueName(uniqueName, [sort: "dateCreated", order: "asc"])
 //
-//        return getDeepestIndex(-1,currentFeatureEvent,featureEventMap)
-        while (currentFeatureEvent) {
-            ++index
-            currentFeatureEvent = currentFeatureEvent.parentId ? findFeatureEventFromMap(currentFeatureEvent.parentId, featureEventMap) : null
-        }
+        index = getDeepestIndex(-1,currentFeatureEvent,featureEventMap)
         return index
+//        getDeepestIndex(-1,currentFeatureEvent,featureEventMap)
+//        while (currentFeatureEvent) {
+//            ++index
+//            currentFeatureEvent = currentFeatureEvent.parentId ? findFeatureEventFromMap(currentFeatureEvent.parentId, featureEventMap) : null
+//        }
+//        return index
     }
 
     int getDeepestIndex(int index, FeatureEvent currentFeatureEvent, Map<String, Map<Long, FeatureEvent>> featureEventMap) {
@@ -857,8 +859,25 @@ class FeatureEventService {
 
         // if we have a split, it will pick up the same values twice
         // so we need to filter those out
+        // sort by what is on top of what
+        // if we have a merge, where one of the merges has history, but the other doesn't
         def sortedFeatureEvents = featureEvents.sort(true) { a, b ->
-            a[0].dateCreated <=> b[0].dateCreated
+//            if(a[0].parentId==null){
+//                return -1
+//            }
+//            if(b[0].parentId==null){
+//                return 1
+//            }
+//            if(b[0].parentId==a[0].childId){
+//                return -1
+//            }
+//            if(a[0].parentId==b[0].childId){
+//                return 1
+//            }
+//            else{
+//                println "invalid sort criteria, using date "
+                a[0].dateCreated <=> b[0].dateCreated
+//            }
         }
         def uniqueFeatureEvents = sortedFeatureEvents.unique(true) { a, b ->
             a[0].id <=> b[0].id

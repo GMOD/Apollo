@@ -254,14 +254,17 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
         historyContainer = featureEventService.generateHistory(historyContainer,(JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
         JSONArray featuresArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONArray historyArray= featuresArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value)
+
+
+        then: "we should see 3 events"
+        assert 2==historyArray.size()
+
+        when: "we retrieve the arrays"
         def recentProject = historyArray.getJSONObject(0)
         def middleProject = historyArray.getJSONObject(1)
         def oldestProject = historyArray.getJSONObject(2)
 
-
-        then: "we should see 3 events"
-        assert 3==historyArray.size()
-
+        then:
         assert 1==historyArray.getJSONObject(0).getJSONArray(FeatureStringEnum.FEATURES.value).size()
         assert FeatureOperation.ADD_TRANSCRIPT.name()==recentProject.getString("operation")
         assert 1==recentProject.getJSONArray(FeatureStringEnum.FEATURES.value).size()
