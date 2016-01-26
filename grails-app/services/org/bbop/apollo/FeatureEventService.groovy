@@ -861,7 +861,7 @@ class FeatureEventService {
         // so we need to filter those out
         // sort by what is on top of what
         // if we have a merge, where one of the merges has history, but the other doesn't
-        def sortedFeatureEvents = featureEvents.sort(true) { a, b ->
+        def sortedFeatureEvents = featureEvents.sort(false) { a, b ->
 //            if(a[0].parentId==null){
 //                return -1
 //            }
@@ -879,7 +879,7 @@ class FeatureEventService {
                 a[0].dateCreated <=> b[0].dateCreated
 //            }
         }
-        def uniqueFeatureEvents = sortedFeatureEvents.unique(true) { a, b ->
+        def uniqueFeatureEvents = sortedFeatureEvents.unique(false) { a, b ->
             a[0].id <=> b[0].id
         }
         return uniqueFeatureEvents
