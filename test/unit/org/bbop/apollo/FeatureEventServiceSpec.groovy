@@ -347,6 +347,9 @@ class FeatureEventServiceSpec extends Specification {
         println "new active feature event ${newActiveFeatureEvent}"
         featureEventList2 = service.getHistory(uniqueName2)
         featureEventList1 = service.getHistory(uniqueName1)
+        currentFeatureEvents = service.findCurrentFeatureEvent(uniqueName2)
+        int uniqueName1Index = currentFeatureEvents[0].uniqueName==uniqueName1 ? 0 : 1
+        int uniqueName2Index = currentFeatureEvents[1].uniqueName==uniqueName2 ? 1 : 0
 
 
         then: "since 2 is further then 1, it should stop on the most recent for both"
@@ -357,8 +360,13 @@ class FeatureEventServiceSpec extends Specification {
 
         assert 4==featureEventList2.size()
         // note: I am uniqueName2 split explicitly (by default everywhere else I'm grabbing uniqueName1)
-        assert 2==service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[1]).size()
-        assert 1==service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[1]).size()
+
+        assert 2==currentFeatureEvents.size()
+        assert uniqueName1==currentFeatureEvents[uniqueName1Index].uniqueName
+        assert uniqueName2==currentFeatureEvents[uniqueName2Index].uniqueName
+
+        assert 2==service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[uniqueName2Index]).size()
+        assert 1==service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[uniqueName2Index]).size()
 
         assert !featureEventList2[3][0].current
         assert featureEventList2[3][0].operation==FeatureOperation.FLIP_STRAND
@@ -601,6 +609,8 @@ class FeatureEventServiceSpec extends Specification {
         then: "we should see an extra operation"
         assert 2==FeatureEvent.countByUniqueName(uniqueName2)
         assert 1==FeatureEvent.countByUniqueName(uniqueName1)
+        assert featureEventList1.size()==1
+        assert featureEventList1[0][0].current
         assert featureEventList2.size()==2
         assert !featureEventList2[0][0].current
         assert featureEventList2[1][0].current
@@ -639,13 +649,14 @@ class FeatureEventServiceSpec extends Specification {
 //        Integer featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
         featureEventList1 = service.getHistory(uniqueName1)
         featureEventList2 = service.getHistory(uniqueName2)
+        def allFeatureEvents = FeatureEvent.findAllByUniqueNameOrUniqueName(uniqueName1,uniqueName2)
         // TODO: not sure if this is accurate, or possible
 //        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName2)[0]
 //        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName1)[0]
 
         then: "we should see one feature events, with the second one current and the prior one before"
         assert 1==featureIndex
-        assert featureEventList1.size()==2
+        assert featureEventList1.size()==3
         assert featureEventList2.size()==0 // we should not get access to this
         assert 2==FeatureEvent.countByUniqueName(uniqueName2)
         assert 2==FeatureEvent.countByUniqueName(uniqueName1)
@@ -660,12 +671,16 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList1[2].size()==1
         assert featureEventList1[2][0].current
         assert featureEventList1[2][0].operation==FeatureOperation.MERGE_TRANSCRIPTS
-        assert featureEventList1[1].size()==2
+
+
+        assert featureEventList1[1].size()==2 // this is only 2 when getting the future
         assert !featureEventList1[1][0].current
         assert featureEventList1[1][0].operation==FeatureOperation.ADD_TRANSCRIPT
         // not sure if this should occur at the top or not . . . prob does not matter
         assert !featureEventList1[1][1].current
         assert featureEventList1[1][1].operation==FeatureOperation.SET_EXON_BOUNDARIES
+
+
         assert featureEventList1[0].size()==1
         assert !featureEventList1[0][0].current
         assert featureEventList1[0][0].operation==FeatureOperation.ADD_TRANSCRIPT

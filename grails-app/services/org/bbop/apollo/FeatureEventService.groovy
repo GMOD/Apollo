@@ -365,7 +365,7 @@ class FeatureEventService {
         }
 
         def sortedFeatureEventList = featureEventList.sort(true) { a, b ->
-            a[0].dateCreated <=> b[0].dateCreated
+            b[0].dateCreated <=> a[0].dateCreated
         }
 
         def uniqueFeatureEventList = sortedFeatureEventList.unique(true) { a, b ->
@@ -844,7 +844,8 @@ class FeatureEventService {
         List<List<FeatureEvent>> featureEvents = new ArrayList<>()
 
         for (FeatureEvent featureEvent in currentFeatureEvent) {
-            featureEvents.addAll(findAllPreviousFeatureEvents(featureEvent, featureEventMap))
+            def previousFeatureEvent = findAllPreviousFeatureEvents(featureEvent, featureEventMap)
+            featureEvents.addAll(previousFeatureEvent)
         }
         featureEvents.add(currentFeatureEvent)
         // finding future events handles splits correctly, so we only need to manage this branch
@@ -854,7 +855,6 @@ class FeatureEventService {
             }
         }
 
-        println "F"
         // if we have a split, it will pick up the same values twice
         // so we need to filter those out
         def sortedFeatureEvents = featureEvents.sort(true) { a, b ->
