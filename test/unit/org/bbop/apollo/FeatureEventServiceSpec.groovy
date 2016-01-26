@@ -600,6 +600,7 @@ class FeatureEventServiceSpec extends Specification {
 
         then: "we should see an extra operation"
         assert 2==FeatureEvent.countByUniqueName(uniqueName2)
+        assert 1==FeatureEvent.countByUniqueName(uniqueName1)
         assert featureEventList2.size()==2
         assert !featureEventList2[0][0].current
         assert featureEventList2[1][0].current
@@ -609,13 +610,34 @@ class FeatureEventServiceSpec extends Specification {
 //        newJsonArray.add(new JSONObject())
         oldJsonArray.add(new JSONObject())
         service.addMergeFeatureEvent(name1,uniqueName1,name2,uniqueName2,new JSONObject(),oldJsonArray,new JSONObject(),null)
-        featureEventList2 = service.getHistory(uniqueName2)
+        Integer featureIndex = service.getCurrentFeatureEventIndex(uniqueName1)
+
+        Map<String,Map<Long,FeatureEvent>> featureEventMap  = service.extractFeatureEventGroup(uniqueName1)
+        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName1, true)
+        FeatureEvent currentFeature = featureEventList.first()
+        List<List<FeatureEvent>> previousFeatureEvents = service.findAllPreviousFeatureEvents(currentFeature,featureEventMap)
+
+        then: "check our data structures"
+        assert featureEventList.size()==1
+        assert featureEventMap.size()==2
+        assert featureEventMap.values().first().size()==2
+        assert featureEventMap.values().last().size()==2
+        assert previousFeatureEvents.size()==2
+        assert previousFeatureEvents.first().size()==1
+        assert previousFeatureEvents.last().size()==2
+
+
+        when: "we get the histories"
+//        Integer featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
+        List<FeatureEvent> currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1)
         featureEventList1 = service.getHistory(uniqueName1)
+        featureEventList2 = service.getHistory(uniqueName2)
         // TODO: not sure if this is accurate, or possible
 //        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName2)[0]
-        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName1)[0]
+//        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName1)[0]
 
         then: "we should see one feature events, with the second one current and the prior one before"
+        assert 2==featureIndex
         assert featureEventList2.size()==0 // we should not get access to this
         assert featureEventList1.size()==3
         assert 2==FeatureEvent.countByUniqueName(uniqueName2)

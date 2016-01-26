@@ -325,7 +325,6 @@ class FeatureEventService {
         int count = 0
         featureEventList.each { it.each { it.delete(); ++count } }
         return count
-//        return FeatureEvent.deleteAll(featureEventList.find().eac)
     }
 
     FeatureEvent findFeatureEventFromMap(Long parentId,Map<String,Map<Long,FeatureEvent>> featureEventMap){
@@ -366,11 +365,15 @@ class FeatureEventService {
 //            parentFeatureEvent = parentId ? findFeatureEventFromMap(parentId,featureEventMap) : null
         }
 
-        return featureEventList.sort(true) { a, b ->
+        def sortedFeatureEventList = featureEventList.sort(true) { a, b ->
             a[0].dateCreated <=> b[0].dateCreated
-        }.unique(true) { a, b ->
+        }
+
+        def uniqueFeatureEventList = sortedFeatureEventList.unique(true) { a, b ->
             a[0].id <=> b[0].id
         }
+
+        return uniqueFeatureEventList
     }
 
     /**
@@ -701,13 +704,27 @@ class FeatureEventService {
         FeatureEvent currentFeatureEvent = currentFeatureEventList.iterator().next()
 //        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueName(uniqueName, [sort: "dateCreated", order: "asc"])
 
-        int index = -1
-        while (currentFeatureEvent) {
-            ++index
-//            currentFeatureEvent = currentFeatureEvent.parentId ? FeatureEvent.findById(currentFeatureEvent.parentId) : null
-            currentFeatureEvent = currentFeatureEvent.parentId ? findFeatureEventFromMap(currentFeatureEvent.parentId,featureEventMap) : null
+        return getDeepestIndex(-1,currentFeatureEvent,featureEventMap)
+//        while (currentFeatureEvent) {
+//            ++index
+//            currentFeatureEvent = currentFeatureEvent.parentId ? findFeatureEventFromMap(currentFeatureEvent.parentId,featureEventMap) : null
+//        }
+//        return index
+    }
+
+    int getDeepestIndex(int index, FeatureEvent currentFeatureEvent, Map<String, Map<Long, FeatureEvent>> featureEventMap) {
+        ++index
+        FeatureEvent featureEvent1 = null
+        FeatureEvent featureEvent2 = null
+        if(currentFeatureEvent.parentId){
+            featureEvent1 = findFeatureEventFromMap(currentFeatureEvent.parentId,featureEventMap)
         }
-        return index
+        if(currentFeatureEvent.parentMergeId){
+            featureEvent2 = findFeatureEventFromMap(currentFeatureEvent.parentMergeId,featureEventMap)
+        }
+        Integer p1Id = featureEvent1 ? getDeepestIndex(index,featureEvent1, featureEventMap) : index
+        Integer p2Id = featureEvent2 ? getDeepestIndex(index,featureEvent2,featureEventMap) : index
+        return Math.max(p1Id,p2Id)
     }
 
     def undo(JSONObject inputObject, int countBackwards, boolean confirm) {
@@ -742,6 +759,8 @@ class FeatureEventService {
         FeatureEvent currentFeatureEvent = featureEventList.first()
         int index = getCurrentFeatureEventIndex(uniqueName)
 
+        // we have the "current" . .  we have to go back to see if there are any
+        // splits in the history and include those as well
         // its okay if we grab either side of this array
         // just arbitrarily get the first one
         List<List<FeatureEvent>> previousFeatureEvents = findAllPreviousFeatureEvents(currentFeatureEvent,featureEventMap)
@@ -775,7 +794,8 @@ class FeatureEventService {
 
         // an index of 1 is 1 in the future.  This returns exclusive future, so we need to
         // substract 1 from the index
-        def futureEvents = findAllFutureFeatureEvents(firstFeatureEvent,featureEventMap)[index - 1]
+        def allFutureEvents = findAllFutureFeatureEvents(firstFeatureEvent,featureEventMap)
+        def futureEvents = allFutureEvents[index - 1]
         return futureEvents
     }
 
