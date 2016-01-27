@@ -364,12 +364,26 @@ class FeatureEventService {
 //            parentFeatureEvent = parentId ? findFeatureEventFromMap(parentId,featureEventMap) : null
         }
 
-        def sortedFeatureEventList = featureEventList.sort(true) { a, b ->
-            b[0].dateCreated <=> a[0].dateCreated
-        }
-
-        def uniqueFeatureEventList = sortedFeatureEventList.unique(true) { a, b ->
-            a[0].id <=> b[0].id
+//        def sortedFeatureEventList = featureEventList.sort(true) { a, b ->
+//            b[0].dateCreated <=> a[0].dateCreated
+//        }
+//
+//        def uniqueFeatureEventList = sortedFeatureEventList.unique(true) { a, b ->
+//            a[0].id <=> b[0].id
+//        }
+//        def uniqueFeatureEventList = featureEventList.unique(false) { a, b ->
+//            a[0].id <=> b[0].id
+//        }
+        def uniqueFeatureEventList = featureEventList.unique(false) { a, b ->
+            for (aIndex in a) {
+                for (bIndex in b) {
+                    if (aIndex.id == bIndex.id) {
+                        return 0
+                    }
+                }
+            }
+            return 1
+//            a[0].id <=> b[0].id
         }
 
         return uniqueFeatureEventList
@@ -415,14 +429,22 @@ class FeatureEventService {
 //            childFeatureEvent = childId ? findFeatureEventFromMap(childId,featureEventMap) : null
         }
 
-        def sortedFeaturedEvents = featureEventList.sort(true) { a, b ->
-            a[0].dateCreated <=> b[0].dateCreated
-        }
+//        def sortedFeaturedEvents = featureEventList.sort(true) { a, b ->
+//            a[0].dateCreated <=> b[0].dateCreated
+//        }
 
-        def uniqueSortedFeatureEVents = sortedFeaturedEvents.unique(true) { a, b ->
-            a[0].id <=> b[0].id
+        def uniqueFeatureEventList = featureEventList.unique(false) { a, b ->
+            for (aIndex in a) {
+                for (bIndex in b) {
+                    if (aIndex.id == bIndex.id) {
+                        return 0
+                    }
+                }
+            }
+            return 1
+//            a[0].id <=> b[0].id
         }
-        return uniqueSortedFeatureEVents
+        return uniqueFeatureEventList
     }
 
 
@@ -697,9 +719,9 @@ class FeatureEventService {
     int getCurrentFeatureEventIndex(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = null) {
         List<FeatureEvent> currentFeatureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true, [sort: "dateCreated", order: "asc"])
         featureEventMap = extractFeatureEventGroup(uniqueName)
-        if(!currentFeatureEventList){
+        if (!currentFeatureEventList) {
             featureEventMap.keySet().each {
-                if(!currentFeatureEventList && uniqueName!=it){
+                if (!currentFeatureEventList && uniqueName != it) {
                     currentFeatureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(it, true, [sort: "dateCreated", order: "asc"])
                 }
             }
@@ -712,7 +734,7 @@ class FeatureEventService {
         int index = -1
 ////        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueName(uniqueName, [sort: "dateCreated", order: "asc"])
 //
-        index = getDeepestIndex(-1,currentFeatureEvent,featureEventMap)
+        index = getDeepestIndex(-1, currentFeatureEvent, featureEventMap)
         return index
 //        getDeepestIndex(-1,currentFeatureEvent,featureEventMap)
 //        while (currentFeatureEvent) {
@@ -747,7 +769,7 @@ class FeatureEventService {
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
         int count = currentIndex - countBackwards
-        println  "${count} = ${currentIndex}-${countBackwards}"
+        println "${count} = ${currentIndex}-${countBackwards}"
         setHistoryState(inputObject, count, confirm)
     }
 
@@ -861,29 +883,92 @@ class FeatureEventService {
         // so we need to filter those out
         // sort by what is on top of what
         // if we have a merge, where one of the merges has history, but the other doesn't
-        def sortedFeatureEvents = featureEvents.sort(false) { a, b ->
-//            if(a[0].parentId==null){
-//                return -1
+//        def sortedFeatureEvents = featureEvents.sort(false) { a, b ->
+////            if(a[0].parentId==null){
+////                return -1
+////            }
+////            if(b[0].parentId==null){
+////                return 1
+////            }
+////            if(b[0].parentId==a[0].childId){
+////                return -1
+////            }
+////            if(a[0].parentId==b[0].childId){
+////                return 1
+////            }
+////            else{
+////                println "invalid sort criteria, using date "
+//                a[0].dateCreated <=> b[0].dateCreated
+////            }
+//        }
+//        def uniqueFeatureEvents = sortedFeatureEvents.unique(false) { a, b ->
+
+        def sortedFeatureEvents = generatedSortedFeatures(featureEvents,featureEventMap)
+//        def sortedFeatureEvents = featureEvents.sort(false) { a, b ->
+////            for (aIndex in a) {
+////                if(aIndex.parentId==null){
+////                    return -1
+////                }
+////                else{
+////                    for (bIndex in b) {
+////                        if(bIndex.parentId==null){
+////
+////                        }
+////                    }
+////                }
+////            if(a[0].parentId==null){
+////                return -1
+////            }
+////            if(b[0].parentId==null){
+////                return 1
+////            }
+////            if(b[0].parentId==a[0].childId){
+////                return -1
+////            }
+////            if(a[0].parentId==b[0].childId){
+////                return 1
+////            }
+////            else{
+////                println "invalid sort criteria, using date "
+////                a[0].dateCreated <=> b[0].dateCreated
 //            }
-//            if(b[0].parentId==null){
-//                return 1
-//            }
-//            if(b[0].parentId==a[0].childId){
-//                return -1
-//            }
-//            if(a[0].parentId==b[0].childId){
-//                return 1
-//            }
-//            else{
-//                println "invalid sort criteria, using date "
-                a[0].dateCreated <=> b[0].dateCreated
-//            }
-        }
+//        }
         def uniqueFeatureEvents = sortedFeatureEvents.unique(false) { a, b ->
-            a[0].id <=> b[0].id
+            for (aIndex in a) {
+                for (bIndex in b) {
+                    if (aIndex.id == bIndex.id) {
+                        return 0
+                    }
+                }
+            }
+            return 1
+//            a[0].id <=> b[0].id
         }
         return uniqueFeatureEvents
     }
+
+    List<List<FeatureEvent>> generatedSortedFeatures(List<List<FeatureEvent>> featureEventList, Map<String, Map<Long, FeatureEvent>> featureEventMap) {
+        if(true){
+          return featureEventList
+        }
+
+//        List<List<FeatureEvent>> returnList = new ArrayList<>()
+
+        // get roots
+//        List<List<FeatureEvent>> rootList = getRoots(featureEventList, featureEventMap)
+
+//
+//        for(int i = 0 ; i < featureEventList ; i++){
+//            List<FeatureEvent> featureEvents = featureEventList.get(i)
+//        }
+//
+//
+//        return returnList
+    }
+
+//    List<List<FeatureEvent>> getRoots(List<List<FeatureEvent>> lists, Map<String, Map<Long, FeatureEvent>> stringMapMap) {
+//        feat
+//    }
 
     JSONObject generateHistory(JSONObject historyContainer, JSONArray featuresArray) {
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
@@ -902,7 +987,7 @@ class FeatureEventService {
                 // prefer a predecessor that is not "ADD_TRANSCRIPT"?
                 transactionSet.each {
                     if (transaction.operation == FeatureOperation.ADD_TRANSCRIPT) {
-                        if(it.operation!=FeatureOperation.ADD_TRANSCRIPT){
+                        if (it.operation != FeatureOperation.ADD_TRANSCRIPT) {
                             transaction = it
                         }
                     }
