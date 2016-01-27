@@ -166,6 +166,7 @@ log4j.main = {
     // enable logging of our webapollo instance (uncomment debug for extensive output)
 	warn 'grails.app'
 //    debug 'grails.app'
+//    debug 'liquibase'
 
     // more find grained logging
     //trace 'org.hibernate.type'
@@ -205,8 +206,11 @@ apollo {
     feature_has_comments = true
     feature_has_status = true
     user_pure_memory_store = true
-    translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
     is_partial_translation_allowed = false // unused so far
+    // this is the default
+    // other translation codes are of the form ncbi_KEY_translation_table.txt
+    // under the web-app/translation_tables  directory
+    // to add your own add them to that directory and over-ride the translation code here
     get_translation_code = 1
     proxies = [
             [
@@ -325,7 +329,8 @@ apollo {
 
 grails.plugin.databasemigration.updateOnStart = true
 //grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.0.groovy','changelog-2.0.1.groovy']
-grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.1.groovy']
+//grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.1.groovy']
+grails.plugin.databasemigration.updateOnStartFileNames = ['changelog.groovy']
 
 // from: http://grails.org/plugin/audit-logging
 auditLog {

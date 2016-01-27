@@ -1,7 +1,7 @@
 @CHARSET "UTF-8";
 
 .history_div {
-	font-size: 10px;
+	font-size: 9px;
 }
 
 .history_table {
@@ -11,10 +11,15 @@
 
 .history_header_column {
 	font-weight: bold;
+	text-decoration: underline;
 }
 
 .history_column_operation {
-	width: 21em !important;
+	width: 17em !important;
+}
+
+.history_column_action{
+	width: 5em !important;
 }
 
 .history_column {

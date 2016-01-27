@@ -91,7 +91,7 @@
                         <b:Panel styleName="pull-right">
                             <!--<gwt:HTML ui:field="userName" styleName="{style.username}"/>-->
                             <b:Button ui:field="userName" icon="USER"/>
-                            <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
+                            <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT" title="Logout"/>
                         </b:Panel>
                         <b:Modal ui:field="notificationModal" closable="true" fade="true"  dataBackdrop="FALSE">
                             <b:ModalHeader>

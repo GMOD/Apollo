@@ -153,7 +153,6 @@ class RequestHandlingService {
         return jsonObject
     }
 
-    // is this used?
     def deleteNonPrimaryDbxrefs(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -188,7 +187,7 @@ class RequestHandlingService {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: updateFeatureContainer
                     , sequence: sequence
-                    , operation: AnnotationEvent.Operation.DELETE
+                    , operation: AnnotationEvent.Operation.UPDATE
             )
             fireAnnotationEvent(annotationEvent)
         }
@@ -1251,6 +1250,26 @@ class RequestHandlingService {
             }
 
             sequenceAlteration.save(flush: true)
+
+            // TODO: Should we make it compulsory for the request object to have comments
+            // TODO: If so, then we should change all of our integration tests for sequence alterations to have comments
+            if (jsonFeature.has(FeatureStringEnum.NON_RESERVED_PROPERTIES.value)) {
+                JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.NON_RESERVED_PROPERTIES.value);
+                for (int j = 0; j < properties.length(); ++j) {
+                    JSONObject property = properties.getJSONObject(i);
+                    String tag = property.getString(FeatureStringEnum.TAG.value)
+                    String value = property.getString(FeatureStringEnum.VALUE.value)
+                    FeatureProperty featureProperty = new FeatureProperty(
+                            feature: sequenceAlteration,
+                            value: value,
+                            tag: tag
+                    ).save()
+                    featurePropertyService.addProperty(sequenceAlteration, featureProperty)
+                    sequenceAlteration.save(flush: true)
+                }
+            }
+
+
             for (Feature feature : featureService.getOverlappingFeatures(sequenceAlteration.getFeatureLocation(), false)) {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {

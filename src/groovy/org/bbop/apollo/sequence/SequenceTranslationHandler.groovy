@@ -1,5 +1,9 @@
 package org.bbop.apollo.sequence
 
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.filefilter.DirectoryFileFilter
+import org.apache.commons.io.filefilter.NameFileFilter
+import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.AnnotationException
 
 /**
@@ -7,9 +11,11 @@ import org.bbop.apollo.AnnotationException
  */
 class SequenceTranslationHandler {
 
-    private static TranslationTable[] translationTables = null;
+    private static Map<String, TranslationTable> translationTables = new HashMap<>();
     private static Set<String> spliceAcceptorSites = new HashSet<String>();
     private static Set<String> spliceDonorSites = new HashSet<String>();
+
+    public final static String DEFAULT_TRANSLATION_TABLE = "1"
 
     /** Reverse complement a nucleotide sequence.
      *
@@ -81,8 +87,7 @@ class SequenceTranslationHandler {
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 buffer.append(aminoAcid);
             }
         }
@@ -95,14 +100,14 @@ class SequenceTranslationHandler {
      * @return TranslationTable for the NCBI translation table code
      * @throws AnnotationException - If an invalid NCBI translation table code is used
      */
-    public static TranslationTable getTranslationTableForGeneticCode(int code) throws AnnotationException {
-        if (translationTables == null) {
-            initTranslationTables();
+    public static TranslationTable getTranslationTableForGeneticCode(String code) throws AnnotationException {
+        if (!translationTables.containsKey(code)) {
+            initTranslationTables(code);
         }
-        if (code < 1 || code > translationTables.length) {
+        if (code < DEFAULT_TRANSLATION_TABLE || !translationTables.containsKey(code)) {
             throw new AnnotationException("Invalid translation table code");
         }
-        return translationTables[code - 1];
+        return translationTables.get(code);
     }
 
     /** Get the default translation table (NCBI translation table code 1).
@@ -110,15 +115,16 @@ class SequenceTranslationHandler {
      * @return Default translation table
      */
     public static TranslationTable getDefaultTranslationTable() {
-        if (translationTables == null) {
-            initTranslationTables();
-        }
-        return translationTables[0];
+        return getTranslationTableForGeneticCode(DEFAULT_TRANSLATION_TABLE)
     }
 
-    private static void initTranslationTables() {
-        translationTables = new TranslationTable[23];
-        translationTables[0] = new StandardTranslationTable();
+    private static void initTranslationTables(String code) {
+        if (code == DEFAULT_TRANSLATION_TABLE) {
+            translationTables.put(code.toString(), new StandardTranslationTable())
+        } else {
+            File parentFile = FileUtils.listFiles(new File("."),new NameFileFilter("ncbi_1_translation_table.txt"),TrueFileFilter.INSTANCE).first().parentFile
+            translationTables.put(code.toString(), readTable(new File(parentFile.absolutePath+"/ncbi_${code}_translation_table.txt")))
+        }
     }
 
 /** Get the splice acceptor sites.
@@ -167,5 +173,54 @@ class SequenceTranslationHandler {
  */
     public static void deleteSpliceDonorSite(String spliceDonorSite) {
         spliceDonorSites.remove(spliceDonorSite);
+    }
+
+    /**
+     * Pocesses deltas from the standard (1) translation table:
+     * http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi?mode=t
+     *
+     * code, codon <start|stop|none>
+     *
+     * if stop codon (*), add to stop codon table
+     *     if "none" then remove from alternate translation table, else add to alternatetranslation table
+     * else
+     *     if "none", remove codon from stop codon, and from alternate translation table
+     *
+     *
+     * if 3 is start, add to start codons, else remove from start codons
+     *
+     *
+     * @param file
+     * @return
+     */
+    public static TranslationTable readTable(File file) {
+        TranslationTable ttable = new StandardTranslationTable().cloneTable()
+        ttable.name = file.name
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(getServletContext().getResourceAsStream(track.getTranslationTable())));
+        file.text.readLines().each { String line ->
+            String[] tokens = line.split("\t");
+            String codon = tokens[0].toUpperCase();
+            String aa = tokens[1].toUpperCase();
+            ttable.getTranslationTable().put(codon, aa);
+            if (aa.equals(TranslationTable.STOP)) {
+                ttable.getStopCodons().add(codon);
+                if (tokens.length == 3) {
+                    ttable.getAlternateTranslationTable().put(codon, tokens[2]);
+                } else {
+                    ttable.getAlternateTranslationTable().remove(codon);
+                }
+            } else {
+                ttable.getStopCodons().remove(codon);
+                ttable.getAlternateTranslationTable().remove(codon);
+            }
+            if (tokens.length == 3) {
+                if (tokens[2].equals("start")) {
+                    ttable.getStartCodons().add(codon);
+                }
+            } else {
+                ttable.getStartCodons().remove(codon);
+            }
+        }
+        return ttable
     }
 }

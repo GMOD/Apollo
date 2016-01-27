@@ -27,6 +27,12 @@ if [[ $# == 0 || $1 == help || $1 == --help ]]; then
     exit 1;
 fi
 
+function deploy_message(){
+   echo "***************************************"
+   echo "NOTE: Please set the memory for your servlet container (tomcat, jetty, etc.) or Apollo may not start correctly: http://webapollo.readthedocs.org/en/latest/Troubleshooting.html#tomcat-memory"
+   echo "***************************************"
+}
+
 function check_node(){
     node_executable=$(which node)
     if ! [ -x "$node_executable" ] ; then
@@ -125,6 +131,7 @@ elif [[ $1 == "deploy" ]];then
     cp apollo-config.groovy src/java/apollo-config.groovy
     #grails deploy
     ant copy-resources gwtc &&  $grails_executable war
+    deploy_message
 elif [[ $1 == "release" ]];then
     # should call the copy target first
     check_configs
@@ -132,6 +139,7 @@ elif [[ $1 == "release" ]];then
     rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
     ant clean-all release gwtc && $grails_executable war
+    deploy_message
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
     check_configs

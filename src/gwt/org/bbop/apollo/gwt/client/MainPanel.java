@@ -16,11 +16,13 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.*;
-import org.bbop.apollo.gwt.client.event.*;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
+import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
@@ -32,7 +34,6 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.SuggestBox;
 import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
-import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
@@ -133,7 +134,6 @@ public class MainPanel extends Composite {
     @UiField
     HTML editUserHeader;
 
-    private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private LoginDialog loginDialog = new LoginDialog();
     private RegisterDialog registerDialog = new RegisterDialog();
@@ -149,7 +149,7 @@ public class MainPanel extends Composite {
 
     MainPanel() {
         instance = this;
-        sequenceSuggestBox = new SuggestBox(sequenceOracle);
+        sequenceSuggestBox = new SuggestBox(new ReferenceSequenceOracle());
 
         mainSplitPanel = new SplitLayoutPanel() {
             @Override
@@ -212,6 +212,8 @@ public class MainPanel extends Composite {
             GWT.log("Error setting preference: " + e.fillInStackTrace().toString());
             setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), 600);
         }
+
+        setUserNameForCurrentUser();
 
         loginUser();
     }
@@ -356,9 +358,7 @@ public class MainPanel extends Composite {
                         trackPanel.updateTrackToggle(MainPanel.useNativeTracklist);
 
 
-                        String displayName = currentUser.getEmail();
-                        userName.setText(displayName.length() > maxUsernameLength ?
-                                displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
+                        setUserNameForCurrentUser();
                     }
 
 
@@ -389,6 +389,13 @@ public class MainPanel extends Composite {
             loginDialog.setError(e.getMessage());
         }
 
+    }
+
+    private void setUserNameForCurrentUser() {
+        if(currentUser==null) return ;
+        String displayName = currentUser.getEmail();
+        userName.setText(displayName.length() > maxUsernameLength ?
+                displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
     }
 
     public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
@@ -527,14 +534,14 @@ public class MainPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
 //                {"error":"Failed to update the user You have insufficient permissions [write < administrate] to perform this operation"}
-                if(response.getText().startsWith("{\"error\":")){
+                if (response.getText().startsWith("{\"error\":")) {
                     JSONObject errorJsonObject = JSONParser.parseStrict(response.getText()).isObject();
                     String errorMessage = errorJsonObject.get("error").isString().stringValue();
 
                     editUserAlertText.setType(AlertType.DANGER);
                     editUserAlertText.setVisible(true);
                     editUserAlertText.setText(errorMessage);
-                    return ;
+                    return;
                 }
                 savePasswordButton.setEnabled(false);
                 cancelPasswordButton.setEnabled(false);
@@ -548,7 +555,7 @@ public class MainPanel extends Composite {
                         editUserModal.hide();
                         return false;
                     }
-                },1000);
+                }, 1000);
             }
 
             @Override
@@ -563,7 +570,7 @@ public class MainPanel extends Composite {
 
     @UiHandler("userName")
     void editUserPassword(ClickEvent event) {
-        editUserHeader.setHTML("Edit password for "+currentUser.getName() + "("+currentUser.getEmail()+")");
+        editUserHeader.setHTML("Edit password for " + currentUser.getName() + "(" + currentUser.getEmail() + ")");
         editUserAlertText.setText("");
         editUserAlertText.setVisible(false);
         editMyPasswordInput.setText("");

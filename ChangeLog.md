@@ -1,4 +1,8 @@
-## 2.0.1-SNAPSHOT
+## 2.0.2
+
++ Re-added translation table support (#758).
+
+## 2.0.1
 
 Features
 
