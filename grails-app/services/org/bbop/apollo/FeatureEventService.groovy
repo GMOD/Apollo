@@ -531,7 +531,9 @@ class FeatureEventService {
         setNotCurrentFutureHistoryEvents(currentFeatureEvent, featureEventMap)
 
 //        log.debug "updated is ${updated}"
-        def returnEvent = findCurrentFeatureEvent(currentFeatureEvent.uniqueName, featureEventMap)
+//        Integer index = getCurrentFeatureEventIndex(currentFeatureEvent.uniqueName,featureEventMap)
+//        def returnEvent = findCurrentFeatureEvent(currentFeatureEvent.uniqueName, featureEventMap)
+        def returnEvent = featureEventList.get(currentIndex)
         return returnEvent
     }
 
@@ -563,8 +565,6 @@ class FeatureEventService {
         deleteCurrentState(inputObject, uniqueName, newUniqueNames, sequence)
 
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
-//        log.debug "final feature event: ${featureEvent} ->${featureEvent.operation}"
-//        log.debug "current feature events for unique name ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName, true)}"
 
         def transcriptsToCheckForIsoformOverlap = []
         featureEventArray.each { featureEvent ->
