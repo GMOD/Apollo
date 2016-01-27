@@ -357,7 +357,7 @@ class FeatureEventService {
             }
 
 
-            featureEventList.add(0,featureArrayList)
+            featureEventList.add(featureArrayList)
             featureEventList.addAll(0,findAllPreviousFeatureEvents(parentFeatureEvent, featureEventMap))
 
 //            parentId = parentFeatureEvent.parentId
@@ -410,7 +410,7 @@ class FeatureEventService {
             FeatureEvent childSplitFeatureEvent = featureEvent.childSplitId ? findFeatureEventFromMap(featureEvent.childSplitId, featureEventMap) : null
             if (childSplitFeatureEvent) {
                 featureArrayList.add(childSplitFeatureEvent)
-                featureEventList.addAll(findAllFutureFeatureEvents(childSplitFeatureEvent, featureEventMap))
+                featureEventList.addAll(0,findAllFutureFeatureEvents(childSplitFeatureEvent, featureEventMap))
             }
 
             // if there is a parent merge . .  we just include that parent in the history (not everything)
@@ -421,8 +421,8 @@ class FeatureEventService {
                 featureEventList.get(featureEventList.size() - 1).add(parentMergeFeatureEvent)
             }
 
-            featureEventList.addAll(findAllFutureFeatureEvents(childFeatureEvent, featureEventMap))
-            featureEventList.add(featureArrayList)
+            featureEventList.addAll(0,findAllFutureFeatureEvents(childFeatureEvent, featureEventMap))
+            featureEventList.add(0,featureArrayList)
 
 //            childId = childFeatureEvent.childId
 //            childFeatureEvent = childId ? FeatureEvent.findById(childId) : null

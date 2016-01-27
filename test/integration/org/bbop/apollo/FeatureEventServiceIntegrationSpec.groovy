@@ -313,12 +313,12 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         when: "we retrieve the arrays"
-        def recentProject = historyArray.getJSONObject(0)
+        def oldestProject = historyArray.getJSONObject(0)
         def middleProject = historyArray.getJSONObject(1)
-        def oldestProject = historyArray.getJSONObject(2)
-        def recentHistory = history1.get(0)
+        def recentProject = historyArray.getJSONObject(2)
+        def oldestHistory = history1.get(0)
         def middleHistory = history1.get(1)
-        def oldestHistory = history1.get(2)
+        def recentHistory = history1.get(2)
 
         then:
         // not sure if it should be
@@ -328,9 +328,9 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert middleHistory.size()==2
         assert recentHistory.size()==1
         assert 1 == historyArray.getJSONObject(0).getJSONArray(FeatureStringEnum.FEATURES.value).size()
-        assert FeatureOperation.ADD_TRANSCRIPT.name() == recentProject.getString("operation")
+        assert FeatureOperation.ADD_TRANSCRIPT.name() == oldestProject.getString("operation")
         assert 1 == recentProject.getJSONArray(FeatureStringEnum.FEATURES.value).size()
-        assert FeatureOperation.MERGE_TRANSCRIPTS.name() == oldestProject.getString("operation")
+        assert FeatureOperation.MERGE_TRANSCRIPTS.name() == recentProject.getString("operation")
         assert 1 == middleProject.getJSONArray(FeatureStringEnum.FEATURES.value).size()
         // should be ADD_TRANSCRIPT and SET_EXON_BOUNDARY
 
