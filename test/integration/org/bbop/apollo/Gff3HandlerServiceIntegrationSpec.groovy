@@ -193,6 +193,19 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         List<Feature> featuresToWrite = new ArrayList<>()
         featuresToWrite.add(gene)
 
+        Insertion sa = new Insertion(name: "Insertion-name",uniqueName: "Insertion-uniquName", alterationResidue: "ATGC").save()
+        FeatureLocation saLocation = new FeatureLocation(
+                fmin: 1000 
+                ,fmax: 1000
+                ,feature: sa
+                ,sequence: refSequence
+                ,strand: 1
+        ).save()
+        FeatureProperty fp = new FeatureProperty(tag: "Justification",value: "Sanger sequencing",feature: sa).save()
+        sa.addToFeatureProperties(fp)
+
+
+
         File tempFile = File.createTempFile("asdf", ".gff3")
         tempFile.deleteOnExit()
 
@@ -202,7 +215,7 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         assert Exon.count == 3
         assert CDS.count == 3
         assert FeatureRelationship.count == 7
-        assert FeatureLocation.count == 8
+        assert FeatureLocation.count == 9
         Gene thisGene = Gene.first()
         assert thisGene.parentFeatureRelationships.size() == 1
         assert !thisGene.childFeatureRelationships
@@ -212,11 +225,18 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         assert thisMRNA.parentFeatureRelationships.size() == 6
 
         when: "we write the feature to test"
-        log.debug "${tempFile.absolutePath}"
         gff3HandlerService.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,".")
         String tempFileText = tempFile.text
+        
 
         then: "we should get a valid gff3 file"
+        log.debug "${tempFileText}"
+        def lines = tempFile.readLines()
+        assert lines[0]=="##gff-version 3"
+        assert lines[2].split("\t")[2]=="gene"
+        assert lines[2].split("\t")[8].indexOf("ID=abc123")!=-1
+        assert lines[2].split("\t")[8].indexOf("Name=Bob")!=-1
+        assert lines[3].split("\t")[2]=="mRNA"
         assert tempFileText.length() > 0
     }
 }
