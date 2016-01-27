@@ -254,6 +254,8 @@ class FeatureEventServiceSpec extends Specification {
         featureEventList1 = service.getHistory(uniqueName1)
         List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2)
         FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName2)[0]
+        List<List<FeatureEvent>> previousEvents = service.findAllPreviousFeatureEvents(currentFeature)
+        List<List<FeatureEvent>> futureEvents = service.findAllFutureFeatureEvents(currentFeature)
 
         then: "we should see two feature events, with the second one current and the prior one before"
         assert 3 == FeatureEvent.countByUniqueName(uniqueName1)
@@ -261,8 +263,10 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList1.size() == 3
         assert featureEventList2.size() == 3
 
-        assert 0 == service.findAllFutureFeatureEvents(currentFeature).size()
-        assert 2 == service.findAllPreviousFeatureEvents(currentFeature).size()
+        assert 0 == futureEvents.size()
+        assert 2 == previousEvents.size()
+        assert previousEvents.get(0).first().operation==FeatureOperation.ADD_TRANSCRIPT
+        assert previousEvents.get(1).first().operation==FeatureOperation.SET_TRANSLATION_ENDS
 
         assert featureEventList2.size() == 3
         assert 3 == service.getHistory(uniqueName1).size()
@@ -287,13 +291,20 @@ class FeatureEventServiceSpec extends Specification {
         service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, name2, uniqueName2, new JSONObject(), new JSONObject(), new JSONObject(), null)
         featureEventList1 = service.getHistory(uniqueName1)
         featureEventList2 = service.getHistory(uniqueName2)
+        futureEvents = service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0])
+        previousEvents = service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0])
 
-
-        then: "we have 3 on 1 and 2 on 2"
+        then: "we have 2 on 2"
         assert 0 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
         assert 2 == service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
-        assert 0 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()
-        assert 3 == service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()
+
+        when: "we test the other sizde"
+        futureEvents = service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0])
+        previousEvents = service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0])
+
+        then: "we have 3 on 1"
+        assert 0 == futureEvents.size()
+        assert 3 == prev].size()
         assert 3 == featureEventList1.size()
 
         assert 0 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()

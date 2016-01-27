@@ -353,12 +353,12 @@ class FeatureEventService {
             FeatureEvent parentMergeFeatureEvent = featureEvent.parentMergeId ? findFeatureEventFromMap(featureEvent.parentMergeId, featureEventMap) : null
             if (parentMergeFeatureEvent) {
                 featureArrayList.add(parentMergeFeatureEvent)
-                featureEventList.addAll(findAllPreviousFeatureEvents(parentMergeFeatureEvent, featureEventMap))
+                featureEventList.addAll(0,findAllPreviousFeatureEvents(parentMergeFeatureEvent, featureEventMap))
             }
 
 
-            featureEventList.add(featureArrayList)
-            featureEventList.addAll(findAllPreviousFeatureEvents(parentFeatureEvent, featureEventMap))
+            featureEventList.add(0,featureArrayList)
+            featureEventList.addAll(0,findAllPreviousFeatureEvents(parentFeatureEvent, featureEventMap))
 
 //            parentId = parentFeatureEvent.parentId
 //            parentFeatureEvent = parentId ? findFeatureEventFromMap(parentId,featureEventMap) : null
