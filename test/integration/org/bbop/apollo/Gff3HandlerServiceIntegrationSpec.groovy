@@ -203,6 +203,8 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         ).save()
         FeatureProperty fp = new FeatureProperty(tag: "Justification",value: "Sanger sequencing",feature: sa).save()
         sa.addToFeatureProperties(fp)
+        sa.addToFeatureLocations(saLocation)
+        featuresToWrite.add(sa)
 
 
 
@@ -237,6 +239,8 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         assert lines[2].split("\t")[8].indexOf("ID=abc123")!=-1
         assert lines[2].split("\t")[8].indexOf("Name=Bob")!=-1
         assert lines[3].split("\t")[2]=="mRNA"
+        assert lines[11].split("\t")[2]=="insertion"
+        assert lines[11].split("\t")[8].insertOf("justification=Sanger sequencing")!=-1
         assert tempFileText.length() > 0
     }
 }
