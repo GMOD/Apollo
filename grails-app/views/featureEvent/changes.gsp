@@ -16,14 +16,15 @@
         <div class="message" role="status">${flash.message}</div>
     </g:if>
 
-    <g:form id="customform" name="myForm" url="[action:'changes',controller:'featureEvent']" params="${params}">
+    <g:form id="customform" name="myForm" url="[action:'changes',controller:'featureEvent']">
         <label for="ownerName">Owner:</label>
         <g:textField name="ownerName" maxlength="50" value="${ownerName}"/><br />
         <label for="featureType">Feature type:</label>
         <g:textField name="featureType" maxlength="50" value="${featureType}"/> <br />
         <label for="organismName">Organism:</label>
         <g:textField name="organismName" maxlength="50" value="${organismName}"/><br />
-
+        <g:hiddenField name="sort" value="${params.sort}"/>
+        <g:hiddenField name="order" value="${params.order}"/>
         <input type="submit" value="Submit" />
     </g:form>
 
