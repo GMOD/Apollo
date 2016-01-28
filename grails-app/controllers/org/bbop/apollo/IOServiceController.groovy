@@ -23,6 +23,7 @@ class IOServiceController extends AbstractApolloController {
     def featureService
     def gff3HandlerService
     def fastaHandlerService
+    def chadoHandlerService
     def preferenceService
     def permissionService
     def configWrapperService
@@ -48,7 +49,7 @@ class IOServiceController extends AbstractApolloController {
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
 
-            ,@RestApiParam(name="type", type="string", paramType = RestApiParamType.QUERY,description = "Type of export 'FASTA','GFF3'")
+            ,@RestApiParam(name="type", type="string", paramType = RestApiParamType.QUERY,description = "Type of export 'FASTA','GFF3','CHADO'")
 
 
             ,@RestApiParam(name="seqType", type="string", paramType = RestApiParamType.QUERY,description = "Type of output sequence 'peptide','cds','cdna','genomic'")
@@ -128,6 +129,10 @@ class IOServiceController extends AbstractApolloController {
 
                 // call fastaHandlerService
                 fastaHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
+            }
+            else if (typeOfExport == "CHADO"){
+//                chadoHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path )
+                chadoHandlerService.writeFeatures(organism ,features )
             }
 
 

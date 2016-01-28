@@ -27,6 +27,8 @@ class Organism {
     String blatdb;
     String directory
 
+    String metadata
+
     static hasMany = [
             organismProperties: OrganismProperty
             , organismDBXrefs : OrganismDBXref

@@ -148,6 +148,12 @@ grails.project.dependency.resolution = {
         runtime ":rest-client-builder:2.1.1"
         // TODO: re-add when ready to install functional tests
 //        test    ":geb:$gebVersion"
+//        grails.plugin.location.'chado-grails' = "../chado-grails"
+//        grails.plugin.location.'test-plugin' = "../test-plugin"
+        runtime ":chado:0.1"
+//        compile ":test-plugin:0.1"
+//        compile ":chado-plugin:0.1"
+
     }
 }
 
