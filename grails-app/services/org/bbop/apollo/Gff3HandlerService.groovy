@@ -169,7 +169,7 @@ public class Gff3HandlerService {
     public void writeFastaForReferenceSequence(WriteObject writeObject, Sequence sequence) {
         int lineLength = 60;
         String residues = null
-        def sequenceTypes = I[nsertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
+        def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
         writeEmptyFastaDirective(writeObject.out);
         residues = sequenceService.getRawResiduesFromSequence(sequence, 0, sequence.length)
         if (residues != null) {
