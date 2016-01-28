@@ -99,8 +99,8 @@ grails.project.dependency.resolution = {
         // plugins for the compile step
         compile ":rest-api-doc:0.6"
         compile ":scaffolding:2.1.2"
-        compile ':cache:1.1.7'
-        compile ':cache-ehcache:1.0.5'
+        compile ':cache:1.1.8'
+//        compile ':cache-ehcache:1.0.5'
 
 
         compile ":asset-pipeline:1.9.6"
@@ -150,7 +150,7 @@ grails.project.dependency.resolution = {
 //        test    ":geb:$gebVersion"
 //        grails.plugin.location.'chado-grails' = "../chado-grails"
 //        grails.plugin.location.'test-plugin' = "../test-plugin"
-        runtime ":chado:0.1"
+//        runtime ":chado:0.1"
 //        compile ":test-plugin:0.1"
 //        compile ":chado-plugin:0.1"
 

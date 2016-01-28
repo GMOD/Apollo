@@ -5,11 +5,20 @@ dataSource {
     username = "sa"
     password = ""
 }
+//hibernate {
+//    cache.use_second_level_cache=true
+//    cache.use_query_cache=true
+//    cache.provider_class='org.hibernate.cache.EhCacheProvider'
+//    cache.region.factory_class = 'grails.plugin.cache.ehcache.hibernate.BeanEhcacheRegionFactory4' // For Hibernate 4.0 and higher
+//
+//}
+
 hibernate {
     cache.use_second_level_cache = true
-    cache.use_query_cache = false
-//    cache.region.factory_class = 'net.sf.ehcache.hibernate.EhCacheRegionFactory' // Hibernate 3
-    cache.region.factory_class = 'org.hibernate.cache.ehcache.EhCacheRegionFactory' // Hibernate 4
+    cache.use_query_cache = true
+    cache.provider_class='org.hibernate.cache.EhCacheProvider'
+//    cache.region.factory_class = 'net.sf.ehcache.hibernate.BeanEhcacheRegionFactory' // Hibernate 3
+    cache.region.factory_class = 'org.hibernate.cache.ehcache.BeanEhcacheRegionFactory4' // Hibernate 4
     singleSession = true // configure OSIV singleSession mode
     flush.mode = 'manual' // OSIV session flush mode outside of transactional context
 }
@@ -24,7 +33,7 @@ environments {
         }
         dataSource_chado{
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+            url = "jdbc:h2:mem:chadoDevDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
         }
     }
     test {
@@ -36,7 +45,7 @@ environments {
         dataSource_chado {
             dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
             dialect = "org.bbop.apollo.ImprovedH2Dialect"
-            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+            url = "jdbc:h2:mem:chadoTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
         }
     }
     production {
@@ -71,7 +80,7 @@ environments {
             dbCreate = "update"
             // NOTE: Not to be used for production.  Please see:  http://webapollo.readthedocs.org/en/latest/Configure/
             // you should copy over sample-XXX-config.groovy
-//            url = "jdbc:h2:/tmp/prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+//            url = "jdbc:h2:/tmp/chadoProdDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
             url = ""
             properties {
                 // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
@@ -97,10 +106,3 @@ environments {
     }
 }
 
-hibernate {
-    cache.use_second_level_cache=true
-    cache.use_query_cache=true
-    cache.provider_class='org.hibernate.cache.EhCacheProvider'
-    cache.region.factory_class = 'grails.plugin.cache.ehcache.hibernate.BeanEhcacheRegionFactory4' // For Hibernate 4.0 and higher
-
-}
