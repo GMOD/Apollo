@@ -16,7 +16,7 @@
         <div class="message" role="status">${flash.message}</div>
     </g:if>
 
-    <g:form id="customform" name="myForm" url="[action:'changes',controller:'featureEvent']">
+    <g:form id="customform" name="myForm" url="[action:'changes',controller:'featureEvent']" params="${params}">
         <label for="ownerName">Owner:</label>
         <g:textField name="ownerName" maxlength="50" value="${ownerName}"/><br />
         <label for="featureType">Feature type:</label>
@@ -31,12 +31,12 @@
     <table>
         <thead>
         <tr>
-            <g:sortableColumn property="lastUpdated" title="Last updated"/>
-            <g:sortableColumn property="organism" title="Organism"/>
-            <g:sortableColumn property="sequencename" title="Sequence name"/>
-            <g:sortableColumn property="name" title="Name"/>
-            <g:sortableColumn property="owners" title="Owner"/>
-            <g:sortableColumn property="cvTerm" title="Feature type"/>
+            <g:sortableColumn property="lastUpdated" title="Last updated"  params="${filters}"/>
+            <g:sortableColumn property="organism" title="Organism"  params="${filters}"/>
+            <g:sortableColumn property="sequencename" title="Sequence name"  params="${filters}"/>
+            <g:sortableColumn property="name" title="Name"  params="${filters}"/>
+            <g:sortableColumn property="owners" title="Owner"  params="${filters}"/>
+            <g:sortableColumn property="cvTerm" title="Feature type"  params="${filters}"/>
         </tr>
         </thead>
         <tbody>
