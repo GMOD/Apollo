@@ -169,7 +169,7 @@ public class Gff3HandlerService {
     public void writeFastaForReferenceSequence(WriteObject writeObject, Sequence sequence) {
         int lineLength = 60;
         String residues = null
-        def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
+        def sequenceTypes = I[nsertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
         writeEmptyFastaDirective(writeObject.out);
         residues = sequenceService.getRawResiduesFromSequence(sequence, 0, sequence.length)
         if (residues != null) {
@@ -306,7 +306,6 @@ public class Gff3HandlerService {
             }
         }
         if (!(requestHandlingService.viewableAnnotationList+[Deletion.class.name,Insertion.class.name,Substitution.class.name]).contains(feature.class.name)) {
-        //if (!(feature.ontologyId in (requestHandlingService.viewableAnnotationList+[Deletion.class.name,Insertion.class.name,Substitution.class.name]))) {
             def parent= featureRelationshipService.getParentForFeature(feature)
             attributes.put(FeatureStringEnum.EXPORT_PARENT.value, encodeString(parent.uniqueName));
         }
