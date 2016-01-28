@@ -548,6 +548,17 @@ class FeatureEventService {
 
 //        int total = FeatureEvent.countByUniqueName(uniqueName)
         int total = getHistory(uniqueName).size()
+        if(total==0){
+            Set<String> uniqueNames = extractFeatureEventGroup(uniqueName).keySet()
+            uniqueNames.remove(uniqueName)
+            for(int i = 0 ; total == 0 && i < uniqueNames.size() ; i++){
+                String name = uniqueNames[i]
+                println "unique names ${uniqueNames}"
+                println "name ${name}"
+                total = getHistory(name)?.size()
+                uniqueName = total > 0 ? name : uniqueNames
+            }
+        }
         if (count >= total) {
             log.warn("Can not redo any further")
             return
