@@ -293,7 +293,7 @@ public class Gff3HandlerService {
         if (feature.getName() != null && !isBlank(feature.getName()) && writeObject.attributesToExport.contains(FeatureStringEnum.NAME.value)) {
             attributes.put(FeatureStringEnum.EXPORT_NAME.value, encodeString(feature.getName()));
         }
-        if (feature.ontologyId != Gene.ontologyId) {
+        if (!(feature.class.name in requestHandlingService.viewableAnnotationList)) {
             def parent= featureRelationshipService.getParentForFeature(feature)
             attributes.put(FeatureStringEnum.EXPORT_PARENT.value, encodeString(parent.uniqueName));
         }
