@@ -288,11 +288,11 @@ public class Gff3HandlerService {
     @Timed
     private Map<String, String> extractAttributes(WriteObject writeObject, Feature feature) {
         Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put(FeatureStringEnum.EXPORT_ID.value, encodeString(feature.getUniqueName()));
-        if (feature.getName() != null && !isBlank(feature.getName()) && writeObject.attributesToExport.contains(FeatureStringEnum.NAME.value)) {
+        if(feature.class.name != CDS.class) attributes.put(FeatureStringEnum.EXPORT_ID.value, encodeString(feature.getUniqueName()));
+        if(feature.class.name != CDS.class && writeObject.attributesToExport.contains(FeatureStringEnum.NAME.value)) {
             attributes.put(FeatureStringEnum.EXPORT_NAME.value, encodeString(feature.getName()));
         }
-                if (feature.ontologyId != Gene.ontologyId) {
+        if (feature.ontologyId != Gene.ontologyId) {
             def parent= featureRelationshipService.getParentForFeature(feature)
             attributes.put(FeatureStringEnum.EXPORT_PARENT.value, encodeString(parent.uniqueName));
         }
