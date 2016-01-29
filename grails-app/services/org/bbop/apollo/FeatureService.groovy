@@ -123,12 +123,16 @@ class FeatureService {
     @Transactional
     def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
+        log.debug "JSON transcript ${jsonTranscript}"
+        log.debug "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
+        log.debug "gene ${gene}"
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
 
         User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
+            log.debug "has gene: ${gene}"
             transcript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
@@ -136,6 +140,7 @@ class FeatureService {
 
             //this one is working, but was marked as needing improvement
             if (grails.util.Environment.current != grails.util.Environment.TEST) {
+                log.debug "setting owner for gene and transcript per: ${permissionService.getCurrentUser(jsonTranscript)}"
                 if (owner) {
                     setOwner(transcript, owner);
                 } else {
@@ -153,6 +158,7 @@ class FeatureService {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
         } else {
+            log.debug "no gene given"
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll(){
                 it = Feature.get(it.id)
@@ -1490,6 +1496,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
 
         long durationInMilliseconds = System.currentTimeMillis()-start;
+        //log.debug "owner ${durationInMilliseconds}"
 
         start = System.currentTimeMillis();
         if (gsolFeature.featureLocation) {
@@ -1498,6 +1505,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
         durationInMilliseconds = System.currentTimeMillis()-start;
+        //log.debug "sequencename ${durationInMilliseconds}"
 
 
         start = System.currentTimeMillis();
@@ -1725,6 +1733,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     boolean typeHasChildren(Feature feature) {
         def f = Feature.get(feature.id)
         boolean hasChildren = !(f instanceof Exon) && !(f instanceof CDS) && !(f instanceof SpliceSite)
+        log.debug "type ${f.ontologyId}, ${f.cvTerm}->${f.name} has children ${hasChildren}"
         return hasChildren
     }
 
