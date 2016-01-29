@@ -72,7 +72,7 @@ public class Gff3HandlerService {
     public void writeFeatures(WriteObject writeObject, Collection<? extends Feature> features, String source) throws IOException {
         Map<Sequence, Collection<Feature>> featuresBySource = new HashMap<Sequence, Collection<Feature>>();
         for (Feature feature : features) {
-            Sequence sourceFeature = feature.getFeatureLocation().sequence
+            Sequence sourceFeature = feature.featureLocation.sequence
             Collection<Feature> featureList = featuresBySource.get(sourceFeature);
             if (!featureList) {
                 featureList = new ArrayList<Feature>();
@@ -95,7 +95,7 @@ public class Gff3HandlerService {
         while (iterator.hasNext()) {
             Feature feature = iterator.next();
             if (needDirectives) {
-                writeGroupDirectives(writeObject, feature.getFeatureLocation().sequence)
+                writeGroupDirectives(writeObject, feature.featureLocation.sequence)
                 needDirectives = false;
             }
             writeFeature(writeObject, feature, source);
@@ -104,7 +104,7 @@ public class Gff3HandlerService {
     }
 
     static private void writeGroupDirectives(WriteObject writeObject, Sequence sourceFeature) {
-        if (sourceFeature.getFeatureLocations().size() == 0) return;
+        if (sourceFeature.featureLocations?.size() == 0) return;
         writeObject.out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, sourceFeature.start + 1, sourceFeature.end));
     }
 
@@ -144,8 +144,7 @@ public class Gff3HandlerService {
         }
         String residues = null;
         if (useLocation) {
-            FeatureLocation loc = feature.getFeatureLocations().iterator().next();
-            residues = sequenceService.getResidueFromFeatureLocation(loc)
+            residues = sequenceService.getResidueFromFeatureLocation(feature.featureLocation)
         } else {
             residues = sequenceService.getResiduesFromFeature(feature)
         }
@@ -214,7 +213,7 @@ public class Gff3HandlerService {
 
         log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
 
-        String seqId = feature.getFeatureLocation().sequence.name
+        String seqId = feature.featureLocation.sequence.name
         String type = featureService.getCvTermFromFeature(feature);
         int start = feature.getFmin() + 1;
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
@@ -246,7 +245,7 @@ public class Gff3HandlerService {
     private void convertToEntry(WriteObject writeObject, CDS cds, String source, Collection<GFF3Entry> gffEntries) {
         log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
 
-        String seqId = cds.getFeatureLocation().sequence.name
+        String seqId = cds.featureLocation.sequence.name
         String type = cds.cvTerm
         String score = ".";
         String strand;
