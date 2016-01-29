@@ -63,6 +63,7 @@ class IOServiceController extends AbstractApolloController {
     @Timed
     def write() {
         try {
+            long current=System.currentTimeMillis()
             log.debug("params to IOService::write(): ${params}")
             log.debug "export sequences ${request.JSON} -> ${params}"
             JSONObject dataObject = (request.JSON ?: params) as JSONObject
@@ -155,6 +156,7 @@ class IOServiceController extends AbstractApolloController {
             else {
                 render text: outputFile.text
             }
+            log.debug "${System.currentTimeMillis()-current}"
         }
         catch(Exception e) {
             def error=[error: e.message]
