@@ -64,11 +64,9 @@ class IOServiceController extends AbstractApolloController {
     @Timed
     def write() {
         try {
-            log.debug("params to IOService::write(): ${params}")
-            log.debug "export sequences ${request.JSON} -> ${params}"
+            long current = System.currentTimeMillis()
             JSONObject dataObject = (request.JSON ?: params) as JSONObject
             if(params.data) dataObject=JSON.parse(params.data)
-            log.debug "data ${dataObject}"
             if(!permissionService.hasPermissions(dataObject, PermissionEnum.READ)){
                 render status: HttpStatus.UNAUTHORIZED
                 return
@@ -79,23 +77,17 @@ class IOServiceController extends AbstractApolloController {
             String exportGff3Fasta = dataObject.exportGff3Fasta
             String output = dataObject.output
             String format = dataObject.format
-            log.debug "${dataObject.sequences}"
             def sequences = dataObject.sequences // can be array or string
             Organism organism = dataObject.organism?Organism.findByCommonName(dataObject.organism):preferenceService.getCurrentOrganismForCurrentUser()
-            log.debug "${typeOfExport} ${output} ${sequences}"
 
 
-            def features=Feature.createCriteria().list() {
-                featureLocations {
-                    sequence {
-                        eq('organism',organism)
-                        if(sequences) {
-                                        'in'('name',sequences)
-                        }
-                    }
-                }
-                'in'('class',requestHandlingService.viewableAnnotationList+[Deletion.class.name,Insertion.class.name,Substitution.class.name])
-            }
+            def st=System.currentTimeMillis()
+            def queryParams = [viewableAnnotationList: requestHandlingService.viewableAnnotationList, organism: organism]
+            if(sequences) queryParams.sequences = sequences
+            def features = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations join fetch child.childFeatureRelationships join fetch child.parentFeatureRelationships cpr join fetch cpr.childFeature subchild join fetch subchild.featureLocations join fetch subchild.childFeatureRelationships left join fetch subchild.parentFeatureRelationships where fl.sequence.organism = :organism and f.class in (:viewableAnnotationList)" + (sequences? " and fl.sequence.name in (:sequences)":""), queryParams)
+
+            log.debug "GFF3 feature query: ${System.currentTimeMillis()-st}ms"
+           
             def sequenceList = Sequence.createCriteria().list() {
                 eq('organism',organism)
                 if(sequences) {
@@ -156,6 +148,7 @@ class IOServiceController extends AbstractApolloController {
             else {
                 render text: outputFile.text
             }
+            log.debug "Total GFF3 export time ${System.currentTimeMillis()-current}ms"
         }
         catch(Exception e) {
             def error=[error: e.message]
