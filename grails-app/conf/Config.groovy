@@ -205,6 +205,7 @@ apollo {
     feature_has_go_ids = true
     feature_has_comments = true
     feature_has_status = true
+    export_subfeatures_attr = false
     user_pure_memory_store = true
     is_partial_translation_allowed = false // unused so far
     // this is the default
