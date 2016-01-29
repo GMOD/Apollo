@@ -109,10 +109,18 @@ public class SequencePanel extends Composite {
         lengthColumn.setDefaultSortAscending(false);
         lengthColumn.setSortable(true);
 
+        Column<SequenceInfo, Number> annotationCount = new Column<SequenceInfo, Number>(new NumberCell()) {
+            @Override
+            public Integer getValue(SequenceInfo object) {
+                return object.getCount();
+            }
+        };
 
+        annotationCount.setSortable(true);
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(lengthColumn, "Length");
         dataGrid.setColumnWidth(1, "100px");
+        dataGrid.addColumn(annotationCount, "Annotations");
 
         dataGrid.setSelectionModel(multiSelectionModel);
         multiSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
