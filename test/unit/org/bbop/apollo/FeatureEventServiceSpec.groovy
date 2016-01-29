@@ -574,6 +574,7 @@ class FeatureEventServiceSpec extends Specification {
 
     }
 
+    @Ignore
     void "undo merge after an action on the other side"(){
 
         given:"add 2 transcripts"

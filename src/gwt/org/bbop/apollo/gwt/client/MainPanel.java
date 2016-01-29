@@ -682,6 +682,7 @@ public class MainPanel extends Composite {
         String text = "";
         String publicUrl = generatePublicUrl();
         String apolloUrl = generateApolloUrl();
+        text += "<div style='margin-left: 10px;'>";
         text += "<ul>";
         text += "<li>";
         text += "Public URL: <a href='" + publicUrl + "'>" + publicUrl + "</a>";
@@ -690,6 +691,7 @@ public class MainPanel extends Composite {
         text += "Apollo URL: <a href='" + apolloUrl + "'>" + apolloUrl + "</a>";
         text += "</li>";
         text += "</ul>";
+        text += "</div>";
         new LinkDialog("Links to this Location", text, true);
     }
 
