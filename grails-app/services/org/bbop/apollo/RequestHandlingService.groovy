@@ -63,8 +63,9 @@ class RequestHandlingService {
             MiRNA.class.name,
     ]
 
-    public
-    static List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
+    public static List<String> viewableAlterations = [Deletion.class.name,Insertion.class.name,Substitution.class.name]
+
+    public static List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
 
     private String underscoreToCamelCase(String underscore) {
         if (!underscore || underscore.isAllWhitespace()) {

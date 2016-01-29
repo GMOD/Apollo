@@ -2366,7 +2366,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             //getAllSequenceAlterationsForFeature returns alterations over entire scaffold?!
             if(alteration.fmin<=feature.fmin || alteration.fmax> feature.fmax) {
-                log.debug "SKIPPING ${coordinateInContext}"
                 continue
             }
 

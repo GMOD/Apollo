@@ -1,20 +1,14 @@
 package org.bbop.apollo
 
-import grails.transaction.NotTransactional
 import org.apache.commons.lang.WordUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import org.bbop.apollo.sequence.Strand
 import org.grails.plugins.metrics.groovy.Timed
 import org.springframework.format.datetime.DateFormatter
-import org.springframework.format.datetime.joda.JodaTimeContext;
+import java.text.SimpleDateFormat
 
-import java.io.*
-import java.text.SimpleDateFormat;
-import java.util.*
-//import groovy.transform.CompileStatic
-//@CompileStatic
-//@GrailsCompileStatic
+
+
 public class Gff3HandlerService {
 
     def sequenceService
@@ -292,11 +286,12 @@ public class Gff3HandlerService {
         if (feature.getName() != null && !isBlank(feature.getName()) && writeObject.attributesToExport.contains(FeatureStringEnum.NAME.value)) {
             attributes.put(FeatureStringEnum.EXPORT_NAME.value, encodeString(feature.getName()));
         }
-        if (feature.ontologyId != Gene.ontologyId) {
+        log.debug "${feature}"
+        if (!(feature.class.name in requestHandlingService.viewableAnnotationList+requestHandlingService.viewableAlterations)) {
             def parent= featureRelationshipService.getParentForFeature(feature)
             attributes.put(FeatureStringEnum.EXPORT_PARENT.value, encodeString(parent.uniqueName));
         }
-        if(configWrapperService.exportSubFeatureAttrs() || feature.class.name in requestHandlingService.viewableAnnotationList+requestHandlingService.viewableAnnotationTranscriptList) {
+        if(configWrapperService.exportSubFeatureAttrs() || feature.class.name in requestHandlingService.viewableAnnotationList+requestHandlingService.viewableAnnotationTranscriptList+requestHandlingService.viewableAlterations) {
             if (writeObject.attributesToExport.contains(FeatureStringEnum.SYNONYMS.value)) {
                 Iterator<Synonym> synonymIter = feature.synonyms.iterator();
                 if (synonymIter.hasNext()) {
@@ -397,7 +392,6 @@ public class Gff3HandlerService {
         return attributes;
     }
 
-    @NotTransactional
     String formatDate(Date date){
         return gff3DateFormat.format(date)
     }
