@@ -29,7 +29,7 @@ public class LinkDialog extends Modal{
         setTitle(title);
         setClosable(true);
         setFade(true);
-        setDataBackdrop(ModalBackdrop.STATIC);
+        setDataBackdrop(ModalBackdrop.FALSE);
 
         if(message!=null){
             HTML content = new HTML(message);
