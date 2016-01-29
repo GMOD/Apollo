@@ -57,6 +57,14 @@ class FastaHandlerServiceIntegrationSpec extends IntegrationSpec {
         then: "we should get a valid fasta file"
         assert tempFileText.length() > 0
         log.debug "${tempFileText}"
+        def residues=""
+        def lines = tempFile.readLines().each { line->
+            if(line.indexOf(">")!=0) {
+                residues+=line
+            }
+        }
+        assert residues=="MARDIHRQSLRTEQPSGLDTGGVRFELSRALDLWARNSKLTFQEVNSDRADILVYFHRGYHGDGYPFDGRGQILAHAFFPGRDRGGDVHFDEEEIWLLQGDNNEEGTSLFAVAAHEFGHSLGLAHSSVPGALMYPWYQGLSSNYELPEDDRHGIQQMYEINQDIFFFIFFSHD"
+        assert lines[0].indexOf("GB40856-RA-00001")!=-1
     }
 
 }
