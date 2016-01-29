@@ -167,6 +167,7 @@ log4j.main = {
 	warn 'grails.app'
 //    debug 'grails.app'
 //    debug 'liquibase'
+//    debug 'org.bbop.apollo'
 
     // more find grained logging
     //trace 'org.hibernate.type'
