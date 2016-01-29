@@ -100,7 +100,7 @@ public class Gff3HandlerService {
     }
 
     static private void writeGroupDirectives(WriteObject writeObject, Sequence sourceFeature) {
-        if (sourceFeature.getFeatureLocations().size() == 0) return;
+        if (sourceFeature.getFeatureLocations()?.size() == 0) return;
         writeObject.out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, sourceFeature.start + 1, sourceFeature.end));
     }
 
