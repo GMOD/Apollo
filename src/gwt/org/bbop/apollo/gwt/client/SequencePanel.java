@@ -168,7 +168,7 @@ public class SequencePanel extends Composite {
                 if (nameSortInfo.getColumn().isSortable()) {
                     Column<SequenceInfo, ?> sortColumn = (Column<SequenceInfo, ?>) sortList.get(0).getColumn();
                     Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
-                    String searchColumnString = columnIndex == 0 ? "name" : "length";
+                    String searchColumnString = columnIndex == 0 ? "name" : columnIndex == 1 ? "length" : "count";
                     Boolean sortNameAscending = nameSortInfo.isAscending();
                     SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, searchColumnString, sortNameAscending, minFeatureLength.getText(), maxFeatureLength.getText());
                 }
