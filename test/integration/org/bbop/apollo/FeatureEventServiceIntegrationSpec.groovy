@@ -223,7 +223,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
     /**
      * https://github.com/GMOD/Apollo/issues/792
      */
-    void "should handle merge, change on upstream / RHS gene, and undo"() {
+    void "should handle merge, change on upstream / RHS gene, undo, redo"() {
 
         given: "two transcripts"
         // gene 1 - GB40787
@@ -236,6 +236,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         JSONObject jsonAddTranscriptObject2 = JSON.parse(gb40788String) as JSONObject
         String mergeTranscriptString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" }, { \"uniquename\": \"@TRANSCRIPT2_UNIQUENAME@\" } ], \"operation\": \"merge_transcripts\" }"
         String undoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
+        String redoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
         String setExonBoundaryCommand = "{\"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${allFmin},\"fmax\":${newFmax}}}],\"operation\":\"set_exon_boundaries\"}"
         String getHistoryString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" } ], \"operation\": \"get_history_for_features\" }"
 
@@ -351,12 +352,23 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert allFmin == featureLocation.fmin
         assert newFmax == featureLocation.fmax
 
+        when: "when we redo the merge on one side"
+        String redoString = redoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
+        requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
+
+        then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 5
+        assert NonCanonicalFivePrimeSpliceSite.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count == 1
+        assert CDS.count == 1
     }
 
     /**
      * https://github.com/GMOD/Apollo/issues/792
      */
-    void "should handle merge, change on downstream / LHS , and undo"(){
+    void "should handle merge, change on downstream / LHS , undo, redo"(){
 
         given: "two transcripts"
         // gene 1 - GB40787
@@ -369,6 +381,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         JSONObject jsonAddTranscriptObject2 = JSON.parse(gb40788String) as JSONObject
         String mergeTranscriptString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" }, { \"uniquename\": \"@TRANSCRIPT2_UNIQUENAME@\" } ], \"operation\": \"merge_transcripts\" }"
         String undoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
+        String redoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
         String setExonBoundaryCommand = "{\"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${newFmin},\"fmax\":${newFmax}}}],\"operation\":\"set_exon_boundaries\"}"
         String getHistoryString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" } ], \"operation\": \"get_history_for_features\" }"
 
@@ -440,8 +453,8 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         when: "when we undo the merge"
-        String transcriptSplitUndoString = undoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
-        requestHandlingService.undo(JSON.parse(transcriptSplitUndoString) as JSONObject)
+        String undoString = undoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
+        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         exon = Exon.findByUniqueName(exonUniqueName)
         featureLocation = FeatureLocation.findByFeature(exon)
 
@@ -456,5 +469,17 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert newFmin==featureLocation.fmin
         assert newFmax==featureLocation.fmax
 
+
+        when: "when we redo the merge on one side"
+        String redoString = redoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
+        requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
+
+        then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 5
+        assert NonCanonicalFivePrimeSpliceSite.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count == 1
+        assert CDS.count == 1
     }
 }
