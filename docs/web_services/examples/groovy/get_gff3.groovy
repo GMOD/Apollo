@@ -10,7 +10,7 @@ import groovyx.net.http.HTTPBuilder
 
 String usageString = "get_gff3.groovy <options>" +
         "Example: \n" +
-        "./get_gff3.groovy -username admin -password somepass -url http://localhost/apollo "
+        "./get_gff3.groovy -username admin -password somepass -organism honeybee -url http://localhost/apollo "
 
 def cli = new CliBuilder(usage: 'get_gff3.groovy <options>')
 cli.setStopAtNonOption(true)
