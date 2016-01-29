@@ -26,6 +26,7 @@ class IOServiceController extends AbstractApolloController {
     def preferenceService
     def permissionService
     def configWrapperService
+    def requestHandlingService
 
     // fileMap of uuid / filename
     // see #464
@@ -93,7 +94,7 @@ class IOServiceController extends AbstractApolloController {
                         }
                     }
                 }
-                'in'('class',Gene.class.name)
+                'in'('class',requestHandlingService.viewableAnnotationList+[Deletion.class.name,Insertion.class.name,Substitution.class.name])
             }
             def sequenceList = Sequence.createCriteria().list() {
                 eq('organism',organism)
