@@ -314,14 +314,21 @@ public class Gff3HandlerService {
         //TODO: Target
         //TODO: Gap
         if (writeObject.attributesToExport.contains(FeatureStringEnum.COMMENTS.value)) {
-            Iterator<Comment> commentIter = featurePropertyService.getComments(feature).iterator()
-            if (commentIter.hasNext()) {
-                StringBuilder comments = new StringBuilder();
+            for(FeatureProperty featureProperty in feature.featureProperties){
+                println "feature property ${featureProperty.value}"
+                println "feature property cvterm ${featureProperty.cvTerm}"
+                println "feature property type ${featureProperty?.type?.cv}"
+                println "feature property type ${featureProperty?.type?.name}"
+            }
+Iterator<Comment> commentIter = featurePropertyService.getComments(feature).iterator()
+            
+	if (commentIter.hasNext()) {
+		StringBuilder comments = new StringBuilder();
                 comments.append(encodeString(commentIter.next().value));
                 while (commentIter.hasNext()) {
                     comments.append(",");
                     comments.append(encodeString(commentIter.next().value));
-                }
+		}
                 attributes.put(FeatureStringEnum.EXPORT_NOTE.value, comments.toString());
             }
         }

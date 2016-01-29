@@ -31,8 +31,6 @@ class Sequence {
 
     String name
     Organism organism
-
-    // SourceFeature properties
     Integer length
     Integer seqChunkSize
     Integer start
