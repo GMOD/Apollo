@@ -22,7 +22,7 @@ This command can accept an -output argument to output to file, or the stdout can
 
 The -username and -password can be specified via the command line or if omitted, the user will be prompted.
 
-### get_fasta.groovy
+### get_gff3.groovy
 
 Example:
 
