@@ -192,7 +192,7 @@ class SequenceController {
                     results = results.reverse()
                 }
             }
-            render results[start..start+length] as JSON
+            render results[start..Math.min(start+length-1,results.size()-1)] as JSON
         }
         catch(PermissionException e) {
             def error=[error: "Error: "+e]
