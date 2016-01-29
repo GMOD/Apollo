@@ -308,7 +308,9 @@ public class Gff3HandlerService {
             def parent= featureRelationshipService.getParentForFeature(feature)
             attributes.put(FeatureStringEnum.EXPORT_PARENT.value, encodeString(parent.uniqueName));
         }
-
+        if(feature.class.name == Insertion.class.name) {
+            attributes.put(FeatureStringEnum.RESIDUES.value, feature.alterationResidue)
+        }
         //TODO: Target
         //TODO: Gap
         if (writeObject.attributesToExport.contains(FeatureStringEnum.COMMENTS.value)) {
@@ -392,9 +394,7 @@ public class Gff3HandlerService {
             attributes.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, encodeString(formatDate(calendar.time)));
         }
 
-        if(feature.class.name == "Insertion") {
-            attributes.put(FeatureStringEnum.RESIDUES.value, feature.alterationResidue)
-        }
+
         return attributes;
     }
 
