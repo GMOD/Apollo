@@ -30,10 +30,12 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
 
         given: "we create a new gene"
         String json=' { "track": "Group1.10", "features": [{"location":{"fmin":1216824,"fmax":1235616,"strand":1},"type":{"cv":{"name":"sequence"},"name":"mRNA"},"name":"GB40856-RA","children":[{"location":{"fmin":1235534,"fmax":1235616,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":1216824,"fmax":1216850,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":1224676,"fmax":1224823,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":1228682,"fmax":1228825,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":1235237,"fmax":1235396,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":1235487,"fmax":1235616,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":1216824,"fmax":1235534,"strand":1},"type":{"cv":{"name":"sequence"},"name":"CDS"}}]}], "operation": "add_transcript" }'
+        String addInsertionString = '{"operation":"add_sequence_alteration","username":"deepak.unni3@gmail.com","features":[{"non_reserved_properties": [{"tag": "justification", "value":"Sanger sequencing"}], "residues":"GGG","location":{"fmin":208499,"strand":1,"fmax":208499},"type":{"name":"insertion","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
         
         
         when: "we parse the json"
         requestHandlingService.addTranscript(JSON.parse(json))
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString))
         
 
         then: "We should have at least one new gene"
@@ -47,7 +49,7 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         File tempFile = File.createTempFile("output", ".gff3")
         tempFile.deleteOnExit()
         log.debug "${tempFile.absolutePath}"
-        def featuresToWrite = Gene.findAll()
+        def featuresToWrite = Gene.findAll()+SequenceAlteration.findAll()
         log.debug "${featuresToWrite}"
         gff3HandlerService.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,".")
         String tempFileText = tempFile.text
@@ -60,8 +62,8 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         assert lines[2].split("\t")[2]=="gene"
         assert lines[2].split("\t")[8].indexOf("Name=GB40856-RA")!=-1
         assert lines[3].split("\t")[2]=="mRNA"
-        assert lines[11].split("\t")[2]=="insertion"
-        assert lines[11].split("\t")[8].indexOf("justification=Sanger sequencing")!=-1
+        assert lines[15].split("\t")[2]=="insertion"
+        assert lines[15].split("\t")[8].indexOf("justification=Sanger sequencing")!=-1
         assert tempFileText.length() > 0
     }
 }
