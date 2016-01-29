@@ -574,5 +574,71 @@ class FeatureEventServiceSpec extends Specification {
 
     }
 
+    void "undo merge after an action on the other side"(){
+
+        given:"add 2 transcripts"
+        String name1 = "sox9a-0001"
+        String name2 = "sox9b-0001"
+        String uniqueName1 = "aaaaaa"
+        String uniqueName2 = "bbbbbb"
+
+        when: "we add 2 feature events"
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT,name1,uniqueName1,new JSONObject(),new JSONObject(),new JSONObject(),null)
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT,name2,uniqueName2,new JSONObject(),new JSONObject(),new JSONObject(),null)
+        List<List<FeatureEvent>> featureEventList1 = service.getHistory(uniqueName1)
+        List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2)
+
+        then: "we should see a feature event"
+        assert 1==FeatureEvent.countByUniqueName(uniqueName1)
+        assert featureEventList1.size()==1
+        assert 1==FeatureEvent.countByUniqueName(uniqueName2)
+        assert featureEventList2.size()==1
+
+        when: "we do an operation"
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES,name2,uniqueName2,new JSONObject(),new JSONObject(),new JSONObject(),null)
+        featureEventList2 = service.getHistory(uniqueName2)
+
+        then: "we should see an extra operation"
+        assert 2==FeatureEvent.countByUniqueName(uniqueName2)
+        assert featureEventList2.size()==2
+        assert !featureEventList2[0][0].current
+        assert featureEventList2[1][0].current
+
+        when: "let's merge feature events"
+        JSONArray oldJsonArray = new JSONArray()
+//        newJsonArray.add(new JSONObject())
+        oldJsonArray.add(new JSONObject())
+        service.addMergeFeatureEvent(name1,uniqueName1,name2,uniqueName2,new JSONObject(),oldJsonArray,new JSONObject(),null)
+        featureEventList2 = service.getHistory(uniqueName2)
+        featureEventList1 = service.getHistory(uniqueName1)
+        // TODO: not sure if this is accurate, or possible
+//        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName2)[0]
+        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName1)[0]
+
+        then: "we should see one feature events, with the second one current and the prior one before"
+        assert 3==FeatureEvent.countByUniqueName(uniqueName2)
+        assert 1==FeatureEvent.countByUniqueName(uniqueName1)
+        assert featureEventList1.size()==0 // we should not get access to this
+        assert featureEventList2.size()==3
+
+        assert 0==service.findAllFutureFeatureEvents(currentFeature).size()
+        assert 2==service.findAllPreviousFeatureEvents(currentFeature).size()
+
+
+        // TODO: not sure if this is accurate, or possible
+        assert 3==service.getHistory(uniqueName2).size()
+        assert featureEventList2[2][0].current
+        assert featureEventList2[2][0].operation==FeatureOperation.MERGE_TRANSCRIPTS
+        assert !featureEventList2[1][0].current
+        assert featureEventList2[1][0].operation==FeatureOperation.SET_EXON_BOUNDARIES
+        assert !featureEventList2[0][0].current
+        assert featureEventList2[0][0].operation==FeatureOperation.ADD_TRANSCRIPT
+
+        assert 0==service.getHistory(uniqueName1).size()
+
+
+
+
+    }
 
 }

@@ -88,8 +88,9 @@ class FeatureEventController {
             'in'('class',requestHandlingService.viewableAnnotationList)
         }
 
+        def filters = [organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName]
 
-        render view: "changes", model: [features: list, featureCount: list.totalCount, organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName]
+        render view: "changes", model: [features: list, featureCount: list.totalCount, organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
     }
 
     def index(Integer max) {
