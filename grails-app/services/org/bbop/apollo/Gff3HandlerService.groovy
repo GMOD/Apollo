@@ -21,6 +21,7 @@ public class Gff3HandlerService {
     def featureRelationshipService
     def transcriptService
     def exonService
+    def configWrapperService
     def requestHandlingService 
     def featureService
     def overlapperService
@@ -296,7 +297,7 @@ public class Gff3HandlerService {
             def parent= featureRelationshipService.getParentForFeature(feature)
             attributes.put(FeatureStringEnum.EXPORT_PARENT.value, encodeString(parent.uniqueName));
         }
-        if(feature.class.name in requestHandlingService.viewableAnnotationList+requestHandlingService.viewableAnnotationTranscriptList) {
+        if(configWrapperService.exportSubFeatureAttrs() || feature.class.name in requestHandlingService.viewableAnnotationList+requestHandlingService.viewableAnnotationTranscriptList) {
             if (writeObject.attributesToExport.contains(FeatureStringEnum.SYNONYMS.value)) {
                 Iterator<Synonym> synonymIter = feature.synonyms.iterator();
                 if (synonymIter.hasNext()) {
