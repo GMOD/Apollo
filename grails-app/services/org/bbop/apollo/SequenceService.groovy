@@ -22,6 +22,7 @@ class SequenceService {
     def grailsApplication
     def featureService
     def transcriptService
+    def requestHandlingService
     def exonService
     def cdsService
     def gff3HandlerService
@@ -444,7 +445,6 @@ class SequenceService {
     def getGff3ForFeature(JSONObject inputObject, File outputFile) {
         List<Feature> featuresToWrite = new ArrayList<>();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        def sequenceAlterationTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
@@ -458,7 +458,7 @@ class SequenceService {
             Sequence sequence = gbolFeature.featureLocation.sequence
 
             // TODO: does strand and alteration length matter here?
-            List<Feature> listOfSequenceAlterations = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes and fl.fmin >= :fmin and fl.fmax <= :fmax ", [sequence: sequence, sequenceTypes: sequenceAlterationTypes,fmin:fmin,fmax:fmax])
+            List<Feature> listOfSequenceAlterations = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes and fl.fmin >= :fmin and fl.fmax <= :fmax ", [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations,fmin:fmin,fmax:fmax])
             featuresToWrite += listOfSequenceAlterations
         }
         gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)

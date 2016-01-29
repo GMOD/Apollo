@@ -94,7 +94,7 @@ class IOServiceController extends AbstractApolloController {
                         }
                     }
                 }
-                'in'('class',requestHandlingService.viewableAnnotationList+[Deletion.class.name,Insertion.class.name,Substitution.class.name])
+                'in'('class',requestHandlingService.viewableAnnotationList+requestHandlingService.viewableAlterations)
             }
             def sequenceList = Sequence.createCriteria().list() {
                 eq('organism',organism)
