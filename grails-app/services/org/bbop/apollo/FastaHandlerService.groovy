@@ -109,14 +109,12 @@ public class FastaHandlerService {
         while (iterator.hasNext()) {
             Feature feature = iterator.next();
             if(feature.class.name in [Gene.class.name, Pseudogene.class.name]) {
-                log.debug "HERE1"
                 def transcriptList = transcriptService.getTranscripts(feature)
                 for (Transcript transcript in transcriptList) {
                     writeFeature(transcript, seqType, metaDataToExport);
                 }
             }
             else {
-                log.debug "HERE2"
                 writeFeature(feature, seqType, metaDataToExport)
             }
         }
