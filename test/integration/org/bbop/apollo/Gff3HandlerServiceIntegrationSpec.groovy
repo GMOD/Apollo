@@ -58,8 +58,7 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         def lines = tempFile.readLines()
         assert lines[0]=="##gff-version 3"
         assert lines[2].split("\t")[2]=="gene"
-        assert lines[2].split("\t")[8].indexOf("ID=abc123")!=-1
-        assert lines[2].split("\t")[8].indexOf("Name=Bob")!=-1
+        assert lines[2].split("\t")[8].indexOf("Name=GB40856-RA")!=-1
         assert lines[3].split("\t")[2]=="mRNA"
         assert lines[11].split("\t")[2]=="insertion"
         assert lines[11].split("\t")[8].indexOf("justification=Sanger sequencing")!=-1
