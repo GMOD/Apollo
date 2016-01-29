@@ -843,4 +843,5 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList1[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
     }
 
+
 }
