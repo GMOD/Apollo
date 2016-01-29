@@ -1,20 +1,14 @@
 package org.bbop.apollo
 
-import grails.transaction.NotTransactional
 import org.apache.commons.lang.WordUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import org.bbop.apollo.sequence.Strand
 import org.grails.plugins.metrics.groovy.Timed
 import org.springframework.format.datetime.DateFormatter
-import org.springframework.format.datetime.joda.JodaTimeContext;
+import java.text.SimpleDateFormat
 
-import java.io.*
-import java.text.SimpleDateFormat;
-import java.util.*
-//import groovy.transform.CompileStatic
-//@CompileStatic
-//@GrailsCompileStatic
+
+
 public class Gff3HandlerService {
 
     def sequenceService
@@ -398,7 +392,6 @@ public class Gff3HandlerService {
         return attributes;
     }
 
-    @NotTransactional
     String formatDate(Date date){
         return gff3DateFormat.format(date)
     }
