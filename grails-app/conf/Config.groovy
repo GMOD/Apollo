@@ -165,12 +165,12 @@ log4j.main = {
 
     // enable logging of our webapollo instance (uncomment debug for extensive output)
 	warn 'grails.app'
-//    debug 'grails.app'
+    debug 'grails.app'
 //    debug 'liquibase'
 
     // more find grained logging
     //trace 'org.hibernate.type'
-    //debug 'org.hibernate.SQL'
+    debug 'org.hibernate.SQL'
     //debug 'grails.app'
     //debug 'grails.app.controllers.org.bbop.apollo'
     //debug 'grails.app.controllers.org.bbop.apollo.JbrowseController'

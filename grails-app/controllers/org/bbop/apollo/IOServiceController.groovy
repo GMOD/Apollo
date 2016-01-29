@@ -81,14 +81,16 @@ class IOServiceController extends AbstractApolloController {
             Organism organism = dataObject.organism?Organism.findByCommonName(dataObject.organism):preferenceService.getCurrentOrganismForCurrentUser()
 
 
-            def results = Gene.executeQuery("select distinct f , child , childLocation from Gene f left outer join fetch f.featureDBXrefs left outer join fetch f.featureSynonyms left outer join fetch f.owners left outer join fetch f.featureProperties join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join pr.childFeature child join child.featureLocations childLocation where fl.sequence.name in (:sequences) and f.class in (:viewableAnnotationList)", [sequences: sequences, viewableAnnotationList: requestHandlingService.viewableAnnotationList])
-            log.debug "test2 ${sequences}, ${requestHandlingService.viewableAnnotationList}"
-            def features = results.collect {
-                it[1].addToFeatureLocations(it[2])
+            //def results = Gene.executeQuery("select distinct f, child, childLocation, subChild from Gene f left outer join fetch f.featureDBXrefs left outer join fetch f.featureSynonyms left outer join fetch f.owners left outer join fetch f.featureProperties join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join pr.childFeature child join child.featureLocations childLocation join child.parentFeatureRelationships cpr join cpr.childFeature subchild where fl.sequence.name in (:sequences) and f.class in (:viewableAnnotationList)", [sequences: sequences, viewableAnnotationList: requestHandlingService.viewableAnnotationList])
+            def st=System.currentTimeMillis()
+            def features = Gene.executeQuery("from Gene f left join fetch f.synonyms left join fetch f.featureDBXrefs left join fetch f.featureProperties left join fetch f.owners join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child left join fetch child.synonyms left join fetch child.featureDBXrefs left join fetch child.featureProperties left join fetch child.owners join fetch child.featureLocations childLocation join fetch child.childFeatureRelationships join fetch child.parentFeatureRelationships cpr join fetch cpr.childFeature subchild join fetch subchild.featureLocations join fetch subchild.childFeatureRelationships left join fetch subchild.parentFeatureRelationships where fl.sequence.name in (:sequences) and f.class in (:viewableAnnotationList)", [sequences: sequences, viewableAnnotationList: requestHandlingService.viewableAnnotationList])
+            log.debug "TOTALSUB ${System.currentTimeMillis()-st}"
+            //def features = results.collect {
+            //    log.debug "${it[0].class.name} ${it[2].fmin} ${it[3].class.name}"
+               // it[1].addToFeatureLocations(it[2])
                 
-                it[0].addToParentFeatureRelationships(new FeatureRelationship(parentFeature: it[0], childFeature: it[1]))
-                it[0]
-            }
+                //it[0].addToParentFeatureRelationships(new FeatureRelationship(parentFeature: it[0], childFeature: it[1]))
+            //}
             log.debug "test ${features}"
            
             def sequenceList = Sequence.createCriteria().list() {
