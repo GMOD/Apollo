@@ -42,7 +42,7 @@
                         </gwt:HTML>
                     </b:Column>
                     <b:Column size="MD_5">
-                        <gwt:SuggestBox ui:field="sequenceList" width="200px"/>
+                        <b:SuggestBox ui:field="sequenceList" width="200px"/>
                     </b:Column>
                 </b:Row>
                 <b:Row>
