@@ -902,57 +902,8 @@ class FeatureEventService {
         // so we need to filter those out
         // sort by what is on top of what
         // if we have a merge, where one of the merges has history, but the other doesn't
-//        def sortedFeatureEvents = featureEvents.sort(false) { a, b ->
-////            if(a[0].parentId==null){
-////                return -1
-////            }
-////            if(b[0].parentId==null){
-////                return 1
-////            }
-////            if(b[0].parentId==a[0].childId){
-////                return -1
-////            }
-////            if(a[0].parentId==b[0].childId){
-////                return 1
-////            }
-////            else{
-////                println "invalid sort criteria, using date "
-//                a[0].dateCreated <=> b[0].dateCreated
-////            }
-//        }
-//        def uniqueFeatureEvents = sortedFeatureEvents.unique(false) { a, b ->
 
-        def sortedFeatureEvents = generatedSortedFeatures(featureEvents,featureEventMap)
-//        def sortedFeatureEvents = featureEvents.sort(false) { a, b ->
-////            for (aIndex in a) {
-////                if(aIndex.parentId==null){
-////                    return -1
-////                }
-////                else{
-////                    for (bIndex in b) {
-////                        if(bIndex.parentId==null){
-////
-////                        }
-////                    }
-////                }
-////            if(a[0].parentId==null){
-////                return -1
-////            }
-////            if(b[0].parentId==null){
-////                return 1
-////            }
-////            if(b[0].parentId==a[0].childId){
-////                return -1
-////            }
-////            if(a[0].parentId==b[0].childId){
-////                return 1
-////            }
-////            else{
-////                println "invalid sort criteria, using date "
-////                a[0].dateCreated <=> b[0].dateCreated
-//            }
-//        }
-        def uniqueFeatureEvents = sortedFeatureEvents.unique(false) { a, b ->
+        def uniqueFeatureEvents = featureEvents.unique(false) { a, b ->
             for (aIndex in a) {
                 for (bIndex in b) {
                     if (aIndex.id == bIndex.id) {
@@ -961,33 +912,10 @@ class FeatureEventService {
                 }
             }
             return 1
-//            a[0].id <=> b[0].id
         }
         return uniqueFeatureEvents
     }
 
-    List<List<FeatureEvent>> generatedSortedFeatures(List<List<FeatureEvent>> featureEventList, Map<String, Map<Long, FeatureEvent>> featureEventMap) {
-        if(true){
-          return featureEventList
-        }
-
-//        List<List<FeatureEvent>> returnList = new ArrayList<>()
-
-        // get roots
-//        List<List<FeatureEvent>> rootList = getRoots(featureEventList, featureEventMap)
-
-//
-//        for(int i = 0 ; i < featureEventList ; i++){
-//            List<FeatureEvent> featureEvents = featureEventList.get(i)
-//        }
-//
-//
-//        return returnList
-    }
-
-//    List<List<FeatureEvent>> getRoots(List<List<FeatureEvent>> lists, Map<String, Map<Long, FeatureEvent>> stringMapMap) {
-//        feat
-//    }
 
     JSONObject generateHistory(JSONObject historyContainer, JSONArray featuresArray) {
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
@@ -1027,16 +955,6 @@ class FeatureEventService {
                     JSONArray newFeaturesJsonArray = (JSONArray) JSON.parse(transaction.newFeaturesJsonArray)
                     for (int featureIndex = 0; featureIndex < newFeaturesJsonArray.size(); featureIndex++) {
                         JSONObject featureJsonObject = newFeaturesJsonArray.getJSONObject(featureIndex)
-                        // TODO: this needs to be functional
-//                        if (transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT)) {
-//                            Feature newFeature = Feature.findByUniqueName(featureJsonObject.getString(FeatureStringEnum.UNIQUENAME.value))
-//                            if (overlapperService.overlaps(feature.featureLocation, newFeature.featureLocation, true)) {
-//                                historyFeatures.put(featureJsonObject);
-//                            }
-//                        }
-//                        else{
-//                            historyFeatures.put(featureJsonObject);
-//                        }
                         historyFeatures.put(featureJsonObject);
                     }
                     history.put(historyItem);
