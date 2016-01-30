@@ -171,6 +171,9 @@ class SequenceController {
         try {
             Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
             def sequences = Sequence.createCriteria().list() {
+                if(name) {
+                    ilike('name', '%'+name+'%')
+                }
                 eq('organism',organism)
                 gt('length',minFeatureLength ?: 0)
                 lt('length',maxFeatureLength ?: Integer.MAX_VALUE)
