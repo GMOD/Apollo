@@ -573,7 +573,7 @@ class FeatureEventService {
         }
 
 
-        deleteCurrentState(inputObject, uniqueName, newUniqueNames, sequence)
+        deleteCurrentState(inputObject,  newUniqueNames, sequence)
 
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 
@@ -661,12 +661,20 @@ class FeatureEventService {
 
     }
 
-    def deleteCurrentState(JSONObject inputObject, String uniqueName, List<String> newUniqueNames, Sequence sequence) {
+    def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Sequence sequence) {
+        for(uniqueName in newUniqueNames){
+            deleteCurrentState(inputObject,uniqueName,sequence)
+        }
+    }
+
+
+    def deleteCurrentState(JSONObject inputObject, String uniqueName, Sequence sequence) {
 
         Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
 
         // need to get uniqueNames for EACH current featureEvent
-        for (FeatureEvent deleteFeatureEvent in findCurrentFeatureEvent(uniqueName, featureEventMap)) {
+        def currentFeatureEvents = findCurrentFeatureEvent(uniqueName, featureEventMap)
+        for (FeatureEvent deleteFeatureEvent in currentFeatureEvents) {
             JSONObject deleteCommandObject = new JSONObject()
             JSONArray featuresArray = new JSONArray()
             log.debug "delete feature event uniqueNamee: ${deleteFeatureEvent.uniqueName}"
@@ -691,7 +699,7 @@ class FeatureEventService {
             log.debug " final delete JSON ${deleteCommandObject as JSON}"
 //            FeatureEvent.withNewTransaction {
             // suppress any events that are not part of the new state
-            log.debug "newUniqueNames ${newUniqueNames} vs uniqueName ${uniqueName} vs df-uniqueName ${deleteFeatureEvent.uniqueName}"
+//            log.debug "newUniqueNames ${newUniqueNames} vs uniqueName ${uniqueName} vs df-uniqueName ${deleteFeatureEvent.uniqueName}"
             requestHandlingService.deleteFeature(deleteCommandObject)
 //            }
             log.debug "deletion sucess . .  "
