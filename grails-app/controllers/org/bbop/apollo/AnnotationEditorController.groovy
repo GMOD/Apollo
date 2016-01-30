@@ -521,10 +521,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
-        def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
 
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
-                , [sequence: sequence, sequenceTypes: sequenceTypes])
+                , [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations])
         for (SequenceAlteration alteration : sequenceAlterationList) {
             jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true));
         }

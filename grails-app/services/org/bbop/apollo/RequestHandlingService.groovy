@@ -43,16 +43,16 @@ class RequestHandlingService {
     def brokerMessagingTemplate
 
 
-    public static List<String> viewableAnnotationFeatureList = [
+    public static final List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
             TransposableElement.class.name
     ]
-    public static List<String> viewableAnnotationTranscriptParentList = [
+    public static final List<String> viewableAnnotationTranscriptParentList = [
             Gene.class.name,
             Pseudogene.class.name
     ]
 
-    public static List<String> viewableAnnotationTranscriptList = [
+    public static final List<String> viewableAnnotationTranscriptList = [
             Transcript.class.name,
             MRNA.class.name,
             TRNA.class.name,
@@ -63,8 +63,13 @@ class RequestHandlingService {
             MiRNA.class.name,
     ]
 
-    public
-    static List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
+    public static final List<String> viewableAlterations = [
+            Deletion.class.name,
+            Insertion.class.name,
+            Substitution.class.name
+    ]
+
+    public static final List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
 
     private String underscoreToCamelCase(String underscore) {
         if (!underscore || underscore.isAllWhitespace()) {

@@ -109,10 +109,18 @@ public class SequencePanel extends Composite {
         lengthColumn.setDefaultSortAscending(false);
         lengthColumn.setSortable(true);
 
+        Column<SequenceInfo, Number> annotationCount = new Column<SequenceInfo, Number>(new NumberCell()) {
+            @Override
+            public Integer getValue(SequenceInfo object) {
+                return object.getCount();
+            }
+        };
 
+        annotationCount.setSortable(true);
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(lengthColumn, "Length");
         dataGrid.setColumnWidth(1, "100px");
+        dataGrid.addColumn(annotationCount, "Annotations");
 
         dataGrid.setSelectionModel(multiSelectionModel);
         multiSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -168,7 +176,7 @@ public class SequencePanel extends Composite {
                 if (nameSortInfo.getColumn().isSortable()) {
                     Column<SequenceInfo, ?> sortColumn = (Column<SequenceInfo, ?>) sortList.get(0).getColumn();
                     Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
-                    String searchColumnString = columnIndex == 0 ? "name" : "length";
+                    String searchColumnString = columnIndex == 0 ? "name" : columnIndex == 1 ? "length" : "count";
                     Boolean sortNameAscending = nameSortInfo.isAscending();
                     SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, searchColumnString, sortNameAscending, minFeatureLength.getText(), maxFeatureLength.getText());
                 }
