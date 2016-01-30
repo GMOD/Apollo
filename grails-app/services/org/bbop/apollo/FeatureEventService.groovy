@@ -546,8 +546,8 @@ class FeatureEventService {
             return
         }
 
-//        int total = FeatureEvent.countByUniqueName(uniqueName)
-        int total = getHistory(uniqueName).size()
+        List<List<FeatureEvent>> history = getHistory(uniqueName)
+        int total = history.size()
         if(total==0){
             Set<String> uniqueNames = extractFeatureEventGroup(uniqueName).keySet()
             uniqueNames.remove(uniqueName)
@@ -604,18 +604,12 @@ class FeatureEventService {
                 JSONObject returnObject
                 if (featureService.isJsonTranscript(jsonFeature)) {
                     // set the original gene name
-//                if (originalCommandObject.containsKey(FeatureStringEnum.NAME.value)) {
-////                    addCommandObject.put(FeatureStringEnum.GENE_NAME.value, originalCommandObject.getString(FeatureStringEnum.NAME.value))
                     for (int k = 0; k < featuresToAddArray.size(); k++) {
                         JSONObject featureObject = featuresToAddArray.getJSONObject(k)
-//                        featureObject.put(FeatureStringEnum.GENE_NAME.value, originalCommandObject.getString(FeatureStringEnum.NAME.value))
                         featureObject.put(FeatureStringEnum.GENE_NAME.value, featureEvent.name)
                     }
-//                }
                     log.debug "original command object = ${originalCommandObject as JSON}"
                     log.debug "final command object = ${addCommandObject as JSON}"
-
-
                     returnObject = requestHandlingService.addTranscript(addCommandObject)
                     transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
 
@@ -847,16 +841,6 @@ class FeatureEventService {
         // an index of 1 is 1 in the future.  This returns exclusive future, so we need to
         // substract 1 from the index
         def allFutureEvents = findAllFutureFeatureEvents(firstFeatureEvent, featureEventMap)
-//        if(index>allFutureEvents.size()){
-//            def futureEvent = allFutureEvents.last()
-//            if(futureEvent.first().current){
-//                return futureEvent
-//            }
-//            else{
-//                throw new RuntimeException("Problem undoing")
-//            }
-//        }
-//        else{
         def futureEvents = allFutureEvents[index - 1]
         def returnEvents = [currentFeatureEvent]
         futureEvents.each {
@@ -866,7 +850,6 @@ class FeatureEventService {
         }
 
         return returnEvents
-//        }
     }
 
     /**
