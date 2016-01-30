@@ -567,6 +567,8 @@ class FeatureEventService {
         Sequence sequence = Feature.findByUniqueName(uniqueName).featureLocation.sequence
         log.debug "sequence: ${sequence}"
 
+        def currentFeatureEvents = findCurrentFeatureEvent(uniqueName)
+
 
         def newUniqueNames = getHistory(uniqueName)[count].collect() {
             it.uniqueName
@@ -717,6 +719,11 @@ class FeatureEventService {
         // count = current - countBackwards
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
+        Set<String> uniqueNames = extractFeatureEventGroup(uniqueName).keySet()
+        assert uniqueNames.remove(uniqueName)
+        uniqueNames.each {
+            currentIndex = Math.max(getCurrentFeatureEventIndex(it),currentIndex)
+        }
         int count = currentIndex + countForward
         log.info "current Index ${currentIndex}"
         log.info "${count} = ${currentIndex}-${countForward}"
@@ -804,6 +811,16 @@ class FeatureEventService {
         FeatureEvent currentFeatureEvent = featureEventList.first()
         int index = getCurrentFeatureEventIndex(uniqueName)
 
+        // get all of the unique names not included
+        List<String> otherFeatures = []
+        otherFeatures.addAll(featureEventMap.keySet())
+        otherFeatures.remove(uniqueName)
+        List<FeatureEvent> otherFeatureEventList = []
+        otherFeatures.each {
+            otherFeatureEventList.addAll(FeatureEvent.findAllByUniqueNameAndCurrent(it, true))
+        }
+
+
         // we have the "current" . .  we have to go back to see if there are any
         // splits in the history and include those as well
         // its okay if we grab either side of this array
@@ -844,6 +861,11 @@ class FeatureEventService {
         def futureEvents = allFutureEvents[index - 1]
         def returnEvents = [currentFeatureEvent]
         futureEvents.each {
+            if (it.current && it.id != currentFeatureEvent.id) {
+                returnEvents << it
+            }
+        }
+        otherFeatureEventList.each {
             if (it.current && it.id != currentFeatureEvent.id) {
                 returnEvents << it
             }

@@ -478,13 +478,22 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         when: "when we undo the merge"
-        String undoString = undoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
+        MRNA firstMRNA = MRNA.first()
+        String undoString = undoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         exon = Exon.findByUniqueName(exonUniqueName)
         featureLocation = FeatureLocation.findByFeature(exon)
+        def currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
+        def history = featureEventService.getHistory(firstMRNA.uniqueName)
 
 
         then: "we see the changed model"
+        assert currentFeatureEvent.size()==2
+        assert history.size()==3
+        assert history[0][0].current==false
+        assert history[1][0].current==true
+        assert history[1][1].current==true
+        assert history[2][0].current==false
         assert Gene.count == 2
         assert MRNA.count == 2
         assert CDS.count == 2
@@ -496,11 +505,11 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         when: "when we redo the merge on one side"
-        def allFeatures = Feature.all
-        String redoString = redoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
+        String redoString = redoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
         then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
+
         assert Gene.count == 1
         assert MRNA.count == 1
         assert Exon.count == 5
@@ -509,10 +518,19 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert CDS.count == 1
 
         when: "when we undo the merge again"
-        undoString = undoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
+        undoString = undoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+        def lastMRNA = MRNA.last()
+        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(lastMRNA.uniqueName)
+        history = featureEventService.getHistory(lastMRNA.uniqueName)
 
         then: "we see the changed model"
+        assert currentFeatureEvent.size()==2
+        assert history.size()==3
+        assert history[0][0].current==false
+        assert history[1][0].current==true
+        assert history[1][1].current==true
+        assert history[2][0].current==false
         assert Gene.count == 2
         assert MRNA.count == 2
         assert CDS.count == 2
@@ -521,10 +539,11 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert NonCanonicalThreePrimeSpliceSite.count == 0
 
         when: "when we redo the merge on the other side"
-        redoString = redoOperation.replace("@UNIQUENAME@", MRNA.last().uniqueName)
+        redoString = redoOperation.replace("@UNIQUENAME@", lastMRNA.uniqueName)
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
         then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
+        def allFeatures = Feature.all
         assert Gene.count == 1
         assert MRNA.count == 1
         assert Exon.count == 5
