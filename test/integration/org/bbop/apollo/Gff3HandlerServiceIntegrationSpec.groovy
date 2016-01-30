@@ -56,7 +56,7 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         File tempFile = File.createTempFile("output", ".gff3")
         tempFile.deleteOnExit()
         log.debug "${tempFile.absolutePath}"
-        def featuresToWrite = Gene.findAll()+SequenceAlteration.findAll()
+        def featuresToWrite = Gene.findAll()+SequenceAlteration.findAll()+RepeatRegion.findAll()
         gff3HandlerService.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,".")
         String tempFileText = tempFile.text
 
@@ -70,6 +70,8 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         assert lines[15].split("\t")[2]=="pseudogene"
         assert lines[21].split("\t")[2]=="insertion"
         assert lines[21].split("\t")[8].indexOf("justification=Sanger sequencing")!=-1
+        assert lines[23].split("\t")[2]=="repeat_region"
+
         assert tempFileText.length() > 0
     }
 }
