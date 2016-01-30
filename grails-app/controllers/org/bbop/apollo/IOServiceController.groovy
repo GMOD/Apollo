@@ -86,12 +86,22 @@ class IOServiceController extends AbstractApolloController {
             if(sequences) queryParams.sequences = sequences
             // caputures 3 level indirection, joins feature locations only. joining other things slows it down
             def genes = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations join fetch child.childFeatureRelationships join fetch child.parentFeatureRelationships cpr join fetch cpr.childFeature subchild join fetch subchild.featureLocations join fetch subchild.childFeatureRelationships left join fetch subchild.parentFeatureRelationships where fl.sequence.organism = :organism and f.class in (:viewableAnnotationList)" + (sequences? " and fl.sequence.name in (:sequences)":""), queryParams)
-            // captures repeat regions, transposable elements
-            queryParams.viewableAnnotationList = requestHandlingService.viewableAlterations+requestHandlingService.viewableAnnotationFeatureList
-            def otherFeats = Feature.executeQuery("select distinct f from Feature f join fetch f.featureLocations fl where fl.sequence.organism = :organism and f.class in (:viewableAnnotationList)" + (sequences? " and fl.sequence.name in (:sequences)":""), queryParams)
+            // captures rest of feats
+            def otherFeats=Feature.createCriteria().list() {
+                featureLocations {
+                    sequence {
+                        eq('organism',organism)
+                        if(sequences) {
+                            'in'('name',sequences)
+                        }
+                    }
+                }
+                'in'('class',requestHandlingService.viewableAlterations+requestHandlingService.viewableAnnotationFeatureList)
+            }
+            log.debug "${otherFeats}"
             def features = genes+otherFeats
 
-            log.debug "GFF3 feature query: ${System.currentTimeMillis()-st}ms"
+            log.debug "IOService query: ${System.currentTimeMillis()-st}ms"
            
             def sequenceList = Sequence.createCriteria().list() {
                 eq('organism',organism)
@@ -153,7 +163,7 @@ class IOServiceController extends AbstractApolloController {
             else {
                 render text: outputFile.text
             }
-            log.debug "Total GFF3 export time ${System.currentTimeMillis()-current}ms"
+            log.debug "Total IOService export time ${System.currentTimeMillis()-current}ms"
         }
         catch(Exception e) {
             def error=[error: e.message]

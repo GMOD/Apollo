@@ -64,9 +64,9 @@ class RequestHandlingService {
     ]
 
     public static final List<String> viewableAlterations = [
-        Deletion.class.name,
-        Insertion.class.name,
-        Substitution.class.name
+            Deletion.class.name,
+            Insertion.class.name,
+            Substitution.class.name
     ]
 
     public static final List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
