@@ -717,6 +717,11 @@ class FeatureEventService {
         // count = current - countBackwards
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
+        Set<String> uniqueNames = extractFeatureEventGroup(uniqueName).keySet()
+        assert uniqueNames.remove(uniqueName)
+        uniqueNames.each {
+            currentIndex = Math.max(getCurrentFeatureEventIndex(it),currentIndex)
+        }
         int count = currentIndex + countForward
         log.info "current Index ${currentIndex}"
         log.info "${count} = ${currentIndex}-${countForward}"

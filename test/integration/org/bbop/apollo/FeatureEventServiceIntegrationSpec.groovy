@@ -92,9 +92,8 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert Gene.count == 1
 
         when: "when we redo transcript"
-        def allFeatures = Feature.all
         requestHandlingService.redo(JSON.parse(redoString1))
-        allFeatures = Feature.all
+        def allFeatures = Feature.all
 
         then: "we should have two transcripts"
         assert Exon.count == 2
@@ -105,7 +104,6 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
         when: "when we undo transcript B"
         requestHandlingService.undo(JSON.parse(undoString2))
-        allFeatures = Feature.all
         def allFeatureEvents = FeatureEvent.all
 
         then: "we should have the original transcript"
@@ -114,10 +112,10 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert MRNA.count == 1
         assert Gene.count == 1
 
-        when: "when we redo transcript"
+        when: "when we redo transcript 1"
         requestHandlingService.redo(JSON.parse(redoString1))
 
-        then: "we should have two transcripts"
+        then: "we should have two transcripts, A3/B2"
         assert Exon.count == 2
         assert CDS.count == 2
         assert MRNA.count == 2
@@ -125,6 +123,193 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
     }
 
+    void "we can undo a split twice"() {
+
+        given: "transcript data"
+        String jsonString = "{\"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":938708,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40736-RA\",\"children\":[{\"location\":{\"fmin\":938708,\"fmax\":938770,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":939570,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":938708,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        String splitString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_1@\" }, { \"uniquename\": \"@EXON_2@\" } ], \"operation\": \"split_transcript\" }"
+        String undoString1 = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_1@\" } ], \"operation\": \"undo\", \"count\": 1}"
+//        String undoString2 = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_2@\" } ], \"operation\": \"undo\", \"count\": 1}"
+
+        when: "we insert a transcript"
+        JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(jsonString) as JSONObject)
+
+        then: "we have a transcript"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+
+
+        when: "we split the transcript"
+        String exon1UniqueName = Exon.all[0].uniqueName
+        String exon2UniqueName = Exon.all[1].uniqueName
+        splitString = splitString.replace("@EXON_1@", exon1UniqueName)
+        splitString = splitString.replace("@EXON_2@", exon2UniqueName)
+        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString))
+
+        then: "we should have two of everything now"
+        assert Exon.count == 2
+        assert CDS.count == 2
+        assert MRNA.count == 2
+        assert Gene.count == 2
+
+
+        when: "when we undo transcript A"
+        String transcript1UniqueName = MRNA.findByName("GB40736-RA-00001").uniqueName
+        String transcript2UniqueName = MRNA.findByName("GB40736-RAa-00001").uniqueName
+        undoString1 = undoString1.replace("@TRANSCRIPT_1@", transcript1UniqueName)
+        requestHandlingService.undo(JSON.parse(undoString1))
+
+        then: "we should have the original transcript"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+
+        when: "when we undo the same transcript again"
+        def allFeatures = Feature.all
+        requestHandlingService.undo(JSON.parse(undoString1))
+        allFeatures = Feature.all
+
+        then: "we have a transcript"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+
+    }
+
+    void "we can undo and redo a split"() {
+
+        given: "transcript data"
+        String jsonString = "{\"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":938708,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40736-RA\",\"children\":[{\"location\":{\"fmin\":938708,\"fmax\":938770,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":939570,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":938708,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        String splitString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_1@\" }, { \"uniquename\": \"@EXON_2@\" } ], \"operation\": \"split_transcript\" }"
+        String undoString1 = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_1@\" } ], \"operation\": \"undo\", \"count\": 1}"
+        String undoString2 = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_2@\" } ], \"operation\": \"undo\", \"count\": 1}"
+        String redoString2 = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_2@\" } ], \"operation\": \"redo\", \"count\": 1}"
+
+        when: "we insert a transcript"
+        JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(jsonString) as JSONObject)
+
+        then: "we have a transcript"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+
+
+        when: "we split the transcript"
+        String exon1UniqueName = Exon.all[0].uniqueName
+        String exon2UniqueName = Exon.all[1].uniqueName
+        splitString = splitString.replace("@EXON_1@", exon1UniqueName)
+        splitString = splitString.replace("@EXON_2@", exon2UniqueName)
+        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString))
+
+        then: "we should have two of everything now"
+        assert Exon.count == 2
+        assert CDS.count == 2
+        assert MRNA.count == 2
+        assert Gene.count == 2
+
+
+        when: "when we undo transcript A"
+        String transcript1UniqueName = MRNA.findByName("GB40736-RA-00001").uniqueName
+        String transcript2UniqueName = MRNA.findByName("GB40736-RAa-00001").uniqueName
+        undoString1 = undoString1.replace("@TRANSCRIPT_1@", transcript1UniqueName)
+        requestHandlingService.undo(JSON.parse(undoString1))
+
+        then: "we should have the original transcript"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+
+        when: "when we undo the same transcript again"
+        def allFeatures = Feature.all
+        redoString2 = redoString2.replace("@TRANSCRIPT_2@", transcript2UniqueName)
+        requestHandlingService.redo(JSON.parse(redoString2))
+        allFeatures = Feature.all
+
+        then: "we should have two of everything now"
+        assert Exon.count == 2
+        assert CDS.count == 2
+        assert MRNA.count == 2
+        assert Gene.count == 2
+
+    }
+
+    void "we can undo and redo and redo other side "() {
+
+        given: "transcript data"
+        String jsonString = "{\"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":938708,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40736-RA\",\"children\":[{\"location\":{\"fmin\":938708,\"fmax\":938770,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":939570,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":938708,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        String splitString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_1@\" }, { \"uniquename\": \"@EXON_2@\" } ], \"operation\": \"split_transcript\" }"
+        String undoString1 = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_1@\" } ], \"operation\": \"undo\", \"count\": 1}"
+        String undoString2 = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_2@\" } ], \"operation\": \"undo\", \"count\": 1}"
+        String redoString2 = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_2@\" } ], \"operation\": \"redo\", \"count\": 1}"
+
+        when: "we insert a transcript"
+        JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(jsonString) as JSONObject)
+
+        then: "we have a transcript"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+
+
+        when: "we split the transcript"
+        String exon1UniqueName = Exon.all[0].uniqueName
+        String exon2UniqueName = Exon.all[1].uniqueName
+        splitString = splitString.replace("@EXON_1@", exon1UniqueName)
+        splitString = splitString.replace("@EXON_2@", exon2UniqueName)
+        JSONObject splitJsonObject = requestHandlingService.splitTranscript(JSON.parse(splitString))
+
+        then: "we should have two of everything now"
+        assert Exon.count == 2
+        assert CDS.count == 2
+        assert MRNA.count == 2
+        assert Gene.count == 2
+
+
+        when: "when we undo transcript A"
+        String transcript1UniqueName = MRNA.findByName("GB40736-RA-00001").uniqueName
+        String transcript2UniqueName = MRNA.findByName("GB40736-RAa-00001").uniqueName
+        undoString1 = undoString1.replace("@TRANSCRIPT_1@", transcript1UniqueName)
+        undoString2 = undoString2.replace("@TRANSCRIPT_2@", transcript2UniqueName)
+        redoString2 = redoString2.replace("@TRANSCRIPT_2@", transcript2UniqueName)
+        requestHandlingService.undo(JSON.parse(undoString1))
+
+        then: "we should have the original transcript"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+
+        when: "when we redo transcript 2"
+        def allFeatures = Feature.all
+        requestHandlingService.redo(JSON.parse(redoString2))
+        allFeatures = Feature.all
+
+        then: "we should have two transcripts, A3/B1"
+        assert Exon.count == 2
+        assert CDS.count == 2
+        assert MRNA.count == 2
+        assert Gene.count == 2
+
+
+        when: "when we redo transcript 2 again"
+        allFeatures = Feature.all
+        requestHandlingService.redo(JSON.parse(redoString2))
+        allFeatures = Feature.all
+
+        then: "we shuld have A3/B2"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+
+    }
 
     void "we can undo and redo a merge transcript"() {
 
@@ -478,13 +663,22 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         when: "when we undo the merge"
-        String undoString = undoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
+        MRNA firstMRNA = MRNA.first()
+        String undoString = undoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         exon = Exon.findByUniqueName(exonUniqueName)
         featureLocation = FeatureLocation.findByFeature(exon)
+        def currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
+        def history = featureEventService.getHistory(firstMRNA.uniqueName)
 
 
         then: "we see the changed model"
+        assert currentFeatureEvent.size()==2
+        assert history.size()==3
+        assert history[0][0].current==false
+        assert history[1][0].current==true
+        assert history[1][1].current==true
+        assert history[2][0].current==false
         assert Gene.count == 2
         assert MRNA.count == 2
         assert CDS.count == 2
@@ -496,11 +690,11 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         when: "when we redo the merge on one side"
-        def allFeatures = Feature.all
-        String redoString = redoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
+        String redoString = redoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
         then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
+
         assert Gene.count == 1
         assert MRNA.count == 1
         assert Exon.count == 5
@@ -509,10 +703,19 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert CDS.count == 1
 
         when: "when we undo the merge again"
-        undoString = undoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
+        undoString = undoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+        def lastMRNA = MRNA.last()
+        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(lastMRNA.uniqueName)
+        history = featureEventService.getHistory(lastMRNA.uniqueName)
 
         then: "we see the changed model"
+        assert currentFeatureEvent.size()==2
+        assert history.size()==3
+        assert history[0][0].current==false
+        assert history[1][0].current==true
+        assert history[1][1].current==true
+        assert history[2][0].current==false
         assert Gene.count == 2
         assert MRNA.count == 2
         assert CDS.count == 2
@@ -521,8 +724,85 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert NonCanonicalThreePrimeSpliceSite.count == 0
 
         when: "when we redo the merge on the other side"
-        redoString = redoOperation.replace("@UNIQUENAME@", MRNA.last().uniqueName)
+        redoString = redoOperation.replace("@UNIQUENAME@", lastMRNA.uniqueName)
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
+
+        then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
+        def allFeatures = Feature.all
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 5
+        assert NonCanonicalFivePrimeSpliceSite.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count == 1
+        assert CDS.count == 1
+    }
+
+    /**
+     * https://github.com/GMOD/Apollo/issues/792
+     */
+    void "should handle merge, change on downstream / LHS , undo, undo"(){
+
+        given: "two transcripts"
+        // gene 1 - GB40787
+        Integer oldFmin = 77860
+        Integer newFmin = 77685
+        Integer newFmax = 77944
+        String gb40787String = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":77860,\"fmax\":78076,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40787-RA\",\"children\":[{\"location\":{\"fmin\":77860,\"fmax\":77944,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":78049,\"fmax\":78076,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":77860,\"fmax\":78076,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String gb40788String = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":65107,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40788-RA\",\"children\":[{\"location\":{\"fmin\":65107,\"fmax\":65286,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":71477,\"fmax\":71651,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":75270,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":65107,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        JSONObject jsonAddTranscriptObject1 = JSON.parse(gb40787String) as JSONObject
+        JSONObject jsonAddTranscriptObject2 = JSON.parse(gb40788String) as JSONObject
+        String mergeTranscriptString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" }, { \"uniquename\": \"@TRANSCRIPT2_UNIQUENAME@\" } ], \"operation\": \"merge_transcripts\" }"
+        String undoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
+        String redoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
+        String setExonBoundaryCommand = "{\"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${newFmin},\"fmax\":${newFmax}}}],\"operation\":\"set_exon_boundaries\"}"
+        String getHistoryString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" } ], \"operation\": \"get_history_for_features\" }"
+
+        when: "we add both transcripts"
+        requestHandlingService.addTranscript(jsonAddTranscriptObject1)
+        requestHandlingService.addTranscript(jsonAddTranscriptObject2)
+        List<Exon> exonList = exonService.getSortedExons(MRNA.first(), true)
+        String exonUniqueName = exonList.get(1).uniqueName
+        Exon exon = Exon.findByUniqueName(exonUniqueName)
+        FeatureLocation featureLocation = exon.featureLocation
+
+
+        then: "we should see 2 genes, 2 transcripts, 5 exons, 2 CDS, no noncanonical splice sites"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        assert CDS.count == 2
+        assert Exon.count == 5
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert oldFmin==featureLocation.fmin
+        assert newFmax==featureLocation.fmax
+
+        when: "we make changes to an exon on gene 1"
+        exonList = exonService.getSortedExons(MRNA.first(), true)
+        exonUniqueName = exonList.get(1).uniqueName
+        setExonBoundaryCommand = setExonBoundaryCommand.replace("@EXON_UNIQUENAME@",exonUniqueName)
+        requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand) as JSONObject)
+        exon = Exon.findByUniqueName(exonUniqueName)
+        featureLocation = exon.featureLocation
+
+
+        then: "a change was made!"
+        assert newFmin==featureLocation.fmin
+        assert newFmax==featureLocation.fmax
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        assert CDS.count == 2
+        assert Exon.count == 5
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+
+
+        when: "we merge the transcripts"
+        String uniqueName1 = MRNA.findByName("GB40787-RA-00001").uniqueName
+        String uniqueName2 = MRNA.findByName("GB40788-RA-00001").uniqueName
+        mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", uniqueName1)
+        mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT2_UNIQUENAME@", uniqueName2)
+        JSONObject commandObject = JSON.parse(mergeTranscriptString) as JSONObject
+        requestHandlingService.mergeTranscripts(commandObject)
 
         then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
         assert Gene.count == 1
@@ -531,5 +811,67 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert NonCanonicalFivePrimeSpliceSite.count == 1
         assert NonCanonicalThreePrimeSpliceSite.count == 1
         assert CDS.count == 1
+
+        when: "when we get the feature history"
+        JSONObject historyContainer = createJSONFeatureContainer();
+        getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@",MRNA.first().uniqueName)
+        historyContainer = featureEventService.generateHistory(historyContainer,(JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
+        JSONArray historyArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+
+        then: "we should see 3 events"
+        assert 3==historyArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value).size()
+
+
+        when: "when we undo the merge"
+        MRNA firstMRNA = MRNA.first()
+        String undoString = undoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
+        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+        exon = Exon.findByUniqueName(exonUniqueName)
+        featureLocation = FeatureLocation.findByFeature(exon)
+        def currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
+        def history = featureEventService.getHistory(firstMRNA.uniqueName)
+
+
+        then: "we see the changed model"
+        assert currentFeatureEvent.size()==2
+        assert history.size()==3
+        assert history[0][0].current==false
+        assert history[1][0].current==true
+        assert history[1][1].current==true
+        assert history[2][0].current==false
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        assert CDS.count == 2
+        assert Exon.count == 5
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert newFmin==featureLocation.fmin
+        assert newFmax==featureLocation.fmax
+
+
+        when: "when we undo again"
+        undoString = undoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
+        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
+        history = featureEventService.getHistory(firstMRNA.uniqueName)
+        def allFeatureEvents = FeatureEvent.all
+
+        then: "we should see A1 and B1"
+        assert currentFeatureEvent.size()==2
+        assert history.size()==3
+        assert history[0][0].current==false
+        assert history[1][0].current==true
+        assert history[1][1].current==true
+        assert history[2][0].current==false
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        assert CDS.count == 2
+        assert Exon.count == 5
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert oldFmin==featureLocation.fmin
+        assert newFmax==featureLocation.fmax
+
     }
 }
