@@ -472,17 +472,17 @@ class FeatureEventService {
 //    }
 
 
-    def deleteHistory(String uniqueName) {
-        int count = 0
-        getHistory(uniqueName).each { array ->
-            array.each {
-                it.delete()
-                ++count
-            }
-        }
-        return count
-//        FeatureEvent.deleteAll(FeatureEvent.findAllByUniqueName(uniqueName))
-    }
+//    def deleteHistory(String uniqueName) {
+//        int count = 0
+//        getHistory(uniqueName).each { array ->
+//            array.each {
+//                it.delete()
+//                ++count
+//            }
+//        }
+//        return count
+////        FeatureEvent.deleteAll(FeatureEvent.findAllByUniqueName(uniqueName))
+//    }
 
     /**
      * CurrentIndex of 0 is the oldest.  Highest number is the most recent
@@ -795,61 +795,73 @@ class FeatureEventService {
     @Timed
     List<FeatureEvent> findCurrentFeatureEvent(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = null) {
         featureEventMap = featureEventMap ?: extractFeatureEventGroup(uniqueName)
-        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true)
-        if (featureEventList.size() != 1) {
-            log.debug("No current feature events for ${uniqueName}: " + featureEventList.size())
-            return null
-        }
 
-        FeatureEvent currentFeatureEvent = featureEventList.first()
-        int index = getCurrentFeatureEventIndex(uniqueName)
-
-        // we have the "current" . .  we have to go back to see if there are any
-        // splits in the history and include those as well
-        // its okay if we grab either side of this array
-        // just arbitrarily get the first one
-        List<List<FeatureEvent>> previousFeatureEvents = findAllPreviousFeatureEvents(currentFeatureEvent, featureEventMap)
-        if (!previousFeatureEvents) {
-            def futureEvents = findAllFutureFeatureEvents(featureEventList[0], featureEventMap)
-            // if we have a future event and it is a merge, then we have multiple "current"
-            if (futureEvents && futureEvents.get(0).get(0).parentMergeId) {
-                if (futureEvents.get(0).get(0).parentMergeId != currentFeatureEvent.id) {
-                    return [currentFeatureEvent, FeatureEvent.findById(futureEvents.get(0).get(0).parentMergeId)]
-                } else {
-                    return [currentFeatureEvent, FeatureEvent.findById(futureEvents.get(0).get(0).parentId)]
+        List<FeatureEvent> currentFeatureEvents = []
+        featureEventMap.values().each{
+            it.values().each(){ featureEvent ->
+                if(featureEvent.current){
+                    currentFeatureEvents.add(featureEvent)
                 }
-            } else {
-                return [currentFeatureEvent]
             }
         }
 
-        // we only really want to show history for either that match
-        // its possible that neither one has a matching uniqueName .
-        FeatureEvent firstFeatureEvent = previousFeatureEvents[0].find() {
-            it.uniqueName == uniqueName
-        }
-        // example we reverting backwards
-        if (!firstFeatureEvent) {
-            firstFeatureEvent = previousFeatureEvents[0][0]
-        }
+        return currentFeatureEvents
 
-        // or index== 0
-        if (currentFeatureEvent.id == firstFeatureEvent.id) {
-            return [currentFeatureEvent]
-        }
-
-        // an index of 1 is 1 in the future.  This returns exclusive future, so we need to
-        // substract 1 from the index
-        def allFutureEvents = findAllFutureFeatureEvents(firstFeatureEvent, featureEventMap)
-        def futureEvents = allFutureEvents[index - 1]
-        def returnEvents = [currentFeatureEvent]
-        futureEvents.each {
-            if (it.current && it.id != currentFeatureEvent.id) {
-                returnEvents << it
-            }
-        }
-
-        return returnEvents
+//        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true)
+//        if (featureEventList.size() != 1) {
+//            log.debug("No current feature events for ${uniqueName}: " + featureEventList.size())
+//            return null
+//        }
+//
+//        FeatureEvent currentFeatureEvent = featureEventList.first()
+//        int index = getCurrentFeatureEventIndex(uniqueName)
+//
+//        // we have the "current" . .  we have to go back to see if there are any
+//        // splits in the history and include those as well
+//        // its okay if we grab either side of this array
+//        // just arbitrarily get the first one
+//        List<List<FeatureEvent>> previousFeatureEvents = findAllPreviousFeatureEvents(currentFeatureEvent, featureEventMap)
+//        if (!previousFeatureEvents) {
+//            def futureEvents = findAllFutureFeatureEvents(featureEventList[0], featureEventMap)
+//            // if we have a future event and it is a merge, then we have multiple "current"
+//            if (futureEvents && futureEvents.get(0).get(0).parentMergeId) {
+//                if (futureEvents.get(0).get(0).parentMergeId != currentFeatureEvent.id) {
+//                    return [currentFeatureEvent, FeatureEvent.findById(futureEvents.get(0).get(0).parentMergeId)]
+//                } else {
+//                    return [currentFeatureEvent, FeatureEvent.findById(futureEvents.get(0).get(0).parentId)]
+//                }
+//            } else {
+//                return [currentFeatureEvent]
+//            }
+//        }
+//
+//        // we only really want to show history for either that match
+//        // its possible that neither one has a matching uniqueName .
+//        FeatureEvent firstFeatureEvent = previousFeatureEvents[0].find() {
+//            it.uniqueName == uniqueName
+//        }
+//        // example we reverting backwards
+//        if (!firstFeatureEvent) {
+//            firstFeatureEvent = previousFeatureEvents[0][0]
+//        }
+//
+//        // or index== 0
+//        if (currentFeatureEvent.id == firstFeatureEvent.id) {
+//            return [currentFeatureEvent]
+//        }
+//
+//        // an index of 1 is 1 in the future.  This returns exclusive future, so we need to
+//        // substract 1 from the index
+//        def allFutureEvents = findAllFutureFeatureEvents(firstFeatureEvent, featureEventMap)
+//        def futureEvents = allFutureEvents[index - 1]
+//        def returnEvents = [currentFeatureEvent]
+//        futureEvents.each {
+//            if (it.current && it.id != currentFeatureEvent.id) {
+//                returnEvents << it
+//            }
+//        }
+//
+//        return returnEvents
     }
 
     /**
@@ -862,12 +874,14 @@ class FeatureEventService {
      */
     List<List<FeatureEvent>> getHistory(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = null) {
         featureEventMap = featureEventMap ?: extractFeatureEventGroup(uniqueName)
-        List<FeatureEvent> currentFeatureEvent = findCurrentFeatureEvent(uniqueName, featureEventMap)
-
-        // if we revert a split or do a merge
-        if (!currentFeatureEvent) return []
 
         List<List<FeatureEvent>> featureEvents = new ArrayList<>()
+
+        List<FeatureEvent> currentFeatureEvent = findCurrentFeatureEvent(uniqueName, featureEventMap)
+        // if we revert a split or do a merge
+        if (!currentFeatureEvent) return featureEvents
+
+
 
         for (FeatureEvent featureEvent in currentFeatureEvent) {
             def previousFeatureEvent = findAllPreviousFeatureEvents(featureEvent, featureEventMap)

@@ -295,37 +295,49 @@ class FeatureEventServiceSpec extends Specification {
         previousEvents = service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0])
 
         then: "we have 2 on 2"
-        assert 0 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
-        assert 2 == service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
+        assert 0 == futureEvents.size()
+        assert 2 == previousEvents.size()
 
         when: "we test the other sizde"
-        futureEvents = service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0])
-        previousEvents = service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0])
+        def currentFeatureEvent2 = service.findCurrentFeatureEvent(uniqueName2)
+        def currentFeatureEvent1 = service.findCurrentFeatureEvent(uniqueName1)
+        futureEvents = service.findAllFutureFeatureEvents(currentFeatureEvent2[0])
+        previousEvents = service.findAllPreviousFeatureEvents(currentFeatureEvent2[0])
 
         then: "we have 3 on 1"
+        assert currentFeatureEvent1==currentFeatureEvent2
         assert 0 == futureEvents.size()
-        assert 3 == previousEvents.size()
-        assert 3 == featureEventList1.size()
+        assert 2 == previousEvents.size()
+        assert 4 == featureEventList1.size()
         assert 4 == featureEventList2.size()
 
-        assert 0 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()
-        assert 3 == service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()
+        when: "we test the second index"
+        futureEvents = service.findAllFutureFeatureEvents(currentFeatureEvent2[1])
+        previousEvents = service.findAllPreviousFeatureEvents(currentFeatureEvent2[1])
+
+        then: "we have 3 on 1"
+        assert currentFeatureEvent1==currentFeatureEvent2
+        assert 0 == futureEvents.size()
+        assert 3 == previousEvents.size()
+        assert 4 == featureEventList1.size()
         assert 4 == featureEventList2.size()
+
+        assert featureEventList1==featureEventList2
+        assert featureEventList2[3].size()==1
         assert featureEventList2[3][0].current
         assert featureEventList2[3][0].operation == FeatureOperation.FLIP_STRAND
+        assert featureEventList2[2].size()==2
         assert !featureEventList2[2][0].current
         assert featureEventList2[2][0].operation == FeatureOperation.SPLIT_TRANSCRIPT
+        assert !featureEventList2[2][1].current
+        assert featureEventList2[2][1].operation == FeatureOperation.SPLIT_TRANSCRIPT
+        assert featureEventList2[1].size()==1
         assert !featureEventList2[1][0].current
         assert featureEventList2[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
+        assert featureEventList2[0].size()==1
         assert !featureEventList2[0][0].current
         assert featureEventList2[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
 
-        assert featureEventList1[2][0].current
-        assert featureEventList1[2][0].operation == FeatureOperation.SPLIT_TRANSCRIPT
-        assert !featureEventList1[1][0].current
-        assert featureEventList1[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
-        assert !featureEventList1[0][0].current
-        assert featureEventList1[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
 
         // note: if we revert to 0 . . it disappears!
         when: "when we revert 2 back on transcript 2 to setting exon boundaries"
