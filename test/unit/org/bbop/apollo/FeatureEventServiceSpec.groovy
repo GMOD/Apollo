@@ -265,8 +265,8 @@ class FeatureEventServiceSpec extends Specification {
 
         assert 0 == futureEvents.size()
         assert 2 == previousEvents.size()
-        assert previousEvents.get(0).first().operation==FeatureOperation.ADD_TRANSCRIPT
-        assert previousEvents.get(1).first().operation==FeatureOperation.SET_TRANSLATION_ENDS
+        assert previousEvents.get(0).first().operation == FeatureOperation.ADD_TRANSCRIPT
+        assert previousEvents.get(1).first().operation == FeatureOperation.SET_TRANSLATION_ENDS
 
         assert featureEventList2.size() == 3
         assert 3 == service.getHistory(uniqueName1).size()
@@ -305,7 +305,9 @@ class FeatureEventServiceSpec extends Specification {
         previousEvents = service.findAllPreviousFeatureEvents(currentFeatureEvent2[0])
 
         then: "we have 3 on 1"
-        assert currentFeatureEvent1==currentFeatureEvent2
+        assert currentFeatureEvent1 == currentFeatureEvent2
+        assert currentFeatureEvent2[0].uniqueName == uniqueName1
+        assert currentFeatureEvent2[1].uniqueName == uniqueName2
         assert 0 == futureEvents.size()
         assert 2 == previousEvents.size()
         assert 4 == featureEventList1.size()
@@ -316,28 +318,28 @@ class FeatureEventServiceSpec extends Specification {
         previousEvents = service.findAllPreviousFeatureEvents(currentFeatureEvent2[1])
 
         then: "we have 3 on 1"
-        assert currentFeatureEvent1==currentFeatureEvent2
+        assert currentFeatureEvent1 == currentFeatureEvent2
         assert 0 == futureEvents.size()
         assert 3 == previousEvents.size()
-        assert 4 == featureEventList1.size()
-        assert 4 == featureEventList2.size()
 
-        assert featureEventList1==featureEventList2
-        assert featureEventList2[3].size()==1
-        assert featureEventList2[3][0].current
-        assert featureEventList2[3][0].operation == FeatureOperation.FLIP_STRAND
-        assert featureEventList2[2].size()==2
-        assert !featureEventList2[2][0].current
-        assert featureEventList2[2][0].operation == FeatureOperation.SPLIT_TRANSCRIPT
-        assert !featureEventList2[2][1].current
-        assert featureEventList2[2][1].operation == FeatureOperation.SPLIT_TRANSCRIPT
-        assert featureEventList2[1].size()==1
-        assert !featureEventList2[1][0].current
-        assert featureEventList2[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
-        assert featureEventList2[0].size()==1
+        assert featureEventList1 == featureEventList2
+
+        assert featureEventList2[0].size() == 1
         assert !featureEventList2[0][0].current
         assert featureEventList2[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
 
+        assert featureEventList2[1].size() == 1
+        assert !featureEventList2[1][0].current
+        assert featureEventList2[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
+
+        assert featureEventList2[2].size() == 2
+        assert featureEventList2[2][0].operation == FeatureOperation.SPLIT_TRANSCRIPT
+        assert featureEventList2[2][1].operation == FeatureOperation.SPLIT_TRANSCRIPT
+        assert ((featureEventList2[2][0].current && !featureEventList2[2][1].current) || (!featureEventList2[2][0].current && featureEventList2[2][1].current))
+
+        assert featureEventList2[3].size() == 1
+        assert featureEventList2[3][0].current
+        assert featureEventList2[3][0].operation == FeatureOperation.FLIP_STRAND
 
         // note: if we revert to 0 . . it disappears!
         when: "when we revert 2 back on transcript 2 to setting exon boundaries"
@@ -350,18 +352,19 @@ class FeatureEventServiceSpec extends Specification {
         futureEvents = service.findAllFutureFeatureEvents(thisCurrentFeatureEvents)
 
         then: "we have 3 on 1"
-        assert thisCurrentFeatureEvents[0].operation==FeatureOperation.SET_TRANSLATION_ENDS
-        assert null == service.findCurrentFeatureEvent(uniqueName2)
+        assert thisCurrentFeatureEvents.size() == 1
+        assert thisCurrentFeatureEvents[0].operation == FeatureOperation.SET_TRANSLATION_ENDS
+        assert service.findCurrentFeatureEvent(uniqueName2)[0].operation == FeatureOperation.SET_TRANSLATION_ENDS
         assert 2 == futureEvents.size()
         assert 1 == previousEvents.size()
 
-        assert previousEvents[0][0].operation==FeatureOperation.ADD_TRANSCRIPT
-        assert futureEvents[0][0].operation==FeatureOperation.SPLIT_TRANSCRIPT
-        assert futureEvents[0][1].operation==FeatureOperation.SPLIT_TRANSCRIPT
-        assert futureEvents[1][0].operation==FeatureOperation.FLIP_STRAND
+        assert previousEvents[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
+        assert futureEvents[0][0].operation == FeatureOperation.SPLIT_TRANSCRIPT
+        assert futureEvents[0][1].operation == FeatureOperation.SPLIT_TRANSCRIPT
+        assert futureEvents[1][0].operation == FeatureOperation.FLIP_STRAND
 
         assert 4 == featureEventList1.size()  // we can fast-forward all the way up through 2 and the split
-        assert 0 == featureEventList2.size()
+        assert 4 == featureEventList2.size()
 
         assert !featureEventList1[0][0].current
         assert featureEventList1[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
@@ -396,9 +399,7 @@ class FeatureEventServiceSpec extends Specification {
         then: "since 2 is further then 1, it should stop on the most recent for both"
         assert 0 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
         assert 2 == service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
-        assert 3 == featureEventList1.size()
-
-
+        assert 4 == featureEventList1.size()
         assert 4 == featureEventList2.size()
         // note: I am uniqueName2 split explicitly (by default everywhere else I'm grabbing uniqueName1)
 
@@ -409,61 +410,49 @@ class FeatureEventServiceSpec extends Specification {
         assert 2 == service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[uniqueName2Index]).size()
         assert 1 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[uniqueName2Index]).size()
 
-        assert !featureEventList2[3][0].current
-        assert featureEventList2[3][0].operation == FeatureOperation.FLIP_STRAND
-        assert featureEventList2[2][0].current
-        assert featureEventList2[2][0].operation == FeatureOperation.SPLIT_TRANSCRIPT
-        assert !featureEventList2[1][0].current
-        assert featureEventList2[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
+        assert featureEventList1 == featureEventList2
         assert !featureEventList2[0][0].current
         assert featureEventList2[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
-
-        assert featureEventList1[2][0].current
-        assert featureEventList1[2][0].operation == FeatureOperation.SPLIT_TRANSCRIPT
-        assert !featureEventList1[1][0].current
-        assert featureEventList1[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
-        assert !featureEventList1[0][0].current
-        assert featureEventList1[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
+        assert !featureEventList2[1][0].current
+        assert featureEventList2[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
+        assert featureEventList2[2][0].current
+        assert featureEventList2[2][0].operation == FeatureOperation.SPLIT_TRANSCRIPT
+        assert featureEventList2[2][1].current
+        assert featureEventList2[2][1].operation == FeatureOperation.SPLIT_TRANSCRIPT
+        assert !featureEventList2[3][0].current
+        assert featureEventList2[3][0].operation == FeatureOperation.FLIP_STRAND
 
         when: "we go all the way forward on 2"
         newActiveFeatureEvent = service.setTransactionForFeature(uniqueName2, 3)[0]
         println "new active feature event ${newActiveFeatureEvent}"
         featureEventList2 = service.getHistory(uniqueName2)
         featureEventList1 = service.getHistory(uniqueName1)
+        currentFeatureEvents = service.findCurrentFeatureEvent(uniqueName2)
 
 
         then: "no change on 1, 2 goes to flip strand"
-        assert 0 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()
-        assert 3 == service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()
-        assert 2 == service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
-        assert 0 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
+        assert currentFeatureEvents[0].uniqueName == uniqueName1
+        assert currentFeatureEvents[1].uniqueName == uniqueName2
+        assert 0 == service.findAllFutureFeatureEvents(currentFeatureEvents[0]).size()
+        assert 2 == service.findAllPreviousFeatureEvents(currentFeatureEvents[0]).size()
+        assert 0 == service.findAllFutureFeatureEvents(currentFeatureEvents[1]).size()
+        assert 3 == service.findAllPreviousFeatureEvents(currentFeatureEvents[1]).size()
 
+        assert 4 == featureEventList1.size()
         assert 4 == featureEventList2.size()
-        assert 3 == featureEventList1.size()
 
-        assert 0 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()
-        assert 3 == service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName2)[0]).size()
-        assert featureEventList2[3][0].current
-        assert featureEventList2[3][0].operation == FeatureOperation.FLIP_STRAND
-        assert !featureEventList2[2][0].current
-        assert featureEventList2[2][0].operation == FeatureOperation.SPLIT_TRANSCRIPT
-        assert !featureEventList2[1][0].current
-        assert featureEventList2[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
+        assert featureEventList1 == featureEventList2
         assert !featureEventList2[0][0].current
         assert featureEventList2[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
+        assert !featureEventList2[1][0].current
+        assert featureEventList2[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
 
-        assert featureEventList1[2][0].current
-        assert featureEventList1[2][0].operation == FeatureOperation.SPLIT_TRANSCRIPT
-        assert !featureEventList1[1][0].current
-        assert featureEventList1[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
-        assert !featureEventList1[0][0].current
-        assert featureEventList1[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
+        assert featureEventList2[2][0].operation == FeatureOperation.SPLIT_TRANSCRIPT
+        assert featureEventList2[2][1].operation == FeatureOperation.SPLIT_TRANSCRIPT
+        assert ((featureEventList2[2][0].current && !featureEventList2[2][1].current) || (!featureEventList2[2][0].current && featureEventList2[2][1].current))
 
-
-
-        when: "we go forward in another direction (set translation end)"
-
-        then: "2 goes away, 1 reflects the new history"
+        assert featureEventList2[3][0].current
+        assert featureEventList2[3][0].operation == FeatureOperation.FLIP_STRAND
 
     }
 
@@ -506,46 +495,52 @@ class FeatureEventServiceSpec extends Specification {
         featureEventList1 = service.getHistory(uniqueName1)
         // TODO: not sure if this is accurate, or possible
 //        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName2)[0]
-        FeatureEvent currentFeature = service.findCurrentFeatureEvent(uniqueName1)[0]
+        List<FeatureEvent> currentFeatureEvents = service.findCurrentFeatureEvent(uniqueName1)
+        FeatureEvent currentFeature = currentFeatureEvents[0]
 
         then: "we should see one feature events, with the second one current and the prior one before"
         assert 3 == FeatureEvent.countByUniqueName(uniqueName1)
         assert 1 == FeatureEvent.countByUniqueName(uniqueName2)
         assert featureEventList1.size() == 3
-        assert featureEventList2.size() == 0  // we should not get access to this
+        assert featureEventList1 == featureEventList2
 
         assert 0 == service.findAllFutureFeatureEvents(currentFeature).size()
         assert 2 == service.findAllPreviousFeatureEvents(currentFeature).size()
 
-        // TODO: not sure if this is accurate, or possible
+        assert featureEventList1==featureEventList2
         assert 3 == service.getHistory(uniqueName1).size()
-        assert featureEventList1[2][0].current
-        assert featureEventList1[2][0].operation == FeatureOperation.MERGE_TRANSCRIPTS
-        assert !featureEventList1[1][0].current
-        assert featureEventList1[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
         assert !featureEventList1[0][0].current
         assert featureEventList1[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
-
-        assert 0 == service.getHistory(uniqueName2).size()
+        assert featureEventList1[1].size() == 2
+        for (fe in featureEventList1[1]) {
+            assert !fe.current
+            assert fe.operation == FeatureOperation.ADD_TRANSCRIPT || fe.operation == FeatureOperation.SET_TRANSLATION_ENDS
+        }
+        assert featureEventList1[2][0].current
+        assert featureEventList1[2][0].operation == FeatureOperation.MERGE_TRANSCRIPTS
 
 
         when: "we add another event to 1 (2 no longer is accessible)"
         service.addNewFeatureEvent(FeatureOperation.FLIP_STRAND, name1, uniqueName1, new JSONObject(), new JSONObject(), new JSONObject(), null)
         featureEventList1 = service.getHistory(uniqueName1)
+        featureEventList2 = service.getHistory(uniqueName2)
 
         then: "we have 3 on 1 and 2 on 2"
         assert 0 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
         assert 3 == service.findAllPreviousFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
         assert 4 == featureEventList1.size()
 
-        assert featureEventList1[3][0].current
-        assert featureEventList1[3][0].operation == FeatureOperation.FLIP_STRAND
-        assert !featureEventList1[2][0].current
-        assert featureEventList1[2][0].operation == FeatureOperation.MERGE_TRANSCRIPTS
-        assert !featureEventList1[1][0].current
-        assert featureEventList1[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
         assert !featureEventList1[0][0].current
         assert featureEventList1[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
+        assert featureEventList1[1].size() == 2
+        for (fe in featureEventList1[1]) {
+            assert !fe.current
+            assert fe.operation == FeatureOperation.ADD_TRANSCRIPT || fe.operation == FeatureOperation.SET_TRANSLATION_ENDS
+        }
+        assert !featureEventList1[2][0].current
+        assert featureEventList1[2][0].operation == FeatureOperation.MERGE_TRANSCRIPTS
+        assert featureEventList1[3][0].current
+        assert featureEventList1[3][0].operation == FeatureOperation.FLIP_STRAND
 
         // note: if we revert to 0 . . it disappears!
         when: "when we revert 2 back on transcript 2 to setting exon boundaries"
@@ -554,29 +549,31 @@ class FeatureEventServiceSpec extends Specification {
 
         then: "it should be active on the split transcript event for both"
         assert 4 == featureEventList1.size()  // we can fast-forward all the way up through 2 and the split
-        assert 0 == featureEventList2.size()
+        assert featureEventList1==featureEventList2
 
         assert featureEventList1[3][0].current
         assert featureEventList1[3][0].operation == FeatureOperation.FLIP_STRAND
         assert !featureEventList1[2][0].current
         assert featureEventList1[2][0].operation == FeatureOperation.MERGE_TRANSCRIPTS
-        assert !featureEventList1[1][0].current
-        assert featureEventList1[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
-        assert featureEventList1[1][0].uniqueName == uniqueName1
+        assert featureEventList1[1].size() == 2
+        for (fe in featureEventList1[1]) {
+            assert !fe.current
+            assert fe.operation == FeatureOperation.ADD_TRANSCRIPT || fe.operation == FeatureOperation.SET_TRANSLATION_ENDS
+        }
         assert !featureEventList1[0][0].current
         assert featureEventList1[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
         assert featureEventList1[0][0].uniqueName == uniqueName1
 
 
         when: "we go forward on 1 we should re-merge, goes beyond 2, so just stops at end"
-        List<FeatureEvent> currentFeatureEvents = service.setTransactionForFeature(uniqueName1, 2)
+        currentFeatureEvents = service.setTransactionForFeature(uniqueName1, 2)
         featureEventList1 = service.getHistory(uniqueName1)
         featureEventList2 = service.getHistory(uniqueName2)
 
 
         then: "since 2 is further then 1, it should stop on the most recent for both, but one disappears"
         assert featureEventList1.size() == 4
-        assert featureEventList2.size() == 0
+        assert featureEventList1==featureEventList2
         assert currentFeatureEvents.size() == 1
         assert currentFeatureEvents[0].current
         assert 1 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
@@ -588,8 +585,11 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList1[3][0].operation == FeatureOperation.FLIP_STRAND
         assert featureEventList1[2][0].current
         assert featureEventList1[2][0].operation == FeatureOperation.MERGE_TRANSCRIPTS
-        assert !featureEventList1[1][0].current
-        assert featureEventList1[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
+        assert featureEventList1[1].size() == 2
+        for (fe in featureEventList1[1]) {
+            assert !fe.current
+            assert fe.operation == FeatureOperation.ADD_TRANSCRIPT || fe.operation == FeatureOperation.SET_TRANSLATION_ENDS
+        }
         assert !featureEventList1[0][0].current
         assert featureEventList1[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
 
@@ -602,7 +602,7 @@ class FeatureEventServiceSpec extends Specification {
 
         then: "no change on 1, 2 goes to flip strand"
         assert featureEventList1.size() == 4
-        assert featureEventList2.size() == 0
+        assert featureEventList1==featureEventList2
         assert currentFeatureEvents.size() == 1
         assert currentFeatureEvents[0].current
         assert 0 == service.findAllFutureFeatureEvents(service.findCurrentFeatureEvent(uniqueName1)[0]).size()
@@ -614,8 +614,11 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList1[3][0].operation == FeatureOperation.FLIP_STRAND
         assert !featureEventList1[2][0].current
         assert featureEventList1[2][0].operation == FeatureOperation.MERGE_TRANSCRIPTS
-        assert !featureEventList1[1][0].current
-        assert featureEventList1[1][0].operation == FeatureOperation.SET_TRANSLATION_ENDS
+        assert featureEventList1[1].size() == 2
+        for (fe in featureEventList1[1]) {
+            assert !fe.current
+            assert fe.operation == FeatureOperation.ADD_TRANSCRIPT || fe.operation == FeatureOperation.SET_TRANSLATION_ENDS
+        }
         assert !featureEventList1[0][0].current
         assert featureEventList1[0][0].operation == FeatureOperation.ADD_TRANSCRIPT
 
@@ -657,7 +660,6 @@ class FeatureEventServiceSpec extends Specification {
 
         when: "let's merge feature events"
         JSONArray oldJsonArray = new JSONArray()
-//        newJsonArray.add(new JSONObject())
         oldJsonArray.add(new JSONObject())
         service.addMergeFeatureEvent(name1, uniqueName1, name2, uniqueName2, new JSONObject(), oldJsonArray, new JSONObject(), null)
         Integer featureIndex1 = service.getCurrentFeatureEventIndex(uniqueName1)
@@ -677,8 +679,6 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventMap.values().first().size() == 2
         assert featureEventMap.values().last().size() == 2
         assert previousFeatureEvents.size() == 2
-//        assert previousFeatureEvents.first().size()==1
-//        assert previousFeatureEvents.last().size()==2
 
         when: "we get the current feature event"
         List<FeatureEvent> currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1)
@@ -694,34 +694,31 @@ class FeatureEventServiceSpec extends Specification {
         featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
         featureEventList1 = service.getHistory(uniqueName1)
         featureEventList2 = service.getHistory(uniqueName2)
-        List<List<FeatureEvent>> futureEvents  = service.findAllFutureFeatureEvents(currentFeatureEventArray)
+        List<List<FeatureEvent>> futureEvents = service.findAllFutureFeatureEvents(currentFeatureEventArray)
         List<List<FeatureEvent>> previousEvents = service.findAllPreviousFeatureEvents(currentFeatureEventArray)
 
         then: "we should see one feature events, with the second one current and the prior one before"
         assert 2 == featureIndex1
         assert 2 == featureIndex2
         assert featureEventList1.size() == 3
-        assert featureEventList2.size() == 0 // we should not get access to this
+        assert featureEventList1==featureEventList2
         assert 2 == FeatureEvent.countByUniqueName(uniqueName2)
         assert 2 == FeatureEvent.countByUniqueName(uniqueName1)
         assert 0 == futureEvents.size()
         assert 2 == previousEvents.size()
-        assert previousEvents[0].size()==1
-        assert previousEvents[1].size()==2
+        assert previousEvents[0].size() == 1
+        assert previousEvents[1].size() == 2
 
-        assert 0 == service.getHistory(uniqueName2).size()
-        assert 3 == service.getHistory(uniqueName1).size()
         assert featureEventList1[2].size() == 1
         assert featureEventList1[2][0].current
         assert featureEventList1[2][0].operation == FeatureOperation.MERGE_TRANSCRIPTS
 
 
-        assert featureEventList1[1].size() == 2 // this is only 2 when getting the future
-        assert !featureEventList1[1][0].current
-        assert featureEventList1[1][0].operation == FeatureOperation.ADD_TRANSCRIPT
-        // not sure if this should occur at the top or not . . . prob does not matter
-        assert !featureEventList1[1][1].current
-        assert featureEventList1[1][1].operation == FeatureOperation.SET_EXON_BOUNDARIES
+        assert featureEventList1[1].size() == 2
+        for (fe in featureEventList1[1]) {
+            assert !fe.current
+            assert fe.operation == FeatureOperation.ADD_TRANSCRIPT || fe.operation == FeatureOperation.SET_EXON_BOUNDARIES
+        }
 
 
         assert featureEventList1[0].size() == 1
@@ -730,7 +727,7 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "when we undo one (current index is 2)"
-        service.setTransactionForFeature(uniqueName1,1)
+        service.setTransactionForFeature(uniqueName1, 1)
         currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName1)
 
         then: "we should get both back as current, with set exon boundary"
@@ -746,30 +743,30 @@ class FeatureEventServiceSpec extends Specification {
         featureEventList2 = service.getHistory(uniqueName2)
         FeatureEvent addTranscriptFeatureEvent = currentFeatureEventArray.first()
         FeatureEvent exonBoundariesFeatureEvent = currentFeatureEventArray.last()
-        futureEvents  = service.findAllFutureFeatureEvents(exonBoundariesFeatureEvent)
+        futureEvents = service.findAllFutureFeatureEvents(exonBoundariesFeatureEvent)
         previousEvents = service.findAllPreviousFeatureEvents(exonBoundariesFeatureEvent)
 
         then: "we verify that we are at the right place"
-        assert addTranscriptFeatureEvent.operation==FeatureOperation.ADD_TRANSCRIPT
-        assert addTranscriptFeatureEvent.uniqueName==uniqueName1
-        assert exonBoundariesFeatureEvent.operation==FeatureOperation.SET_EXON_BOUNDARIES
-        assert exonBoundariesFeatureEvent.uniqueName==uniqueName2
+        assert addTranscriptFeatureEvent.operation == FeatureOperation.ADD_TRANSCRIPT
+        assert addTranscriptFeatureEvent.uniqueName == uniqueName1
+        assert exonBoundariesFeatureEvent.operation == FeatureOperation.SET_EXON_BOUNDARIES
+        assert exonBoundariesFeatureEvent.uniqueName == uniqueName2
         assert 0 == featureIndex1
         assert 1 == featureIndex2
         assert featureEventList1.size() == 3 // this captures everything
-        assert featureEventList1[0].size()==1
-        assert featureEventList1[1].size()==2
-        assert featureEventList1[2].size()==1
+        assert featureEventList1[0].size() == 1
+        assert featureEventList1[1].size() == 2
+        assert featureEventList1[2].size() == 1
         assert featureEventList2.size() == 3 // this captures only the parts in its own history
-        assert featureEventList2[0].size()==1
-        assert featureEventList2[1].size()==1
-        assert featureEventList2[2].size()==1
+        assert featureEventList2[0].size() == 1
+        assert featureEventList2[1].size() == 2
+        assert featureEventList2[2].size() == 1
         assert 2 == FeatureEvent.countByUniqueName(uniqueName2)
         assert 2 == FeatureEvent.countByUniqueName(uniqueName1)
         assert 1 == futureEvents.size()
         assert 1 == previousEvents.size()
-        assert previousEvents[0].size()==1
-        assert futureEvents[0].size()==1
+        assert previousEvents[0].size() == 1
+        assert futureEvents[0].size() == 1
 
         assert 3 == service.getHistory(uniqueName2).size()
         assert 3 == service.getHistory(uniqueName1).size()
@@ -779,12 +776,11 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList1[2][0].operation == FeatureOperation.MERGE_TRANSCRIPTS
 
 
-        assert featureEventList1[1].size() == 2 // this is only 2 when getting the future
-        assert featureEventList1[1][0].current
-        assert featureEventList1[1][0].operation == FeatureOperation.ADD_TRANSCRIPT
-        // not sure if this should occur at the top or not . . . prob does not matter
-        assert featureEventList1[1][1].current
-        assert featureEventList1[1][1].operation == FeatureOperation.SET_EXON_BOUNDARIES
+        assert featureEventList1[1].size() == 2
+        for (fe in featureEventList1[1]) {
+            assert fe.current
+            assert fe.operation == FeatureOperation.ADD_TRANSCRIPT || fe.operation == FeatureOperation.SET_EXON_BOUNDARIES
+        }
 
 
         assert featureEventList1[0].size() == 1
@@ -795,15 +791,23 @@ class FeatureEventServiceSpec extends Specification {
 
 
         when: "when we undo again (current index is 1)"
-        service.setTransactionForFeature(uniqueName2,0)
+        service.setTransactionForFeature(uniqueName2, 0)
         currentFeatureEventArray = service.findCurrentFeatureEvent(uniqueName2)
-        FeatureEvent featureEvent2 = currentFeatureEventArray.first()
+        FeatureEvent featureEvent1 = currentFeatureEventArray.find(){ it.uniqueName==uniqueName1}
+        FeatureEvent featureEvent2 = currentFeatureEventArray.find(){ it.uniqueName==uniqueName2}
 
         then: "we should get both back as current, with set exon boundary"
-        assert currentFeatureEventArray != null
-        assert currentFeatureEventArray.size() == 1
-        assert featureEvent2.operation == FeatureOperation.ADD_TRANSCRIPT
+        assert featureEvent1.uniqueName==uniqueName1
         assert featureEvent2.uniqueName==uniqueName2
+        assert currentFeatureEventArray != null
+        assert currentFeatureEventArray.size() == 2
+        for(fe in currentFeatureEventArray){
+            assert fe.operation==FeatureOperation.ADD_TRANSCRIPT
+            assert fe.current
+//            fe.operation==FeatureOperation.SET_EXON_BOUNDARIES
+        }
+//        assert featureEvent2.operation == FeatureOperation.ADD_TRANSCRIPT
+//        assert featureEvent2.uniqueName == uniqueName2
 
 
         when: "we get the histories"
@@ -811,43 +815,41 @@ class FeatureEventServiceSpec extends Specification {
         featureIndex2 = service.getCurrentFeatureEventIndex(uniqueName2)
         featureEventList1 = service.getHistory(uniqueName1)
         featureEventList2 = service.getHistory(uniqueName2)
-        futureEvents  = service.findAllFutureFeatureEvents(featureEvent2)
+        futureEvents = service.findAllFutureFeatureEvents(featureEvent2)
         previousEvents = service.findAllPreviousFeatureEvents(featureEvent2)
 
         then: "we verify that we are at the right place"
-        assert currentFeatureEventArray.first().operation==FeatureOperation.ADD_TRANSCRIPT
-        assert currentFeatureEventArray.first().uniqueName==uniqueName2
+//        assert currentFeatureEventArray.first().operation == FeatureOperation.ADD_TRANSCRIPT
+//        assert currentFeatureEventArray.first().uniqueName == uniqueName2
         assert 0 == featureIndex1
         assert 0 == featureIndex2
+        assert featureEventList1==featureEventList2
         assert featureEventList1.size() == 3 // this captures everything
-        assert featureEventList1[0].size()==1
-        assert featureEventList1[1].size()==2
-        assert featureEventList1[2].size()==1
-        assert featureEventList2.size() == 3 // this captures only the parts in its own history
-        assert featureEventList2[0].size()==1
-        assert featureEventList2[1].size()==1
-        assert featureEventList2[2].size()==1
+        assert featureEventList1[0].size() == 1
+        assert featureEventList1[1].size() == 2
+        assert featureEventList1[2].size() == 1
         assert 2 == FeatureEvent.countByUniqueName(uniqueName2)
         assert 2 == FeatureEvent.countByUniqueName(uniqueName1)
         assert 2 == futureEvents.size()
         assert 0 == previousEvents.size()
-        assert futureEvents[0].size()==1 // this ignores the history of the other until we remerge
-        assert futureEvents[1].size()==1
+        assert futureEvents[0].size() == 1 // this ignores the history of the other until we remerge
+        assert futureEvents[1].size() == 1
 
-        assert 3 == service.getHistory(uniqueName2).size()
-        assert 3 == service.getHistory(uniqueName1).size()
 
         assert featureEventList1[2].size() == 1
         assert !featureEventList1[2][0].current
         assert featureEventList1[2][0].operation == FeatureOperation.MERGE_TRANSCRIPTS
 
 
-        assert featureEventList1[1].size() == 2 // this is only 2 when getting the future
-        assert featureEventList1[1][0].current
-        assert featureEventList1[1][0].operation == FeatureOperation.ADD_TRANSCRIPT
-        // not sure if this should occur at the top or not . . . prob does not matter
-        assert !featureEventList1[1][1].current
-        assert featureEventList1[1][1].operation == FeatureOperation.SET_EXON_BOUNDARIES
+        assert featureEventList1[1].size() == 2
+        for (fe in featureEventList1[1]) {
+            if(!fe.current){
+                assert fe.operation==FeatureOperation.SET_EXON_BOUNDARIES
+            }
+            else{
+                assert fe.operation==FeatureOperation.ADD_TRANSCRIPT
+            }
+        }
 
 
         assert featureEventList1[0].size() == 1

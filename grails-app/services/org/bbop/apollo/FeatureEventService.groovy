@@ -353,12 +353,12 @@ class FeatureEventService {
             FeatureEvent parentMergeFeatureEvent = featureEvent.parentMergeId ? findFeatureEventFromMap(featureEvent.parentMergeId, featureEventMap) : null
             if (parentMergeFeatureEvent) {
                 featureArrayList.add(parentMergeFeatureEvent)
-                featureEventList.addAll(0,findAllPreviousFeatureEvents(parentMergeFeatureEvent, featureEventMap))
+                featureEventList.addAll(0, findAllPreviousFeatureEvents(parentMergeFeatureEvent, featureEventMap))
             }
 
 
             featureEventList.add(featureArrayList)
-            featureEventList.addAll(0,findAllPreviousFeatureEvents(parentFeatureEvent, featureEventMap))
+            featureEventList.addAll(0, findAllPreviousFeatureEvents(parentFeatureEvent, featureEventMap))
 
 //            parentId = parentFeatureEvent.parentId
 //            parentFeatureEvent = parentId ? findFeatureEventFromMap(parentId,featureEventMap) : null
@@ -410,7 +410,7 @@ class FeatureEventService {
             FeatureEvent childSplitFeatureEvent = featureEvent.childSplitId ? findFeatureEventFromMap(featureEvent.childSplitId, featureEventMap) : null
             if (childSplitFeatureEvent) {
                 featureArrayList.add(childSplitFeatureEvent)
-                featureEventList.addAll(0,findAllFutureFeatureEvents(childSplitFeatureEvent, featureEventMap))
+                featureEventList.addAll(0, findAllFutureFeatureEvents(childSplitFeatureEvent, featureEventMap))
             }
 
             // if there is a parent merge . .  we just include that parent in the history (not everything)
@@ -421,8 +421,8 @@ class FeatureEventService {
                 featureEventList.get(featureEventList.size() - 1).add(parentMergeFeatureEvent)
             }
 
-            featureEventList.addAll(0,findAllFutureFeatureEvents(childFeatureEvent, featureEventMap))
-            featureEventList.add(0,featureArrayList)
+            featureEventList.addAll(0, findAllFutureFeatureEvents(childFeatureEvent, featureEventMap))
+            featureEventList.add(0, featureArrayList)
 
 //            childId = childFeatureEvent.childId
 //            childFeatureEvent = childId ? FeatureEvent.findById(childId) : null
@@ -470,7 +470,6 @@ class FeatureEventService {
 //            deleteHistory(uniqueName)
 //        }
 //    }
-
 
 //    def deleteHistory(String uniqueName) {
 //        int count = 0
@@ -548,10 +547,10 @@ class FeatureEventService {
 
         List<List<FeatureEvent>> history = getHistory(uniqueName)
         int total = history.size()
-        if(total==0){
+        if (total == 0) {
             Set<String> uniqueNames = extractFeatureEventGroup(uniqueName).keySet()
             uniqueNames.remove(uniqueName)
-            for(int i = 0 ; total == 0 && i < uniqueNames.size() ; i++){
+            for (int i = 0; total == 0 && i < uniqueNames.size(); i++) {
                 String name = uniqueNames[i]
                 println "unique names ${uniqueNames}"
                 println "name ${name}"
@@ -573,7 +572,7 @@ class FeatureEventService {
         }
 
 
-        deleteCurrentState(inputObject,  newUniqueNames, sequence)
+        deleteCurrentState(inputObject, newUniqueNames, sequence)
 
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 
@@ -656,8 +655,8 @@ class FeatureEventService {
     }
 
     def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Sequence sequence) {
-        for(uniqueName in newUniqueNames){
-            deleteCurrentState(inputObject,uniqueName,sequence)
+        for (uniqueName in newUniqueNames) {
+            deleteCurrentState(inputObject, uniqueName, sequence)
         }
     }
 
@@ -720,7 +719,7 @@ class FeatureEventService {
         Set<String> uniqueNames = extractFeatureEventGroup(uniqueName).keySet()
         assert uniqueNames.remove(uniqueName)
         uniqueNames.each {
-            currentIndex = Math.max(getCurrentFeatureEventIndex(it),currentIndex)
+            currentIndex = Math.max(getCurrentFeatureEventIndex(it), currentIndex)
         }
         int count = currentIndex + countForward
         log.info "current Index ${currentIndex}"
@@ -802,9 +801,9 @@ class FeatureEventService {
         featureEventMap = featureEventMap ?: extractFeatureEventGroup(uniqueName)
 
         List<FeatureEvent> currentFeatureEvents = []
-        featureEventMap.values().each{
-            it.values().each(){ featureEvent ->
-                if(featureEvent.current){
+        featureEventMap.values().each {
+            it.values().each() { featureEvent ->
+                if (featureEvent.current) {
                     currentFeatureEvents.add(featureEvent)
                 }
             }
@@ -882,23 +881,38 @@ class FeatureEventService {
 
         List<List<FeatureEvent>> featureEvents = new ArrayList<>()
 
-        List<FeatureEvent> currentFeatureEvent = findCurrentFeatureEvent(uniqueName, featureEventMap)
+        List<FeatureEvent> currentFeatureEvents = findCurrentFeatureEvent(uniqueName, featureEventMap)
         // if we revert a split or do a merge
-        if (!currentFeatureEvent) return featureEvents
-
-
-
-        for (FeatureEvent featureEvent in currentFeatureEvent) {
-            def previousFeatureEvent = findAllPreviousFeatureEvents(featureEvent, featureEventMap)
-            featureEvents.addAll(previousFeatureEvent)
+        if (!currentFeatureEvents) {
+            return featureEvents
         }
-        featureEvents.add(currentFeatureEvent)
-        // finding future events handles splits correctly, so we only need to manage this branch
-        for (FeatureEvent featureEvent in currentFeatureEvent) {
-            if (featureEvent.uniqueName == uniqueName) {
-                featureEvents.addAll(findAllFutureFeatureEvents(featureEvent, featureEventMap))
+
+
+        TreeMap<Integer, Set<FeatureEvent>> unindexedMap = new TreeMap<>()
+//        for (event in currentFeatureEvents) {
+        buildMap(currentFeatureEvents[0], unindexedMap, 0)
+//        }
+
+        featureEvents = new ArrayList<ArrayList<FeatureEvent>>[unindexedMap.size()]
+
+        if (unindexedMap) {
+            Integer offset = unindexedMap.keySet().first()
+            for (index in unindexedMap.keySet()) {
+                featureEvents.set(index - offset, unindexedMap.get(index) as List<FeatureEvent>)
             }
         }
+
+//        for (FeatureEvent featureEvent in currentFeatureEvent) {
+//            def previousFeatureEvent = findAllPreviousFeatureEvents(featureEvent, featureEventMap)
+//            featureEvents.addAll(previousFeatureEvent)
+//        }
+//        featureEvents.add(currentFeatureEvent)
+//        // finding future events handles splits correctly, so we only need to manage this branch
+//        for (FeatureEvent featureEvent in currentFeatureEvent) {
+//            if (featureEvent.uniqueName == uniqueName) {
+//                featureEvents.addAll(findAllFutureFeatureEvents(featureEvent, featureEventMap))
+//            }
+//        }
 
         // if we have a split, it will pick up the same values twice
         // so we need to filter those out
@@ -918,6 +932,36 @@ class FeatureEventService {
         return uniqueFeatureEvents
     }
 
+    def buildMap(FeatureEvent featureEvent, TreeMap<Integer, Set<FeatureEvent>> unindexedMap, int index) {
+
+        def featureEventSet = unindexedMap.get(index)
+        if (!featureEventSet) {
+            featureEventSet = new HashSet<FeatureEvent>()
+        } else if (featureEventSet.contains(featureEvent)) {
+            return
+        }
+        featureEventSet.add(featureEvent)
+        unindexedMap.put(index, featureEventSet)
+
+        if (featureEvent.parentId) {
+            FeatureEvent parentFeatureEvent = FeatureEvent.findById(featureEvent.parentId)
+            buildMap(parentFeatureEvent, unindexedMap, index - 1)
+
+            if (featureEvent.parentMergeId) {
+                FeatureEvent mergeFeatureEvent = FeatureEvent.findById(featureEvent.parentMergeId)
+                buildMap(mergeFeatureEvent, unindexedMap, index - 1)
+            }
+        }
+        if (featureEvent.childId) {
+            FeatureEvent childFeatureEvent = FeatureEvent.findById(featureEvent.childId)
+            buildMap(childFeatureEvent, unindexedMap, index + 1)
+
+            if (featureEvent.childSplitId) {
+                FeatureEvent splitFeatureEvent = FeatureEvent.findById(featureEvent.childSplitId)
+                buildMap(splitFeatureEvent, unindexedMap, index + 1)
+            }
+        }
+    }
 
     JSONObject generateHistory(JSONObject historyContainer, JSONArray featuresArray) {
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
