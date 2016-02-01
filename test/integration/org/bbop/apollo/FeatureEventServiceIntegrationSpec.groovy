@@ -766,7 +766,8 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         when: "we add both transcripts"
         requestHandlingService.addTranscript(jsonAddTranscriptObject1)
         requestHandlingService.addTranscript(jsonAddTranscriptObject2)
-        List<Exon> exonList = exonService.getSortedExons(MRNA.first(), true)
+        MRNA firstMrna = MRNA.first()
+        List<Exon> exonList = exonService.getSortedExons(firstMrna, true)
         String exonUniqueName = exonList.get(1).uniqueName
         Exon exon = Exon.findByUniqueName(exonUniqueName)
         FeatureLocation featureLocation = exon.featureLocation
@@ -783,7 +784,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert newFmax==featureLocation.fmax
 
         when: "we make changes to an exon on gene 1"
-        exonList = exonService.getSortedExons(MRNA.first(), true)
+        exonList = exonService.getSortedExons(firstMrna, true)
         exonUniqueName = exonList.get(1).uniqueName
         setExonBoundaryCommand = setExonBoundaryCommand.replace("@EXON_UNIQUENAME@",exonUniqueName)
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand) as JSONObject)
@@ -811,6 +812,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         requestHandlingService.mergeTranscripts(commandObject)
 
         then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
+        assert uniqueName1==firstMrna.uniqueName
         assert Gene.count == 1
         assert MRNA.count == 1
         assert Exon.count == 5
@@ -820,7 +822,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
         when: "when we get the feature history"
         JSONObject historyContainer = createJSONFeatureContainer();
-        getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@",MRNA.first().uniqueName)
+        getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@",firstMrna.uniqueName)
         historyContainer = featureEventService.generateHistory(historyContainer,(JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
         JSONArray historyArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
 
@@ -859,12 +861,16 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         when: "when we undo again"
+        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
+        history = featureEventService.getHistory(firstMRNA.uniqueName)
         undoString = undoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
         history = featureEventService.getHistory(firstMRNA.uniqueName)
         currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
         history = featureEventService.getHistory(firstMRNA.uniqueName)
+        exon = Exon.findByUniqueName(exonUniqueName)
+        featureLocation = FeatureLocation.findByFeature(exon)
 
         then: "we should see A1 and B1"
         assert currentFeatureEvent.size()==2

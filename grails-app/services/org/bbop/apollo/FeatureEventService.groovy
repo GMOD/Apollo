@@ -531,8 +531,8 @@ class FeatureEventService {
 
 //        log.debug "updated is ${updated}"
 //        Integer index = getCurrentFeatureEventIndex(currentFeatureEvent.uniqueName,featureEventMap)
-//        def returnEvent = findCurrentFeatureEvent(currentFeatureEvent.uniqueName, featureEventMap)
-        def returnEvent = featureEventList.get(currentIndex)
+        def returnEvent = findCurrentFeatureEvent(uniqueName, featureEventMap)
+//        def returnEvent = featureEventList.get(currentIndex)
         return returnEvent
     }
 
