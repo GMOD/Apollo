@@ -70,6 +70,7 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         assert lines[15].split("\t")[2]=="pseudogene"
         assert lines[21].split("\t")[2]=="insertion"
         assert lines[21].split("\t")[8].indexOf("justification=Sanger sequencing")!=-1
+        assert lines[21].split("\t")[8].indexOf("residues=GGG")!=-1
         assert lines[23].split("\t")[2]=="repeat_region"
 
         assert tempFileText.length() > 0
