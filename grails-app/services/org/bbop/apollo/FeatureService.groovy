@@ -1458,6 +1458,65 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @return
      */
     @Timed
+    JSONObject convertFeatureToJSONLite(Feature gsolFeature, boolean includeSequence = false, int depth) {
+        JSONObject jsonFeature = new JSONObject();
+        if (gsolFeature.id) {
+            jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
+        }
+        jsonFeature.put(FeatureStringEnum.TYPE.value, generateJSONFeatureStringForType(gsolFeature.ontologyId));
+        jsonFeature.put(FeatureStringEnum.UNIQUENAME.value, gsolFeature.getUniqueName());
+        if (gsolFeature.getName() != null) {
+            jsonFeature.put(FeatureStringEnum.NAME.value, gsolFeature.getName());
+        }
+        if (gsolFeature.symbol) {
+            jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol);
+        }
+        if (gsolFeature.description) {
+            jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
+        }
+        long start = System.currentTimeMillis();
+        String finalOwnerString = ""
+        if (gsolFeature.owners) {
+            String ownerString = ""
+            for (owner in gsolFeature.owners) {
+                ownerString += gsolFeature.owner.username + " "
+            }
+            finalOwnerString = ownerString?.trim()
+        } else if (gsolFeature.owner) {
+            finalOwnerString = gsolFeature?.owner?.username
+        } else {
+            finalOwnerString = "None"
+        }
+        jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
+
+        if (gsolFeature.featureLocation) {
+            jsonFeature.put(FeatureStringEnum.SEQUENCE.value, gsolFeature.featureLocation.sequence.name);
+            jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(gsolFeature.featureLocation));
+        }
+
+
+        List<Feature> childFeatures = featureRelationshipService.getChildrenForFeatureAndTypes(gsolFeature)
+        if (childFeatures && depth==0) {
+            JSONArray children = new JSONArray();
+            jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
+            for (Feature f : childFeatures) {
+                Feature childFeature = f
+                children.put(convertFeatureToJSONLite(childFeature, includeSequence,1));
+            }
+        }
+
+
+
+        jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time);
+        jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time);
+        return jsonFeature;
+    }
+    /**
+     * @param gsolFeature
+     * @param includeSequence
+     * @return
+     */
+    @Timed
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
         JSONObject jsonFeature = new JSONObject();
         if (gsolFeature.id) {
@@ -1522,7 +1581,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 
         durationInMilliseconds = System.currentTimeMillis()-start;
-        //log.debug "childfeat ${durationInMilliseconds}"
         if (childFeatures) {
             JSONArray children = new JSONArray();
             jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
