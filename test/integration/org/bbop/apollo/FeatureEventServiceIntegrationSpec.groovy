@@ -494,8 +494,8 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
         then: "we should see 3 events"
         assert 3 == historyArray.size()
-        assert 0 == history2.size()
         assert 3 == history1.size()
+        assert history1==history2
 
 
         when: "we retrieve the arrays"
@@ -825,12 +825,14 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
         when: "when we undo the merge"
         MRNA firstMRNA = MRNA.first()
+        def history = featureEventService.getHistory(firstMRNA.uniqueName)
+        def currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
         String undoString = undoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         exon = Exon.findByUniqueName(exonUniqueName)
         featureLocation = FeatureLocation.findByFeature(exon)
-        def currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
-        def history = featureEventService.getHistory(firstMRNA.uniqueName)
+        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
+        history = featureEventService.getHistory(firstMRNA.uniqueName)
 
 
         then: "we see the changed model"
@@ -855,15 +857,26 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
         history = featureEventService.getHistory(firstMRNA.uniqueName)
-        def allFeatureEvents = FeatureEvent.all
+        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
+        history = featureEventService.getHistory(firstMRNA.uniqueName)
 
         then: "we should see A1 and B1"
         assert currentFeatureEvent.size()==2
         assert history.size()==3
-        assert history[0][0].current==false
-        assert history[1][0].current==true
-        assert history[1][1].current==true
+        assert history[0].size()==1
+        assert history[0][0].current==true
+        assert history[1].size()==2
+        history[1].each {
+            if(it.current){
+                assert it.operation==FeatureOperation.ADD_TRANSCRIPT
+            }
+            else{
+                assert it.operation==FeatureOperation.SET_EXON_BOUNDARIES
+            }
+        }
+        assert history[2].size()==1
         assert history[2][0].current==false
+        // looks like its failing to delete the "inferred" one
         assert Gene.count == 2
         assert MRNA.count == 2
         assert CDS.count == 2
