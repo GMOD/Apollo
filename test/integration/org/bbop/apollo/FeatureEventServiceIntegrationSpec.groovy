@@ -239,7 +239,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
     }
 
-    void "we can undo and redo and redo other side "() {
+    void "we can undo and redo and redo other side"() {
 
         given: "transcript data"
         String jsonString = "{\"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":938708,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40736-RA\",\"children\":[{\"location\":{\"fmin\":938708,\"fmax\":938770,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":939570,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":938708,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
@@ -293,21 +293,27 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
         then: "we should have two transcripts, A3/B1"
         assert Exon.count == 2
-        assert CDS.count == 2
-        assert MRNA.count == 2
         assert Gene.count == 2
+        assert MRNA.count == 2
+        assert CDS.count == 2
 
+        when: "when we undo transcript A"
+        requestHandlingService.undo(JSON.parse(undoString2))
 
-        when: "when we redo transcript 2 again"
-        allFeatures = Feature.all
-        requestHandlingService.redo(JSON.parse(redoString2))
-        allFeatures = Feature.all
-
-        then: "we shuld have A3/B2"
+        then: "we should have the original transcript"
         assert Exon.count == 2
         assert CDS.count == 1
         assert MRNA.count == 1
         assert Gene.count == 1
+
+        when: "when we redo transcript 2 again"
+        requestHandlingService.redo(JSON.parse(redoString2))
+
+        then: "we shuld have A3/B2"
+        assert Exon.count == 2
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        assert CDS.count == 2
 
     }
 
