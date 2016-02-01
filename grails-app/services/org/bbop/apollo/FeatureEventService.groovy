@@ -563,13 +563,14 @@ class FeatureEventService {
             return
         }
 
-        Sequence sequence = Feature.findByUniqueName(uniqueName).featureLocation.sequence
+        def newUniqueNames = history[count].collect() {
+            it.uniqueName
+        }
+
+        Sequence sequence = Feature.findByUniqueNameInList(newUniqueNames).featureLocation.sequence
         log.debug "sequence: ${sequence}"
 
 
-        def newUniqueNames = getHistory(uniqueName)[count].collect() {
-            it.uniqueName
-        }
 
 
         deleteCurrentState(inputObject, newUniqueNames, sequence)
