@@ -787,7 +787,7 @@ class FeatureEventService {
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
         int count = currentIndex - countBackwards
-        println "${count} = ${currentIndex}-${countBackwards}"
+        log.debug "${count} = ${currentIndex}-${countBackwards}"
         setHistoryState(inputObject, count, confirm)
     }
 
