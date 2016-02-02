@@ -260,7 +260,7 @@ class AnnotatorController {
             }
 
             long start = System.currentTimeMillis()
-            def features = Feature.createCriteria().list(max: max, offset: offset) {
+            def features = Gene.createCriteria().list(max: max, offset: offset) {
                 featureLocations {
                     if(sequenceName) {
                         eq('sequence',sequenceObj)
@@ -284,10 +284,7 @@ class AnnotatorController {
                 fetchMode 'owners', FetchMode.JOIN
                 fetchMode 'parentFeatureRelationships', FetchMode.JOIN
                 fetchMode 'parentFeatureRelationships.childFeature', FetchMode.JOIN
-                fetchMode 'parentFeatureRelationships.childFeature.childFeatureRelationships', FetchMode.JOIN
-                fetchMode 'parentFeatureRelationships.childFeature.featureLocations', FetchMode.JOIN
-                fetchMode 'parentFeatureRelationships.childFeature.featureLocations.sequence', FetchMode.JOIN
-                fetchMode 'parentFeatureRelationships.childFeature.owners', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.parentFeatureRelationships', FetchMode.SELECT
 
                 'in'('class', viewableTypes)
             }

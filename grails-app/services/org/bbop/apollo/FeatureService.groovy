@@ -1476,18 +1476,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         long start = System.currentTimeMillis();
         String finalOwnerString = ""
-        if (gsolFeature.owners) {
-            String ownerString = ""
-            for (owner in gsolFeature.owners) {
-                ownerString += gsolFeature.owner.username + " "
+        if(depth<=1) {
+            if (gsolFeature.owners) {
+                String ownerString = ""
+                for (owner in gsolFeature.owners) {
+                    ownerString += gsolFeature.owner.username + " "
+                }
+                finalOwnerString = ownerString?.trim()
+            } else if (gsolFeature.owner) {
+                finalOwnerString = gsolFeature?.owner?.username
+            } else {
+                finalOwnerString = "None"
             }
-            finalOwnerString = ownerString?.trim()
-        } else if (gsolFeature.owner) {
-            finalOwnerString = gsolFeature?.owner?.username
-        } else {
-            finalOwnerString = "None"
+            jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
         }
-        jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
 
         if (gsolFeature.featureLocation) {
             jsonFeature.put(FeatureStringEnum.SEQUENCE.value, gsolFeature.featureLocation.sequence.name);
@@ -1496,7 +1498,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 
         List<Feature> childFeatures = featureRelationshipService.getChildrenForFeatureAndTypes(gsolFeature)
-        if (childFeatures && depth==0) {
+        if (childFeatures && depth<=1) {
             JSONArray children = new JSONArray();
             jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
             for (Feature f : childFeatures) {
