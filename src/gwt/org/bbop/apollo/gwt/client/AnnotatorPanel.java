@@ -178,7 +178,7 @@ public class AnnotatorPanel extends Composite {
                         break;
                 }
                 Boolean sortNameAscending = nameSortInfo.isAscending();
-                url += "&order=" + (sortNameAscending ? "asc" : "desc");
+                url += "&sortorder=" + (sortNameAscending ? "asc" : "desc");
                 url += "&sort=" + searchColumnString;
 
                 RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
