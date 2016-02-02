@@ -267,6 +267,9 @@ class AnnotatorController {
                     if(sequenceName) {
                         eq('sequence',sequenceObj)
                     }
+                    if(sort=="length") {
+                        order('length', sortorder)
+                    }
                     sequence {
                         if(sort=="sequence") {
                             order('name',sortorder)
