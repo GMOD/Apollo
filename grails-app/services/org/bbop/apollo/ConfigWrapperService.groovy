@@ -65,4 +65,9 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.data_adapters
     }
 
+    def exportSubFeatureAttrs() {
+        return grailsApplication.config.apollo.export_subfeature_attrs
+    }
+   
+
 }

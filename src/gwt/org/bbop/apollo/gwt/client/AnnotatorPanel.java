@@ -31,8 +31,10 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.*;
@@ -40,7 +42,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
-import org.gwtbootstrap3.client.ui.Container;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -72,7 +74,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     TextBox nameSearchBox;
     @UiField(provided = true)
-    SuggestBox sequenceList;
+    org.gwtbootstrap3.client.ui.SuggestBox sequenceList;
 
     static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
 
@@ -108,7 +110,7 @@ public class AnnotatorPanel extends Composite {
     private final Set<String> showingTranscripts = new HashSet<String>();
 
     public AnnotatorPanel() {
-        sequenceList = new SuggestBox(sequenceOracle);
+        sequenceList = new org.gwtbootstrap3.client.ui.SuggestBox(sequenceOracle);
         sequenceList.getElement().setAttribute("placeHolder", "All Reference Sequences");
         dataGrid.setWidth("100%");
         dataGrid.setTableBuilder(new CustomTableBuilder());
@@ -176,7 +178,7 @@ public class AnnotatorPanel extends Composite {
                         break;
                 }
                 Boolean sortNameAscending = nameSortInfo.isAscending();
-                url += "&order=" + (sortNameAscending ? "asc" : "desc");
+                url += "&sortorder=" + (sortNameAscending ? "asc" : "desc");
                 url += "&sort=" + searchColumnString;
 
                 RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));

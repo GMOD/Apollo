@@ -1,14 +1,15 @@
 package org.bbop.apollo
 
 class FeatureLocation {
-
+    static mapping = {
+        length formula: 'FMAX-FMIN'
+    }
     static constraints = {
         feature nullable: false
         fmin nullable: false
         fmax nullable: false
         sequence nullable: false
-
-
+        length nullable: true
         isFminPartial nullable: true
         isFmaxPartial nullable: true
         strand nullable: true
@@ -16,19 +17,19 @@ class FeatureLocation {
         residueInfo nullable: true
         locgroup nullable: true
         rank nullable: true
-
     }
 
-    Feature feature;
-    Integer fmin;
-    boolean isFminPartial;
-    Integer fmax;
-    boolean isFmaxPartial;
-    Integer strand;
-    Integer phase;
-    String residueInfo;
-    int locgroup;
-    int rank;
+    Feature feature
+    Integer fmin
+    Integer length
+    boolean isFminPartial
+    Integer fmax
+    boolean isFmaxPartial
+    Integer strand
+    Integer phase
+    String residueInfo
+    int locgroup
+    int rank
     Sequence sequence
 
     static belongsTo = [Feature]
@@ -59,10 +60,13 @@ class FeatureLocation {
         return result;
     }
 
+    /**
+     * We use this as an artificial accessor in case the property has not been calculatd
+     * @return
+     */
     public Integer calculateLength(){
         return fmax-fmin
     }
-
     public FeatureLocation generateClone() {
         FeatureLocation cloned = new FeatureLocation();
         cloned.sequence = this.sequence;

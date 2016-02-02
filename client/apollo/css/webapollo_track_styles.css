@@ -19,10 +19,6 @@
 .webapollo-UTR {
     height: 50%;
     top: 25%;
-/*    height: 8px;  */
-/*    margin-top: 4px; */  /* relying on centering code instead */
-/*    z-index: 8; */
- /*   background-color: #AA5626; */
     background-color: rgb(173, 92, 194);
 }
 
@@ -30,7 +26,6 @@
 .plus-mRNA, 
 .minus-mRNA  {
     height: 14px;
-    /* outline: 2px dashed green; */
     background-color: transparent;
 }
 
@@ -50,19 +45,12 @@ div.track_localannot {
 div.wa-sequence {
     position: absolute;
     left: 0px;
-    /* Courier New is preferred by JBrowse, but it looks too light in Firefox, and jagged in Chrome */
-    /* font-family: Courier New,monospace; */
     font-family: monospace;
     font-size: 10px;
     letter-spacing: 2px;
     padding-left: 2px;
-    /* top: 15px; */
     cursor: pointer; 
-   /* z-index: 15; */
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
+    user-select: none;
 }
 
 /* 
@@ -74,7 +62,6 @@ div.wa-sequence {
 div.block-seq-container {
     top: 15px;
     width: 100%;
-    /* outline: 1px solid #00FF00; */
 }
 
 div.wa-sequence .dna-container  {
@@ -85,7 +72,6 @@ div.wa-sequence .dna-container  {
 div.wa-sequence .dna-residues.forward-strand {
     color: black;
     z-index: 5;
-    /* outline: 1px solid pink; */
 }
 
 div.wa-sequence .dna-residues.reverse-strand {
@@ -98,13 +84,6 @@ div.wa-sequence .dna-residues.reverse-strand {
 div.wa-sequence .aa-residues  {
     color: black;
     z-index: 5;
-/*
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-*/
-/*    outline: 1px solid orange; */
 }
 
 .aa-residues.cds-frame0 {
@@ -127,7 +106,6 @@ div.wa-sequence .dna-highlighted {
     background: #F9BF3A
 }
 
-/* don't think this is currently (April 2012) being used */
 div.wa-sequence .highlighted {
     background: #ff0;
 }
@@ -153,12 +131,6 @@ div.annot-sequence  {
     user-select: none;
 }
 
-/*
-div.basic-hist {
-    position: absolute;
-    z-index: 10;
-}
-*/
 
 /********************************************************
 *   invisible containers, 
@@ -276,10 +248,6 @@ div.basic-hist {
     top: 5%;
     background-color: #D8BDEB;
     border: 1px solid #01F;
-/*    border-style: solid;
-    border-color: #01F;
-    border-width: 1px;
-*/
 }
 
 .pink-12px, 
@@ -288,7 +256,6 @@ div.basic-hist {
     background-color: #D8BDEB;
     border: 1px solid #01F;
     height: 12px;
-    /*    margin-top: 2px; */  /* rely on centering in code instead? */
 }
 
 .pink-16px, 
@@ -297,7 +264,6 @@ div.basic-hist {
     background-color: #D8BDEB;
     border: 1px solid #01F;
     height: 16px;
-    /*    margin-top: 2px; */  /* rely on centering in code instead? */
 }
 
 .purple-60pct, 
@@ -313,7 +279,6 @@ div.basic-hist {
 .minus-purple-8px {
     background-color: #8F408F;
     height: 8px; 
-    /*   margin-top: 4px; */  /* rely on centering in code instead? */
 }
 
 .darkblue-80pct, 
@@ -384,14 +349,6 @@ div.basic-hist {
     z-index: 8;
 }
 
-/* testing different coloration of BAM alignments on minus strand
-.minus-bam {
-    height: 5px; 
-    background-color: #AA00AA;
-    z-index: 8;
-}
-*/
-
 /* CIGAR string "M" subfeature, indicating "alignment match" (can be a sequence match or mismatch) of aligned sequence relative to viewed sequence */
 .cigarM, 
 .plus-cigarM, 
@@ -402,34 +359,6 @@ div.basic-hist {
     min-width: 1px;
 }
 
-/* CIGAR string "D" subfeature, indicating deletion in aligned sequence relative to viewed sequence */
-/* setting z-index higher than "cigarM" (and default "subfeature") to ensure not hidden by neighboring match regions when zoomed out */
-/* deletions are rendered above matches/mismatches, but below insertion */
-/* turned off, deletion rendering in DraggableAlignments tracks is being handled as non-features by _drawMismatches() now */
-/*
-.cigarD, 
-.plus-cigarD, 
-.minus-cigarD  {
-    height: 100%;
-    background-color: #FF0000;
-    z-index: 12;   
-    min-width: 3px;
-}
-*/
-
-/* CIGAR string "I" subfeature, indicating insertion in aligned sequence relative to viewed sequence */
-/* rendered above sibling subfeature types to increase visibility, since will always be a zero-width feature (?) */
-/* turned off, insertion rendering in DraggableAlignments tracks is being handled as non-features by _drawMismatches() now */
-/*
-.cigarI, 
-.plus-cigarI, 
-.minus-cigarI  {
-    height: 100%;
-    background-color: #00FF00;
-    z-index: 13;  
-    min-width: 3px;
-}
-*/
 
 
 /* CIGAR string "=" (or "E") subfeature, indicating exact sequence match of aligned sequence relative to viewed sequence */
@@ -453,18 +382,6 @@ div.basic-hist {
 }
 
 
-/*  don't render skips, just let parent bam show through (similar to not rendering intron but letting transcript show through)
-.cigarN, 
-.plus-cigarN, 
-.minus-cigarN  {
-    position: absolute;
-    height: 2px; 
-    margin-top: 0px;
-    background-color: #AACDDC;
-    z-index: 8;
-    min-width: 1px;
-}
-*/
 
 /* align_insertion, align_deletion, align_skip, align_mismatch are assigned to 
    non-feature child divs of bam-read features in DraggableAlignments._drawMismatches()
@@ -499,10 +416,6 @@ div.basic-hist {
 .minus-annot {
   height: 16px;
   background-color: transparent;
-  /* disabling standard text selection, so residues overlay doesn't get text selection actions */
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -516,7 +429,6 @@ div.basic-hist {
 .plus-annot-CDS,
 .minus-annot-CDS {
     height: 16px;
-    /*    margin-top: -6px;  */
     background-color: #30AAFF;
     border: 1px solid #01F;
 }
@@ -525,7 +437,6 @@ div.basic-hist {
 .plus-annot-UTR, 
 .minus-annot-UTR {
     height: 12px; 
-    /*    margin-top: -4px; */
     margin-top: 2px;
     background-color: #2088FF;
 }
@@ -560,9 +471,9 @@ div.basic-hist {
        (div.sequence .dna-residues.forward-strand) and 
        (div.sequence .dna-residues.reverse-strand) styles
 */
-.sequence-alteration.deletion, 
-.sequence-alteration.plus-deletion,
-.sequence-alteration.minus-deletion {
+.Apollo .sequence-alteration.deletion, 
+.Apollo .sequence-alteration.plus-deletion,
+.Apollo .sequence-alteration.minus-deletion {
     border-style: solid;
     border-color: blue;
     border-width: 1px;
@@ -571,9 +482,9 @@ div.basic-hist {
     z-index: 20;  
 }
 
-.sequence-alteration.insertion, 
-.sequence-alteration.plus-insertion,
-.sequence-alteration.minus-insertion {
+.Apollo .sequence-alteration.insertion, 
+.Apollo .sequence-alteration.plus-insertion,
+.Apollo .sequence-alteration.minus-insertion {
     border-style: solid;
     border-color: green;
     border-width: 1px;
@@ -582,9 +493,9 @@ div.basic-hist {
     z-index: 20;  
 }
 
-.sequence-alteration.substitution, 
-.sequence-alteration.plus-substitution,
-.sequence-alteration.minus-substitution {
+.Apollo .sequence-alteration.substitution, 
+.Apollo .sequence-alteration.plus-substitution,
+.Apollo .sequence-alteration.minus-substitution {
     border-style: solid;
     border-color: blue;
     border-width: 1px;
@@ -725,41 +636,6 @@ div.track_webapollo_view_track_annottrack div.track-label .track-close-button {
 div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-button {
     visibility: hidden;
 }
-
-/*
-*  diagnostics for blocks
-*/
-/*
-div.block  {
-    outline-style: solid;
-    outline-color: gray;
-    outline-width: 1px;
-}
-*/
-
-
-/*  experimental canvas graph stuff 
-div.graph-color-picker {
-    border: 2px black solid;
-}
-
-div.graph-range-slider {
-    height: 165px;
-    width: 10px;
-}
-
-div.canvas-track-control {
-    left: 0px;
-    top: 0px;
-    width: 300px;
-    height: 250px;
-    padding: 10px;
-    z-index: 190;
-    background-color: white; 
-    border: 2px black solid;
-}
-*/
-
 /* maker    background-color: rgb(255,204,204); */
 /* blastn   background-color: rgb(102,204,102); */
 /* blastx     background-color: rgb(0,200,204); */
@@ -793,7 +669,6 @@ div.canvas-track-control {
 .plus-pseudogene, 
 .minus-pseudogene {
     height: 12px; 
-    /*    margin-top: -4px; */
     margin-top: 2px;
     background-color: rgb(153,153,255);
 }
@@ -802,7 +677,6 @@ div.canvas-track-control {
 .plus-tRNA, 
 .minus-tRNA {
     height: 12px; 
-    /*    margin-top: -4px; */
     margin-top: 2px;
     background-color: rgb(0,204,0);
 }
@@ -811,7 +685,6 @@ div.canvas-track-control {
 .plus-snRNA, 
 .minus-snRNA {
     height: 12px; 
-    /*    margin-top: -4px; */
     margin-top: 2px;
     background-color: rgb(0,204,0);
 }
@@ -820,7 +693,6 @@ div.canvas-track-control {
 .plus-snoRNA, 
 .minus-snoRNA {
     height: 12px; 
-    /*    margin-top: -4px; */
     margin-top: 2px;
     background-color: rgb(0,204,0);
 }
@@ -829,7 +701,6 @@ div.canvas-track-control {
 .plus-ncRNA, 
 .minus-ncRNA {
     height: 12px; 
-    /*    margin-top: -4px; */
     margin-top: 2px;
     background-color: rgb(0,204,0);
 }
@@ -838,7 +709,6 @@ div.canvas-track-control {
 .plus-miRNA, 
 .minus-miRNA {
     height: 12px; 
-    /*    margin-top: -4px; */
     margin-top: 2px;
     background-color: rgb(0,204,0);
 }
@@ -847,7 +717,6 @@ div.canvas-track-control {
 .plus-rRNA, 
 .minus-rRNA {
     height: 12px; 
-    /*    margin-top: -4px; */
     margin-top: 2px;
     background-color: rgb(0,204,0);
 }
@@ -856,7 +725,6 @@ div.canvas-track-control {
 .plus-repeat_region, 
 .minus-repeat_region {
     height: 12px; 
-    /*    margin-top: -4px; */
     margin-top: 2px;
     background-color: magenta;
 }
@@ -918,3 +786,4 @@ div.canvas-track-control {
     outline-color: blue;
     outline-width: 3px;
 }
+

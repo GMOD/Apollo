@@ -17,6 +17,7 @@ import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 import org.springframework.http.HttpStatus
+import org.hibernate.FetchMode
 
 /**
  * This is server-side code supporting the high-level functionality of the GWT AnnotatorPanel class.
@@ -175,7 +176,6 @@ class AnnotatorController {
         feature.save(flush: true, failOnError: true)
 
         // need to grant the parent feature to force a redraw
-//        Feature parentFeature = feature.childFeatureRelationships*.parentFeature.first()
         Feature parentFeature = featureRelationshipService.getParentForFeature(feature)
 
         JSONObject jsonFeature = featureService.convertFeatureToJSON(parentFeature, false)
@@ -214,11 +214,11 @@ class AnnotatorController {
      * @param user
      * @param offset
      * @param max
-     * @param order
+     * @param sortorder
      * @param sort
      * @return
      */
-    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String order, String sort) {
+    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort) {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
             if (sequenceName && !Sequence.countByName(sequenceName)) return
@@ -227,21 +227,15 @@ class AnnotatorController {
                 returnObject.track = sequenceName
             }
 
-            Sequence sequence
+            Sequence sequenceObj
             Organism organism
             if (returnObject.has("track")) {
-                sequence = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
-                organism = sequence.organism
+                sequenceObj = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+                organism = sequenceObj.organism
             } else {
                 organism = permissionService.checkPermissionsForOrganism(returnObject, PermissionEnum.READ)
             }
-            // find all features for current organism
-
             Integer index = Integer.parseInt(request)
-
-            // TODO: should only be returning the top-level features
-            List<Feature> allFeatures
-            Integer annotationCount = 0
 
             List<String> viewableTypes
 
@@ -265,62 +259,84 @@ class AnnotatorController {
                 viewableTypes = requestHandlingService.viewableAnnotationList
             }
 
-            String sortString
+            long start = System.currentTimeMillis()
+            log.debug "${sort} ${sortorder}"
 
-            if (sort) {
-                sortString = " order by "
-                switch (sort) {
-                    case "name": sortString += " f.name "
-                        break
-                    case "sequence":
-                            sortString += " s.name "
-                        break
-                    case "length": sortString += " abs(fl.fmax-fl.fmin) "
-                        break
-                    case "date": sortString += " f.lastUpdated "
-                }
-                sortString += " ${order} "
-
-
-            }
-
-            if (organism) {
-                if (!sequence) {
-                    try {
-                        final long start = System.currentTimeMillis();
-                        allFeatures = Feature.executeQuery("select distinct f, abs(fl.fmax-fl.fmin) as seqLength, s from Feature f join f.owners own left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes) and upper(f.name) like :annotationName and own.username like :username " + sortString, [organism: organism, viewableTypes: viewableTypes, offset: offset, max: max, annotationName: '%' + annotationName.toUpperCase() + "%", username: '%' + user + '%']).collect {
-                            it[0]
-                        }
-                        annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f join f.owners own left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)  and upper(f.name) like :annotationName and own.username like :username ", [organism: organism, viewableTypes: viewableTypes, annotationName: '%' + annotationName.toUpperCase() + '%', username: '%' + user + '%']).iterator().next()
-                        final long durationInMilliseconds = System.currentTimeMillis() - start;
-
-                        log.debug "selecting features all ${durationInMilliseconds}"
-                    } catch (e) {
-                        allFeatures = new ArrayList<>()
-                        log.error(e)
+            //use two step query. step 1 gets genes in a page
+            def pagination = Feature.createCriteria().list(max: max, offset: offset) {
+                featureLocations {
+                    if(sequenceName) {
+                        eq('sequence',sequenceObj)
                     }
-                } else {
-                    final long start = System.currentTimeMillis();
-                    allFeatures = Feature.executeQuery("select distinct f, abs(fl.fmax-fl.fmin) as seqLength, s from Feature f join f.owners own left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and upper(f.name) like :annotationName and o = :organism  and f.class in (:viewableTypes)  and own.username like :username " + sortString, [sequenceName: sequenceName, organism: organism, viewableTypes: viewableTypes, offset: offset, max: max, annotationName: '%' + annotationName.toUpperCase() + "%", username: '%' + user + '%']).collect { it[0]}
-                    annotationCount = (Integer) Feature.executeQuery("select count(distinct f) from Feature f  join f.owners own left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty and upper(f.name) like :annotationName and o = :organism  and f.class in (:viewableTypes)  and own.username like :username ", [sequenceName: sequenceName, organism: organism, viewableTypes: viewableTypes, annotationName: '%' + annotationName.toUpperCase() + "%", username: '%' + user + '%']).iterator().next()
-                    final long durationInMilliseconds = System.currentTimeMillis() - start;
-
-                    log.debug "selecting features ${durationInMilliseconds}"
+                    if(sort=="length") {
+                        order('length', sortorder)
+                    }
+                    sequence {
+                        if(sort=="sequence") {
+                            order('name',sortorder)
+                        }
+                        eq('organism', organism)
+                    }
                 }
-                final long start = System.currentTimeMillis();
-                for (Feature feature in allFeatures) {
-                    JSONObject featureObject = featureService.convertFeatureToJSON(feature, false)
-                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureObject)
+                if(sort=="name") {
+                    order('name', sortorder)
                 }
-                final long durationInMilliseconds = System.currentTimeMillis() - start;
-
-                log.debug "convert to json ${durationInMilliseconds}"
+                if(sort=="date") {
+                    order('lastUpdated', sortorder)
+                }
+                if(annotationName) {
+                    ilike('name','%'+annotationName+'%')
+                }
+                'in'('class', viewableTypes)
             }
+            //step 2 does a distinct query with extra attributes added in
+            def features = Feature.createCriteria().listDistinct {
+                'in'('id', pagination.collect { it.id })
+                featureLocations {
+                    if(sort=="length") {
+                        order('length', sortorder)
+                    }
+                    sequence {
+                        if(sort=="sequence") {
+                            order('name',sortorder)
+                        }
+                    }
+                }
+                if(sort=="name") {
+                    order('name', sortorder)
+                }
+                if(sort=="date") {
+                    order('lastUpdated', sortorder)
+                }
+                fetchMode 'owners', FetchMode.JOIN
+                fetchMode 'featureLocations', FetchMode.JOIN
+                fetchMode 'featureLocations.sequence', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.parentFeature', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.parentFeatureRelationships', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.parentFeatureRelationships.childFeature', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.parentFeatureRelationships.childFeature.featureLocations', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.parentFeatureRelationships.childFeature.featureLocations.sequence', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.childFeatureRelationships', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.featureLocations', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.featureLocations.sequence', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.owners', FetchMode.JOIN
+            }
+            long durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "criteria query ${durationInMilliseconds}"
+
+            start = System.currentTimeMillis();
+            for (Feature feature in features) {
+                JSONObject featureObject = featureService.convertFeatureToJSONLite(feature, false, 0)
+                returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureObject)
+            }
+            durationInMilliseconds = System.currentTimeMillis() - start;
+            log.debug "convert to json ${durationInMilliseconds}"
 
             returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(), index + 1)
-            returnObject.put(FeatureStringEnum.ANNOTATION_COUNT.value, annotationCount)
+            returnObject.put(FeatureStringEnum.ANNOTATION_COUNT.value, pagination.totalCount)
 
-            // TODO: do checks here
             render returnObject
         }
         catch(PermissionException e) {

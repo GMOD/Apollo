@@ -123,16 +123,12 @@ class FeatureService {
     @Transactional
     def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
-        log.debug "JSON transcript ${jsonTranscript}"
-        log.debug "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
-        log.debug "gene ${gene}"
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
 
         User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
-            log.debug "has gene: ${gene}"
             transcript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
@@ -140,7 +136,6 @@ class FeatureService {
 
             //this one is working, but was marked as needing improvement
             if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                log.debug "setting owner for gene and transcript per: ${permissionService.getCurrentUser(jsonTranscript)}"
                 if (owner) {
                     setOwner(transcript, owner);
                 } else {
@@ -158,7 +153,6 @@ class FeatureService {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
         } else {
-            log.debug "no gene given"
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll(){
                 it = Feature.get(it.id)
@@ -1464,6 +1458,69 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @return
      */
     @Timed
+    JSONObject convertFeatureToJSONLite(Feature gsolFeature, boolean includeSequence = false, int depth) {
+        JSONObject jsonFeature = new JSONObject();
+        if (gsolFeature.id) {
+            jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
+        }
+        jsonFeature.put(FeatureStringEnum.TYPE.value, generateJSONFeatureStringForType(gsolFeature.ontologyId));
+        jsonFeature.put(FeatureStringEnum.UNIQUENAME.value, gsolFeature.getUniqueName());
+        if (gsolFeature.getName() != null) {
+            jsonFeature.put(FeatureStringEnum.NAME.value, gsolFeature.getName());
+        }
+        if (gsolFeature.symbol) {
+            jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol);
+        }
+        if (gsolFeature.description) {
+            jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
+        }
+        long start = System.currentTimeMillis();
+        String finalOwnerString = ""
+        if(depth<=1) {
+            if (gsolFeature.owners) {
+                String ownerString = ""
+                for (owner in gsolFeature.owners) {
+                    ownerString += gsolFeature.owner.username + " "
+                }
+                finalOwnerString = ownerString?.trim()
+            } else if (gsolFeature.owner) {
+                finalOwnerString = gsolFeature?.owner?.username
+            } else {
+                finalOwnerString = "None"
+            }
+            jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
+        }
+
+        if (gsolFeature.featureLocation) {
+            jsonFeature.put(FeatureStringEnum.SEQUENCE.value, gsolFeature.featureLocation.sequence.name);
+            jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(gsolFeature.featureLocation));
+        }
+
+
+        if (depth<=1) {
+            List<Feature> childFeatures = featureRelationshipService.getChildrenForFeatureAndTypes(gsolFeature)
+            if(childFeatures) {
+                JSONArray children = new JSONArray();
+                jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
+                for (Feature f : childFeatures) {
+                    Feature childFeature = f
+                    children.put(convertFeatureToJSONLite(childFeature, includeSequence,depth+1));
+                }
+            }
+        }
+
+
+
+        jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time);
+        jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time);
+        return jsonFeature;
+    }
+    /**
+     * @param gsolFeature
+     * @param includeSequence
+     * @return
+     */
+    @Timed
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
         JSONObject jsonFeature = new JSONObject();
         if (gsolFeature.id) {
@@ -1496,7 +1553,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
 
         long durationInMilliseconds = System.currentTimeMillis()-start;
-        //log.debug "owner ${durationInMilliseconds}"
 
         start = System.currentTimeMillis();
         if (gsolFeature.featureLocation) {
@@ -1505,7 +1561,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
         durationInMilliseconds = System.currentTimeMillis()-start;
-        //log.debug "sequencename ${durationInMilliseconds}"
 
 
         start = System.currentTimeMillis();
@@ -1530,7 +1585,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 
         durationInMilliseconds = System.currentTimeMillis()-start;
-        //log.debug "childfeat ${durationInMilliseconds}"
         if (childFeatures) {
             JSONArray children = new JSONArray();
             jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
@@ -1733,7 +1787,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     boolean typeHasChildren(Feature feature) {
         def f = Feature.get(feature.id)
         boolean hasChildren = !(f instanceof Exon) && !(f instanceof CDS) && !(f instanceof SpliceSite)
-        log.debug "type ${f.ontologyId}, ${f.cvTerm}->${f.name} has children ${hasChildren}"
         return hasChildren
     }
 
@@ -2375,7 +2428,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             //getAllSequenceAlterationsForFeature returns alterations over entire scaffold?!
             if(alteration.fmin<=feature.fmin || alteration.fmax> feature.fmax) {
-                log.debug "SKIPPING ${coordinateInContext}"
                 continue
             }
 

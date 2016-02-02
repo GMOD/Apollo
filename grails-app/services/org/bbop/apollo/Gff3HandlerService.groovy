@@ -1,26 +1,22 @@
 package org.bbop.apollo
 
-import grails.transaction.NotTransactional
 import org.apache.commons.lang.WordUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import org.bbop.apollo.sequence.Strand
 import org.grails.plugins.metrics.groovy.Timed
 import org.springframework.format.datetime.DateFormatter
-import org.springframework.format.datetime.joda.JodaTimeContext;
+import java.text.SimpleDateFormat
 
-import java.io.*
-import java.text.SimpleDateFormat;
-import java.util.*
-//import groovy.transform.CompileStatic
-//@CompileStatic
-//@GrailsCompileStatic
+
+
 public class Gff3HandlerService {
 
     def sequenceService
     def featureRelationshipService
     def transcriptService
     def exonService
+    def configWrapperService
+    def requestHandlingService 
     def featureService
     def overlapperService
     def featurePropertyService
@@ -72,7 +68,7 @@ public class Gff3HandlerService {
     public void writeFeatures(WriteObject writeObject, Collection<? extends Feature> features, String source) throws IOException {
         Map<Sequence, Collection<Feature>> featuresBySource = new HashMap<Sequence, Collection<Feature>>();
         for (Feature feature : features) {
-            Sequence sourceFeature = feature.getFeatureLocation().sequence
+            Sequence sourceFeature = feature.featureLocation.sequence
             Collection<Feature> featureList = featuresBySource.get(sourceFeature);
             if (!featureList) {
                 featureList = new ArrayList<Feature>();
@@ -95,7 +91,7 @@ public class Gff3HandlerService {
         while (iterator.hasNext()) {
             Feature feature = iterator.next();
             if (needDirectives) {
-                writeGroupDirectives(writeObject, feature.getFeatureLocation().sequence)
+                writeGroupDirectives(writeObject, feature.featureLocation.sequence)
                 needDirectives = false;
             }
             writeFeature(writeObject, feature, source);
@@ -104,7 +100,7 @@ public class Gff3HandlerService {
     }
 
     static private void writeGroupDirectives(WriteObject writeObject, Sequence sourceFeature) {
-        if (sourceFeature.getFeatureLocations().size() == 0) return;
+        if (sourceFeature.featureLocations?.size() == 0) return;
         writeObject.out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, sourceFeature.start + 1, sourceFeature.end));
     }
 
@@ -144,8 +140,7 @@ public class Gff3HandlerService {
         }
         String residues = null;
         if (useLocation) {
-            FeatureLocation loc = feature.getFeatureLocations().iterator().next();
-            residues = sequenceService.getResidueFromFeatureLocation(loc)
+            residues = sequenceService.getResidueFromFeatureLocation(feature.featureLocation)
         } else {
             residues = sequenceService.getResiduesFromFeature(feature)
         }
@@ -168,7 +163,6 @@ public class Gff3HandlerService {
     public void writeFastaForReferenceSequence(WriteObject writeObject, Sequence sequence) {
         int lineLength = 60;
         String residues = null
-        def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
         writeEmptyFastaDirective(writeObject.out);
         residues = sequenceService.getRawResiduesFromSequence(sequence, 0, sequence.length)
         if (residues != null) {
@@ -212,9 +206,9 @@ public class Gff3HandlerService {
     @Timed
     private void convertToEntry(WriteObject writeObject, Feature feature, String source, Collection<GFF3Entry> gffEntries) {
 
-        log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
+        //log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
 
-        String seqId = feature.getFeatureLocation().sequence.name
+        String seqId = feature.featureLocation.sequence.name
         String type = featureService.getCvTermFromFeature(feature);
         int start = feature.getFmin() + 1;
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
@@ -244,9 +238,9 @@ public class Gff3HandlerService {
 
     @Timed
     private void convertToEntry(WriteObject writeObject, CDS cds, String source, Collection<GFF3Entry> gffEntries) {
-        log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
+        //log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
 
-        String seqId = cds.getFeatureLocation().sequence.name
+        String seqId = cds.featureLocation.sequence.name
         String type = cds.cvTerm
         String score = ".";
         String strand;
@@ -292,110 +286,116 @@ public class Gff3HandlerService {
         if (feature.getName() != null && !isBlank(feature.getName()) && writeObject.attributesToExport.contains(FeatureStringEnum.NAME.value)) {
             attributes.put(FeatureStringEnum.EXPORT_NAME.value, encodeString(feature.getName()));
         }
-        if (writeObject.attributesToExport.contains(FeatureStringEnum.SYNONYMS.value)) {
-            Iterator<Synonym> synonymIter = feature.synonyms.iterator();
-            if (synonymIter.hasNext()) {
-                StringBuilder synonyms = new StringBuilder();
-                synonyms.append(synonymIter.next().getName());
-                while (synonymIter.hasNext()) {
-                    synonyms.append(",");
-                    synonyms.append(encodeString(synonymIter.next().getName()));
-                }
-                attributes.put(FeatureStringEnum.EXPORT_ALIAS.value, synonyms.toString());
-            }
-        }
-
-        if (feature.ontologyId != Gene.ontologyId) {
+        if (!(feature.class.name in requestHandlingService.viewableAnnotationList+requestHandlingService.viewableAlterations)) {
             def parent= featureRelationshipService.getParentForFeature(feature)
             attributes.put(FeatureStringEnum.EXPORT_PARENT.value, encodeString(parent.uniqueName));
         }
+        if(configWrapperService.exportSubFeatureAttrs() || feature.class.name in requestHandlingService.viewableAnnotationList+requestHandlingService.viewableAnnotationTranscriptList+requestHandlingService.viewableAlterations) {
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.SYNONYMS.value)) {
+                Iterator<Synonym> synonymIter = feature.synonyms.iterator();
+                if (synonymIter.hasNext()) {
+                    StringBuilder synonyms = new StringBuilder();
+                    synonyms.append(synonymIter.next().getName());
+                    while (synonymIter.hasNext()) {
+                        synonyms.append(",");
+                        synonyms.append(encodeString(synonymIter.next().getName()));
+                    }
+                    attributes.put(FeatureStringEnum.EXPORT_ALIAS.value, synonyms.toString());
+                }
+            }
 
-        //TODO: Target
-        //TODO: Gap
-        if (writeObject.attributesToExport.contains(FeatureStringEnum.COMMENTS.value)) {
-            Iterator<Comment> commentIter = featurePropertyService.getComments(feature).iterator()
-            if (commentIter.hasNext()) {
-                StringBuilder comments = new StringBuilder();
-                comments.append(encodeString(commentIter.next().value));
-                while (commentIter.hasNext()) {
-                    comments.append(",");
+
+            //TODO: Target
+            //TODO: Gap
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.COMMENTS.value)) {
+                Iterator<Comment> commentIter = featurePropertyService.getComments(feature).iterator()
+                if (commentIter.hasNext()) {
+                    StringBuilder comments = new StringBuilder();
                     comments.append(encodeString(commentIter.next().value));
+                    while (commentIter.hasNext()) {
+                        comments.append(",");
+                        comments.append(encodeString(commentIter.next().value));
+                    }
+                    attributes.put(FeatureStringEnum.EXPORT_NOTE.value, comments.toString());
                 }
-                attributes.put(FeatureStringEnum.EXPORT_NOTE.value, comments.toString());
             }
-        }
-        if (writeObject.attributesToExport.contains(FeatureStringEnum.DBXREFS.value)) {
-            Iterator<DBXref> dbxrefIter = feature.featureDBXrefs.iterator();
-            if (dbxrefIter.hasNext()) {
-                StringBuilder dbxrefs = new StringBuilder();
-                DBXref dbxref = dbxrefIter.next();
-                dbxrefs.append(encodeString(dbxref.getDb().getName() + ":" + dbxref.getAccession()));
-                while (dbxrefIter.hasNext()) {
-                    dbxrefs.append(",");
-                    dbxref = dbxrefIter.next();
-                    dbxrefs.append(encodeString(dbxref.getDb().getName()) + ":" + encodeString(dbxref.getAccession()));
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.DBXREFS.value)) {
+                Iterator<DBXref> dbxrefIter = feature.featureDBXrefs.iterator();
+                if (dbxrefIter.hasNext()) {
+                    StringBuilder dbxrefs = new StringBuilder();
+                    DBXref dbxref = dbxrefIter.next();
+                    dbxrefs.append(encodeString(dbxref.getDb().getName() + ":" + dbxref.getAccession()));
+                    while (dbxrefIter.hasNext()) {
+                        dbxrefs.append(",");
+                        dbxref = dbxrefIter.next();
+                        dbxrefs.append(encodeString(dbxref.getDb().getName()) + ":" + encodeString(dbxref.getAccession()));
+                    }
+                    attributes.put(FeatureStringEnum.EXPORT_DBXREF.value, dbxrefs.toString());
                 }
-                attributes.put(FeatureStringEnum.EXPORT_DBXREF.value, dbxrefs.toString());
             }
-        }
-        if (writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value) && feature.getDescription() != null && !isBlank(feature.getDescription())) {
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value) && feature.getDescription() != null && !isBlank(feature.getDescription())) {
 
-            attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
-        }
-        if (writeObject.attributesToExport.contains(FeatureStringEnum.STATUS.value) && feature.getStatus() != null) {
-            attributes.put(FeatureStringEnum.STATUS.value, encodeString(feature.getStatus().value));
-        }
-        if (writeObject.attributesToExport.contains(FeatureStringEnum.SYMBOL.value) && feature.getSymbol() != null && !isBlank(feature.getSymbol())) {
-            attributes.put(FeatureStringEnum.SYMBOL.value, encodeString(feature.getSymbol()));
-        }
-        //TODO: Ontology_term
-        //TODO: Is_circular
-        Iterator<FeatureProperty> propertyIter = feature.featureProperties.iterator();
-        if (writeObject.attributesToExport.contains(FeatureStringEnum.ATTRIBUTES.value)) {
-            if (propertyIter.hasNext()) {
-                Map<String, StringBuilder> properties = new HashMap<String, StringBuilder>();
-                while (propertyIter.hasNext()) {
-                    FeatureProperty prop = propertyIter.next();
-                    StringBuilder props = properties.get(prop.getTag());
-                    if (props == null) {
-                        if (prop.getTag() == null) {
-                            // tag is null for generic properties
-                            continue
+                attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
+            }
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.STATUS.value) && feature.getStatus() != null) {
+                attributes.put(FeatureStringEnum.STATUS.value, encodeString(feature.getStatus().value));
+            }
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.SYMBOL.value) && feature.getSymbol() != null && !isBlank(feature.getSymbol())) {
+                attributes.put(FeatureStringEnum.SYMBOL.value, encodeString(feature.getSymbol()));
+            }
+            //TODO: Ontology_term
+            //TODO: Is_circular
+            Iterator<FeatureProperty> propertyIter = feature.featureProperties.iterator();
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.ATTRIBUTES.value)) {
+                if (propertyIter.hasNext()) {
+                    Map<String, StringBuilder> properties = new HashMap<String, StringBuilder>();
+                    while (propertyIter.hasNext()) {
+                        FeatureProperty prop = propertyIter.next();
+                        StringBuilder props = properties.get(prop.getTag());
+                        if (props == null) {
+                            if (prop.getTag() == null) {
+                                // tag is null for generic properties
+                                continue
+                            }
+                            props = new StringBuilder();
+                            properties.put(prop.getTag(), props);
+                        } else {
+                            props.append(",");
                         }
-                        props = new StringBuilder();
-                        properties.put(prop.getTag(), props);
-                    } else {
-                        props.append(",");
+                        props.append(encodeString(prop.getValue()));
                     }
-                    props.append(encodeString(prop.getValue()));
-                }
-                for (Map.Entry<String, StringBuilder> iter : properties.entrySet()) {
-                    if (iter.getKey() in unusedStandardAttributes) {
-                        attributes.put(encodeString(WordUtils.capitalizeFully(iter.getKey())), iter.getValue().toString());
-                    }
-                    else {
-                        attributes.put(encodeString(WordUtils.uncapitalize(iter.getKey())), iter.getValue().toString());
+                    for (Map.Entry<String, StringBuilder> iter : properties.entrySet()) {
+                        if (iter.getKey() in unusedStandardAttributes) {
+                            attributes.put(encodeString(WordUtils.capitalizeFully(iter.getKey())), iter.getValue().toString());
+                        }
+                        else {
+                            attributes.put(encodeString(WordUtils.uncapitalize(iter.getKey())), iter.getValue().toString());
+                        }
                     }
                 }
             }
-        }
-        if (writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value) && feature.getOwner()) {
-            attributes.put(FeatureStringEnum.OWNER.value.toLowerCase(), encodeString(feature.getOwner().username));
-        }
-        if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_CREATION.value)) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(feature.dateCreated);
-            attributes.put(FeatureStringEnum.DATE_CREATION.value, encodeString(formatDate(calendar.time)));
-        }
-        if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_LAST_MODIFIED.value)) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(feature.lastUpdated);
-            attributes.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, encodeString(formatDate(calendar.time)));
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value) && feature.getOwner()) {
+                attributes.put(FeatureStringEnum.OWNER.value.toLowerCase(), encodeString(feature.getOwner().username));
+            }
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_CREATION.value)) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(feature.dateCreated);
+                attributes.put(FeatureStringEnum.DATE_CREATION.value, encodeString(formatDate(calendar.time)));
+            }
+            if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_LAST_MODIFIED.value)) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(feature.lastUpdated);
+                attributes.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, encodeString(formatDate(calendar.time)));
+            }
+
+
+            if(feature.class.name in [Insertion.class.name,Substitution.class.name]) {
+                attributes.put(FeatureStringEnum.RESIDUES.value, feature.alterationResidue)
+            }
         }
         return attributes;
     }
 
-    @NotTransactional
     String formatDate(Date date){
         return gff3DateFormat.format(date)
     }

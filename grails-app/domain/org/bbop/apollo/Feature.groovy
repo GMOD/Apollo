@@ -134,7 +134,7 @@ class Feature implements Ontological{
      * @return Length of feature
      */
     public int getLength() {
-        return featureLocation.calculateLength()
+        return getFeatureLocation().calculateLength()
     }
 
     public Integer getFmin(){
