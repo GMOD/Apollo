@@ -111,7 +111,7 @@ public class AnnotatorPanel extends Composite {
 
     public AnnotatorPanel() {
         sequenceList = new org.gwtbootstrap3.client.ui.SuggestBox(sequenceOracle);
-        sequenceList.getElement().setAttribute("placeHolder", "Search Reference Sequences");
+        sequenceList.getElement().setAttribute("placeHolder", "Reference Sequence");
         dataGrid.setWidth("100%");
         dataGrid.setTableBuilder(new CustomTableBuilder());
         dataGrid.setLoadingIndicator(new Label("Loading"));
@@ -486,7 +486,7 @@ public class AnnotatorPanel extends Composite {
         dataGrid.addColumn(sequenceColumn, "Seq");
         dataGrid.addColumn(typeColumn, "Type");
         dataGrid.addColumn(lengthColumn, "Length");
-        dataGrid.addColumn(dateColumn, "Date Last Updated");
+        dataGrid.addColumn(dateColumn, "Updated");
 
         dataGrid.setColumnWidth(0, "55%");
         dataGrid.setColumnWidth(1, "15%");
