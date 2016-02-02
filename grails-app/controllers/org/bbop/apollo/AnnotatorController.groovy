@@ -260,12 +260,16 @@ class AnnotatorController {
             }
 
             long start = System.currentTimeMillis()
+            log.debug "${sort} ${sortorder}"
 
             //use two step query. step 1 gets genes in a page
             def pagination = Feature.createCriteria().list(max: max, offset: offset) {
                 featureLocations {
                     if(sequenceName) {
                         eq('sequence',sequenceObj)
+                    }
+                    if(sort=="length") {
+                        order('length', sortorder)
                     }
                     sequence {
                         if(sort=="sequence") {
@@ -288,6 +292,22 @@ class AnnotatorController {
             //step 2 does a distinct query with extra attributes added in
             def features = Feature.createCriteria().listDistinct {
                 'in'('id', pagination.collect { it.id })
+                featureLocations {
+                    if(sort=="length") {
+                        order('length', sortorder)
+                    }
+                    sequence {
+                        if(sort=="sequence") {
+                            order('name',sortorder)
+                        }
+                    }
+                }
+                if(sort=="name") {
+                    order('name', sortorder)
+                }
+                if(sort=="date") {
+                    order('lastUpdated', sortorder)
+                }
                 fetchMode 'owners', FetchMode.JOIN
                 fetchMode 'featureLocations', FetchMode.JOIN
                 fetchMode 'featureLocations.sequence', FetchMode.JOIN
