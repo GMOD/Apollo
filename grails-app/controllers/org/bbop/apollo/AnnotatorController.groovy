@@ -260,7 +260,9 @@ class AnnotatorController {
             }
 
             long start = System.currentTimeMillis()
-            def features = Gene.createCriteria().list(max: max, offset: offset) {
+
+            //use two step query. step 1 gets genes in a page
+            def pagination = Feature.createCriteria().list(max: max, offset: offset) {
                 featureLocations {
                     if(sequenceName) {
                         eq('sequence',sequenceObj)
@@ -281,12 +283,25 @@ class AnnotatorController {
                 if(annotationName) {
                     ilike('name','%'+annotationName+'%')
                 }
+                'in'('class', viewableTypes)
+            }
+            //step 2 does a distinct query with extra attributes added in
+            def features = Feature.createCriteria().listDistinct {
+                'in'('id', pagination.collect { it.id })
                 fetchMode 'owners', FetchMode.JOIN
+                fetchMode 'featureLocations', FetchMode.JOIN
+                fetchMode 'featureLocations.sequence', FetchMode.JOIN
                 fetchMode 'parentFeatureRelationships', FetchMode.JOIN
                 fetchMode 'parentFeatureRelationships.childFeature', FetchMode.JOIN
-                fetchMode 'parentFeatureRelationships.childFeature.parentFeatureRelationships', FetchMode.SELECT
-
-                'in'('class', viewableTypes)
+                fetchMode 'parentFeatureRelationships.parentFeature', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.parentFeatureRelationships', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.parentFeatureRelationships.childFeature', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.parentFeatureRelationships.childFeature.featureLocations', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.parentFeatureRelationships.childFeature.featureLocations.sequence', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.childFeatureRelationships', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.featureLocations', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.featureLocations.sequence', FetchMode.JOIN
+                fetchMode 'parentFeatureRelationships.childFeature.owners', FetchMode.JOIN
             }
             long durationInMilliseconds = System.currentTimeMillis() - start;
             log.debug "criteria query ${durationInMilliseconds}"
@@ -300,7 +315,7 @@ class AnnotatorController {
             log.debug "convert to json ${durationInMilliseconds}"
 
             returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(), index + 1)
-            returnObject.put(FeatureStringEnum.ANNOTATION_COUNT.value, features.totalCount)
+            returnObject.put(FeatureStringEnum.ANNOTATION_COUNT.value, pagination.totalCount)
 
             render returnObject
         }

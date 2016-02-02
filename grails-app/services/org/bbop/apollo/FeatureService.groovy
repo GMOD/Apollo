@@ -1497,13 +1497,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
 
-        List<Feature> childFeatures = featureRelationshipService.getChildrenForFeatureAndTypes(gsolFeature)
-        if (childFeatures && depth<=1) {
-            JSONArray children = new JSONArray();
-            jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
-            for (Feature f : childFeatures) {
-                Feature childFeature = f
-                children.put(convertFeatureToJSONLite(childFeature, includeSequence,1));
+        if (depth<=1) {
+            List<Feature> childFeatures = featureRelationshipService.getChildrenForFeatureAndTypes(gsolFeature)
+            if(childFeatures) {
+                JSONArray children = new JSONArray();
+                jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
+                for (Feature f : childFeatures) {
+                    Feature childFeature = f
+                    children.put(convertFeatureToJSONLite(childFeature, includeSequence,depth+1));
+                }
             }
         }
 
