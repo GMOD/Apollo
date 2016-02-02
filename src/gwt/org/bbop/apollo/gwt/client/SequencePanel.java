@@ -55,7 +55,7 @@ public class SequencePanel extends Composite {
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>(20, tablecss);
+    DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>(50, tablecss);
     @UiField(provided = true)
     WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
 
@@ -319,14 +319,6 @@ public class SequencePanel extends Composite {
 //                break;
         }
     }
-
-//    @UiHandler(value = {"organismList"})
-//    public void handleOrganismChange(ChangeEvent changeEvent) {
-//        selectedCount = 0;
-//        multiSelectionModel.clear();
-//        updatedExportSelectedButton();
-//        OrganismRestService.switchOrganismById(organismList.getSelectedValue());
-//    }
 
 
     @UiHandler("selectSelectedButton")

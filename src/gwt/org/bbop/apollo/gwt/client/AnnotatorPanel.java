@@ -98,7 +98,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     ListBox userField;
     @UiField
-    SplitLayoutPanel splitPanel;
+    DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
 
@@ -111,7 +111,7 @@ public class AnnotatorPanel extends Composite {
 
     public AnnotatorPanel() {
         sequenceList = new org.gwtbootstrap3.client.ui.SuggestBox(sequenceOracle);
-        sequenceList.getElement().setAttribute("placeHolder", "All Reference Sequences");
+        sequenceList.getElement().setAttribute("placeHolder", "Search Reference Sequences");
         dataGrid.setWidth("100%");
         dataGrid.setTableBuilder(new CustomTableBuilder());
         dataGrid.setLoadingIndicator(new Label("Loading"));
