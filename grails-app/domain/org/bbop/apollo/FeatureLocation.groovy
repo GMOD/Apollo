@@ -60,11 +60,11 @@ class FeatureLocation {
         return result;
     }
 
+    /**
+     * We use this as an artificial accessor in case the property has not been calculatd
+     * @return
+     */
     public Integer calculateLength(){
-        return fmax-fmin
-    }
-
-    public Integer getFeatureLength(){
         return fmax-fmin
     }
     public FeatureLocation generateClone() {
