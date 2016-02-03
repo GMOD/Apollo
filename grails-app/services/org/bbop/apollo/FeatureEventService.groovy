@@ -328,6 +328,13 @@ class FeatureEventService {
         return null
     }
 
+    /**
+     * Should flatten the tree and add indexes going all the way up on each one.
+     *
+     * @param featureEvent
+     * @param featureEventMap
+     * @return
+     */
     @Timed
     List<List<FeatureEvent>> findAllPreviousFeatureEvents(FeatureEvent featureEvent, Map<String, Map<Long, FeatureEvent>> featureEventMap = null) {
         featureEventMap = featureEventMap ?: extractFeatureEventGroup(featureEvent.uniqueName)

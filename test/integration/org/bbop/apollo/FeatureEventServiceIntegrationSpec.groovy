@@ -916,7 +916,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         JSONObject jsonAddTranscriptObject1 = JSON.parse(gb40787String) as JSONObject
         JSONObject jsonAddTranscriptObject2 = JSON.parse(gb40788String) as JSONObject
         String mergeTranscriptString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" }, { \"uniquename\": \"@TRANSCRIPT2_UNIQUENAME@\" } ], \"operation\": \"merge_transcripts\" }"
-        String undoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
+        String undoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":@COUNT@,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
         String setExonBoundary40788Command = "{\"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${gb40788Fmin},\"fmax\":${new40788Fmax}}}],\"operation\":\"set_exon_boundaries\"}"
         String setExonBoundary40787Command = "{\"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${new40787Fmin},\"fmax\":${gb40787Fmax}}}],\"operation\":\"set_exon_boundaries\"}"
 
@@ -997,7 +997,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         when: "we undo the merge"
         List<List<FeatureEvent>> history787 = featureEventService.getHistory(uniqueName787)
         List<List<FeatureEvent>> history788 = featureEventService.getHistory(uniqueName788)
-        String undoString = undoOperation.replace("@UNIQUENAME@", mrna40787.uniqueName)
+        String undoString = undoOperation.replace("@UNIQUENAME@", mrna40787.uniqueName).replace("@COUNT@","1")
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         history787 = featureEventService.getHistory(uniqueName787)
         history788 = featureEventService.getHistory(uniqueName788)
@@ -1005,6 +1005,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         featureLocation788 = exon788.featureLocation
         exon787 = Exon.findByUniqueName(exon787UniqueName)
         featureLocation787 = exon787.featureLocation
+        allFeatures = Feature.all
 
 
         then: "we verify that it is the most recent values (A2/B2) and that the history is correct"
@@ -1021,8 +1022,15 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         when: "we undo A2"
-        undoString = undoOperation.replace("@UNIQUENAME@", mrna40787.uniqueName)
+        undoString = undoOperation.replace("@UNIQUENAME@", mrna40788.uniqueName).replace("@COUNT@","1")
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+        history787 = featureEventService.getHistory(uniqueName787)
+        history788 = featureEventService.getHistory(uniqueName788)
+        allFeatures = Feature.all
+        exon788 = Exon.findByUniqueName(exon788UniqueName)
+        featureLocation788 = exon788.featureLocation
+        exon787 = Exon.findByUniqueName(exon787UniqueName)
+        featureLocation787 = exon787.featureLocation
 
 
         then: "we should get B2/A1"
@@ -1033,13 +1041,13 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 0
         assert gb40788Fmin == featureLocation788.fmin
-        assert new40788Fmax == featureLocation788.fmax
-        assert old40787Fmin == featureLocation787.fmin
+        assert old40788Fmax == featureLocation788.fmax
+        assert new40787Fmin == featureLocation787.fmin
         assert gb40787Fmax == featureLocation787.fmax
 
 
         when: "we undo B2"
-        undoString = undoOperation.replace("@UNIQUENAME@", mrna40788.uniqueName)
+        undoString = undoOperation.replace("@UNIQUENAME@", mrna40787.uniqueName).replace("@COUNT@","1")
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
 
 
