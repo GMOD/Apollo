@@ -685,7 +685,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
             ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
-            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','non_reserved_properties':[{'tag':'clockwark','value':'orange'},{'tag':'color','value':'purple'}]}.  Available status found here: /availableStatus/ ")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','non_reserved_properties':[{'tag':'clockwork','value':'orange'},{'tag':'color','value':'purple'}]}.  Available status found here: /availableStatus/ ")
     ] )
     def addAttribute() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -702,7 +702,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
             ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
-            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','non_reserved_properties':[{'tag':'clockwark','value':'orange'},{'tag':'color','value':'purple'}]}.  Available status found here: /availableStatus/ ")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','non_reserved_properties':[{'tag':'clockwork','value':'orange'},{'tag':'color','value':'purple'}]}.  Available status found here: /availableStatus/ ")
     ] )
     def deleteAttribute() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
