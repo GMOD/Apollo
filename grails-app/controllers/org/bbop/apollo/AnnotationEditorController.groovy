@@ -741,7 +741,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def addDbxref() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.addNonPrimaryDbxRefs(inputObject)
+            render requestHandlingService.addNonPrimaryDbxrefs(inputObject)
         } else {
             render status: HttpStatus.UNAUTHORIZED
         }
@@ -758,7 +758,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def updateDbxref() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.updateNonPrimaryDbxRefs(inputObject)
+            render requestHandlingService.updateNonPrimaryDbxrefs(inputObject)
         } else {
             render status: HttpStatus.UNAUTHORIZED
         }
@@ -775,7 +775,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def deleteDbxref() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.deleteNonPrimaryDbxRefs(inputObject)
+            render requestHandlingService.deleteNonPrimaryDbxrefs(inputObject)
         } else {
             render status: HttpStatus.UNAUTHORIZED
         }
