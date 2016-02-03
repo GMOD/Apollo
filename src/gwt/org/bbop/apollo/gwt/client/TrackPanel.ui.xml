@@ -23,7 +23,7 @@
         }
 
     </ui:style>
-    <gwt:SplitLayoutPanel ui:field="layoutPanel">
+    <gwt:DockLayoutPanel ui:field="layoutPanel">
         <gwt:north size="60">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
@@ -111,5 +111,5 @@
             </gwt:TabLayoutPanel>
         </gwt:south>
 
-    </gwt:SplitLayoutPanel>
+    </gwt:DockLayoutPanel>
 </ui:UiBinder>
