@@ -286,7 +286,6 @@ public class Gff3HandlerService {
         if (feature.getName() != null && !isBlank(feature.getName()) && writeObject.attributesToExport.contains(FeatureStringEnum.NAME.value)) {
             attributes.put(FeatureStringEnum.EXPORT_NAME.value, encodeString(feature.getName()));
         }
-        log.debug "${feature}"
         if (!(feature.class.name in requestHandlingService.viewableAnnotationList+requestHandlingService.viewableAlterations)) {
             def parent= featureRelationshipService.getParentForFeature(feature)
             attributes.put(FeatureStringEnum.EXPORT_PARENT.value, encodeString(parent.uniqueName));
@@ -387,6 +386,11 @@ public class Gff3HandlerService {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(feature.lastUpdated);
                 attributes.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, encodeString(formatDate(calendar.time)));
+            }
+
+
+            if(feature.class.name in [Insertion.class.name,Substitution.class.name]) {
+                attributes.put(FeatureStringEnum.RESIDUES.value, feature.alterationResidue)
             }
         }
         return attributes;

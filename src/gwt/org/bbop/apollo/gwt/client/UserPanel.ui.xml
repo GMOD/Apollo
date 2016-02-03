@@ -54,8 +54,8 @@
         }
     
     </ui:style>
-    <gwt:SplitLayoutPanel>
-        <gwt:north size="80">
+    <gwt:DockLayoutPanel>
+        <gwt:north size="60">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
                     <b:Column size="MD_4" styleName="{style.widgetPanel}">
@@ -78,7 +78,7 @@
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:center>
-        <gwt:south size="200">
+        <gwt:south size="300">
             <gwt:TabLayoutPanel barHeight="35" ui:field="userDetailTab">
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
@@ -176,5 +176,5 @@
             </gwt:TabLayoutPanel>
         </gwt:south>
 
-    </gwt:SplitLayoutPanel>
+    </gwt:DockLayoutPanel>
 </ui:UiBinder>
