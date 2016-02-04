@@ -80,7 +80,7 @@ class FeatureEventService {
         FeatureEvent lastFeatureEvent = lastFeatureEventList[0]
         lastFeatureEvent.current = false;
         lastFeatureEvent.save()
-        deleteFutureHistoryEvents(lastFeatureEvent, featureEventMap)
+        deleteFutureHistoryEvents(lastFeatureEvent)
 
         Date addDate = new Date()
 
@@ -168,9 +168,9 @@ class FeatureEventService {
         lastFeatureEventRight.current = false;
         lastFeatureEventLeft.save()
         lastFeatureEventRight.save()
-        featureEventMap1 = featureEventMap1.putAll(featureEventMap2)
-        deleteFutureHistoryEvents(lastFeatureEventLeft, featureEventMap1)
-        deleteFutureHistoryEvents(lastFeatureEventRight, featureEventMap1)
+//        featureEventMap1 = featureEventMap1.putAll(featureEventMap2)
+        deleteFutureHistoryEvents(lastFeatureEventLeft)
+        deleteFutureHistoryEvents(lastFeatureEventRight)
 
         Date addDate = new Date()
 
@@ -226,7 +226,7 @@ class FeatureEventService {
         if (lastFeatureEvent) {
             lastFeatureEvent.current = false;
             lastFeatureEvent.save()
-            deleteFutureHistoryEvents(lastFeatureEvent, featureEventMap)
+            deleteFutureHistoryEvents(lastFeatureEvent)
         }
 
         FeatureEvent featureEvent = new FeatureEvent(
@@ -288,8 +288,8 @@ class FeatureEventService {
         return featureEventMap
     }
 
-    def setNotPreviousFutureHistoryEvents(FeatureEvent featureEvent, Map<String, Map<Long, FeatureEvent>> featureEventMap) {
-        List<List<FeatureEvent>> featureEventList = findPreviousFeatureEvents(featureEvent, featureEventMap)
+    def setNotPreviousFutureHistoryEvents(FeatureEvent featureEvent) {
+        List<List<FeatureEvent>> featureEventList = findPreviousFeatureEvents(featureEvent)
         featureEventList.each { array ->
             array.each {
                 if (it.current) {
@@ -300,8 +300,8 @@ class FeatureEventService {
         }
     }
 
-    def setNotCurrentFutureHistoryEvents(FeatureEvent featureEvent, Map<String, Map<Long, FeatureEvent>> featureEventMap) {
-        List<List<FeatureEvent>> featureEventList = findFutureFeatureEvents(featureEvent, featureEventMap)
+    def setNotCurrentFutureHistoryEvents(FeatureEvent featureEvent) {
+        List<List<FeatureEvent>> featureEventList = findFutureFeatureEvents(featureEvent)
         featureEventList.each { array ->
             array.each {
                 if (it.current) {
@@ -312,8 +312,8 @@ class FeatureEventService {
         }
     }
 
-    def deleteFutureHistoryEvents(FeatureEvent featureEvent, Map<String, Map<Long, FeatureEvent>> featureEventMap) {
-        List<List<FeatureEvent>> featureEventList = findFutureFeatureEvents(featureEvent, featureEventMap)
+    def deleteFutureHistoryEvents(FeatureEvent featureEvent) {
+        List<List<FeatureEvent>> featureEventList = findFutureFeatureEvents(featureEvent)
         int count = 0
         featureEventList.each { it.each { it.delete(); ++count } }
         return count
@@ -457,13 +457,13 @@ class FeatureEventService {
         currentFeatureEvent = currentFeatureEvent ?: currentFeatureEventArray.first()
 
 
-        setNotPreviousFutureHistoryEvents(currentFeatureEvent, featureEventMap)
-        setNotCurrentFutureHistoryEvents(currentFeatureEvent, featureEventMap)
+        setNotPreviousFutureHistoryEvents(currentFeatureEvent)
+        setNotCurrentFutureHistoryEvents(currentFeatureEvent)
 
         return findCurrentFeatureEvent(uniqueName, featureEventMap)
     }
 
-    def setHistoryState(JSONObject inputObject, int count, boolean confirm) {
+    def setHistoryState(JSONObject inputObject, int count) {
 
         String uniqueName = inputObject.getString(FeatureStringEnum.UNIQUENAME.value)
         log.debug "undo count ${count}"
@@ -639,7 +639,7 @@ class FeatureEventService {
         log.info "current Index ${currentIndex}"
         log.info "${count} = ${currentIndex}-${countForward}"
 
-        setHistoryState(inputObject, count, confirm)
+        setHistoryState(inputObject, count)
     }
 
     /**
@@ -691,7 +691,7 @@ class FeatureEventService {
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
         int count = currentIndex - countBackwards
         log.debug "${count} = ${currentIndex}-${countBackwards}"
-        setHistoryState(inputObject, count, confirm)
+        setHistoryState(inputObject, count)
     }
 
     /**

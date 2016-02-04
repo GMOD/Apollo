@@ -678,7 +678,7 @@ class FeatureEventServiceSpec extends Specification {
         List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName1, true)
         FeatureEvent currentFeature = featureEventList.first()
 
-        List<List<FeatureEvent>> previousFeatureEvents = service.findPreviousFeatureEvents(currentFeature, featureEventMap)
+        List<List<FeatureEvent>> previousFeatureEvents = service.findPreviousFeatureEvents(currentFeature)
 
         then: "check our data structures"
         assert featureIndex1 == 2
