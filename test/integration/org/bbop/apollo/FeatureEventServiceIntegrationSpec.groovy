@@ -863,12 +863,8 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         when: "when we undo again"
-        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
-        history = featureEventService.getHistory(firstMRNA.uniqueName)
         undoString = undoOperation.replace("@UNIQUENAME@", firstMRNA.uniqueName)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
-        currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
-        history = featureEventService.getHistory(firstMRNA.uniqueName)
         currentFeatureEvent = featureEventService.findCurrentFeatureEvent(firstMRNA.uniqueName)
         history = featureEventService.getHistory(firstMRNA.uniqueName)
         exon = Exon.findByUniqueName(exonUniqueName)
@@ -921,6 +917,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         String undoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":@COUNT@,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
         String setExonBoundary40788Command = "{\"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${gb40788Fmin},\"fmax\":${new40788Fmax}}}],\"operation\":\"set_exon_boundaries\"}"
         String setExonBoundary40787Command = "{\"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${new40787Fmin},\"fmax\":${gb40787Fmax}}}],\"operation\":\"set_exon_boundaries\"}"
+        String getHistoryString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" } ], \"operation\": \"get_history_for_features\" }"
 
 
         when: "we add the two transcripts"
@@ -987,7 +984,6 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         then: "we confirm that there is just the one transcript (A2B2)"
-        def allFeatures = Feature.all
         assert Gene.count == 1
         assert MRNA.count == 1
         assert Exon.count == 5
@@ -997,17 +993,12 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         when: "we undo the merge"
-        List<List<FeatureEvent>> history787 = featureEventService.getHistory(uniqueName787)
-        List<List<FeatureEvent>> history788 = featureEventService.getHistory(uniqueName788)
         String undoString = undoOperation.replace("@UNIQUENAME@", mrna40787.uniqueName).replace("@COUNT@","1")
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
-        history787 = featureEventService.getHistory(uniqueName787)
-        history788 = featureEventService.getHistory(uniqueName788)
         exon788 = Exon.findByUniqueName(exon788UniqueName)
         featureLocation788 = exon788.featureLocation
         exon787 = Exon.findByUniqueName(exon787UniqueName)
         featureLocation787 = exon787.featureLocation
-        allFeatures = Feature.all
 
 
         then: "we verify that it is the most recent values (A2/B2) and that the history is correct"
@@ -1026,13 +1017,16 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         when: "we undo A2"
         undoString = undoOperation.replace("@UNIQUENAME@", mrna40788.uniqueName).replace("@COUNT@","1")
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
-        history787 = featureEventService.getHistory(uniqueName787)
-        history788 = featureEventService.getHistory(uniqueName788)
-        allFeatures = Feature.all
         exon788 = Exon.findByUniqueName(exon788UniqueName)
         featureLocation788 = exon788.featureLocation
         exon787 = Exon.findByUniqueName(exon787UniqueName)
         featureLocation787 = exon787.featureLocation
+
+        JSONObject historyContainer = createJSONFeatureContainer();
+        def thisHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", mrna40787.uniqueName)
+        historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(thisHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
+        JSONArray featuresArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONArray historyArray = featuresArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value)
 
 
         then: "we should get B2/A1"
@@ -1046,6 +1040,43 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert old40788Fmax == featureLocation788.fmax
         assert new40787Fmin == featureLocation787.fmin
         assert gb40787Fmax == featureLocation787.fmax
+
+        assert historyArray.size()==3
+        assert  historyArray[0].operation  == FeatureOperation.ADD_TRANSCRIPT.name()
+        assert  !historyArray[0].current
+        assert  historyArray[0].features[0].name == "GB40787-RA-00001"
+        assert  historyArray[0].features.size()==1
+        assert  historyArray[1].operation  == FeatureOperation.SET_EXON_BOUNDARIES.name()
+        assert  historyArray[1].features[0].name == "GB40787-RA-00001"
+        assert  historyArray[1].features.size()==1
+        assert  historyArray[1].current
+        assert  historyArray[2].operation  == FeatureOperation.MERGE_TRANSCRIPTS.name()
+        assert  historyArray[2].features[0].name == "GB40787-RA-00001"
+        assert  historyArray[2].features.size()==1
+        assert  !historyArray[2].current
+
+        when: "we verify the history for the other side"
+        JSONObject historyContainer2 = createJSONFeatureContainer();
+        def historyString2 = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", mrna40788.uniqueName)
+        historyContainer2 = featureEventService.generateHistory(historyContainer2, (JSON.parse(historyString2) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
+        featuresArray = historyContainer2.getJSONArray(FeatureStringEnum.FEATURES.value)
+        historyArray = featuresArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value)
+
+        then: "we should see the hsitory of GB40788"
+        assert historyArray.size()==3
+        assert  historyArray[0].operation  == FeatureOperation.ADD_TRANSCRIPT.name()
+        assert  historyArray[0].current
+        assert  historyArray[0].features[0].name == "GB40788-RA-00001"
+        assert  historyArray[0].features.size()==1
+        assert  historyArray[1].operation  == FeatureOperation.SET_EXON_BOUNDARIES.name()
+        assert  historyArray[1].features[0].name == "GB40788-RA-00001"
+        assert  historyArray[1].features.size()==1
+        assert  !historyArray[1].current
+        assert  historyArray[2].operation  == FeatureOperation.MERGE_TRANSCRIPTS.name()
+        // NOTE: the merged value is GB40787
+        assert  historyArray[2].features[0].name == "GB40787-RA-00001"
+        assert  historyArray[2].features.size()==1
+        assert  !historyArray[2].current
 
 
         when: "we undo B2"
