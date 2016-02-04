@@ -472,10 +472,12 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         when: "we merge the transcripts"
-        String uniqueName1 = MRNA.findByName("GB40787-RA-00001").uniqueName
-        String uniqueName2 = MRNA.findByName("GB40788-RA-00001").uniqueName
-        mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", uniqueName1)
-        mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT2_UNIQUENAME@", uniqueName2)
+        MRNA mrnaGB40787 = MRNA.findByName("GB40787-RA-00001")
+        MRNA mrnaGB40788 = MRNA.findByName("GB40788-RA-00001")
+        String uniqueNameGB40787 = mrnaGB40787.uniqueName
+        String uniqueNameGB40788 = mrnaGB40788.uniqueName
+        mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", uniqueNameGB40787)
+        mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT2_UNIQUENAME@", uniqueNameGB40788)
         JSONObject commandObject = JSON.parse(mergeTranscriptString) as JSONObject
         requestHandlingService.mergeTranscripts(commandObject)
 
@@ -490,9 +492,9 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
         when: "when we get the feature history"
         JSONObject historyContainer = createJSONFeatureContainer();
-        getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", MRNA.first().uniqueName)
-        List<List<FeatureEvent>> history1 = featureEventService.getHistory(uniqueName1)
-        List<List<FeatureEvent>> history2 = featureEventService.getHistory(uniqueName2)
+        getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", uniqueNameGB40787)
+        List<List<FeatureEvent>> history1 = featureEventService.getHistory(uniqueNameGB40787)
+        List<List<FeatureEvent>> history2 = featureEventService.getHistory(uniqueNameGB40788)
         historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
         JSONArray featuresArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONArray historyArray = featuresArray.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value)
@@ -527,7 +529,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         // should be ADD_TRANSCRIPT and SET_EXON_BOUNDARY
 
         when: "when we undo the merge"
-        String undoString = undoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
+        String undoString = undoOperation.replace("@UNIQUENAME@", uniqueNameGB40787)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         exon = Exon.findByUniqueName(exonUniqueName)
         featureLocation = FeatureLocation.findByFeature(exon)
@@ -544,7 +546,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert newFmax == featureLocation.fmax
 
         when: "when we redo the merge on one side"
-        String redoString = redoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
+        String redoString = redoOperation.replace("@UNIQUENAME@", uniqueNameGB40787)
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
         then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
@@ -556,7 +558,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert CDS.count == 1
 
         when: "when we undo the merge again"
-        undoString = undoOperation.replace("@UNIQUENAME@", MRNA.first().uniqueName)
+        undoString = undoOperation.replace("@UNIQUENAME@", uniqueNameGB40787)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
 
         then: "we see the changed model"
@@ -570,7 +572,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert newFmax == featureLocation.fmax
 
         when: "when we redo the merge on the other side"
-        redoString = redoOperation.replace("@UNIQUENAME@", MRNA.last().uniqueName)
+        redoString = redoOperation.replace("@UNIQUENAME@", uniqueNameGB40788)
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
         then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"

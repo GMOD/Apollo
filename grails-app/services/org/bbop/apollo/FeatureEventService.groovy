@@ -484,6 +484,14 @@ class FeatureEventService {
 
         // find the current index of the current feature
         Integer currentIndex = getCurrentFeatureEventIndex(uniqueName)
+        // since newIndex uses the "Deepest" index, they should use the deepest available current index I think
+        featureEventMap.keySet().each {
+            if(it!=uniqueName){
+                def index = getCurrentFeatureEventIndex(it)
+                currentIndex = index > currentIndex ? index : currentIndex
+            }
+        }
+
         List<FeatureEvent> currentFeatureEventArray = findCurrentFeatureEvent(uniqueName)
         FeatureEvent currentFeatureEvent = currentFeatureEventArray.find() { it.uniqueName == uniqueName }
         currentFeatureEvent = currentFeatureEvent ?: currentFeatureEventArray.first()
@@ -504,6 +512,10 @@ class FeatureEventService {
                 it.current = true
                 it.save()
             }
+        }
+        else{
+            log.warn("Setting history to same place ${currentIndex} -> ${newIndex}")
+            return findCurrentFeatureEvent(uniqueName,featureEventMap)
         }
 
         currentFeatureEvent = currentFeatureEventArray.find() { it.uniqueName == uniqueName }

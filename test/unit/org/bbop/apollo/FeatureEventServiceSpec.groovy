@@ -344,7 +344,6 @@ class FeatureEventServiceSpec extends Specification {
         // note: if we revert to 0 . . it disappears!
         when: "when we revert 2 back on transcript 2 to setting exon boundaries"
         FeatureEvent newActiveFeatureEvent = service.setTransactionForFeature(uniqueName2, 1)[0]
-        println "new active feature event ${newActiveFeatureEvent}"
         featureEventList2 = service.getHistory(uniqueName2)
         featureEventList1 = service.getHistory(uniqueName1)
         List<FeatureEvent> thisCurrentFeatureEvents = service.findCurrentFeatureEvent(uniqueName1)
@@ -390,8 +389,6 @@ class FeatureEventServiceSpec extends Specification {
         assert currentFeatureEvents[1].current
         assert currentFeatureEvents[0].operation == FeatureOperation.SPLIT_TRANSCRIPT
         assert currentFeatureEvents[1].operation == FeatureOperation.SPLIT_TRANSCRIPT
-//        newActiveFeatureEvent = service.setTransactionForFeature(uniqueName1, 2)[0]
-//        println "new active feature event ${newActiveFeatureEvent}"
         featureEventList2 = service.getHistory(uniqueName2)
         featureEventList1 = service.getHistory(uniqueName1)
         def currentFeatureEvents1 = service.findCurrentFeatureEvent(uniqueName1)
@@ -437,7 +434,6 @@ class FeatureEventServiceSpec extends Specification {
 
         when: "we go all the way forward on 2"
         newActiveFeatureEvent = service.setTransactionForFeature(uniqueName2, 3)[0]
-        println "new active feature event ${newActiveFeatureEvent}"
         featureEventList2 = service.getHistory(uniqueName2)
         featureEventList1 = service.getHistory(uniqueName1)
         currentFeatureEvents = service.findCurrentFeatureEvent(uniqueName2)
