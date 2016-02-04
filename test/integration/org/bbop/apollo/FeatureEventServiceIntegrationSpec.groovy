@@ -1051,6 +1051,10 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         when: "we undo B2"
         undoString = undoOperation.replace("@UNIQUENAME@", mrna40787.uniqueName).replace("@COUNT@","1")
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+        exon788 = Exon.findByUniqueName(exon788UniqueName)
+        featureLocation788 = exon788.featureLocation
+        exon787 = Exon.findByUniqueName(exon787UniqueName)
+        featureLocation787 = exon787.featureLocation
 
 
         then: "we should get B1/A1"
