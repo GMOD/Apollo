@@ -64,7 +64,7 @@ public class TrackPanel extends Composite {
     @UiField(provided = true)
     DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(1000, tablecss);
     @UiField
-    SplitLayoutPanel layoutPanel;
+    DockLayoutPanel layoutPanel;
     @UiField
     Tree optionTree;
 
