@@ -2257,10 +2257,9 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            boolean confirm = inputObject.containsKey(FeatureStringEnum.CONFIRM.value) ? inputObject.getBoolean(FeatureStringEnum.CONFIRM.value) : false
             int count = inputObject.containsKey(FeatureStringEnum.COUNT.value) ? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
             jsonFeature = permissionService.copyUserName(inputObject, jsonFeature)
-            featureEventService.undo(jsonFeature, count, confirm)
+            featureEventService.undo(jsonFeature, count)
         }
         return new JSONObject()
     }
@@ -2273,10 +2272,9 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            boolean confirm = inputObject.containsKey(FeatureStringEnum.CONFIRM.value) ? inputObject.getBoolean(FeatureStringEnum.CONFIRM.value) : false
             int count = inputObject.containsKey(FeatureStringEnum.COUNT.value) ? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
             jsonFeature = permissionService.copyUserName(inputObject, jsonFeature)
-            featureEventService.redo(jsonFeature, count, confirm)
+            featureEventService.redo(jsonFeature, count)
         }
         return new JSONObject()
     }

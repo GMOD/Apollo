@@ -622,7 +622,7 @@ class FeatureEventService {
      * @param confirm
      * @return
      */
-    def redo(JSONObject inputObject, int countForward, boolean confirm) {
+    def redo(JSONObject inputObject, int countForward) {
         log.info "redoing ${countForward}"
         if (countForward == 0) {
             log.warn "Redo to the same state"
@@ -680,7 +680,7 @@ class FeatureEventService {
         return Math.max(p1Id, p2Id)
     }
 
-    def undo(JSONObject inputObject, int countBackwards, boolean confirm) {
+    def undo(JSONObject inputObject, int countBackwards) {
         log.info "undoing ${countBackwards}"
         if (countBackwards == 0) {
             log.warn "Undo to the same state"
