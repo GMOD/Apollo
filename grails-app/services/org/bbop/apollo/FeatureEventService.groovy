@@ -420,12 +420,12 @@ class FeatureEventService {
         // find the current index of the current feature
         Integer currentIndex = getCurrentFeatureEventIndex(uniqueName)
         // since newIndex uses the "Deepest" index, they should use the deepest available current index I think
-        featureEventMap.keySet().each {
-            if(it!=uniqueName){
-                def index = getCurrentFeatureEventIndex(it)
-                currentIndex = index > currentIndex ? index : currentIndex
-            }
-        }
+//        featureEventMap.keySet().each {
+//            if(it!=uniqueName){
+//                def index = getCurrentFeatureEventIndex(it)
+//                currentIndex = index > currentIndex ? index : currentIndex
+//            }
+//        }
 
         List<FeatureEvent> currentFeatureEventArray = findCurrentFeatureEvent(uniqueName)
         FeatureEvent currentFeatureEvent = currentFeatureEventArray.find() { it.uniqueName == uniqueName }
@@ -630,11 +630,11 @@ class FeatureEventService {
         }
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
-        Set<String> uniqueNames = extractFeatureEventGroup(uniqueName).keySet()
-        assert uniqueNames.remove(uniqueName)
-        uniqueNames.each {
-            currentIndex = Math.max(getCurrentFeatureEventIndex(it), currentIndex)
-        }
+//        Set<String> uniqueNames = extractFeatureEventGroup(uniqueName).keySet()
+//        assert uniqueNames.remove(uniqueName)
+//        uniqueNames.each {
+//            currentIndex = Math.max(getCurrentFeatureEventIndex(it), currentIndex)
+//        }
         int count = currentIndex + countForward
         log.info "current Index ${currentIndex}"
         log.info "${count} = ${currentIndex}-${countForward}"
@@ -648,6 +648,7 @@ class FeatureEventService {
      * @return
      */
     int getCurrentFeatureEventIndex(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = null) {
+
         List<FeatureEvent> currentFeatureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true, [sort: "dateCreated", order: "asc"])
         featureEventMap = extractFeatureEventGroup(uniqueName)
         if (!currentFeatureEventList) {
@@ -662,7 +663,14 @@ class FeatureEventService {
             throw new AnnotationException("Feature event list is the wrong size ${currentFeatureEventList?.size()}")
         }
         FeatureEvent currentFeatureEvent = currentFeatureEventList.iterator().next()
-        return getDeepestIndex(-1, currentFeatureEvent, featureEventMap)
+        def history = getHistory(uniqueName)
+        Integer deepestIndex = history.size()-1
+        def previousEvents = findPreviousFeatureEvents(currentFeatureEvent)
+        def futureEvents = findFutureFeatureEvents(currentFeatureEvent)
+        def offset = deepestIndex - futureEvents.size() - previousEvents.size()
+        def returnIndex = previousEvents.size() + offset
+        return returnIndex
+//        Integer deepestIndex = getDeepestIndex(-1, currentFeatureEvent, featureEventMap)
     }
 
     int getDeepestIndex(int index, FeatureEvent currentFeatureEvent, Map<String, Map<Long, FeatureEvent>> featureEventMap) {

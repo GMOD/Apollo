@@ -736,7 +736,6 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
         then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
-        def allFeatures = Feature.all
         assert Gene.count == 1
         assert MRNA.count == 1
         assert Exon.count == 5
@@ -1102,7 +1101,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert gb40787Fmax == featureLocation787.fmax
 
         when: "we redo B to get to B1 (and stay A2)"
-        def redoString = redoOperation.replace("@UNIQUENAME@",mrna40787.uniqueName).replace("@COUNT","1")
+        def redoString = redoOperation.replace("@UNIQUENAME@",mrna40787.uniqueName).replace("@COUNT@","1")
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
         exon788 = Exon.findByUniqueName(exon788UniqueName)
         featureLocation788 = exon788.featureLocation
@@ -1123,10 +1122,11 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
 
 
         when: "we redo A to A2 -> AB (re-merge)"
-        redoString = redoOperation.replace("@UNIQUENAME@",mrna40788.uniqueName).replace("@COUNT","2")
+        redoString = redoOperation.replace("@UNIQUENAME@",mrna40788.uniqueName).replace("@COUNT@","2")
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
         then: "we confirm that we have a merge AB"
+        def allFeatures = Feature.all
         assert Gene.count == 1
         assert MRNA.count == 1
         assert Exon.count == 5
