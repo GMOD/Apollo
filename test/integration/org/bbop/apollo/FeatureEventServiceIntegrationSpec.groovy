@@ -915,6 +915,7 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         JSONObject jsonAddTranscriptObject2 = JSON.parse(gb40788String) as JSONObject
         String mergeTranscriptString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" }, { \"uniquename\": \"@TRANSCRIPT2_UNIQUENAME@\" } ], \"operation\": \"merge_transcripts\" }"
         String undoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":@COUNT@,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
+        String redoOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":@COUNT@,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
         String setExonBoundary40788Command = "{\"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${gb40788Fmin},\"fmax\":${new40788Fmax}}}],\"operation\":\"set_exon_boundaries\"}"
         String setExonBoundary40787Command = "{\"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":${new40787Fmin},\"fmax\":${gb40787Fmax}}}],\"operation\":\"set_exon_boundaries\"}"
         String getHistoryString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" } ], \"operation\": \"get_history_for_features\" }"
@@ -1100,6 +1101,37 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert old40787Fmin == featureLocation787.fmin
         assert gb40787Fmax == featureLocation787.fmax
 
+        when: "we redo B to get to B1 (and stay A2)"
+        def redoString = redoOperation.replace("@UNIQUENAME@",mrna40787.uniqueName).replace("@COUNT","1")
+        requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
+        then: "we confirm A2 / B1 "
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        assert CDS.count == 2
+        assert Exon.count == 5
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert gb40788Fmin == featureLocation788.fmin
+        assert old40788Fmax == featureLocation788.fmax
+        assert new40787Fmin == featureLocation787.fmin
+        assert gb40787Fmax == featureLocation787.fmax
+        exon788 = Exon.findByUniqueName(exon788UniqueName)
+        featureLocation788 = exon788.featureLocation
+        exon787 = Exon.findByUniqueName(exon787UniqueName)
+        featureLocation787 = exon787.featureLocation
+
+
+        when: "we redo A to A2 -> AB (re-merge)"
+        redoString = redoOperation.replace("@UNIQUENAME@",mrna40788.uniqueName).replace("@COUNT","2")
+        requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
+
+        then: "we confirm that we have a merge AB"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 5
+        assert NonCanonicalFivePrimeSpliceSite.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count == 1
+        assert CDS.count == 1
     }
 }
