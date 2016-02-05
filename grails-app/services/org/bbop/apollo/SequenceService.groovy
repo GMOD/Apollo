@@ -39,18 +39,10 @@ class SequenceService {
      * @param feature
      * @return
      */
-    String getResiduesFromFeature(Feature feature ) {
-        List<FeatureLocation> featureLocationList = FeatureLocation.createCriteria().list {
-            eq("feature",feature)
-            order("fmin","asc")
-        }
-        String returnResidue = ""
-
-        for(FeatureLocation featureLocation in featureLocationList){
-            returnResidue += getResidueFromFeatureLocation(featureLocation)
-        }
+    String getResiduesFromFeature(Feature feature) {
+        String returnResidue = getResidueFromFeatureLocation(feature.featureLocation)
         
-        if(featureLocationList.first().strand==Strand.NEGATIVE.value){
+        if(feature.featureLocation.strand==Strand.NEGATIVE.value){
             returnResidue = SequenceTranslationHandler.reverseComplementSequence(returnResidue)
         }
 
