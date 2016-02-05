@@ -34,6 +34,7 @@ define([
         'JBrowse/Model/SimpleFeature',
         'JBrowse/Util',
         'JBrowse/View/GranularRectLayout',
+        'JBrowse/View/ConfirmDialog',
         'dojo/request/xhr',
         'dojox/widget/Standby',
         'dijit/Tooltip',
@@ -77,6 +78,7 @@ define([
               SimpleFeature,
               Util,
               Layout,
+              ConfirmDialog,
               xhr,
               Standby,
               Tooltip,
@@ -1377,23 +1379,21 @@ define([
             },
 
             confirmDeleteAnnotations: function(track, selectedFeatures, message) {
-                var confirm = new confirmDialog({
+                var confirm = new ConfirmDialog({
                     title: 'Delete feature',
                     message: message,
                     confirmLabel: 'Yes',
                     denyLabel: 'Cancel'
                 }).show(function(confirmed) {
                     if (confirmed) {
-                        var features = '"features": [';
-                        for (var i = 0; i < selectedFeatures.length; ++i) {
-                            if (i > 0) {
-                                features += ',';
-                            }
-                            features += ' { "uniquename": "' + selectedFeatures[i].getUniqueName() + '" } ';
+                        var postData = {};
+                        postData.track = track.getUniqueTrackName();
+                        postData.operation = "delete_feature";
+                        postData.features = [];
+                        for (var i = 0; i < selectedFeatures.length; i++) {
+                            postData.features[i] = { uniquename: selectedFeatures[i].getUniqueName() };
                         }
-                        features += ']';
-                        var postData = '{ "track": "' + track.getUniqueTrackName() + '", ' + features + ', "operation": "delete_feature" }';
-                        track.executeUpdateOperation(postData);
+                        track.executeUpdateOperation(JSON.stringify(postData));
                     }
                 });
             },
