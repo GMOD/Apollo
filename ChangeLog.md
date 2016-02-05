@@ -21,14 +21,12 @@ Bugfixes
 
 + Fixed a bug where sequence modifications weren't being included in the GFF3 export (#748).
 + Provide alternate translation table support on the client (#759).
-+ Fixed a bug where granting a user "administrative" privilege on organism grants write permission to user database (#771).
 + Fixed a bug that causes a persistent screen over 'Links to this Location' popup (#778).
 + Fixed a bug that made it unable to retrieve GFF3 of pseudogenes (#784).
 + Fixed a bug where merging or splitting transcripts and then doing an undo causes error (#842).
 + Fixed a bug which causes links to transcript on the second page of the Annotator Panel to fail (#801).
 + Fixed a bug which causes filter and sort to be mutually exclusive in Changes report page (#824).
 + Fixed a bug where repeat regions, transposable elements and sequence alterations were not part of GFF3 export (#836).
-+ Fixed a bug where sequence search was not working on the Annotator Panel (#838).
 + Fixed a bug where merging of transcripts fail in certain cases (#850).
 + Fixed a bug that was as a result of using native javascript confirm boxes (#851).
 + Fixed a bug where removing a dbxref visually removes the feature from track (#764).
