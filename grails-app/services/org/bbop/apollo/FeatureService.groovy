@@ -8,7 +8,6 @@ import org.bbop.apollo.filter.Cds3Filter
 import org.bbop.apollo.filter.StopCodonFilter
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
-import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -17,12 +16,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
 
 
-/**
- * taken from AbstractBioFeature
- */
-//@GrailsCompileStatic
 @Transactional(readOnly = true)
-//@CompileStatic
 class FeatureService {
 
 
@@ -1335,8 +1329,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @return Local coordinate, -1 if source coordinate is <= fmin or >= fmax
      */
     public int convertSourceCoordinateToLocalCoordinate(Feature feature, int sourceCoordinate) {
-        FeatureLocation featureLocation = FeatureLocation.findByFeature(feature)
-        return convertSourceCoordinateToLocalCoordinate(featureLocation.fmin,featureLocation.fmax,Strand.getStrandForValue(featureLocation.strand),sourceCoordinate)
+        return convertSourceCoordinateToLocalCoordinate(feature.featureLocation.fmin,feature.featureLocation.fmax,Strand.getStrandForValue(feature.featureLocation.strand),sourceCoordinate)
     }
 
     public int convertSourceCoordinateToLocalCoordinate(int fmin, int fmax, Strand strand, int sourceCoordinate) {
@@ -2140,7 +2133,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         return residues.toString();
     }
-
     List<SequenceAlteration> getSequenceAlterationsForFeature(Feature feature) {
         int fmin = feature.fmin
         int fmax = feature.fmax
@@ -2148,6 +2140,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         List<SequenceAlteration> sequenceAlterations = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId", [fmin: fmin, fmax: fmax, seqId: sequence])
         return sequenceAlterations
     }
+
 
 
 
