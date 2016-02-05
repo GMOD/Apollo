@@ -2133,16 +2133,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         return residues.toString();
     }
-
     List<SequenceAlteration> getSequenceAlterationsForFeature(Feature feature) {
-        return SequenceAlteration.createCriteria().list {
-            featureLocations {
-                eq('sequence', feature.featureLocation.sequence)
-                le('fmax',feature.featureLocation.fmax)
-                ge('fmin',feature.featureLocation.fmin)
-            }
-        }
+        int fmin = feature.fmin
+        int fmax = feature.fmax
+        Sequence sequence = feature.featureLocation.sequence
+        List<SequenceAlteration> sequenceAlterations = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId", [fmin: fmin, fmax: fmax, seqId: sequence])
+        return sequenceAlterations
     }
+
 
 
 
