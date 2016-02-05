@@ -39,22 +39,19 @@ class SequenceService {
      * @param feature
      * @return
      */
-    String getResiduesFromFeature(Feature feature ) {
-        List<FeatureLocation> featureLocationList = FeatureLocation.createCriteria().list {
-            eq("feature",feature)
-            order("fmin","asc")
-        }
-        String returnResidue = ""
-
-        for(FeatureLocation featureLocation in featureLocationList){
-            returnResidue += getResidueFromFeatureLocation(featureLocation)
-        }
-        
-        if(featureLocationList.first().strand==Strand.NEGATIVE.value){
-            returnResidue = SequenceTranslationHandler.reverseComplementSequence(returnResidue)
+    String getResiduesFromFeature(Feature feature) {
+        String returnResidues = ""
+        def orderedFeatureLocations = feature.featureLocations.sort { it.fmin }
+        for(FeatureLocation featureLocation in orderedFeatureLocations) {
+            String residues = getResidueFromFeatureLocation(featureLocation)
+            if(featureLocation.strand == Strand.NEGATIVE.value) {
+                returnResidues += SequenceTranslationHandler.reverseComplementSequence(residues)
+            }
+            else returnResidues += residues
         }
 
-        return returnResidue
+
+        return returnResidues
     }
 
     String getResidueFromFeatureLocation(FeatureLocation featureLocation) {
@@ -207,50 +204,15 @@ class SequenceService {
         int startChunkNumber = fmin / sequence.seqChunkSize;
         int endChunkNumber = (fmax - 1 ) / sequence.seqChunkSize;
 
-        def c=SequenceChunk.createCriteria()
-        def chunks=c.list() {
-            eq('sequence',sequence)
-            'in'('chunkNumber',startChunkNumber..endChunkNumber)
-            order("chunkNumber", "asc")
+        
+        for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
+            sequenceString.append(loadResidueForSequence(sequence,i))
         }
-        log.debug("${chunks.size()} ${endChunkNumber-startChunkNumber+1}")
-        if(chunks.size()==endChunkNumber-startChunkNumber+1) {
-            chunks.each {
-                sequenceString.append(it.residue)
-            }
-        }
-        else {
-            for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
-                SequenceChunk sequenceChunk = getSequenceChunkForChunk(sequence,i)
-                sequenceString.append(sequenceChunk.residue)
-            }
-        }
-
 
         int startPosition = fmin - (startChunkNumber * sequence.seqChunkSize);
 
         return sequenceString.substring(startPosition,startPosition + (fmax-fmin))
     }
-
-    SequenceChunk getSequenceChunkForChunk(Sequence sequence, int i) {
-        SequenceChunk sequenceChunk = SequenceChunk.findBySequenceAndChunkNumber(sequence,i)
-        if(!sequenceChunk){
-            String residue = loadResidueForSequence(sequence,i)
-            log.debug "RESIDUE load: ${residue?.size()}"
-            sequenceChunk = new SequenceChunk(
-                    sequence: sequence
-                    ,chunkNumber: i
-                    ,residue: residue
-            ).save(flush:true)
-        }
-        log.debug "RESIDUE loaded from DB: ${sequenceChunk.residue?.size()}"
-        return sequenceChunk
-    }
-
-    private static String generatorSampleDNA(int size){
-        return RandomStringUtils.random(size,['A','T','C','G'] as char[])
-    }
-    
 
     String loadResidueForSequence(Sequence sequence, int chunkNumber) {
         CRC32 crc = new CRC32();

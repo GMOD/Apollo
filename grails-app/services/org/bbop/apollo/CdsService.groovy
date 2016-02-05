@@ -3,10 +3,8 @@ package org.bbop.apollo
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.transaction.Transactional
-import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.sequence.Strand
 
-//@GrailsCompileStatic
 @Transactional
 class CdsService {
 
@@ -30,11 +28,9 @@ class CdsService {
         }
         if (manuallySetTranslationStart) {
             featurePropertyService.addComment(cds, MANUALLY_SET_TRANSLATION_START)
-//            cds.addComment(FeatureService.MANUALLY_SET_TRANSLATION_START);
         }
         if (!manuallySetTranslationStart) {
             featurePropertyService.deleteComment(cds, MANUALLY_SET_TRANSLATION_START)
-//            cds.deleteComment(FeatureService.MANUALLY_SET_TRANSLATION_START);
         }
     }
 
@@ -74,11 +70,6 @@ class CdsService {
     }
 
 
-//    public StopCodonReadThrough getStopCodonReadThrough(CDS cds) {
-//        List<Feature> featureList = featureRelationshipService.getChildrenForFeatureAndTypes(cds, StopCodonReadThrough.ontologyId )
-//        return featureList.size() == 1 ? (StopCodonReadThrough) featureList.get(0) : null
-//    }
-
     /**
      * TODO: is this right?  I think it should be CDS , not transcript?
      * TODO: is this just remove parents and children?
@@ -87,9 +78,6 @@ class CdsService {
      * @return
      */
     def deleteStopCodonReadThrough(CDS cds, StopCodonReadThrough stopCodonReadThrough) {
-//        CVTerm partOfCvTerm = cvTermService.partOf
-//        CVTerm childCvTerm = cvTermService.getTerm(FeatureStringEnum.STOP_CODON_READTHROUGH)
-//        CVTerm parentCvTerm = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT)
         featureRelationshipService.deleteChildrenForTypes(cds, StopCodonReadThrough.ontologyId)
         featureRelationshipService.deleteParentForTypes(stopCodonReadThrough, Transcript.ontologyId)
     }
@@ -106,33 +94,7 @@ class CdsService {
         return featureRelationshipService.getChildrenForFeatureAndTypes(cds,StopCodonReadThrough.ontologyId)
     }
 
-//    Transcript getTranscript(CDS cds) {
-//        Criteria criteria = FeatureRelationship.createCriteria()
-//        List<FeatureRelationship> featureRelationshipList = criteria {
-//            eq("childFeature", cds)
-//            eq("parentFeature.ontologyId", Transcript.ontologyId)
-//        }
-//
-//        if (featureRelationshipList.size() == 0) {
-//            return null
-//        }
-//
-//        if (featureRelationshipList.size() > 1) {
-//            log.error "More than one feature relationships found for CDS ${cds} and ID ${Transcript.ontologyId}"
-//        }
-//
-//        return (Transcript) featureRelationshipList.get(0).parentFeature
-//
-//        List<Feature> featureList = featureRelationshipService.getParentForFeature(cds,Transcript.ontologyId)
-//
-////
-////        List<Feature> featureList = featureRelationshipService.getParentForFeature(cds, FeatureStringEnum.TRANSCRIPT)
-////        featureList.size() == 1 ? (Transcript) featureList.get(0) : null
-//    }
-
     public StopCodonReadThrough createStopCodonReadThrough(CDS cds) {
-//        Date date = new Date();
-
         String uniqueName = cds.getUniqueName() + FeatureStringEnum.STOP_CODON_READHTHROUGH_SUFFIX.value;
         StopCodonReadThrough stopCodonReadThrough = new StopCodonReadThrough(
                 uniqueName: uniqueName
@@ -140,8 +102,6 @@ class CdsService {
                 , isAnalysis: cds.isIsAnalysis()
                 , isObsolete: cds.isIsObsolete()
         ).save(failOnError: true)
-//        StopCodonReadThrough stopCodonReadThrough = new StopCodonReadThrough(cds.getOrganism(), uniqueName, cds.isAnalysis(),
-//                cds.isObsolete(), null, cds.getConfiguration());
         FeatureLocation featureLocation = new FeatureLocation(
                 sequence: cds.featureLocation.sequence
                 , feature: stopCodonReadThrough
@@ -154,24 +114,15 @@ class CdsService {
 
         stopCodonReadThrough.save(flush: true)
 
-//        stopCodonReadThrough.setFeatureLocation(new FeatureLocation());
-//        stopCodonReadThrough.getFeatureLocation().setSourceFeature(cds.getFeatureLocation().getSourceFeature());
-//        stopCodonReadThrough.setTimeAccessioned(date);
-//        stopCodonReadThrough.setTimeLastModified(date);
         return stopCodonReadThrough;
     }
 
     def setStopCodonReadThrough(CDS cds, StopCodonReadThrough stopCodonReadThrough, boolean replace = true) {
-//        CVTerm partOfCvTerm = cvTermService.partOf
-//        CVTerm stopCodonReadThroughCvTerm = cvTermService.getTerm(FeatureStringEnum.STOP_CODON_READTHROUGH)
-
-
         if (replace) {
             featureRelationshipService.setChildForType(cds,stopCodonReadThrough)
         }
 
         FeatureRelationship fr = new FeatureRelationship(
-//                type: partOfCvTerm
                 parentFeature: cds
                 , childFeature: stopCodonReadThrough
                 , rank: 0 // TODO: Do we need to rank the order of any other transcripts?
@@ -188,7 +139,6 @@ class CdsService {
         // New implementation that infers CDS based on overlapping exons
         Transcript transcript = transcriptService.getTranscript(cds)
         List <Exon> exons = exonService.getSortedExons(transcript)
-        int length = 0
         String residues = ""
         for(Exon exon : exons) {
             if (!overlapperService.overlaps(exon,cds)) {
@@ -211,19 +161,4 @@ class CdsService {
         return residues
     }
 
-//    def getResiduesFromCDS(CDS cds) {
-//        Previous implementation
-//        Transcript transcript = transcriptService.getTranscript(cds)
-//        String residues = transcriptService.getResiduesFromTranscript(transcript)
-//        int begin
-//        int end
-//        if (cds.getFeatureLocation().strand == Strand.NEGATIVE.value) {
-//            end = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmin) + 1
-//            begin = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmax) + 1
-//        } else {
-//            begin = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmin)
-//            end = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmax)
-//        }
-//        return residues.substring(begin, end)
-//    }
 }
