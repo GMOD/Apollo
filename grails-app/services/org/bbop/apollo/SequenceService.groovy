@@ -214,11 +214,6 @@ class SequenceService {
         return sequenceString.substring(startPosition,startPosition + (fmax-fmin))
     }
 
-    private static String generatorSampleDNA(int size){
-        return RandomStringUtils.random(size,['A','T','C','G'] as char[])
-    }
-    
-
     String loadResidueForSequence(Sequence sequence, int chunkNumber) {
         CRC32 crc = new CRC32();
         crc.update(sequence.name.getBytes());
