@@ -3,7 +3,6 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.gmod.chado.ApplicationMetadata
 
 @Transactional
 class ChadoHandlerService {
@@ -23,13 +22,6 @@ class ChadoHandlerService {
 
         // identify the features not yet in Chado
         Collection<Long> featureIds = features.id
-
-
-        ApplicationMetadata applicationMetadata = ApplicationMetadata.findByKey("lastUpdate")
-        Date lastUpdatedDate = null
-        if(applicationMetadata){
-           lastUpdatedDate = Date.parse("YYYY-MM-DD",applicationMetadata.value)
-        }
 
 
         List<org.gmod.chado.Feature> chadoNewFeatures = org.gmod.chado.Feature.findAllByIdNotInList(featureIds)
