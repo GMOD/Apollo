@@ -1326,9 +1326,7 @@ define([
                         var trackdiv = track.div;
                         var trackName = track.getUniqueTrackName();
                         if (!selfeat.parent()) {
-                            if (confirm("Deleting feature " + selfeat.get("name") + " cannot be undone.  Are you sure you want to delete?")) {
-                                toBeDeleted.push(uniqueName);
-                            }
+                            track.confirmDeleteAnnotations(track, [selfeat], "Deleting feature " + selfeat.get("name") + " cannot be undone.  Are you sure you want to delete?");
                         }
                         else {
                             var children = parents[selfeat.parent().id()] || (parents[selfeat.parent().id()] = []);
@@ -1347,16 +1345,12 @@ define([
                             }
                         }
                         if (numExons == children.length) {
-                            if (confirm("Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?")) {
-                                toBeDeleted.push(id);
-                            }
+                            track.confirmDeleteAnnotations(track, [children[0]], "Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?");
                             continue;
                         }
                     }
                     else if (children.length == children[0].parent().get("subfeatures").length) {
-                        if (confirm("Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?")) {
-                            toBeDeleted.push(id);
-                        }
+                        track.confirmDeleteAnnotations(track, [children[0]], "Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?");
                         continue;
                     }
                     for (var i = 0; i < children.length; ++i) {
@@ -1380,6 +1374,28 @@ define([
                 }
                 var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }';
                 track.executeUpdateOperation(postData);
+            },
+
+            confirmDeleteAnnotations: function(track, selectedFeatures, message) {
+                var confirm = new confirmDialog({
+                    title: 'Delete feature',
+                    message: message,
+                    confirmLabel: 'Yes',
+                    denyLabel: 'Cancel'
+                }).show(function(confirmed) {
+                    if (confirmed) {
+                        var features = '"features": [';
+                        for (var i = 0; i < selectedFeatures.length; ++i) {
+                            if (i > 0) {
+                                features += ',';
+                            }
+                            features += ' { "uniquename": "' + selectedFeatures[i].getUniqueName() + '" } ';
+                        }
+                        features += ']';
+                        var postData = '{ "track": "' + track.getUniqueTrackName() + '", ' + features + ', "operation": "delete_feature" }';
+                        track.executeUpdateOperation(postData);
+                    }
+                });
             },
 
             mergeSelectedFeatures: function () {
