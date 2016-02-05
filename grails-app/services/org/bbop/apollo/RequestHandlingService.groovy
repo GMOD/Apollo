@@ -2140,6 +2140,9 @@ class RequestHandlingService {
 
         JSONObject transcript2JSONObject = transcriptService.convertTranscriptsToJSON([transcript2]).getJSONObject(0)
 
+        // calculate longest ORF, to reset any changes made to the CDS, before a merge
+        featureService.setLongestORF(transcript1);
+        featureService.setLongestORF(transcript2);
         // merging transcripts
         transcriptService.mergeTranscripts(transcript1, transcript2)
         featureService.calculateCDS(transcript1)
