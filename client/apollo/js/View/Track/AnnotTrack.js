@@ -34,6 +34,7 @@ define([
         'JBrowse/Model/SimpleFeature',
         'JBrowse/Util',
         'JBrowse/View/GranularRectLayout',
+        'JBrowse/View/ConfirmDialog',
         'dojo/request/xhr',
         'dojox/widget/Standby',
         'dijit/Tooltip',
@@ -77,6 +78,7 @@ define([
               SimpleFeature,
               Util,
               Layout,
+              ConfirmDialog,
               xhr,
               Standby,
               Tooltip,
@@ -1326,9 +1328,7 @@ define([
                         var trackdiv = track.div;
                         var trackName = track.getUniqueTrackName();
                         if (!selfeat.parent()) {
-                            if (confirm("Deleting feature " + selfeat.get("name") + " cannot be undone.  Are you sure you want to delete?")) {
-                                toBeDeleted.push(uniqueName);
-                            }
+                            track.confirmDeleteAnnotations(track, [selfeat], "Deleting feature " + selfeat.get("name") + " cannot be undone.  Are you sure you want to delete?");
                         }
                         else {
                             var children = parents[selfeat.parent().id()] || (parents[selfeat.parent().id()] = []);
@@ -1347,16 +1347,12 @@ define([
                             }
                         }
                         if (numExons == children.length) {
-                            if (confirm("Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?")) {
-                                toBeDeleted.push(id);
-                            }
+                            track.confirmDeleteAnnotations(track, [children[0]], "Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?");
                             continue;
                         }
                     }
                     else if (children.length == children[0].parent().get("subfeatures").length) {
-                        if (confirm("Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?")) {
-                            toBeDeleted.push(id);
-                        }
+                        track.confirmDeleteAnnotations(track, [children[0]], "Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?");
                         continue;
                     }
                     for (var i = 0; i < children.length; ++i) {
@@ -1380,6 +1376,26 @@ define([
                 }
                 var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }';
                 track.executeUpdateOperation(postData);
+            },
+
+            confirmDeleteAnnotations: function(track, selectedFeatures, message) {
+                var confirm = new ConfirmDialog({
+                    title: 'Delete feature',
+                    message: message,
+                    confirmLabel: 'Yes',
+                    denyLabel: 'Cancel'
+                }).show(function(confirmed) {
+                    if (confirmed) {
+                        var postData = {};
+                        postData.track = track.getUniqueTrackName();
+                        postData.operation = "delete_feature";
+                        postData.features = [];
+                        for (var i = 0; i < selectedFeatures.length; i++) {
+                            postData.features[i] = { uniquename: selectedFeatures[i].getUniqueName() };
+                        }
+                        track.executeUpdateOperation(JSON.stringify(postData));
+                    }
+                });
             },
 
             mergeSelectedFeatures: function () {

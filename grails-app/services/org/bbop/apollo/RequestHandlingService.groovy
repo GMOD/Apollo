@@ -13,7 +13,7 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
-
+import org.hibernate.FetchMode
 /**
  * This class is responsible for handling JSON requests from the AnnotationEditorController and routing
  * to the proper service classes.
@@ -523,6 +523,7 @@ class RequestHandlingService {
     @Timed
     @Transactional(readOnly = true)
     JSONObject getFeatures(JSONObject inputObject) {
+        long start = System.currentTimeMillis()
 
 
         String sequenceName = permissionService.getSequenceNameFromInput(inputObject)
@@ -534,39 +535,43 @@ class RequestHandlingService {
 
         log.debug "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
 
-
-
-        List topLevelTranscripts = Transcript.executeQuery("select distinct f , child , childLocation from Transcript f join f.featureLocations fl join f.parentFeatureRelationships pr join pr.childFeature child join child.featureLocations childLocation where fl.sequence = :sequence and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationTranscriptList])
-        Map<Transcript, List<Feature>> transcriptMap = new HashMap<>()
-        Map<Transcript, List<FeatureLocation>> featureLocationMap = new HashMap<>()
-        topLevelTranscripts.each {
-            List<Feature> featureList
-            featureList = transcriptMap.containsKey(it[0]) ? transcriptMap.get(it[0]) : new ArrayList<>()
-            featureList.add(it[1])
-            transcriptMap.put(it[0], featureList)
-
-
-            List<FeatureLocation> featureLocationList
-            featureLocationList = featureLocationMap.containsKey(it[0]) ? featureLocationMap.get(it[0]) : new ArrayList<>()
-            featureLocationList.add(it[2])
-            featureLocationMap.put(it[0], featureLocationList)
+        def features = Feature.createCriteria().listDistinct {
+            featureLocations {
+                eq('sequence',sequence)
+            }
+            fetchMode 'owners', FetchMode.JOIN
+            fetchMode 'featureLocations', FetchMode.JOIN
+            fetchMode 'featureLocations.sequence', FetchMode.JOIN
+            fetchMode 'featureProperties', FetchMode.JOIN
+            fetchMode 'featureDBXrefs', FetchMode.JOIN
+            fetchMode 'parentFeatureRelationships', FetchMode.JOIN
+            fetchMode 'childFeatureRelationships', FetchMode.JOIN
+            fetchMode 'childFeatureRelationships.parentFeature', FetchMode.JOIN
+            fetchMode 'childFeatureRelationships.parentFeature.featureLocations', FetchMode.JOIN
+            fetchMode 'childFeatureRelationships.parentFeature.featureLocations.sequence', FetchMode.JOIN
+            fetchMode 'parentFeatureRelationships.parentFeature', FetchMode.JOIN
+            fetchMode 'parentFeatureRelationships.parentFeature.featureLocations', FetchMode.JOIN
+            fetchMode 'parentFeatureRelationships.parentFeature.featureLocations.sequence', FetchMode.JOIN
+            fetchMode 'parentFeatureRelationships.childFeature', FetchMode.JOIN
+            fetchMode 'parentFeatureRelationships.childFeature.parentFeatureRelationships', FetchMode.JOIN
+            fetchMode 'parentFeatureRelationships.childFeature.childFeatureRelationships', FetchMode.JOIN
+            fetchMode 'parentFeatureRelationships.childFeature.featureLocations', FetchMode.JOIN
+            fetchMode 'parentFeatureRelationships.childFeature.featureLocations.sequence', FetchMode.JOIN
+            fetchMode 'parentFeatureRelationships.childFeature.featureProperties', FetchMode.JOIN
+            fetchMode 'parentFeatureRelationships.childFeature.featureDBXrefs', FetchMode.JOIN
+            fetchMode 'parentFeatureRelationships.childFeature.owners', FetchMode.JOIN
+            'in'('class', viewableAnnotationTranscriptList+viewableAnnotationFeatureList)
         }
+
 
         JSONArray jsonFeatures = new JSONArray()
-
-        for (Transcript transcript in transcriptMap.keySet()) {
-            jsonFeatures.put(transcriptService.convertTranscriptToJSON(transcript, transcriptMap.get(transcript), featureLocationMap.get(transcript)))
-        }
-
-
-
-        List<Feature> topLevelFeatures = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequence: sequence, viewableAnnotationList: viewableAnnotationFeatureList])
-        topLevelFeatures.each { feature ->
+        features.each { feature ->
             JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
             jsonFeatures.put(jsonObject)
         }
 
         inputObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
+        log.debug "getFeatures ${System.currentTimeMillis()-start}ms"
         return inputObject
 
     }
@@ -650,6 +655,7 @@ class RequestHandlingService {
         }
 
         List<Transcript> transcriptList = new ArrayList<>()
+        def transcriptJSONList = []
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
             jsonTranscript = permissionService.copyUserName(inputObject, jsonTranscript)
@@ -659,23 +665,19 @@ class RequestHandlingService {
             transcript.save(flush: true)
             transcriptList.add(transcript)
 
-            // https://github.com/GMOD/Apollo/issues/453
-            // enforce calculation for ALL created transcripts
-            // checking for overlapping Sequence Alterations
-//            List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin > :fmin and fl.fmax < :fmax and fl.sequence = :seqId", [seqId: transcript.featureLocation.sequence, fmin: transcript.featureLocation.fmin, fmax: transcript.featureLocation.fmax])
-//            if (sequenceAlterationList.size() > 0) {
             featureService.setLongestORF(transcript)
-//            }
             Gene gene = transcriptService.getGene(transcript)
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
 
             if (!suppressHistory) {
-//                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, transcript, inputObject, permissionService.getCurrentUser(inputObject))
-                featureEventService.addNewFeatureEventWithUser(FeatureOperation.ADD_TRANSCRIPT, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, featureService.convertFeatureToJSON(transcript), permissionService.getCurrentUser(inputObject))
+                def json = featureService.convertFeatureToJSON(transcript)
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.ADD_TRANSCRIPT, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, json, permissionService.getCurrentUser(inputObject))
+                transcriptJSONList+=json
             }
         }
 
-        returnObject.put(FeatureStringEnum.FEATURES.value, transcriptService.convertTranscriptsToJSON(transcriptList))
+
+        returnObject.put(FeatureStringEnum.FEATURES.value, transcriptJSONList as JSONArray)
 
         if (!suppressEvents) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -2138,8 +2140,11 @@ class RequestHandlingService {
         String transcript1UniqueName = transcript1.uniqueName
         String transcript2UniqueName = transcript2.uniqueName
 
-        JSONObject transcript2JSONObject = transcriptService.convertTranscriptsToJSON([transcript2]).getJSONObject(0)
+        JSONObject transcript2JSONObject = featureService.convertFeatureToJSON(transcript2)
 
+        // calculate longest ORF, to reset any changes made to the CDS, before a merge
+        featureService.setLongestORF(transcript1);
+        featureService.setLongestORF(transcript2);
         // merging transcripts
         transcriptService.mergeTranscripts(transcript1, transcript2)
         featureService.calculateCDS(transcript1)
