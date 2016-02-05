@@ -80,6 +80,8 @@ public class SequencePanel extends Composite {
     //    Button exportChadoButton;
     @UiField
     Button selectSelectedButton;
+    @UiField
+    Button exportChadoButton;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -299,7 +301,7 @@ public class SequencePanel extends Composite {
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 
-    @UiHandler(value = {"exportGff3Button", "exportFastaButton"})
+    @UiHandler(value = {"exportGff3Button", "exportFastaButton","exportChadoButton"})
     // Disabling exportChadoButton for future release (Apollo 2.0 alpha2)
     // @UiHandler(value = {"exportGff3Button", "exportFastaButton", "exportChadoButton"})
     public void handleExportTypeChanged(ClickEvent clickEvent) {
@@ -313,6 +315,9 @@ public class SequencePanel extends Composite {
                 break;
             case "FASTA":
                 exportFastaButton.setType(ButtonType.PRIMARY);
+                break;
+            case "CHADO":
+                exportChadoButton.setType(ButtonType.PRIMARY);
                 break;
 //            case "CHADO":
 //                exportChadoButton.setType(ButtonType.PRIMARY);
@@ -357,8 +362,12 @@ public class SequencePanel extends Composite {
         String type = null;
         if (exportGff3Button.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportGff3Button.getText();
-        } else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+        }
+        else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportFastaButton.getText();
+        }
+        else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+            type = exportChadoButton.getText();
         }
 //        GWT.log("Type selected is " + type);
 

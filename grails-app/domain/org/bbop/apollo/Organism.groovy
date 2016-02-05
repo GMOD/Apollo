@@ -14,6 +14,7 @@ class Organism {
         genus nullable: true
         valid nullable: true
         blatdb nullable: true
+        metadata nullable: true
         commonName nullable: false
     }
 
@@ -26,6 +27,8 @@ class Organism {
     boolean publicMode;
     String blatdb;
     String directory
+
+    String metadata
 
     static hasMany = [
             organismProperties: OrganismProperty
