@@ -1104,6 +1104,10 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         when: "we redo B to get to B1 (and stay A2)"
         def redoString = redoOperation.replace("@UNIQUENAME@",mrna40787.uniqueName).replace("@COUNT","1")
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
+        exon788 = Exon.findByUniqueName(exon788UniqueName)
+        featureLocation788 = exon788.featureLocation
+        exon787 = Exon.findByUniqueName(exon787UniqueName)
+        featureLocation787 = exon787.featureLocation
 
         then: "we confirm A2 / B1 "
         assert Gene.count == 2
@@ -1116,10 +1120,6 @@ class FeatureEventServiceIntegrationSpec extends IntegrationSpec {
         assert old40788Fmax == featureLocation788.fmax
         assert new40787Fmin == featureLocation787.fmin
         assert gb40787Fmax == featureLocation787.fmax
-        exon788 = Exon.findByUniqueName(exon788UniqueName)
-        featureLocation788 = exon788.featureLocation
-        exon787 = Exon.findByUniqueName(exon787UniqueName)
-        featureLocation787 = exon787.featureLocation
 
 
         when: "we redo A to A2 -> AB (re-merge)"
