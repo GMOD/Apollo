@@ -289,8 +289,9 @@ class AnnotatorController {
                 }
                 'in'('class', viewableTypes)
             }
+
             //step 2 does a distinct query with extra attributes added in
-            def features = Feature.createCriteria().listDistinct {
+            def features = pagination.size()==0 ? [] : Feature.createCriteria().listDistinct {
                 'in'('id', pagination.collect { it.id })
                 featureLocations {
                     if(sort=="length") {
