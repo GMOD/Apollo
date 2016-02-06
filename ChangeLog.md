@@ -17,7 +17,6 @@ Features
 + Enhanced the web service API to enable the ability to add GO, Dbxref, attributes and publications to features (#829).
 + Improved the speed of FASTA export via optimization (#854).
 + Updated history window to indicate current position (#797).
-+ 
 
 Bugfixes
 
