@@ -1,6 +1,38 @@
 ## 2.0.2
 
-+ Re-added translation table support (#758).
+Features
+
++ Added ability to filter summary of annotations by user (#79).
++ Re-added translation table support (#757).
++ Improved speed of GFF3 export via optimization (#274).
++ Enhanced GFF3 export of sequence alterations by including the altered residues (#754).
++ Added warning for Tomcat memory settings when doing apollo deploy (#767).
++ Replaced the Split Panel interface of Annotator with Dock Panel (#768).
++ Added label to the 'Revert' button in History window (#769).
++ Added ability to sort annotations by 'Last Updated' on the Annotator Panel (#770).
++ Added ability to add a comment to sequence alterations (#781).
++ Added annotation count to the Sequences Panel (#803).
++ Optimized pagination in Annotator Panel when dealing with large number of annotations (#820).
++ Enhanced the web service API to enable the ability to edit name of features (#776).
++ Enhanced the web service API to enable the ability to add GO, Dbxref, attributes and publications to features (#829).
++ Improved the speed of FASTA export via optimization (#854).
++ Updated history window to indicate current position (#797).
+
+Bugfixes
+
++ Fixed a bug where sequence modifications weren't being included in the GFF3 export (#748).
++ Provide alternate translation table support on the client (#759).
++ Fixed a bug that causes a persistent screen over 'Links to this Location' popup (#778).
++ Fixed a bug that made it unable to retrieve GFF3 of pseudogenes (#784).
++ Fixed a bug where merging or splitting transcripts and then doing an undo causes error (#842).
++ Fixed a bug which causes links to transcript on the second page of the Annotator Panel to fail (#801).
++ Fixed a bug which causes filter and sort to be mutually exclusive in Changes report page (#824).
++ Fixed a bug where repeat regions, transposable elements and sequence alterations were not part of GFF3 export (#836).
++ Fixed a bug where merging of transcripts fail in certain cases (#850).
++ Fixed a bug that was as a result of using native javascript confirm boxes (#851).
++ Fixed a bug where removing a dbxref visually removes the feature from track (#764).
++ Fixed a bug which causes all genomic elements to disappear when 'Show minus strand' option was selected (#782).
++ Fixed a bug where modification of a gene model was taking a long time when the backend was MySQL (#743).
 
 ## 2.0.1
 
