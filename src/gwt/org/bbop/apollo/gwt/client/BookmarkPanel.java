@@ -61,7 +61,7 @@ public class BookmarkPanel extends Composite {
     @UiField(provided = true)
     DataGrid<BookmarkInfo> dataGrid = new DataGrid<BookmarkInfo>(1000, tablecss);
     @UiField
-    SplitLayoutPanel layoutPanel;
+    DockLayoutPanel layoutPanel;
     //    @UiField
 //    Tree optionTree;
     @UiField
