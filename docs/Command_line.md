@@ -35,6 +35,8 @@ This command can accept an -output argument to output to file, or the stdout can
 The -username and -password can be specified via the command line (similar to `get_gff3.groovy`) or if omitted, the user
 will be prompted.
 
+The -seqtype parameter can be "cds", "cdna", or "peptide"
+
 ### add_users.groovy
 
 
@@ -80,5 +82,18 @@ docs/web_services/examples/groovy/delete_annotations_from_organism.groovy  -dest
 
 This script will delete any annotations associated with a given organism.
 
+
+
+### delete_organism.groovy
+
+Example:
+
+```
+docs/web_services/examples/groovy/delete_organism.groovy  -url http://localhost:8080/apollo\
+     -organism honeybee -username admin@webapollo.com -password admin_password
+```
+
+This script can be used to delete all organism information including the annotations from it. You can also specify the 
+-featuresOnly flag to only remove the features from the organism.
 
 
