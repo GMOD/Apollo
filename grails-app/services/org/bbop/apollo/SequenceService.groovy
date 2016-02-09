@@ -218,11 +218,15 @@ class SequenceService {
         CRC32 crc = new CRC32();
         crc.update(sequence.name.getBytes());
         String hex = String.format("%08x", crc.getValue())
-        String []dirs = hex.toList().collate( 3 )*.join()
+        String []dirs = splitStringByNumberOfCharacters(hex, 3)
         String seqDir = String.format("%s/seq/%s/%s/%s", sequence.organism.directory, dirs[0], dirs[1], dirs[2]);
         String filePath = seqDir+ "/"+ sequence.name + "-" + chunkNumber + ".txt"
 
         return new File(filePath).getText().toUpperCase()
+    }
+
+    String[] splitStringByNumberOfCharacters(String label, int size) {
+        return label.toList().collate(size)*.join()
     }
 
 
