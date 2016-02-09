@@ -432,14 +432,14 @@ public class MainPanel extends Composite {
 
                 final String finalString = trackListString;
 
-                Window.alert("setting filan string: "+finalString);
+                Bootbox.alert("setting filan string: "+finalString);
 //                frame.setUrl(finalString);
 
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Problem viewing bookmarks: "+exception);
+                Bootbox.alert("Problem viewing bookmarks: "+exception);
             }
         };
 

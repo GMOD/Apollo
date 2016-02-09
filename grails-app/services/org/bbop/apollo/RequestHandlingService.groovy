@@ -486,11 +486,11 @@ class RequestHandlingService {
 //            preferenceService.setCurrentSequence(permissionService.getCurrentUser(inputObject), sequenceList)
         }
 
-        log.debug "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
+//        log.debug "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
 
         def features = Feature.createCriteria().listDistinct {
             featureLocations {
-                eq('sequence',sequence)
+                'in'('sequence',sequenceList)
             }
             fetchMode 'owners', FetchMode.JOIN
             fetchMode 'featureLocations', FetchMode.JOIN

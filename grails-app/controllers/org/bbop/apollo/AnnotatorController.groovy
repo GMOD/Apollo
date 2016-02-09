@@ -276,11 +276,18 @@ class AnnotatorController {
             long start = System.currentTimeMillis()
             log.debug "${sort} ${sortorder}"
 
+            List<Sequence> sequenceList
+            if(bookmark){
+                sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+            }
+            else{
+
+            }
             //use two step query. step 1 gets genes in a page
             def pagination = Feature.createCriteria().list(max: max, offset: offset) {
                 featureLocations {
                     if(sequenceName) {
-                        eq('sequence',sequenceObj)
+                        'in'('sequence',sequences)
                     }
                     if(sort=="length") {
                         order('length', sortorder)

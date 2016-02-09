@@ -110,7 +110,8 @@
               location="${apollo.plugin.directory}/js/main.js.uncompressed.js"/>
     <property name="scripts.directory" location="scripts"/>
     <property name="jbrowse.git.test.file" location="${jbrowse.download.directory}/src/dojo/dojo.js"/>
-    <property name="jbrowse.github" value="https://github.com/gmod/jbrowse"/>
+<!--    <property name="jbrowse.github" value="https://github.com/gmod/jbrowse"/>-->
+    <property name="jbrowse.github" value="https://github.com/nathandunn/jbrowse"/>
     <property name="jbrowse.version" value="dev"/>
     <property name="jbrowse.perl.dependency.test.file" value="bin/flatfile-to-json.pl"/>
 
@@ -192,7 +193,8 @@
             <arg value="checkout"/>
             <!--<arg value="tags/${jbrowse.release.version}"/>-->
             <!--<arg value="master"/>-->
-            <arg value="multiple_highlights"/>
+<!--            <arg value="multiple_highlights"/>-->
+            <arg value="apollo2_build"/>
         </exec>
     </target>
 
