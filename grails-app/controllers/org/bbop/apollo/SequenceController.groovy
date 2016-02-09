@@ -171,7 +171,10 @@ class SequenceController {
         try {
             Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
 
-            if(!organism) return ([] as JSON)
+            if(!organism) {
+                render ([] as JSON)
+                return
+            }
             def sequences = Sequence.createCriteria().list() {
                 if(name) {
                     ilike('name', '%'+name+'%')
