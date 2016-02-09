@@ -194,7 +194,8 @@ class SequenceTranslationHandler {
      * @return
      */
     public static TranslationTable readTable(File file) {
-        TranslationTable ttable = new StandardTranslationTable()
+        TranslationTable ttable = new StandardTranslationTable().cloneTable()
+        ttable.name = file.name
 //        BufferedReader reader = new BufferedReader(new InputStreamReader(getServletContext().getResourceAsStream(track.getTranslationTable())));
         file.text.readLines().each { String line ->
             String[] tokens = line.split("\t");

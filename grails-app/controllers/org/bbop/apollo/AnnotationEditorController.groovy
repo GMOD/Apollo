@@ -1,6 +1,5 @@
 package org.bbop.apollo
 
-import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -128,59 +127,18 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         permissionService.checkPermissions(inputObject, PermissionEnum.READ)
 
         JSONObject historyContainer = createJSONFeatureContainer();
-        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-        for (int i = 0; i < featuresArray.size(); ++i) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = Feature.findByUniqueName(uniqueName)
-
-            JSONArray history = new JSONArray();
-            jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
-            List<List<FeatureEvent>> transactionList = featureEventService.getHistory(feature.uniqueName)
-            for (int j = 0; j < transactionList.size(); ++j) {
-                FeatureEvent transaction = transactionList[j][0];
-                JSONObject historyItem = new JSONObject();
-                historyItem.put(REST_OPERATION, transaction.operation.name());
-                historyItem.put(FeatureStringEnum.EDITOR.value, transaction.getEditor().username);
-                historyItem.put(FeatureStringEnum.DATE.value, dateFormat.format(transaction.dateCreated));
-                if (transaction.current) {
-                    historyItem.put(FeatureStringEnum.CURRENT.value, true);
-                } else {
-                    historyItem.put(FeatureStringEnum.CURRENT.value, false);
-                }
-                JSONArray historyFeatures = new JSONArray();
-                historyItem.put(FeatureStringEnum.FEATURES.value, historyFeatures);
-
-                if (transaction.newFeaturesJsonArray) {
-                    JSONArray newFeaturesJsonArray = (JSONArray) JSON.parse(transaction.newFeaturesJsonArray)
-                    for (int featureIndex = 0; featureIndex < newFeaturesJsonArray.size(); featureIndex++) {
-                        JSONObject featureJsonObject = newFeaturesJsonArray.getJSONObject(featureIndex)
-                        // TODO: this needs to be functional
-//                        if (transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT)) {
-//                            Feature newFeature = Feature.findByUniqueName(featureJsonObject.getString(FeatureStringEnum.UNIQUENAME.value))
-//                            if (overlapperService.overlaps(feature.featureLocation, newFeature.featureLocation, true)) {
-//                                historyFeatures.put(featureJsonObject);
-//                            }
-//                        }
-//                        else{
-//                            historyFeatures.put(featureJsonObject);
-//                        }
-                        historyFeatures.put(featureJsonObject);
-                    }
-                    history.put(historyItem);
-                }
-            }
-            historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature);
-        }
+        historyContainer = featureEventService.generateHistory(historyContainer,featuresArray)
 
         render historyContainer as JSON
     }
 
 
+    @RestApiMethod(description="Returns a translation table as JSON" ,path="/annotationEditor/getTranslationTable",verb = RestApiVerb.POST )
+    @RestApiParams(params=[] )
     def getTranslationTable() {
         log.debug "getTranslationTable"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-        TranslationTable translationTable = SequenceTranslationHandler.getDefaultTranslationTable()
+        TranslationTable translationTable = configWrapperService.getTranslationTable()
         JSONObject ttable = new JSONObject();
         for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
             ttable.put(t.getKey(), t.getValue());
@@ -496,7 +454,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             if (parentIds.length() > 0) {
                 info.put("parent_ids", parentIds);
             }
-
+            def featureProperties = featurePropertyService.getNonReservedProperties(gbolFeature);
+            featureProperties.each {
+                info.put(it.tag, it.value);
+            }
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(info);
         }
 
@@ -561,8 +522,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
-        def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
 
+//        List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
+//                , [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations])
         List<SequenceAlteration> sequenceAlterationList = (List<SequenceAlteration>) Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in( :sequences) and f.class in :sequenceTypes"
                 , [sequences: bookmarkService.getSequencesFromBookmark(bookmark), sequenceTypes: sequenceTypes])
         for (SequenceAlteration alteration : sequenceAlterationList) {
@@ -608,6 +570,22 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render annotationInfoEditorConfigContainer
     }
 
+    @RestApiMethod(description="Set name of a feature" ,path="/annotationEditor/setName",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','name':'gene01'}")
+    ] )
+    def setName() {
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.setName(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
 
     @RestApiMethod(description="Set description for a feature" ,path="/annotationEditor/setDescription",verb = RestApiVerb.POST )
     @RestApiParams(params=[
@@ -666,13 +644,97 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
             ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
-            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','non_reserved_properties':[{'tag':'clockwark','value':'orange'},{'tag':'color','value':'purple'}]}.  Available status found here: /availableStatus/ ")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','non_reserved_properties':[{'tag':'clockwork','value':'orange'},{'tag':'color','value':'purple'}]}.  Available status found here: /availableStatus/ ")
     ] )
     def addAttribute() {
-        println("PARAMS: " + params.data)
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addNonReservedProperties(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+    @RestApiMethod(description="Delete attribute (key,value pair) for feature" ,path="/annotationEditor/deleteAttribute",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','non_reserved_properties':[{'tag':'clockwork','value':'orange'},{'tag':'color','value':'purple'}]}.  Available status found here: /availableStatus/ ")
+    ] )
+    def deleteAttribute() {
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.deleteNonReservedProperties(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+    @RestApiMethod(description="Update attribute (key,value pair) for feature" ,path="/annotationEditor/updateAttribute",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','old_non_reserved_properties':[{'color': 'red'}], 'new_non_reserved_properties': [{'color': 'green'}]}.")
+    ] )
+    def updateAttribute() {
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.updateNonReservedProperties(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+    @RestApiMethod(description="Add dbxref (db,id pair) to feature" ,path="/annotationEditor/addDbxref",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','dbxrefs': [{'db': 'PMID', 'accession': '19448641'}]}.")
+    ] )
+    def addDbxref() {
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.addNonPrimaryDbxrefs(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+    @RestApiMethod(description="Update dbxrefs (db,id pairs) for a feature" ,path="/annotationEditor/updateDbxref",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','old_dbxrefs': [{'db': 'PMID', 'accession': '19448641'}], 'new_dbxrefs': [{'db': 'PMID', 'accession': '19448642'}]}.")
+    ] )
+    def updateDbxref() {
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.updateNonPrimaryDbxrefs(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+    @RestApiMethod(description="Delete dbxrefs (db,id pairs) for a feature" ,path="/annotationEditor/deleteDbxref",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="sequence", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Sequence name")
+            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
+            ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','dbxrefs': [{'db': 'PMID', 'accession': '19448641'}]}.")
+    ] )
+    def deleteDbxref() {
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.deleteNonPrimaryDbxrefs(inputObject)
         } else {
             render status: HttpStatus.UNAUTHORIZED
         }
@@ -1043,9 +1105,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @SendTo("/topic/AnnotationNotification")
     @Timed
     protected String annotationEditor(String inputString, Principal principal) {
-        println  "Input String: annotation editor service ${inputString}"
+        log.debug "Input String: annotation editor service ${inputString}"
         inputString = fixTrackString(inputString)
-        println  "fixed string ${inputString}"
+        log.debug "fixed string ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 

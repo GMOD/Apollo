@@ -1,18 +1,24 @@
 package org.bbop.apollo
 
 import grails.test.spock.IntegrationSpec
-
+import grails.converters.JSON
 class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
    
     def gff3HandlerService
+    def requestHandlingService
 
     def setup() {
-        Sequence refSequence = new Sequence(
-                length: 3000000
-                ,seqChunkSize: 3000000
-                ,start: 1
-                ,end: 3000000
-                ,name: "Group-1.10"
+        Organism organism = new Organism(
+                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
+                , commonName: "honeybee"
+        ).save(flush: true)
+        Sequence sequence = new Sequence(
+                length: 1405242
+                , seqChunkSize: 20000
+                , start: 0
+                , organism: organism
+                , end: 1405242
+                , name: "Group1.10"
         ).save()
     }
 
@@ -22,201 +28,51 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
     void "write a GFF3 of a simple gene model"() {
 
 
-        when: "we create a new gene"
-        Sequence refSequence = Sequence.first()
-        Gene gene = new Gene(
-                name: "Bob"
-                ,uniqueName: "abc123"
-                ,id: 1001
-        ).save(flush: true)
-
-
-        FeatureLocation geneFeatureLocation = new FeatureLocation(
-                feature: gene
-                ,fmin: 200
-                ,fmax: 1000
-                ,strand: 1
-                ,sequence: refSequence
-        ).save()
-
-        gene.addToFeatureLocations(geneFeatureLocation)
-
-        MRNA mrna = new MRNA(
-                name: "Bob-mRNA"
-                ,uniqueName: "abc123-mRNA"
-                ,id: 100
-        ).save(flush: true, failOnError: true)
-
-        FeatureRelationship mrnaFeatureRelationship = new FeatureRelationship(
-                childFeature: mrna
-                ,parentFeature: gene
-        ).save()
-
-        FeatureLocation mrnaFeatureLocation = new FeatureLocation(
-                fmin: 200
-                ,fmax: 1000
-                ,feature: mrna
-                ,sequence: refSequence
-                ,strand: 1
-        ).save()
-        mrna.addToFeatureLocations(mrnaFeatureLocation)
-
-        Exon exonOne = new Exon(
-                name: "exon1"
-                ,uniqueName: "Bob-mRNA-exon1"
-        ).save()
-        FeatureLocation exonOneFeatureLocation = new FeatureLocation(
-                fmin: 220
-                ,fmax: 400
-                ,feature: exonOne
-                ,sequence: refSequence
-                ,strand: 1
-        ).save()
-        exonOne.addToFeatureLocations(exonOneFeatureLocation)
-
-        Exon exonTwo = new Exon(
-                name: "exon2"
-                ,uniqueName: "Bob-mRNA-exon2"
-        ).save()
-        FeatureLocation exonTwoFeatureLocation = new FeatureLocation(
-                fmin: 500
-                ,fmax: 750
-                ,feature: exonTwo
-                ,sequence: refSequence
-                ,strand: 1
-        ).save()
-        exonTwo.addToFeatureLocations(exonTwoFeatureLocation)
-
-        Exon exonThree = new Exon(
-                name: "exon3"
-                ,uniqueName: "Bob-mRNA-exon3"
-        ).save()
-        FeatureLocation exonThreeFeatureLocation = new FeatureLocation(
-                fmin: 900
-                ,fmax: 1000
-                ,feature: exonThree
-                ,sequence: refSequence
-                ,strand: 1
-        ).save()
-        exonThree.addToFeatureLocations(exonThreeFeatureLocation)
-
-        CDS cdsOne = new CDS(
-                name: "cds1"
-                ,uniqueName: "Bob-mRNA-cds1"
-        ).save()
-        FeatureLocation cdsOneFeatureLocation = new FeatureLocation(
-                fmin: 220
-                ,fmax: 400
-                ,feature: cdsOne
-                ,sequence: refSequence
-                ,strand: 1
-        ).save()
-        cdsOne.addToFeatureLocations(cdsOneFeatureLocation)
-
-        CDS cdsTwo = new CDS(
-                name: "cds2"
-                ,uniqueName: "Bob-mRNA-cds2"
-        ).save()
-        FeatureLocation cdsTwoFeatureLocation = new FeatureLocation(
-                fmin: 500
-                ,fmax: 750
-                ,feature: cdsTwo
-                ,sequence: refSequence
-                ,strand: 1
-        ).save()
-        cdsTwo.addToFeatureLocations(cdsTwoFeatureLocation)
-
-        CDS cdsThree = new CDS(
-                name: "cds3"
-                ,uniqueName: "Bob-mRNA-cds3"
-        ).save()
-        FeatureLocation cdsThreeFeatureLocation = new FeatureLocation(
-                fmin: 900
-                ,fmax: 1000
-                ,feature: cdsThree
-                ,sequence: refSequence
-                ,strand: 1
-        ).save()
-        cdsThree.addToFeatureLocations(cdsThreeFeatureLocation)
-
-        FeatureRelationship exonOneFeatureRelationship = new FeatureRelationship(
-                parentFeature: mrna
-                ,childFeature: exonOne
-        ).save()
-        FeatureRelationship exonTwoFeatureRelationship = new FeatureRelationship(
-                parentFeature: mrna
-                ,childFeature: exonTwo
-        ).save()
-        FeatureRelationship exonThreeFeatureRelationship = new FeatureRelationship(
-                parentFeature: mrna
-                ,childFeature: exonThree
-        ).save()
-
-        FeatureRelationship cdsOneFeatureRelationship = new FeatureRelationship(
-                parentFeature: mrna
-                ,childFeature: cdsOne
-        ).save()
-        FeatureRelationship cdsTwoFeatureRelationship = new FeatureRelationship(
-                parentFeature: mrna
-                ,childFeature: cdsTwo
-        ).save()
-        FeatureRelationship cdsThreeFeatureRelationship = new FeatureRelationship(
-                parentFeature: mrna
-                ,childFeature: cdsThree
-        ).save()
+        given: "we create a new gene"
+        String json=' { "track": "Group1.10", "features": [{"location":{"fmin":1216824,"fmax":1235616,"strand":1},"type":{"cv":{"name":"sequence"},"name":"mRNA"},"name":"GB40856-RA","children":[{"location":{"fmin":1235534,"fmax":1235616,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":1216824,"fmax":1216850,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":1224676,"fmax":1224823,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":1228682,"fmax":1228825,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":1235237,"fmax":1235396,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":1235487,"fmax":1235616,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":1216824,"fmax":1235534,"strand":1},"type":{"cv":{"name":"sequence"},"name":"CDS"}}]}], "operation": "add_transcript" }'
+        String addInsertionString = '{"operation":"add_sequence_alteration","username":"deepak.unni3@gmail.com","features":[{"non_reserved_properties": [{"tag": "justification", "value":"Sanger sequencing"}], "residues":"GGG","location":{"fmin":208499,"strand":1,"fmax":208499},"type":{"name":"insertion","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+        String pseudogene = '{ "track": "Group1.10", "features": [{"location":{"fmin":433518,"fmax":437436,"strand":1},"type":{"cv":{"name":"sequence"},"name":"pseudogene"},"children":[{"location":{"fmin":433518,"fmax":437436,"strand":1},"type":{"cv":{"name":"sequence"},"name":"transcript"},"name":"GB40815-RA","children":[{"location":{"fmin":433518,"fmax":433570,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":436576,"fmax":436641,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":437424,"fmax":437436,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":433518,"fmax":437436,"strand":1},"type":{"cv":{"name":"sequence"},"name":"CDS"}}]}]}], "operation": "add_feature", "username": "colin.diesh@gmail.com" }'
+        String repeat_region = '{ "track": "Group1.10", "features": [{"location":{"fmin":414369,"fmax":414600,"strand":0},"type":{"cv":{"name":"sequence"},"name":"repeat_region"},"name":"GB40814-RA"}], "operation": "add_feature", "username": "colin.diesh@gmail.com" }'
+       
+        when: "we parse the json"
+        requestHandlingService.addTranscript(JSON.parse(json))
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString))
+        requestHandlingService.addFeature(JSON.parse(pseudogene))
+        requestHandlingService.addFeature(JSON.parse(repeat_region))
         
-        FeatureLocation.all.each { featureLocation->
-            refSequence.addToFeatureLocations(featureLocation)
-        }
-
-        gene.addToParentFeatureRelationships(mrnaFeatureRelationship)
-        mrna.addToChildFeatureRelationships(mrnaFeatureRelationship)
-
-        mrna.addToParentFeatureRelationships(exonOneFeatureRelationship)
-        exonOne.addToChildFeatureRelationships(exonOneFeatureRelationship)
-
-        mrna.addToParentFeatureRelationships(exonTwoFeatureRelationship)
-        exonTwo.addToChildFeatureRelationships(exonTwoFeatureRelationship)
-
-        mrna.addToParentFeatureRelationships(exonThreeFeatureRelationship)
-        exonThree.addToChildFeatureRelationships(exonThreeFeatureRelationship)
-
-        mrna.addToParentFeatureRelationships(cdsOneFeatureRelationship)
-        cdsOne.addToChildFeatureRelationships(cdsOneFeatureRelationship)
-
-        mrna.addToParentFeatureRelationships(cdsTwoFeatureRelationship)
-        cdsTwo.addToChildFeatureRelationships(cdsTwoFeatureRelationship)
-
-        mrna.addToParentFeatureRelationships(cdsThreeFeatureRelationship)
-        cdsThree.addToChildFeatureRelationships(cdsThreeFeatureRelationship)
-
-        List<Feature> featuresToWrite = new ArrayList<>()
-        featuresToWrite.add(gene)
-
-        File tempFile = File.createTempFile("asdf", ".gff3")
-        tempFile.deleteOnExit()
 
         then: "We should have at least one new gene"
-        assert Gene.count == 1
-        assert MRNA.count == 1
-        assert Exon.count == 3
-        assert CDS.count == 3
-        assert FeatureRelationship.count == 7
-        assert FeatureLocation.count == 8
-        Gene thisGene = Gene.first()
-        assert thisGene.parentFeatureRelationships.size() == 1
-        assert !thisGene.childFeatureRelationships
 
-        MRNA thisMRNA = MRNA.first()
-        assert thisMRNA.childFeatureRelationships.size() == 1
-        assert thisMRNA.parentFeatureRelationships.size() == 6
+        log.debug "${Gene.findAll()}"
+        assert Gene.count == 2
+        assert MRNA.count == 1
+        assert RepeatRegion.count == 1
+        assert Pseudogene.count == 1
+        assert Exon.count == 8
+        assert CDS.count == 2
+
 
         when: "we write the feature to test"
+        File tempFile = File.createTempFile("output", ".gff3")
+        tempFile.deleteOnExit()
         log.debug "${tempFile.absolutePath}"
+        def featuresToWrite = Gene.findAll()+SequenceAlteration.findAll()+RepeatRegion.findAll()
         gff3HandlerService.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,".")
         String tempFileText = tempFile.text
 
         then: "we should get a valid gff3 file"
+        log.debug "${tempFileText}"
+        def lines = tempFile.readLines()
+        assert lines[0]=="##gff-version 3"
+        assert lines[2].split("\t")[2]=="gene"
+        assert lines[2].split("\t")[8].indexOf("Name=GB40856-RA")!=-1
+        assert lines[3].split("\t")[2]=="mRNA"
+        assert lines[15].split("\t")[2]=="pseudogene"
+        assert lines[21].split("\t")[2]=="insertion"
+        assert lines[21].split("\t")[8].indexOf("justification=Sanger sequencing")!=-1
+        assert lines[21].split("\t")[8].indexOf("residues=GGG")!=-1
+        assert lines[23].split("\t")[2]=="repeat_region"
+
         assert tempFileText.length() > 0
     }
 }

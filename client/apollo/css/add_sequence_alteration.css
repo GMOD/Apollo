@@ -10,13 +10,24 @@
 .sequence_alteration_input_label {
 	margin-left: 3px;
 	font-size: 1.0em;
-        font-family: courier,monospace;
+	font-family: courier,monospace;
 }
 
 .sequence_alteration_input_field {
 	margin-left: 10px;
-        font-family: courier,monospace;
-        text-transform: uppercase;
+	font-family: courier,monospace;
+	text-transform: uppercase;
+}
+
+.sequence_alteration_comment_label {
+	margin-left: 3px;
+	font-size: 1.0em;
+	font-family: courier,monospace;
+}
+
+.sequence_alteration_comment_field {
+	margin-left: 10px;
+	font-family: courier,monospace;
 }
 
 .sequence_alteration_button {

@@ -75,6 +75,39 @@ grails {
 }
 ```
 
+### Translation tables
+
+
+The default translation table is [1](http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi#SG1) 
+
+To use [one of the others](http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi) set the number in the ```apollo-config.groovy``` file as:
+
+```
+apollo {
+...
+  get_translation_code = "11"
+}
+```
+
+These correspond to the NCBI translation tables.   
+
+To add a custom translation table, you can add it to to the ```web-app/translation_tables``` directory as:
+
+```
+web-app/translation_tables/ncbi_customname_translation_table.txt
+```
+
+and specify the ```customname``` as:
+
+In apollo-config.groovy:
+
+```
+apollo {
+...
+  get_translation_code = "customname"
+}
+```
+
 ### Logging configuration
 
 To over-ride the default logging, you can look at the logging configurations from

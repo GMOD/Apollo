@@ -26,6 +26,7 @@ class IOServiceController extends AbstractApolloController {
     def preferenceService
     def permissionService
     def configWrapperService
+    def requestHandlingService
 
     // fileMap of uuid / filename
     // see #464
@@ -63,11 +64,9 @@ class IOServiceController extends AbstractApolloController {
     @Timed
     def write() {
         try {
-            log.debug("params to IOService::write(): ${params}")
-            log.debug "export sequences ${request.JSON} -> ${params}"
+            long current = System.currentTimeMillis()
             JSONObject dataObject = (request.JSON ?: params) as JSONObject
             if(params.data) dataObject=JSON.parse(params.data)
-            log.debug "data ${dataObject}"
             if(!permissionService.hasPermissions(dataObject, PermissionEnum.READ)){
                 render status: HttpStatus.UNAUTHORIZED
                 return
@@ -78,23 +77,32 @@ class IOServiceController extends AbstractApolloController {
             String exportGff3Fasta = dataObject.exportGff3Fasta
             String output = dataObject.output
             String format = dataObject.format
-            log.debug "${dataObject.sequences}"
             def sequences = dataObject.sequences // can be array or string
             Organism organism = dataObject.organism?Organism.findByCommonName(dataObject.organism):preferenceService.getCurrentOrganismForCurrentUser()
-            log.debug "${typeOfExport} ${output} ${sequences}"
 
 
-            def features=Feature.createCriteria().list() {
+            def st=System.currentTimeMillis()
+            def queryParams = [viewableAnnotationList: requestHandlingService.viewableAnnotationList, organism: organism]
+            if(sequences) queryParams.sequences = sequences
+            // caputures 3 level indirection, joins feature locations only. joining other things slows it down
+            def genes = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations join fetch child.childFeatureRelationships join fetch child.parentFeatureRelationships cpr join fetch cpr.childFeature subchild join fetch subchild.featureLocations join fetch subchild.childFeatureRelationships left join fetch subchild.parentFeatureRelationships where fl.sequence.organism = :organism and f.class in (:viewableAnnotationList)" + (sequences? " and fl.sequence.name in (:sequences)":""), queryParams)
+            // captures rest of feats
+            def otherFeats=Feature.createCriteria().list() {
                 featureLocations {
                     sequence {
                         eq('organism',organism)
                         if(sequences) {
-                                        'in'('name',sequences)
+                            'in'('name',sequences)
                         }
                     }
                 }
-                'in'('class',Gene.class.name)
+                'in'('class',requestHandlingService.viewableAlterations+requestHandlingService.viewableAnnotationFeatureList)
             }
+            log.debug "${otherFeats}"
+            def features = genes+otherFeats
+
+            log.debug "IOService query: ${System.currentTimeMillis()-st}ms"
+           
             def sequenceList = Sequence.createCriteria().list() {
                 eq('organism',organism)
                 if(sequences) {
@@ -155,6 +163,7 @@ class IOServiceController extends AbstractApolloController {
             else {
                 render text: outputFile.text
             }
+            log.debug "Total IOService export time ${System.currentTimeMillis()-current}ms"
         }
         catch(Exception e) {
             def error=[error: e.message]

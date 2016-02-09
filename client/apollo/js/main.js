@@ -98,6 +98,7 @@ return declare( [JBPlugin, HelpMixin],
         if (browser.cookie("colorCdsByFrame")=="true") {
             domClass.add(win.body(), "colorCds");
         }
+        domClass.add(win.body(), "Apollo");
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
             this.setFavicon(browser.config.favicon);
@@ -322,7 +323,7 @@ return declare( [JBPlugin, HelpMixin],
 
     minusStrandFilter: function(feature)  {
         var strand = feature.get('strand');
-        return !(strand = -1 || strand == '-' || !strand)
+        return !(strand == -1 || strand == '-' || !strand)
     },
 
     addStrandFilterOptions: function()  {

@@ -47,9 +47,9 @@
         .removeButton {
             padding: 10px;
         }</ui:style>
-    <gwt:SplitLayoutPanel>
+    <gwt:DockLayoutPanel>
 
-        <gwt:north size="60">
+        <gwt:north size="40">
             <b:Container fluid="true" width="100%">
                 <b:Row styleName="{style.northPanel}">
                     <b:Column size="MD_4">
@@ -128,5 +128,5 @@
             </gwt:TabLayoutPanel>
         </gwt:south>
 
-    </gwt:SplitLayoutPanel>
+    </gwt:DockLayoutPanel>
 </ui:UiBinder>

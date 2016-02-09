@@ -1,5 +1,8 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import java.util.Date;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
@@ -46,7 +49,7 @@ public class AnnotationInfoConverter {
         if (object.get("owner") != null) {
             annotationInfo.setOwner(object.get("owner").isString().stringValue());
         }
-
+        annotationInfo.setDate(object.get("date_last_modified").toString());
         List<String> noteList = new ArrayList<>();
         if (object.get("notes") != null) {
             JSONArray jsonArray = object.get("notes").isArray();

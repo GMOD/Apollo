@@ -9,7 +9,6 @@ import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.SequenceSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-
 import static org.springframework.http.HttpStatus.*
 
 @Transactional(readOnly = true)
@@ -20,6 +19,7 @@ class SequenceController {
 
     def sequenceService
     def featureService
+    def requestHandlingService
     def transcriptService
     def permissionService
     def preferenceService
@@ -96,7 +96,6 @@ class SequenceController {
 
     @Transactional
     def loadSequences(Organism organism) {
-        println "Loading sequences ${organism.commonName}"
         if (!organism.sequences) {
             sequenceService.loadRefSeqs(organism)
         }
@@ -174,18 +173,32 @@ class SequenceController {
     def getSequences(String name, Integer start, Integer length, String sort, Boolean asc, Integer minFeatureLength, Integer maxFeatureLength) {
         try {
             Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
-            minFeatureLength = minFeatureLength ?: 0
-            maxFeatureLength = maxFeatureLength ?: Integer.MAX_VALUE
-            List<Sequence> sequences
-            def sequenceCount = Sequence.countByOrganismAndNameIlikeAndLengthGreaterThanEqualsAndLengthLessThanEquals(organism, "%${name}%", minFeatureLength, maxFeatureLength )
-            sequences = Sequence.findAllByOrganismAndNameIlikeAndLengthGreaterThanEqualsAndLengthLessThanEquals(organism, "%${name}%", minFeatureLength, maxFeatureLength, [offset: start, max: length, sort: sort, order: asc ? "asc" : "desc"])
-            JSONArray returnSequences = JSON.parse( (sequences as JSON).toString()) as JSONArray
-
-            for(int i = 0 ; i < returnSequences.size() ; i++){
-                returnSequences.getJSONObject(i).put("sequenceCount",sequenceCount)
+            def sequences = Sequence.createCriteria().list() {
+                if(name) {
+                    ilike('name', '%'+name+'%')
+                }
+                eq('organism',organism)
+                gt('length',minFeatureLength ?: 0)
+                lt('length',maxFeatureLength ?: Integer.MAX_VALUE)
+                if(sort=="length") {
+                    order('length',asc?"asc":"desc")
+                }
             }
-
-            render returnSequences as JSON
+            def sequenceCounts = Feature.executeQuery("select fl.sequence.name, count(fl.sequence.id) from Feature f join f.featureLocations fl where fl.sequence.organism = :organism and fl.sequence.length < :maxFeatureLength and fl.sequence.length > :minFeatureLength and f.class in :viewableAnnotationList group by fl.sequence.name", [minFeatureLength: minFeatureLength ?: 0, maxFeatureLength: maxFeatureLength ?: Integer.MAX_VALUE, viewableAnnotationList: requestHandlingService.viewableAnnotationList, organism: organism])
+            def map = [:]
+            sequenceCounts.each {
+                map[it[0]] = it[1]
+            }
+            def results = sequences.collect { s ->
+                [id: s.id, length: s.length, start: s.start, end: s.end, count: map[s.name]?:0, name: s.name, sequenceCount: sequences.size()]
+            } 
+            if(sort=="count") {
+                results = results.sort { it.count }
+                if(!asc) {
+                    results = results.reverse()
+                }
+            }
+            render results[start..Math.min(start+length-1,results.size()-1)] as JSON
         }
         catch(PermissionException e) {
             def error=[error: "Error: "+e]
@@ -207,7 +220,6 @@ class SequenceController {
         sequences.each {
             sequenceInstanceList.add(reportService.generateSequenceSummary(it))
         }
-        println "sequence summary list size: ${sequenceInstanceList.size()}"
 
         int sequenceInstanceCount = Sequence.countByOrganism(organism)
         render view:"report", model:[sequenceInstanceList:sequenceInstanceList,organism:organism,sequenceInstanceCount:sequenceInstanceCount]

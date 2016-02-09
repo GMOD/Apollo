@@ -1,9 +1,6 @@
 package org.bbop.apollo.gwt.client.dto;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Nathan Dunn on 1/27/15.
@@ -22,6 +19,7 @@ public class AnnotationInfo {
     private String sequence;
     private Integer phase;
     private String owner;
+    private String date;
 
     public String getOwner() {
         return owner;
@@ -60,6 +58,10 @@ public class AnnotationInfo {
         }
         return -1;
     }
+
+    public void setDate(String date) { this.date = date; }
+
+    public String getDate() { return date; }
 
     public Integer getMin() {
         return min;

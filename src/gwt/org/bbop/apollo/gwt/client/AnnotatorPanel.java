@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
+import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.builder.shared.DivBuilder;
@@ -17,8 +18,12 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.json.client.*;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -41,7 +46,6 @@ import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
-import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -58,17 +62,19 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static AnnotatorPanelUiBinder ourUiBinder = GWT.create(AnnotatorPanelUiBinder.class);
-
+    // Tue Jan 05 09:51:38 GMT-800 2016
+    DateTimeFormat outputFormat = DateTimeFormat.getFormat("MMM dd, yyyy");
     private Column<AnnotationInfo, String> nameColumn;
     private TextColumn<AnnotationInfo> typeColumn;
     private TextColumn<AnnotationInfo> sequenceColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
+    private Column<AnnotationInfo, String> dateColumn;
     long requestIndex = 0;
 
     @UiField
     TextBox nameSearchBox;
     @UiField(provided = true)
-    SuggestBox sequenceList;
+    org.gwtbootstrap3.client.ui.SuggestBox sequenceList;
 
     static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
 
@@ -76,7 +82,6 @@ public class AnnotatorPanel extends Composite {
     static DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(20, tablecss);
     @UiField(provided = true)
     WebApolloSimplePager pager = null;
-
 
     @UiField
     ListBox typeList;
@@ -93,25 +98,21 @@ public class AnnotatorPanel extends Composite {
     @UiField
     ListBox userField;
     @UiField
-    SplitLayoutPanel splitPanel;
+    DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
     @UiField
     static Button addNewBookmark;
 
-
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private static AsyncDataProvider<AnnotationInfo> dataProvider;
     private static AnnotationInfo currentAnnotationInfo = null;
-    //    private static List<AnnotationInfo> annotationInfoList = new ArrayList<>();
-    //    private static List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     private final Set<String> showingTranscripts = new HashSet<String>();
 
-
     public AnnotatorPanel() {
-        sequenceList = new SuggestBox(sequenceOracle);
-        sequenceList.getElement().setAttribute("placeHolder", "All Reference Sequences");
+        sequenceList = new org.gwtbootstrap3.client.ui.SuggestBox(sequenceOracle);
+        sequenceList.getElement().setAttribute("placeHolder", "Reference Sequence");
         dataGrid.setWidth("100%");
         dataGrid.setTableBuilder(new CustomTableBuilder());
         dataGrid.setLoadingIndicator(new Label("Loading"));
@@ -161,7 +162,7 @@ public class AnnotatorPanel extends Composite {
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
                 Column<AnnotationInfo, ?> sortColumn = (Column<AnnotationInfo, ?>) sortList.get(0).getColumn();
                 Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
-                String searchColumnString = null;
+                String searchColumnString = null ;
                 switch (columnIndex) {
                     case 0:
                         searchColumnString = "name";
@@ -172,11 +173,13 @@ public class AnnotatorPanel extends Composite {
                     case 3:
                         searchColumnString = "length";
                         break;
+                    case 4:
+                        searchColumnString = "date";
                     default:
                         break;
                 }
                 Boolean sortNameAscending = nameSortInfo.isAscending();
-                url += "&order=" + (sortNameAscending ? "asc" : "desc");
+                url += "&sortorder=" + (sortNameAscending ? "asc" : "desc");
                 url += "&sort=" + searchColumnString;
 
                 RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
@@ -186,7 +189,6 @@ public class AnnotatorPanel extends Composite {
                     public void onResponseReceived(Request request, Response response) {
                         JSONValue returnValue = null;
                         try {
-//                            Window.alert(response.getText());
                             returnValue = JSONParser.parseStrict(response.getText());
                         } catch (Exception e) {
                             Bootbox.alert(e.getMessage());
@@ -230,6 +232,7 @@ public class AnnotatorPanel extends Composite {
         dataGrid.getColumnSortList().push(nameColumn);
         dataGrid.getColumnSortList().push(sequenceColumn);
         dataGrid.getColumnSortList().push(lengthColumn);
+        dataGrid.getColumnSortList().push(dateColumn);
 
         dataProvider.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
@@ -422,7 +425,6 @@ public class AnnotatorPanel extends Composite {
                 geneDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.selectTab(0);
-                break;
             case "Transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
@@ -529,16 +531,28 @@ public class AnnotatorPanel extends Composite {
         lengthColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         lengthColumn.setCellStyleNames("dataGridLastColumn");
 
+        // unused?
+        dateColumn = new Column<AnnotationInfo, String>(new TextCell()) {
+            @Override
+            public String getValue(AnnotationInfo annotationInfo) {
+                return annotationInfo.getDate();
+            }
+        };
+        dateColumn.setSortable(true);
+        dateColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+        dateColumn.setCellStyleNames("dataGridLastColumn");
 
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(sequenceColumn, "Seq");
         dataGrid.addColumn(typeColumn, "Type");
         dataGrid.addColumn(lengthColumn, "Length");
+        dataGrid.addColumn(dateColumn, "Updated");
 
         dataGrid.setColumnWidth(0, "55%");
         dataGrid.setColumnWidth(1, "15%");
         dataGrid.setColumnWidth(2, "15%");
         dataGrid.setColumnWidth(3, "15%");
+        dataGrid.setColumnWidth(4, "20%");
     }
 
     private String getType(JSONObject internalData) {
@@ -564,7 +578,7 @@ public class AnnotatorPanel extends Composite {
 
     // TODO: need to cache these or retrieve from the backend
     public static void displayTranscript(int geneIndex, String uniqueName) {
-        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(geneIndex);
+        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
         AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
 
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
@@ -661,6 +675,24 @@ public class AnnotatorPanel extends Composite {
             } else {
                 td.text(NumberFormat.getDecimalFormat().format(rowValue.getLength())).endTD();
             }
+
+            // Date column
+            td = row.startTD();
+            td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
+            if (showTranscripts) {
+                DivBuilder div = td.startDiv();
+                div.style().trustedColor("green").endStyle();
+                Date date = new Date(Long.parseLong(rowValue.getDate()));
+                div.text(outputFormat.format(date));
+//                div.text(date.toString());
+                td.endDiv();
+            }
+            else {
+                Date date = new Date(Long.parseLong(rowValue.getDate()));
+                td.text(outputFormat.format(date));
+//                td.text(date.toString());
+            }
+            td.endTD();
 
             td = row.startTD();
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();

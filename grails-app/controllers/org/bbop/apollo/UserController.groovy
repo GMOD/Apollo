@@ -422,7 +422,7 @@ class UserController {
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Name of organism to update")
             , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Permission ID to update (can get from userId/organism instead)")
 
-            , @RestApiParam(name = "administrate", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has administrative privileges for the organism")
+            , @RestApiParam(name = "administrate", type = "boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has administrative (including user/group) privileges for the organism")
             , @RestApiParam(name = "write", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has write privileges for the organism")
             , @RestApiParam(name = "export", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has export privileges for the organism")
             , @RestApiParam(name = "read", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has read privileges for the organism")

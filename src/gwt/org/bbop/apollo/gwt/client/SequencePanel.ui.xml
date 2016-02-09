@@ -63,27 +63,14 @@
             margin-left: auto;
             margin-right: auto;
         }</ui:style>
-    <gwt:SplitLayoutPanel>
-        <gwt:north size="210">
+    <gwt:DockLayoutPanel>
+        <gwt:north size="180">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
                     <b:Column size="MD_6" styleName="{style.widgetPanel}">
                         <b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>
                     </b:Column>
-                    <!--<b:Column size="MD_2" styleName="{style.widgetPanel}">-->
-                        <!--<b:Label ui:field="viewableLabel"/>-->
-                    <!--</b:Column>-->
                 </b:Row>
-                <!--<b:Row>-->
-                    <!--<b:Column size="MD_2">-->
-                        <!--<gwt:HTML>-->
-                            <!--<h5>Organism</h5>-->
-                        <!--</gwt:HTML>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_4">-->
-                        <!--<b:ListBox ui:field="organismList" width="200px"/>-->
-                    <!--</b:Column>-->
-                <!--</b:Row>-->
                 <b:Row paddingTop="4">
                     <b:Column size="MD_2">
                         <gwt:HTML>
@@ -132,7 +119,7 @@
         </gwt:north>
         <gwt:center>
             <gwt:DockLayoutPanel>
-                <gwt:north size="25">
+                <gwt:north size="30">
                     <gwt:HTMLPanel>
                         <table style="width:100%">
                             <tr>
@@ -214,5 +201,5 @@
             </gwt:TabLayoutPanel>
         </gwt:south>
 
-    </gwt:SplitLayoutPanel>
+    </gwt:DockLayoutPanel>
 </ui:UiBinder>

@@ -154,3 +154,13 @@ h1 {
 /*.dragdrop-flow-panel-positioner {*/
   /*color: blue;*/
 /*}*/
+.lookup-display {
+  margin-left: 5px;
+  /*margin-right: 5px;*/
+  /*display: inline-table;*/
+  /*background-color: gray;*/
+  /*color: white;*/
+  /*font-size: smaller;*/
+  /*height: 25px;*/
+  /*width: 100px;*/
+}

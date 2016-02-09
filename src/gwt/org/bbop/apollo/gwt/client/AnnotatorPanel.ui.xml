@@ -3,11 +3,11 @@
              xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
              xmlns:apollo="urn:import:org.bbop.apollo.gwt.client"
              xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
-        >
+>
     <ui:style>
         .northPanel {
-            padding: 0px;
-            margin: 10px;
+            /*padding-right: 0px;*/
+            margin: 5px;
         }
 
         .pager {
@@ -21,7 +21,14 @@
         }
 
         .searchBox {
-            margin-left: 20px;
+            /*margin-left: 20px;*/
+            display: inline;
+            /*margin-bottom: 10px;*/
+        }
+
+        .widgetBox{
+            display: inline;
+            margin: 5px;
         }
 
         .rowPadding {
@@ -32,46 +39,35 @@
             word-wrap: break-word;
         }
     </ui:style>
-    <gwt:SplitLayoutPanel ui:field="splitPanel">
+    <gwt:DockLayoutPanel ui:field="splitPanel">
         <gwt:north size="100">
             <b:Container fluid="true" styleName="{style.northPanel}" ui:field="northPanelContainer">
                 <b:Row styleName="{style.rowPadding}">
-                    <b:Column size="MD_3">
-                        <gwt:HTML>
-                            <h6>Ref Sequence(s)</h6>
-                        </gwt:HTML>
+                    <b:Column size="MD_5">
+                        <b:TextBox placeholder="Annotation Name" width="150px"
+                                   ui:field="nameSearchBox" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
                     <b:Column size="MD_5">
-                        <gwt:SuggestBox ui:field="sequenceList" width="200px"/>
+                        <b:SuggestBox ui:field="sequenceList" width="150px" addStyleNames="{style.widgetBox}"/>
+                    </b:Column>
+                <!--</b:Row>-->
+                <!--<b:Row styleName="{style.rowPadding}">-->
+                    <b:Column size="MD_3">
+                        <b:ListBox ui:field="typeList"  addStyleNames="{style.widgetBox}"/>
+                    </b:Column>
+                    <b:Column size="MD_3">
+                        <b:ListBox ui:field="userField" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
                     <b:Column size="MD_2">
                         <!--<gwt:SuggestBox ui:field="sequenceList" width="200px"/>-->
                         <b:Button type="PRIMARY" icon="BOOKMARK" text="+" title="Add new bookmark" ui:field="addNewBookmark" enabled="false"/>
                     </b:Column>
                 </b:Row>
-                <b:Row>
-                    <gwt:HTMLPanel>
-                        <table style="border-top: none;">
-                            <tr>
-                                <td>
-                                    <b:TextBox placeholder="Search Annotation Name" width="250px"
-                                               ui:field="nameSearchBox" addStyleNames="{style.searchBox}"/>
-                                </td>
-                                <td>
-                                    <b:ListBox ui:field="typeList" width="150px" addStyleNames="{style.typeList}"/>
-                                </td>
-                                <td>
-                                    <b:ListBox ui:field="userField"  addStyleNames="{style.typeList}"/>
-                                </td>
-                            </tr>
-                        </table>
-                    </gwt:HTMLPanel>
-                </b:Row>
             </b:Container>
         </gwt:north>
         <gwt:center>
             <gwt:DockLayoutPanel>
-                <gwt:north size="25">
+                <gwt:north size="30">
                     <gwt:HTMLPanel>
                         <table style="width:100%">
                             <tr>
@@ -87,7 +83,7 @@
                     </gwt:HTMLPanel>
                 </gwt:north>
                 <gwt:center>
-                    <cellview:DataGrid ui:field="dataGrid" styleName="{style.dataGrid}" />
+                    <cellview:DataGrid ui:field="dataGrid" styleName="{style.dataGrid}"/>
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:center>
@@ -135,7 +131,7 @@
             </gwt:TabLayoutPanel>
             <!--</gwt:VerticalPanel>-->
         </gwt:south>
-    </gwt:SplitLayoutPanel>
+    </gwt:DockLayoutPanel>
     <!--<gwt:HTMLPanel>-->
 
     <!--</gwt:HTMLPanel>-->

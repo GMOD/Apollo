@@ -17,9 +17,17 @@ public class SequenceInfo implements Comparable<SequenceInfo>,HasJSON{
     private Integer length ;
     private Integer start ;
     private Integer end ;
+    private Integer count ;
     private Boolean selected = false ;
     private Boolean aDefault = false ;
 
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
+    }
     public String getName() {
         return name;
     }
@@ -92,6 +100,7 @@ public class SequenceInfo implements Comparable<SequenceInfo>,HasJSON{
         jsonObject.put("id", new JSONNumber(id));
         jsonObject.put("name", new JSONString(name));
         jsonObject.put("start", new JSONNumber(start));
+        if(count != null) jsonObject.put("count", new JSONNumber(count));
         jsonObject.put("end", new JSONNumber(end));
         jsonObject.put("length", new JSONNumber(length));
         return jsonObject;

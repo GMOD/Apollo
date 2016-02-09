@@ -34,6 +34,7 @@ define([
         'JBrowse/Model/SimpleFeature',
         'JBrowse/Util',
         'JBrowse/View/GranularRectLayout',
+        'JBrowse/View/ConfirmDialog',
         'dojo/request/xhr',
         'dojox/widget/Standby',
         'dijit/Tooltip',
@@ -77,6 +78,7 @@ define([
               SimpleFeature,
               Util,
               Layout,
+              ConfirmDialog,
               xhr,
               Standby,
               Tooltip,
@@ -1334,9 +1336,7 @@ define([
                         var trackdiv = track.div;
                         var trackName = track.getUniqueTrackName();
                         if (!selfeat.parent()) {
-                            if (confirm("Deleting feature " + selfeat.get("name") + " cannot be undone.  Are you sure you want to delete?")) {
-                                toBeDeleted.push(uniqueName);
-                            }
+                            track.confirmDeleteAnnotations(track, [selfeat], "Deleting feature " + selfeat.get("name") + " cannot be undone.  Are you sure you want to delete?");
                         }
                         else {
                             var children = parents[selfeat.parent().id()] || (parents[selfeat.parent().id()] = []);
@@ -1355,16 +1355,12 @@ define([
                             }
                         }
                         if (numExons == children.length) {
-                            if (confirm("Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?")) {
-                                toBeDeleted.push(id);
-                            }
+                            track.confirmDeleteAnnotations(track, [children[0]], "Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?");
                             continue;
                         }
                     }
                     else if (children.length == children[0].parent().get("subfeatures").length) {
-                        if (confirm("Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?")) {
-                            toBeDeleted.push(id);
-                        }
+                        track.confirmDeleteAnnotations(track, [children[0]], "Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?");
                         continue;
                     }
                     for (var i = 0; i < children.length; ++i) {
@@ -1388,6 +1384,26 @@ define([
                 }
                 var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }';
                 track.executeUpdateOperation(postData);
+            },
+
+            confirmDeleteAnnotations: function(track, selectedFeatures, message) {
+                var confirm = new ConfirmDialog({
+                    title: 'Delete feature',
+                    message: message,
+                    confirmLabel: 'Yes',
+                    denyLabel: 'Cancel'
+                }).show(function(confirmed) {
+                    if (confirmed) {
+                        var postData = {};
+                        postData.track = track.getUniqueTrackName();
+                        postData.operation = "delete_feature";
+                        postData.features = [];
+                        for (var i = 0; i < selectedFeatures.length; i++) {
+                            postData.features[i] = { uniquename: selectedFeatures[i].getUniqueName() };
+                        }
+                        track.executeUpdateOperation(JSON.stringify(postData));
+                    }
+                });
             },
 
             mergeSelectedFeatures: function () {
@@ -3567,6 +3583,11 @@ define([
                     selectedIndex = index;
                 };
 
+                var cleanOperation= function(inputString){
+                    return inputString.charAt(0) + inputString.toLowerCase().replace(new RegExp("_", 'g'), " ").slice(1);
+                };
+
+
                 var displayHistory = function () {
                     for (var i = 0; i < history.length; ++i) {
                         var historyItem = history[i];
@@ -3575,29 +3596,13 @@ define([
                         var columnCssClass = "history_column";
                         dojo.create("span", {
                             className: columnCssClass + " history_column_operation ",
-                            innerHTML: historyItem.operation
+                            innerHTML: cleanOperation(historyItem.operation)
                         }, row);
                         dojo.create("span", {className: columnCssClass, innerHTML: historyItem.editor}, row);
                         dojo.create("span", {
                             className: columnCssClass + " history_column_date",
                             innerHTML: historyItem.date
                         }, row);
-                        var revertButton = new dijitButton({
-                            label: "Revert",
-                            showLabel: false,
-                            iconClass: "dijitIconUndo",
-                            'class': "revert_button",
-                            onClick: function (index) {
-                                return function () {
-                                    selectedIndex = index;
-                                    revert();
-                                }
-                            }(i)
-                        });
-                        if (!canEdit) {
-                            revertButton.set("disabled", true);
-                        }
-                        dojo.place(revertButton.domNode, row);
                         var afeature = historyItem.features[0];
                         var fmin = afeature.location.fmin;
                         var fmax = afeature.location.fmax;
@@ -3610,6 +3615,65 @@ define([
 
                         if (historyItem.current) {
                             current = i;
+                        }
+
+                        var labelText = "&uarr;";
+                        var isCurrent = true ;
+
+                        if(typeof current !== 'undefined'){
+                            if(i == current ){
+                                labelText = "";
+                                isCurrent = false ;
+                            }
+                            else
+                            if(i > current ){
+                                labelText = "&darr;";
+                            }
+                            else
+                            if(i < current ){
+                                labelText = "&uarr;";
+                            }
+                        }
+
+
+
+                        if(isCurrent){
+                            var revertButton = new dijitButton({
+                                label: labelText,
+                                showLabel: true,
+                                style: "color: black",
+                                title: labelText == "&uarr;" ? "Undo" : "Redo",
+                                //iconClass: "dijitIconUndo",
+                                'class': "revert_button",
+                                onClick: function (index) {
+                                    return function () {
+                                        selectedIndex = index;
+                                        revert();
+                                    }
+                                }(i)
+                            });
+
+                            if (!canEdit) {
+                                revertButton.set("disabled", true);
+                            }
+                            dojo.place(revertButton.domNode, row);
+                        }
+                        else{
+                            var currentLabel = new dijitButton({
+                                label: labelText,
+                                showLabel: false,
+                                style: "color: black",
+                                title: 'Original',
+                                iconClass: "dijitIconBookmark",
+                                'class': "revert_button",
+                                onClick: function (index) {
+                                    return function () {
+                                        selectedIndex = index;
+                                        revert();
+                                    }
+                                }(i)
+                            });
+                            dojo.place(currentLabel.domNode, row);
                         }
 
                         dojo.connect(row, "onclick", row, function (index) {
@@ -3733,6 +3797,9 @@ define([
                             if (feature.parent_ids) {
                                 information += "Parent ids: " + feature.parent_ids + "<br/>";
                             }
+                        }
+                        if (feature.justification) {
+                            information += "Justification: " + feature.justification + "<br/>";
                         }
                         track.openDialog("Annotation information", information);
                     },
