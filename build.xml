@@ -224,6 +224,16 @@
         </condition>
     </target>
 
+    <target name="copy-jbrowse-into-webapp">
+        <copy todir="${apollo.jbrowse.directory}">
+            <fileset dir="${jbrowse.download.directory}">
+                <not>
+                    <filename name="sample_data/**"/>
+                </not>
+            </fileset>
+        </copy>
+    </target>
+
 
     <target name="setup-jbrowse" unless="jbrowse.webapp.installed">
         <antcall target="git.clone"/>
@@ -233,13 +243,7 @@
         <echo>Will be setting up jbrowse</echo>
         <delete dir="${apollo.jbrowse.directory}"/>
 
-        <copy todir="${apollo.jbrowse.directory}">
-            <fileset dir="${jbrowse.download.directory}">
-                <not>
-                    <filename name="sample_data/**"/>
-                </not>
-            </fileset>
-        </copy>
+        <antcall target="copy-jbrowse-into-webapp"/>
         <antcall target="install.jbrowse.perl"/>
 
     </target>
@@ -265,6 +269,12 @@
         </copy>
     </target>
 
+
+    <target name="copy-resources-dev"
+            depends="copy.apollo.plugin.webapp,copy-jbrowse-into-webapp"
+            description="This is called externally by shell script.">
+
+    </target>
 
     <target name="copy-resources"
             depends="copy.apollo.plugin.webapp,setup-jbrowse"
