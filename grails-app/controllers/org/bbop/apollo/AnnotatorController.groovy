@@ -237,6 +237,8 @@ class AnnotatorController {
             }
             Integer index = Integer.parseInt(request)
 
+            if(!organism) render ([:] as JSON)
+
             List<String> viewableTypes
 
             if (type) {
