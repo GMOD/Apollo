@@ -9,10 +9,10 @@ import org.json.JSONObject
 
 String usageString = "delete_organism.groovy <options>\n" +
         "Example: " +
-        "./add_organism.groovy -name yeast -url http://localhost:8080/apollo/\n"+
+        "./delete_organism.groovy -name yeast -url http://localhost:8080/apollo/\n"+
         "which would prompt for user/pass\n"+
         "-or-\n"+
-        "./add_organism.groovy -name yeast -url http://localhost:8080/apollo/ -username user@site.com -password secret"
+        "./delete_organism.groovy -name yeast -url http://localhost:8080/apollo/ -username user@site.com -password secret"
 
 def cli = new CliBuilder(usage: usageString)
 cli.setStopAtNonOption(true)
@@ -21,7 +21,6 @@ cli.name('organism common name', required: true, args: 1)
 cli.username('username', required: false, args: 1)
 cli.password('password', required: false, args: 1)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)
-cli.featuresOnly('Use this flag to only delete the features', required: false)
 OptionAccessor options
 def admin_username
 def admin_password 
@@ -62,28 +61,13 @@ def argumentsArray = [
 
 def client = new RESTClient(options.url)
 if (options.ignoressl) { client.ignoreSSLIssues() }
-String fullPath = "${url.path}/organism/deleteOrganismFeatures"
 
 
-println "Deleting organism features"
+println "Deleting organism"
+String fullPath = "${url.path}/organism/deleteOrganism"
 def resp = client.post(
         contentType: 'text/javascript',
         path: fullPath,
         body: argumentsArray
 )
-
 assert resp.status == 200  // HTTP response code; 404 means not found, etc.
-println resp.getData()
-
-
-
-if(!options.featuresOnly) {
-    println "Deleting organism"
-    fullPath = "${url.path}/organism/deleteOrganism"
-    resp = client.post(
-            contentType: 'text/javascript',
-            path: fullPath,
-            body: argumentsArray
-    )
-    assert resp.status == 200  // HTTP response code; 404 means not found, etc.
-}

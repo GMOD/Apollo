@@ -133,7 +133,6 @@ public class OrganismPanel extends Composite {
             }
         });
         dataGrid.addColumn(sequenceColumn, safeHtmlHeader);
-//        dataGrid.addColumn(sequenceColumn, "Ref Sequences");
         dataGrid.setEmptyTableWidget(new Label("No organisms available. Add new organisms using the form field."));
 
 
@@ -229,6 +228,19 @@ public class OrganismPanel extends Composite {
         deleteButton.setEnabled(isEditable);
     }
 
+    private class DeleteFeaturesCallback implements RequestCallback {
+
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+            OrganismRestService.deleteOrganism(new UpdateInfoListCallback(), singleSelectionModel.getSelectedObject());
+        }
+
+        @Override
+        public void onError(Request request, Throwable exception) {
+            loadingDialog.hide();
+            Bootbox.alert("Error deleteing features: " + exception);
+        }
+    }
     private class UpdateInfoListCallback implements RequestCallback {
 
         @Override
@@ -333,11 +345,7 @@ public class OrganismPanel extends Composite {
     public void handleDeleteOrganism(ClickEvent clickEvent) {
         OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
         if (organismInfo == null) return;
-        if (organismInfo.getNumFeatures() > 0) {
-            new ErrorDialog("Cannot delete organism '" + organismInfo.getName() + "'", "You must first remove " + singleSelectionModel.getSelectedObject().getNumFeatures() + " annotations before deleting organism '"+organismInfo.getName()+"'.  Please see our <a href='../WebServices/'>Web Services API</a> from the 'Help' menu for more details on how to perform this operation, or use <a href='http://webapollo.readthedocs.org/en/latest/Command_line.html'>delete_organism.groovy</a> from the command line.", true, true);
-            return;
-        }
-        Bootbox.confirm("Are you sure you want to delete organism " + singleSelectionModel.getSelectedObject().getName() + "?", new ConfirmCallback() {
+        Bootbox.confirm("Are you sure you want to delete organism " + organismInfo.getName() + " with "+organismInfo.getNumFeatures() +" annotations?", new ConfirmCallback() {
             @Override
             public void callback(boolean result) {
                 if (result) {

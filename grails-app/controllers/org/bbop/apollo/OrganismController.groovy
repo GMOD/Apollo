@@ -95,7 +95,7 @@ class OrganismController {
             Organism organism = Organism.findByCommonName(organismJson.organism)
 
             if (!organism) {
-                organism = Organism.findById(organismJson.organism)
+                organism = Organism.findById(organismJson.organism?:organismJson.id)
             }
 
             if (!organism) {
@@ -286,7 +286,7 @@ class OrganismController {
             if(organismJson.organism) {
                 log.debug "finding info for specific organism"
                 Organism organism=Organism.findByCommonName(organismJson.organism)
-                if(!organism) organism=Organism.findById(organismJson.organism)
+                if(!organism) organism=Organism.findById(organismJson.organism?:organismJson.id)
                 if(!organism) render ([error:"Organism not found"] as JSON)
                 List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism,permissionService.getCurrentUser(organismJson))
                 if(permissionEnumList.contains(PermissionEnum.ADMINISTRATE)){
