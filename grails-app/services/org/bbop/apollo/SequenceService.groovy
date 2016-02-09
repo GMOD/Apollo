@@ -217,27 +217,12 @@ class SequenceService {
     String loadResidueForSequence(Sequence sequence, int chunkNumber) {
         CRC32 crc = new CRC32();
         crc.update(sequence.name.getBytes());
-        String hex = String.format("%08x", crc.getValue());
-        String []dirs = splitStringByNumberOfCharacters(hex, 3);
+        String hex = String.format("%08x", crc.getValue())
+        String []dirs = hex.toList().collate( 3 )*.join()
         String seqDir = String.format("%s/seq/%s/%s/%s", sequence.organism.directory, dirs[0], dirs[1], dirs[2]);
         String filePath = seqDir+ "/"+ sequence.name + "-" + chunkNumber + ".txt"
 
         return new File(filePath).getText().toUpperCase()
-    }
-
-    private String[] splitStringByNumberOfCharacters(String str, int numOfChars) {
-        int numTokens = str.length() / numOfChars;
-        if (str.length() % numOfChars != 0) {
-            ++numTokens;
-        }
-        String []tokens = new String[numTokens];
-        int idx = 0;
-        for (int i = 0; i < numTokens; ) {
-            tokens[i] = str.substring(idx, idx + numOfChars < str.length() ? idx + numOfChars : str.length());
-            ++i
-            idx += numOfChars
-        }
-        return tokens;
     }
 
 
