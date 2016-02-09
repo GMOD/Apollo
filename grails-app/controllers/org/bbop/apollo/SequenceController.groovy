@@ -170,6 +170,8 @@ class SequenceController {
     def getSequences(String name, Integer start, Integer length, String sort, Boolean asc, Integer minFeatureLength, Integer maxFeatureLength) {
         try {
             Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+
+            if(!organism) return ([] as JSON)
             def sequences = Sequence.createCriteria().list() {
                 if(name) {
                     ilike('name', '%'+name+'%')
@@ -179,6 +181,9 @@ class SequenceController {
                 lt('length',maxFeatureLength ?: Integer.MAX_VALUE)
                 if(sort=="length") {
                     order('length',asc?"asc":"desc")
+                }
+                if(sort=="name") {
+                    order('name', asc?"asc":"desc")
                 }
             }
             def sequenceCounts = Feature.executeQuery("select fl.sequence.name, count(fl.sequence.id) from Feature f join f.featureLocations fl where fl.sequence.organism = :organism and fl.sequence.length < :maxFeatureLength and fl.sequence.length > :minFeatureLength and f.class in :viewableAnnotationList group by fl.sequence.name", [minFeatureLength: minFeatureLength ?: 0, maxFeatureLength: maxFeatureLength ?: Integer.MAX_VALUE, viewableAnnotationList: requestHandlingService.viewableAnnotationList, organism: organism])
