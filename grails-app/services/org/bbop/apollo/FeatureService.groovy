@@ -14,6 +14,7 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
+import org.hibernate.FlushMode
 
 
 @Transactional(readOnly = true)
@@ -32,6 +33,7 @@ class FeatureService {
     def sequenceService
     def permissionService
     def overlapperService
+    def sessionFactory
 
 
     @Timed
@@ -2137,7 +2139,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         int fmin = feature.fmin
         int fmax = feature.fmax
         Sequence sequence = feature.featureLocation.sequence
+        sessionFactory.currentSession.flushMode=FlushMode.MANUAL
+        
         List<SequenceAlteration> sequenceAlterations = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId", [fmin: fmin, fmax: fmax, seqId: sequence])
+        sessionFactory.currentSession.flushMode=FlushMode.AUTO
+        
         return sequenceAlterations
     }
 

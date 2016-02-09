@@ -5,6 +5,8 @@ import grails.test.spock.IntegrationSpec
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Ignore
+import java.util.zip.CRC32
+
 
 class SequenceServiceIntegrationSpec extends IntegrationSpec {
     
@@ -47,7 +49,6 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         assert MRNA.count == 1
         assert Exon.count == 1
         assert CDS.count == 1
-//        assert FeatureLocation.count == 4 + FlankingRegion.count
         assert FeatureRelationship.count == 3
 
         String getSequenceString = "{\"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
@@ -344,7 +345,17 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         assert Gene.count == 1
         assert MRNA.count == 1
         assert Exon.count == 6
-        
+   
+        when: "we getSequences"
+        CRC32 crc = new CRC32();
+        crc.update("Group1.1".getBytes());
+        String hex = String.format("%08x", crc.getValue())
+
+        then: "it is split appropriately"
+        String []dirs = sequenceService.splitStringByNumberOfCharacters(hex, 3)
+        assert dirs == ['e15','221','82']
+
+
         when: "we call getResiduesForFeature"
         String geneSequence = sequenceService.getResiduesFromFeature(Gene.findByName("GB40744-RA"))
         
