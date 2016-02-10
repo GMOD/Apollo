@@ -93,7 +93,9 @@ docs/web_services/examples/groovy/delete_organism.groovy  -url http://localhost:
      -organism honeybee -username admin@webapollo.com -password admin_password
 ```
 
-This script can be used to delete all organism information including the annotations from it. You can also specify the 
--featuresOnly flag to only remove the features from the organism.
+This script can be used to delete all organism information including the annotations from it.
+
+The -username and -password refer to the admin user, and they can also be specified via stdin instead of the command
+line if they are omitted.
 
 
