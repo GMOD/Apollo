@@ -1,8 +1,6 @@
-///<reference path="ProjectionInterface.ts"/>
+///<reference path="AbstractProjection.ts"/>
 
-
-
-class MultisequenceProjection implements ProjectionInterface{
+class MultisequenceProjection extends AbstractProjection{
 
 
     projectValue(input:number):number {

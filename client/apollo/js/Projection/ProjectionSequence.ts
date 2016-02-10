@@ -18,7 +18,7 @@ module Projection{
         constructor() {
         }
 
-        test():string {
+        static test():string {
             return "test string";
         }
 

@@ -1,18 +1,20 @@
 ///<reference path="ProjectionSequence.ts"/>
 
-
-
 class Coordinate{
     min: number;
     max: number;
-    sequence: ProjectionSequence;
+    sequence: Projection.ProjectionSequence;
 
-
-    constructor(min:number, max:number, sequence:ProjectionSequence) {
+    constructor(min:number, max:number) {
         this.min = min;
         this.max = max;
-        this.sequence = sequence;
     }
+
+    //constructor(min:number, max:number, sequence:Projection.ProjectionSequence) {
+    //    this.min = min;
+    //    this.max = max;
+    //    this.sequence = sequence;
+    //}
 
 
     static spitOutSomething():void{
