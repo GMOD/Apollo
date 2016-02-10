@@ -158,6 +158,8 @@ grails.project.dependency.resolution = {
         runtime ":rest-client-builder:2.1.1"
         // TODO: re-add when ready to install functional tests
 //        test    ":geb:$gebVersion"
+        runtime ":typescript:0.3.9"
+
     }
 }
 
