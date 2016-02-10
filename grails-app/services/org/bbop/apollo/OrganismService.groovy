@@ -40,4 +40,28 @@ class OrganismService {
         organism.save(flush: true )
         return list.size()
     }
+    def deleteAllFeatureEventsForOrganism(Organism organism) {
+        def list=Feature.withCriteria() {
+            featureLocations {
+                sequence {
+                    eq("organism",organism)
+                }
+            }
+        }
+
+
+        def uniqueNames=list.collect {
+            it.uniqueName
+        }
+
+        def events=FeatureEvent.withCriteria() {
+            'in'("uniqueName",uniqueNames)
+        }
+
+        events.each {
+            it.delete()
+        }
+
+        return list.size()
+    }
 }

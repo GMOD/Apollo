@@ -52,9 +52,10 @@ class OrganismController {
                 }
                 if (organism) {
                     UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
+                    organismService.deleteAllFeatureEventsForOrganism(organism)
                     organism.delete()
+                    log.info "Success deleting organism: ${organismJson.id}"
                 }
-                log.info "Success deleting organism: ${organismJson.id}"
                 render findAllOrganisms()
             } else {
                 def error = [error: 'not authorized to delete organism']
