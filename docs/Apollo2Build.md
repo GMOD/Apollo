@@ -1,4 +1,4 @@
-# Quick-start guide
+# Quick-start Developer's guide
 
 Here we will introduce how to setup Apollo on your server. In general, there are two modes of deploying Apollo.
 
@@ -61,7 +61,7 @@ show you how to configure custom database settings.
 
 ### Setup a production server
 
-To setup a production server (as opposed to a development server as above), you must [properly configure a servlet container like Tomcat or Jetty](Setup.md) with [sufficient memory](Troubleshooting.md#tomcat-memory).
+**To setup in a production environment, please see the [setup](Setup.md) guide.**  To setup (as opposed to a development server as above), you must [properly configure a servlet container like Tomcat or Jetty](Setup.md) with [sufficient memory](Troubleshooting.md#tomcat-memory).
 
 ### Adding data to Apollo
 
