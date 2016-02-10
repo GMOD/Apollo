@@ -17,7 +17,7 @@ String usageString = "delete_organism.groovy <options>\n" +
 def cli = new CliBuilder(usage: usageString)
 cli.setStopAtNonOption(true)
 cli.url('URL to Apollo instance', required: true, args: 1)
-cli.name('organism common name', required: true, args: 1)
+cli.organism('organism name', required: true, args: 1)
 cli.username('username', required: false, args: 1)
 cli.password('password', required: false, args: 1)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)
@@ -27,7 +27,7 @@ def admin_password
 try {
     options = cli.parse(args)
 
-    if (!(options?.url && options?.name)) {
+    if (!(options?.url && options?.organism)) {
         return
     }
 
@@ -54,7 +54,7 @@ URL url = new URL(s)
 
 
 def argumentsArray = [
-        organism: options.name,
+        organism: options.organism,
         username  : admin_username,
         password  : admin_password,
 ]
