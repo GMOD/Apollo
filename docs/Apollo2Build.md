@@ -16,13 +16,13 @@ Installing grails is made easier by using [SDKMAN](http://sdkman.io/) (formerly 
 grails for you. We will use grails 2.4.5 for Apollo.
 
 1. `curl -s http://get.sdkman.io | bash`
-2. `gvm install grails 2.4.5`
+2. `sdk install grails 2.4.5`
 
 ### Groovy
 
 It is not required but you can also install the groovy command line
 
-`gvm install groovy`
+`sdk install groovy`
 
 
 ### Get the code
