@@ -228,19 +228,6 @@ public class OrganismPanel extends Composite {
         deleteButton.setEnabled(isEditable);
     }
 
-    private class DeleteFeaturesCallback implements RequestCallback {
-
-        @Override
-        public void onResponseReceived(Request request, Response response) {
-            OrganismRestService.deleteOrganism(new UpdateInfoListCallback(), singleSelectionModel.getSelectedObject());
-        }
-
-        @Override
-        public void onError(Request request, Throwable exception) {
-            loadingDialog.hide();
-            Bootbox.alert("Error deleteing features: " + exception);
-        }
-    }
     private class UpdateInfoListCallback implements RequestCallback {
 
         @Override
