@@ -6,8 +6,7 @@ There is "development mode" where the application is launched in a temporary ser
 "production mode", which will typically require an external separate database and tomcat server where you can deploy the
 generated `war` file.
 
-This guide will cover the "development mode" scenario which is easy to start. See the [setup](Setup.md) guide to cover
-the "production mode" setup.
+This guide will cover the "development mode" scenario which should be easy to start.  **To setup in a production environment, please see the [setup](Setup.md) guide.**
 
 
 ### Grails
