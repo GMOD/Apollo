@@ -14,8 +14,8 @@ define( [
             'JBrowse/Util', 
             'JBrowse/Model/SimpleFeature', 
             'WebApollo/SequenceOntologyUtils',
-            'WebApollo/Projection/TestClass',
-            'WebApollo/Projection/ProjectionSequence'
+            'src/Projection/TestClass',
+            'src/Projection/ProjectionSequence'
         ],
     function( declare,
         array,
