@@ -52,7 +52,7 @@
             margin-left: 5px;
             margin-right: 5px;
             display: inline-table;
-            background-color: gray;
+            background-color: gray !important;
             color: white;
             font-size: smaller;
             height: 25px;
@@ -89,7 +89,6 @@
                         <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
                         <gwt:SuggestBox ui:field="sequenceSuggestBox" stylePrimaryName="{style.lookup-display}"/>
                         <b:Panel styleName="pull-right">
-                            <!--<gwt:HTML ui:field="userName" styleName="{style.username}"/>-->
                             <b:Button ui:field="userName" icon="USER"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT" title="Logout"/>
                         </b:Panel>
