@@ -37,22 +37,28 @@
             font-size: smaller;
         }
 
+        .dropdown-display:focus {
+            background-color: gray;
+        }
         .dropdown-display {
             margin-left: 5px;
             margin-right: 5px;
             display: inline-table;
-            background: gray !important;
+            background: gray;
             color: white;
             font-size: smaller;
             height: 25px;
             width: 100px;
         }
 
+        .lookup-display:focus {
+            background-color: gray;
+        }
         .lookup-display {
             margin-left: 5px;
             margin-right: 5px;
             display: inline-table;
-            background-color: gray !important;
+            background-color: gray;
             color: white;
             font-size: smaller;
             height: 25px;
