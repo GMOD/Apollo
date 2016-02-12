@@ -41,7 +41,7 @@
             margin-left: 5px;
             margin-right: 5px;
             display: inline-table;
-            background-color: gray;
+            background: gray !important;
             color: white;
             font-size: smaller;
             height: 25px;
