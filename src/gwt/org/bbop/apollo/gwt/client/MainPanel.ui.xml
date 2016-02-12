@@ -13,7 +13,7 @@
         }
 
         .details-button {
-            display: inline-table;
+            display: inline;
             cursor: pointer;
         }
 
@@ -33,14 +33,14 @@
         }
 
         .username {
-            display: inline-table;
+            display: inline;
             font-size: smaller;
         }
 
         .dropdown-display {
             margin-left: 5px;
             margin-right: 5px;
-            display: inline-table;
+            display: inline;
             background-color: gray;
             color: white;
             font-size: smaller;
@@ -51,7 +51,7 @@
         .lookup-display {
             margin-left: 5px;
             margin-right: 5px;
-            display: inline-table;
+            display: inline;
             background-color: gray;
             color: white;
             font-size: smaller;
