@@ -1,4 +1,4 @@
-package org.bbop.apollo.gwt.shared;
+package org.bbop.apollo.gwt.shared.projection;
 
 /**
  * Created by nathandunn on 2/14/16.
@@ -9,6 +9,10 @@ public class Coordinate implements Comparable<Coordinate>{
 //    String sequence
 //    String organism
 
+    public Coordinate(Integer min,Integer max){
+        this.min = min ;
+        this.max = max ;
+    }
 
 //    @Override
 //    int compareTo(Coordinate o) {

@@ -6,7 +6,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.*;
-import org.bbop.apollo.gwt.shared.Coordinate;
+import org.bbop.apollo.gwt.shared.projection.Coordinate;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
