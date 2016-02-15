@@ -37,6 +37,9 @@
             font-size: smaller;
         }
 
+        .dropdown-display:focus {
+            background-color: gray;
+        }
         .dropdown-display {
             margin-left: 5px;
             margin-right: 5px;
@@ -48,6 +51,9 @@
             width: 100px;
         }
 
+        .lookup-display:focus {
+            background-color: gray;
+        }
         .lookup-display {
             margin-left: 5px;
             margin-right: 5px;
@@ -89,7 +95,6 @@
                         <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
                         <gwt:SuggestBox ui:field="sequenceSuggestBox" stylePrimaryName="{style.lookup-display}"/>
                         <b:Panel styleName="pull-right">
-                            <!--<gwt:HTML ui:field="userName" styleName="{style.username}"/>-->
                             <b:Button ui:field="userName" icon="USER"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT" title="Logout"/>
                         </b:Panel>
