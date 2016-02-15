@@ -41,9 +41,8 @@ class FeatureLocation {
 
 
     public boolean equals(Object other) {
-//        if ((this == other)) return true;
-        if ((other == null)) return false;
-        if (!(other instanceof FeatureLocation)) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         FeatureLocation castOther = (FeatureLocation) other;
 
         return ((this.getFeature() == castOther.getFeature()) || (this.getFeature() != null && castOther.getFeature() != null && this.getFeature().equals(castOther.getFeature()))) && (this.getLocgroup() == castOther.getLocgroup()) && (this.getRank() == castOther.getRank());

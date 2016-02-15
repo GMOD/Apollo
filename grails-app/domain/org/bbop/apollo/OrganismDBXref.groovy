@@ -5,14 +5,12 @@ class OrganismDBXref {
     static constraints = {
     }
 
-     Integer organismDbxrefId;
      DBXref dbxref;
      Organism organism;
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof OrganismDBXref) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         OrganismDBXref castOther = ( OrganismDBXref ) other;
 
         return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) ) && ( (this.getOrganism()==castOther.getOrganism()) || ( this.getOrganism()!=null && castOther.getOrganism()!=null && this.getOrganism().equals(castOther.getOrganism()) ) );

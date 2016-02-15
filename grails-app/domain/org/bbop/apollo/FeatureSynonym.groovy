@@ -14,9 +14,8 @@ class FeatureSynonym {
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof FeatureSynonym) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         FeatureSynonym castOther = ( FeatureSynonym ) other;
 
         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) ) && ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) ) && ( (this.getSynonym()==castOther.getSynonym()) || ( this.getSynonym()!=null && castOther.getSynonym()!=null && this.getSynonym().equals(castOther.getSynonym()) ) );

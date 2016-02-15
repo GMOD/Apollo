@@ -23,9 +23,8 @@ class Phenotype {
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof Phenotype) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         Phenotype castOther = ( Phenotype ) other;
 
         return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );

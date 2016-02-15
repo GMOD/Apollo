@@ -5,7 +5,6 @@ class Environment {
     static constraints = {
     }
 
-    Integer environmentId;
     String uniquename;
     String description;
 
@@ -15,9 +14,8 @@ class Environment {
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof Environment) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         Environment castOther = ( Environment ) other;
 
         return ( (this.getUniquename()==castOther.getUniquename()) || ( this.getUniquename()!=null && castOther.getUniquename()!=null && this.getUniquename().equals(castOther.getUniquename()) ) );

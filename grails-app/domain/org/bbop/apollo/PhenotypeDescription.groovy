@@ -5,7 +5,6 @@ class PhenotypeDescription {
     static constraints = {
     }
 
-    Integer phenotypeDescriptionId;
     Environment environment;
     CVTerm type;
     Publication publication;
@@ -14,9 +13,8 @@ class PhenotypeDescription {
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof PhenotypeDescription) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         PhenotypeDescription castOther = ( PhenotypeDescription ) other;
 
         return ( (this.getEnvironment()==castOther.getEnvironment()) || ( this.getEnvironment()!=null && castOther.getEnvironment()!=null && this.getEnvironment().equals(castOther.getEnvironment()) ) ) && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) ) && ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) ) && ( (this.getGenotype()==castOther.getGenotype()) || ( this.getGenotype()!=null && castOther.getGenotype()!=null && this.getGenotype().equals(castOther.getGenotype()) ) );
