@@ -11,6 +11,7 @@ import com.google.gwt.dom.builder.shared.TableCellBuilder;
 import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
@@ -487,11 +488,11 @@ public class AnnotatorPanel extends Composite {
         dataGrid.addColumn(typeColumn, "Type");
         dataGrid.addColumn(lengthColumn, "Length");
         dataGrid.addColumn(dateColumn, "Updated");
-        dataGrid.setColumnWidth(0, "45%");
-        dataGrid.setColumnWidth(1, "12%");
-        dataGrid.setColumnWidth(2, "12%");
-        dataGrid.setColumnWidth(3, "11%");
-        dataGrid.setColumnWidth(4, "20%");
+        dataGrid.setColumnWidth(0, 75, Unit.PCT);
+        dataGrid.setColumnWidth(1, 25, Unit.PCT);
+        dataGrid.setColumnWidth(2, 45.0, Unit.PX);
+        dataGrid.setColumnWidth(3, 65.0, Unit.PX);
+        dataGrid.setColumnWidth(4, 100.0, Unit.PX);
     }
 
     private String getType(JSONObject internalData) {
