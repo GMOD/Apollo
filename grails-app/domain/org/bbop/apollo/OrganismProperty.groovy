@@ -21,7 +21,7 @@ class OrganismProperty {
     public boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
-        Organism castOther = ( Organism ) other;
+        OrganismProperty castOther = ( OrganismProperty ) other;
 
         return ( (this.getGenus()==castOther.getGenus()) || ( this.getGenus()!=null && castOther.getGenus()!=null && this.getGenus().equals(castOther.getGenus()) ) ) && ( (this.getSpecies()==castOther.getSpecies()) || ( this.getSpecies()!=null && castOther.getSpecies()!=null && this.getSpecies().equals(castOther.getSpecies()) ) );
     }
