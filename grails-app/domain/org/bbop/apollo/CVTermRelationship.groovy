@@ -5,16 +5,14 @@ class CVTermRelationship {
     static constraints = {
     }
 
-     Integer cvtermRelationshipId;
      CVTerm type;
      CVTerm subjectCVTerm;
      CVTerm objectCVTerm;
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof CVTermRelationship) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         CVTermRelationship castOther = ( CVTermRelationship ) other;
 
         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) ) && ( (this.getSubjectCVTerm()==castOther.getSubjectCVTerm()) || ( this.getSubjectCVTerm()!=null && castOther.getSubjectCVTerm()!=null && this.getSubjectCVTerm().equals(castOther.getSubjectCVTerm()) ) ) && ( (this.getObjectCVTerm()==castOther.getObjectCVTerm()) || ( this.getObjectCVTerm()!=null && castOther.getObjectCVTerm()!=null && this.getObjectCVTerm().equals(castOther.getObjectCVTerm()) ) );

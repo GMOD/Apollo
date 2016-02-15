@@ -5,7 +5,6 @@ class AnalysisFeature {
     static constraints = {
     }
 
-//    Integer analysisFeatureId;
     Analysis analysis;
     Feature feature;
     Double rawScore;
@@ -14,9 +13,8 @@ class AnalysisFeature {
     Double identity;
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof AnalysisFeature) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         AnalysisFeature castOther = ( AnalysisFeature ) other;
 
         return ( (this.getAnalysis()==castOther.getAnalysis()) || ( this.getAnalysis()!=null && castOther.getAnalysis()!=null && this.getAnalysis().equals(castOther.getAnalysis()) ) ) && ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) );

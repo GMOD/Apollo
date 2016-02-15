@@ -30,7 +30,8 @@ class FeatureProperty implements Ontological{
             Feature
     ]
     public boolean equals(Object other) {
-        if ( !(other instanceof FeatureProperty) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         FeatureProperty castOther = ( FeatureProperty ) other;
 
         if(castOther?.id == this?.id) return true

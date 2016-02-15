@@ -19,9 +19,8 @@ class OrganismProperty {
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof Organism) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         Organism castOther = ( Organism ) other;
 
         return ( (this.getGenus()==castOther.getGenus()) || ( this.getGenus()!=null && castOther.getGenus()!=null && this.getGenus().equals(castOther.getGenus()) ) ) && ( (this.getSpecies()==castOther.getSpecies()) || ( this.getSpecies()!=null && castOther.getSpecies()!=null && this.getSpecies().equals(castOther.getSpecies()) ) );

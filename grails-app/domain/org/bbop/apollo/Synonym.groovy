@@ -12,9 +12,8 @@ class Synonym {
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof Synonym) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         Synonym castOther = ( Synonym ) other;
 
         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) ) && ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );

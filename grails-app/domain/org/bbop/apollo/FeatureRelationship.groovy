@@ -22,8 +22,8 @@ class FeatureRelationship implements  Ontological{
 
 
     public boolean equals(Object other) {
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof FeatureRelationship) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         FeatureRelationship castOther = ( FeatureRelationship ) other;
         if(this?.id == castOther?.id) return true
 

@@ -22,9 +22,8 @@ class Analysis {
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof Analysis) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         Analysis castOther = ( Analysis ) other;
 
         return ( (this.getProgram()==castOther.getProgram()) || ( this.getProgram()!=null && castOther.getProgram()!=null && this.getProgram().equals(castOther.getProgram()) ) ) && ( (this.getProgramVersion()==castOther.getProgramVersion()) || ( this.getProgramVersion()!=null && castOther.getProgramVersion()!=null && this.getProgramVersion().equals(castOther.getProgramVersion()) ) ) && ( (this.getSourceName()==castOther.getSourceName()) || ( this.getSourceName()!=null && castOther.getSourceName()!=null && this.getSourceName().equals(castOther.getSourceName()) ) );
