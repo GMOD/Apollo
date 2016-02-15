@@ -57,20 +57,6 @@ return declare( CanvasFeaturesTrack,
                   }
                 },
                 {
-                  "label" : "repeat_region",
-                  "action" : function() {
-                     var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "repeat_region", null, "gene");
-                   }
-                },
-                {
-                  "label" : "transposable element",
-                  "action" : function() {
-                     var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "transposable_element", null, "gene");
-                   }
-                },
-                {
                   "label" : "tRNA",
                   "action" : function() {
                      var atrack=thisB.webapollo.getAnnotTrack();
@@ -85,10 +71,17 @@ return declare( CanvasFeaturesTrack,
                    }
                 },
                 {
-                  "label" : "miRNA",
+                  "label" : "snoRNA",
                   "action" : function() {
                      var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "miRNA", null, "gene");
+                     atrack.createGenericAnnotations([this.feature], "snoRNA", null, "gene");
+                   }
+                },
+                {
+                  "label" : "ncRNA",
+                  "action" : function() {
+                     var atrack=thisB.webapollo.getAnnotTrack();
+                     atrack.createGenericAnnotations([this.feature], "ncRNA", null, "gene");
                    }
                 },
                 {
@@ -99,10 +92,24 @@ return declare( CanvasFeaturesTrack,
                    }
                 },
                 {
-                  "label" : "snoRNA",
+                  "label" : "miRNA",
                   "action" : function() {
                      var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "snoRNA", null, "gene");
+                     atrack.createGenericAnnotations([this.feature], "miRNA", null, "gene");
+                   }
+                },
+                {
+                  "label" : "repeat_region",
+                  "action" : function() {
+                     var atrack=thisB.webapollo.getAnnotTrack();
+                     atrack.createGenericAnnotations([this.feature], "repeat_region", null, "gene");
+                   }
+                },
+                {
+                  "label" : "transposable element",
+                  "action" : function() {
+                     var atrack=thisB.webapollo.getAnnotTrack();
+                     atrack.createGenericAnnotations([this.feature], "transposable_element", null, "gene");
                    }
                 }
               ]
