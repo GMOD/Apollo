@@ -487,11 +487,10 @@ public class AnnotatorPanel extends Composite {
         dataGrid.addColumn(typeColumn, "Type");
         dataGrid.addColumn(lengthColumn, "Length");
         dataGrid.addColumn(dateColumn, "Updated");
-
-        dataGrid.setColumnWidth(0, "55%");
-        dataGrid.setColumnWidth(1, "15%");
-        dataGrid.setColumnWidth(2, "15%");
-        dataGrid.setColumnWidth(3, "15%");
+        dataGrid.setColumnWidth(0, "45%");
+        dataGrid.setColumnWidth(1, "12%");
+        dataGrid.setColumnWidth(2, "12%");
+        dataGrid.setColumnWidth(3, "11%");
         dataGrid.setColumnWidth(4, "20%");
     }
 
