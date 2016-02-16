@@ -1177,7 +1177,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                             newDB,
                             dbxref.getString(FeatureStringEnum.ACCESSION.value)
                     ).save()
-                    gsolFeature.addToFeatureDBXrefs(dbxref)
+                    gsolFeature.addToFeatureDBXrefs(newDBXref)
                     gsolFeature.save()
                 }
             }
