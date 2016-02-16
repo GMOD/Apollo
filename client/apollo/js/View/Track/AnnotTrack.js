@@ -1406,11 +1406,59 @@ define([
                 });
             },
 
+            foldSelectedFeatures: function () {
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                this.foldExons(selected);
+            },
+
+            foldExons: function (selections) {
+                // add folding to current refSeq . .. and reload
+                console.log(selections);
+                console.log(this.refSeq);
+                var name = this.refSeq.name;
+                var selection1 = selections[0].feature.data;
+                var selection2 = selections[1].feature.data;
+
+                var minValue, maxValue ;
+                if(selection1.start > selection2.end){
+                    minValue = selection2.end ;
+                    maxValue = selection1.start ;
+                }
+                else{
+                    minValue = selection1.end ;
+                    maxValue = selection2.start ;
+                }
+
+
+                if(name[0]=="{"){
+                    window.location.href = context_path + "/jbrowse/index.html?loc="+name ;
+                }
+                else{
+                    var newName = {
+                        sequenceList : [
+                            {
+                                name:name,
+                                folding: [
+                                    {
+                                        fmin: minValue,
+                                        fmax: maxValue
+                                    }
+                                ]
+                            }
+                        ]
+                    };
+                    window.location.href = context_path + "/jbrowse/index.html?loc="+JSON.stringify(newName);
+                }
+
+            },
+
             mergeSelectedFeatures: function () {
                 var selected = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
                 this.mergeAnnotations(selected);
             },
+
 
             mergeAnnotations: function (selection) {
                 var track = this;
@@ -4540,6 +4588,13 @@ define([
                         }
                     }));
                     contextMenuItems["merge"] = index++;
+                    annot_context_menu.addChild(new dijit.MenuItem({
+                        label: "Fold",
+                        onClick: function () {
+                            thisB.foldSelectedFeatures();
+                        }
+                    }));
+                    contextMenuItems["fold"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Split",
                         onClick: function (event) {
