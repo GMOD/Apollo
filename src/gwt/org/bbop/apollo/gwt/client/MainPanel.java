@@ -989,11 +989,6 @@ public class MainPanel extends Composite {
         $wnd.getCurrentOrganism = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentOrganismAsJson());
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
         $wnd.getCurrentBookmark = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentBookmarkAsJson());
-        $wnd.getEmbeddedVersion = $entry(
-            function apolloEmbeddedVersion() {
-                return 'ApolloGwt-2.0';
-            }
-        );
     }-*/;
 
     private enum TabPanelIndex {

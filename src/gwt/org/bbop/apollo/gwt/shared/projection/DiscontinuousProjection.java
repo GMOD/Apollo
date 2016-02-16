@@ -149,11 +149,23 @@ public class DiscontinuousProjection extends AbstractProjection{
         return addCoordinate(min, max);
     }
 
+    /**
+     * TODO: add many, many tests
+     * @param fmin
+     * @param fmax
+     * @param padding
+     */
+    public void foldInterval(int fmin, int fmax, int padding) {
+        Coordinate coordinate = new Coordinate(fmin,fmax);
+
+
+    }
+
     Coordinate addInterval(int min, int max) {
         return addInterval(min,max,0);
     }
 
-    Coordinate addInterval(int min, int max, Integer padding ) {
+    public Coordinate addInterval(int min, int max, Integer padding ) {
         min -= padding ;
         max += padding ;
         min = min < 0 ? 0 : min;
@@ -492,4 +504,5 @@ public class DiscontinuousProjection extends AbstractProjection{
         maxMap.clear();
         return returnValue;
     }
+
 }

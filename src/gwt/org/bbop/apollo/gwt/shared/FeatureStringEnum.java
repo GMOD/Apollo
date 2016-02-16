@@ -6,6 +6,7 @@ package org.bbop.apollo.gwt.shared;
 public enum FeatureStringEnum {
         ID("id"),
         FEATURES,
+        FOLDING,
         SUPPRESS_HISTORY,
         SUPPRESS_EVENTS,
         FEATURE_PROPERTY,
