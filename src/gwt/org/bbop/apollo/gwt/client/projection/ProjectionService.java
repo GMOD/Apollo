@@ -19,14 +19,16 @@ public class ProjectionService {
         exportStaticMethod();
     }
 
-    public static String projectValue(String refSeqLabel,String inputNumber){
+    public static String projectValue(String refSeqObject,String inputNumber){
         // handle as a projection
+        GWT.log("REF SEQ LABEL: "+refSeqObject);
+        JSONObject refSeqJsonObject = JSONParser.parseStrict(refSeqObject).isObject();
+        String refSeqLabel = refSeqJsonObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
         Double doubleValue = Double.parseDouble(inputNumber);
-        GWT.log(refSeqLabel);
         if(refSeqLabel.startsWith("{")){
             DiscontinuousProjection discontinuousProjection = projectionStore.getProjection(refSeqLabel);
             if(discontinuousProjection==null){
-                discontinuousProjection = createProjection(refSeqLabel);
+                discontinuousProjection = createProjection(refSeqLabel,refSeqJsonObject);
                 projectionStore.storeProjection(refSeqLabel,discontinuousProjection);
             }
             Integer intValue = ((int) Math.round(doubleValue));
@@ -40,7 +42,7 @@ public class ProjectionService {
         }
     }
 
-    private static DiscontinuousProjection createProjection(String refSeqLabel) {
+    private static DiscontinuousProjection createProjection(String refSeqLabel, JSONObject refSeqJsonObject) {
         DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection();
         GWT.log(refSeqLabel);
         String refSeqDescription =  refSeqLabel.substring(0,refSeqLabel.lastIndexOf(":"));
@@ -61,6 +63,7 @@ public class ProjectionService {
 //            ]
 //        }
         JSONObject projectionDescription = JSONParser.parseStrict(refSeqDescription).isObject();
+        Double length = refSeqJsonObject.get("length").isNumber().doubleValue();
         JSONArray sequenceListArray = projectionDescription.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray();
         for(int i = 0 ; i < sequenceListArray.size() ; i++){
             JSONObject sequenceObject = sequenceListArray.get(i).isObject();
@@ -79,7 +82,7 @@ public class ProjectionService {
                     Double fmin = foldingObject.get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue();
                     Double fmax = foldingObject.get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue();
 //                    discontinuousProjection.addInterval((int) Math.round(fmin), (int) Math.round(fmax),5);
-                    discontinuousProjection.foldInterval((int) Math.round(fmin), (int) Math.round(fmax),5);
+                    discontinuousProjection.foldInterval((int) Math.round(fmin), (int) Math.round(fmax),5, (int) Math.round(length));
                 }
             }
 

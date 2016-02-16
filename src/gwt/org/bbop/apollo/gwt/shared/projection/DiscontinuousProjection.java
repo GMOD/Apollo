@@ -6,14 +6,14 @@ import java.util.TreeMap;
 /**
  * Created by nathandunn on 2/14/16.
  */
-public class DiscontinuousProjection extends AbstractProjection{
+public class DiscontinuousProjection extends AbstractProjection {
     // projection from X -> X'
     private TreeMap<Integer, Coordinate> minMap = new TreeMap<>();
     private TreeMap<Integer, Coordinate> maxMap = new TreeMap<>();
 
     /**
      * Get the coordinate value out and add some to min
-     *
+     * <p/>
      * To do this efficiently we simply get the interval sizes
      * and stop when we've hit all of the sizes
      *
@@ -40,14 +40,14 @@ public class DiscontinuousProjection extends AbstractProjection{
                 return min + input - previousLength - bucketCount;
             }
             previousLength += (max - min);
-                    ++bucketCount;
+            ++bucketCount;
         }
         return UNMAPPED_VALUE;
     }
 
     @Override
     public Integer projectValue(Integer input) {
-        if (minMap.size()==0 && maxMap.size()==0) {
+        if (minMap.size() == 0 && maxMap.size() == 0) {
             return input;
         }
 
@@ -57,7 +57,7 @@ public class DiscontinuousProjection extends AbstractProjection{
 
         Integer floorMinKey = minMap.floorKey(input);
         Integer ceilMinKey = minMap.ceilingKey(input);
-;
+        ;
         Integer floorMaxKey = maxMap.floorKey(input);
         Integer ceilMaxKey = maxMap.ceilingKey(input);
 
@@ -120,6 +120,7 @@ public class DiscontinuousProjection extends AbstractProjection{
 
     /**
      * Replace an existing coordinate with a new set (e.g., an overlap)
+     *
      * @param coordinate
      * @param min
      * @param max
@@ -130,11 +131,11 @@ public class DiscontinuousProjection extends AbstractProjection{
         assert minMap.remove(coordinate.min) != null;
         assert maxMap.remove(coordinate.max) != null;
 
-        Integer nextMin = minMap.size()>0 ? minMap.higherKey(coordinate.min) : null;
+        Integer nextMin = minMap.size() > 0 ? minMap.higherKey(coordinate.min) : null;
 
         Boolean doBreak = false;
         // we have to remove any overlapping elements here
-        while (nextMin!=null && minMap.size()>0 && maxMap.size()>0 && nextMin < max && !doBreak) {
+        while (nextMin != null && minMap.size() > 0 && maxMap.size() > 0 && nextMin < max && !doBreak) {
             Coordinate nextMinCoord = minMap.get(nextMin);
 //            System.out.println("nextMinCoord.max ${nextMinCoord.max} > ${min}");
             if (nextMinCoord.max > min) {
@@ -151,23 +152,35 @@ public class DiscontinuousProjection extends AbstractProjection{
 
     /**
      * TODO: add many, many tests
+     * <p/>
+     * We basically hide everything between fmin+padding and fmax-padding (unless they overlap)
+     *
      * @param fmin
      * @param fmax
      * @param padding
+     * @param length
      */
-    public void foldInterval(int fmin, int fmax, int padding) {
-        Coordinate coordinate = new Coordinate(fmin,fmax);
+    public void foldInterval(int fmin, int fmax, int padding, int length) {
+        Integer fminAdjusted = fmin + padding ;
+        Integer fmaxAdjusted = fmax - padding ;
+        if(fmaxAdjusted<=fminAdjusted) return ;
+
+        if (minMap.size() == 0) {
+            addInterval(0,fmin,padding);
+            addInterval(fmax,length,padding);
+        }
+//        Coordinate coordinate = new Coordinate(fmin,fmax);
 
 
     }
 
     Coordinate addInterval(int min, int max) {
-        return addInterval(min,max,0);
+        return addInterval(min, max, 0);
     }
 
-    public Coordinate addInterval(int min, int max, Integer padding ) {
-        min -= padding ;
-        max += padding ;
+    public Coordinate addInterval(int min, int max, Integer padding) {
+        min -= padding;
+        max += padding;
         min = min < 0 ? 0 : min;
 //        System.out.println("${min},${max}");
 //        max = max > length ? length: max
@@ -175,14 +188,14 @@ public class DiscontinuousProjection extends AbstractProjection{
 
         Integer floorMinKey = minMap.floorKey(min);
         Integer ceilMinKey = minMap.ceilingKey(min);
-;
+        ;
         Integer floorMaxKey = maxMap.floorKey(max);
         Integer ceilMaxKey = maxMap.ceilingKey(max);
-;
-        Coordinate floorMinCoord = floorMinKey!=null ? minMap.get(floorMinKey) : null;
-        Coordinate floorMaxCoord = floorMaxKey!=null ? maxMap.get(floorMaxKey) : null;
-        Coordinate ceilMaxCoord = ceilMaxKey!=null ? maxMap.get(ceilMaxKey) : null;
-        Coordinate ceilMinCoord = ceilMinKey!=null ? minMap.get(ceilMinKey) : null;
+        ;
+        Coordinate floorMinCoord = floorMinKey != null ? minMap.get(floorMinKey) : null;
+        Coordinate floorMaxCoord = floorMaxKey != null ? maxMap.get(floorMaxKey) : null;
+        Coordinate ceilMaxCoord = ceilMaxKey != null ? maxMap.get(ceilMaxKey) : null;
+        Coordinate ceilMinCoord = ceilMinKey != null ? minMap.get(ceilMinKey) : null;
 
         // no entries at all . . just add
         if (floorMinCoord == null && floorMaxCoord == null && ceilMinCoord == null && ceilMaxCoord == null) {
@@ -390,7 +403,7 @@ public class DiscontinuousProjection extends AbstractProjection{
         if (newMin < 0 && newMax < 0) {
             return null;
         }
-        return new Coordinate(newMin,newMax);
+        return new Coordinate(newMin, newMax);
     }
 
     public Integer getOriginalLength() {
@@ -400,6 +413,7 @@ public class DiscontinuousProjection extends AbstractProjection{
 
     /**
      * This allows for a space between each coordindate
+     *
      * @param buffer
      * @return
      */
@@ -444,8 +458,10 @@ public class DiscontinuousProjection extends AbstractProjection{
             System.out.println("coodinate coord ${coordinate.min}::${coordinate.max} vs ${inputSequence.length()}");
             Integer offsetMinCoordinate = coordinate.min + offset;
             Integer offsetMaxCoordinate = coordinate.max + offset;
-            System.out.println("offset coord ${offsetMinCoordinate}::${offsetMaxCoordinate} vs ${inputSequence.length()}");;
-            System.out.println("min/max ${minCoordinate}::${maxCoordinate} vs ${inputSequence.length()}");;
+            System.out.println("offset coord ${offsetMinCoordinate}::${offsetMaxCoordinate} vs ${inputSequence.length()}");
+            ;
+            System.out.println("min/max ${minCoordinate}::${maxCoordinate} vs ${inputSequence.length()}");
+            ;
             // 6 cases
             // case 1, max < minCoordinate . . .ignore
             // case 5, min > maxCoordinate  . . .ignore
@@ -480,9 +496,9 @@ public class DiscontinuousProjection extends AbstractProjection{
     @Override
     public String toString() {
         String returnString = "DiscontinuousProjection{";
-        for(org.bbop.apollo.gwt.shared.projection.Coordinate it : minMap.values())
+        for (org.bbop.apollo.gwt.shared.projection.Coordinate it : minMap.values())
 //        minMap.values().each { it ->
-            returnString += "["+it.getMin() +"::"+it.getMax()+"]";
+            returnString += "[" + it.getMin() + "::" + it.getMax() + "]";
 //        }
 
         returnString += '}';
@@ -490,7 +506,7 @@ public class DiscontinuousProjection extends AbstractProjection{
     }
 
     Integer size() {
-        if (minMap.size()==0) {
+        if (minMap.size() == 0) {
             return 0;
         }
         assert minMap.size() == maxMap.size();
