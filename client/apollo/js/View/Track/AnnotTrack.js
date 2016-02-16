@@ -2323,25 +2323,32 @@ define([
                     'class': "annotation_info_editor_section_header",
                     innerHTML: "Replace model(s)"
                 }, replacementDiv);
+
+
                 var trackNames = Object.keys(JBrowse.trackConfigsByName);
                 var replacements = new Select({
                     name: "replacementSelection",
                     options: array.map(trackNames, function(trackName) {
-                        return {label: track.browser.trackConfigsByName[trackName].label, value: track.browser.trackConfigsByName[trackName].key}
+                        return {value: track.browser.trackConfigsByName[trackName].label, label: track.browser.trackConfigsByName[trackName].key}
                     })
                 });
+
+
                 replacements.placeAt(replacementDiv).startup();
                 track.featureReplace = track.featureReplace ||new Select({
                     name: "featureSelection",
                     options: []
                 });
                 on(replacements, "change", function(selection) {
+                    console.log(track.browser.trackConfigsByName,selection,replacements);
                     track.browser.getStore(track.browser.trackConfigsByName[selection].store, function(store) {
                         console.log("Received store",store);
                         store.getFeatures({ref: feature.afeature.sequence, start: feature.get('start'), end: feature.get('end')}, function(f) {
-                            console.log(track.featureReplace.options);
-                            track.featureReplace.options.push({label: f.get('id'), value: f.get('name')});
-                            track.featureReplace.placeAt(replacementDiv).startup();
+                            console.log(track.featureReplace.options,f);
+                            if(f) {
+                                track.featureReplace.options.push({value: f.get('id'), label: f.get('name')});
+                                track.featureReplace.placeAt(replacementDiv).startup();
+                            }
                         })
                     });
                 });
