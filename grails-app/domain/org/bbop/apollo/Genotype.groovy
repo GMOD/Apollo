@@ -18,9 +18,8 @@ class Genotype {
     ]
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof Genotype) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         Genotype castOther = ( Genotype ) other;
 
         return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );

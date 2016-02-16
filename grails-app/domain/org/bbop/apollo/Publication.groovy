@@ -5,7 +5,6 @@ class Publication {
     static constraints = {
     }
 
-    Integer publicationId;
     CVTerm type;
     String title;
     String volumeTitle;
@@ -35,9 +34,8 @@ class Publication {
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof Publication) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         Publication castOther = ( Publication ) other;
 
         return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );

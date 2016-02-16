@@ -15,9 +15,8 @@ class DB {
      String url;
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof DB) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         DB castOther = ( DB ) other;
 
         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );

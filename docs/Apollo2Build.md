@@ -1,4 +1,4 @@
-# Quick-start guide
+# Quick-start Developer's guide
 
 Here we will introduce how to setup Apollo on your server. In general, there are two modes of deploying Apollo.
 
@@ -6,8 +6,7 @@ There is "development mode" where the application is launched in a temporary ser
 "production mode", which will typically require an external separate database and tomcat server where you can deploy the
 generated `war` file.
 
-This guide will cover the "development mode" scenario which is easy to start. See the [setup](Setup.md) guide to cover
-the "production mode" setup.
+This guide will cover the "development mode" scenario which should be easy to start.  **To setup in a production environment, please see the [setup](Setup.md) guide.**
 
 
 ### Grails
@@ -16,13 +15,13 @@ Installing grails is made easier by using [SDKMAN](http://sdkman.io/) (formerly 
 grails for you. We will use grails 2.4.5 for Apollo.
 
 1. `curl -s http://get.sdkman.io | bash`
-2. `gvm install grails 2.4.5`
+2. `sdk install grails 2.4.5`
 
 ### Groovy
 
 It is not required but you can also install the groovy command line
 
-`gvm install groovy`
+`sdk install groovy`
 
 
 ### Get the code
@@ -62,7 +61,7 @@ show you how to configure custom database settings.
 
 ### Setup a production server
 
-To setup a production server (as opposed to a development server as above), you must [properly configure a servlet container like Tomcat or Jetty](Setup.md) with [sufficient memory](Troubleshooting.md#tomcat-memory).
+**To setup in a production environment, please see the [setup](Setup.md) guide.**  To setup (as opposed to a development server as above), you must [properly configure a servlet container like Tomcat or Jetty](Setup.md) with [sufficient memory](Troubleshooting.md#tomcat-memory).
 
 ### Adding data to Apollo
 

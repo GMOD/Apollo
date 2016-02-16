@@ -5,7 +5,6 @@ class PublicationAuthor {
     static constraints = {
     }
 
-    Integer publicationAuthorId;
     Publication publication;
     int rank;
     Boolean editor;
@@ -15,9 +14,8 @@ class PublicationAuthor {
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof PublicationAuthor) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         PublicationAuthor castOther = ( PublicationAuthor ) other;
 
         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) ) && (this.getRank()==castOther.getRank());

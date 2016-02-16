@@ -27,9 +27,8 @@ class CVTerm {
 
 
     public boolean equals(Object other) {
-        if ((this == other)) return true;
-        if ((other == null)) return false;
-        if (!(other instanceof CVTerm)) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         CVTerm castOther = (CVTerm) other;
 
         return ((this.getCv() == castOther.getCv()) || (this.getCv() != null && castOther.getCv() != null && this.getCv().equals(castOther.getCv()))) && ((this.getName() == castOther.getName()) || (this.getName() != null && castOther.getName() != null && this.getName().equals(castOther.getName()))) && (this.getIsObsolete() == castOther.getIsObsolete());

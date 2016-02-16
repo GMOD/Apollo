@@ -6,16 +6,14 @@ class PublicationDBXref {
     }
 
 
-    Integer publicationDBXrefId;
     Publication publication;
     DBXref dbxref;
     boolean isCurrent;
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof PublicationDBXref) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         PublicationDBXref castOther = ( PublicationDBXref ) other;
 
         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) ) && ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) );

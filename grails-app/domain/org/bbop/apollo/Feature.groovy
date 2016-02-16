@@ -76,8 +76,8 @@ class Feature implements Ontological{
 
 
     public boolean equals(Object other) {
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof Feature) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         Feature castOther = ( Feature ) other;
 
         return  (this?.ontologyId==castOther?.ontologyId) \

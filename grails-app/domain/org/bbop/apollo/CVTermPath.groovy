@@ -5,18 +5,16 @@ class CVTermPath {
     static constraints = {
     }
 
-     Integer cvtermPathId;
      CVTerm type;
      CVTerm subjectCVTerm;
      CVTerm objectCVTerm;
-    CV cv;
+     CV cv;
      Integer pathDistance;
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof CVTermPath) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         CVTermPath castOther = ( CVTermPath ) other;
 
         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) ) && ( (this.getSubjectCVTerm()==castOther.getSubjectCVTerm()) || ( this.getSubjectCVTerm()!=null && castOther.getSubjectCVTerm()!=null && this.getSubjectCVTerm().equals(castOther.getSubjectCVTerm()) ) ) && ( (this.getObjectCVTerm()==castOther.getObjectCVTerm()) || ( this.getObjectCVTerm()!=null && castOther.getObjectCVTerm()!=null && this.getObjectCVTerm().equals(castOther.getObjectCVTerm()) ) ) && ( (this.getPathDistance()==castOther.getPathDistance()) || ( this.getPathDistance()!=null && castOther.getPathDistance()!=null && this.getPathDistance().equals(castOther.getPathDistance()) ) );

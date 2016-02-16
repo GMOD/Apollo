@@ -5,14 +5,12 @@ class EnvironmentCVTerm {
     static constraints = {
     }
 
-    Integer environmentCvtermId;
     Environment environment;
     CVTerm cvterm;
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
-        if ( !(other instanceof EnvironmentCVTerm) ) return false;
+        if (this.is(other)) return true
+        if (getClass() != other.class) return false
         EnvironmentCVTerm castOther = ( EnvironmentCVTerm ) other;
 
         return ( (this.getEnvironment()==castOther.getEnvironment()) || ( this.getEnvironment()!=null && castOther.getEnvironment()!=null && this.getEnvironment().equals(castOther.getEnvironment()) ) ) && ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) );
