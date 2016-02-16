@@ -14,7 +14,7 @@ import org.bbop.apollo.gwt.shared.projection.Coordinate;
 public class Annotator implements EntryPoint {
 
     public static EventBus eventBus = GWT.create(SimpleEventBus.class);
-    private Coordinate coordinate = new Coordinate();
+    private Coordinate coordinate = new Coordinate(0,10);
     /**
      * This is the entry point method.
      */

@@ -370,7 +370,7 @@ public class DiscontinuousProjection extends AbstractProjection {
     }
 
     @Override
-    public Coordinate projectReverseCoordinate(int min, int max) {
+    public org.bbop.apollo.gwt.shared.projection.Coordinate projectReverseCoordinate(int min, int max) {
         int newMin = projectReverseValue(min)
         int newMax = projectReverseValue(max)
         if (newMin < 0 && newMax < 0) return null

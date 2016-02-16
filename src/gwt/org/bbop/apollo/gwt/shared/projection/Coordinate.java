@@ -75,4 +75,12 @@ public class Coordinate implements Comparable<Coordinate>{
         min = min+offset;
         max = max+offset;
     }
+
+    public Integer getMin() {
+        return min;
+    }
+
+    public Integer getMax() {
+        return max;
+    }
 }
