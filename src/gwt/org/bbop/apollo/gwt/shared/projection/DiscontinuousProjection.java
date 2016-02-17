@@ -1,7 +1,5 @@
 package org.bbop.apollo.gwt.shared.projection;
 
-import com.google.gwt.core.client.GWT;
-
 import java.util.Iterator;
 import java.util.TreeMap;
 
@@ -163,8 +161,6 @@ public class DiscontinuousProjection extends AbstractProjection {
      * @param length
      */
     public void foldInterval(int fmin, int fmax, int padding, int length) {
-        GWT.log("folding "+fmin + " "+ fmax);
-
         if (minMap.size() == 0) {
             addInterval(0,fmin,padding);
             addInterval(fmax,length,padding);
