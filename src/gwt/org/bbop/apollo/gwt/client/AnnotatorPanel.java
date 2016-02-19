@@ -106,8 +106,6 @@ public class AnnotatorPanel extends Composite {
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private static AsyncDataProvider<AnnotationInfo> dataProvider;
-    //    private static List<AnnotationInfo> annotationInfoList = new ArrayList<>();
-    //    private static List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     private final Set<String> showingTranscripts = new HashSet<String>();
 
     public AnnotatorPanel() {
@@ -217,8 +215,10 @@ public class AnnotatorPanel extends Composite {
                     }
                 };
                 try {
-                    builder.setCallback(requestCallback);
-                    builder.send();
+                    if(MainPanel.getInstance().getCurrentUser()!=null) {
+                        builder.setCallback(requestCallback);
+                        builder.send();
+                    }
                 } catch (RequestException e) {
                     // Couldn't connect to server
                     Bootbox.alert(e.getMessage());
@@ -343,7 +343,9 @@ public class AnnotatorPanel extends Composite {
                 Bootbox.alert("Error retrieving users: " + exception.fillInStackTrace());
             }
         };
-        UserRestService.loadUsers(requestCallback);
+        if(MainPanel.getInstance().getCurrentUser()!=null) {
+            UserRestService.loadUsers(requestCallback);
+        }
     }
 
     private void initializeTypes() {
