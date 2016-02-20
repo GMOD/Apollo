@@ -628,7 +628,9 @@ public class UserPanel extends Composite {
     }
 
     public void reload() {
-        UserRestService.loadUsers(userInfoList);
+        if(MainPanel.getInstance().getCurrentUser()!=null) {
+            UserRestService.loadUsers(userInfoList);
+        }
         dataGrid.redraw();
     }
 
