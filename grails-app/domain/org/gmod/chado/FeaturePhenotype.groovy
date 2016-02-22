@@ -9,7 +9,7 @@ class FeaturePhenotype {
 
     static mapping = {
         datasource "chado"
-        id column: "feature_phenotype_id", generator: "assigned"
+        id column: "feature_phenotype_id", generator: "sequence"
         version false
     }
 }

@@ -3,20 +3,20 @@ package org.gmod.chado
 class PhenotypeComparison {
 
     Pub pub
-    Environment environmentByEnvironment1Id
-    Environment environmentByEnvironment2Id
+    Environment environment1
+    Environment environment2
     Organism organism
-    Phenotype phenotypeByPhenotype1Id
-    Phenotype phenotypeByPhenotype2Id
-    Genotype genotypeByGenotype1Id
-    Genotype genotypeByGenotype2Id
+    Phenotype phenotype1
+    Phenotype phenotype2
+    Genotype genotype1
+    Genotype genotype2
 
     static hasMany = [phenotypeComparisonCvterms: PhenotypeComparisonCvterm]
     static belongsTo = [Environment, Genotype, Organism, Phenotype, Pub]
 
     static mapping = {
         datasource "chado"
-        id column: "phenotype_comparison_id", generator: "assigned"
+        id column: "phenotype_comparison_id", generator: "sequence"
         version false
     }
 }

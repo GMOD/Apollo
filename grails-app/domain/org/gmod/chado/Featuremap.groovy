@@ -4,7 +4,7 @@ class Featuremap {
 
     String name
     String description
-    Cvterm cvterm
+    Cvterm unittype
 
     static hasMany = [featuremapPubs: FeaturemapPub,
                       featureposes  : Featurepos,
@@ -13,7 +13,7 @@ class Featuremap {
 
     static mapping = {
         datasource "chado"
-        id column: "featuremap_id", generator: "assigned"
+        id column: "featuremap_id", generator: "sequence"
         version false
     }
 

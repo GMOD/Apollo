@@ -11,7 +11,7 @@ class Db {
 
     static mapping = {
         datasource "chado"
-        id column: "db_id", generator: "assigned"
+        id column: "db_id", generator: "sequence"
         version false
     }
 

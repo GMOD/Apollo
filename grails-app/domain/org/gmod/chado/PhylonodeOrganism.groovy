@@ -9,7 +9,7 @@ class PhylonodeOrganism {
 
     static mapping = {
         datasource "chado"
-        id column: "phylonode_organism_id", generator: "assigned"
+        id column: "phylonode_organism_id", generator: "sequence"
         version false
     }
 }

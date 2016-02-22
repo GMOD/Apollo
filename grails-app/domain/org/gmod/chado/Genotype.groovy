@@ -5,7 +5,6 @@ class Genotype {
     String name
     String uniquename
     String description
-    Cvterm cvterm
 
     static hasMany = [featureGenotypes                  : FeatureGenotype,
                       genotypeprops                     : Genotypeprop,
@@ -16,16 +15,15 @@ class Genotype {
                       phenstatements                    : Phenstatement
 //                      stockGenotypes                    : StockGenotype
     ]
-    static belongsTo = [Cvterm]
 
     // TODO you have multiple hasMany references for class(es) [PhenotypeComparison]
     //      so you'll need to disambiguate them with the 'mappedBy' property:
-    static mappedBy = [phenotypeComparisonsForGenotype1Id: "genotypeByGenotype1Id",
-                       phenotypeComparisonsForGenotype2Id: "genotypeByGenotype2Id"]
+    static mappedBy = [phenotypeComparisonsForGenotype1Id: "genotype1",
+                       phenotypeComparisonsForGenotype2Id: "genotype2"]
 
     static mapping = {
         datasource "chado"
-        id column: "genotype_id", generator: "assigned"
+        id column: "genotype_id", generator: "sequence"
         version false
     }
 

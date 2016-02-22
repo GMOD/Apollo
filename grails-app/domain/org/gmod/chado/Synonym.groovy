@@ -4,8 +4,8 @@ class Synonym {
 
     String name
     String synonymSgml
-    Serializable searchableSynonymSgml
-    Cvterm cvterm
+//    Serializable searchableSynonymSgml
+    Cvterm type
 
     static hasMany = [
 //			cellLineSynonyms: CellLineSynonym,
@@ -16,11 +16,11 @@ featureSynonyms: FeatureSynonym
 
     static mapping = {
         datasource "chado"
-        id column: "synonym_id", generator: "assigned"
+        id column: "synonym_id", generator: "sequence"
         version false
     }
 
     static constraints = {
-        searchableSynonymSgml nullable: true
+//        searchableSynonymSgml nullable: true
     }
 }

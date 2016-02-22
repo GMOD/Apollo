@@ -1,5 +1,7 @@
 package org.gmod.chado
 
+import java.sql.Timestamp
+
 class Feature {
 
     String name
@@ -11,10 +13,10 @@ class Feature {
     Boolean isObsolete
     Date timeaccessioned
     Date timelastmodified
-    Serializable searchableName
+//    Serializable searchableName
     Dbxref dbxref
     Organism organism
-    Cvterm cvterm
+    Cvterm type
 
     static hasMany = [
 //            analysisfeatures                : Analysisfeature,
@@ -48,23 +50,23 @@ class Feature {
 
     // TODO you have multiple hasMany references for class(es) [FeatureGenotype, FeatureRelationship, Featureloc, Featurepos, Featurerange]
     //      so you'll need to disambiguate them with the 'mappedBy' property:
-    static mappedBy = [featureGenotypesForChromosomeId : "featureByChromosomeId",
-                       featureGenotypesForFeatureId    : "featureByFeatureId",
-                       featureRelationshipsForObjectId : "featureByObjectId",
-                       featureRelationshipsForSubjectId: "featureBySubjectId",
-                       featurelocsForFeatureId         : "featureByFeatureId",
-                       featurelocsForSrcfeatureId      : "featureBySrcfeatureId",
-                       featureposesForFeatureId        : "featureByFeatureId",
-                       featureposesForMapFeatureId     : "featureByMapFeatureId",
-                       featurerangesForFeatureId       : "featureByFeatureId",
-                       featurerangesForLeftendfId      : "featureByLeftendfId",
-                       featurerangesForLeftstartfId    : "featureByLeftstartfId",
-                       featurerangesForRightendfId     : "featureByRightendfId",
-                       featurerangesForRightstartfId   : "featureByRightstartfId"]
+    static mappedBy = [featureGenotypesForChromosomeId : "chromosome",
+                       featureGenotypesForFeatureId    : "feature",
+                       featureRelationshipsForObjectId : "object",
+                       featureRelationshipsForSubjectId: "subject",
+                       featurelocsForFeatureId         : "feature",
+                       featurelocsForSrcfeatureId      : "srcfeature",
+                       featureposesForFeatureId        : "feature",
+                       featureposesForMapFeatureId     : "mapFeature",
+                       featurerangesForFeatureId       : "feature",
+                       featurerangesForLeftendfId      : "leftendf",
+                       featurerangesForLeftstartfId    : "leftstartf",
+                       featurerangesForRightendfId     : "rightendf",
+                       featurerangesForRightstartfId   : "rightstartf"]
 
     static mapping = {
         datasource "chado"
-        id column: "feature_id", generator: "assigned"
+        id column: "feature_id", generator: "sequence"
         version false
     }
 
@@ -73,6 +75,7 @@ class Feature {
         residues nullable: true
         seqlen nullable: true
         md5checksum nullable: true, maxSize: 32
-        searchableName nullable: true
+//        searchableName nullable: true
+        dbxref nullable: true
     }
 }

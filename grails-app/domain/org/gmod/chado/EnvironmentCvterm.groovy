@@ -9,7 +9,7 @@ class EnvironmentCvterm {
 
     static mapping = {
         datasource "chado"
-        id column: "environment_cvterm_id", generator: "assigned"
+        id column: "environment_cvterm_id", generator: "sequence"
         version false
     }
 }

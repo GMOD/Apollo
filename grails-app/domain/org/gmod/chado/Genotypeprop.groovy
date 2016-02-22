@@ -1,7 +1,9 @@
 package org.gmod.chado
 
 class Genotypeprop {
-
+    // Note: This domain class is not part of any Chado module
+    // Probably an artifact of the reverse engineering script.
+    // TODO: Remove if not needed.
     String value
     Integer rank
     Genotype genotype

@@ -3,22 +3,24 @@ package org.gmod.chado
 class Featurerange {
 
     String rangestr
-    Feature featureByRightendfId
-    Feature featureByLeftstartfId
-    Feature featureByFeatureId
+    Feature feature
     Featuremap featuremap
-    Feature featureByLeftendfId
-    Feature featureByRightstartfId
+    Feature rightendf
+    Feature leftstartf
+    Feature leftendf
+    Feature rightstartf
 
     static belongsTo = [Feature, Featuremap]
 
     static mapping = {
         datasource "chado"
-        id column: "featurerange_id", generator: "assigned"
+        id column: "featurerange_id", generator: "sequence"
         version false
     }
 
     static constraints = {
         rangestr nullable: true
+        leftendf nullable: true
+        rightstartf nullable: true
     }
 }
