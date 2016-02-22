@@ -11,7 +11,7 @@ class Cv {
 
     static mapping = {
         datasource "chado"
-        id column: "cv_id", generator: "assigned"
+        id column: "cv_id", generator: "sequence"
         version false
     }
 

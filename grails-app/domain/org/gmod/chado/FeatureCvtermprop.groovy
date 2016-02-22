@@ -5,19 +5,19 @@ class FeatureCvtermprop {
     String value
     Integer rank
     FeatureCvterm featureCvterm
-    Cvterm cvterm
+    Cvterm type
 
     static belongsTo = [Cvterm, FeatureCvterm]
 
     static mapping = {
         datasource "chado"
-        id column: "feature_cvtermprop_id", generator: "assigned"
+        id column: "feature_cvtermprop_id", generator: "sequence"
         version false
     }
 
     static constraints = {
         value nullable: true
 //		rank unique: ["type_id", "feature_cvterm_id"]
-        rank unique: ["cvterm", "featureCvterm"]
+        rank unique: ["type", "featureCvterm"]
     }
 }

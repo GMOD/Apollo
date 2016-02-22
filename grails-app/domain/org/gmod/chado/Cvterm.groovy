@@ -122,29 +122,29 @@ synonyms                        : Synonym
     static mappedBy = [
 //			arraydesignsForPlatformtypeId: "TODO",
 //	                   arraydesignsForSubstratetypeId: "TODO",
-cvtermRelationshipsForObjectId  : "cvtermByObjectId",
-cvtermRelationshipsForSubjectId : "cvtermBySubjectId",
-cvtermRelationshipsForTypeId    : "cvtermByTypeId",
-cvtermpathsForObjectId          : "cvtermByObjectId",
-cvtermpathsForSubjectId         : "cvtermBySubjectId",
-cvtermpathsForTypeId            : "cvtermByTypeId",
-cvtermpropsForCvtermId          : "cvtermByCvtermId",
-cvtermpropsForTypeId            : "cvtermByTypeId",
-cvtermsynonymsForCvtermId       : "cvtermByCvtermId",
-cvtermsynonymsForTypeId         : "cvtermByTypeId",
-expressionCvtermsForCvtermId    : "cvtermByCvtermId",
-expressionCvtermsForCvtermTypeId: "cvtermByCvtermTypeId",
-phenotypesForAssayId            : "cvtermByAssayId",
-phenotypesForAttrId             : "cvtermByAttrId",
-phenotypesForCvalueId           : "cvtermByCvalueId",
-phenotypesForObservableId       : "cvtermByObservableId"
+cvtermRelationshipsForObjectId  : "object",
+cvtermRelationshipsForSubjectId : "subject",
+cvtermRelationshipsForTypeId    : "type",
+cvtermpathsForObjectId          : "object",
+cvtermpathsForSubjectId         : "subject",
+cvtermpathsForTypeId            : "type",
+cvtermpropsForCvtermId          : "cvterm",
+cvtermpropsForTypeId            : "type",
+cvtermsynonymsForCvtermId       : "cvterm",
+cvtermsynonymsForTypeId         : "type",
+expressionCvtermsForCvtermId    : "cvterm",
+//expressionCvtermsForCvtermTypeId: "cvtermByCvtermTypeId",
+phenotypesForAssayId            : "assay",
+phenotypesForAttrId             : "attr",
+phenotypesForCvalueId           : "cvalue",
+phenotypesForObservableId       : "observable"
 //	                   protocolparamsForDatatypeId: "TODO",
 //	                   protocolparamsForUnittypeId: "TODO"
     ]
 
     static mapping = {
         datasource "chado"
-        id column: "cvterm_id", generator: "assigned"
+        id column: "cvterm_id", generator: "sequence"
         version false
     }
 

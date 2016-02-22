@@ -9,7 +9,7 @@ class FeaturelocPub {
 
     static mapping = {
         datasource "chado"
-        id column: "featureloc_pub_id", generator: "assigned"
+        id column: "featureloc_pub_id", generator: "sequence"
         version false
     }
 }

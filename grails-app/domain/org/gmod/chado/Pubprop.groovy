@@ -5,18 +5,18 @@ class Pubprop {
     String value
     Integer rank
     Pub pub
-    Cvterm cvterm
+    Cvterm type
 
     static belongsTo = [Cvterm, Pub]
 
     static mapping = {
         datasource "chado"
-        id column: "pubprop_id", generator: "assigned"
+        id column: "pubprop_id", generator: "sequence"
         version false
     }
 
     static constraints = {
 //		rank nullable: true, unique: ["type_id", "pub_id"]
-        rank nullable: true, unique: ["cvterm", "pub"]
+        rank nullable: true, unique: ["type", "pub"]
     }
 }

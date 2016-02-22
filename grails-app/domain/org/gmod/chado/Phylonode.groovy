@@ -8,8 +8,8 @@ class Phylonode {
     Double distance
     Feature feature
     Phylotree phylotree
-//    Phylonode phylonode
-    Cvterm cvterm
+    Phylonode parentPhylonode
+    Cvterm type
 
     static hasMany = [phylonodeDbxrefs                  : PhylonodeDbxref,
                       phylonodeOrganisms                : PhylonodeOrganism,
@@ -18,16 +18,16 @@ class Phylonode {
                       phylonodeRelationshipsForSubjectId: PhylonodeRelationship,
                       phylonodeprops                    : Phylonodeprop,
                       phylonodes                        : Phylonode]
-    static belongsTo = [Cvterm, Feature, Phylotree]
+    static belongsTo = [Cvterm, Feature, Phylotree, Phylonode]
 
     // TODO you have multiple hasMany references for class(es) [PhylonodeRelationship]
     //      so you'll need to disambiguate them with the 'mappedBy' property:
-    static mappedBy = [phylonodeRelationshipsForObjectId : "phylonodeByObjectId",
-                       phylonodeRelationshipsForSubjectId: "phylonodeBySubjectId"]
+    static mappedBy = [phylonodeRelationshipsForObjectId : "object",
+                       phylonodeRelationshipsForSubjectId: "subject"]
 
     static mapping = {
         datasource "chado"
-        id column: "phylonode_id", generator: "assigned"
+        id column: "phylonode_id", generator: "sequence"
         version false
     }
 

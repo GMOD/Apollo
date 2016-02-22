@@ -9,7 +9,7 @@ class PhylotreePub {
 
     static mapping = {
         datasource "chado"
-        id column: "phylotree_pub_id", generator: "assigned"
+        id column: "phylotree_pub_id", generator: "sequence"
         version false
     }
 }

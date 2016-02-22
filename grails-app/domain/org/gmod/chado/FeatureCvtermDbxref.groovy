@@ -9,7 +9,7 @@ class FeatureCvtermDbxref {
 
     static mapping = {
         datasource "chado"
-        id column: "feature_cvterm_dbxref_id", generator: "assigned"
+        id column: "feature_cvterm_dbxref_id", generator: "sequence"
         version false
     }
 }

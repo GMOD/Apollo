@@ -4,9 +4,9 @@ class FeatureRelationship {
 
     String value
     Integer rank
-    Feature featureByObjectId
-    Feature featureBySubjectId
-    Cvterm cvterm
+    Feature object
+    Feature subject
+    Cvterm type
 
     static hasMany = [featureRelationshipPubs : FeatureRelationshipPub,
                       featureRelationshipprops: FeatureRelationshipprop]
@@ -14,13 +14,13 @@ class FeatureRelationship {
 
     static mapping = {
         datasource "chado"
-        id column: "feature_relationship_id", generator: "assigned"
+        id column: "feature_relationship_id", generator: "sequence"
         version false
     }
 
     static constraints = {
         value nullable: true
 //		rank unique: ["type_id", "object_id", "subject_id"]
-        rank unique: ["cvterm", "featureByObjectId", "featureBySubjectId"]
+        rank unique: ["type", "object", "subject"]
     }
 }

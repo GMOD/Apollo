@@ -10,7 +10,7 @@ class CvtermDbxref {
 
     static mapping = {
         datasource "chado"
-        id column: "cvterm_dbxref_id", generator: "assigned"
+        id column: "cvterm_dbxref_id", generator: "sequence"
         version false
     }
 }

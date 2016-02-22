@@ -10,7 +10,7 @@ class Eimage {
 
     static mapping = {
         datasource "chado"
-        id column: "eimage_id", generator: "assigned"
+        id column: "eimage_id", generator: "sequence"
         version false
     }
 

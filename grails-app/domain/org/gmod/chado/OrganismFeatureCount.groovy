@@ -4,7 +4,9 @@ import org.apache.commons.lang.builder.EqualsBuilder
 import org.apache.commons.lang.builder.HashCodeBuilder
 
 class OrganismFeatureCount implements Serializable {
-
+    // Note: This domain class is not part of any Chado module
+    // Probably an artifact of the reverse engineering script.
+    // TODO: Remove if not needed.
     Integer organismId
     String genus
     String species

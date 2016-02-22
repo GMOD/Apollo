@@ -2,15 +2,15 @@ package org.gmod.chado
 
 class CvtermRelationship {
 
-    Cvterm cvtermBySubjectId
-    Cvterm cvtermByObjectId
-    Cvterm cvtermByTypeId
+    Cvterm subject
+    Cvterm object
+    Cvterm type
 
     static belongsTo = [Cvterm]
 
     static mapping = {
         datasource "chado"
-        id column: "cvterm_relationship_id", generator: "assigned"
+        id column: "cvterm_relationship_id", generator: "sequence"
         version false
     }
 }
