@@ -192,9 +192,10 @@
         <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
             <arg value="checkout"/>
             <!--<arg value="tags/${jbrowse.release.version}"/>-->
-            <!--<arg value="master"/>-->
+			<!--<arg value="master"/>-->
 <!--            <arg value="multiple_highlights"/>-->
-            <arg value="apollo2_build"/>
+<!--            <arg value="apollo2_build"/>-->
+                <arg value="projection_v2_server"/>
         </exec>
     </target>
 
