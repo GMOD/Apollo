@@ -133,7 +133,6 @@ public class OrganismPanel extends Composite {
             }
         });
         dataGrid.addColumn(sequenceColumn, safeHtmlHeader);
-//        dataGrid.addColumn(sequenceColumn, "Ref Sequences");
         dataGrid.setEmptyTableWidget(new Label("No organisms available. Add new organisms using the form field."));
 
 
@@ -333,11 +332,7 @@ public class OrganismPanel extends Composite {
     public void handleDeleteOrganism(ClickEvent clickEvent) {
         OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
         if (organismInfo == null) return;
-        if (organismInfo.getNumFeatures() > 0) {
-            new ErrorDialog("Cannot delete organism '" + organismInfo.getName() + "'", "You must first remove " + singleSelectionModel.getSelectedObject().getNumFeatures() + " annotations before deleting organism '"+organismInfo.getName()+"'.  Please see our <a href='../WebServices/'>Web Services API</a> from the 'Help' menu for more details on how to perform this operation in bulk.", true, true);
-            return;
-        }
-        Bootbox.confirm("Are you sure you want to delete organism " + singleSelectionModel.getSelectedObject().getName() + "?", new ConfirmCallback() {
+        Bootbox.confirm("Are you sure you want to delete organism " + organismInfo.getName() + " with "+organismInfo.getNumFeatures() +" annotations?", new ConfirmCallback() {
             @Override
             public void callback(boolean result) {
                 if (result) {
