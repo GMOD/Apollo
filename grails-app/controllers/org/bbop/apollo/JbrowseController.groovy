@@ -2,21 +2,17 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
-import org.apache.commons.io.FileUtils
-import org.apache.commons.io.filefilter.FileFilterUtils
-import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionChunk
-import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Range
-import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 import javax.servlet.http.HttpServletResponse
-import java.text.DateFormat
 import java.text.SimpleDateFormat
-import static org.springframework.http.HttpStatus.*
+
+import static org.springframework.http.HttpStatus.NOT_FOUND
 
 class JbrowseController {
 
@@ -140,18 +136,17 @@ class JbrowseController {
         }
         return organismJBrowseDirectory
     }
-    
+
     def getSeqBoundaries() {
         try {
             Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
             String dataDirectory = getJBrowseDirectoryForSession()
             String dataFileName = dataDirectory + "/seq/refSeqs.json"
             String referer = request.getHeader("Referer")
-            String refererLoc = trackService.extractLocation(referer) 
+            String refererLoc = trackService.extractLocation(referer)
             int spaceIndex = refererLoc.indexOf("-1..-1");
-            if (spaceIndex != -1)
-            {
-                refererLoc = refererLoc.substring(0, spaceIndex+6);
+            if (spaceIndex != -1) {
+                refererLoc = refererLoc.substring(0, spaceIndex + 6);
             }
             File file = new File(dataFileName);
 
@@ -161,28 +156,74 @@ class JbrowseController {
                 return;
             }
             JSONArray refSeqJsonObject = new JSONArray(file.text)
-            
+
             MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
-            
-            String results = refSeqProjectorService.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
-            def resultObject = JSON.parse(results)
+
+//            String results = refSeqProjectorService.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
+//            def resultObject = JSON.parse(results)
             def refererLocObject = JSON.parse(refererLoc)
             def sequenceList = refererLocObject.sequenceList
-            def sequenceAndTheirLengths = new JSONArray()
-            int pos = 0;
-            if (sequenceList != null) {
-                for (int i = 0; i < sequenceList.size()-1; i++) {
-                    JSONObject thisSeq = sequenceList.get(i)
-                    JSONObject nextSeq = sequenceList.get(i+1)
-                    pos+=projection.findProjectSequenceLength(thisSeq.name)
-                    sequenceAndTheirLengths.add(i, [label: thisSeq.name, rlabel: nextSeq.name, start: pos, end: pos+1, ref: refererLoc,color:'black'] as JSONObject)
-                }
+//            def names = sequenceList.name
+//            def sequenceAndTheirLengths = new JSONArray()
+//            int pos = 0;
+            // for each sequence we have: name (typically sequence), location start, location end,
+            // original start (0 if full scaffold), original end (length if full scaffold) left text (nullable), right text (nullable)
+            // we also have folding information once that is available
+//            if (sequenceList != null) {
+//                for (int i = 0; i < sequenceList.size()-1; i++) {
+//                    JSONObject thisSeq = sequenceList.get(i)
+//                    JSONObject nextSeq = sequenceList.get(i+1)
+//                    pos+=projection.findProjectSequenceLength(thisSeq.name)
+//                    sequenceAndTheirLengths.add(i,
+//                            [label: thisSeq.name, rlabel: nextSeq.name, start: pos, end: pos+1, ref: refererLoc,color:'black'] as JSONObject
+//                    )
+//                }
+//            }
+
+            JSONArray displayArray = new JSONArray()
+            int currentPosition = 0
+            for (int i = 0; sequenceList && i < sequenceList.size() ; i++) {
+                JSONObject thisSeq = sequenceList.get(i)
+
+                Sequence sequence = Sequence.findByName(thisSeq.name)
+                JSONObject leftObject = new JSONObject(thisSeq.toString())
+                leftObject.refseq = thisSeq.name
+                leftObject.start = currentPosition
+                leftObject.end = leftObject.start+1
+                leftObject.actualLocation = 0
+                leftObject.ref = refererLoc
+                leftObject.color = 'red'
+                leftObject.type = 'facing-left'
+
+                JSONObject rightObject = new JSONObject(leftObject.toString())
+                // this will change and should come off of the JSONObject
+                rightObject.start = currentPosition + sequence.length
+                rightObject.end = rightObject.start+1
+                rightObject.actualLocation = sequence.length
+                rightObject.color = 'blue'
+                rightObject.type = 'facing-right'
+
+//                JSONObject nextSeq = sequenceList.get(i + 1)
+//                pos += projection.findProjectSequenceLength(thisSeq.name)
+//                displayArray.add(i,
+//                        [label: thisSeq.name, rlabel: nextSeq.name, start: pos, end: pos + 1, ref: refererLoc, color: 'black'] as JSONObject
+
+//                )
+//                thisSeq.put()
+                // probably should come from the JSON object
+                currentPosition =+ rightObject.start
+
+                displayArray.add(leftObject)
+                displayArray.add(rightObject)
             }
-            render ([features: sequenceAndTheirLengths] as JSON)
+            JSONObject returnObject = new JSONObject()
+            returnObject.features = displayArray
+            render returnObject as JSON
+//            render([features: displayArray] as JSON)
         }
-        catch(Exception e) {
+        catch (Exception e) {
             log.error e.message
-            render ([error: e.message] as JSON)
+            render([error: e.message] as JSON)
         }
     }
     /**
@@ -212,8 +253,7 @@ class JbrowseController {
                     JSONObject trackObject = trackService.projectTrackData(sequenceStrings, dataFileName, refererLoc, currentOrganism)
                     if (trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value).size() == 0) {
                         response.setStatus(HttpServletResponse.SC_NOT_FOUND)
-                    }
-                    else {
+                    } else {
                         response.outputStream << trackObject.toString()
                     }
                     return
@@ -222,19 +262,17 @@ class JbrowseController {
                     JSONArray trackArray = trackService.projectTrackChunk(fileName, dataFileName, refererLoc, currentOrganism, trackName)
                     if (trackArray.size() == 0) {
                         response.setStatus(HttpServletResponse.SC_NOT_FOUND)
-                    }
-                    else {
+                    } else {
                         response.outputStream << trackArray.toString()
                     }
                     return
                 }
 
 
-            } else
-            if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+            } else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
 
 
-                String returnSequence = refSeqProjectorService.projectSequence(dataFileName,currentOrganism)
+                String returnSequence = refSeqProjectorService.projectSequence(dataFileName, currentOrganism)
                 // output the string the response
                 // TODO: optimize this to not store in memory?
                 response.setContentLength((int) returnSequence.bytes.length);
@@ -596,16 +634,16 @@ class JbrowseController {
      */
     private static Date getLastModifiedDate(File... files) {
         Date earliestDate = new Date()
-        for(File file : files){
+        for (File file : files) {
             Date lastModifiedDate = new Date(file.lastModified())
-            if(lastModifiedDate.before(earliestDate)){
+            if (lastModifiedDate.before(earliestDate)) {
                 earliestDate = lastModifiedDate
             }
         }
         return earliestDate
     }
 
-    private static String createHash(String name,long length,long lastModified) {
+    private static String createHash(String name, long length, long lastModified) {
         return name + "_" + length + "_" + lastModified;
     }
 
@@ -613,7 +651,7 @@ class JbrowseController {
         String fileName = file.getName();
         long length = file.length();
         long lastModified = file.lastModified();
-        return createHash(fileName,length,lastModified)
+        return createHash(fileName, length, lastModified)
     }
 
     /**

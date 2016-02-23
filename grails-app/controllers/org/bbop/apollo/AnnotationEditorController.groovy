@@ -523,12 +523,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
 
-//        List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
-//                , [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations])
-//        List<SequenceAlteration> sequenceAlterationList = (List<SequenceAlteration>) Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in( :sequences) and f.class in :sequenceTypes"
-//                , [sequences: bookmarkService.getSequencesFromBookmark(bookmark), sequenceTypes: sequenceTypes])
-//        List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
-//                , [sequence: bookmarkService.getSequencesFromBookmark(bookmark), sequenceTypes: requestHandlingService.viewableAlterations])
         List<Sequence> sequences = bookmarkService.getSequencesFromBookmark(bookmark)
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in (:sequence) and f.class in :sequenceTypes"
                 , [sequence: sequences, sequenceTypes: requestHandlingService.viewableAlterations])
