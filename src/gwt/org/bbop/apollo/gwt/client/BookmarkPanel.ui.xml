@@ -7,7 +7,7 @@
     <ui:style>
         .northPanel {
             padding: 0px;
-            margin: 10px;
+            margin-left: 10px;
         }
 
         .widgetPanel {
@@ -48,40 +48,40 @@
 
         </ui:style>
     <gwt:DockLayoutPanel ui:field="layoutPanel">
-        <gwt:north size="140">
+        <gwt:north size="55">
             <b:Container fluid="true" styleName="{style.northPanel}">
+                <!--<b:Row styleName="{style.rowNorth}">-->
+                    <!--<b:Column size="MD_2">-->
+                        <!--<gwt:HTML>-->
+                            <!--<b>Folding</b>-->
+                        <!--</gwt:HTML>-->
+                    <!--</b:Column>-->
+                    <!--<b:Column size="MD_3">-->
+                        <!--<b:ListBox ui:field="foldType"/>-->
+                    <!--</b:Column>-->
+                    <!--<b:Column size="MD_2">-->
+                        <!--<gwt:HTML><b>Padding</b></gwt:HTML>-->
+                    <!--</b:Column>-->
+                    <!--<b:Column size="MD_3">-->
+                        <!--<b:TextBox ui:field="foldPadding"/>-->
+                    <!--</b:Column>-->
+                    <!--<b:Column size="MD_2">-->
+                        <!--&lt;!&ndash;<b:Button ui:field="goButton"/>&ndash;&gt;-->
+                        <!--<b:Button text="View" icon="EYE" enabled="true" ui:field="goButton" />-->
+                    <!--</b:Column>-->
+                <!--</b:Row>-->
+                <!--<b:Row styleName="{style.rowNorth}">-->
+                    <!--<b:Column size="MD_3">-->
+                        <!--<gwt:HTML><b>Reference Track Selector</b></gwt:HTML>-->
+                    <!--</b:Column>-->
+                    <!--<b:Column size="MD_6">-->
+                        <!--<select:Select multiple="true" ui:field="referenceTrackSelector" width="300px" liveSearch="true" showMenuArrow="true"/>-->
+                    <!--</b:Column>-->
+                <!--</b:Row>-->
                 <b:Row styleName="{style.rowNorth}">
-                    <b:Column size="MD_2">
-                        <gwt:HTML>
-                            <b>Folding</b>
-                        </gwt:HTML>
-                    </b:Column>
-                    <b:Column size="MD_3">
-                        <b:ListBox ui:field="foldType"/>
-                    </b:Column>
-                    <b:Column size="MD_2">
-                        <gwt:HTML><b>Padding</b></gwt:HTML>
-                    </b:Column>
-                    <b:Column size="MD_3">
-                        <b:TextBox ui:field="foldPadding"/>
-                    </b:Column>
-                    <b:Column size="MD_2">
-                        <!--<b:Button ui:field="goButton"/>-->
-                        <b:Button text="View" icon="EYE" enabled="true" ui:field="goButton" />
-                    </b:Column>
-                </b:Row>
-                <b:Row styleName="{style.rowNorth}">
-                    <b:Column size="MD_3">
-                        <gwt:HTML><b>Reference Track Selector</b></gwt:HTML>
-                    </b:Column>
-                    <b:Column size="MD_6">
-                        <select:Select multiple="true" ui:field="referenceTrackSelector" width="300px" liveSearch="true" showMenuArrow="true"/>
-                    </b:Column>
-                </b:Row>
-                <b:Row styleName="{style.rowNorth}">
-                    <b:Column size="MD_3">
-                        <gwt:HTML><b>Search</b></gwt:HTML>
-                    </b:Column>
+                    <!--<b:Column size="MD_3">-->
+                        <!--<gwt:HTML><b>Search</b></gwt:HTML>-->
+                    <!--</b:Column>-->
                     <b:Column size="MD_6">
                         <b:TextBox ui:field="searchBox" width="300px" enabled="true" placeholder="Search for Bookmarks"/>
                     </b:Column>

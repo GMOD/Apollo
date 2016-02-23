@@ -19,7 +19,6 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.bookmark.*;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
@@ -28,9 +27,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
-import org.gwtbootstrap3.extras.select.client.ui.Option;
 
 import java.util.*;
 
@@ -64,12 +61,12 @@ public class BookmarkPanel extends Composite {
     DockLayoutPanel layoutPanel;
     //    @UiField
 //    Tree optionTree;
-    @UiField
-    ListBox foldType;
-    @UiField
-    TextBox foldPadding;
-    @UiField
-    static org.gwtbootstrap3.extras.select.client.ui.Select referenceTrackSelector;
+//    @UiField
+//    ListBox foldType;
+//    @UiField
+//    TextBox foldPadding;
+//    @UiField
+//    static org.gwtbootstrap3.extras.select.client.ui.Select referenceTrackSelector;
     @UiField
     Button mergeButton;
     @UiField
@@ -86,8 +83,8 @@ public class BookmarkPanel extends Composite {
     Button viewButton;
     @UiField
     org.gwtbootstrap3.client.ui.TextBox searchBox;
-    @UiField
-    Button goButton;
+//    @UiField
+//    Button goButton;
 
     final LoadingDialog loadingDialog;
     private PickupDragController dragController ;
@@ -111,39 +108,39 @@ public class BookmarkPanel extends Composite {
         FlowPanelDropController flowPanelDropController = new FlowPanelDropController( dragAndDropPanel);
         dragController.registerDropController(flowPanelDropController);
         dataGrid.setWidth("100%");
-        foldType.addItem("None");
-        foldType.addItem("Exon");
+//        foldType.addItem("None");
+//        foldType.addItem("Exon");
 //        foldType.addItem("Transcript");
 
 //        foldPadding.setText("50");
-        foldPadding.setText("0");
+//        foldPadding.setText("0");
 
 //        referenceTrack.addItem("Official Gene Set v3.2");
 
         // Enforcing selection of foldType to 'None'
         // fired on page refresh
-        foldType.setSelectedIndex(0);
-        foldPadding.setEnabled(false);
+//        foldType.setSelectedIndex(0);
+//        foldPadding.setEnabled(false);
 
-        if (preferenceStore != null) {
-            if (getPreference(SELECTED_REFERENCE_TRACKS) != null) {
-                String[] previouslySelectedTracks = getPreference(SELECTED_REFERENCE_TRACKS).split(",");
-                referenceTrackSelector.setValues(previouslySelectedTracks);
-            }
-            referenceTrackSelector.refresh();
-        }
+//        if (preferenceStore != null) {
+//            if (getPreference(SELECTED_REFERENCE_TRACKS) != null) {
+//                String[] previouslySelectedTracks = getPreference(SELECTED_REFERENCE_TRACKS).split(",");
+//                referenceTrackSelector.setValues(previouslySelectedTracks);
+//            }
+//            referenceTrackSelector.refresh();
+//        }
 
-        referenceTrackSelector.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent event) {
-                List<String> selectedTracks = referenceTrackSelector.getAllSelectedValues();
-                if (preferenceStore != null) {
-                    setPreference(SELECTED_REFERENCE_TRACKS, selectedTracks);
-                }
-            }
-        });
-
-        referenceTrackSelector.setEnabled(false);
+//        referenceTrackSelector.addChangeHandler(new ChangeHandler() {
+//            @Override
+//            public void onChange(ChangeEvent event) {
+//                List<String> selectedTracks = referenceTrackSelector.getAllSelectedValues();
+//                if (preferenceStore != null) {
+//                    setPreference(SELECTED_REFERENCE_TRACKS, selectedTracks);
+//                }
+//            }
+//        });
+//
+//        referenceTrackSelector.setEnabled(false);
         // Set the message to display when the table is empty.
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
         dataGrid.setEmptyTableWidget(new Label("No bookmarks!"));
@@ -264,17 +261,17 @@ public class BookmarkPanel extends Composite {
         }
 
         JSONObject genomicObject = new JSONObject();
-        genomicObject.put("padding",new JSONNumber(Integer.parseInt(foldPadding.getText())));
-        genomicObject.put("projection",new JSONString(foldType.getSelectedValue()));
+//        genomicObject.put("padding",new JSONNumber(Integer.parseInt(foldPadding.getText())));
+//        genomicObject.put("projection",new JSONString(foldType.getSelectedValue()));
         //genomicObject.put("referenceTrack",new JSONString(referenceTrack.getSelectedValue()));
         //genomicObject.put("referenceTrack",new JSONString(staticReferenceTrack.getSelectedValue()));
 
         JSONArray selectedTracksJsonArray = new JSONArray();
-        List<String> selectedTracks = referenceTrackSelector.getAllSelectedValues();
-        for (int i = 0; i < selectedTracks.size(); i++) {
-            selectedTracksJsonArray.set(i, new JSONString(selectedTracks.get(i).replace("\"", "")));
-        }
-        genomicObject.put("referenceTrack", selectedTracksJsonArray);
+//        List<String> selectedTracks = referenceTrackSelector.getAllSelectedValues();
+//        for (int i = 0; i < selectedTracks.size(); i++) {
+//            selectedTracksJsonArray.set(i, new JSONString(selectedTracks.get(i).replace("\"", "")));
+//        }
+//        genomicObject.put("referenceTrack", selectedTracksJsonArray);
         genomicObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(),newArray);
         genomicObject.put("label",new JSONString(createLabelFromBookmark(genomicObject)));
         return genomicObject;
@@ -357,30 +354,30 @@ public class BookmarkPanel extends Composite {
 //        reload();
     }
 
-    @UiHandler(value = {"foldType", "foldPadding"})
-    public void changeFoldType(ChangeEvent changeEvent){
-        //view(null);
-        if ("None".equals(foldType.getSelectedValue())) {
-            foldPadding.setEnabled(false);
-            referenceTrackSelector.setEnabled(false);
-            referenceTrackSelector.refresh();
-        }
-        else {
-            foldPadding.setEnabled(true);
-            referenceTrackSelector.setEnabled(true);
-            referenceTrackSelector.refresh();
-        }
-    }
-
-    @UiHandler("goButton")
-    public void fireView(ClickEvent c) {
-        if (referenceTrackSelector.getAllSelectedValues().size() != 0) {
-            view(null);
-        }
-        else {
-            Bootbox.alert("Please select one or more reference tracks for folding");
-        }
-    }
+//    @UiHandler(value = {"foldType", "foldPadding"})
+//    public void changeFoldType(ChangeEvent changeEvent){
+//        //view(null);
+//        if ("None".equals(foldType.getSelectedValue())) {
+//            foldPadding.setEnabled(false);
+//            referenceTrackSelector.setEnabled(false);
+//            referenceTrackSelector.refresh();
+//        }
+//        else {
+//            foldPadding.setEnabled(true);
+//            referenceTrackSelector.setEnabled(true);
+//            referenceTrackSelector.refresh();
+//        }
+//    }
+//
+//    @UiHandler("goButton")
+//    public void fireView(ClickEvent c) {
+//        if (referenceTrackSelector.getAllSelectedValues().size() != 0) {
+//            view(null);
+//        }
+//        else {
+//            Bootbox.alert("Please select one or more reference tracks for folding");
+//        }
+//    }
 
     private void setBookmarkInfo(Set<BookmarkInfo> selectedObject) {
         if (selectedObject.size() == 0) {
@@ -522,30 +519,30 @@ public class BookmarkPanel extends Composite {
      * @param jsonString
      */
     public static void getTracks(String jsonString) {
-        JSONArray returnValueObject = JSONParser.parseStrict(jsonString).isArray();
-        referenceTrackSelector.clear();
-        for (int i = 0; i < returnValueObject.size(); i++) {
-            JSONObject eachTrackObject = (JSONObject) returnValueObject.get(i);
-            String key = eachTrackObject.get("key").toString().replaceAll("\"", "");
-            if ("reference sequence".equals(key.toLowerCase())) {
-                continue;
-            }
-            else {
-                Option option = new Option();
-                option.setName(key);
-                option.setTitle(key);
-                option.setValue(key);
-                option.setText(key);
-                referenceTrackSelector.add(option);
-            }
-        }
-        if (preferenceStore != null) {
-            if (getPreference(SELECTED_REFERENCE_TRACKS) != null) {
-                String[] previouslySelectedTracks = getPreference(SELECTED_REFERENCE_TRACKS).split(",");
-                referenceTrackSelector.setValues(previouslySelectedTracks);
-            }
-        }
-        referenceTrackSelector.refresh();
+//        JSONArray returnValueObject = JSONParser.parseStrict(jsonString).isArray();
+//        referenceTrackSelector.clear();
+//        for (int i = 0; i < returnValueObject.size(); i++) {
+//            JSONObject eachTrackObject = (JSONObject) returnValueObject.get(i);
+//            String key = eachTrackObject.get("key").toString().replaceAll("\"", "");
+//            if ("reference sequence".equals(key.toLowerCase())) {
+//                continue;
+//            }
+//            else {
+//                Option option = new Option();
+//                option.setName(key);
+//                option.setTitle(key);
+//                option.setValue(key);
+//                option.setText(key);
+//                referenceTrackSelector.add(option);
+//            }
+//        }
+//        if (preferenceStore != null) {
+//            if (getPreference(SELECTED_REFERENCE_TRACKS) != null) {
+//                String[] previouslySelectedTracks = getPreference(SELECTED_REFERENCE_TRACKS).split(",");
+//                referenceTrackSelector.setValues(previouslySelectedTracks);
+//            }
+//        }
+//        referenceTrackSelector.refresh();
     }
 
     /**

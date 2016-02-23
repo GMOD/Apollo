@@ -98,7 +98,7 @@ class BookmarkService {
 
     static Boolean isProjectionString(String inputString ){
 //        return (inputString.contains("{") && inputString.contains("projection"))
-        return (inputString.startsWith("{") && inputString.contains("projection"))
+        return (inputString.startsWith("{") && inputString.contains("sequenceList"))
     }
 
     Bookmark convertStringToBookmark(String inputString, Organism organism) {
