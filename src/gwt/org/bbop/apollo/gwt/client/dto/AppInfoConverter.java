@@ -21,10 +21,10 @@ public class AppInfoConverter {
         }
         appStateInfo.setOrganismList(OrganismInfoConverter.convertFromJsonArray(object.get("organismList").isArray()));
         if(object.containsKey("currentStartBp")){
-            appStateInfo.setCurrentStartBp((int) object.get("currentStartBp").isNumber().doubleValue());
+            appStateInfo.setCurrentStartBp((long) object.get("currentStartBp").isNumber().doubleValue());
         }
         if(object.containsKey("currentEndBp")) {
-            appStateInfo.setCurrentEndBp((int) object.get("currentEndBp").isNumber().doubleValue());
+            appStateInfo.setCurrentEndBp((long) object.get("currentEndBp").isNumber().doubleValue());
         }
 
         return appStateInfo ;

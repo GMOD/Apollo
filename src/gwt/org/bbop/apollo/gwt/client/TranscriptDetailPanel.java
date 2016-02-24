@@ -68,7 +68,7 @@ public class TranscriptDetailPanel extends Composite {
         sequenceField.setText(internalAnnotationInfo.getSequence());
 
         if (internalAnnotationInfo.getMin() != null) {
-            String locationText = Integer.toString(internalAnnotationInfo.getMin() + 1);
+            String locationText = Long.toString(internalAnnotationInfo.getMin() + 1);
             locationText += " - ";
             locationText += internalAnnotationInfo.getMax().toString();
             locationText += " strand(";

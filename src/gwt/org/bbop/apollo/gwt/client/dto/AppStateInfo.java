@@ -17,8 +17,8 @@ public class AppStateInfo implements HasJSON{
     private OrganismInfo currentOrganism ;
     private List<OrganismInfo> organismList ;
 //    private SequenceInfo currentSequence ;
-    private Integer currentStartBp;
-    private Integer currentEndBp;
+    private Long currentStartBp;
+    private Long currentEndBp;
     private BookmarkInfo currentBookmark;
 
     public OrganismInfo getCurrentOrganism() {
@@ -85,19 +85,19 @@ public class AppStateInfo implements HasJSON{
         return returnObject ;
     }
 
-    public Integer getCurrentStartBp() {
+    public Long getCurrentStartBp() {
         return currentStartBp;
     }
 
-    public void setCurrentStartBp(Integer currentStartBp) {
+    public void setCurrentStartBp(Long currentStartBp) {
         this.currentStartBp = currentStartBp;
     }
 
-    public Integer getCurrentEndBp() {
+    public Long getCurrentEndBp() {
         return currentEndBp;
     }
 
-    public void setCurrentEndBp(Integer currentEndBp) {
+    public void setCurrentEndBp(Long currentEndBp) {
         this.currentEndBp = currentEndBp;
     }
 

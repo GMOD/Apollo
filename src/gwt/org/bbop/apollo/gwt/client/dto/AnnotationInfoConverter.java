@@ -41,8 +41,8 @@ public class AnnotationInfoConverter {
         if (object.get("description") != null) {
             annotationInfo.setDescription(object.get("description").isString().stringValue());
         }
-        annotationInfo.setMin((int) object.get("location").isObject().get("fmin").isNumber().doubleValue());
-        annotationInfo.setMax((int) object.get("location").isObject().get("fmax").isNumber().doubleValue());
+        annotationInfo.setMin((long) object.get("location").isObject().get("fmin").isNumber().doubleValue());
+        annotationInfo.setMax((long) object.get("location").isObject().get("fmax").isNumber().doubleValue());
         annotationInfo.setStrand((int) object.get("location").isObject().get("strand").isNumber().doubleValue());
         annotationInfo.setUniqueName(object.get("uniquename").isString().stringValue());
         annotationInfo.setSequence(object.get("sequence").isString().stringValue());

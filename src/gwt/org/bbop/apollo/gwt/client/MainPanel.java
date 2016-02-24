@@ -66,8 +66,8 @@ public class MainPanel extends Composite {
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
     private static BookmarkInfo currentBookmark;
-    private static Integer currentStartBp; // list of organisms for user
-    private static Integer currentEndBp; // list of organisms for user
+    private static Long currentStartBp; // list of organisms for user
+    private static Long currentEndBp; // list of organisms for user
     public static boolean useNativeTracklist; // list of organisms for user
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
 
@@ -177,9 +177,9 @@ public class MainPanel extends Composite {
                 switch (annotationInfoChangeEvent.getAction()) {
                     case SET_FOCUS:
                         AnnotationInfo annotationInfo = annotationInfoChangeEvent.getAnnotationInfo();
-                        int start = annotationInfo.getMin();
-                        int end = annotationInfo.getMax();
-                        int newLength = end - start;
+                        long start = annotationInfo.getMin();
+                        long end = annotationInfo.getMax();
+                        long newLength = end - start;
                         start -= newLength * GENE_VIEW_BUFFER;
                         end += newLength * GENE_VIEW_BUFFER;
                         start = start < 0 ? 0 : start;
@@ -226,11 +226,11 @@ public class MainPanel extends Composite {
         loginUser();
     }
 
-    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
+    private static void setCurrentSequence(String sequenceNameString, final Long start, final Long end) {
         setCurrentSequence(sequenceNameString, start, end, false, false);
     }
 
-    private static void sendCurrentSequenceLocation(String sequenceNameString, final Integer start, final Integer end) {
+    private static void sendCurrentSequenceLocation(String sequenceNameString, final Long start, final Long end) {
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -252,7 +252,7 @@ public class MainPanel extends Composite {
 
     }
 
-    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end, final boolean updateViewer, final boolean blocking) {
+    private static void setCurrentSequence(String sequenceNameString, final Long start, final Long end, final boolean updateViewer, final boolean blocking) {
 
         final LoadingDialog loadingDialog = new LoadingDialog(false);
         if (blocking) {
@@ -406,7 +406,7 @@ public class MainPanel extends Composite {
                 displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
     }
 
-    public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
+    public static void updateGenomicViewerForLocation(String selectedSequence, Long minRegion, Long maxRegion) {
         updateGenomicViewerForLocation(selectedSequence, minRegion, maxRegion, false);
     }
 
@@ -455,10 +455,10 @@ public class MainPanel extends Composite {
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion, boolean forceReload) {
+    public static void updateGenomicViewerForLocation(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload) {
 
         if (!forceReload && currentBookmark != null && currentBookmark.getName().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
-            int oldLength = maxRegion - minRegion;
+            long oldLength = maxRegion - minRegion;
             double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
             double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) oldLength;
             if (diff1 < UPDATE_DIFFERENCE_BUFFER && diff2 < UPDATE_DIFFERENCE_BUFFER) {
@@ -528,7 +528,7 @@ public class MainPanel extends Composite {
         if (currentStartBp != null && currentEndBp != null) {
             updateGenomicViewerForLocation(currentBookmark.getName(), currentStartBp, currentEndBp, forceReload);
         } else {
-            updateGenomicViewerForLocation(currentBookmark.getName(), currentBookmark.getStart().intValue(), currentBookmark.getEnd().intValue(), forceReload);
+            updateGenomicViewerForLocation(currentBookmark.getName(), currentBookmark.getStart(), currentBookmark.getEnd(), forceReload);
         }
     }
 
@@ -894,8 +894,8 @@ public class MainPanel extends Composite {
         handlingNavEvent = true;
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
 
-        final Integer start = (int) navEvent.get("start").isNumber().doubleValue();
-        final Integer end = (int) navEvent.get("end").isNumber().doubleValue();
+        final Long start = (long) navEvent.get("start").isNumber().doubleValue();
+        final Long end = (long) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
 
         if (!sequenceNameString.equals(currentBookmark.getName())) {

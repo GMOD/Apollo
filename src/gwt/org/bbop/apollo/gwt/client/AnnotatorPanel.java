@@ -345,6 +345,8 @@ public class AnnotatorPanel extends Composite {
         sequenceArray.set(sequenceArray.size(), sequenceObject);
 
         bookmarkInfo.setSequenceList(sequenceArray);
+        bookmarkInfo.setStart(currentAnnotationInfo.getMin());
+        bookmarkInfo.setEnd(currentAnnotationInfo.getMax());
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -511,7 +513,7 @@ public class AnnotatorPanel extends Composite {
 
         lengthColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
-            public Integer getValue(AnnotationInfo annotationInfo) {
+            public Long getValue(AnnotationInfo annotationInfo) {
                 return annotationInfo.getLength();
             }
         };

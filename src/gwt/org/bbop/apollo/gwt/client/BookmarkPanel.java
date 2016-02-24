@@ -174,7 +174,7 @@ public class BookmarkPanel extends Composite {
     @UiHandler("viewButton")
     public void view(ClickEvent event) {
         JSONObject merge1 = getBookmarksAsJson();
-        MainPanel.updateGenomicViewerForLocation(merge1.toString().trim(), -1, -1);
+        MainPanel.updateGenomicViewerForLocation(merge1.toString().trim(), -1l, -1l);
     }
 
     private JSONObject getBookmarksAsJson() {

@@ -35,11 +35,11 @@ public class SequenceFeatureInfo extends JSONObject {
         put(FeatureStringEnum.FEATURE.getValue(), featuresObject);
     }
 
-    public void setStart(Integer min) {
+    public void setStart(Long min) {
         put(FeatureStringEnum.START.getValue(), new JSONNumber(min));
     }
 
-    public void setEnd(Integer max) {
+    public void setEnd(Long max) {
         put(FeatureStringEnum.END.getValue(), new JSONNumber(max));
     }
 
