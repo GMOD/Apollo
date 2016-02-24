@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -88,10 +89,10 @@ class BookmarkService {
         bookmark.projection = jsonObject.projection
         bookmark.sequenceList = jsonObject.sequenceList
 
-        Integer end = 0
+        Long end = 0
         JSONArray sequenceListArray = jsonObject.sequenceList
         for(int i = 0 ; i < sequenceListArray.size() ; i++){
-            end += sequenceListArray.getJSONObject(i).end
+            end += sequenceListArray.getJSONObject(i).getLong(FeatureStringEnum.END.value)
         }
         bookmark.start = 0
         bookmark.end = end

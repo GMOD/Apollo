@@ -9,14 +9,21 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 /**
  * Created by ndunn on 9/30/15.
  */
-public class SequenceFeatureInfo extends JSONObject{
+public class SequenceFeatureInfo extends JSONObject {
 
-//    private Integer min;
+    //    private Integer min;
 //    private Integer max;
 //    private SequenceFeatureInfo feature;
 //    private boolean reverseComplement = false ;
+    public SequenceFeatureInfo() { }
 
-    public String getName(){
+    public SequenceFeatureInfo(JSONObject fromJson){
+        for (String key : fromJson.keySet()) {
+            this.put(key, fromJson.get(key));
+        }
+    }
+
+    public String getName() {
         return get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
     }
 
@@ -25,19 +32,19 @@ public class SequenceFeatureInfo extends JSONObject{
     }
 
     public void setFeature(SequenceFeatureInfo featuresObject) {
-        put(FeatureStringEnum.FEATURE.getValue(),featuresObject);
+        put(FeatureStringEnum.FEATURE.getValue(), featuresObject);
     }
 
     public void setStart(Integer min) {
-        put(FeatureStringEnum.START.getValue(),new JSONNumber(min));
+        put(FeatureStringEnum.START.getValue(), new JSONNumber(min));
     }
 
     public void setEnd(Integer max) {
-        put(FeatureStringEnum.END.getValue(),new JSONNumber(max));
+        put(FeatureStringEnum.END.getValue(), new JSONNumber(max));
     }
 
 
     public void setReverseComplement(boolean reverseComplement) {
-        put(FeatureStringEnum.REVERSE_COMPLEMENT.getValue(),JSONBoolean.getInstance(reverseComplement));
+        put(FeatureStringEnum.REVERSE_COMPLEMENT.getValue(), JSONBoolean.getInstance(reverseComplement));
     }
 }

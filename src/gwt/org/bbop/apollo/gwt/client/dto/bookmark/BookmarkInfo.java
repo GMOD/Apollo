@@ -22,26 +22,36 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         return getName().compareTo(o.getName());
     }
 
+
     public String getName() {
         String name = "";
         for (int i = 0; i < sequenceList.size(); i++) {
             BookmarkSequence sequenceObject = sequenceList.getSequence(i);
 
+            SequenceFeatureInfo sequenceFeatureInfo = sequenceObject.getFeature();
+            if (sequenceFeatureInfo != null) {
+                name += sequenceFeatureInfo.getName();
+                name += " (";
+            }
             name += sequenceObject.getName();
-            SequenceFeatureList sequenceFeatureList = sequenceObject.getFeatures();
 
-            if (sequenceFeatureList != null) {
-                name += "(";
-                for (int j = 0; j < sequenceFeatureList.size(); j++) {
-                    SequenceFeatureInfo sequenceFeatureInfo = sequenceFeatureList.getFeature(j);
-                    name += sequenceFeatureInfo.getName();
-                    if (j < sequenceFeatureList.size() - 1) {
-                        name += ",";
-                    }
-                }
-
+            if (sequenceFeatureInfo != null) {
                 name += ")";
             }
+//            SequenceFeatureList sequenceFeatureList = sequenceObject.getFeatures();
+//
+//            if (sequenceFeatureList != null) {
+//                name += "(";
+//                for (int j = 0; j < sequenceFeatureList.size(); j++) {
+//                    SequenceFeatureInfo sequenceFeatureInfo = sequenceFeatureList.getFeature(j);
+//                    name += sequenceFeatureInfo.getName();
+//                    if (j < sequenceFeatureList.size() - 1) {
+//                        name += ",";
+//                    }
+//                }
+//
+//                name += ")";
+//            }
             if (i < sequenceList.size() - 1) {
                 name += "::";
             }
