@@ -1,13 +1,25 @@
 package org.bbop.apollo.gwt.client.dto.bookmark;
 
 import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.user.client.Window;
 
 /**
  * Created by ndunn on 9/30/15.
  */
 public class BookmarkSequenceList extends JSONArray {
 
+//    public BookmarkSequenceList(JSONArray sequenceList) {
+//        for(int i = 0 ; i < sequenceList.size() ; i++){
+//            set(size(),sequenceList.get(i).isObject());
+//        }
+//    }
+
+    public  BookmarkSequenceList(){}
+
+    public BookmarkSequenceList(BookmarkSequenceList sequenceList) {
+        for(int i = 0 ; sequenceList!=null &&  i < sequenceList.size() ; i++){
+            addSequence(sequenceList.getSequence(i));
+        }
+    }
 
     public BookmarkSequence getSequence(int i) {
         BookmarkSequence bookmarkSequence = new BookmarkSequence(get(i).isObject());

@@ -89,11 +89,12 @@ class BookmarkService {
         bookmark.projection = jsonObject.projection
         bookmark.sequenceList = jsonObject.sequenceList
 
-        Long end = 0
-        JSONArray sequenceListArray = jsonObject.sequenceList
-        for(int i = 0 ; i < sequenceListArray.size() ; i++){
-            end += sequenceListArray.getJSONObject(i).getLong(FeatureStringEnum.END.value)
-        }
+//        Long end = 0
+//        JSONArray sequenceListArray = jsonObject.sequenceList
+//        for(int i = 0 ; i < sequenceListArray.size() ; i++){
+//            end += sequenceListArray.getJSONObject(i).getLong(FeatureStringEnum.END.value)
+//        }
+        Long end = jsonObject.getLong(FeatureStringEnum.END.value)
         bookmark.start = 0
         bookmark.end = end
 

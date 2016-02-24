@@ -53,9 +53,9 @@ public class BookmarkInfoConverter {
         if (jsonObject.containsKey("payload")) {
             bookmarkInfo.setPayload(jsonObject.get("payload").isObject());
         }
-        if (jsonObject.containsKey("start")) {
-            bookmarkInfo.setStart((int) jsonObject.get("start").isNumber().doubleValue());
-            bookmarkInfo.setEnd((int) jsonObject.get("end").isNumber().doubleValue());
+        if (jsonObject.containsKey(FeatureStringEnum.START.getValue())) {
+            bookmarkInfo.setStart((int) jsonObject.get(FeatureStringEnum.START.getValue()).isNumber().doubleValue());
+            bookmarkInfo.setEnd((int) jsonObject.get(FeatureStringEnum.END.getValue()).isNumber().doubleValue());
         }
 
         JSONArray sequenceListArray = jsonObject.get("sequenceList").isArray();
@@ -72,6 +72,7 @@ public class BookmarkInfoConverter {
     }
 
     private static BookmarkSequenceList convertJSONArrayToSequenceList(JSONArray sequenceListArray) {
+//        BookmarkSequenceList bookmarkSequenceList = new BookmarkSequenceList(sequenceListArray);
         BookmarkSequenceList bookmarkSequenceList = new BookmarkSequenceList();
         for (int i = 0; i < sequenceListArray.size(); i++) {
             BookmarkSequence bookmarkSequence = new BookmarkSequence(sequenceListArray.get(i).isObject());

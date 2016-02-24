@@ -11,10 +11,7 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.*;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -34,6 +31,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
@@ -180,39 +178,44 @@ public class BookmarkPanel extends Composite {
     }
 
     private JSONObject getBookmarksAsJson() {
-        JSONArray newArray = new JSONArray();
+        JSONArray sequenceList = new JSONArray();
+        JSONObject bookmarkObject = new JSONObject();
+        int end = 10 ;
         for (int i = 0; i < dragAndDropPanel.getWidgetCount(); i++) {
             Widget widget = dragAndDropPanel.getWidget(i);
             String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
+            JSONObject sequenceObject = new JSONObject();
             if (groupName.contains(" (")) {
                 Integer startIndex = groupName.indexOf(" (");
                 Integer endIndex = groupName.indexOf(")");
-                String featureString = groupName.substring(startIndex + 1, endIndex - 1);
-                groupName = groupName.substring(0, startIndex);
+                String sequenceString= groupName.substring(startIndex + 2, endIndex - 1);
+                String featureString = groupName.substring(0, startIndex);
                 JSONObject featureObject = new JSONObject();
-                featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(groupName));
-                JSONArray featuresArray = new JSONArray();
-                String[] features = featureString.split(",");
-                for (String feature : features) {
-                    JSONObject fI = new JSONObject();
-                    fI.put(FeatureStringEnum.NAME.getValue(), new JSONString(feature));
-                    featuresArray.set(featuresArray.size(), fI);
-                }
-                featureObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+                featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(featureString));
+                sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(sequenceString));
+                sequenceObject.put(FeatureStringEnum.FEATURE.getValue(),featureObject);
+//                JSONArray featuresArray = new JSONArray();
+//                String[] features = featureString.split(",");
+//                for (String feature : features) {
+//                    JSONObject fI = new JSONObject();
+//                    fI.put(FeatureStringEnum.NAME.getValue(), new JSONString(feature));
+//                    featuresArray.set(featuresArray.size(), fI);
+//                }
+//                featureObject.put(FeatureStringEnum.NAME.getValue(), featuresArray);
+//                newArray.set(newArray.size(), featureObject);
 
-                newArray.set(newArray.size(), featureObject);
             } else {
-                JSONObject featureObject = new JSONObject();
-                featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(groupName));
-                newArray.set(newArray.size(), featureObject);
+                sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(groupName));
             }
+            sequenceList.set(sequenceList.size(), sequenceObject);
         }
 
-        JSONObject genomicObject = new JSONObject();
 
-        genomicObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(), newArray);
-        genomicObject.put("label", new JSONString(createLabelFromBookmark(genomicObject)));
-        return genomicObject;
+        bookmarkObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(), sequenceList);
+        bookmarkObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(0));
+        bookmarkObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(end));
+        bookmarkObject.put("label", new JSONString(createLabelFromBookmark(bookmarkObject)));
+        return bookmarkObject;
     }
 
     private String createLabelFromBookmark(JSONObject genomicObject) {
@@ -223,7 +226,7 @@ public class BookmarkPanel extends Composite {
             if (sequenceObject.containsKey(FeatureStringEnum.FEATURE.getValue())) {
                 JSONObject featureObject = sequenceObject.get(FeatureStringEnum.FEATURE.getValue()).isObject();
                 returnString += featureObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue() ;
-                returnString += "<br/>";
+//                returnString += "<br/>";
             }
             returnString += sequenceObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
             if (i < sequenceArray.size() - 1) {
@@ -270,15 +273,17 @@ public class BookmarkPanel extends Composite {
         Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
         // merge rule 1 . . . take largest padding
         // merge rule 2 . . . take exon -> transcript -> none
+        int end = 0 ;
         for (BookmarkInfo bookmarkInfo1 : bookmarkInfoSet) {
+            end += bookmarkInfo1.getEnd();
             Integer padding = bookmarkInfo.getPadding();
             String type = bookmarkInfo.getType();
             bookmarkInfo.setPadding(padding == null || bookmarkInfo1.getPadding() > padding ? bookmarkInfo1.getPadding() : padding);
             bookmarkInfo.setType(type == null ? bookmarkInfo1.getType() : type);
 
             // combine the JSONArray now
-            BookmarkSequenceList sequence1 = bookmarkInfo.getSequenceList();
-            BookmarkSequenceList sequence2 = bookmarkInfo1.getSequenceList();
+            BookmarkSequenceList sequence1 = new BookmarkSequenceList(bookmarkInfo.getSequenceList());
+            BookmarkSequenceList sequence2 = new BookmarkSequenceList(bookmarkInfo1.getSequenceList());
             if (sequence1 == null) {
 //                sequence1 = sequence2 ;
                 bookmarkInfo.setSequenceList(sequence2);
@@ -291,6 +296,9 @@ public class BookmarkPanel extends Composite {
             }
 
         }
+        bookmarkInfo.setStart(0);
+        bookmarkInfo.setEnd(end);
+
         bookmarkInfoList.add(bookmarkInfo);
     }
 
@@ -327,6 +335,8 @@ public class BookmarkPanel extends Composite {
             saveButton.setEnabled(false);
             viewButton.setEnabled(true);
         }
+
+        saveButton.setType(saveButton.isEnabled() ? ButtonType.PRIMARY : ButtonType.DEFAULT);
 
         dragAndDropPanel.clear();
 

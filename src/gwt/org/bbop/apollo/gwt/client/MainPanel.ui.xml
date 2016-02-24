@@ -5,7 +5,6 @@
         >
     <ui:style>
 
-
         .details-header {
             background-color: #cccccc;
             width: 100%;
