@@ -71,9 +71,9 @@
                     <gwt:HTMLPanel>
                         <table style="width:100%">
                             <tr>
-                                <td style="width:20%">
+                                <td style="width:20%"/>
                                     <!--<b:Button ui:field="selectSelectedButton" size="EXTRA_SMALL" enabled="false" icon="CHECK_CIRCLE" marginLeft="10"/>-->
-                                </td>
+                                <!--</td>-->
                                 <td align="center">
                                     <apollo:WebApolloSimplePager ui:field="pager" styleName="{style.pager}"/>
                                 </td>

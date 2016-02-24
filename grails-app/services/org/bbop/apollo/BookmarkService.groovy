@@ -87,13 +87,23 @@ class BookmarkService {
         Bookmark bookmark = new Bookmark()
         bookmark.projection = jsonObject.projection
         bookmark.sequenceList = jsonObject.sequenceList
-        
-        List<Sequence> sequences = getSequencesFromBookmark(bookmark)
-        
-        bookmark.organism = sequences.first().organism
 
+        Integer end = 0
+        JSONArray sequenceListArray = jsonObject.sequenceList
+        for(int i = 0 ; i < sequenceListArray.size() ; i++){
+            end += sequenceListArray.getJSONObject(i).end
+        }
+        bookmark.start = 0
+        bookmark.end = end
 
-        return generateBookmarkForSequence(sequences as Sequence[])
+//        List<Sequence> sequences = getSequencesFromBookmark(bookmark)
+        UserOrganismPreference userOrganismPreference = permissionService.currentOrganismPreference
+        bookmark.user = userOrganismPreference.user
+        bookmark.organism = userOrganismPreference.organism
+        bookmark.save()
+
+//        return generateBookmarkForSequence(sequences as Sequence[])
+        return bookmark
     }
 
     static Boolean isProjectionString(String inputString ){

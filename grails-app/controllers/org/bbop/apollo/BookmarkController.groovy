@@ -22,8 +22,6 @@ class BookmarkController {
         if(Organism.count>0){
             preferenceService.getCurrentOrganism(user)
             render Bookmark.findAllByUser(user).sort(){ a,b -> a.sequenceList <=> b.sequenceList} as JSON
-//            render user.bookmarks.sort(){ a,b -> a.sequenceList <=> b.sequenceList} as JSON
-//            render (user.bookmarks ?: new JSONObject()) as JSON
         }
         else{
             render new JSONObject() as JSON
@@ -47,11 +45,8 @@ class BookmarkController {
     def addBookmark() {
         JSONArray bookmarkArray = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
 //        User user = permissionService.currentUser
-        Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkArray.getJSONObject(0))
-
-        
-
-        
+        JSONObject bookmarkJsonObject = bookmarkArray.getJSONObject(0)
+        Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkJsonObject)
 
         return list()
     }

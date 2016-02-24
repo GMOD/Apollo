@@ -36,13 +36,11 @@ import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.dto.bookmark.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
@@ -330,39 +328,23 @@ public class AnnotatorPanel extends Composite {
     void addNewBookmark(ClickEvent clickEvent) {
         BookmarkInfo bookmarkInfo = new BookmarkInfo();
         BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
-//        JSONArray sequenceArray = new JSONArray();
-        String name = "";
 
         bookmarkInfo.setPadding(50);
         bookmarkInfo.setType("Exon");
-//        JSONObject sequenceObject = new JSONObject();
-        SequenceFeatureInfo sequenceObject = new SequenceFeatureInfo();
-        sequenceObject.setName(currentAnnotationInfo.getSequence());
-//        sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(currentAnnotationInfo.getSequence()));
-        SequenceFeatureList featuresArray = new SequenceFeatureList();
-//        JSONArray featuresArray = new JSONArray();
-        SequenceFeatureInfo featuresObject = new SequenceFeatureInfo() ;
-//        JSONObject featuresObject = new JSONObject();
-        featuresObject.setName(currentAnnotationInfo.getName());
-//        featuresObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(currentAnnotationInfo.getName()));
 
-        featuresArray.addFeature(featuresObject);
-//        featuresArray.set(featuresArray.size(),featuresObject);
-//        sequenceObject.put(FeatureStringEnum.FEATURES.getValue(),featuresArray);
-        sequenceObject.setFeatures(featuresArray);
+        SequenceFeatureInfo sequenceObject = new SequenceFeatureInfo();
+        sequenceObject.setReverseComplement(false);
+        sequenceObject.setName(currentAnnotationInfo.getSequence());
+        sequenceObject.setStart(currentAnnotationInfo.getMin());
+        sequenceObject.setEnd(currentAnnotationInfo.getMax());
+
+        SequenceFeatureInfo featuresObject = new SequenceFeatureInfo() ;
+        featuresObject.setName(currentAnnotationInfo.getName());
+
+        sequenceObject.setFeature(featuresObject);
         sequenceArray.set(sequenceArray.size(), sequenceObject);
 
-//        for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
-//            bookmarkInfo.setPadding(50);
-//            bookmarkInfo.setType("Exon");
-//            JSONObject sequenceObject =new JSONObject();
-//            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getName()));
-//            sequenceArray.set(sequenceArray.size(),sequenceObject);
-//            name += sequenceInfo.getName()+",";
-//        }
-//        name = name.substring(0, name.length() - 1);
         bookmarkInfo.setSequenceList(sequenceArray);
-
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
