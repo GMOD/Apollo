@@ -109,9 +109,7 @@
                             <b:Button ui:field="bookmarkButton" icon="BOOKMARK" size="EXTRA_SMALL" text="+" enabled="false"/>
                         </b:ButtonGroup>
                     </b:Column>
-                </b:Row>
-                <b:Row>
-                    <b:Column size="MD_12" offset="MD_2">
+                    <b:Column size="MD_4" >
                         <b:Alert ui:field="panelMessage" visible="false" dismissable="true" />
                     </b:Column>
                 </b:Row>
