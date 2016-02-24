@@ -14,8 +14,8 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
     private JSONObject payload;
     private Long id;
     private String organismName;
-    private Integer start;
-    private Integer end;
+    private Long start;
+    private Long end;
 
     @Override
     public int compareTo(BookmarkInfo o) {
@@ -144,19 +144,19 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         return bookmarkInfoReturn;
     }
 
-    public Integer getStart() {
+    public Long getStart() {
         return start;
     }
 
-    public void setStart(Integer start) {
+    public void setStart(Long start) {
         this.start = start;
     }
 
-    public Integer getEnd() {
+    public Long getEnd() {
         return end;
     }
 
-    public void setEnd(Integer end) {
+    public void setEnd(Long end) {
         this.end = end;
     }
 }

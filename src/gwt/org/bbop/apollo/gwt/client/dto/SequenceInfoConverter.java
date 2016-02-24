@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
@@ -15,9 +16,9 @@ public class SequenceInfoConverter {
         SequenceInfo sequenceInfo = new SequenceInfo();
         sequenceInfo.setId((long) object.get("id").isNumber().doubleValue());
         sequenceInfo.setName(object.get("name").isString().stringValue());
-        sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
-        sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
-        sequenceInfo.setLength((int) object.get("length").isNumber().doubleValue());
+        sequenceInfo.setStart((long) object.get("start").isNumber().doubleValue());
+        sequenceInfo.setEnd((long) object.get("end").isNumber().doubleValue());
+        sequenceInfo.setLength((long) object.get("length").isNumber().doubleValue());
         sequenceInfo.setSelected(object.get("selected") != null && object.get("selected").isBoolean().booleanValue());
         if(object.get("count") != null) sequenceInfo.setCount((int) object.get("count").isNumber().doubleValue());
         sequenceInfo.setDefault(object.get("aDefault") != null && object.get("aDefault").isBoolean().booleanValue());

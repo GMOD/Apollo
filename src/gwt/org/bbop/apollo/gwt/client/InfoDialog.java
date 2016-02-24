@@ -16,21 +16,7 @@ import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
  */
 public class InfoDialog extends Modal{
 
-//    private Boolean showOnBuild = true ;
-
-//    public InfoDialog(boolean showOnConstruct){
-//        this("Loading ...",null,showOnConstruct);
-//    }
-//
-//    public InfoDialog(){
-//        this("Loading ...",null,true);
-//    }
-
-
-//    public InfoDialog(String title,String message){
-//        this(title,message,true);
-//    }
-    private Button closeButton = new Button("OK");
+//    private Button closeButton = new Button("OK");
 
     public InfoDialog(String title, String message, Boolean showOnConstruct){
         setTitle(title);
@@ -38,13 +24,13 @@ public class InfoDialog extends Modal{
         setFade(true);
         setDataKeyboard(true);
         setDataBackdrop(ModalBackdrop.STATIC);
-        closeButton.setType(ButtonType.PRIMARY);
-        closeButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                hide();
-            }
-        });
+//        closeButton.setType(ButtonType.PRIMARY);
+//        closeButton.addClickHandler(new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent event) {
+//                hide();
+//            }
+//        });
 //        setDataBackdrop(ModalBackdrop.STATIC);
 
         if(message!=null){

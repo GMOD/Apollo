@@ -266,7 +266,7 @@ public class MainPanel extends Composite {
                 JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
                 currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(sequenceInfoJson);
                 currentStartBp = start != null ? start : 0;
-                currentEndBp = end != null ? end : currentBookmark.getEnd();
+                currentEndBp = end != null ? end : currentBookmark.getEnd().intValue();
                 sequenceSuggestBox.setText(currentBookmark.getName());
 
 
@@ -528,7 +528,7 @@ public class MainPanel extends Composite {
         if (currentStartBp != null && currentEndBp != null) {
             updateGenomicViewerForLocation(currentBookmark.getName(), currentStartBp, currentEndBp, forceReload);
         } else {
-            updateGenomicViewerForLocation(currentBookmark.getName(), currentBookmark.getStart(), currentBookmark.getEnd(), forceReload);
+            updateGenomicViewerForLocation(currentBookmark.getName(), currentBookmark.getStart().intValue(), currentBookmark.getEnd().intValue(), forceReload);
         }
     }
 

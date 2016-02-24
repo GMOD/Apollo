@@ -109,7 +109,7 @@ public class SequencePanel extends Composite {
 
         Column<SequenceInfo, Number> lengthColumn = new Column<SequenceInfo, Number>(new NumberCell()) {
             @Override
-            public Integer getValue(SequenceInfo object) {
+            public Long getValue(SequenceInfo object) {
                 return object.getLength();
             }
         };
@@ -283,17 +283,27 @@ public class SequencePanel extends Composite {
         BookmarkInfo bookmarkInfo = new BookmarkInfo();
         BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
         StringBuilder nameBuffer = new StringBuilder();
+        long start = 0  ;
+        long end = 0 ;
         for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
             bookmarkInfo.setPadding(50);
             bookmarkInfo.setType("Exon");
             BookmarkSequence sequenceObject =new BookmarkSequence();
             sequenceObject.setName(sequenceInfo.getName());
+            sequenceObject.setStart(sequenceInfo.getStart());
+            sequenceObject.setEnd(sequenceInfo.getEnd());
 //            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getName()));
             sequenceArray.addSequence(sequenceObject);
 //            sequenceArray.set(sequenceArray.size(),sequenceObject);
             nameBuffer.append(sequenceInfo.getName() + ",");
+            if(start==0){
+                start = sequenceInfo.getStart();
+            }
+            end += sequenceInfo.getEnd();
         }
 //        name = name.substring(0,name.length()-1);
+        bookmarkInfo.setStart(start);
+        bookmarkInfo.setEnd(end);
         bookmarkInfo.setSequenceList(sequenceArray);
 
         final String name = nameBuffer.toString() ;

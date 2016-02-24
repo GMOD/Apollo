@@ -54,8 +54,8 @@ public class BookmarkInfoConverter {
             bookmarkInfo.setPayload(jsonObject.get("payload").isObject());
         }
         if (jsonObject.containsKey(FeatureStringEnum.START.getValue())) {
-            bookmarkInfo.setStart((int) jsonObject.get(FeatureStringEnum.START.getValue()).isNumber().doubleValue());
-            bookmarkInfo.setEnd((int) jsonObject.get(FeatureStringEnum.END.getValue()).isNumber().doubleValue());
+            bookmarkInfo.setStart((long) jsonObject.get(FeatureStringEnum.START.getValue()).isNumber().doubleValue());
+            bookmarkInfo.setEnd((long) jsonObject.get(FeatureStringEnum.END.getValue()).isNumber().doubleValue());
         }
 
         JSONArray sequenceListArray = jsonObject.get("sequenceList").isArray();

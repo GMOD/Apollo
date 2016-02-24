@@ -273,7 +273,7 @@ public class BookmarkPanel extends Composite {
         Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
         // merge rule 1 . . . take largest padding
         // merge rule 2 . . . take exon -> transcript -> none
-        int end = 0 ;
+        long start = 0,end = 0 ;
         for (BookmarkInfo bookmarkInfo1 : bookmarkInfoSet) {
             end += bookmarkInfo1.getEnd();
             Integer padding = bookmarkInfo.getPadding();
@@ -296,7 +296,7 @@ public class BookmarkPanel extends Composite {
             }
 
         }
-        bookmarkInfo.setStart(0);
+        bookmarkInfo.setStart(start);
         bookmarkInfo.setEnd(end);
 
         bookmarkInfoList.add(bookmarkInfo);
