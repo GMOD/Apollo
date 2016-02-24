@@ -190,18 +190,20 @@ class JbrowseController {
                 leftObject.refseq = thisSeq.name
                 leftObject.start = currentPosition
                 leftObject.end = leftObject.start+1
-                leftObject.actualLocation = 0
+                leftObject.originalPosition = 0
                 leftObject.ref = refererLoc
-                leftObject.color = 'red'
-                leftObject.type = 'facing-left'
+                leftObject.color = 'white'
+                leftObject.background = 'red'
+                leftObject.type = 'left-edge'
 
                 JSONObject rightObject = new JSONObject(leftObject.toString())
                 // this will change and should come off of the JSONObject
                 rightObject.start = currentPosition + sequence.length
                 rightObject.end = rightObject.start+1
-                rightObject.actualLocation = sequence.length
-                rightObject.color = 'blue'
-                rightObject.type = 'facing-right'
+                rightObject.originalPosition = sequence.length
+                rightObject.color = 'white'
+                rightObject.background = 'blue'
+                rightObject.type = 'right-edge'
 
 //                JSONObject nextSeq = sequenceList.get(i + 1)
 //                pos += projection.findProjectSequenceLength(thisSeq.name)
