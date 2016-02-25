@@ -15,6 +15,10 @@ public class BookmarkSequence extends JSONObject {
 
     public BookmarkSequence(JSONObject jsonObject) {
         this.put(FeatureStringEnum.NAME.getValue(), new JSONString(jsonObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue()));
+        if(jsonObject.containsKey(FeatureStringEnum.START.getValue())){
+            this.put(FeatureStringEnum.START.getValue(), new JSONNumber(jsonObject.get(FeatureStringEnum.START.getValue()).isNumber().doubleValue()));
+            this.put(FeatureStringEnum.END.getValue(), new JSONNumber(jsonObject.get(FeatureStringEnum.END.getValue()).isNumber().doubleValue()));
+        }
         if(jsonObject.containsKey(FeatureStringEnum.FEATURE.getValue())){
             SequenceFeatureInfo sequenceFeatureInfo = new SequenceFeatureInfo(jsonObject.get(FeatureStringEnum.FEATURE.getValue()).isObject());
             this.put(
