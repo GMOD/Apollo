@@ -197,7 +197,6 @@ public class BookmarkPanel extends Composite {
                 featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(featureString));
                 sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(sequenceString));
                 sequenceObject.put(FeatureStringEnum.FEATURE.getValue(),featureObject);
-                Window.alert(selectedBookmarkInfo.getSequenceList().getSequence(0).toString());
                 sequenceObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getStart()));
                 sequenceObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getEnd()));
             } else {
@@ -215,7 +214,6 @@ public class BookmarkPanel extends Composite {
         bookmarkObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(start));
         bookmarkObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(end));
         bookmarkObject.put("label", new JSONString(createLabelFromBookmark(bookmarkObject)));
-        Window.alert(bookmarkObject.toString());
         return bookmarkObject;
     }
 
@@ -260,7 +258,6 @@ public class BookmarkPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("error");
                 Bootbox.alert("Failed to save: " + exception.getMessage());
             }
         };
@@ -404,9 +401,7 @@ public class BookmarkPanel extends Composite {
             // add to bookmarkInfo list
             for (int i = 0; jsonValue != null && i < jsonValue.size(); i++) {
                 JSONObject jsonObject = jsonValue.get(i).isObject();
-                GWT.log("1 - " +jsonObject.toString());
                 BookmarkInfo bookmarkInfo = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(jsonObject);
-                GWT.log("2 - " +bookmarkInfo.getSequenceList().toString());
                 addBookmarkLocally(bookmarkInfo);
             }
 
