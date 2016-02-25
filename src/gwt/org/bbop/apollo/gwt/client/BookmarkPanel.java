@@ -57,8 +57,6 @@ public class BookmarkPanel extends Composite {
     Button mergeButton;
     @UiField
     Button removeButton;
-    //    @UiField
-//    Button copyButton;
     @UiField
     Button saveButton;
     @UiField
@@ -75,7 +73,11 @@ public class BookmarkPanel extends Composite {
     final LoadingDialog loadingDialog;
     private PickupDragController dragController;
     public static ListDataProvider<BookmarkInfo> dataProvider = new ListDataProvider<>();
+
+    // TODO: probably a more clever way to do this
     private static List<BookmarkInfo> bookmarkInfoList = dataProvider.getList();
+    private static Map<String,BookmarkInfo> bookmarkInfoMap = new HashMap<>();
+
     private MultiSelectionModel<BookmarkInfo> selectionModel = new MultiSelectionModel<BookmarkInfo>();
 
     private static Storage preferenceStore = Storage.getLocalStorageIfSupported();
@@ -173,18 +175,19 @@ public class BookmarkPanel extends Composite {
      */
     @UiHandler("viewButton")
     public void view(ClickEvent event) {
-        JSONObject merge1 = getBookmarksAsJson();
+        JSONObject merge1 = getBookmarkPanelAsJson();
         MainPanel.updateGenomicViewerForLocation(merge1.toString().trim(), -1l, -1l);
     }
 
-    private JSONObject getBookmarksAsJson() {
+    private JSONObject getBookmarkPanelAsJson() {
         JSONArray sequenceList = new JSONArray();
         JSONObject bookmarkObject = new JSONObject();
-        int end = 10 ;
+        long start= 0,end = 0 ;
         for (int i = 0; i < dragAndDropPanel.getWidgetCount(); i++) {
             Widget widget = dragAndDropPanel.getWidget(i);
             String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
             JSONObject sequenceObject = new JSONObject();
+            BookmarkInfo selectedBookmarkInfo = bookmarkInfoMap.get(groupName);
             if (groupName.contains(" (")) {
                 Integer startIndex = groupName.indexOf(" (");
                 Integer endIndex = groupName.indexOf(")");
@@ -194,25 +197,19 @@ public class BookmarkPanel extends Composite {
                 featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(featureString));
                 sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(sequenceString));
                 sequenceObject.put(FeatureStringEnum.FEATURE.getValue(),featureObject);
-//                JSONArray featuresArray = new JSONArray();
-//                String[] features = featureString.split(",");
-//                for (String feature : features) {
-//                    JSONObject fI = new JSONObject();
-//                    fI.put(FeatureStringEnum.NAME.getValue(), new JSONString(feature));
-//                    featuresArray.set(featuresArray.size(), fI);
-//                }
-//                featureObject.put(FeatureStringEnum.NAME.getValue(), featuresArray);
-//                newArray.set(newArray.size(), featureObject);
-
             } else {
                 sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(groupName));
             }
             sequenceList.set(sequenceList.size(), sequenceObject);
+            if(i==0){
+                start = selectedBookmarkInfo.getStart();
+            }
+            end += selectedBookmarkInfo.getEnd();
         }
 
 
         bookmarkObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(), sequenceList);
-        bookmarkObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(0));
+        bookmarkObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(start));
         bookmarkObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(end));
         bookmarkObject.put("label", new JSONString(createLabelFromBookmark(bookmarkObject)));
         return bookmarkObject;
@@ -246,7 +243,7 @@ public class BookmarkPanel extends Composite {
         Set<BookmarkInfo> bookmarkInfoSet = selectionModel.getSelectedSet();
         assert bookmarkInfoSet.size() == 1;
 
-        JSONObject bookmarkObjects = getBookmarksAsJson();
+        JSONObject bookmarkObjects = getBookmarkPanelAsJson();
         BookmarkInfo bookmarkInfo = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(bookmarkObjects);
 
 
@@ -299,7 +296,25 @@ public class BookmarkPanel extends Composite {
         bookmarkInfo.setStart(start);
         bookmarkInfo.setEnd(end);
 
-        bookmarkInfoList.add(bookmarkInfo);
+        addBookmarkLocally(bookmarkInfo);
+    }
+
+    private void clearBookmarkLocally(){
+        bookmarkInfoMap.clear();
+        bookmarkInfoList.clear();
+    }
+
+    private void addBookmarkLocally(BookmarkInfo bookmarkInfo) {
+        List<BookmarkInfo> bookmarkInfos = new ArrayList<>();
+        bookmarkInfos.add(bookmarkInfo);
+        addBookmarkLocally(bookmarkInfos);
+    }
+
+    private void addBookmarkLocally(List<BookmarkInfo> bookmarkInfos) {
+        for(BookmarkInfo bookmarkInfo : bookmarkInfos){
+            bookmarkInfoMap.put(bookmarkInfo.getName(),bookmarkInfo);
+            bookmarkInfoList.add(bookmarkInfo);
+        }
     }
 
 
@@ -356,20 +371,20 @@ public class BookmarkPanel extends Composite {
                 if(sequenceFeatureInfo!=null){
                     name += ")";
                 }
-                FocusPanel focusPanel = new FocusPanel();
+                FocusPanel bookmarkWrapperFocusPanel = new FocusPanel();
+                bookmarkWrapperFocusPanel.setStyleName("bookmark-FlowPanel-draggable");
 
-                FlowPanel flowPanel = new FlowPanel();
-                focusPanel.setStyleName("bookmark-FlowPanel-draggable");
-                focusPanel.add(flowPanel);
+                FlowPanel bookmarkObjectPanel = new FlowPanel();
+                bookmarkWrapperFocusPanel.add(bookmarkObjectPanel);
 
                 HTML label = new HTML(name);
                 label.setStyleName("bookmark-FlowPanel-label");
                 HTML spacer = new HTML(" ");
-                flowPanel.add(label);
-                flowPanel.add(spacer);
+                bookmarkObjectPanel.add(label);
+                bookmarkObjectPanel.add(spacer);
 
-                dragController.makeDraggable(focusPanel);
-                dragAndDropPanel.add(focusPanel);
+                dragController.makeDraggable(bookmarkWrapperFocusPanel);
+                dragAndDropPanel.add(bookmarkWrapperFocusPanel);
             }
         }
 
@@ -380,13 +395,13 @@ public class BookmarkPanel extends Composite {
         @Override
         public void onResponseReceived(Request request, Response response) {
             JSONArray jsonValue = JSONParser.parseStrict(response.getText()).isArray();
-            bookmarkInfoList.clear();
+            clearBookmarkLocally();
 
             // add to bookmarkInfo list
             for (int i = 0; jsonValue != null && i < jsonValue.size(); i++) {
                 JSONObject jsonObject = jsonValue.get(i).isObject();
                 BookmarkInfo bookmarkInfo = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(jsonObject);
-                bookmarkInfoList.add(bookmarkInfo);
+                addBookmarkLocally(bookmarkInfo);
             }
 
             loadingDialog.hide();
@@ -420,11 +435,10 @@ public class BookmarkPanel extends Composite {
         @Override
         public void onResponseReceived(Request request, Response response) {
             JSONArray jsonValue = JSONParser.parseStrict(response.getText()).isArray();
-            // cleaning up bookmarkInfoList
-            bookmarkInfoList.clear();
+            clearBookmarkLocally();
 
             // adding bookmarks from response
-            bookmarkInfoList.addAll(BookmarkInfoConverter.convertFromJsonArray(jsonValue));
+            addBookmarkLocally(BookmarkInfoConverter.convertFromJsonArray(jsonValue));
             loadingDialog.hide();
         }
 

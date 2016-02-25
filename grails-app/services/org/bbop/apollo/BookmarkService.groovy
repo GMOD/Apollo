@@ -85,24 +85,22 @@ class BookmarkService {
     }
 
     Bookmark convertJsonToBookmark(JSONObject jsonObject) {
-        Bookmark bookmark = new Bookmark()
-        bookmark.projection = jsonObject.projection
-        bookmark.sequenceList = jsonObject.sequenceList
+        String sequenceListString = jsonObject.sequenceList.toString()
+        Bookmark bookmark = Bookmark.findBySequenceList(sequenceListString)
+        if(bookmark==null){
+            println "creating bookarm "
+            bookmark = new Bookmark()
+            bookmark.projection = jsonObject.projection
+            bookmark.sequenceList = jsonObject.sequenceList
 
-//        Long end = 0
-//        JSONArray sequenceListArray = jsonObject.sequenceList
-//        for(int i = 0 ; i < sequenceListArray.size() ; i++){
-//            end += sequenceListArray.getJSONObject(i).getLong(FeatureStringEnum.END.value)
-//        }
-        Long end = jsonObject.getLong(FeatureStringEnum.END.value)
-        bookmark.start = 0
-        bookmark.end = end
+            bookmark.start = jsonObject.getLong(FeatureStringEnum.START.value)
+            bookmark.end = jsonObject.getLong(FeatureStringEnum.END.value)
 
-//        List<Sequence> sequences = getSequencesFromBookmark(bookmark)
-        UserOrganismPreference userOrganismPreference = permissionService.currentOrganismPreference
-        bookmark.user = userOrganismPreference.user
-        bookmark.organism = userOrganismPreference.organism
-        bookmark.save()
+            UserOrganismPreference userOrganismPreference = permissionService.currentOrganismPreference
+            bookmark.user = userOrganismPreference.user
+            bookmark.organism = userOrganismPreference.organism
+            bookmark.save()
+        }
 
 //        return generateBookmarkForSequence(sequences as Sequence[])
         return bookmark

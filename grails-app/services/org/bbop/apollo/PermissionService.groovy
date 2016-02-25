@@ -481,6 +481,7 @@ class PermissionService {
                 bookmark.projection = inputObject.track.projection
                 bookmark.padding = inputObject.track?.padding
                 bookmark.referenceTrack = inputObject.track?.referenceTrack
+                println "save here?"
                 bookmark.save(flush: true )
             }
             return bookmark
