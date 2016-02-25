@@ -6,7 +6,6 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
-import org.bbop.apollo.gwt.client.projection.ProjectionService;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -14,8 +13,6 @@ import org.bbop.apollo.gwt.client.projection.ProjectionService;
 public class Annotator implements EntryPoint {
 
     public static EventBus eventBus = GWT.create(SimpleEventBus.class);
-
-    private static ProjectionService projectionService = new ProjectionService();
 
     /**
      * This is the entry point method.
