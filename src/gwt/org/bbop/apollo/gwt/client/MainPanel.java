@@ -27,7 +27,6 @@ import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfoConverter;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequence;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequenceList;
-import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;

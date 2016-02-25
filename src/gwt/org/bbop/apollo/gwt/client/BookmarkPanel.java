@@ -191,7 +191,7 @@ public class BookmarkPanel extends Composite {
             if (groupName.contains(" (")) {
                 Integer startIndex = groupName.indexOf(" (");
                 Integer endIndex = groupName.indexOf(")");
-                String sequenceString= groupName.substring(startIndex + 2, endIndex - 1);
+                String sequenceString= groupName.substring(startIndex + 2, endIndex );
                 String featureString = groupName.substring(0, startIndex);
                 JSONObject featureObject = new JSONObject();
                 featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(featureString));
