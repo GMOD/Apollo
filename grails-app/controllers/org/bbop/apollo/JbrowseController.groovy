@@ -238,7 +238,7 @@ class JbrowseController {
         String fileName = FilenameUtils.getName(params.path)
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
-        if (dataFileName.contains("projection")) {
+        if (dataFileName.contains("sequenceList")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
                 String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
                 println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
