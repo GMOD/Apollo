@@ -338,6 +338,8 @@ class TrackService {
      */
     JSONArray projectJsonArray(MultiSequenceProjection projection, JSONArray coordinate, Integer offset, ProjectionSequence projectionSequence, String trackName) {
 
+        // TODO: prune out areas obviously invalid (i.e., pre-sanitize)
+
         // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
         for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
             def subArray = coordinate.get(subIndex)
@@ -361,7 +363,8 @@ class TrackService {
                 coordinate.set(trackIndex.start, newCoordinate.min + offset - projectionSequence.offset)
                 coordinate.set(trackIndex.end, newCoordinate.max + offset - projectionSequence.offset+1)
             } else {
-                log.error("Invalid mapping of coordinate ${coordinate} -> ${newCoordinate}")
+                // this is valid for very small areas
+                log.debug("Invalid mapping of coordinate ${coordinate} -> ${newCoordinate}")
                 coordinate.set(trackIndex.start, -1)
                 coordinate.set(trackIndex.end, -1)
             }

@@ -155,11 +155,11 @@ class JbrowseController {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-            JSONArray refSeqJsonObject = new JSONArray(file.text)
+//            JSONArray refSeqJsonObject = new JSONArray(file.text)
+//
+//            MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
-            MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
-
-//            String results = refSeqProjectorService.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
+//            String results = refSeqProjectorService.projectRefSeq(refSeqJsonObject, projection, currentOrganism, refererLoc)
 //            def resultObject = JSON.parse(results)
             def refererLocObject = JSON.parse(refererLoc)
             def sequenceList = refererLocObject.sequenceList
@@ -386,7 +386,7 @@ class JbrowseController {
                     MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
                     // returns projection to a string of some sort
-                    String results = refSeqProjectorService.projectTrack(refSeqJsonObject, projection, currentOrganism, refererLoc)
+                    String results = refSeqProjectorService.projectRefSeq(refSeqJsonObject, projection, currentOrganism, refererLoc)
                     response.outputStream << results
                 } else {
                     // Set content size

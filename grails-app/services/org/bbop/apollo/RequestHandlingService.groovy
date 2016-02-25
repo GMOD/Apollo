@@ -518,16 +518,16 @@ class RequestHandlingService {
 
 
         JSONArray jsonFeatures = new JSONArray()
-        features.each { feature ->
+        features.each { Feature feature ->
             JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
             jsonFeatures.put(jsonObject)
         }
 
-//        featureProjectionService.projectTrack(sequence,"",jsonFeatures,false)
+//        featureProjectionService.projectRefSeq(sequence,"",jsonFeatures,false)
         // this will have all of the necessary projection criteria
         jsonFeatures = featureProjectionService.projectTrack(jsonFeatures, bookmark, false)
 //        MultiSequenceProjection projection = projectionService.getProjection(inputObject, organism)
-//        featureProject.projectTrack(jsonFeatures,projection,organism,inputObject)
+//        featureProject.projectRefSeq(jsonFeatures,projection,organism,inputObject)
 
         inputObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
         log.debug "getFeatures ${System.currentTimeMillis()-start}ms"
@@ -666,7 +666,7 @@ class RequestHandlingService {
     JSONObject setTranslationStart(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Bookmark bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-//        features = featureProjectionService.projectTrack(bookmark, features, true)
+//        features = featureProjectionService.projectRefSeq(bookmark, features, true)
         features = featureProjectionService.projectTrack(features, bookmark, true)
 
         JSONObject transcriptJSONObject = features.getJSONObject(0);
@@ -699,7 +699,7 @@ class RequestHandlingService {
         featureEventService.addNewFeatureEvent(setStart ? FeatureOperation.SET_TRANSLATION_START : FeatureOperation.UNSET_TRANSLATION_START, gene.name, transcript.uniqueName, inputObject, transcriptJSONObject, newJSONObject, permissionService.getCurrentUser(inputObject))
         JSONObject featureContainer = createJSONFeatureContainer(newJSONObject);
 
-//        JSONArray returnArray = featureProjectionService.projectTrack(bookmark, featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), false)
+//        JSONArray returnArray = featureProjectionService.projectRefSeq(bookmark, featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), false)
         JSONArray returnArray = featureProjectionService.projectTrack(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), bookmark, false)
         featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
@@ -794,7 +794,7 @@ class RequestHandlingService {
 
         JSONArray inputArray = new JSONArray(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value))
         JSONArray returnArray = featureProjectionService.projectTrack(inputArray, bookmark, false)
-//        JSONArray returnArray = featureProjectionService.projectTrack(bookmark, featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), false)
+//        JSONArray returnArray = featureProjectionService.projectRefSeq(bookmark, featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), false)
         featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
 
         if (bookmark) {

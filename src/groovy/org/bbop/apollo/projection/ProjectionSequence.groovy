@@ -1,11 +1,13 @@
 package org.bbop.apollo.projection
 
+import groovy.transform.ToString
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 /**
  * Created by nathandunn on 9/24/15.
  */
+@ToString
 class ProjectionSequence implements Comparable<ProjectionSequence>{
 
     String id
@@ -16,7 +18,10 @@ class ProjectionSequence implements Comparable<ProjectionSequence>{
     Integer offset  = 0  // projected offset from originalOffset
     Integer originalOffset = 0 // original incoming coordinates . .  0 implies order = 0, >0 implies that order > 0
     List<String> features// a list of Features  // default is a single entry ALL . . if empty then all
-    Integer unprojectedLength = 0  // the length of the sequence before projection . . the projected length comes from the associated discontinuous projection
+    Integer unprojectedLength = 0
+    Integer start
+    Integer end
+    // the length of the sequence before projection . . the projected length comes from the associated discontinuous projection
 
 
     boolean equals(o) {
@@ -68,6 +73,8 @@ class ProjectionSequence implements Comparable<ProjectionSequence>{
         jsonObject.order = order
         jsonObject.offset = offset
         jsonObject.originalOffset = originalOffset
+        jsonObject.start = start
+        jsonObject.end = end
 
         JSONArray featuresArray  = new JSONArray()
         features.each {

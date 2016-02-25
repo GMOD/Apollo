@@ -540,7 +540,7 @@ class FeatureEventService {
                     log.debug "original command object = ${originalCommandObject as JSON}"
                     log.debug "final command object = ${addCommandObject as JSON}"
                     requestHandlingService.addTranscript(addCommandObject)
-//                    JSONArray returnArray = featureProjectionService.projectTrack(addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),bookmark,false)
+//                    JSONArray returnArray = featureProjectionService.projectRefSeq(addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),bookmark,false)
 //                    addCommandObject.put(FeatureStringEnum.FEATURES.value, returnArray)
 //
 //

@@ -4,6 +4,7 @@ package org.bbop.apollo.projection
  * Created by nathandunn on 8/14/15.
  * Used only for testing
  */
+@Deprecated
 @Singleton
 class DiscontinuousProjectionFactory {
 

@@ -17,27 +17,36 @@ class RefSeqProjectorService {
     def sequenceService
 
     @NotTransactional
-    String projectTrack(JSONArray refSeqJsonObject, MultiSequenceProjection projection, Organism currentOrganism, String refererLoc) {
-
-        JSONArray projectedArray = new JSONArray()
-
-        for (int i = 0; i < refSeqJsonObject.size(); i++) {
-
-            JSONObject sequenceValue = refSeqJsonObject.getJSONObject(i)
-
-            String sequenceName = sequenceValue.getString("name")
-            if (projection && projection.containsSequence(sequenceName, sequenceValue.id, currentOrganism)) {
-                Integer projectedSequenceLength = projection.findProjectSequenceLength(sequenceName)
-                sequenceValue.put("length", projectedSequenceLength)
-                sequenceValue.put("end", projectedSequenceLength)
-                sequenceValue.put("name", refererLoc)
-                projectedArray = mergeRefseqProjections(projectedArray, sequenceValue)
-            }
-        }
+    String projectRefSeq(JSONArray refSeqJsonObject, MultiSequenceProjection projection, Organism currentOrganism, String refererLoc) {
 
         if (projection) {
+            JSONArray projectedArray = new JSONArray()
+            // in this case, we just want a single object
+            JSONObject sequenceObject = refSeqJsonObject ? refSeqJsonObject.first(): new JSONObject()
+
+            sequenceObject.start = 0
+            sequenceObject.end =  projection.length
+            sequenceObject.length =  projection.length
+            sequenceObject.name = refererLoc
+
+//            for (int i = 0; i < refSeqJsonObject.size(); i++) {
+//
+//                JSONObject sequenceValue = refSeqJsonObject.getJSONObject(i)
+//
+//                String sequenceName = sequenceValue.getString("name")
+//                if (projection && projection.containsSequence(sequenceName, sequenceValue.id, currentOrganism)) {
+//                    Integer projectedSequenceLength = projection.findProjectSequenceLength(sequenceName)
+//                    sequenceValue.put("length", projectedSequenceLength)
+//                    sequenceValue.put("end", projectedSequenceLength)
+//                    sequenceValue.put("start", 0)
+//                    sequenceValue.put("name", refererLoc)
+//                    projectedArray = mergeRefseqProjections(projectedArray, sequenceValue)
+//                }
+//            }
+            projectedArray.add(sequenceObject)
             return projectedArray.toString()
-        } else {
+        }
+        else {
             return refSeqJsonObject.toString()
         }
     }
@@ -106,10 +115,10 @@ class RefSeqProjectorService {
         Integer projectedEnd = chunkSize * (chunkNumber + 1) // this an exclusive end
 
         // determine the current "offsets" based on the chunk
-        Coordinate unprojectedCoordinate = projection.projectReverseCoordinate(projectedStart,projectedEnd)
+        Coordinate unprojectedCoordinate = projection.projectReverseCoordinate(projectedStart, projectedEnd)
 
         // if it projects off the edge of known space .  . we just take it to the maximum in the projection realm . . .
-        if(unprojectedCoordinate.max < 0){
+        if (unprojectedCoordinate.max < 0) {
             unprojectedCoordinate.max = projection.getMaxCoordinate().max + 1
         }
 
@@ -121,7 +130,6 @@ class RefSeqProjectorService {
         Integer unprojectedEnd = unprojectedCoordinate.max
 
         Integer startOffset = unprojectedStart - projectedStart
-
 
 //        ProjectionSequence startSequence = projection.getReverseProjectionSequence(projectedStart)
 //        ProjectionSequence endSequence = projection.getReverseProjectionSequence(projectedEnd)
@@ -137,12 +145,11 @@ class RefSeqProjectorService {
             // could be only one, any portion
             Integer startIndex, endIndex
             if (index == 0) {
-                if(sequences.size()==1){
+                if (sequences.size() == 1) {
                     startIndex = unprojectedStart - projectionSequence.originalOffset - startOffset
                     endIndex = unprojectedEnd - projectionSequence.originalOffset
 //                    stringList << sequenceService.getRawResiduesFromSequence(sequence, unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
-                }
-                else{
+                } else {
                     startIndex = unprojectedStart - projectionSequence.originalOffset - startOffset
 //                    endIndex = projection.getMaxCoordinate(projectionSequence).max
                     endIndex = sequence.length
@@ -150,8 +157,8 @@ class RefSeqProjectorService {
                 }
             }
             // end case
-                // implied at least 2, so the start will always be 0
-                // ends with the end sequence
+            // implied at least 2, so the start will always be 0
+            // ends with the end sequence
             else if (index == sequences.size() - 1) {
                 startIndex = 0
 //                endIndex = unprojectedEnd - projectionSequence.originalOffset
