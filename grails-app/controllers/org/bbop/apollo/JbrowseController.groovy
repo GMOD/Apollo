@@ -139,11 +139,17 @@ class JbrowseController {
 
     def getSeqBoundaries() {
         try {
-            Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
             String dataDirectory = getJBrowseDirectoryForSession()
             String dataFileName = dataDirectory + "/seq/refSeqs.json"
             String referer = request.getHeader("Referer")
             String refererLoc = trackService.extractLocation(referer)
+
+            MultiSequenceProjection projection = null
+            if(BookmarkService.isProjectionString(refererLoc)){
+                Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
+                projection = projectionService.getProjection(refererLoc, currentOrganism)
+            }
+
             int spaceIndex = refererLoc.indexOf("-1..-1");
             if (spaceIndex != -1) {
                 refererLoc = refererLoc.substring(0, spaceIndex + 6);
@@ -181,15 +187,16 @@ class JbrowseController {
 //            }
 
             JSONArray displayArray = new JSONArray()
-            int currentPosition = 0
-            for (int i = 0; sequenceList && i < sequenceList.size() ; i++) {
+            for (int i = 0; sequenceList && i < sequenceList.size(); i++) {
                 JSONObject thisSeq = sequenceList.get(i)
 
                 Sequence sequence = Sequence.findByName(thisSeq.name)
                 JSONObject leftObject = new JSONObject(thisSeq.toString())
                 leftObject.refseq = thisSeq.name
+                int currentPosition =  thisSeq.start ?: 0
+                currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
                 leftObject.start = currentPosition
-                leftObject.end = leftObject.start+1
+                leftObject.end = leftObject.start + 1
                 leftObject.originalPosition = 0
                 leftObject.ref = refererLoc
                 leftObject.color = 'white'
@@ -198,8 +205,10 @@ class JbrowseController {
 
                 JSONObject rightObject = new JSONObject(leftObject.toString())
                 // this will change and should come off of the JSONObject
-                rightObject.start = currentPosition + sequence.length
-                rightObject.end = rightObject.start+1
+                currentPosition = thisSeq.end ?: currentPosition + sequence.length
+                currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
+                rightObject.start = currentPosition
+                rightObject.end = rightObject.start + 1
                 rightObject.originalPosition = sequence.length
                 rightObject.color = 'white'
                 rightObject.background = 'blue'
@@ -213,7 +222,7 @@ class JbrowseController {
 //                )
 //                thisSeq.put()
                 // probably should come from the JSON object
-                currentPosition =+ rightObject.start
+                currentPosition = +rightObject.start
 
                 displayArray.add(leftObject)
                 displayArray.add(rightObject)
