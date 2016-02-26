@@ -476,7 +476,9 @@ class PermissionService {
         }
 
         if(foundSequences){
-            Bookmark bookmark = bookmarkService.generateBookmarkForSequence(user, foundSequences as Sequence[])
+//            Bookmark bookmark = bookmarkService.generateBookmarkForSequence(user, foundSequences as Sequence[])
+            Bookmark bookmark = bookmarkService.convertJsonToBookmark(inputObject.track)
+            preferenceService.setCurrentBookmark(user,bookmark)
             if((inputObject.track instanceof JSONObject) && inputObject?.track?.projection){
                 bookmark.projection = inputObject.track.projection
                 bookmark.padding = inputObject.track?.padding

@@ -1,13 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.session.Session
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
 
-import java.awt.print.Book
 
 @Transactional
 class PreferenceService {
@@ -113,6 +107,32 @@ class PreferenceService {
                 "update UserOrganismPreference  pref set pref.currentOrganism = false " +
                         "where pref.id != :prefId and pref.user = :user",
                 [prefId: userOrganismPreference.id, user: user])
+    }
+
+    def setCurrentBookmark(User user, Bookmark bookmark) {
+        Organism organism = bookmark.organism
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
+//        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+        if (!userOrganismPreference) {
+            userOrganismPreference = new UserOrganismPreference(
+                    user: user
+                    , organism: organism
+                    , currentOrganism: true
+                    , bookmark: bookmark
+            ).save(flush: true)
+            setOtherCurrentOrganismsFalse(userOrganismPreference, user)
+        }
+        else
+        if(!userOrganismPreference.currentOrganism) {
+            userOrganismPreference.currentOrganism = true;
+            userOrganismPreference.bookmark = bookmark
+            userOrganismPreference.save()
+            setOtherCurrentOrganismsFalse(userOrganismPreference, user)
+        }
+        else{
+            userOrganismPreference.bookmark = bookmark
+            userOrganismPreference.save()
+        }
     }
 
     def setCurrentSequence(User user, Sequence sequence) {
