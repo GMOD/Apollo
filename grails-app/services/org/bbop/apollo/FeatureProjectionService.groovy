@@ -79,7 +79,7 @@ class FeatureProjectionService {
             fmax = fmax ? projection.projectValue(fmax + offset) : null
         }
         
-        if (fmin) {
+        if (fmin!=null) {
             locationObject.put(FeatureStringEnum.FMIN.value, fmin)
         }
         if (fmax) {
