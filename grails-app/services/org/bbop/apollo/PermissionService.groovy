@@ -477,7 +477,19 @@ class PermissionService {
 
         if(foundSequences){
 //            Bookmark bookmark = bookmarkService.generateBookmarkForSequence(user, foundSequences as Sequence[])
-            Bookmark bookmark = bookmarkService.convertJsonToBookmark(inputObject.track)
+            Bookmark bookmark = null
+            if(inputObject.track instanceof String){
+                Sequence sequence = Sequence.findByName(inputObject.track)
+                if(sequence){
+                    bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+                }
+                else{
+                    log.error("Invalid sequence name: "+inputObject.track)
+                }
+            }
+            else{
+                bookmark = bookmarkService.convertJsonToBookmark( inputObject.track)
+            }
             preferenceService.setCurrentBookmark(user,bookmark)
             if((inputObject.track instanceof JSONObject) && inputObject?.track?.projection){
                 bookmark.projection = inputObject.track.projection
