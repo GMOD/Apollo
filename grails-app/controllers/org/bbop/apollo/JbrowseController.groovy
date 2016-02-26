@@ -192,12 +192,12 @@ class JbrowseController {
 
                 Sequence sequence = Sequence.findByName(thisSeq.name)
                 JSONObject leftObject = new JSONObject(thisSeq.toString())
-                leftObject.refseq = thisSeq.name
+                leftObject.refseq = generateRefSeqLabel(thisSeq)
                 int currentPosition =  thisSeq.start ?: 0
+                leftObject.originalPosition = currentPosition
                 currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
                 leftObject.start = currentPosition
                 leftObject.end = leftObject.start + 1
-                leftObject.originalPosition = 0
                 leftObject.ref = refererLoc
                 leftObject.color = 'white'
                 leftObject.background = 'red'
@@ -206,10 +206,10 @@ class JbrowseController {
                 JSONObject rightObject = new JSONObject(leftObject.toString())
                 // this will change and should come off of the JSONObject
                 currentPosition = thisSeq.end ?: currentPosition + sequence.length
+                rightObject.originalPosition = currentPosition
                 currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
-                rightObject.start = currentPosition
-                rightObject.end = rightObject.start + 1
-                rightObject.originalPosition = sequence.length
+                rightObject.start = currentPosition -1
+                rightObject.end = currentPosition
                 rightObject.color = 'white'
                 rightObject.background = 'blue'
                 rightObject.type = 'right-edge'
@@ -237,7 +237,19 @@ class JbrowseController {
             render([error: e.message] as JSON)
         }
     }
-    /**
+
+    def generateRefSeqLabel(JSONObject refSeqObject) {
+        String returnLabel = ""
+        if(refSeqObject.feature){
+            returnLabel += refSeqObject.feature.name + " ("
+        }
+        returnLabel += refSeqObject.name
+        if(refSeqObject.feature){
+            returnLabel += ")"
+        }
+        return returnLabel
+    }
+/**
      * Handles data directory serving for jbrowse
      */
     def data() {
