@@ -187,6 +187,7 @@ class JbrowseController {
 //            }
 
             JSONArray displayArray = new JSONArray()
+            int offset = 0
             for (int i = 0; sequenceList && i < sequenceList.size(); i++) {
                 JSONObject thisSeq = sequenceList.get(i)
 
@@ -196,8 +197,8 @@ class JbrowseController {
                 int currentPosition =  thisSeq.start ?: 0
                 leftObject.originalPosition = currentPosition
                 currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
-                leftObject.start = currentPosition
-                leftObject.end = leftObject.start + 1
+                leftObject.start = currentPosition + offset
+                leftObject.end = leftObject.start + 1 + offset
                 leftObject.ref = refererLoc
                 leftObject.color = 'white'
                 leftObject.background = 'red'
@@ -208,8 +209,8 @@ class JbrowseController {
                 currentPosition = thisSeq.end ?: currentPosition + sequence.length
                 rightObject.originalPosition = currentPosition
                 currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
-                rightObject.start = currentPosition -1
-                rightObject.end = currentPosition
+                rightObject.start = currentPosition -1 + offset
+                rightObject.end = currentPosition + offset
                 rightObject.color = 'white'
                 rightObject.background = 'blue'
                 rightObject.type = 'right-edge'
@@ -226,6 +227,7 @@ class JbrowseController {
 
                 displayArray.add(leftObject)
                 displayArray.add(rightObject)
+                offset = rightObject.end
             }
             JSONObject returnObject = new JSONObject()
             returnObject.features = displayArray
@@ -399,16 +401,46 @@ class JbrowseController {
 //            [{"length":1382403,"name":"Group1.1","seqChunkSize":20000,"end":1382403,"start":0},{"length":1405242,"name":"Group1.10","seqChunkSize":20000,"end":1405242,"start":0},{"length":2557,"name":"Group1.11","seqChunkSize":20000,"end":2557,"start":0},
                 // this returns ALL of the sequences . . but if we project, we'll want to grab only certain ones
                 if (fileName.endsWith("refSeqs.json")) {
-                    JSONArray refSeqJsonObject = new JSONArray(file.text)
+
+                    // ONLY ever return the refSeq we are on
+                    JSONArray sequenceArray = new JSONArray()
+                    JSONObject refererObject
+                    String results
+
+                    if(BookmarkService.isProjectionString(refererLoc)){
+                        MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+                        Integer lastIndex = refererLoc.lastIndexOf("}:")
+                        String sequenceString = refererLoc.substring(0,lastIndex+1)
+                        refererObject = new JSONObject(sequenceString)
+                        sequenceArray.add(refererObject)
+                        results = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
+                    }
+                    else
+                    if(BookmarkService.isProjectionReferer(refererLoc)){
+                        MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+
+                        sequenceArray.add(refererObject)
+                        results = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
+                    }
+                    else{
+                        // get the sequence
+                        String sequenceName = refererLoc.split(":")[0]
+                        Sequence sequence = Sequence.findByName(sequenceName)
+                        refererObject = new JSONObject()
+                        refererObject.putAll(sequence.properties)
+                        sequenceArray.add(refererObject)
+                        results = sequenceArray.toString()
+                    }
+
+                    response.outputStream << results
+
+//                    JSONArray refSeqJsonObject = new JSONArray(file.text)
                     // TODO: it should look up the OGS track either default or variable
 //                    if (projectionService.hasProjection(preferenceService.currentOrganismForCurrentUser,projectionService.getTrackName(file.absolutePath))) {
-                    println "refseq size ${refSeqJsonObject.size()}"
+//                    println "refseq size ${refSeqJsonObject.size()}"
 
-                    MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
                     // returns projection to a string of some sort
-                    String results = refSeqProjectorService.projectRefSeq(refSeqJsonObject, projection, currentOrganism, refererLoc)
-                    response.outputStream << results
                 } else {
                     // Set content size
                     response.setContentLength((int) file.length());

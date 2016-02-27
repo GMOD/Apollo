@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -106,6 +107,12 @@ class BookmarkService {
         return bookmark
     }
 
+    @NotTransactional
+    static Boolean isProjectionReferer(String inputString ){
+        return inputString.contains("(")&&inputString.contains("):")&&inputString.contains('..')
+    }
+
+    @NotTransactional
     static Boolean isProjectionString(String inputString ){
 //        return (inputString.contains("{") && inputString.contains("projection"))
         return (inputString.startsWith("{") && inputString.contains("sequenceList"))
