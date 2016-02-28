@@ -16,7 +16,7 @@ class PhenotypeComparison {
 
     static mapping = {
         datasource "chado"
-        id column: "phenotype_comparison_id", generator: "sequence"
+        id column: "phenotype_comparison_id", generator: "increment"
         version false
     }
 }

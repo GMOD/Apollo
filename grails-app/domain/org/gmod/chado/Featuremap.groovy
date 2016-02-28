@@ -13,7 +13,7 @@ class Featuremap {
 
     static mapping = {
         datasource "chado"
-        id column: "featuremap_id", generator: "sequence"
+        id column: "featuremap_id", generator: "increment"
         version false
     }
 

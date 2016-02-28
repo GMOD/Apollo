@@ -10,7 +10,7 @@ class Cvtermsynonym {
 
     static mapping = {
         datasource "chado"
-        id column: "cvtermsynonym_id", generator: "sequence"
+        id column: "cvtermsynonym_id", generator: "increment"
         version false
     }
 

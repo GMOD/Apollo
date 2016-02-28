@@ -16,7 +16,7 @@ featureSynonyms: FeatureSynonym
 
     static mapping = {
         datasource "chado"
-        id column: "synonym_id", generator: "sequence"
+        id column: "synonym_id", generator: "increment"
         version false
     }
 

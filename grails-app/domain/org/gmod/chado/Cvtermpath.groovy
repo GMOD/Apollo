@@ -12,7 +12,7 @@ class Cvtermpath {
 
     static mapping = {
         datasource "chado"
-        id column: "cvtermpath_id", generator: "sequence"
+        id column: "cvtermpath_id", generator: "increment"
         version false
     }
 

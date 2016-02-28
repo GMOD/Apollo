@@ -12,7 +12,7 @@ class Chadoprop {
 
     static mapping = {
         datasource "chado"
-        id column: "chadoprop_id", generator: "assigned"
+        id column: "chadoprop_id", generator: "increment"
         version false
     }
 

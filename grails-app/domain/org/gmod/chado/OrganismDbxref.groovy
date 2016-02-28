@@ -9,7 +9,7 @@ class OrganismDbxref {
 
     static mapping = {
         datasource "chado"
-        id column: "organism_dbxref_id", generator: "sequence"
+        id column: "organism_dbxref_id", generator: "increment"
         version false
     }
 }

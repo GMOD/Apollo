@@ -11,7 +11,7 @@ class Featurepos {
 
     static mapping = {
         datasource "chado"
-        id column: "featurepos_id", generator: "sequence"
+        id column: "featurepos_id", generator: "increment"
         version false
     }
 

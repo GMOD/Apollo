@@ -23,7 +23,7 @@ class Organism {
 
     static mapping = {
         datasource "chado"
-        id column: "organism_id", generator: "sequence"
+        id column: "organism_id", generator: "increment"
         version false
     }
 

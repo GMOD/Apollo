@@ -36,7 +36,7 @@ pubDbxrefs              : PubDbxref,
 
     static mapping = {
         datasource "chado"
-        id column: "dbxref_id", generator: "sequence"
+        id column: "dbxref_id", generator: "increment"
     }
 
     static constraints = {

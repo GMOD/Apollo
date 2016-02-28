@@ -12,7 +12,7 @@ class FeatureRelationshipprop {
 
     static mapping = {
         datasource "chado"
-        id column: "feature_relationshipprop_id", generator: "sequence"
+        id column: "feature_relationshipprop_id", generator: "increment"
         version false
     }
 

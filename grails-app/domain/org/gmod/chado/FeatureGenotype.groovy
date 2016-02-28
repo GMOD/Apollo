@@ -13,7 +13,7 @@ class FeatureGenotype {
 
     static mapping = {
         datasource "chado"
-        id column: "feature_genotype_id", generator: "sequence"
+        id column: "feature_genotype_id", generator: "increment"
         version false
     }
 

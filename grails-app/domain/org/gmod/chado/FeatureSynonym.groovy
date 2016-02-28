@@ -12,7 +12,7 @@ class FeatureSynonym {
 
     static mapping = {
         datasource "chado"
-        id column: "feature_synonym_id", generator: "sequence"
+        id column: "feature_synonym_id", generator: "increment"
         version false
     }
 }

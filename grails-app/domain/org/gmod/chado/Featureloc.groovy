@@ -19,7 +19,7 @@ class Featureloc {
 
     static mapping = {
         datasource "chado"
-        id column: "featureloc_id", generator: "sequence"
+        id column: "featureloc_id", generator: "increment"
         version false
     }
 

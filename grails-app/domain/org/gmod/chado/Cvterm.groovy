@@ -144,7 +144,7 @@ phenotypesForObservableId       : "observable"
 
     static mapping = {
         datasource "chado"
-        id column: "cvterm_id", generator: "sequence"
+        id column: "cvterm_id", generator: "increment"
         version false
     }
 

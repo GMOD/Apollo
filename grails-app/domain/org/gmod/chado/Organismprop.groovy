@@ -11,7 +11,7 @@ class Organismprop {
 
     static mapping = {
         datasource "chado"
-        id column: "organismprop_id", generator: "sequence"
+        id column: "organismprop_id", generator: "increment"
         version false
     }
 

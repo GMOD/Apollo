@@ -9,7 +9,7 @@ class FeatureCvtermPub {
 
     static mapping = {
         datasource "chado"
-        id column: "feature_cvterm_pub_id", generator: "sequence"
+        id column: "feature_cvterm_pub_id", generator: "increment"
         version false
     }
 }

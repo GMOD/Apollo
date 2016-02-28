@@ -10,7 +10,7 @@ class PubRelationship {
 
     static mapping = {
         datasource "chado"
-        id column: "pub_relationship_id", generator: "sequence"
+        id column: "pub_relationship_id", generator: "increment"
         version false
     }
 }

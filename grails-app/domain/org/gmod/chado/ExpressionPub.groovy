@@ -9,7 +9,7 @@ class ExpressionPub {
 
     static mapping = {
         datasource "chado"
-        id column: "expression_pub_id", generator: "sequence"
+        id column: "expression_pub_id", generator: "increment"
         version false
     }
 }

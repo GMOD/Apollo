@@ -9,7 +9,7 @@ class ExpressionImage {
 
     static mapping = {
         datasource "chado"
-        id column: "expression_image_id", generator: "sequence"
+        id column: "expression_image_id", generator: "increment"
         version false
     }
 }

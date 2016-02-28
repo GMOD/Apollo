@@ -9,7 +9,7 @@ class PhylonodePub {
 
     static mapping = {
         datasource "chado"
-        id column: "phylonode_pub_id", generator: "sequence"
+        id column: "phylonode_pub_id", generator: "increment"
         version false
     }
 }

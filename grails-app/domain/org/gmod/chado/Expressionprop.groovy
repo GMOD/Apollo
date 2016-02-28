@@ -11,7 +11,7 @@ class Expressionprop {
 
     static mapping = {
         datasource "chado"
-        id column: "expressionprop_id", generator: "sequence"
+        id column: "expressionprop_id", generator: "increment"
         version false
     }
 

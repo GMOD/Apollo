@@ -11,7 +11,7 @@ class Pubprop {
 
     static mapping = {
         datasource "chado"
-        id column: "pubprop_id", generator: "sequence"
+        id column: "pubprop_id", generator: "increment"
         version false
     }
 

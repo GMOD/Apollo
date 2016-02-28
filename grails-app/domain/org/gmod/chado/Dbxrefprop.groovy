@@ -11,7 +11,7 @@ class Dbxrefprop {
 
     static mapping = {
         datasource "chado"
-        id column: "dbxrefprop_id", generator: "sequence"
+        id column: "dbxrefprop_id", generator: "increment"
         version false
     }
 

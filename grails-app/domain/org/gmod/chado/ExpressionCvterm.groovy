@@ -12,7 +12,7 @@ class ExpressionCvterm {
 
     static mapping = {
         datasource "chado"
-        id column: "expression_cvterm_id", generator: "sequence"
+        id column: "expression_cvterm_id", generator: "increment"
         version false
     }
 }

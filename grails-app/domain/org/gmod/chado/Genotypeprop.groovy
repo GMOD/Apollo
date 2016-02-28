@@ -13,7 +13,7 @@ class Genotypeprop {
 
     static mapping = {
         datasource "chado"
-        id column: "genotypeprop_id", generator: "assigned"
+        id column: "genotypeprop_id", generator: "increment"
         version false
     }
 

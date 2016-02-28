@@ -11,7 +11,7 @@ class Phylonodeprop {
 
     static mapping = {
         datasource "chado"
-        id column: "phylonodeprop_id", generator: "sequence"
+        id column: "phylonodeprop_id", generator: "increment"
         version false
     }
 

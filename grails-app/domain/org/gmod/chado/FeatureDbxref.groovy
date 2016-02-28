@@ -10,7 +10,7 @@ class FeatureDbxref {
 
     static mapping = {
         datasource "chado"
-        id column: "feature_dbxref_id", generator: "sequence"
+        id column: "feature_dbxref_id", generator: "increment"
         version false
     }
 }

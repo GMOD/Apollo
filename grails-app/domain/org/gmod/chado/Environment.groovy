@@ -19,7 +19,7 @@ class Environment {
 
     static mapping = {
         datasource "chado"
-        id column: "environment_id", generator: "sequence"
+        id column: "environment_id", generator: "increment"
         version false
     }
 

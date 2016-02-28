@@ -11,7 +11,7 @@ class Cvtermprop {
 
     static mapping = {
         datasource "chado"
-        id column: "cvtermprop_id", generator: "sequence"
+        id column: "cvtermprop_id", generator: "increment"
         version false
     }
 

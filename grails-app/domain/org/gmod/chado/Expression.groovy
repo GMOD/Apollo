@@ -14,7 +14,7 @@ class Expression {
 
     static mapping = {
         datasource "chado"
-        id column: "expression_id", generator: "sequence"
+        id column: "expression_id", generator: "increment"
         version false
     }
 

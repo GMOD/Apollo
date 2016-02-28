@@ -10,7 +10,7 @@ class CvtermRelationship {
 
     static mapping = {
         datasource "chado"
-        id column: "cvterm_relationship_id", generator: "sequence"
+        id column: "cvterm_relationship_id", generator: "increment"
         version false
     }
 }

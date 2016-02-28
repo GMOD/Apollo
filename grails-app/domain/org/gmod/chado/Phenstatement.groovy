@@ -12,7 +12,7 @@ class Phenstatement {
 
     static mapping = {
         datasource "chado"
-        id column: "phenstatement_id", generator: "sequence"
+        id column: "phenstatement_id", generator: "increment"
         version false
     }
 }

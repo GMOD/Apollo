@@ -12,7 +12,7 @@ class PhylonodeRelationship {
 
     static mapping = {
         datasource "chado"
-        id column: "phylonode_relationship_id", generator: "sequence"
+        id column: "phylonode_relationship_id", generator: "increment"
         version false
     }
 
