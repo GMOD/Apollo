@@ -8,15 +8,6 @@ import java.security.MessageDigest
 import java.sql.Timestamp
 
 /**
- * Notes on Chado Export:
- * Storing the sequence of chromosomes is optional with the default being true.
- * Feature for chromosome do not have a corresponding featureloc as they serve as a srcfeature for other featurelocs.
- * Symbol is treated as a synonym of a feature.
- * A feature can have zero or more featurelocs where a typical feature will have one featureloc.
- * featureloc coordinates are in interbase coordinate system.
- * Orientation of a featureloc is represented by a value of 1 or -1 where default is 1.
- * A featureloc is uniquely identified by the [feature_id, locgroup, rank].
- * If a feature has more than one featureloc then it should be given a different locgroup and rank.
  *
  * Chado Compliance Layers
  * Level 0: Relational schema - this basically means that the schema is adhered to
@@ -25,7 +16,13 @@ import java.sql.Timestamp
  * Level 2: Graph - all features relationships between a feature of type X and Y must correspond to relationship of
  * that type in SO.
  *
- * 02.19.2016 - Initial version of export is aimed at exporting all information pertaining to Chado Sequence module
+ * Relevant Chado modules:
+ * Chado General Module
+ * Chado CV Module
+ * Chado Organism Module
+ * Chado Sequence Module
+ * Chado Publication Module
+ *
  */
 
 @Transactional
@@ -34,24 +31,21 @@ class ChadoHandlerService {
     def sequenceService
     def featureRelationshipService
     def transcriptService
-    def exonSerivce
     def cdsService
 
-
-    HashMap<String, org.gmod.chado.Feature> existingChadoFeaturesMap = new HashMap<String, org.gmod.chado.Feature>()
     HashMap<String, org.gmod.chado.Organism> chadoOrganismsMap = new HashMap<String, org.gmod.chado.Organism>()
     HashMap<String, org.gmod.chado.Feature> chadoFeaturesMap = new HashMap<String, org.gmod.chado.Feature>()
     HashMap<Sequence, org.gmod.chado.Feature> referenceSequenceMap = new HashMap<Sequence, org.gmod.chado.Feature>()
+    HashMap<String, org.gmod.chado.Db> chadoDbMap = new HashMap<String, org.gmod.chado.Db>()
     HashMap<String, org.gmod.chado.Dbxref> chadoDbxrefsMap = new HashMap<String, org.gmod.chado.Dbxref>()
-    HashMap<String, org.gmod.chado.Featureprop> chadoFeaturePropertiesMap = new HashMap<String, org.gmod.chado.Featureprop>()
-    HashMap<String, org.gmod.chado.FeaturePub> chadoFeaturePublications = new HashMap<String, org.gmod.chado.FeaturePub>()
-
+    HashMap<String, org.gmod.chado.Featureprop> chadoPropertiesMap = new HashMap<String, org.gmod.chado.Featureprop>()
+    HashMap<String, org.gmod.chado.Pub> chadoPublicationsMap = new HashMap<String, org.gmod.chado.Pub>()
     HashMap<String, org.gmod.chado.Cvterm> cvtermsMap = new HashMap<String, org.gmod.chado.Cvterm>()
+    HashMap<String, org.gmod.chado.Synonym> chadoSynonymMap = new HashMap<String, org.gmod.chado.Synonym>()
     ArrayList<org.bbop.apollo.Feature> processedFeatures = new ArrayList<org.bbop.apollo.Feature>()
     ArrayList<org.bbop.apollo.Feature> failedFeatures = new ArrayList<org.bbop.apollo.Feature>()
 
     def writeFeatures(Organism organism, ArrayList<Feature> features) {
-        // Note: Eager fetch of features to avoid subsequent querying to database
         def chadoFeatures = org.gmod.chado.Feature.all
         if (chadoFeatures.size() > 0) {
             // The Chado datasource has existing features in the Feature table
@@ -73,8 +67,10 @@ class ChadoHandlerService {
      */
     def writeFeaturesToChado(Organism organism, ArrayList<Feature> features) {
         /*
-         If the assumption is a fresh Chado database then that means there are no ontologies.
-         We should support the minimal set: Gene Ontology and Relations Ontology
+        The exporter assumes that the following ontologies are pre-loaded into the Chado data source:
+        1. Sequence Ontology
+        2. Gene Ontology
+        3. Relations Ontology
          */
 
         ArrayList<org.gmod.chado.Cvterm> cvTerms = org.gmod.chado.Cvterm.all
@@ -88,6 +84,13 @@ class ChadoHandlerService {
             return null
         }
 
+        ArrayList<org.gmod.chado.Db> existingChadoDbs = org.gmod.chado.Db.all
+        if (existingChadoDbs.size() > 0) {
+            existingChadoDbs.each {
+                chadoDbMap.put(it.name, it)
+            }
+        }
+
         // Create the organism
         createChadoOrganism(organism)
 
@@ -98,12 +101,10 @@ class ChadoHandlerService {
         String startTime, endTime;
         // creating Chado feature for each Apollo feature
         features.each { apolloFeature ->
-            if (! processedFeatures.contains(apolloFeature)) {
-                startTime = System.currentTimeMillis()
-                createChadoFeaturesForAnnotation(organism, apolloFeature)
-                endTime = System.currentTimeMillis()
-                log.info "Time taken to process annotation ${apolloFeature.uniqueName} of type ${apolloFeature.class.canonicalName}: ${endTime - startTime} ms"
-            }
+            startTime = System.currentTimeMillis()
+            createChadoFeaturesForAnnotation(organism, apolloFeature)
+            endTime = System.currentTimeMillis()
+            log.info "Time taken to process annotation ${apolloFeature.uniqueName} of type ${apolloFeature.class.canonicalName}: ${endTime - startTime} ms"
         }
     }
 
@@ -125,9 +126,9 @@ class ChadoHandlerService {
             def transcripts = transcriptService.getTranscripts(topLevelFeature)
             println "Transcripts for top level gene: ${transcripts.name}"
             transcripts.each { transcript ->
-                createChadoFeature(organism, transcript)
+                org.gmod.chado.Feature chadoFeature = createChadoFeature(organism, transcript)
                 transcript.childFeatureRelationships.each { featureRelationship ->
-                    createChadoFeatureRelationship(organism, chadoFeaturesMap.get(transcript.uniqueName), featureRelationship)
+                    createChadoFeatureRelationship(organism, chadoFeature, featureRelationship)
                 }
 
                 def exons = transcriptService.getSortedExons(transcript)
@@ -145,16 +146,23 @@ class ChadoHandlerService {
                 if (transcript instanceof MRNA) {
                     // TODO: Do we create a chado feature for stop_codon_read_through
                     def cds = transcriptService.getCDS(transcript)
-                    createChadoCdsFeature(organism, transcript, cds)
-                    //createChadoPolypeptide(organism, transcript, cds, true)
+                    org.gmod.chado.Feature chadoCdsFeature = createChadoCdsFeature(organism, transcript, cds)
                     cds.childFeatureRelationships.each { featureRelationship ->
-                        createChadoFeatureRelationship(organism, chadoFeaturesMap.get(cds.uniqueName), featureRelationship, "derives_from")
+                        createChadoFeatureRelationship(organism, chadoCdsFeature, featureRelationship, "part_of")
                     }
                 }
             }
         }
     }
 
+    /**
+     * Create an instance of Chado feature of type 'CDS' for a given Apollo CDS.
+     * @param organism
+     * @param transcript
+     * @param cds
+     * @param storeSequence
+     * @return chadoCdsFeature
+     */
     def createChadoCdsFeature(org.bbop.apollo.Organism organism, org.bbop.apollo.Transcript transcript, org.bbop.apollo.CDS cds, boolean storeSequence = false){
         org.gmod.chado.Feature chadoCdsFeature = new org.gmod.chado.Feature(
                 uniquename: cds.uniqueName,
@@ -180,18 +188,6 @@ class ChadoHandlerService {
         return chadoCdsFeature
     }
 
-
-    def createChadoFeatureRelationship(org.bbop.apollo.Organism organism, org.gmod.chado.Feature chadoExonFeature, org.bbop.apollo.Transcript transcript, String relationshipType = "part_of") {
-        // create relationship between exon and transcript
-        org.gmod.chado.FeatureRelationship chadoFeatureRelationship = new org.gmod.chado.FeatureRelationship(
-                subject: chadoExonFeature,
-                object: chadoFeaturesMap.get(transcript.uniqueName),
-                rank: 0,
-                type: cvtermsMap.get(relationshipType)
-        ).save()
-        println "@createChadoFeatureRelationship WITH COMMON EXON: ${chadoFeatureRelationship.toString()}"
-    }
-
     /**
      * Create an instance of Chado feature of type 'polypeptide' from a given Apollo CDS and also
      * store its amino acid sequence.
@@ -199,32 +195,33 @@ class ChadoHandlerService {
      * @param transcript
      * @param cds
      * @param storeSequence
-     * @return
+     * @return chadoPolyPeptideFeature
      */
     def createChadoPolypeptide(org.bbop.apollo.Organism organism, org.bbop.apollo.Transcript transcript, org.bbop.apollo.CDS cds, boolean storeSequence = true) {
+        Timestamp timestamp = generateTimeStamp()
         org.gmod.chado.Feature chadoPolypeptideFeature = new org.gmod.chado.Feature(
                 uniquename: generateUniqueName(),
-                name: transcript.name + "-pep", // TODO: Is there a standard way to do this?
+                name: transcript.name + "-pep",
                 isAnalysis: true,
                 isObsolete: false,
-                timeaccessioned: generateTimeStamp(),
-                timelastmodified: generateTimeStamp(),
+                timeaccessioned: timestamp,
+                timelastmodified: timestamp,
                 organism: chadoOrganismsMap.get(organism.abbreviation),
                 type: cvtermsMap.get("polypeptide")
         )
 
         if (storeSequence) {
+
         }
 
         chadoPolypeptideFeature.save()
         createChadoFeatureloc(chadoPolypeptideFeature, cds)
-
         chadoFeaturesMap.put(chadoPolypeptideFeature.uniquename, chadoPolypeptideFeature);
         return chadoPolypeptideFeature
     }
 
     /**
-     * Create an instance of Chado featureloc, for a given Chado feature, from Apollo feature location
+     * Create an instance of Chado featureloc, for a given Chado feature, from Apollo feature location.
      * @param chadoFeature
      * @param feature
      * @return chadoFeatureLoc
@@ -234,7 +231,7 @@ class ChadoHandlerService {
          In Chado, locgroup and rank are used to uniquely identify featureloc for features that
          have more than one featureloc.
          In Apollo, we currently do not use locgroup and rank for any purposes and their values
-         are set to default as suggested by standard Chado specification.
+         are set to 0, the default as suggested by standard Chado specification.
          */
         org.gmod.chado.Featureloc chadoFeatureLoc = new org.gmod.chado.Featureloc(
                 fmin: feature.featureLocation.fmin,
@@ -251,157 +248,43 @@ class ChadoHandlerService {
     }
 
     /**
-     * Create a Chado feature for a given Apollo feature
-     * @param Organism  Apollo organism
-     * @param feature   Apollo feature
-     * @return
-     */
-    def createChadoFeature(org.bbop.apollo.Organism organism, org.bbop.apollo.Feature feature) {
-        org.gmod.chado.Feature chadoFeature = new org.gmod.chado.Feature(
-                uniquename: feature.uniqueName,
-                name: feature.name,
-                seqlen: feature.sequenceLength,
-                md5checksum: feature.md5checksum,
-                isAnalysis: feature.isAnalysis,
-                isObsolete: feature.isObsolete,
-                timeaccessioned: feature.dateCreated,
-                timelastmodified: feature.lastUpdated,
-                organism: chadoOrganismsMap.get(organism.abbreviation)
-        )
-
-        String type = feature.hasProperty('alternateCvTerm') ? feature.alternateCvTerm : feature.cvTerm
-        println "TYPE: ${type}"
-        if (cvtermsMap.containsKey(type)) {
-            chadoFeature.type = cvtermsMap.get(type)
-        }
-        else {
-            println "Cannot find cvterm entry for ${type} in Chado database. Skipping feature ${feature.uniqueName}"
-            failedFeatures.add(feature)
-        }
-
-        chadoFeature.save()
-
-        createChadoFeatureloc(chadoFeature, feature)
-
-        // feature.symbol - treated as synonym
-        if (feature.symbol) {
-            org.gmod.chado.Synonym chadoSynonym = new org.gmod.chado.Synonym(
-                    name: feature.symbol,
-                    synonymSgml: feature.symbol
-            )
-            org.gmod.chado.Cvterm cvTerm = cvtermsMap.get("symbol")
-            if (cvTerm != null) {
-                chadoSynonym.type = cvTerm
-            } else {
-                log.error("Cannot find cvTerm 'symbol' in Chado data source")
-            }
-        }
-
-        // Feature description - treated as featureprop
-        if (feature.description) {
-            org.gmod.chado.Featureprop chadoFeatureProp = new org.gmod.chado.Featureprop(
-                    value: feature.description,
-                    rank: 0,
-                    feature: chadoFeature
-            )
-
-            org.gmod.chado.Cvterm cvTerm = cvtermsMap.get("description")
-            if (cvTerm != null) {
-                chadoFeatureProp.type = cvTerm
-            } else {
-                log.error("Cannot find cvTerm 'description' in Chado data source")
-            }
-
-            chadoFeatureProp.save()
-        }
-
-        // dbxref
-        // Currently the feature.dbxref_id will remain empty as we do not know which of the dbxref will serve as the primary identifier.
-        // Chado specification suggests using feature.dbxref_id to link to primary identifier and to use feature_dbxref
-        // table for all additional identifiers.
-        if (feature.featureDBXrefs) {
-            createChadoDbxref(chadoFeature, feature.featureDBXrefs)
-        }
-
-        // properties
-        if (feature.featureProperties) {
-            createChadoProperty(chadoFeature, feature.featureProperties)
-        }
-
-        // publications
-        if (feature.featurePublications) {
-            createChadoPublication(chadoFeature, feature.featurePublications)
-        }
-
-        // Feature owner - treated as featureprop
-        if (feature.owners) {
-            int rank = 0
-            feature.owners.each { owner ->
-                org.gmod.chado.Featureprop chadoFeatureProp = new org.gmod.chado.Featureprop(
-                        value: owner.username,
-                        rank: rank,
-                        feature: chadoFeature
-                )
-
-                org.gmod.chado.Cvterm cvTerm = cvtermsMap.get("owner")
-                if (cvTerm != null) {
-                    chadoFeatureProp.type = cvTerm
-                } else {
-                    log.error("Cannot find cvTerm 'owner' in Chado data source")
-                }
-
-                chadoFeatureProp.save()
-                rank++
-            }
-        }
-
-        //feature.featureLocations - TODO: If Apollo has annotations with multiple Feature Locations
-        //feature.featureCVTerms - TODO: If Apollo has CvTerms that are not part of the SO and REL OBO
-
-        // synonyms
-        if (feature.featureProperties) {
-            createChadoSynonym(chadoFeature, feature.featureSynonyms)
-        }
-
-        // genotypes - TODO: When Apollo has Genotype associated with annotations
-        //if (feature.featureGenotypes) {
-        //    createChadoGenotype(chadoFeature, feature.featureGenotypes)
-        //}
-
-        // phenotypes - TODO: When Apollo has Phenotype associated with annotations
-        //if (feature.featurePhenotypes) {
-        //    createChadoPhenotype(chadoFeature, feature.featurePhenotypes)
-        //}
-
-        chadoFeaturesMap.put(feature.uniqueName, chadoFeature)
-        return chadoFeature
-    }
-
-    /**
-     * Creates an instance of Chado feature_relationship for a given Apollo FeatureRelationship ...
+     * Creates an instance of Chado feature_relationship for a given Apollo FeatureRelationship.
      * @param organism
      * @param feature
      * @param featureRelationship
      * @param relationshipType
-     * @return
+     * @return chadoFeatureRelationship
      */
     def createChadoFeatureRelationship(org.bbop.apollo.Organism organism, org.gmod.chado.Feature feature, org.bbop.apollo.FeatureRelationship featureRelationship, String relationshipType = "part_of") {
-        // Relationship logic: subject_id part_of object_id
-        // Ex: mRNA part_of Gene
-        println "FeatureRelationship ParentFeature: ${featureRelationship.parentFeature}"
-        println "FeatureRelationship ChildFeature: ${featureRelationship.childFeature}"
         org.gmod.chado.FeatureRelationship chadoFeatureRelationship = new org.gmod.chado.FeatureRelationship(
                 subject: feature,
                 object: chadoFeaturesMap.get(featureRelationship.parentFeature.uniqueName),
                 value: featureRelationship.value,
                 rank: featureRelationship.rank,
-                type: cvtermsMap.get(relationshipType)
+                type: getChadoCvterm(relationshipType)
         ).save()
-        println "@createChadoFeatureRelationship: ${chadoFeatureRelationship.toString()}"
+
+        featureRelationship.featureRelationshipPublications.each { featureRelationshipPublication ->
+            createChadoFeatureRelationshipPublication(chadoFeatureRelationship, featureRelationshipPublication)
+        }
+
+        //featureRelationship.featureRelationshipProperties.each { featureRelationshipProperty ->
+        //    createChadoFeatureRelationshipProperty(featureRelationshipProperty)
+        //}
+        return chadoFeatureRelationship
+    }
+
+    def createChadoFeatureRelationshipPublication(org.gmod.chado.FeatureRelationship chadoFeatureRelationship, org.bbop.apollo.Publication publication) {
+        org.gmod.chado.Pub chadoPublication = createChadoPublication(publication)
+        org.gmod.chado.FeatureRelationshipPub chadoFeatureRelationshipPub = new org.gmod.chado.FeatureRelationshipPub(
+                featureRelationship: chadoFeatureRelationship,
+                pub: chadoPublication
+        ).save()
+        return chadoFeatureRelationshipPub
     }
 
     /**
-     * Wrapper for createChadoSynonym() for handling multiple featureSynonyms
+     * Wrapper for createChadoSynonym() for handling multiple featureSynonyms.
      * @param chadoFeature
      * @param featureSynonyms
      * @return
@@ -417,29 +300,24 @@ class ChadoHandlerService {
      * Chado feature and Chado synonym via feature_synonym.
      * @param chadoFeature
      * @param featureSynonym
+     * @return chadoSynonym
      */
     def createChadoSynonym(org.gmod.chado.Feature chadoFeature, org.bbop.apollo.FeatureSynonym featureSynonym) {
-        org.gmod.chado.Synonym chadoSynonym = new org.gmod.chado.Synonym(
-                name: featureSynonym.synonym.name,
-                synonymSgml: featureSynonym.synonym.synonymSGML,
-                type: cvtermsMap.get(featureSynonym.synonym.type.name)
-        ).save(flush: true, failOnError: true)
+        String synonymKey = featureSynonym.synonym.type.name + ":" + featureSynonym.synonym.name
+        org.gmod.chado.Synonym chadoSynonym
+        if (chadoSynonymMap.containsKey(synonymKey)) {
+            chadoSynonym = getChadoCvterm(synonymKey)
+        }
+        else {
+            chadoSynonym = new org.gmod.chado.Synonym(
+                    name: featureSynonym.synonym.name,
+                    synonymSgml: featureSynonym.synonym.synonymSGML,
+                    type: getChadoCvterm(featureSynonym.synonym.type.name)
+            ).save()
+            chadoSynonymMap.put(synonymKey, chadoSynonym)
+        }
 
-        org.gmod.chado.Pub chadoPublication = new org.gmod.chado.Pub(
-                title: featureSynonym.publication.title,
-                volumetitle: featureSynonym.publication.volumeTitle,
-                volume: featureSynonym.publication.volume,
-                seriesName: featureSynonym.publication.seriesName,
-                issue: featureSynonym.publication.issue,
-                pyear: featureSynonym.publication.publicationYear,
-                pages: featureSynonym.publication.pages,
-                miniref: featureSynonym.publication.miniReference,
-                uniquename: featureSynonym.publication.uniqueName,
-                isObsolete: featureSynonym.publication.isObsolete,
-                publisher: featureSynonym.publication.publisher,
-                pubplace: featureSynonym.publication.publicationPlace,
-                type: cvtermsMap.get("paper")
-        ).save(flush: true, failOnError: true)
+        org.gmod.chado.Pub chadoPublication = createChadoPublication(featureSynonym.publication)
 
         org.gmod.chado.FeatureSynonym chadoFeatureSynonym = new org.gmod.chado.FeatureSynonym(
                 feature: chadoFeature,
@@ -447,12 +325,14 @@ class ChadoHandlerService {
                 pub: chadoPublication,
                 isCurrent: true,  // default
                 isInternal: false // default
-        ).save(flush: true, failOnError: true)
+        ).save()
+
+        chadoSynonymMap.put(synonymKey, chadoSynonym)
+        return chadoSynonym
     }
 
-
     /**
-     * Wrapper for createChadoPublication() for handling multiple publications
+     * Wrapper for createChadoPublication() for handling multiple publications.
      * @param chadoFeature
      * @param publications
      * @return
@@ -465,11 +345,19 @@ class ChadoHandlerService {
 
     /**
      * Creates an instance of Chado publication for a given Apollo Publication and creates a linking relationship between
-//     * Chado feature and Chado pub via Chado feature_pub.
+     * Chado feature and Chado pub via Chado feature_pub.
      * @param chadoFeature
      * @param publication
      */
     def createChadoPublication(org.gmod.chado.Feature chadoFeature, org.bbop.apollo.Publication publication) {
+        /*
+        pub
+        pub_dbxref
+        pub_relationship
+        pubauthor
+        pubprop
+         */
+
         org.gmod.chado.Pub chadoPublication = new org.gmod.chado.Pub(
                 uniquename: publication.uniqueName,
                 title: publication.title,
@@ -483,47 +371,95 @@ class ChadoHandlerService {
                 isObsolete: publication.isObsolete,
                 publisher: publication.publisher,
                 pubplace: publication.publicationPlace,
-                type: cvtermsMap.get(publication.type.name) // default should be 'paper'
+                type: cvtermsMap.get(publication.type.name)
         ).save()
 
-        // Linking feature to publication via FeaturePub (feature_pub table)
+        // Linking feature to publication via feature_pub
         org.gmod.chado.FeaturePub chadoFeaturePub = new org.gmod.chado.FeaturePub(
                 feature: chadoFeature,
                 pub: chadoPublication
         ).save()
 
-        /*
-        TODO: Part of Publication module:
-        TODO: Linking publication to its Dbxref via pub_dbxref
-        TODO: Linking relatiionships between publications via pub_relationship
-
-        publication.publicationDBXrefs.each { publicationDbxref ->
-
-            org.gmod.chado.Db chadoDb = new org.gmod.chado.Db(
-                    name: publicationDbxref.dbxref.db.name,
-                    description: publicationDbxref.dbxref.db.description,
-                    urlprefix: publicationDbxref.dbxref.db.urlPrefix,
-                    url: publicationDbxref.dbxref.db.url
-            ).save()
-
-            org.gmod.chado.Dbxref chadoDbxref = new org.gmod.chado.Dbxref(
-                    accession: publicationDbxref.dbxref.accession,
-                    version: publicationDbxref.dbxref.version,
-                    description: publicationDbxref.dbxref.description,
-                    db: chadoDb
-            ).save()
-
-            org.gmod.chado.PubDbxref chadoPublicationDbxref = new org.gmod.chado.PubDbxref(
+        // Chado pubauthor
+        publication.publicationAuthors.each { publicationAuthor ->
+            org.gmod.chado.Pubauthor chadoPubAuthor = new org.gmod.chado.Pubauthor(
                     pub: chadoPublication,
-                    dbxref:chadoDbxref,
-                    isCurrent: publicationDbxref.isCurrent
+                    rank: publicationAuthor.rank,
+                    editor: publicationAuthor.editor,
+                    givennames: publicationAuthor.givenNames,
+                    surname: publicationAuthor.surname,
+                    suffix: publicationAuthor.suffix
             ).save()
-
         }
 
-        publication.childPublicationRelationships // childPub published_in parentPub
-         */
+        publication.publicationDBXrefs.each { publicationDbxref ->
+            // Chado db
+            org.gmod.chado.Db chadoDb
+            if (chadoDbMap.containsKey(publicationDbxref.dbxref.db.name)) {
+                chadoDb = chadoDbMap.get(publicationDbxref.dbxref.db.name)
+            }
+            else {
+                chadoDb = new org.gmod.chado.Db(
+                        name: publicationDbxref.dbxref.db.name,
+                        description: publicationDbxref.dbxref.db.description,
+                        urlprefix: publicationDbxref.dbxref.db.urlPrefix,
+                        url: publicationDbxref.dbxref.db.url
+                ).save()
+            }
 
+            // Chado dbxref
+            org.gmod.chado.Dbxref chadoDbxref
+            String dbxrefKey = publicationDbxref.dbxref.db + ":" + publicationDbxref.dbxref.accession + ":" + publicationDbxref.dbxref.version
+            if (chadoDbxrefsMap.containsKey(dbxrefKey)) {
+                chadoDbxref = chadoDbxrefsMap.get(dbxrefKey)
+            }
+            else {
+                chadoDbxref = new org.gmod.chado.Dbxref(
+                        accession: publicationDbxref.dbxref.accession,
+                        version: Integer.getInteger(publicationDbxref.dbxref.version),
+                        description: publicationDbxref.dbxref.description,
+                        db: chadoDb
+                ).save()
+                chadoDbxrefsMap.put(dbxrefKey, chadoDbxref)
+            }
+
+            // Chado pub_dbxref
+            org.gmod.chado.PubDbxref chadoPubDbxref = new org.gmod.chado.PubDbxref(
+                    isCurrent: publicationDbxref.isCurrent,
+                    pub: chadoPublication,
+                    dbxref: chadoDbxref
+            ).save()
+        }
+
+        // Chado pub_relationship
+        publication.childPublicationRelationships.each { publicationRelationship ->
+            org.gmod.chado.PubRelationship chadoPubRelationship = new org.gmod.chado.PubRelationship(
+                    subject: chadoPublication,
+                    cvterm: cvtermsMap.get(publicationRelationship.type.name)
+            )
+
+            org.gmod.chado.Pub objectPublication
+            if (chadoPublicationsMap.containsKey(publicationRelationship.objectPublication.uniqueName)) {
+                objectPublication = chadoPublicationsMap.get(publicationRelationship.objectPublication.uniqueName)
+            } else {
+                objectPublication = new org.gmod.chado.Pub(
+                        uniquename: publicationRelationship.objectPublication.uniqueName,
+                        volumetitle: publicationRelationship.objectPublication.volumeTitle,
+                        volume: publicationRelationship.objectPublication.volume,
+                        seriesName: publicationRelationship.objectPublication.seriesName,
+                        issue: publicationRelationship.objectPublication.issue,
+                        pyear: publicationRelationship.objectPublication.publicationYear,
+                        pages: publicationRelationship.objectPublication.pages,
+                        miniref: publicationRelationship.objectPublication.miniReference,
+                        isObsolete: publicationRelationship.objectPublication.isObsolete,
+                        publisher: publicationRelationship.objectPublication.publisher,
+                        pubplace: publicationRelationship.objectPublication.publicationPlace,
+                        type: cvtermsMap.get(publicationRelationship.objectPublication.type.name)
+                ).save()
+            }
+            chadoPubRelationship.object = objectPublication
+        }
+        return chadoPublication
     }
 
     /**
@@ -533,8 +469,16 @@ class ChadoHandlerService {
      * @return
      */
     def createChadoProperty(org.gmod.chado.Feature chadoFeature, Set<org.bbop.apollo.FeatureProperty> featureProperties) {
+        int commentRank = 0
         featureProperties.each { featureProperty ->
-            createChadoProperty(chadoFeature, featureProperty)
+            if (featureProperty instanceof org.bbop.apollo.Comment) {
+                createChadoFeaturePropertyForComment(chadoFeature, featureProperty, commentRank)
+                commentRank++;
+            }
+            else {
+                createChadoProperty(chadoFeature, featureProperty)
+            }
+
         }
     }
 
@@ -544,26 +488,29 @@ class ChadoHandlerService {
      * @param featureProperty
      */
     def createChadoProperty(org.gmod.chado.Feature chadoFeature, org.bbop.apollo.FeatureProperty featureProperty) {
+        String type = "feature_property"
         org.gmod.chado.Featureprop chadoFeatureProp = new org.gmod.chado.Featureprop(
                 value: featureProperty.value,
                 rank: featureProperty.rank,
-                feature: chadoFeature
-        )
-
-        org.gmod.chado.Cvterm cvTerm = cvtermsMap.get(featureProperty.type.name)
-        if (cvTerm != null) {
-            chadoFeatureProp.type = cvTerm
-        } else {
-          log.error("Cannot find cvTerm " + featureProperty.type.name + " in Chado data source")
-        }
-
-        chadoFeatureProp.save()
+                feature: chadoFeature,
+                type: getChadoCvterm(type)
+        ).save()
 
         featureProperty.featurePropertyPublications.each { featurePropertyPublication ->
             createChadoPropertyPub(chadoFeatureProp, featurePropertyPublication)
         }
+        return chadoFeatureProp
     }
 
+    def createChadoFeaturePropertyForComment(org.gmod.chado.Feature chadoFeature, org.bbop.apollo.FeatureProperty comment, int rank) {
+        org.gmod.chado.Featureprop chadoFeatureProp = new org.gmod.chado.Featureprop(
+                value: comment.value,
+                rank: rank,
+                feature: chadoFeature,
+                type: getChadoCvterm("comment")
+        ).save()
+        return chadoFeatureProp
+    }
     /**
      * Creates an instance of Chado publication for a given Apollo publication and creates a linking relationship
      * beteen featureprop and publication via Chado featureprop_pub.
@@ -584,7 +531,7 @@ class ChadoHandlerService {
                 isObsolete: publication.isObsolete,
                 publisher: publication.publisher,
                 pubplace: publication.publicationPlace,
-                type: cvtermsMap.get(publication.type.name)
+                type: getChadoCvterm(publication.type.name)
         ).save()
 
         org.gmod.chado.FeaturepropPub featurePropertyPublication = new org.gmod.chado.FeaturepropPub(
@@ -654,57 +601,78 @@ class ChadoHandlerService {
     }
 
     /**
-     * Creates an instance of Chado Dbxref and creates a linking relationship between Chado Feature and Chado Dbxref.
+     * Creates an instance of Chado Dbxref, creates a linking relationship between Chado Feature and
+     * Chado Dbxref via Chado feature_dbxref and creates Chado dbxrefprop
      * @param chadoFeature
      * @param dbxref
      * @return
      */
     def createChadoDbxref(org.gmod.chado.Feature chadoFeature, org.bbop.apollo.DBXref dbxref) {
-        println "@createChadoDbxref for chadoFeature: ${chadoFeature.uniquename} with dbxref: ${dbxref}"
-        if (chadoDbxrefsMap.containsKey(dbxref.db.name + ":" + dbxref.accession)) {
-            // this xref was seen before and hence we do not create it again
+        org.gmod.chado.Dbxref chadoDbxref = createChadoDbxref(dbxref)
+        // create feature_dbxref relationship
+        org.gmod.chado.FeatureDbxref chadoFeatureDbxref = new org.gmod.chado.FeatureDbxref(
+                feature: chadoFeature,
+                dbxref: chadoDbxref,
+                isCurrent: true
+        ).save()
 
-            // create feature_dbxref relationship
-            org.gmod.chado.FeatureDbxref chadoFeatureDbxref = new org.gmod.chado.FeatureDbxref(
-                    feature: chadoFeature,
-                    dbxref: chadoDbxrefsMap.get(dbxref.accession),
-                    isCurrent: true
-            ).save()
-        }
-        else {
-            // create Chado dbxref
-            org.gmod.chado.Dbxref chadoDbxref = new org.gmod.chado.Dbxref(
-                    accession: dbxref.accession,
-                    version: dbxref.version,
-                    description: dbxref.description
-            )
-
-            // create Chado db for dbxref
-            org.gmod.chado.Db db = new org.gmod.chado.Db(
-                    name: dbxref.db.name,
-                    description: dbxref.db.description,
-                    urlprefix: dbxref.db.urlPrefix,
-                    url: dbxref.db.url
-            ).save(flush: true, failOnError: true)
-
-            chadoDbxref.db = db
-            chadoDbxref.save()
-
-            // create feature_dbxref relationship
-            org.gmod.chado.FeatureDbxref chadoFeatureDbxref = new org.gmod.chado.FeatureDbxref(
-                    feature: chadoFeature,
-                    dbxref: chadoDbxref,
-                    isCurrent: true
-            ).save()
-
-            chadoDbxrefsMap.put(dbxref.db.name + ":" + dbxref.accession, chadoDbxref)
-
-            dbxref.dbxrefProperties.each { dbxrefProperty ->
-                createChadoDbxrefProp(chadoDbxref, dbxrefProperty)
-            }
+        // dbxref properties
+        dbxref.dbxrefProperties.each { dbxrefProperty ->
+            createChadoDbxrefProp(chadoDbxref, dbxrefProperty)
         }
     }
 
+    def createChadoDb(org.bbop.apollo.DB db) {
+        org.gmod.chado.Db chadoDb
+        println "@createChadoDb with : ${db.name}"
+        if (chadoDbMap.containsKey(db.name)) {
+            chadoDb = chadoDbMap.get(db.name)
+        }
+        else {
+            chadoDb = new org.gmod.chado.Db(
+                    name: db.name,
+                    description: db.description,
+                    urlprefix: db.urlPrefix,
+                    url: db.url
+            ).save()
+            chadoDbMap.put(db.name, chadoDb)
+        }
+        return chadoDb
+    }
+
+    def createChadoDbxref(org.bbop.apollo.DBXref dbxref) {
+        String dbxrefKey = dbxref.db.name + ":" + dbxref.accession + ":" + dbxref.version
+        println "dbxref key : ${dbxrefKey}"
+        org.gmod.chado.Dbxref chadoDbxref
+        if (chadoDbxrefsMap.containsKey(dbxrefKey)) {
+            // this xref was seen before and hence we do not create it again.
+            chadoDbxref = chadoDbxrefsMap.get(dbxrefKey)
+        } else {
+            // create Chado db for dbxref
+            org.gmod.chado.Db db = createChadoDb(dbxref.db)
+
+            // create Chado dbxref
+            chadoDbxref = new org.gmod.chado.Dbxref(
+                    accession: dbxref.accession,
+                    description: dbxref.description,
+                    db: db
+            )
+            if (dbxref.version != null) {
+                chadoDbxref.version = Integer.getInteger(dbxref.version)
+            }
+            chadoDbxref.save()
+            chadoDbxrefsMap.put(dbxrefKey, chadoDbxref)
+        }
+        return chadoDbxref
+    }
+
+
+    /**
+     * Create an instance of Chado dbxref_prop for a given instance of Apollo DBXrefProperty.
+     * @param chadoDbxref
+     * @param dbXrefProperty
+     * @return
+     */
     def createChadoDbxrefProp(org.gmod.chado.Dbxref chadoDbxref, org.bbop.apollo.DBXrefProperty dbXrefProperty) {
         org.gmod.chado.Dbxrefprop chadoDbxrefProp = new org.gmod.chado.Dbxrefprop(
                 dbxref: chadoDbxref,
@@ -715,16 +683,47 @@ class ChadoHandlerService {
         return chadoDbxrefProp
     }
 
-    def createChadoFeatureCvterm(org.gmod.chado.Feature chadoFeature, org.bbop.apollo.DBXref dbxref) {
-        // TODO: GO annotations should go to feature_cvterm table where CV is the term with DB as 'GO'
-        // TODO: Technically we shouldn't have to populate the CV term table since all GO annotations should be in there.
-        // TODO: Relevant tables are feature_cvterm, feature_cvtermprop, feature_cvterm_dbxref, feature_cvterm_pub
-        // The actual GO annotation is stored in the feature_cvterm
-        // Evidence code and qualifier information are stored in feature_cvtermprop
-        // feature_cvterm_dbxref should be used to store external IDs associated with the evidence code
-        // feature_cvterm_pub should link publications to annotations
-        // Apollo stores GO annotations as Dbxref which leaves featurecvterms empty in Apollo feature instance.
+    def createChadoFeatureCvterm(org.gmod.chado.Feature chadoFeature, Set<org.bbop.apollo.FeatureCVTerm> featureCVTerms) {
+        featureCVTerms.each { featureCvterm ->
+            createChadoFeatureCvterm(chadoFeature, featureCvterm)
+        }
+    }
 
+    def createChadoFeatureCvterm(org.gmod.chado.Feature chadoFeature, org.bbop.apollo.FeatureCVTerm featureCvterm) {
+        org.gmod.chado.FeatureCvterm chadoFeatureCvterm = new org.gmod.chado.FeatureCvterm(
+                feature: chadoFeature,
+                cvterm: getChadoCvterm(featureCvterm.cvterm.name),
+                pub: createChadoPublication(featureCvterm.publication),
+                rank: featureCvterm.rank,
+                isNot: featureCvterm.isNot
+        ).save()
+        return chadoFeatureCvterm
+    }
+
+    def createChadoPublication(org.bbop.apollo.Publication publication) {
+        org.gmod.chado.Pub chadoPublication
+        if (chadoPublicationsMap.containsKey(publication.uniqueName)) {
+            chadoPublication = chadoPublicationsMap.get(publication.uniqueName)
+        }
+        else {
+            chadoPublication = new org.gmod.chado.Pub(
+                    uniquename: publication.uniqueName,
+                    title: publication.title,
+                    volumetitle: publication.volumeTitle,
+                    volume: publication.volume,
+                    seriesName: publication.seriesName,
+                    issue: publication.issue,
+                    pyear: publication.publicationYear,
+                    pages: publication.pages,
+                    miniref: publication.miniReference,
+                    isObsolete: publication.isObsolete,
+                    publisher: publication.publisher,
+                    pubplace: publication.publicationPlace,
+                    type: getChadoCvterm(publication.type.name)
+            ).save()
+            chadoPublicationsMap.put(publication.uniqueName, chadoPublication)
+        }
+        return chadoPublication
     }
 
     /**
@@ -744,11 +743,10 @@ class ChadoHandlerService {
      * @param organism
      * @param sequence
      * @param storeSequence
-     * @return
+     * @return chadoFeature
      */
     def createChadoFeatureForSequence(Organism organism, org.bbop.apollo.Sequence sequence, boolean storeSequence = true) {
         Timestamp timeStamp = generateTimeStamp()
-
         org.gmod.chado.Feature chadoFeature = new org.gmod.chado.Feature(
                 uniquename: generateUniqueName(),
                 name: sequence.name,
@@ -757,7 +755,8 @@ class ChadoHandlerService {
                 isObsolete: false,
                 timelastmodified: timeStamp,
                 timeaccessioned: timeStamp,
-                organism: org.gmod.chado.Organism.findByCommonName(sequence.getOrganism().commonName)
+                organism: org.gmod.chado.Organism.findByCommonName(sequence.getOrganism().commonName),
+                type: getChadoCvterm("chromosome")
         )
 
         if (storeSequence) {
@@ -766,20 +765,166 @@ class ChadoHandlerService {
             chadoFeature.md5checksum = generateMD5checksum(residues)
         }
 
-        try {
-            chadoFeature.type = cvtermsMap.get("chromosome")
-        } catch (Exception e) {
-            log.error("Cannot find cvTerm 'chromosome' in Chado data source:\n", e)
-        }
-
-        org.gmod.chado.Cvterm cvTerm = cvtermsMap.get("chromosome")
-        if (cvTerm != null) {
-            chadoFeature.type = cvTerm
-        } else {
-            log.error("Cannot find cvTerm 'chromosome' in Chado data source")
-        }
         chadoFeature.save()
         referenceSequenceMap.put(sequence, chadoFeature)
+        return chadoFeature
+    }
+
+    def getChadoCvterm(String term) {
+        org.gmod.chado.Cvterm chadoCvterm
+        def cvTermlist = []
+        if (cvtermsMap.containsKey(term)) {
+            cvTermlist.addAll(cvtermsMap.get(term))
+            if ( cvTermlist.size() > 1){
+                println "Ambiguous CV TERM: ${term}"
+                return null;
+            }
+            chadoCvterm = cvtermsMap.get(term)
+        }
+        else {
+            log.error("Cannot find cvTerm " + term + " in Chado data source")
+            /*
+             Currently the assumption is that Apollo uses standardized CV terms and thus there will not be a need for
+             creating a new de-novo CV term.
+             In future if this assumption doesn't hold true then creating a new CV term will involve the following tables:
+             cv, cvterm, cvterm_relationship, cvterm_dbxref, cvtermpath, cvtermsynonym, cvtermprop, dbxrefprop
+             */
+        }
+        return chadoCvterm
+    }
+
+    /**
+     * Create a Chado feature for a given Apollo feature.
+     * @param Organism  Apollo organism
+     * @param feature   Apollo feature
+     * @return
+     */
+    def createChadoFeature(org.bbop.apollo.Organism organism, org.bbop.apollo.Feature feature) {
+        String type = feature.hasProperty('alternateCvTerm') ? feature.alternateCvTerm : feature.cvTerm
+        // feature
+        org.gmod.chado.Feature chadoFeature = new org.gmod.chado.Feature(
+                uniquename: feature.uniqueName,
+                name: feature.name,
+                seqlen: feature.sequenceLength,
+                md5checksum: feature.md5checksum,
+                isAnalysis: feature.isAnalysis,
+                isObsolete: feature.isObsolete,
+                timeaccessioned: feature.dateCreated,
+                timelastmodified: feature.lastUpdated,
+                organism: chadoOrganismsMap.get(organism.abbreviation),
+                type: getChadoCvterm(type)
+        ).save()
+
+        // featureloc
+        createChadoFeatureloc(chadoFeature, feature)
+
+        /*
+        // feature.symbol treated as Chado synonym
+        if (feature.symbol) {
+            String synonymKey = "symbol:" + feature.symbol
+            org.gmod.chado.Synonym chadoSynonym
+            if (chadoSynonymMap.containsKey(synonymKey)) {
+                chadoSynonym = chadoSynonymMap.get(synonymKey)
+            }
+            else {
+                chadoSynonym = new org.gmod.chado.Synonym(
+                        name: feature.symbol,
+                        synonymSgml: feature.symbol,
+                        type: getChadoCvterm("symbol")
+                ).save()
+                chadoSynonymMap.put(synonymKey, chadoSynonym)
+            }
+
+            org.gmod.chado.FeatureSynonym chadoFeatureSynonym = new org.gmod.chado.FeatureSynonym(
+                    feature: chadoFeature,
+                    synonym: chadoSynonym,
+                    pub: null,
+                    isCurrent: true,
+                    isInternal: false
+            ).save()
+        }
+        */
+
+        // feature.symbol treated as Chado featureprop
+        // Rationale: Cannot treat feature.symbol as a synonym because each feature -> synonym
+        // link requires a Publication, according to Chado specification
+        if (feature.symbol) {
+            org.gmod.chado.Featureprop chadoFeatureprop = new org.gmod.chado.Featureprop(
+                    value: feature.symbol,
+                    rank: 0,
+                    feature: chadoFeature,
+                    type: getChadoCvterm("symbol")
+            ).save()
+        }
+
+        // Feature description treated as Chado featureprop
+        if (feature.description) {
+            org.gmod.chado.Featureprop chadoFeatureProp = new org.gmod.chado.Featureprop(
+                    value: feature.description,
+                    rank: 0,
+                    feature: chadoFeature,
+                    type: getChadoCvterm("description")
+            ).save()
+        }
+
+        // dbxref
+        // TODO: How to determine the primary dbxref?
+        /* Currently the feature.dbxref_id will remain empty as we do not know which of
+         the dbxref will serve as the primary identifier.
+         Chado specification suggests using feature.dbxref_id to link to primary
+         identifier and to use feature_dbxref table for all additional identifiers.
+        */
+        if (feature.featureDBXrefs) {
+            println "Processing DBXrefs"
+            createChadoDbxref(chadoFeature, feature.featureDBXrefs)
+        }
+
+        // properties
+        if (feature.featureProperties) {
+            println "Processing featureProperties"
+            createChadoProperty(chadoFeature, feature.featureProperties)
+        }
+
+        // publications
+        if (feature.featurePublications) {
+            println "Processing featurePublications"
+            createChadoPublication(chadoFeature, feature.featurePublications)
+        }
+
+        // Feature owner treated as featureprop
+        if (feature.owners) {
+            int rank = 0
+            feature.owners.each { owner ->
+                org.gmod.chado.Featureprop chadoFeatureProp = new org.gmod.chado.Featureprop(
+                        value: owner.username,
+                        rank: rank,
+                        feature: chadoFeature,
+                        type: getChadoCvterm("owner")
+                ).save()
+                rank++
+            }
+        }
+
+        // synonyms
+        if (feature.featureProperties) {
+            createChadoSynonym(chadoFeature, feature.featureSynonyms)
+        }
+
+        // genotypes - TODO: When Apollo has Genotype associated with annotations
+        //if (feature.featureGenotypes) {
+        //    createChadoGenotype(chadoFeature, feature.featureGenotypes)
+        //}
+
+        // phenotypes - TODO: When Apollo has Phenotype associated with annotations
+        //if (feature.featurePhenotypes) {
+        //    createChadoPhenotype(chadoFeature, feature.featurePhenotypes)
+        //}
+
+        //feature.featureLocations - TODO: If Apollo has features with multiple Feature Locations
+        //feature.featureCVTerms - TODO: If Apollo has features with multiple CvTerms
+
+        chadoFeaturesMap.put(feature.uniqueName, chadoFeature)
+        return chadoFeature
     }
 
     /**
@@ -824,6 +969,17 @@ class ChadoHandlerService {
      */
     def generateMD5checksum(String s){
         return MessageDigest.getInstance("MD5").digest(s.bytes).encodeHex().toString()
+    }
+
+    def createChadoFeatureRelationship(org.bbop.apollo.Organism organism, org.gmod.chado.Feature chadoExonFeature, org.bbop.apollo.Transcript transcript, String relationshipType = "part_of") {
+        // create relationship between exon and transcript
+        org.gmod.chado.FeatureRelationship chadoFeatureRelationship = new org.gmod.chado.FeatureRelationship(
+                subject: chadoExonFeature,
+                object: chadoFeaturesMap.get(transcript.uniqueName),
+                rank: 0,
+                type: cvtermsMap.get(relationshipType)
+        ).save()
+        println "@createChadoFeatureRelationship WITH COMMON EXON: ${chadoFeatureRelationship.toString()}"
     }
 
 }
