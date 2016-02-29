@@ -286,7 +286,7 @@ class AnnotatorController {
             //use two step query. step 1 gets genes in a page
             def pagination = Feature.createCriteria().list(max: max, offset: offset) {
                 featureLocations {
-                    if(sequenceName && !BookmarkService.isProjectionString(sequenceName) && !BookmarkService.isProjectionReferer(sequence)) {
+                    if(sequences && !BookmarkService.isProjectionString(sequenceName) && !BookmarkService.isProjectionReferer(sequence)) {
                         'in'('sequence',sequences)
                     }
                     if(sort=="length") {

@@ -261,7 +261,7 @@ class JbrowseController {
         String fileName = FilenameUtils.getName(params.path)
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
-        if (dataFileName.contains("sequenceList")) {
+        if (refererLoc.contains("sequenceList")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
                 String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
                 println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
@@ -412,6 +412,7 @@ class JbrowseController {
                         Integer lastIndex = refererLoc.lastIndexOf("}:")
                         String sequenceString = refererLoc.substring(0,lastIndex+1)
                         refererObject = new JSONObject(sequenceString)
+                        refererObject.seqChunkSize = 20000
                         sequenceArray.add(refererObject)
                         results = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
                     }
