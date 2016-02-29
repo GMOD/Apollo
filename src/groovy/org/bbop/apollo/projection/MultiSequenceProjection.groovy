@@ -198,7 +198,6 @@ class MultiSequenceProjection extends AbstractProjection {
 //        ProjectionSequence projectionSequence = getProjectionSequence(location)
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(location.sequence)
         if (discontinuousProjection) {
-            println "B ${location}"
             discontinuousProjection.addInterval(location.min, location.max, projectionDescription.padding)
         } else {
 //        if (!projectionSequence) {
@@ -208,7 +207,6 @@ class MultiSequenceProjection extends AbstractProjection {
             internalProjectionSequence.order = order
 
             DiscontinuousProjection thisDiscontinuousProjection = new DiscontinuousProjection()
-            println "A ${location}"
             thisDiscontinuousProjection.addInterval(location.min, location.max, projectionDescription.padding)
             sequenceDiscontinuousProjectionMap.put(internalProjectionSequence, thisDiscontinuousProjection)
         }

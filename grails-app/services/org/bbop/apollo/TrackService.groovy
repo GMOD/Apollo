@@ -264,6 +264,7 @@ class TrackService {
             trackMapperService.storeTrack(currentOrganism.commonName, trackName, trackClassesArray)
 
             JSONArray coordinateJsonArray = intervalsJsonArray.getJSONArray(FeatureStringEnum.NCLIST.value)
+            // TODO: prune tracks if sequenceList / start / end exist
             for (int i = 0; i < coordinateJsonArray.size(); i++) {
                 JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
                 projectJsonArray(projection, coordinate, 0, projectionSequence, trackName)
@@ -573,10 +574,23 @@ class TrackService {
         String trackName = null
         // a sequence name
 //        List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceStrings,currentOrganism)
-        Map<String,Sequence> sequenceMap = new HashMap<>()
         List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceStrings,currentOrganism)
-        for(Sequence sequence in sequenceList){
-            sequenceMap.put(sequence.name,sequence)
+
+        int calculatedEnd = 0
+        Map<String,Integer> sequenceMap = new HashMap<>()
+        if(refererLoc.contains("sequenceList")){
+            JSONObject refSeqObject = JSON.parse(refererLoc) as JSONObject
+            JSONArray sequenceArray = refSeqObject.sequenceList
+            for(int i = 0 ; i < sequenceArray.size() ; i++){
+                def sequenceObject = sequenceArray.get(i)
+                calculatedEnd += multiSequenceProjection.projectValue(sequenceObject.end,0,0)
+                sequenceMap.put(sequenceObject.name,multiSequenceProjection.projectValue(sequenceObject.end,0,0))
+            }
+        }
+        else{
+            for(Sequence sequence in sequenceList){
+                sequenceMap.put(sequence.name,sequence.length)
+            }
         }
 
         for (sequenceString in sequenceStrings) {
@@ -593,7 +607,7 @@ class TrackService {
             trackMapperService.storeTrack(currentOrganism.commonName,trackName,intervalsObject.getJSONArray("classes"))
             Integer lastLength = 0
             Integer lastChunkArrayOffset = 0
-            Sequence sequence = sequenceMap.get(sequenceString)
+            Integer sequenceLength= sequenceMap.get(sequenceString)
             for (int i = 0; i < ncListArray.size(); i++) {
                 JSONArray internalArray = ncListArray.getJSONArray(i)
                 TrackIndex trackIndex = trackMapperService.getIndices(currentOrganism.commonName, trackName, internalArray.getInt(0))
@@ -607,7 +621,7 @@ class TrackService {
                     lastLength = internalArray.getInt(trackIndex.end)
                 }
                 else{
-                    lastLength = sequence.length
+                    lastLength = sequenceLength
                 }
 
                 ++lastChunkArrayOffset
@@ -630,8 +644,15 @@ class TrackService {
 
         JSONObject trackObject = mergeTrackObject(trackObjectList, multiSequenceProjection,currentOrganism,trackName)
 
-        trackObject.intervals.minStart = multiSequenceProjection.projectValue(trackObject.intervals.minStart)
-        trackObject.intervals.maxEnd = multiSequenceProjection.projectValue(trackObject.intervals.maxEnd)
+        if(refererLoc.contains("sequenceList")){
+            trackObject.intervals.minStart = 0
+            trackObject.intervals.maxEnd = calculatedEnd
+        }
+        else{
+            trackObject.intervals.minStart = multiSequenceProjection.projectValue(trackObject.intervals.minStart)
+            trackObject.intervals.maxEnd = multiSequenceProjection.projectValue(trackObject.intervals.maxEnd)
+        }
+
 
         return trackObject
 
