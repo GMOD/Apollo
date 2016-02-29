@@ -313,10 +313,11 @@ public class SequencePanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
 //                new InfoDialog("Added Bookmark","Added bookmark for sequences "+name.substring(0,name.length()-1),true);
-                panelMessage.setText("Added bookmark: " + name.substring(0, name.length() - 1));
-//                panelMessage.setText("Added bookmark!");
-                panelMessage.setType(AlertType.SUCCESS);
-                panelMessage.setVisible(true);
+//                panelMessage.setText("Added bookmark: " + name.substring(0, name.length() - 1));
+////                panelMessage.setText("Added bookmark!");
+//                panelMessage.setType(AlertType.SUCCESS);
+//                panelMessage.setVisible(true);
+                new InfoDialog("Added Bookmark", "Added bookmark: " + name.substring(0, name.length() - 1), true);
             }
 
             @Override
