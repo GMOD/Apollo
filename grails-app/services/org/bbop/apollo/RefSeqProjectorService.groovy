@@ -24,9 +24,28 @@ class RefSeqProjectorService {
             // in this case, we just want a single object
             JSONObject sequenceObject = refSeqJsonObject ? refSeqJsonObject.first(): new JSONObject()
 
+            int length  = 0
+            if(sequenceObject.sequenceList){
+                JSONArray sequenceArray = sequenceObject.sequenceList
+                for(int i = 0 ; i < sequenceArray.size() ; ++i){
+                    JSONObject sequence = sequenceArray.getJSONObject(i)
+                    if(sequence.start && sequence.end){
+                        Integer sequenceLength = projection.projectValue(sequence.end,0,0)
+                        length += sequenceLength
+                        sequenceObject.end = length
+                    }
+                    else{
+                        sequenceObject.end =  projection.length
+                    }
+                }
+//"sequenceList":[{"name":"GroupUn87", "feature":{"name":"GB53499-RA"}, "start":45455, "end":45575},{"name":"Group11.4", "feature":{"name":"GB52236-RA"}, "start":52853, "end":58962}]
+//                        {"sequenceList":[{"name":"GroupUn87", "feature":{"name":"GB53499-RA"}, "start":45455, "end":45575},{"name":"Group11.4", "feature":{"name":"GB52236-RA"}, "start":52853, "end":58962}], "start":45455, "end":104537, "label":"GB53499-RAGroupUn87::GB52236-RAGroup11.4"}:45455..104537
+            }
+            else{
+                sequenceObject.end =  projection.length
+            }
             sequenceObject.start = 0
-            sequenceObject.end =  projection.length
-            sequenceObject.length =  projection.length
+            sequenceObject.length =  sequenceObject.end - sequenceObject.start
             sequenceObject.name = refererLoc
 
 //            for (int i = 0; i < refSeqJsonObject.size(); i++) {

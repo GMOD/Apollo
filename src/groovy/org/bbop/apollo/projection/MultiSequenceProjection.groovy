@@ -60,19 +60,27 @@ class MultiSequenceProjection extends AbstractProjection {
         return null
     }
 
-    Integer projectValue(Integer input) {
+    Integer projectValue(Integer input,Integer inputOffset,Integer outputOffset) {
         ProjectionSequence projectionSequence = getProjectionSequence(input)
         if (!projectionSequence) {
             return UNMAPPED_VALUE
         }
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
         // TODO: buffer for scaffolds is currently 1 . . the order
-        Integer returnValue = discontinuousProjection.projectValue(input - projectionSequence.originalOffset )
+        Integer returnValue = discontinuousProjection.projectValue(input - inputOffset)
         if (returnValue == UNMAPPED_VALUE) {
             return UNMAPPED_VALUE
         } else {
-            return returnValue + projectionSequence.offset
+            return returnValue + outputOffset
         }
+    }
+
+    Integer projectValue(Integer input) {
+        ProjectionSequence projectionSequence = getProjectionSequence(input)
+        if (!projectionSequence) {
+            return UNMAPPED_VALUE
+        }
+        return projectValue(input,projectionSequence.originalOffset,projectionSequence.offset)
     }
 
 //    ProjectionSequence findPreviousProjectionSequence(ProjectionSequence projectionSequence) {
