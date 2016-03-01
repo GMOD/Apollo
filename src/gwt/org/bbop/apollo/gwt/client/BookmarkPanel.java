@@ -214,6 +214,9 @@ public class BookmarkPanel extends Composite {
         bookmarkObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(start));
         bookmarkObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(end));
         bookmarkObject.put("label", new JSONString(createLabelFromBookmark(bookmarkObject)));
+
+        // TODO: get fro the UI
+        bookmarkObject.put("padding", new JSONNumber(20));
         return bookmarkObject;
     }
 
@@ -225,9 +228,13 @@ public class BookmarkPanel extends Composite {
             if (sequenceObject.containsKey(FeatureStringEnum.FEATURE.getValue())) {
                 JSONObject featureObject = sequenceObject.get(FeatureStringEnum.FEATURE.getValue()).isObject();
                 returnString += featureObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue() ;
-//                returnString += "<br/>";
+                returnString += "(";
             }
             returnString += sequenceObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
+            if (sequenceObject.containsKey(FeatureStringEnum.FEATURE.getValue())) {
+                returnString += ")";
+            }
+
             if (i < sequenceArray.size() - 1) {
                 returnString += "::";
             }
