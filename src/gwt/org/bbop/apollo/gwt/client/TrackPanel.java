@@ -60,9 +60,9 @@ public class TrackPanel extends Composite {
     CheckBox trackListToggle;
 
 
-    private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
+    private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(1000, tablecss);
+    static DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(1000, tablecss);
     @UiField
     DockLayoutPanel layoutPanel;
     @UiField
@@ -280,6 +280,7 @@ public class TrackPanel extends Composite {
                 filteredTrackInfoList.remove(trackInfo);
             }
         }
+        dataGrid.redraw();
     }
 
     private static boolean isAnnotationTrack(TrackInfo trackInfo) {
