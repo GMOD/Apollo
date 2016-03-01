@@ -100,8 +100,9 @@ class BookmarkService {
             UserOrganismPreference userOrganismPreference = permissionService.currentOrganismPreference
             bookmark.user = userOrganismPreference.user
             bookmark.organism = userOrganismPreference.organism
-            bookmark.save()
         }
+        bookmark.padding = jsonObject.padding
+        bookmark.save()
 
 //        return generateBookmarkForSequence(sequences as Sequence[])
         return bookmark
