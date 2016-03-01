@@ -54,7 +54,7 @@
     <div class="row col-md-10">
         <h3>Java Info</h3>
         <table class="table">
-            <g:each in="${javaMapInstance}" var="data">
+            <g:each in="${javaMapInstance.sort{it.key}}" var="data">
                 <tr>
                     <td>
                         ${data.key}
