@@ -227,15 +227,6 @@
         </condition>
     </target>
 
-    <target name="copy-jbrowse-into-webapp">
-        <copy todir="${apollo.jbrowse.directory}">
-            <fileset dir="${jbrowse.download.directory}">
-                <not>
-                    <filename name="sample_data/**"/>
-                </not>
-            </fileset>
-        </copy>
-    </target>
 
 
     <target name="setup-jbrowse" unless="jbrowse.webapp.installed">
