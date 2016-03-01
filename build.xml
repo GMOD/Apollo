@@ -255,6 +255,24 @@
         </copy>
     </target>
 
+    <target name="copy-jbrowse-into-webapp">
+        <copy todir="${apollo.jbrowse.directory}">
+            <fileset dir="${jbrowse.download.directory}">
+                <not>
+                    <filename name="sample_data/**"/>
+                </not>
+            </fileset>
+        </copy>
+    </target>
+
+
+    <target name="copy-resources-dev"
+            depends="copy.apollo.plugin.webapp,copy-jbrowse-into-webapp"
+            description="This is called externally by shell script.">
+
+    </target>
+	
+
 
     <target name="copy-resources"
             depends="copy.apollo.plugin.webapp,setup-jbrowse"
