@@ -83,4 +83,27 @@ public class TrackInfo implements Comparable<TrackInfo> {
     public void setPayload(JSONObject payload) {
         this.payload = payload;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TrackInfo)) return false;
+
+        TrackInfo trackInfo = (TrackInfo) o;
+
+        if (!getName().equals(trackInfo.getName())) return false;
+        if (getLabel() != null ? !getLabel().equals(trackInfo.getLabel()) : trackInfo.getLabel() != null) return false;
+        if (!getType().equals(trackInfo.getType())) return false;
+        return getUrlTemplate() != null ? getUrlTemplate().equals(trackInfo.getUrlTemplate()) : trackInfo.getUrlTemplate() == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getName().hashCode();
+        result = 31 * result + (getLabel() != null ? getLabel().hashCode() : 0);
+        result = 31 * result + getType().hashCode();
+        result = 31 * result + (getUrlTemplate() != null ? getUrlTemplate().hashCode() : 0);
+        return result;
+    }
 }

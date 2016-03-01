@@ -60,9 +60,9 @@ public class TrackPanel extends Composite {
     CheckBox trackListToggle;
 
 
-    private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
+    private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(1000, tablecss);
+    static DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(1000, tablecss);
     @UiField
     DockLayoutPanel layoutPanel;
     @UiField
@@ -267,14 +267,20 @@ public class TrackPanel extends Composite {
 
     static void filterList() {
         String text = nameSearchBox.getText();
-        filteredTrackInfoList.clear();
+//        filteredTrackInfoList.clear();
         for (TrackInfo trackInfo : trackInfoList) {
             if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) &&
                     !isReferenceSequence(trackInfo) &&
                     !isAnnotationTrack(trackInfo)) {
-                filteredTrackInfoList.add(trackInfo);
+                if( !filteredTrackInfoList.contains(trackInfo)){
+                    filteredTrackInfoList.add(trackInfo);
+                }
+            }
+            else{
+                filteredTrackInfoList.remove(trackInfo);
             }
         }
+        dataGrid.redraw();
     }
 
     private static boolean isAnnotationTrack(TrackInfo trackInfo) {
@@ -336,7 +342,6 @@ public class TrackPanel extends Composite {
 
     @UiHandler("trackListToggle")
     public void trackListToggle(ClickEvent clickEvent) {
-        GWT.log("Testing: " + trackListToggle.getValue());
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -346,7 +351,6 @@ public class TrackPanel extends Composite {
                     new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
                 }
 
-                GWT.log("updateGenomicViewer");
                 MainPanel.updateGenomicViewer(true);
             }
 
