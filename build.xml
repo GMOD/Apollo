@@ -290,13 +290,6 @@
     </target>
 	
 
-
-    <target name="copy-resources-dev"
-            depends="copy.apollo.plugin.webapp,copy-jbrowse-into-webapp"
-            description="This is called externally by shell script.">
-
-    </target>
-
     <target name="copy-resources"
             depends="copy.apollo.plugin.webapp,setup-jbrowse"
             description="This is called externally by shell script.">
