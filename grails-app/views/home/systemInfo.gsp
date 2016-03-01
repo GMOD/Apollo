@@ -55,14 +55,16 @@
         <h3>Java Info</h3>
         <table class="table">
             <g:each in="${javaMapInstance.sort{it.key}}" var="data">
-                <tr>
-                    <td>
-                        ${data.key}
-                    </td>
-                    <td>
-                        ${data.value}
-                    </td>
-                </tr>
+                <g:if test="${!data.key.toLowerCase().contains("password")}">
+                    <tr>
+                        <td>
+                            ${data.key}
+                        </td>
+                        <td>
+                            ${data.value}
+                        </td>
+                    </tr>
+                </g:if>
             </g:each>
         </table>
     </div>
