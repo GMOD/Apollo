@@ -483,7 +483,6 @@ class RequestHandlingService {
         if (!sequencesMatchNames(sequenceNameList, sequenceList)) {
             sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceNameList, sequenceList.first().organism)
             // TODO: remember to set a projection or a bookmark here !
-//            preferenceService.setCurrentSequence(permissionService.getCurrentUser(inputObject), sequenceList)
         }
 
 
@@ -530,8 +529,6 @@ class RequestHandlingService {
 //        featureProjectionService.projectRefSeq(sequence,"",jsonFeatures,false)
         // this will have all of the necessary projection criteria
         jsonFeatures = featureProjectionService.projectTrack(jsonFeatures, bookmark, false)
-//        MultiSequenceProjection projection = projectionService.getProjection(inputObject, organism)
-//        featureProject.projectRefSeq(jsonFeatures,projection,organism,inputObject)
 
         inputObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
         log.debug "getFeatures ${System.currentTimeMillis()-start}ms"

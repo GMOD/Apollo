@@ -1,9 +1,8 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:gwt="urn:import:com.google.gwt.user.client.ui"
              xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
-             xmlns:select="urn:import:org.gwtbootstrap3.extras.select.client.ui"
-             xmlns:cellview="urn:import:com.google.gwt.user.cellview.client" xmlns:g="http://www.w3.org/1999/html"
-        >
+             xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
+>
     <ui:style>
         .northPanel {
             padding: 0px;
@@ -32,7 +31,6 @@
             margin-bottom: 30px;
         }
 
-
         /*Bookmark draggable panel*/
 
         /*Most CSS in in annotator.css*/
@@ -46,44 +44,45 @@
             font-weight: 200;
         }
 
-        </ui:style>
+    </ui:style>
     <gwt:DockLayoutPanel ui:field="layoutPanel">
         <gwt:north size="55">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <!--<b:Row styleName="{style.rowNorth}">-->
-                    <!--<b:Column size="MD_2">-->
-                        <!--<gwt:HTML>-->
-                            <!--<b>Folding</b>-->
-                        <!--</gwt:HTML>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_3">-->
-                        <!--<b:ListBox ui:field="foldType"/>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_2">-->
-                        <!--<gwt:HTML><b>Padding</b></gwt:HTML>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_3">-->
-                        <!--<b:TextBox ui:field="foldPadding"/>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_2">-->
-                        <!--&lt;!&ndash;<b:Button ui:field="goButton"/>&ndash;&gt;-->
-                        <!--<b:Button text="View" icon="EYE" enabled="true" ui:field="goButton" />-->
-                    <!--</b:Column>-->
+                <!--<b:Column size="MD_2">-->
+                <!--<gwt:HTML>-->
+                <!--<b>Folding</b>-->
+                <!--</gwt:HTML>-->
+                <!--</b:Column>-->
+                <!--<b:Column size="MD_3">-->
+                <!--<b:ListBox ui:field="foldType"/>-->
+                <!--</b:Column>-->
+                <!--<b:Column size="MD_2">-->
+                <!--<gwt:HTML><b>Padding</b></gwt:HTML>-->
+                <!--</b:Column>-->
+                <!--<b:Column size="MD_3">-->
+                <!--<b:TextBox ui:field="foldPadding"/>-->
+                <!--</b:Column>-->
+                <!--<b:Column size="MD_2">-->
+                <!--&lt;!&ndash;<b:Button ui:field="goButton"/>&ndash;&gt;-->
+                <!--<b:Button text="View" icon="EYE" enabled="true" ui:field="goButton" />-->
+                <!--</b:Column>-->
                 <!--</b:Row>-->
                 <!--<b:Row styleName="{style.rowNorth}">-->
-                    <!--<b:Column size="MD_3">-->
-                        <!--<gwt:HTML><b>Reference Track Selector</b></gwt:HTML>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_6">-->
-                        <!--<select:Select multiple="true" ui:field="referenceTrackSelector" width="300px" liveSearch="true" showMenuArrow="true"/>-->
-                    <!--</b:Column>-->
+                <!--<b:Column size="MD_3">-->
+                <!--<gwt:HTML><b>Reference Track Selector</b></gwt:HTML>-->
+                <!--</b:Column>-->
+                <!--<b:Column size="MD_6">-->
+                <!--<select:Select multiple="true" ui:field="referenceTrackSelector" width="300px" liveSearch="true" showMenuArrow="true"/>-->
+                <!--</b:Column>-->
                 <!--</b:Row>-->
                 <b:Row styleName="{style.rowNorth}">
                     <!--<b:Column size="MD_3">-->
-                        <!--<gwt:HTML><b>Search</b></gwt:HTML>-->
+                    <!--<gwt:HTML><b>Search</b></gwt:HTML>-->
                     <!--</b:Column>-->
                     <b:Column size="MD_6">
-                        <b:TextBox ui:field="searchBox" width="300px" enabled="true" placeholder="Search for Bookmarks"/>
+                        <b:TextBox ui:field="searchBox" width="300px" enabled="true"
+                                   placeholder="Search for Bookmarks"/>
                     </b:Column>
                 </b:Row>
             </b:Container>
@@ -94,13 +93,30 @@
         <gwt:south size="100">
             <gwt:DockLayoutPanel>
                 <gwt:north size="35">
-                    <b:ButtonGroup>
-                        <b:Button text="Combine" icon="LOCATION_ARROW" enabled="false" ui:field="mergeButton"/>
-                        <!--<b:Button text="Duplicate" icon="COPY" enabled="false" ui:field="copyButton"/>-->
-                        <b:Button text="Delete" icon="REMOVE" enabled="false" ui:field="removeButton"/>
-                        <b:Button text="Save" icon="SAVE"  enabled="false" ui:field="saveButton"/>
-                        <b:Button text="View" icon="EYE" enabled="false" ui:field="viewButton"/>
-                    </b:ButtonGroup>
+                    <b:Container>
+                        <b:Row>
+                            <b:Column size="MD_3">
+                                <b:ButtonGroup>
+                                    <b:Button text="Combine" icon="LOCATION_ARROW" enabled="false"
+                                              ui:field="mergeButton"/>
+                                    <!--<b:Button text="Duplicate" icon="COPY" enabled="false" ui:field="copyButton"/>-->
+                                    <b:Button text="Delete" icon="REMOVE" enabled="false" ui:field="removeButton"/>
+                                    <b:Button text="Save" icon="SAVE" enabled="false" ui:field="saveButton"/>
+                                    <b:Button text="View" icon="EYE" enabled="false" ui:field="viewButton"/>
+                                </b:ButtonGroup>
+                            </b:Column>
+                            <b:Column size="MD_2">
+                                <b:Input  type="NUMBER" b:id="padding" value="padding" ui:field="paddingForm" placeholder="Padding"/>
+                                <!--&lt;!&ndash;<b:Form>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<b:Field&ndash;&gt;-->
+                                <!--&lt;!&ndash;<b:FormGroup>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<b:FormLabel for="padding">Padding</b:FormLabel>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<b:TextBox  size="30" b:id="padding" value="padding" ui:field="paddingForm"/>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</b:FormGroup>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</b:Form>&ndash;&gt;-->
+                            </b:Column>
+                        </b:Row>
+                    </b:Container>
                 </gwt:north>
                 <gwt:center>
                     <gwt:AbsolutePanel ui:field="absolutePanel" styleName="{style.dragdrop-flow-panel-positioner}">

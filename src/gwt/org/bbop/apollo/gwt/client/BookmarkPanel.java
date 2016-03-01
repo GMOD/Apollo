@@ -21,6 +21,7 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -30,6 +31,7 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -67,6 +69,8 @@ public class BookmarkPanel extends Composite {
     Button viewButton;
     @UiField
     org.gwtbootstrap3.client.ui.TextBox searchBox;
+    @UiField
+    Input paddingForm;
 //    @UiField
 //    Button goButton;
 
@@ -216,7 +220,9 @@ public class BookmarkPanel extends Composite {
         bookmarkObject.put("label", new JSONString(createLabelFromBookmark(bookmarkObject)));
 
         // TODO: get fro the UI
-        bookmarkObject.put("padding", new JSONNumber(20));
+        String paddingValue = paddingForm.getValue();
+        Integer padding = paddingValue !=null ? Integer.parseInt(paddingValue) : 30 ;
+        bookmarkObject.put("padding", new JSONNumber(padding));
         return bookmarkObject;
     }
 
