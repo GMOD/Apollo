@@ -267,12 +267,17 @@ public class TrackPanel extends Composite {
 
     static void filterList() {
         String text = nameSearchBox.getText();
-        filteredTrackInfoList.clear();
+//        filteredTrackInfoList.clear();
         for (TrackInfo trackInfo : trackInfoList) {
             if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) &&
                     !isReferenceSequence(trackInfo) &&
                     !isAnnotationTrack(trackInfo)) {
-                filteredTrackInfoList.add(trackInfo);
+                if( !filteredTrackInfoList.contains(trackInfo)){
+                    filteredTrackInfoList.add(trackInfo);
+                }
+            }
+            else{
+                filteredTrackInfoList.remove(trackInfo);
             }
         }
     }
@@ -336,7 +341,6 @@ public class TrackPanel extends Composite {
 
     @UiHandler("trackListToggle")
     public void trackListToggle(ClickEvent clickEvent) {
-        GWT.log("Testing: " + trackListToggle.getValue());
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -346,7 +350,6 @@ public class TrackPanel extends Composite {
                     new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
                 }
 
-                GWT.log("updateGenomicViewer");
                 MainPanel.updateGenomicViewer(true);
             }
 
