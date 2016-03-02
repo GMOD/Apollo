@@ -23,7 +23,6 @@ http://www.gmod.org/wiki/WebApollo
 http://webapollo.readthedocs.org/en/latest/
 
 If testing the Apollo demo, go to: http://genomearchitect.org/WebApolloDemo/ 
-Login|Password : demo|demo
 
 
 ## Testing a Apollo Instance
