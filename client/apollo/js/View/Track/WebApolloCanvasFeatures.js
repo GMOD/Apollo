@@ -15,7 +15,6 @@ define( [
         function( declare,
             array,
             CanvasFeaturesTrack,
-            FeatureSelectionManager,
             dijitMenu,
             dijitMenuItem,
             dijitCheckedMenuItem,
@@ -36,8 +35,17 @@ return declare( CanvasFeaturesTrack,
         }));
     },
     _defaultConfig: function() {
-        console.log("WA config");
-        var config= this.inherited(arguments);
+        console.log("WA config",document.body);
+        var config = Util.deepUpdate(dojo.clone(this.inherited(arguments)),
+            {
+                style: {
+                    textColor: function() { return dojo.hasClass(document.body,'Dark') ?'white': 'black'; },
+                    text2Color: function() { return dojo.hasClass(document.body,'Dark')? 'white': 'black'; },
+                    text2Color: function() { return dojo.hasClass(document.body,'Dark') ?'white' :'black'; },
+                    connectorColor: function() { return dojo.hasClass(document.body,'Dark')? 'lightgrey': 'black'; },
+                    color: function() { return dojo.hasClass(document.body,'Dark')? 'orange': 'goldenrod'; }
+                }
+            });
         var thisB=this;
         config.menuTemplate.push(            {
               "label" : "Create new annotation",
