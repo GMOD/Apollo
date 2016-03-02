@@ -40,8 +40,7 @@ return declare( CanvasFeaturesTrack,
             {
                 style: {
                     textColor: function() { return dojo.hasClass(document.body,'Dark') ?'white': 'black'; },
-                    text2Color: function() { return dojo.hasClass(document.body,'Dark')? 'white': 'black'; },
-                    text2Color: function() { return dojo.hasClass(document.body,'Dark') ?'white' :'black'; },
+                    text2Color: function() { return dojo.hasClass(document.body,'Dark')? 'LightSteelBlue': 'blue'; },
                     connectorColor: function() { return dojo.hasClass(document.body,'Dark')? 'lightgrey': 'black'; },
                     color: function() { return dojo.hasClass(document.body,'Dark')? 'orange': 'goldenrod'; }
                 }
