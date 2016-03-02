@@ -439,3 +439,10 @@
 .Apollo .transcript, .plus-transcript, .minus-transcript {
     background: white;
 }
+
+.Apollo .plus-feature {
+    background-color: transparent;
+}
+.Apollo .minus-feature {
+    background-color: transparent;
+}
