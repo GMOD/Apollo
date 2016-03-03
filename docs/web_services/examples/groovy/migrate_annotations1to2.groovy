@@ -24,8 +24,9 @@ cli.username1('username1', required: true, args: 1)
 cli.password1('password1', required: true, args: 1)
 cli.username2('username2', required: true, args: 1)
 cli.password2('password2', required: true, args: 1)
-cli.sequence_names('sequence_names', required: false, args: 1)
+cli.sequence_names('sequence_names', required: true, args: 1)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)
+cli.ignore_prefix('Use this flag to NOT add the "Annotations-" prefix when pulling in Sequences', required: false)
 OptionAccessor options
 
 try {
@@ -59,7 +60,7 @@ JSONArray addTranscriptArray = new JSONArray()
 sequenceArray = options.sequence_names.tokenize(',')
 for (String sequence in sequenceArray) {
     String sequenceName = sequence
-    def featuresResponse = Apollo1Operations.getFeature(options.sourceurl,sequenceName,cookieFile)
+    def featuresResponse = Apollo1Operations.getFeature(options.sourceurl,sequenceName,cookieFile,options.ignore_prefix)
     def featuresFromSource  = featuresResponse.features // contains list of mRNAs; Size == number of annotations on chromosome
 
     for (def entity : featuresFromSource) {
