@@ -3160,6 +3160,7 @@ define([
 
                         var replacementTable = new dojoxDataGrid({
                             singleClickEdit: true,
+                            store: "Received Store",
                             updateDelay: 0,
                             structure: replacementTableLayout
                         });
