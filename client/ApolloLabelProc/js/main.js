@@ -38,15 +38,16 @@ return declare( JBrowsePlugin,
                 if(obj.hasOwnProperty('label')) {
                     //console.log("label="+obj.label);
                     
-                    if( thisB.browser.locationBox )
+                    if( thisB.browser.locationBox ){
                         thisB.browser.locationBox.set('value',obj.label, false);
-                    
-                    // update the id=location-box if it exists
-                    var node = dojo.byId("location-info");  
-                    if (node) {
-                        html.set(node, obj.label);
-                        thisB.browser.locationBox.set('value',"", false);
                     }
+
+                    // update the id=location-box if it exists
+                    //var node = dojo.byId("location-info");
+                    //if (node) {
+                    //    html.set(node, obj.label);
+                    //    thisB.browser.locationBox.set('value',"", false);
+                    //}
 
                     dojo.addOnLoad(function() {
                         dojo.style(dojo.byId('search-refseq'), "display", "none");
