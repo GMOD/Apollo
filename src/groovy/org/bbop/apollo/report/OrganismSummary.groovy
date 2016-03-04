@@ -23,11 +23,11 @@ class OrganismSummary {
     }
 
     float getProteinCodingFeaturePercent() {
-        totalFeatureCount && transcriptTypeCount ? ((float) transcriptTypeCount.get("MRNA") / (float) totalFeatureCount).round(2) : 0
+        totalFeatureCount && transcriptTypeCount.containsKey("MRNA") ? ((float) transcriptTypeCount.get("MRNA") / (float) totalFeatureCount).round(2) : 0
     }
 
     float getProteinCodingTranscriptPercent() {
-        transcriptCount && transcriptTypeCount? ((float) transcriptTypeCount.get("MRNA") / (float) transcriptCount).round(2) : 0
+        transcriptCount && transcriptTypeCount.containsKey("MRNA")? ((float) transcriptTypeCount.get("MRNA") / (float) transcriptCount).round(2) : 0
     }
 
     float getExonsPerTranscript() {
