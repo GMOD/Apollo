@@ -99,8 +99,8 @@
     </table>
 
     <div class="pagination">
-        <g:paginate total="${sequenceInstanceCount ?: 0}"/>
-    </div>
+        <g:paginate total="${sequenceInstanceCount ?: 0}" params="[id:organism.id]"/>
+   </div>
 </div>
 
 </body>
