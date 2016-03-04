@@ -296,6 +296,7 @@ public class SequencePanel extends Composite {
 
     @UiHandler(value = {"nameSearchBox", "minFeatureLength", "maxFeatureLength"})
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
+        pager.setPageStart(0);
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 
@@ -399,6 +400,7 @@ public class SequencePanel extends Composite {
 
 
     public void reload() {
+        pager.setPageStart(0);
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
         dataGrid.redraw();
     }
