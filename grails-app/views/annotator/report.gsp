@@ -33,9 +33,12 @@
         <g:each in="${annotatorInstanceList}" status="i" var="annotatorInstance">
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
-                    <g:link action="detail" id="${annotatorInstance.annotator.id}">
+                    %{--<g:link action="detail" id="${annotatorInstance.annotator.id}">--}%
+                        %{--${annotatorInstance.username}--}%
+                    %{--</g:link>--}%
+                    <a style="margin: 2px;padding: 2px;" href='<g:createLink action="detail" controller="annotator" id="${annotatorInstance.annotator.id}">${annotatorInstance.username}</g:createLink>' class="btn btn-default">
                         ${annotatorInstance.username}
-                    </g:link>
+                    </a>
                 <td style="text-align: left;">
                     ${annotatorInstance.firstName}
                 </td>
@@ -48,28 +51,28 @@
                 <td>${annotatorInstance.geneCount}</td>
                 <td>
                     <g:if test="${annotatorInstance.transcriptCount}">
-                        <button>
+                        <div class="info-border">
                             Total
                             <span class="badge">${annotatorInstance.transcriptCount}</span>
-                        </button>
-                        <button>
+                        </div>
+                        <div class="info-border">
                             Protein encoding
                             <span class="badge"><g:formatNumber
                                     number="${annotatorInstance.proteinCodingTranscriptPercent}" type="percent"/></span>
-                        </button>
-                        <button>
+                        </div>
+                        <div class="info-border">
                             Exons / transcript
                             <span class="badge"><g:formatNumber number="${annotatorInstance.exonsPerTranscript}"
                                                                 type="number"/></span>
-                        </button>
+                        </div>
 
                         <g:each in="${annotatorInstance.transcriptTypeCount}" var="trans">
-                            <button>
+                            <div class="info-border">
                                 ${trans.key}
                                 <span class="badge">
                                     ${trans.value}
                                 </span>
-                            </button>
+                            </div>
                         </g:each>
                     </g:if>
                     <g:else>0</g:else>
