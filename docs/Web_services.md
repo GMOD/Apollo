@@ -46,7 +46,7 @@ returned, in JSON format:
 If you are sending password you care about over the wire (even if not using web services) it is *highly recommended*
 that you use https (which adds encryption ssl) instead of http.
 
-2.0.1 also has example in the docs/web_services/examples/groovy/ directory for using SSL and optionally ignoring
+Examples are provided in the docs/web_services/examples/groovy/ directory for using SSL and optionally ignoring
 certificates.
 
 
