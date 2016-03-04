@@ -1,0 +1,41 @@
+# Chado Export
+
+Following are the steps for setting up a Chado data source that is compatible with Apollo Chado Export.
+
+### Create a Chado database
+
+First create a database in PostgreSQL for Chado.
+
+Note: Initial testing has only been done on PostgreSQL.
+
+Default name is `apollo_chado` for development and `apollo_chado_production` for production environment.
+
+### Create a Chado user
+
+Now, create a database user that has all access privileges to the newly created Chado database.
+
+### Load Chado schema and ontologies
+
+Apollo assumes that the Chado database has Chado schema v1.2  or greater and has the following ontologies loaded:
+1. Relations Ontology
+2. Sequence Ontology
+3. Gene Ontology
+
+
+The quickest and easiest way to do this is to use prebuilt Chado schemas.
+Apollo provides a prebuilt Chado schema with the necessary ontologies. (thanks to Eric Rasche at [Center for Phage Technology, TAMU](https://cpt.tamu.edu/computer-resources/chado-prebuilt-schema/))
+
+
+Users can load this prebuilt Chado schema as follows:
+```
+psql -U CHADO_USER -h DATABASE_HOST -d CHADO_DB < chado-schema-with-ontologies.sql
+```
+
+
+### Configure data sources
+
+In `apollo-config.groovy`, specify the proper database name, database user name and database user password.
+
+### Export via UI
+
+Users can export existing annotations to the Chado database via the Annotator Panel -> Ref Sequence -> Export.
