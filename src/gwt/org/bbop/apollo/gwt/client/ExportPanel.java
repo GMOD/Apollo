@@ -1,8 +1,10 @@
 package org.bbop.apollo.gwt.client;
 
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
@@ -11,6 +13,9 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.*;
+import org.gwtbootstrap3.client.ui.html.Div;
+import org.gwtbootstrap3.client.ui.html.Paragraph;
+import org.gwtbootstrap3.client.ui.html.Span;
 
 import java.util.List;
 
@@ -21,7 +26,7 @@ public class ExportPanel extends Modal {
     private String type;
     private List<SequenceInfo> sequenceList;
     private Boolean exportAll = false;
-
+    private OrganismInfo currentOrganismInfo;
 
     HTML sequenceInfoLabel = new HTML();
     HTML typeLabel = new HTML();
@@ -34,12 +39,12 @@ public class ExportPanel extends Modal {
     RadioButton cdnaRadioButton = new RadioButton("cDNA", "cDNA", true);
     RadioButton cdsRadioButton = new RadioButton("CDS", "CDS", true);
     RadioButton peptideRadioButton = new RadioButton("Peptide", "Peptide", true);
-    RadioButton chadoDefaultButton = new RadioButton("Chado", "Chado", true);
+    RadioButton chadoCleanButton = new RadioButton("Chado", "Export to a new clean Chado data source", true);
+    //RadioButton chadoExistingButton = new RadioButton("Chado", "Chado (update)", true);
 
     ModalBody modalBody = new ModalBody();
     ModalHeader modalHeader = new ModalHeader();
     ModalFooter modalFooter = new ModalFooter();
-
 
     public ExportPanel(OrganismInfo organismInfo, String type, Boolean exportAll, List<SequenceInfo> sequenceInfoList) {
         setTitle("Export");
@@ -49,14 +54,16 @@ public class ExportPanel extends Modal {
 
         Integer count = exportAll ? -1 : sequenceInfoList.size();
         String countText = count < 0 ? "all" : count + "";
+        currentOrganismInfo = organismInfo;
 
-        modalHeader.add(new HTML("Export " + countText + " sequences from " + organismInfo.getName() + " as " + type));
+        modalHeader.add(new HTML("Export " + countText + " sequence(s) from " + organismInfo.getName() + " as " + type));
 
 
         add(modalHeader);
 
 
         ButtonGroup buttonGroup = new ButtonGroup();
+
         buttonGroup.setDataToggle(Toggle.BUTTONS);
         if (type.equals("FASTA")) {
             buttonGroup.add(genomicRadioButton);
@@ -71,7 +78,8 @@ public class ExportPanel extends Modal {
         }
         else
         if (type.equals("CHADO")) {
-            buttonGroup.add(chadoDefaultButton);
+            buttonGroup.add(chadoCleanButton);
+            //buttonGroup.add(chadoExistingButton);
         }
         modalBody.add(buttonGroup);
 
@@ -126,7 +134,8 @@ public class ExportPanel extends Modal {
         gff3WithFastaButton.addClickHandler(exportClickHandler);
         gff3Button.addClickHandler(exportClickHandler);
 
-        chadoDefaultButton.addClickHandler(exportClickHandler);
+        chadoCleanButton.addClickHandler(exportClickHandler);
+        //chadoExistingButton.addClickHandler(exportClickHandler);
     }
 
 
@@ -158,6 +167,38 @@ public class ExportPanel extends Modal {
         this.closeButton.click();
     }
 
+    public void showExportStatus(String exportStatus) {
+        //this.chadoExistingButton.setVisible(false);
+        this.chadoCleanButton.setVisible(false);
+        this.exportButton.setVisible(false);
+        Div status = new Div();
+
+        exportButton.setIconSpin(false);
+        if (exportStatus.contains("error")) {
+            Span span = new Span();
+            span.add(new Label(LabelType.DANGER, "Error"));
+            status.add(span);
+        }
+        else {
+            Span span = new Span();
+            span.add(new Label(LabelType.SUCCESS, "Success"));
+            status.add(span);
+        }
+        Div div = parseStatus(exportStatus);
+        status.add(div);
+        this.modalBody.add(status);
+    }
+
+    public Div parseStatus(String status) {
+        Div div = new Div();
+        JSONObject jsonObject = JSONParser.parseStrict(status).isObject();
+        GWT.log(jsonObject.toString());
+        for(String key : jsonObject.keySet()) {
+            div.add(new Paragraph(key + ": " + jsonObject.get(key).toString().replaceAll("\"", "")));
+        }
+        return div;
+    }
+
     public String getType() {
         return type;
     }
@@ -179,13 +220,34 @@ public class ExportPanel extends Modal {
             return FeatureStringEnum.TYPE_PEPTIDE.getValue();
         }
         else
-        if(chadoDefaultButton.isActive()){
+        if(chadoCleanButton.isActive()){
             return FeatureStringEnum.TYPE_CHADO.getValue();
         }
+//        else
+//        if (chadoExistingButton.isActive()) {
+//            return  FeatureStringEnum.TYPE_CHADO.getValue();
+//        }
         // this is the default . . . may handle to GFF3 with FASTA
         else{
             return FeatureStringEnum.TYPE_GENOMIC.getValue();
         }
+    }
+
+    public String getChadoExportType() {
+        String exportType = null;
+        if (type.equals("CHADO")) {
+            if (chadoCleanButton.isActive()) {
+                exportType = "CLEAN";
+            }
+//            else if (chadoExistingButton.isActive()) {
+//                exportType = "UPDATE";
+//            }
+        }
+        return exportType;
+    }
+
+    public String getOrganismName() {
+        return this.currentOrganismInfo.getName();
     }
 
     public Boolean getExportGff3Fasta() {
@@ -203,6 +265,9 @@ public class ExportPanel extends Modal {
         SequenceRestService.generateLink(this);
     }
 
+    public void triggerChadoExport() {
+        SequenceRestService.exportToChado(this);
+    }
 
     public List<SequenceInfo> getSequenceList() {
         return sequenceList;

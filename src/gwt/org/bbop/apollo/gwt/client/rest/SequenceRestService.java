@@ -26,17 +26,31 @@ public class SequenceRestService {
 
     public static void generateLink(final ExportPanel exportPanel) {
         JSONObject jsonObject = new JSONObject();
+        String type = exportPanel.getType();
         jsonObject.put("type", new JSONString(exportPanel.getType()));
-        jsonObject.put("seqType", new JSONString(exportPanel.getSequenceType()));
         jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
-        jsonObject.put("exportGff3Fasta", new JSONString(exportPanel.getExportGff3Fasta().toString()));
-        jsonObject.put("output", new JSONString("file"));
-        jsonObject.put("format", new JSONString("gzip"));
+
+        if (type.equals("CHADO")) {
+            jsonObject.put("chadoExportType", new JSONString(exportPanel.getChadoExportType()));
+            jsonObject.put("seqType", new JSONString(""));
+            jsonObject.put("exportGff3Fasta", new JSONString(""));
+            jsonObject.put("output", new JSONString(""));
+            jsonObject.put("format", new JSONString(""));
+        }
+        else {
+            jsonObject.put("chadoExportType", new JSONString(""));
+            jsonObject.put("seqType", new JSONString(exportPanel.getSequenceType()));
+            jsonObject.put("exportGff3Fasta", new JSONString(exportPanel.getExportGff3Fasta().toString()));
+            jsonObject.put("output", new JSONString("file"));
+            jsonObject.put("format", new JSONString("gzip"));
+        }
+
         JSONArray jsonArray = new JSONArray();
         for (SequenceInfo sequenceInfo : exportPanel.getSequenceList()) {
             jsonArray.set(jsonArray.size(), new JSONString(sequenceInfo.getName()));
         }
         jsonObject.put("sequences", jsonArray);
+        GWT.log("GENERATE LINK: " + jsonObject.toString());
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -55,6 +69,52 @@ public class SequenceRestService {
             }
         };
 
+        RequestCallback requestCallbackForChadoExport = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
+                GWT.log("Response received: " + responseObject.toString());
+                exportPanel.showExportStatus(responseObject.toString());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error: " + exception);
+            }
+        };
+
+        if (type.equals("CHADO")) {
+            RestService.sendRequest(requestCallbackForChadoExport, "IOService/write", "data=" + jsonObject.toString());
+        }
+        else {
+            RestService.sendRequest(requestCallback, "IOService/write", "data=" + jsonObject.toString());
+        }
+    }
+
+    public static void exportToChado(final ExportPanel exportPanel) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("organism", new JSONString(exportPanel.getOrganismName()));
+        jsonObject.put("type", new JSONString(exportPanel.getType()));
+        jsonObject.put("exportType", new JSONString(exportPanel.getChadoExportType()));
+        jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
+        JSONArray jsonArray = new JSONArray();
+        for (SequenceInfo sequenceInfo : exportPanel.getSequenceList()) {
+            jsonArray.set(jsonArray.size(), new JSONString(sequenceInfo.getName()));
+        }
+        jsonObject.put("sequences", jsonArray);
+        GWT.log("JSONOBJECT FOR REQUEST: " + jsonObject.toString());
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
+                GWT.log("Response received: " + responseObject.toString());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error: " + exception);
+            }
+        };
         RestService.sendRequest(requestCallback, "IOService/write", "data=" + jsonObject.toString());
     }
 

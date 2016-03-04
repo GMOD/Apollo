@@ -76,6 +76,7 @@ class IOServiceController extends AbstractApolloController {
             String sequenceType = dataObject.seqType
             String exportAllSequences = dataObject.exportAllSequences
             String exportGff3Fasta = dataObject.exportGff3Fasta
+            String chadoExportType = dataObject.chadoExportType
             String output = dataObject.output
             String format = dataObject.format
             def sequences = dataObject.sequences // can be array or string
@@ -139,8 +140,24 @@ class IOServiceController extends AbstractApolloController {
                 fastaHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
             }
             else if (typeOfExport == "CHADO"){
-//                chadoHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path )
-                chadoHandlerService.writeFeatures(organism ,features )
+                JSONObject returnObject = new JSONObject()
+                if (sequences) {
+                    returnObject = chadoHandlerService.writeFeatures(organism, sequenceList, features)
+                }
+                else {
+                    // To avoid doing an export of all the sequences into Chado
+                    // TODO: Remove after optimizations
+                    returnObject = chadoHandlerService.writeFeatures(organism, [], features)
+                }
+
+                if (returnObject == null) {
+                    JSONObject error = new JSONObject()
+                    error.error = "Specified Chado data source already has annotations"
+                    render error
+                }
+                else {
+                    render returnObject
+                }
             }
 
 
