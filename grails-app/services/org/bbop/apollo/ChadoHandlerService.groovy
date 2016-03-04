@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import org.bbop.apollo.sequence.SequenceTranslationHandler
+import org.codehaus.groovy.grails.web.json.JSONObject
 import org.gmod.chado.Cvterm
 
 import java.security.MessageDigest
@@ -45,17 +46,17 @@ class ChadoHandlerService {
     ArrayList<org.bbop.apollo.Feature> processedFeatures = new ArrayList<org.bbop.apollo.Feature>()
     ArrayList<org.bbop.apollo.Feature> failedFeatures = new ArrayList<org.bbop.apollo.Feature>()
 
-    def writeFeatures(Organism organism, ArrayList<Feature> features) {
+    def writeFeatures(Organism organism, ArrayList<Sequence> sequenceList, ArrayList<Feature> features) {
         def chadoFeatures = org.gmod.chado.Feature.all
         if (chadoFeatures.size() > 0) {
             // The Chado datasource has existing features in the Feature table
             // How to identify what is already existing? - [uniquename, organism_id, type_id] triplet
-            log.info("The provided Chado data source has existing features in the feature table. " +
-                    "Initial efforts for Chado export is aimed at exporting all Apollo features to a clean Chado database")
+            log.error "The provided Chado data source has existing features in the feature table. " +
+                    "Initial efforts for Chado export is aimed at exporting all Apollo features to a clean Chado database"
             return null
         } else {
             // The Chado datasource has no existing features in the Feature table
-            writeFeaturesToChado(organism, features)
+            return writeFeaturesToChado(organism, sequenceList, features)
         }
     }
 
@@ -65,7 +66,7 @@ class ChadoHandlerService {
      * @param features
      * @return
      */
-    def writeFeaturesToChado(Organism organism, ArrayList<Feature> features) {
+    def writeFeaturesToChado(Organism organism, ArrayList<Sequence> sequenceList, ArrayList<Feature> features) {
         /*
         The exporter assumes that the following ontologies are pre-loaded into the Chado data source:
         1. Sequence Ontology
@@ -73,7 +74,12 @@ class ChadoHandlerService {
         3. Relations Ontology
          */
 
+        long startTime, endTime, totalTime
+        totalTime = System.currentTimeMillis()
+        startTime = System.currentTimeMillis()
         ArrayList<org.gmod.chado.Cvterm> cvTerms = org.gmod.chado.Cvterm.all
+        endTime = System.currentTimeMillis()
+        log.debug "Time taken to query for existing Chado Cvterm: ${endTime - startTime} ms"
         if (cvTerms.size() > 0) {
             cvTerms.each {
                 cvtermsMap.put(it.name, it)
@@ -84,7 +90,10 @@ class ChadoHandlerService {
             return null
         }
 
+        startTime = System.currentTimeMillis()
         ArrayList<org.gmod.chado.Db> existingChadoDbs = org.gmod.chado.Db.all
+        endTime = System.currentTimeMillis()
+        log.debug "Time taken to query for existing Chado Db: ${endTime - startTime} ms"
         if (existingChadoDbs.size() > 0) {
             existingChadoDbs.each {
                 chadoDbMap.put(it.name, it)
@@ -92,20 +101,30 @@ class ChadoHandlerService {
         }
 
         // Create the organism
+        startTime = System.currentTimeMillis()
         createChadoOrganism(organism)
+        endTime = System.currentTimeMillis()
+        log.debug "Time taken to create Chado Organism for ${organism.commonName}: ${endTime - startTime} ms"
 
-        // get all sequences for current organism and create Chado feature for each sequence
-        def sequenceList = organism.sequences
-        createChadoFeatureForSequences(organism, sequenceList, false)
+        // Create chado feature for sequence in sequenceList
+        if (sequenceList.size() > 0) {
+            createChadoFeatureForSequences(organism, sequenceList, false)
+        }
 
-        String startTime, endTime;
         // creating Chado feature for each Apollo feature
         features.each { apolloFeature ->
             startTime = System.currentTimeMillis()
             createChadoFeaturesForAnnotation(organism, apolloFeature)
             endTime = System.currentTimeMillis()
-            log.info "Time taken to process annotation ${apolloFeature.uniqueName} of type ${apolloFeature.class.canonicalName}: ${endTime - startTime} ms"
+            log.debug "Time taken to process annotation ${apolloFeature.name} of type ${apolloFeature.class.canonicalName}: ${endTime - startTime} ms"
         }
+
+        JSONObject exportStatistics = new JSONObject()
+        exportStatistics = [ "Organism count" : chadoOrganismsMap.size(), "Sequence count" : referenceSequenceMap.size(),
+                             "Feature count" : chadoFeaturesMap.size(), "dbxref count" : chadoDbxrefsMap.size(),
+                             "Time Taken" : System.currentTimeMillis() - totalTime ]
+
+        return exportStatistics
     }
 
     /**
@@ -120,11 +139,9 @@ class ChadoHandlerService {
         A top-level feature that is not an instance of type Gene is likely to be a singleton feature.
          */
         createChadoFeature(organism, topLevelFeature)
-        println "Top level feature: ${topLevelFeature.cvTerm}"
         if (topLevelFeature instanceof Gene) {
             // annotation is a Gene / Pseudogene
             def transcripts = transcriptService.getTranscripts(topLevelFeature)
-            println "Transcripts for top level gene: ${transcripts.name}"
             transcripts.each { transcript ->
                 org.gmod.chado.Feature chadoFeature = createChadoFeature(organism, transcript)
                 transcript.childFeatureRelationships.each { featureRelationship ->
@@ -164,6 +181,8 @@ class ChadoHandlerService {
      * @return chadoCdsFeature
      */
     def createChadoCdsFeature(org.bbop.apollo.Organism organism, org.bbop.apollo.Transcript transcript, org.bbop.apollo.CDS cds, boolean storeSequence = false){
+        long startTime, endTime
+        startTime = System.currentTimeMillis()
         org.gmod.chado.Feature chadoCdsFeature = new org.gmod.chado.Feature(
                 uniquename: cds.uniqueName,
                 name: cds.name,
@@ -174,7 +193,6 @@ class ChadoHandlerService {
                 organism: chadoOrganismsMap.get(organism.abbreviation),
                 type: cvtermsMap.get(cds.cvTerm)
         )
-
         if (storeSequence) {
             String sequence = cdsService.getResiduesFromCDS(cds)
             chadoCdsFeature.residues = sequence
@@ -183,6 +201,8 @@ class ChadoHandlerService {
         }
 
         chadoCdsFeature.save()
+        endTime = System.currentTimeMillis()
+        log.debug "Time taken to create Chado feature of CDS ${cds.uniqueName}: ${endTime - startTime} ms"
         createChadoFeatureloc(chadoCdsFeature, cds)
         chadoFeaturesMap.put(chadoCdsFeature.uniquename, chadoCdsFeature)
         return chadoCdsFeature
@@ -198,7 +218,9 @@ class ChadoHandlerService {
      * @return chadoPolyPeptideFeature
      */
     def createChadoPolypeptide(org.bbop.apollo.Organism organism, org.bbop.apollo.Transcript transcript, org.bbop.apollo.CDS cds, boolean storeSequence = true) {
+        long startTime, endTime
         Timestamp timestamp = generateTimeStamp()
+        startTime = System.currentTimeMillis()
         org.gmod.chado.Feature chadoPolypeptideFeature = new org.gmod.chado.Feature(
                 uniquename: generateUniqueName(),
                 name: transcript.name + "-pep",
@@ -215,6 +237,8 @@ class ChadoHandlerService {
         }
 
         chadoPolypeptideFeature.save()
+        endTime = System.currentTimeMillis()
+        log.debug "Time taken to create Chado feature of Polypeptide for Transcript ${transcript.name}: ${endTime - startTime} ms"
         createChadoFeatureloc(chadoPolypeptideFeature, cds)
         chadoFeaturesMap.put(chadoPolypeptideFeature.uniquename, chadoPolypeptideFeature);
         return chadoPolypeptideFeature
@@ -233,6 +257,8 @@ class ChadoHandlerService {
          In Apollo, we currently do not use locgroup and rank for any purposes and their values
          are set to 0, the default as suggested by standard Chado specification.
          */
+        long startTime, endTime
+        startTime = System.currentTimeMillis()
         org.gmod.chado.Featureloc chadoFeatureLoc = new org.gmod.chado.Featureloc(
                 fmin: feature.featureLocation.fmin,
                 fmax: feature.featureLocation.fmax,
@@ -242,9 +268,29 @@ class ChadoHandlerService {
                 locgroup: feature.featureLocation.locgroup,
                 rank: feature.featureLocation.rank,
                 feature: chadoFeature,
-                srcfeature: referenceSequenceMap.get(feature.featureLocation.sequence)
+                //srcfeature: referenceSequenceMap.get(feature.featureLocation.sequence.name)
+                srcfeature: getSrcFeatureForFeature(feature.featureLocation.sequence)
         ).save()
+        endTime = System.currentTimeMillis()
+        log.debug "Time taken to create Chado featureloc for feature fmin: ${feature.fmin} fmax: ${feature.fmax}: ${endTime - startTime} ms"
         return chadoFeatureLoc
+    }
+
+    /**
+     * Checks if there is a Chado feature representation of Apollo Sequence.
+     * If not, creates and returns the a Chado feature.
+     * @param sequence
+     * @return
+     */
+    def getSrcFeatureForFeature(org.bbop.apollo.Sequence sequence) {
+        org.gmod.chado.Feature srcFeature
+        if(referenceSequenceMap.containsKey(sequence.name)) {
+            srcFeature = referenceSequenceMap.get(sequence.name)
+        }
+        else {
+            srcFeature = createChadoFeatureForSequence(sequence.organism, sequence, false)
+        }
+        return srcFeature
     }
 
     /**
@@ -256,6 +302,8 @@ class ChadoHandlerService {
      * @return chadoFeatureRelationship
      */
     def createChadoFeatureRelationship(org.bbop.apollo.Organism organism, org.gmod.chado.Feature feature, org.bbop.apollo.FeatureRelationship featureRelationship, String relationshipType = "part_of") {
+        long startTime, endTime
+        startTime = System.currentTimeMillis()
         org.gmod.chado.FeatureRelationship chadoFeatureRelationship = new org.gmod.chado.FeatureRelationship(
                 subject: feature,
                 object: chadoFeaturesMap.get(featureRelationship.parentFeature.uniqueName),
@@ -263,7 +311,8 @@ class ChadoHandlerService {
                 rank: featureRelationship.rank,
                 type: getChadoCvterm(relationshipType)
         ).save()
-
+        endTime = System.currentTimeMillis()
+        log.debug "Time taken to create Chado feature_relationship ${feature.class.simpleName} ${relationshipType} ${featureRelationship.parentFeature.class.simpleName}: ${endTime - startTime} ms"
         featureRelationship.featureRelationshipPublications.each { featureRelationshipPublication ->
             createChadoFeatureRelationshipPublication(chadoFeatureRelationship, featureRelationshipPublication)
         }
@@ -488,14 +537,17 @@ class ChadoHandlerService {
      * @param featureProperty
      */
     def createChadoProperty(org.gmod.chado.Feature chadoFeature, org.bbop.apollo.FeatureProperty featureProperty) {
+        long startTime, endTime
         String type = "feature_property"
+        startTime = System.currentTimeMillis()
         org.gmod.chado.Featureprop chadoFeatureProp = new org.gmod.chado.Featureprop(
                 value: featureProperty.value,
                 rank: featureProperty.rank,
                 feature: chadoFeature,
                 type: getChadoCvterm(type)
         ).save()
-
+        endTime = System.currentTimeMillis()
+        log.debug "Time taken to create Chado featureprop of type '${type}' and value ${featureProperty.value}: ${endTime - startTime} ms"
         featureProperty.featurePropertyPublications.each { featurePropertyPublication ->
             createChadoPropertyPub(chadoFeatureProp, featurePropertyPublication)
         }
@@ -503,12 +555,16 @@ class ChadoHandlerService {
     }
 
     def createChadoFeaturePropertyForComment(org.gmod.chado.Feature chadoFeature, org.bbop.apollo.FeatureProperty comment, int rank) {
+        long startTime, endTime
+        startTime = System.currentTimeMillis()
         org.gmod.chado.Featureprop chadoFeatureProp = new org.gmod.chado.Featureprop(
                 value: comment.value,
                 rank: rank,
                 feature: chadoFeature,
                 type: getChadoCvterm("comment")
         ).save()
+        endTime = System.currentTimeMillis()
+        log.debug "Time taken to create Chado featureprop of type 'comment' and value ${comment.value}: ${endTime - startTime} ms"
         return chadoFeatureProp
     }
     /**
@@ -608,6 +664,8 @@ class ChadoHandlerService {
      * @return
      */
     def createChadoDbxref(org.gmod.chado.Feature chadoFeature, org.bbop.apollo.DBXref dbxref) {
+        long startTime, endTime
+        startTime = System.currentTimeMillis()
         org.gmod.chado.Dbxref chadoDbxref = createChadoDbxref(dbxref)
         // create feature_dbxref relationship
         org.gmod.chado.FeatureDbxref chadoFeatureDbxref = new org.gmod.chado.FeatureDbxref(
@@ -615,7 +673,8 @@ class ChadoHandlerService {
                 dbxref: chadoDbxref,
                 isCurrent: true
         ).save()
-
+        endTime = System.currentTimeMillis()
+        log.debug "Time taken to create Chado dbxref for ${dbxref.db.name}:${dbxref.accession} : ${endTime - startTime} ms"
         // dbxref properties
         dbxref.dbxrefProperties.each { dbxrefProperty ->
             createChadoDbxrefProp(chadoDbxref, dbxrefProperty)
@@ -623,18 +682,21 @@ class ChadoHandlerService {
     }
 
     def createChadoDb(org.bbop.apollo.DB db) {
+        long startTime, endTime
         org.gmod.chado.Db chadoDb
-        println "@createChadoDb with : ${db.name}"
         if (chadoDbMap.containsKey(db.name)) {
             chadoDb = chadoDbMap.get(db.name)
         }
         else {
+            startTime = System.currentTimeMillis()
             chadoDb = new org.gmod.chado.Db(
                     name: db.name,
                     description: db.description,
                     urlprefix: db.urlPrefix,
                     url: db.url
             ).save()
+            endTime = System.currentTimeMillis()
+            log.debug "Time taken to create Chado Db for ${db.name} : ${endTime - startTime} ms"
             chadoDbMap.put(db.name, chadoDb)
         }
         return chadoDb
@@ -642,7 +704,6 @@ class ChadoHandlerService {
 
     def createChadoDbxref(org.bbop.apollo.DBXref dbxref) {
         String dbxrefKey = dbxref.db.name + ":" + dbxref.accession + ":" + dbxref.version
-        println "dbxref key : ${dbxrefKey}"
         org.gmod.chado.Dbxref chadoDbxref
         if (chadoDbxrefsMap.containsKey(dbxrefKey)) {
             // this xref was seen before and hence we do not create it again.
@@ -732,8 +793,12 @@ class ChadoHandlerService {
      * @return
      */
     def createChadoFeatureForSequences(Organism organism, Collection<Sequence> sequences, boolean storeSequence = true) {
+        long startTime, endTime
         sequences.each { sequence ->
+            startTime = System.currentTimeMillis()
             createChadoFeatureForSequence(organism, sequence, storeSequence)
+            endTime = System.currentTimeMillis()
+
         }
     }
 
@@ -746,7 +811,9 @@ class ChadoHandlerService {
      * @return chadoFeature
      */
     def createChadoFeatureForSequence(Organism organism, org.bbop.apollo.Sequence sequence, boolean storeSequence = true) {
+        long startTime, endTime
         Timestamp timeStamp = generateTimeStamp()
+        startTime = System.currentTimeMillis()
         org.gmod.chado.Feature chadoFeature = new org.gmod.chado.Feature(
                 uniquename: generateUniqueName(),
                 name: sequence.name,
@@ -766,7 +833,9 @@ class ChadoHandlerService {
         }
 
         chadoFeature.save()
-        referenceSequenceMap.put(sequence, chadoFeature)
+        endTime = System.currentTimeMillis()
+        log.debug "Time taken to create Chado Feature for sequence ${sequence.name}: ${endTime - startTime} ms"
+        referenceSequenceMap.put(sequence.name, chadoFeature)
         return chadoFeature
     }
 
@@ -776,7 +845,7 @@ class ChadoHandlerService {
         if (cvtermsMap.containsKey(term)) {
             cvTermlist.addAll(cvtermsMap.get(term))
             if ( cvTermlist.size() > 1){
-                println "Ambiguous CV TERM: ${term}"
+                println "Ambiguous CV term: ${term}"
                 return null;
             }
             chadoCvterm = cvtermsMap.get(term)
@@ -800,8 +869,10 @@ class ChadoHandlerService {
      * @return
      */
     def createChadoFeature(org.bbop.apollo.Organism organism, org.bbop.apollo.Feature feature) {
+        long startTime, endTime
         String type = feature.hasProperty('alternateCvTerm') ? feature.alternateCvTerm : feature.cvTerm
         // feature
+        startTime = System.currentTimeMillis()
         org.gmod.chado.Feature chadoFeature = new org.gmod.chado.Feature(
                 uniquename: feature.uniqueName,
                 name: feature.name,
@@ -814,7 +885,8 @@ class ChadoHandlerService {
                 organism: chadoOrganismsMap.get(organism.abbreviation),
                 type: getChadoCvterm(type)
         ).save()
-
+        endTime = System.currentTimeMillis()
+        log.debug "Time taken to create Chado feature of type ${feature.class.simpleName}: ${endTime - startTime} ms"
         // featureloc
         createChadoFeatureloc(chadoFeature, feature)
 
@@ -875,19 +947,16 @@ class ChadoHandlerService {
          identifier and to use feature_dbxref table for all additional identifiers.
         */
         if (feature.featureDBXrefs) {
-            println "Processing DBXrefs"
             createChadoDbxref(chadoFeature, feature.featureDBXrefs)
         }
 
         // properties
         if (feature.featureProperties) {
-            println "Processing featureProperties"
             createChadoProperty(chadoFeature, feature.featureProperties)
         }
 
         // publications
         if (feature.featurePublications) {
-            println "Processing featurePublications"
             createChadoPublication(chadoFeature, feature.featurePublications)
         }
 
@@ -969,17 +1038,6 @@ class ChadoHandlerService {
      */
     def generateMD5checksum(String s){
         return MessageDigest.getInstance("MD5").digest(s.bytes).encodeHex().toString()
-    }
-
-    def createChadoFeatureRelationship(org.bbop.apollo.Organism organism, org.gmod.chado.Feature chadoExonFeature, org.bbop.apollo.Transcript transcript, String relationshipType = "part_of") {
-        // create relationship between exon and transcript
-        org.gmod.chado.FeatureRelationship chadoFeatureRelationship = new org.gmod.chado.FeatureRelationship(
-                subject: chadoExonFeature,
-                object: chadoFeaturesMap.get(transcript.uniqueName),
-                rank: 0,
-                type: cvtermsMap.get(relationshipType)
-        ).save()
-        println "@createChadoFeatureRelationship WITH COMMON EXON: ${chadoFeatureRelationship.toString()}"
     }
 
 }

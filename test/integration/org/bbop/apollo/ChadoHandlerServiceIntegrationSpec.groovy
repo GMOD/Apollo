@@ -101,7 +101,7 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
                 features.add(it)
             }
         }
-        chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), features)
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), Sequence.all, features)
 
 
         then: "we should see the exported annotations in Chado data source"
@@ -216,7 +216,7 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
                 features.add(it)
             }
         }
-        chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), features)
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), Sequence.all, features)
 
         then: "we should see features in Chado data source"
         assert org.gmod.chado.Feature.count > 0
