@@ -233,5 +233,56 @@ class SequenceController {
         render view:"report", model:[sequenceInstanceList:sequenceInstanceList,organism:organism,sequenceInstanceCount:sequenceInstanceCount]
     }
 
+    /**
+     * GET (base)/features/(refseq_name)?start=234&end=5678
+     * http://gmod.org/wiki/JBrowse_Configuration_Guide#JBrowse_REST_Feature_Store_API
+     *
+     *
+     * {
+*     "features": [
+*    { "start": 123, "end": 456 }', // minimal
+*    { "start": 123, "end": 456, "score": 42 }, // required
+*    {"seq": "gattacagattaca", "start": 0, "end": 14}, // seq
+     *
+*    { "type": "mRNA", "start": 5975, "end": 9744, "score": 0.84, "strand": 1,
+*        "name": "au9.g1002.t1", "uniqueID": "globallyUniqueString3",
+*        "subfeatures": [
+     *                 { "type": "five_prime_UTR", "start": 5975, "end": 6109, "score": 0.98, "strand": 1 },
+     *
+     *
+     */
+    def features(){
+        println "features params: ${params}"
+//        println "id: ${id}"
+//        println "start: ${start}"
+//        println "end: ${end}"
 
+        JSONObject features1 = new JSONObject(start:123,end:456,name:"region1",type:"MRNA",label:"first label",Id:"abc123",unique_name:"def567")
+        JSONObject features2 = new JSONObject(start:789,end:1012,name:"region2")
+
+        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer(features1,features2)
+
+
+
+        render jsonObject
+    }
+
+
+    def regionFeatureDensities(){
+        println "regionFeatureDensities params: ${params}"
+        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
+        render jsonObject
+    }
+
+    def statsGlobal(){
+        println "stats global params: ${params}"
+        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
+        render jsonObject
+    }
+
+    def statsRegion(){
+        println "stats region params: ${params}"
+        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
+        render jsonObject
+    }
 }

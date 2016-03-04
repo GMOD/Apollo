@@ -35,6 +35,10 @@ class UrlMappings {
         "/bigwig/stats/region"(controller: "bigwig",action: "region")
         "/bigwig/stats/regionFeatureDensities"(controller: "bigwig",action: "regionFeatureDensities")
         "/bigwig/features/${sequenceName}"(controller: "bigwig",action: "features",params:params,sequenceName:sequenceName)
+        "/sequence/stats/global"(controller: "sequence",action: "statsGlobal",params:params)
+        "/sequence/stats/region"(controller: "sequence",action: "statsRegion",params:params)
+        "/sequence/stats/regionFeatureDensities"(controller: "sequence",action: "regionFeatureDensities",params:params)
+        "/sequence/features/${sequenceName}"(controller: "sequence",action: "features",params:params,sequenceName:sequenceName)
 
 //        "/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
     }

@@ -87,6 +87,17 @@
       "type": "WebApollo/View/Track/AnnotTrack",
       "subfeatures": 1
     }
+//    ,
+//    {
+//      "label":      "Projection",
+//      "key":        "REST Test Track",
+//      "type":       "JBrowse/View/Track/HTMLFeatures",
+//      "storeClass": "JBrowse/Store/SeqFeature/REST",
+//      "baseUrl":    "http://localhost:8080/apollo/sequence/",
+//      "query": {
+//        "organism": "tyrannosaurus"
+//      }
+//    }
   ],
   "favicon": "./plugins/WebApollo/img/webapollo_favicon.ico",
   "locationBox": "searchBox",
