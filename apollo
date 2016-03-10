@@ -37,7 +37,7 @@ function check_node(){
     node_executable=$(which node)
     if ! [ -x "$node_executable" ] ; then
         nodejs_executable=$(which nodejs)
-        if ! [ -x "$node_executable" ] ; then
+        if ! [ -x "$nodejs_executable" ] ; then
             echo "You must install 'Node JS' to do a release of Apollo."
             exit 1 ;
         else
