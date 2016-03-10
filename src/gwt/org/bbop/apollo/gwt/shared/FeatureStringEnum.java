@@ -91,6 +91,7 @@ public enum FeatureStringEnum {
         SYNONYMS,
         UNIQUENAME,
         // TODO: move these to a SequenceTypeEnum
+        TYPE_CHADO("chado"),
         TYPE_PEPTIDE("peptide"),
         TYPE_CDS("cds"),
         TYPE_CDNA("cdna"),

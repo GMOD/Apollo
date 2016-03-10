@@ -11,5 +11,6 @@ class Transcript extends GeneMemberRegion{
 
     static String ontologyId = "SO:0000673"// XX:NNNNNNN
     static String cvTerm = "Transcript"// may have a link
+    static String alternateCvTerm = "transcript"
 
 }
