@@ -9,7 +9,7 @@ class PhylonodeDbxref {
 
     static mapping = {
         datasource "chado"
-        id column: "phylonode_dbxref_id", generator: "assigned"
+        id column: "phylonode_dbxref_id", generator: "increment"
         version false
     }
 }

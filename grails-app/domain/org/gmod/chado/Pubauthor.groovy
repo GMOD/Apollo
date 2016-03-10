@@ -13,7 +13,7 @@ class Pubauthor {
 
     static mapping = {
         datasource "chado"
-        id column: "pubauthor_id", generator: "assigned"
+        id column: "pubauthor_id", generator: "increment"
         version false
     }
 

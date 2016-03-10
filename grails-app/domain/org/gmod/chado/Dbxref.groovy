@@ -4,7 +4,7 @@ class Dbxref {
 
     String accession
     String description
-    Serializable searchableAccession
+//    Serializable searchableAccession
     Db db
 
     static hasMany = [
@@ -36,11 +36,12 @@ pubDbxrefs              : PubDbxref,
 
     static mapping = {
         datasource "chado"
-        id column: "dbxref_id", generator: "assigned"
+        id column: "dbxref_id", generator: "increment"
     }
 
     static constraints = {
         description nullable: true
-        searchableAccession nullable: true
+//        searchableAccession nullable: true
+        version nullable: true  // this is against Chado specification in http://gmod.org/wiki/Chado_Tables#Table:_dbxref
     }
 }

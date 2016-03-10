@@ -9,7 +9,7 @@ class FeatureRelationshippropPub {
 
     static mapping = {
         datasource "chado"
-        id column: "feature_relationshipprop_pub_id", generator: "assigned"
+        id column: "feature_relationshipprop_pub_id", generator: "increment"
         version false
     }
 }

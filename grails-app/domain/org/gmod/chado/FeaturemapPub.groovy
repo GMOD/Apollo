@@ -9,7 +9,7 @@ class FeaturemapPub {
 
     static mapping = {
         datasource "chado"
-        id column: "featuremap_pub_id", generator: "assigned"
+        id column: "featuremap_pub_id", generator: "increment"
         version false
     }
 }

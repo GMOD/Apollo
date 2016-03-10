@@ -15,7 +15,7 @@ class FeatureCvterm {
 
     static mapping = {
         datasource "chado"
-        id column: "feature_cvterm_id", generator: "assigned"
+        id column: "feature_cvterm_id", generator: "increment"
         version false
     }
 

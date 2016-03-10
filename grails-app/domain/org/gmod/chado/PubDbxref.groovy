@@ -10,7 +10,7 @@ class PubDbxref {
 
     static mapping = {
         datasource "chado"
-        id column: "pub_dbxref_id", generator: "assigned"
+        id column: "pub_dbxref_id", generator: "increment"
         version false
     }
 }

@@ -6,13 +6,13 @@ class Phendesc {
     Pub pub
     Environment environment
     Genotype genotype
-    Cvterm cvterm
+    Cvterm type
 
     static belongsTo = [Cvterm, Environment, Genotype, Pub]
 
     static mapping = {
         datasource "chado"
-        id column: "phendesc_id", generator: "assigned"
+        id column: "phendesc_id", generator: "increment"
         version false
     }
 }

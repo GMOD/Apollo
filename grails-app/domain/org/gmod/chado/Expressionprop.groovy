@@ -5,19 +5,19 @@ class Expressionprop {
     String value
     Integer rank
     Expression expression
-    Cvterm cvterm
+    Cvterm type
 
     static belongsTo = [Cvterm, Expression]
 
     static mapping = {
         datasource "chado"
-        id column: "expressionprop_id", generator: "assigned"
+        id column: "expressionprop_id", generator: "increment"
         version false
     }
 
     static constraints = {
         value nullable: true
 //		rank unique: ["type_id", "expression_id"]
-        rank unique: ["cvterm", "expression"]
+        rank unique: ["type", "expression"]
     }
 }

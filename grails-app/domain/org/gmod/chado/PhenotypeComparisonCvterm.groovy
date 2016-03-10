@@ -11,7 +11,7 @@ class PhenotypeComparisonCvterm {
 
     static mapping = {
         datasource "chado"
-        id column: "phenotype_comparison_cvterm_id", generator: "assigned"
+        id column: "phenotype_comparison_cvterm_id", generator: "increment"
         version false
     }
 }

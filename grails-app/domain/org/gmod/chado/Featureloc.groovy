@@ -11,15 +11,15 @@ class Featureloc {
     String residueInfo
     Integer locgroup
     Integer rank
-    Feature featureBySrcfeatureId
-    Feature featureByFeatureId
+    Feature srcfeature
+    Feature feature
 
     static hasMany = [featurelocPubs: FeaturelocPub]
     static belongsTo = [Feature]
 
     static mapping = {
         datasource "chado"
-        id column: "featureloc_id", generator: "assigned"
+        id column: "featureloc_id", generator: "increment"
         version false
     }
 
@@ -30,6 +30,6 @@ class Featureloc {
         phase nullable: true
         residueInfo nullable: true
 //		rank unique: ["locgroup", "feature_id"]
-        rank unique: ["locgroup", "featureByFeatureId"]
+        rank unique: ["locgroup", "feature"]
     }
 }

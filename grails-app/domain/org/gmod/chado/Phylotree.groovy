@@ -6,7 +6,7 @@ class Phylotree {
     String comment
     Dbxref dbxref
 //    Analysis analysis
-    Cvterm cvterm
+    Cvterm type
 
     static hasMany = [phylonodeRelationships: PhylonodeRelationship,
                       phylonodes            : Phylonode,
@@ -16,7 +16,7 @@ class Phylotree {
 
     static mapping = {
         datasource "chado"
-        id column: "phylotree_id", generator: "assigned"
+        id column: "phylotree_id", generator: "increment"
         version false
     }
 

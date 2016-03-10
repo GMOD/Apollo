@@ -6,13 +6,13 @@ class Phenstatement {
     Environment environment
     Genotype genotype
     Phenotype phenotype
-    Cvterm cvterm
+    Cvterm type
 
     static belongsTo = [Cvterm, Environment, Genotype, Phenotype, Pub]
 
     static mapping = {
         datasource "chado"
-        id column: "phenstatement_id", generator: "assigned"
+        id column: "phenstatement_id", generator: "increment"
         version false
     }
 }

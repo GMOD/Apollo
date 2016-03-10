@@ -14,7 +14,7 @@ class Pub {
     Boolean isObsolete
     String publisher
     String pubplace
-    Cvterm cvterm
+    Cvterm type
 
     static hasMany = [
 //			cellLineCvterms: CellLineCvterm,
@@ -63,12 +63,12 @@ pubprops                    : Pubprop,
 
     // TODO you have multiple hasMany references for class(es) [PubRelationship]
     //      so you'll need to disambiguate them with the 'mappedBy' property:
-    static mappedBy = [pubRelationshipsForObjectId : "pubByObjectId",
-                       pubRelationshipsForSubjectId: "pubBySubjectId"]
+    static mappedBy = [pubRelationshipsForObjectId : "object",
+                       pubRelationshipsForSubjectId: "subject"]
 
     static mapping = {
         datasource "chado"
-        id column: "pub_id", generator: "assigned"
+        id column: "pub_id", generator: "increment"
         version false
     }
 
