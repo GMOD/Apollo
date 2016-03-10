@@ -29,6 +29,7 @@ import java.sql.Timestamp
 @Transactional
 class ChadoHandlerService {
 
+    def grailsApplication
     def sequenceService
     def featureRelationshipService
     def transcriptService
@@ -47,17 +48,26 @@ class ChadoHandlerService {
     ArrayList<org.bbop.apollo.Feature> failedFeatures = new ArrayList<org.bbop.apollo.Feature>()
 
     def writeFeatures(Organism organism, ArrayList<Sequence> sequenceList, ArrayList<Feature> features) {
-        def chadoFeatures = org.gmod.chado.Feature.all
-        if (chadoFeatures.size() > 0) {
-            // The Chado datasource has existing features in the Feature table
-            // How to identify what is already existing? - [uniquename, organism_id, type_id] triplet
-            log.error "The provided Chado data source has existing features in the feature table. " +
-                    "Initial efforts for Chado export is aimed at exporting all Apollo features to a clean Chado database"
-            return null
-        } else {
-            // The Chado datasource has no existing features in the Feature table
-            return writeFeaturesToChado(organism, sequenceList, features)
+        JSONObject returnObject = new JSONObject()
+        if (!grailsApplication.config.dataSource_chado) {
+            log.error("Cannot export annotations to Chado as Chado data source has not been configured")
+            returnObject.error = "Cannot export annotations to Chado as Chado data source has not been configured."
         }
+        else {
+            def chadoFeatures = org.gmod.chado.Feature.all
+            if (chadoFeatures.size() > 0) {
+                // The Chado datasource has existing features in the Feature table
+                // How to identify what is already existing? - [uniquename, organism_id, type_id] triplet
+                log.error "The provided Chado data source has existing features in the feature table. " +
+                        "Initial efforts for Chado export is aimed at exporting all Apollo features to a clean Chado database"
+                returnObject.error = "The provided Chado data source already has existing features in the feature table."
+            } else {
+                // The Chado datasource has no existing features in the Feature table
+                returnObject = writeFeaturesToChado(organism, sequenceList, features)
+            }
+        }
+
+        return returnObject
     }
 
     /**
@@ -122,7 +132,7 @@ class ChadoHandlerService {
         JSONObject exportStatistics = new JSONObject()
         exportStatistics = [ "Organism count" : chadoOrganismsMap.size(), "Sequence count" : referenceSequenceMap.size(),
                              "Feature count" : chadoFeaturesMap.size(), "dbxref count" : chadoDbxrefsMap.size(),
-                             "Time Taken" : System.currentTimeMillis() - totalTime ]
+                             "Time Taken" : (System.currentTimeMillis() - totalTime) / 1000 + " seconds" ]
 
         return exportStatistics
     }

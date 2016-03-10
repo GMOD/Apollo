@@ -150,16 +150,8 @@ class IOServiceController extends AbstractApolloController {
                     returnObject = chadoHandlerService.writeFeatures(organism, [], features)
                 }
 
-                if (returnObject == null) {
-                    JSONObject error = new JSONObject()
-                    error.error = "Specified Chado data source already has annotations"
-                    render error
-                }
-                else {
-                    render returnObject
-                }
+                render returnObject
             }
-
 
             //generating a html fragment with the link for download that can be rendered on client side
             String uuidString = UUID.randomUUID().toString()
