@@ -8,7 +8,7 @@ First create a database in PostgreSQL for Chado.
 
 Note: Initial testing has only been done on PostgreSQL.
 
-Default name is `apollo_chado` for development and `apollo_chado_production` for production environment.
+Default name is `apollo_chado` and `apollo_chado_production` for development and production environment, respectively.
 
 ### Create a Chado user
 
@@ -39,3 +39,12 @@ In `apollo-config.groovy`, specify the proper database name, database user name 
 ### Export via UI
 
 Users can export existing annotations to the Chado database via the Annotator Panel -> Ref Sequence -> Export.
+
+### Export via web services
+
+Users can also leverage the Apollo web services API to export annotations to Chado.
+As a demonstration, a sample script, `export_annotations_to_chado.groovy` is provided.
+
+```
+export_annotations_to_chado.groovy -organism ORGANISM_COMMON_NAME -username APOLLO_USERNAME -password APOLLO_PASSWORD -url http://localhost:8080/apollo
+```
