@@ -10,7 +10,7 @@ services:
 - mysql
 before_script:
 - if [ ${DB} == "mysql" ]; then cp config/mysql.travis apollo-config.groovy; mysql -e 'create database apollo'; fi;
-- if [ ${DB} == "postgres" ]; then cp config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; fi;
+- if [ ${DB} == "postgres" ]; then cp config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; psql -c 'create database apollo_chado' -U postgres; gunzip -c ../chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado; fi;
 language: groovy
 cache:
   directories:
