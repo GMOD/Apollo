@@ -18,6 +18,7 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
     def transcriptService
     def exonService
     def sequenceService
+    def configWrapperService
 
     def setup() {
         Organism organism = new Organism(
@@ -37,16 +38,24 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
         ).save(flush: true)
         organism.sequences = [sequence]
         organism.save(flush: true)
+
+
     }
 
     def cleanup() {
     }
 
-    @Ignore("This test will successfully run only on a prepared data source")
+    //@Ignore("This test will successfully run only on a prepared data source")
     void "test CHADO export for standard annotations"() {
         /*
         Standard annotations signifies no modifications/attributes added to the annotations
          */
+        if (configWrapperService.hasChadoDataSource()) {
+            if (! configWrapperService.isPostgresChadoDataSource()) {
+                println "Skipping test as the currently specified Chado data source is not PostgreSQL."
+                return
+            }
+        }
 
         given: "series of different types of annotations"
         String gene1transcript1String = '{"operation":"add_transcript","features":[{"location":{"fmin":128706,"strand":1,"fmax":136964},"name":"GB40797-RA","children":[{"location":{"fmin":136502,"strand":1,"fmax":136964},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":128706,"strand":1,"fmax":128768},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":131040,"strand":1,"fmax":131220},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":131322,"strand":1,"fmax":131487},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":131749,"strand":1,"fmax":131964},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":132025,"strand":1,"fmax":132264},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":132394,"strand":1,"fmax":132620},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":133815,"strand":1,"fmax":133832},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":134173,"strand":1,"fmax":134353},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":134476,"strand":1,"fmax":134684},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":135693,"strand":1,"fmax":136260},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":136335,"strand":1,"fmax":136964},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":128706,"strand":1,"fmax":136502},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
@@ -113,8 +122,15 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
         assert org.gmod.chado.FeatureRelationship.count > 0
     }
 
-    @Ignore("This test will successfully run only on a prepared data source")
     void "test CHADO export for annotations with additional information"() {
+
+        if (configWrapperService.hasChadoDataSource()) {
+            if (! configWrapperService.isPostgresChadoDataSource()) {
+                println "Skipping test as the currently specified Chado data source is not PostgreSQL."
+                return
+            }
+        }
+
         given: "series of different types of annotations"
         String gene1transcript1String = '{"operation":"add_transcript","features":[{"location":{"fmin":102008,"strand":1,"fmax":111044},"name":"GB40794-RA","children":[{"location":{"fmin":102008,"strand":1,"fmax":102355},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":107137,"strand":1,"fmax":111044},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":102008,"strand":1,"fmax":102410},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":104075,"strand":1,"fmax":104390},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":104585,"strand":1,"fmax":104962},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":105289,"strand":1,"fmax":105448},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":105700,"strand":1,"fmax":106018},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":107017,"strand":1,"fmax":111044},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":102355,"strand":1,"fmax":107137},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
         String gene1transcript2String = '{"operation":"add_transcript","features":[{"location":{"fmin":102008,"strand":1,"fmax":111044},"name":"5:geneid_mRNA_CM000054.5_411","children":[{"location":{"fmin":102008,"strand":1,"fmax":102410},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":104075,"strand":1,"fmax":104390},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":104585,"strand":1,"fmax":104962},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":105289,"strand":1,"fmax":105448},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":105700,"strand":1,"fmax":106018},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":107017,"strand":1,"fmax":111044},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":102008,"strand":1,"fmax":102355},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":107137,"strand":1,"fmax":111044},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":102355,"strand":1,"fmax":107137},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
