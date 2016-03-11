@@ -28,9 +28,18 @@ Apollo provides a prebuilt Chado schema with the necessary ontologies. (thanks t
 
 Users can load this prebuilt Chado schema as follows:
 ```
+createdb CHADO_DB
 gunzip -c chado-schema-with-ontologies.sql.gz | psql -U CHADO_USER -h DATABASE_HOST -d CHADO_DB
 ```
 
+e.g., 
+
+```
+createdb apollo-chado
+gunzip -c chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo-chado
+```
+
+Note that you will also need to do this for your testing and production instances, as well.  
 
 ### Configure data sources
 
