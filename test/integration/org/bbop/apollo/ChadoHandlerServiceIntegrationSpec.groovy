@@ -50,11 +50,9 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
         /*
         Standard annotations signifies no modifications/attributes added to the annotations
          */
-        if (configWrapperService.hasChadoDataSource()) {
-            if (! configWrapperService.isPostgresChadoDataSource()) {
-                println "Skipping test as the currently specified Chado data source is not PostgreSQL."
-                return
-            }
+        if (! configWrapperService.isPostgresChadoDataSource()) {
+            println "Skipping test as the currently specified Chado data source is not PostgreSQL."
+            return
         }
 
         given: "series of different types of annotations"
@@ -124,11 +122,9 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
 
     void "test CHADO export for annotations with additional information"() {
 
-        if (configWrapperService.hasChadoDataSource()) {
-            if (! configWrapperService.isPostgresChadoDataSource()) {
-                println "Skipping test as the currently specified Chado data source is not PostgreSQL."
-                return
-            }
+        if (! configWrapperService.isPostgresChadoDataSource()) {
+            println "Skipping test as the currently specified Chado data source is not PostgreSQL."
+            return
         }
 
         given: "series of different types of annotations"
