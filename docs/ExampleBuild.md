@@ -24,16 +24,18 @@ wget https://github.com/GMOD/Apollo/archive/2.0.2.tar.gz mv 2.0.2.tar.gz Apollo-
 tar xf Apollo-2.0.2.tar.gz
 # Setup apollo mysql user and database
 CREATE USER 'apollo'@'localhost' IDENTIFIED BY 'THE_PASSWORD';
-CREATE DATABASE `apollogproduction`;
+CREATE DATABASE `apollo-production`;
 GRANT ALL PRIVILEGES ON `apollo-production`.* To 'apollo'@'localhost' IDENTIFIED BY 'THE_PASSWORD';
 # Configure apollo for mysql.
 cd ~/src/Apollo-2.0.2
 # Let's store the config file outside of the source tree.
 mkdir ~/apollo.config
 # Copy the template
-cp sample-mysql-apollo-config.groovy ~/apollo.config/apollo-config.groovy ln -s ~/apollo.config/apollo-config.groovy
+cp sample-mysql-apollo-config.groovy ~/apollo.config/apollo-config.groovy 
+ln -s ~/apollo.config/apollo-config.groovy
 # For now, turn off tomcat8 so that we can see if the locally-run version works service tomcat8 stop
-# Run the local version, which verifies install reqs, and does a bunch of stuff (see below) cd Apollo-2.0.2
+# Run the local version, which verifies install reqs, and does a bunch of stuff (see below) 
+cd Apollo-2.0.2
 ./apollo run-local
 
 # Some of what the Apollo installer does:
@@ -59,14 +61,14 @@ sudo cp target/apollo-2.0.2.war /var/lib/tomcat/webapps/apollo.war
 # Prepare JBrowse data
 # Add the FASTA assembly
 ~/src/Apollo-2.0.2/bin/prepare-refseqs.pl \
---fasta /research/ssc/assembly/assembly1.fasta.gz \
---out ~/organisms/ssc
+--fasta /research/dre/assembly/assembly1.fasta.gz \
+--out ~/organisms/dre
 
 # Add annotations
 ~/src/Apollo-2.0.2/bin/flatfile-to-json.pl \
---gff /research/ssc/annotation/FINAL_annotations/ssc_v4.gff \ 
---type mRNA --trackLabel Annotations --out ~/organisms/ssc
+--gff /research/dre/annotation/FINAL_annotations/ssc_v4.gff \ 
+--type mRNA --trackLabel Annotations --out ~/organisms/dre
 
-# In interface point to directory ~/organisms/ssc
+# In interface point to directory ~/organisms/dre
 ```
 
