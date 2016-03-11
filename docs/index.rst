@@ -43,3 +43,4 @@ Contents:
    Architecture
    Command_line
    Web_services
+   ExampleBuild

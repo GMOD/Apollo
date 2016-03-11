@@ -344,6 +344,8 @@ including the client/apollo/json/annot.json file at run time.
 It is not necessary to change your existing JBrowse data directories to use Apollo 2.x, you can just point to existing
 data directories from your previous instances.
 
+More information about [JBrowse](http://jbrowse.org/) can also be found in their [FAQ](http://gmod.org/wiki/JBrowse_FAQ).
+
 #### Adding custom CSS for track styling for JBrowse
 
 There are a variety of different ways to include new CSS into the browser, but the easiest might be the following
