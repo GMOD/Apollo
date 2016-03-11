@@ -17,6 +17,7 @@ class JbrowseController {
 
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
 
+    def grailsApplication
     def sequenceService
     def permissionService
     def preferenceService
@@ -336,6 +337,16 @@ class JbrowseController {
 
         if(jsonObject.include==null) jsonObject.put("include",new JSONArray())
         jsonObject.include.add("../plugins/WebApollo/json/annot.json")
+
+        def plugins = grailsApplication.config.jbrowse?.plugins
+        // not sure if I do it this way or via the include
+        if(plugins){
+            for(plugin in plugins){
+                JSONObject pluginObject = new JSONObject()
+
+                jsonObject.plugins.add(pluginObject)
+            }
+        }
 
         response.outputStream << jsonObject.toString()
         response.outputStream.close()
