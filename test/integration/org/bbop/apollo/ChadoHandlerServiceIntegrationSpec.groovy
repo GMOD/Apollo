@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.test.spock.IntegrationSpec
 import org.codehaus.groovy.grails.web.json.JSONObject
+import spock.lang.Ignore
 
 class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
 
@@ -41,6 +42,7 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
     def cleanup() {
     }
 
+    @Ignore("This test will successfully run only on a prepared data source")
     void "test CHADO export for standard annotations"() {
         /*
         Standard annotations signifies no modifications/attributes added to the annotations
@@ -111,6 +113,7 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
         assert org.gmod.chado.FeatureRelationship.count > 0
     }
 
+    @Ignore("This test will successfully run only on a prepared data source")
     void "test CHADO export for annotations with additional information"() {
         given: "series of different types of annotations"
         String gene1transcript1String = '{"operation":"add_transcript","features":[{"location":{"fmin":102008,"strand":1,"fmax":111044},"name":"GB40794-RA","children":[{"location":{"fmin":102008,"strand":1,"fmax":102355},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":107137,"strand":1,"fmax":111044},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":102008,"strand":1,"fmax":102410},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":104075,"strand":1,"fmax":104390},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":104585,"strand":1,"fmax":104962},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":105289,"strand":1,"fmax":105448},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":105700,"strand":1,"fmax":106018},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":107017,"strand":1,"fmax":111044},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":102355,"strand":1,"fmax":107137},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
