@@ -76,8 +76,6 @@ public class SequencePanel extends Composite {
     Button exportGff3Button;
     @UiField
     Button exportFastaButton;
-    //    @UiField
-    //    Button exportChadoButton;
     @UiField
     Button selectSelectedButton;
     @UiField
