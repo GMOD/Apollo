@@ -21,6 +21,7 @@ function usage(){
 
 
 grails_executable=""
+gradle_executable=""
 
 if [[ $# == 0 || $1 == help || $1 == --help ]]; then
     usage
@@ -72,6 +73,7 @@ function check_configs_for_release(){
 function check_configs(){
 
     grails_executable=$(which grails)
+    gradle_executable=$(which gradle)
     git_executable=$(which git)
 
     if ! [ -x "$grails_executable" ] ; then
@@ -80,6 +82,15 @@ function check_configs(){
 		   grails_executable="./grailsw"
 	   else
 		   echo "You must install 'grails' to install Apollo."
+		   exit 1 ;
+		fi 
+    fi
+    if ! [ -x "$gradle_executable" ] ; then
+	   if [ -f 'gradlew' ]; then 
+		   echo "Gradle not found using gradlew";
+		   gradle_executable="./gradlew"
+	   else
+		   echo "You must install 'gradle' to install Apollo."
 		   exit 1 ;
 		fi 
     fi
