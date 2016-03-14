@@ -344,3 +344,38 @@ auditLog {
     logIds = true  // log db-ids of associated objects.
 
 }
+
+jbrowse {
+    git {
+        url= "https://github.com/GMOD/jbrowse"
+        version= "master"
+    }
+    plugins {
+        WebApollo{
+            included = true
+        }
+        NeatHTMLFeatures{
+            included = true
+        }
+        NeatCanvasFeatures{
+            included = true
+        }
+        RegexSequenceSearch{
+            included = true
+        }
+        HideTrackLabels{
+            included = true
+        }
+//        MyVariantInfo {
+//            git = 'https://github.org/GMOD/myvariantinfo'
+//            branch = 'master'
+//            alwaysRecheck = "true"
+//            alwaysPull = "false"
+//        }
+//        SashimiPlot {
+//            git = 'https://github.org/cmdcolin/sashimiplot'
+//            branch = 'master'
+//            alwaysPull = "true"
+//        }
+    }
+}
