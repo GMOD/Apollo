@@ -349,6 +349,7 @@ jbrowse {
     git {
         url= "https://github.com/GMOD/jbrowse"
         version= "master"
+        alwaysPull = true
     }
     plugins {
         WebApollo{
