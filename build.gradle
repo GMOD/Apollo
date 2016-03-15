@@ -12,8 +12,8 @@ ant.importBuild 'build.xml'
 
 
 // Apply the java plugin to add support for Java
-apply plugin: 'java'
-apply plugin: 'groovy'
+//apply plugin: 'java'
+//apply plugin: 'groovy'
 
 buildscript {
     repositories { mavenCentral() }
@@ -45,6 +45,7 @@ task clone << {
 
 def jbrowseConfig
 def jbrowsePlugins
+def pluginsDirectory = "jbrowse-download/plugins"
 
 task evaluateJBrowseConfigs {
     // gradle read in Config.groovy
@@ -63,16 +64,68 @@ task evaluateJBrowseConfigs {
     println "final plugins ${jbrowsePlugins}"
 }
 
-task installJBrowse {
-    println "installing jbrowse ${jbrowseConfig}"
+task copyResourcesDev(dependsOn:"copy-resources-dev") << {
 
 }
+
+task installJBrowse(dependsOn: "setup-jbrowse") {
+    println "installing jbrowse ${jbrowseConfig}"
+//    tasks["setup-jbrowse"]
+
+    // TODO: checkout proper version and remove from other
+
+    // TODO: pull if "always pull" is selected
+
+//    tasks["copy-resources-dev"]
+//    copyResourcesDev.execute()
+}
+
+task setupJBrowse(dependsOn:"setup-jbrowse"){ }
 
 task installJBrowsePlugins {
     println "installing jbrowse plugins  ${jbrowsePlugins}"
+
+    for(plugin in jbrowsePlugins){
+        def path = pluginsDirectory+"/"+plugin.key
+        def pluginExists = confirmPlugin(path)
+        if(plugin.value.included==true){
+            if(pluginExists){
+                println "Plugin ${path} exists and appears valid."
+            }
+            else{
+                println "ERROR: There is a problem with the plugin at ${path}!"
+            }
+        }
+        else
+        if(plugin.value.git==true){
+            if(pluginExists){
+                println "Plugin ${path} exists and appears valid."
+                println "git pull if alwaysPull"
+                println "git checkout proper directory"
+            }
+            else{
+                println "git clone to the proper directory"
+            }
+        }
+        else
+        if(plugin.value.url==true){
+            if(!pluginExists){
+                println "Plugin ${path} exists and appears valid."
+            }
+        }
+        else{
+            println "not included . . requiring action"
+        }
+    }
 }
 
-task handleJBrowse (dependsOn:['evaluateJBrowseConfigs','installJBrowse','installJBrowsePlugins']){
+// root task
+task handleJBrowse (dependsOn:['evaluateJBrowseConfigs','installJBrowse','installJBrowsePlugins',"copyResourcesDev"]){
     println "handling jbrowse ${jbrowseConfig}"
 
+}
+
+def confirmPlugin(String path) {
+    File file = new File(path)
+    return file.exists() && file.isDirectory() && file.canRead()
 }
