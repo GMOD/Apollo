@@ -113,28 +113,43 @@ task installJBrowsePlugins << {
                 println "Plugin ${path} exists and appears valid."
             } else {
                 println "ERROR: There is a problem with the plugin at ${path}!"
+                throw new StopExecutionException("Included plugin ${path} not found in build")
             }
         } else if (plugin.value.git) {
-            println "is GIT"
+            println "Plugin is supplied by git"
             if (pluginExists) {
                 println "Plugin ${path} exists and appears valid."
-                println "git pull if alwaysPull"
-                println "git checkout proper directory"
+                def grgit = Grgit.open(currentDir: path )
+                if(plugin.value.alwaysRecheck || plugin.value.alwaysPull){
+                    println "Checking out branch ${plugin.value.branch}"
+                    grgit.checkout(createBranch:false,branch:plugin.value.branch)
+
+                    if(plugin.value.alwaysPull){
+                        println "Pulling"
+                        grgit.pull(rebase:false)
+                    }
+                }
+
+
             } else {
                 println "git clone to the proper directory"
                 println "cloning from ${plugin.value.git} into ${path}"
                 currentPlugin = plugin
                 println "current plugin ${currentPlugin}"
                 println "attemptping to clone from '${plugin.value.git}' into '${path}'"
-                def grgit = Grgit.clone(dir: path , uri: plugin.value.git)
+                def grgit = Grgit.clone(dir: path , uri: plugin.value.git,refToCheckout:plugin.value.branch)
                 println "CLONED from ${plugin.value.git} into ${path}"
             }
-        } else if (plugin.value.url == true) {
+        }
+        else if (plugin.value.url == true) {
+            // TODO: test
             if (!pluginExists) {
-                println "Plugin ${path} exists and appears valid."
+                println "Plugin ${path} exists and appears valid . . . downloading."
+                def f = new File(path)
+                new URL(plugin.value.url).withInputStream{ i -> f.withOutputStream{ it << i }}
             }
         } else {
-            println "not included . . requiring action"
+            throw new StopExecutionException("Invalid plugin settings for ${path}")
         }
     }
 }
