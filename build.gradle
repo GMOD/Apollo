@@ -109,7 +109,7 @@ task installJBrowse << {
         } else {
             println "Cloning: ${git.url} into ${jbrowseDirectory}."
             def grgit = Grgit.clone(bare:false,dir: jbrowseDirectory, uri: git.url, refToCheckout: git.branch)
-            grgit.build()
+            Grgit.open()
         }
     } else if (jbrowseConfig.url) {
         def f = new File(jbrowseDirectory)
@@ -164,6 +164,7 @@ task installJBrowsePlugins << {
             } else {
                 println "Cloning '${plugin.value.git}' into '${path}'"
                 def grgit = Grgit.clone(dir: path, uri: plugin.value.git, refToCheckout: plugin.value.branch)
+                Grgit.open()
                 println "CLONED from ${plugin.value.git} into ${path}"
             }
         } else if (plugin.value.url == true) {
