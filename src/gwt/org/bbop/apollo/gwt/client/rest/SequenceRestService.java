@@ -12,6 +12,7 @@ import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ExportPanel;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
@@ -30,7 +31,7 @@ public class SequenceRestService {
         jsonObject.put("type", new JSONString(exportPanel.getType()));
         jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
 
-        if (type.equals("CHADO")) {
+        if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
             jsonObject.put("chadoExportType", new JSONString(exportPanel.getChadoExportType()));
             jsonObject.put("seqType", new JSONString(""));
             jsonObject.put("exportGff3Fasta", new JSONString(""));
@@ -50,7 +51,6 @@ public class SequenceRestService {
             jsonArray.set(jsonArray.size(), new JSONString(sequenceInfo.getName()));
         }
         jsonObject.put("sequences", jsonArray);
-        GWT.log("GENERATE LINK: " + jsonObject.toString());
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -73,7 +73,6 @@ public class SequenceRestService {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
-                GWT.log("Response received: " + responseObject.toString());
                 exportPanel.showExportStatus(responseObject.toString());
             }
 
@@ -83,7 +82,7 @@ public class SequenceRestService {
             }
         };
 
-        if (type.equals("CHADO")) {
+        if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
             RestService.sendRequest(requestCallbackForChadoExport, "IOService/write", "data=" + jsonObject.toString());
         }
         else {
@@ -102,12 +101,10 @@ public class SequenceRestService {
             jsonArray.set(jsonArray.size(), new JSONString(sequenceInfo.getName()));
         }
         jsonObject.put("sequences", jsonArray);
-        GWT.log("JSONOBJECT FOR REQUEST: " + jsonObject.toString());
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
-                GWT.log("Response received: " + responseObject.toString());
             }
 
             @Override

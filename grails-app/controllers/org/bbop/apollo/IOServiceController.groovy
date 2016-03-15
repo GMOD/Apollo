@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.DownloadFile
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -114,7 +115,7 @@ class IOServiceController extends AbstractApolloController {
             File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
             String fileName
 
-            if (typeOfExport == "GFF3") {
+            if (typeOfExport == FeatureStringEnum.TYPE_GFF3.getValue()) {
                 // adding sequence alterations to list of features to export
                 if(exportAllSequences!="true"&&sequences!=null&&!(sequences.class == JSONArray.class)) {
                     fileName = "Annotations-" + sequences + "." + typeOfExport.toLowerCase() + (format=="gzip"?".gz":"")
@@ -128,7 +129,7 @@ class IOServiceController extends AbstractApolloController {
                 } else {
                     gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
                 }
-            } else if (typeOfExport == "FASTA") {
+            } else if (typeOfExport == FeatureStringEnum.TYPE_FASTA.getValue()) {
                 if(exportAllSequences!="true"&&sequences!=null&&!(sequences.class == JSONArray.class)) {
                     fileName = "Annotations-" + sequences + "." + sequenceType + "." + typeOfExport.toLowerCase() + (format=="gzip"?".gz":"")
                 }
@@ -139,7 +140,7 @@ class IOServiceController extends AbstractApolloController {
                 // call fastaHandlerService
                 fastaHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
             }
-            else if (typeOfExport == "CHADO"){
+            else if (typeOfExport == FeatureStringEnum.TYPE_CHADO.getValue()){
                 JSONObject returnObject = new JSONObject()
                 if (sequences) {
                     returnObject = chadoHandlerService.writeFeatures(organism, sequenceList, features)

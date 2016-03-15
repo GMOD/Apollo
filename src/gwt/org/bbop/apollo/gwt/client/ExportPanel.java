@@ -68,21 +68,20 @@ public class ExportPanel extends Modal {
 
 
         ButtonGroup buttonGroup = new ButtonGroup();
-
         buttonGroup.setDataToggle(Toggle.BUTTONS);
-        if (type.equals("FASTA")) {
+        if (type.equals(FeatureStringEnum.TYPE_FASTA.getValue())) {
             buttonGroup.add(genomicRadioButton);
             buttonGroup.add(cdnaRadioButton);
             buttonGroup.add(cdsRadioButton);
             buttonGroup.add(peptideRadioButton);
         }
         else
-        if (type.equals("GFF3")) {
+        if (type.equals(FeatureStringEnum.TYPE_GFF3.getValue())) {
             buttonGroup.add(gff3Button);
             buttonGroup.add(gff3WithFastaButton);
         }
         else
-        if (type.equals("CHADO")) {
+        if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
             buttonGroup.add(chadoCleanButton);
             //buttonGroup.add(chadoExistingButton);
         }
@@ -176,6 +175,8 @@ public class ExportPanel extends Modal {
         //this.chadoExistingButton.setVisible(false);
         this.chadoCleanButton.setVisible(false);
         this.exportButton.setVisible(false);
+        this.closeButton.setText("OK");
+        this.closeButton.setWidth("45px");
         Div status = new Div();
 
         exportButton.setIconSpin(false);
@@ -240,12 +241,12 @@ public class ExportPanel extends Modal {
 
     public String getChadoExportType() {
         String exportType = null;
-        if (type.equals("CHADO")) {
+        if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
             if (chadoCleanButton.isActive()) {
-                exportType = "CLEAN";
+                exportType = FeatureStringEnum.EXPORT_CHADO_CLEAN.getValue();
             }
 //            else if (chadoExistingButton.isActive()) {
-//                exportType = "UPDATE";
+//                exportType = FeatureStringEnum.EXPORT_CHADO_UPDATE.getValue();
 //            }
         }
         return exportType;
