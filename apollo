@@ -90,6 +90,11 @@ function check_configs(){
 
 }
 
+function copy_configs(){
+	rm -f src/java/apollo-config.groovy
+    cp apollo-config.groovy src/java/apollo-config.groovy
+}
+
 
 
 if [[ $1 == "devmode" ]];then
@@ -109,6 +114,7 @@ elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
     OLD_MAVEN_OPTS=$MAVEN_OPTS
     check_configs
+	copy_configs
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
     ant devmode &
     $grails_executable -reloading debug
@@ -117,18 +123,19 @@ elif [[ $1 == "debug" ]];then
 elif [[ $1 == "test" ]];then
     # should call the copy target first
     check_configs
+	copy_configs
     $grails_executable test-app
 elif [[ $1 == "test-unit" ]];then
     # should call the copy target first
     check_configs
+	copy_configs
     $grails_executable test-app :unit
 #    mvn test
 elif [[ $1 == "deploy" ]];then
     # should call the copy target first
     check_configs
     # this makes it globally available
-    rm -f src/java/apollo-config.groovy
-    cp apollo-config.groovy src/java/apollo-config.groovy
+    copy_configs
     #grails deploy
     ant copy-resources gwtc &&  $grails_executable war
     deploy_message
@@ -136,8 +143,7 @@ elif [[ $1 == "release" ]];then
     # should call the copy target first
     check_configs
     check_configs_for_release
-    rm -f src/java/apollo-config.groovy
-    cp apollo-config.groovy src/java/apollo-config.groovy
+    copy_configs
     ant clean-all release gwtc && $grails_executable war
     deploy_message
 elif [[ $1 == "compile" ]];then
