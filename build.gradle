@@ -54,17 +54,6 @@ def pluginsDirectory = "jbrowse-download/plugins"
 def currentPlugin
 
 
-task cloneTask(type: CloneTask)
-
-class CloneTask extends DefaultTask {
-
-    @TaskAction
-    def clone() {
-        def grgit = Grgit.clone(dir: 'asdf', uri: 'https://github.com/GMOD/myvariantviewer')
-    }
-}
-
-
 task evaluateJBrowseConfigs {
     // gradle read in Config.groovy
     def config = new ConfigSlurper().parse(new File("grails-app/conf/Config.groovy").toURI().toURL())
@@ -72,13 +61,21 @@ task evaluateJBrowseConfigs {
     jbrowsePlugins = jbrowseConfig.plugins
     // if apollo-config.groovy exists, read THAT in and apply it as well
     File testFile = new File("apollo-config.groovy")
-    if (testFile) {
-        def revisedConfig = new ConfigSlurper().parse(new File("apollo-config.groovy").toURI().toURL())
+    def revisedConfig
+    if (testFile.exists()) {
+        revisedConfig = new ConfigSlurper().parse(new File("apollo-config.groovy").toURI().toURL())
+    }
+    else{
+        Class scriptClass = getClass().classLoader.loadClass('apollo-config.groovy')
+        revisedConfig = new ConfigSlurper().parse(scriptClass)
+    }
+
+    if(revisedConfig){
         jbrowseConfig = revisedConfig.jbrowse ?: jbrowseConfig
         jbrowsePlugins << revisedConfig.jbrowse.plugins
     }
-    println "final JBrowse settings ${jbrowseConfig}"
 
+    println "final JBrowse settings ${jbrowseConfig}"
     println "final plugins ${jbrowsePlugins}"
 }
 
