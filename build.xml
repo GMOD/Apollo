@@ -129,7 +129,7 @@
         </exec>
     </target>
 
-    <target name="unoptimized" description="unoptimized" depends="git.clone,copy.apollo.plugin.jbrowse">
+    <target name="unoptimized" description="unoptimized" depends="cloneJBrowse,copy.apollo.plugin.jbrowse">
         <copy todir="${apollo.jbrowse.directory}">
             <fileset dir="${jbrowse.download.directory}">
                 <not>
@@ -142,7 +142,7 @@
     </target>
 
     <target name="release" description=""
-            depends="clean,git.clone,copy.apollo.plugin.jbrowse,build.jbrowse,install.jbrowse.perl">
+            depends="clean,cloneJBrowse,copy.apollo.plugin.jbrowse,build.jbrowse,install.jbrowse.perl">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}.zip"/>
@@ -159,7 +159,7 @@
     </target>
 
     <target name="debug" description=""
-            depends="clean,git.clone,copy.apollo.plugin.jbrowse,build.jbrowse">
+            depends="clean,cloneJBrowse,copy.apollo.plugin.jbrowse,build.jbrowse">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}-dev.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}-dev.zip"/>
@@ -179,7 +179,7 @@
         </exec>
     </target>
 
-    <target name="git.clone" description="Clone git repository." unless="jbrowse.git.present">
+    <target name="cloneJBrowse" description="Clone git repository." unless="jbrowse.git.present">
         <exec executable="git" failifexecutionfails="false" errorproperty="">
             <arg value="clone"/>
             <arg value="--recursive"/>
@@ -222,7 +222,7 @@
 
 
     <target name="setup-jbrowse" unless="jbrowse.webapp.installed">
-        <antcall target="git.clone"/>
+        <antcall target="cloneJBrowse"/>
         <antcall target="copy.apollo.plugin.jbrowse"/>
 
 

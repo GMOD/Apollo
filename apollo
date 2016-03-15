@@ -108,16 +108,16 @@ elif [[ $1 == "run-local" ]];then
     # should call the copy target first
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable copy-resources gwtc && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable handleJBrowse copy-resources gwtc && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable copy-resources gwtc && $grails_executable run-app
+        $gradle_executable handleJBrowse copy-resources gwtc && $grails_executable run-app
     fi
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
     OLD_MAVEN_OPTS=$MAVEN_OPTS
     check_configs
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
-    $gradle_executable devmode &
+    $gradle_executable handleJBrowse devmode &
     $grails_executable -reloading debug
     export MAVEN_OPTS=$OLD_MAVEN_OPTS
     unset OLD_MAVEN_OPTS
@@ -137,7 +137,7 @@ elif [[ $1 == "deploy" ]];then
     rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
     #grails deploy
-    $gradle_executable copy-resources gwtc &&  $grails_executable war
+    $gradle_executable handleJBrowse copy-resources gwtc &&  $grails_executable war
     deploy_message
 elif [[ $1 == "release" ]];then
     # should call the copy target first
@@ -145,17 +145,17 @@ elif [[ $1 == "release" ]];then
     check_configs_for_release
     rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
-    $gradle_executable clean-all release gwtc && $grails_executable war
+    $gradle_executable clean-all handleJBrowse release gwtc && $grails_executable war
     deploy_message
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
     check_configs
-    $gradle_executable gwtc && $grails_executable compile
+    $gradle_executable handleJBrowse gwtc && $grails_executable compile
 elif [[ $1 == "create-rest-doc" ]];then
     check_configs
     # should call the copy target first
 	# need to copy it 
-    $grails_executable rest-api-doc && cp restapidoc.json web-app/js/restapidoc/
+    $grails_executable compile && $grails_executable rest-api-doc && cp restapidoc.json web-app/js/restapidoc/
 elif [[ $1 == "clean-all" ]];then
     # should call the copy target first
     check_configs
@@ -171,6 +171,7 @@ elif [[ $1 == "clean" ]];then
     check_configs
     $gradle_executable clean &&  $grails_executable clean
 elif [[ $1 == "jbrowse" ]];then
+    # used to update / force jbrowse?
     # should call the copy target first
     check_configs
     $gradle_executable handleJbrowse
