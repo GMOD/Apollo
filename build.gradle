@@ -66,13 +66,17 @@ task evaluateJBrowseConfigs {
     jbrowseConfig = config.jbrowse
     jbrowsePlugins = jbrowseConfig.plugins
     // if apollo-config.groovy exists, read THAT in and apply it as well
-    File testFile = new File("apollo-config.groovy")
+    File testFile = new File("./apollo-config.groovy")
     def revisedConfig
     if (testFile.exists()) {
         revisedConfig = new ConfigSlurper().parse(new File("apollo-config.groovy").toURI().toURL())
     } else {
-        Class scriptClass = getClass().classLoader.loadClass('apollo-config.groovy')
-        revisedConfig = new ConfigSlurper().parse(scriptClass)
+        try {
+            Class scriptClass = getClass().classLoader.loadClass('apollo-config.groovy')
+            revisedConfig = new ConfigSlurper().parse(scriptClass)
+        } catch (e) {
+            println "No log file found in classpath."
+        }
     }
 
     if (revisedConfig) {
