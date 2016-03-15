@@ -17,6 +17,7 @@ Now, create a database user that has all access privileges to the newly created 
 ### Load Chado schema and ontologies
 
 Apollo assumes that the Chado database has Chado schema v1.2  or greater and has the following ontologies loaded:
+
 1. Relations Ontology
 2. Sequence Ontology
 3. Gene Ontology
@@ -36,7 +37,7 @@ e.g.,
 
 ```
 createdb apollo-chado
-gunzip -c chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo-chado
+gunzip -c chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado
 ```
 
 Note that you will also need to do this for your testing and production instances, as well.  
@@ -53,6 +54,8 @@ Users can export existing annotations to the Chado database via the Annotator Pa
 
 Users can also leverage the Apollo web services API to export annotations to Chado.
 As a demonstration, a sample script, `export_annotations_to_chado.groovy` is provided.
+
+Usage for the script:
 
 ```
 export_annotations_to_chado.groovy -organism ORGANISM_COMMON_NAME -username APOLLO_USERNAME -password APOLLO_PASSWORD -url http://localhost:8080/apollo
