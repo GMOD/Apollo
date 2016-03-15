@@ -109,18 +109,20 @@ task installJBrowse << {
         } else {
             println "Cloning: ${git.url} into ${jbrowseDirectory}."
             def branch = git.branch ?: (git.tag ? "tags/${git.tag}" : null)
-            def grgit = Grgit.clone(bare:false,dir: jbrowseDirectory, uri: git.url, refToCheckout: branch)
-            Grgit.open()
-//            def commandToExecute = "git clone --recursive ${git.url} ${jbrowseDirectory} "
-//            println "command to execute [${commandToExecute}]"
-//            def proc = commandToExecute.execute()
-//            def outputStream = new StringBuffer();
-//            def errorStream = new StringBuffer();
-//            proc.waitForProcessOutput(outputStream, errorStream);
-//            println outputStream
-//            println errorStream
+//            def grgit = Grgit.clone(bare:false,dir: jbrowseDirectory, uri: git.url, refToCheckout: branch)
+//            Grgit.open()
+            cloneRepo(git.url,jbrowseDirectory,branch)
+            def commandToExecute = "git clone --recursive ${git.url} ${jbrowseDirectory} "
+            println "command to execute [${commandToExecute}]"
+            def proc = commandToExecute.execute()
+            def outputStream = new StringBuffer();
+            def errorStream = new StringBuffer();
+            proc.waitForProcessOutput(outputStream, errorStream);
+            println outputStream
+            println errorStream
 //
-//            "cd ${jbrowseDirectory}".execute()
+            "cd ${jbrowseDirectory}".execute()
+            "git checkout ${branch}".execute()
 //            if(git.branch){
 //                "git checkout ${git.branch}".execute()
 //            }
@@ -184,9 +186,9 @@ task installJBrowsePlugins << {
                 }
             } else {
                 println "Cloning '${plugin.value.git}' into '${path}'"
-
-                def grgit = Grgit.clone(dir: path, uri: plugin.value.git, refToCheckout: plugin.value.branch)
-                Grgit.open()
+//                def grgit = Grgit.clone(dir: path, uri: plugin.value.git, refToCheckout: plugin.value.branch)
+//                Grgit.open()
+                cloneRepo(plugin.value.git,path,plugin.value.branch)
                 println "CLONED from ${plugin.value.git} into ${path}"
             }
         } else if (plugin.value.url == true) {
@@ -218,3 +220,17 @@ def confirmPlugin(String path) {
     return file.exists() && file.isDirectory() && file.canRead()
 }
 
+def cloneRepo(String url, String directory, String branch) {
+    def commandToExecute = "git clone --recursive ${url} ${directory} "
+    println "command to execute [${commandToExecute}]"
+    def proc = commandToExecute.execute()
+    def outputStream = new StringBuffer();
+    def errorStream = new StringBuffer();
+    proc.waitForProcessOutput(outputStream, errorStream);
+    println outputStream
+    println errorStream
+//
+    "cd ${directory}".execute()
+    "git checkout ${branch}".execute()
+
+}
