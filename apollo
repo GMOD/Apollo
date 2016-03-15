@@ -62,10 +62,6 @@ function check_perldependencies(){
 }
 
 function check_configs_for_release(){
-    ant_executable=$(which ant)
-    if ! [ -x "$ant_executable" ] ; then
-        echo "You must install 'ant' to do a release of Apollo."
-    fi
     check_node
     check_perldependencies
 }
@@ -106,22 +102,22 @@ function check_configs(){
 if [[ $1 == "devmode" ]];then
     # should call the copy target first
     check_configs
-    ant devmode &
+    $gradle_executable devmode &
     $grails_executable -reloading run-app  
 elif [[ $1 == "run-local" ]];then
     # should call the copy target first
     check_configs
     if [[ $# == 2 ]]; then
-        ant copy-resources gwtc && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable copy-resources gwtc && $grails_executable -Dserver.port=$2 run-app
     else
-        ant copy-resources gwtc && $grails_executable run-app
+        $gradle_executable copy-resources gwtc && $grails_executable run-app
     fi
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
     OLD_MAVEN_OPTS=$MAVEN_OPTS
     check_configs
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
-    ant devmode &
+    $gradle_executable devmode &
     $grails_executable -reloading debug
     export MAVEN_OPTS=$OLD_MAVEN_OPTS
     unset OLD_MAVEN_OPTS
@@ -141,7 +137,7 @@ elif [[ $1 == "deploy" ]];then
     rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
     #grails deploy
-    ant copy-resources gwtc &&  $grails_executable war
+    $gradle_executable copy-resources gwtc &&  $grails_executable war
     deploy_message
 elif [[ $1 == "release" ]];then
     # should call the copy target first
@@ -149,12 +145,12 @@ elif [[ $1 == "release" ]];then
     check_configs_for_release
     rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
-    ant clean-all release gwtc && $grails_executable war
+    $gradle_executable clean-all release gwtc && $grails_executable war
     deploy_message
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
     check_configs
-    ant gwtc && $grails_executable compile
+    $gradle_executable gwtc && $grails_executable compile
 elif [[ $1 == "create-rest-doc" ]];then
     check_configs
     # should call the copy target first
@@ -168,12 +164,12 @@ elif [[ $1 == "clean-all" ]];then
     rm -rf JBrowse-dev
     rm -rf src/main/webapp/jbrowse
     rm -f *.zip
-    ant clean-all
+    $gradle_executable clean-all
     $grails_executable clean 
 elif [[ $1 == "clean" ]];then
     # should call the copy target first
     check_configs
-    ant clean &&  $grails_executable clean
+    $gradle_executable clean &&  $grails_executable clean
 elif [[ $1 == "jbrowse" ]];then
     # should call the copy target first
     check_configs
