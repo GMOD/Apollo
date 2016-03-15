@@ -367,12 +367,13 @@ jbrowse {
         HideTrackLabels{
             included = true
         }
-//        MyVariantInfo {
-//            git = 'https://github.org/GMOD/myvariantinfo'
-//            branch = 'master'
-//            alwaysRecheck = "true"
-//            alwaysPull = "false"
-//        }
+        MyVariantInfo {
+            git = 'https://github.org/GMOD/myvariantviewer'
+//            git = 'git@github.com:GMOD/myvariantviewer.git'
+            branch = 'master'
+            alwaysRecheck = "true"
+            alwaysPull = "false"
+        }
 //        SashimiPlot {
 //            git = 'https://github.org/cmdcolin/sashimiplot'
 //            branch = 'master'
