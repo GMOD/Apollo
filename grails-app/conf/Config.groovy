@@ -346,12 +346,18 @@ auditLog {
 }
 
 jbrowse {
-    git {
-        url= "https://github.com/GMOD/jbrowse"
-        tag = "1.12.1-release"
-//        branch = "master"
-        alwaysPull = true
-        alwaysRecheck = true
+//    git {
+//        url= "https://github.com/GMOD/jbrowse"
+//        tag = "1.12.1-release"
+////        branch = "master"
+//        alwaysPull = true
+//        alwaysRecheck = true
+//    }
+    url {
+        // always use dev for apollo
+        url = "http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=102"
+        type ="zip"
+        fileName = "JBrowse-1.12.0-dev"
     }
     plugins {
         WebApollo{
