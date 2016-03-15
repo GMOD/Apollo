@@ -368,7 +368,7 @@ jbrowse {
             included = true
         }
         MyVariantInfo {
-            git = 'https://github.org/GMOD/myvariantviewer'
+            git = 'https://github.com/GMOD/myvariantviewer'
 //            git = 'git@github.com:GMOD/myvariantviewer.git'
             branch = 'master'
             alwaysRecheck = "true"
