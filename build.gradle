@@ -92,47 +92,27 @@ task installJBrowse << {
         def git = jbrowseConfig.git
         File jbrowseFile = new File(jbrowseDirectory)
         if (jbrowseFile.exists()) {
-            def grgit = Grgit.open(currentDir: jbrowseDirectory)
+//            def grgit = Grgit.open(currentDir: jbrowseDirectory)
             if (git.alwaysRecheck || git.alwaysPull) {
                 if (git.tag) {
-                    grgit.fetch(prune: true, tagMode: FetchOp.TagMode.AUTO)
-                    grgit.checkout(createBranch: false, branch: "tags/" + git.tag)
+                    fetchTags(jbrowseFile)
+                    checkoutBranch(jbrowseFile,"tags/"+git.tag)
                 } else if (git.branch) {
-                    grgit.checkout(createBranch: false, branch: git.branch)
+                    checkoutBranch(jbrowseFile,git.branch)
                 }
                 if (git.alwaysPull && git.branch) {
                     println "Pulling ${git.url}"
-                    grgit.pull(rebase: false)
+//                    grgit.pull(rebase: false)
+                    "git pull".execute()
+                    gitPull(jbrowseFile)
                 }
-                grgit.build()
+//                grgit.build()
             }
         } else {
             println "Cloning: ${git.url} into ${jbrowseDirectory}."
             def branch = git.branch ?: (git.tag ? "tags/${git.tag}" : null)
-//            def grgit = Grgit.clone(bare:false,dir: jbrowseDirectory, uri: git.url, refToCheckout: branch)
-//            Grgit.open()
-            cloneRepo(git.url,jbrowseDirectory,branch)
-            def commandToExecute = "git clone --recursive ${git.url} ${jbrowseDirectory} "
-            println "command to execute [${commandToExecute}]"
-            def proc = commandToExecute.execute()
-            def outputStream = new StringBuffer();
-            def errorStream = new StringBuffer();
-            proc.waitForProcessOutput(outputStream, errorStream);
-            println outputStream
-            println errorStream
-//
-            "cd ${jbrowseDirectory}".execute()
-            "git checkout ${branch}".execute()
-//            if(git.branch){
-//                "git checkout ${git.branch}".execute()
-//            }
-//            if(git.tag){
-//                "git checkout tags/${git.tag}".execute()
-//            }
-//
-//            println "finished"
-//            def grgit = Grgit.clone(bare:false,dir: jbrowseDirectory, uri: git.url, refToCheckout: git.branch)
-//            Grgit.open()
+            cloneRepo(git.url, jbrowseDirectory, branch, 1)
+            checkoutBranch(jbrowseFile,branch)
         }
     } else if (jbrowseConfig.url) {
         def f = new File(jbrowseDirectory)
@@ -188,7 +168,7 @@ task installJBrowsePlugins << {
                 println "Cloning '${plugin.value.git}' into '${path}'"
 //                def grgit = Grgit.clone(dir: path, uri: plugin.value.git, refToCheckout: plugin.value.branch)
 //                Grgit.open()
-                cloneRepo(plugin.value.git,path,plugin.value.branch)
+                cloneRepo(plugin.value.git, path, plugin.value.branch)
                 println "CLONED from ${plugin.value.git} into ${path}"
             }
         } else if (plugin.value.url == true) {
@@ -208,7 +188,7 @@ task installJBrowsePlugins << {
 task handleJBrowse(dependsOn: ['evaluateJBrowseConfigs', 'installJBrowse', 'installJBrowsePlugins']) {
     println "handling jbrowse ${jbrowseConfig}"
 
-    doLast{
+    doLast {
         setupJBrowse
         copyResourcesDev
     }
@@ -221,7 +201,12 @@ def confirmPlugin(String path) {
 }
 
 def cloneRepo(String url, String directory, String branch) {
-    def commandToExecute = "git clone --recursive ${url} ${directory} "
+    cloneRepo(url, directory, branch, null)
+}
+
+def cloneRepo(String url, String directory, String branch, Integer depth) {
+    String depthString = depth != null && depth > 0 ? " --recursive --depth ${depth} " : ""
+    def commandToExecute = "git clone ${depthString} ${url} ${directory} "
     println "command to execute [${commandToExecute}]"
     def proc = commandToExecute.execute()
     def outputStream = new StringBuffer();
@@ -233,4 +218,48 @@ def cloneRepo(String url, String directory, String branch) {
     "cd ${directory}".execute()
     "git checkout ${branch}".execute()
 
+}
+
+def fetchTags(File file) {
+    println "fetching tags"
+    def processBuilder = new ProcessBuilder()
+    processBuilder.redirectErrorStream(true)
+    processBuilder.directory(file)
+    processBuilder.command("git","fetch","--tags")
+    def proc = processBuilder.start()
+    def outputStream = new StringBuffer();
+    def errorStream = new StringBuffer();
+    proc.waitForProcessOutput(outputStream, errorStream);
+    println "Out: " +outputStream
+    println "Error: " +errorStream
+}
+
+
+def checkoutBranch(File file, String branch) {
+    println "checkout out branch ${branch}"
+    def processBuilder = new ProcessBuilder()
+    processBuilder.redirectErrorStream(true)
+    processBuilder.directory(file)
+    processBuilder.command("git","checkout",branch)
+    def proc = processBuilder.start()
+    def outputStream = new StringBuffer();
+    def errorStream = new StringBuffer();
+    proc.waitForProcessOutput(outputStream, errorStream);
+    println "Out: " +outputStream
+    println "Error: " +errorStream
+
+}
+
+def gitPull(File file) {
+    println "git pull ${file.absolutePath}"
+    def processBuilder = new ProcessBuilder()
+    processBuilder.redirectErrorStream(true)
+    processBuilder.directory(file)
+    processBuilder.command("git","pull")
+    def proc = processBuilder.start()
+    def outputStream = new StringBuffer();
+    def errorStream = new StringBuffer();
+    proc.waitForProcessOutput(outputStream, errorStream);
+    println "Out: " +outputStream
+    println "Error: " +errorStream
 }
