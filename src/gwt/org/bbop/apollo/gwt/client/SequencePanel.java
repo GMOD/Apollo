@@ -76,8 +76,6 @@ public class SequencePanel extends Composite {
     Button exportGff3Button;
     @UiField
     Button exportFastaButton;
-    //    @UiField
-    //    Button exportChadoButton;
     @UiField
     Button selectSelectedButton;
     @UiField
@@ -303,12 +301,10 @@ public class SequencePanel extends Composite {
     }
 
     @UiHandler(value = {"exportGff3Button", "exportFastaButton","exportChadoButton"})
-    // Disabling exportChadoButton for future release (Apollo 2.0 alpha2)
-    // @UiHandler(value = {"exportGff3Button", "exportFastaButton", "exportChadoButton"})
     public void handleExportTypeChanged(ClickEvent clickEvent) {
         exportGff3Button.setType(ButtonType.DEFAULT);
         exportFastaButton.setType(ButtonType.DEFAULT);
-//        exportChadoButton.setType(ButtonType.DEFAULT);
+        exportChadoButton.setType(ButtonType.DEFAULT);
         Button selectedButton = (Button) clickEvent.getSource();
         switch (selectedButton.getText()) {
             case "GFF3":
@@ -320,9 +316,6 @@ public class SequencePanel extends Composite {
             case "CHADO":
                 exportChadoButton.setType(ButtonType.PRIMARY);
                 break;
-//            case "CHADO":
-//                exportChadoButton.setType(ButtonType.PRIMARY);
-//                break;
         }
     }
 
