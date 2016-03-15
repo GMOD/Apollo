@@ -62,8 +62,13 @@ class ChadoHandlerService {
                         "Initial efforts for Chado export is aimed at exporting all Apollo features to a clean Chado database"
                 returnObject.error = "The provided Chado data source already has existing features in the feature table."
             } else {
-                // The Chado datasource has no existing features in the Feature table
-                returnObject = writeFeaturesToChado(organism, sequenceList, features)
+                if (organism.genus == null || organism.species == null) {
+                    log.error "Apollo Organism must have genus and species defined."
+                    returnObject.error = "Apollo Organism must have genus and species defined."
+                }
+                else {
+                    returnObject = writeFeaturesToChado(organism, sequenceList, features)
+                }
             }
         }
 
@@ -87,7 +92,7 @@ class ChadoHandlerService {
         long startTime, endTime, totalTime
         totalTime = System.currentTimeMillis()
         startTime = System.currentTimeMillis()
-        ArrayList<org.gmod.chado.Cvterm> cvTerms = org.gmod.chado.Cvterm.all
+        List<org.gmod.chado.Cvterm> cvTerms = org.gmod.chado.Cvterm.all
         endTime = System.currentTimeMillis()
         log.debug "Time taken to query for existing Chado Cvterm: ${endTime - startTime} ms"
         if (cvTerms.size() > 0) {
