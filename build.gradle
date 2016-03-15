@@ -108,7 +108,8 @@ task installJBrowse << {
             }
         } else {
             println "Cloning: ${git.url} into ${jbrowseDirectory}."
-            def grgit = Grgit.clone(bare:false,dir: jbrowseDirectory, uri: git.url, refToCheckout: git.branch)
+            def branch = git.branch ?: (git.tag ? "tags/${git.tag}" : null)
+            def grgit = Grgit.clone(bare:false,dir: jbrowseDirectory, uri: git.url, refToCheckout: branch)
             Grgit.open()
 //            def commandToExecute = "git clone --recursive ${git.url} ${jbrowseDirectory} "
 //            println "command to execute [${commandToExecute}]"
