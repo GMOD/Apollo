@@ -76,10 +76,10 @@ public class SequencePanel extends Composite {
     Button exportGff3Button;
     @UiField
     Button exportFastaButton;
-    //    @UiField
-    //    Button exportChadoButton;
     @UiField
     Button selectSelectedButton;
+    @UiField
+    Button exportChadoButton;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -300,13 +300,11 @@ public class SequencePanel extends Composite {
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 
-    @UiHandler(value = {"exportGff3Button", "exportFastaButton"})
-    // Disabling exportChadoButton for future release (Apollo 2.0 alpha2)
-    // @UiHandler(value = {"exportGff3Button", "exportFastaButton", "exportChadoButton"})
+    @UiHandler(value = {"exportGff3Button", "exportFastaButton","exportChadoButton"})
     public void handleExportTypeChanged(ClickEvent clickEvent) {
         exportGff3Button.setType(ButtonType.DEFAULT);
         exportFastaButton.setType(ButtonType.DEFAULT);
-//        exportChadoButton.setType(ButtonType.DEFAULT);
+        exportChadoButton.setType(ButtonType.DEFAULT);
         Button selectedButton = (Button) clickEvent.getSource();
         switch (selectedButton.getText()) {
             case "GFF3":
@@ -315,9 +313,9 @@ public class SequencePanel extends Composite {
             case "FASTA":
                 exportFastaButton.setType(ButtonType.PRIMARY);
                 break;
-//            case "CHADO":
-//                exportChadoButton.setType(ButtonType.PRIMARY);
-//                break;
+            case "CHADO":
+                exportChadoButton.setType(ButtonType.PRIMARY);
+                break;
         }
     }
 
@@ -358,8 +356,12 @@ public class SequencePanel extends Composite {
         String type = null;
         if (exportGff3Button.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportGff3Button.getText();
-        } else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+        }
+        else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportFastaButton.getText();
+        }
+        else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+            type = exportChadoButton.getText();
         }
 //        GWT.log("Type selected is " + type);
 

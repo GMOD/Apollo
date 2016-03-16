@@ -1,3 +1,5 @@
+// TODO: get docker working as well . . .
+
 dataSource {
     dbCreate = System.getenv("WEBAPOLLO_DB_ACTION") ?: "update" // one of 'create', 'create-drop', 'update', 'validate', ''
     username = System.getenv("WEBAPOLLO_DB_USERNAME")
