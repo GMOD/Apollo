@@ -57,6 +57,7 @@ def jbrowsePlugins
 def jbrowseDirectory = "jbrowse-download"
 def pluginsDirectory = "${jbrowseDirectory}/plugins"
 def currentPlugin
+def buildJBrowseMake = false
 
 
 
@@ -88,9 +89,8 @@ task evaluateJBrowseConfigs {
     println "final plugins ${jbrowsePlugins}"
 }
 
-task copyResourcesDev(dependsOn: "copy-resources-dev") << {
+task copyResourcesDev(dependsOn: "copy-resources-dev") << { }
 
-}
 
 task installJBrowse << {
     println "installing jbrowse ${jbrowseConfig}"
@@ -126,12 +126,11 @@ task installJBrowse << {
         if(jbrowseConfig.url.type=="zip"){
             // assume its a zip
             def f = new File(jbrowseDirectory+".zip")
-//            def f = new File(path+".zip")
             new URL(jbrowseConfig.url.url).withInputStream { i -> f.withOutputStream { it << i } }
-//            new URL(plugin.value.url).withInputStream { i -> f.withOutputStream { it << i } }
             File tempFile = File.createTempDir()
             ant.unzip(src:f.absolutePath,dest:tempFile,overwrite:false)
             org.gradle.util.GFileUtils.moveDirectory(new File(tempFile.absolutePath+"/"+jbrowseConfig.url.fileName),jbrowseFile)
+            org.gradle.util.GFileUtils.deleteDirector(new File(jbrowseFile.absolutePath+"/sample_data"))
             tempFile.deleteDir()
             f.delete()
         }
@@ -140,10 +139,6 @@ task installJBrowse << {
             println "Must specify type"
             throw new StopExecutionException("Unable to specify jbrowse download type")
         }
-
-
-
-
     }
 //    tasks["setup-jbrowse"]
 
@@ -211,6 +206,17 @@ task installJBrowsePlugins << {
     }
 }
 
+task handleJBrowseRelease() {
+
+    buildJBrowseMake = true
+
+    doLast {
+        handleJBrowse
+    }
+
+}
+
+
 // root task
 task handleJBrowse(dependsOn: ['evaluateJBrowseConfigs', 'installJBrowse', 'installJBrowsePlugins']) {
     println "handling jbrowse ${jbrowseConfig}"
@@ -218,6 +224,9 @@ task handleJBrowse(dependsOn: ['evaluateJBrowseConfigs', 'installJBrowse', 'inst
     doLast {
         setupJBrowse
         copyResourcesDev
+        if(buildJBrowseMake){
+            buildJBrowse
+        }
     }
 
 }
@@ -241,10 +250,8 @@ def cloneRepo(String url, String directory, String branch, Integer depth) {
     proc.waitForProcessOutput(outputStream, errorStream);
     println outputStream
     println errorStream
-//
-    "cd ${directory}".execute()
-    "git checkout ${branch}".execute()
 
+    checkoutBranch(new File(directory),branch)
 }
 
 def fetchTags(File file) {
