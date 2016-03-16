@@ -1,11 +1,14 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.AnnotatorSummary
 import org.bbop.apollo.report.OrganismPermissionSummary
 import org.bbop.apollo.report.OrganismSummary
 import org.bbop.apollo.report.SequenceSummary
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.parser.JSONParser
 
 @Transactional
 class ReportService {
@@ -137,7 +140,7 @@ class ReportService {
         }
 
         // TODO: add groups as well
-        if (includePermissions) {
+        if (includePermissions && !permissionService.isUserAdmin(owner)) {
 
             List<OrganismPermissionSummary> userOrganismPermissionList = new ArrayList<>()
             if (permissionService.isUserAdmin(owner)) {
@@ -161,11 +164,65 @@ class ReportService {
                 }
 //            annotatorSummary.userOrganismPermissionList =
             }
-            annotatorSummary.userOrganismPermissionList = userOrganismPermissionList
+
+            owner.userGroups.each { group ->
+                for (GroupOrganismPermission groupPermission in GroupOrganismPermission.findAllByGroup(group)) {
+                    // minimally, you should have at least one permission
+                    if (groupPermission.permissions) {
+                        OrganismPermissionSummary organismPermissionSummary = new OrganismPermissionSummary()
+                        UserOrganismPermission userOrganismPermission = new UserOrganismPermission()
+                        userOrganismPermission.permissions = groupPermission.permissions
+                        userOrganismPermission.organism = groupPermission.organism
+                        organismPermissionSummary.userOrganismPermission = userOrganismPermission
+                        copyProperties(generateOrganismSummary(groupPermission.organism), organismPermissionSummary)
+                        userOrganismPermissionList.add(organismPermissionSummary)
+                    }
+                }
+
+            }
+
+            annotatorSummary.userOrganismPermissionList = mergePermissions(userOrganismPermissionList)
         }
 
 
 
         return annotatorSummary
+    }
+
+    List<OrganismPermissionSummary> mergePermissions(ArrayList<OrganismPermissionSummary> organismPermissionSummaries) {
+        Map<String,OrganismPermissionSummary> map = new TreeMap<>()
+
+        organismPermissionSummaries.each {
+            String organismName = it.userOrganismPermission.organism.commonName
+            OrganismPermissionSummary organismPermissionSummary = null
+            if(map.containsKey(organismName)){
+                organismPermissionSummary = map.get(organismName)
+                String finalPermissions = mergePermissionStrings(organismPermissionSummary.userOrganismPermission.permissions,it.userOrganismPermission.permissions)
+                organismPermissionSummary.userOrganismPermission.permissions = finalPermissions
+            }
+            else{
+                organismPermissionSummary = it
+            }
+            map.put(organismName,organismPermissionSummary)
+        }
+
+        return map.values() as List
+    }
+
+    String mergePermissionStrings(String s1, String s2) {
+        Set<String> permissions = new TreeSet<>()
+        def array1 = JSON.parse(s1) as JSONArray
+        def array2 = JSON.parse(s2) as JSONArray
+        for(int i = 0 ; i < array1.size() ; i++){
+            permissions.add(array1.getString(i))
+        }
+        for(int i = 0 ; i < array2.size() ; i++){
+            permissions.add(array2.getString(i))
+        }
+        JSONArray returnArray = new JSONArray()
+        permissions.each {
+            returnArray.add(it)
+        }
+        return returnArray.toString()
     }
 }

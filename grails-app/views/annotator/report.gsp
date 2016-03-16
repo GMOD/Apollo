@@ -33,12 +33,45 @@
         <g:each in="${annotatorInstanceList}" status="i" var="annotatorInstance">
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
-                    %{--<g:link action="detail" id="${annotatorInstance.annotator.id}">--}%
-                        %{--${annotatorInstance.username}--}%
-                    %{--</g:link>--}%
-                    <a style="margin: 2px;padding: 2px;" href='<g:createLink action="detail" controller="annotator" id="${annotatorInstance.annotator.id}">${annotatorInstance.username}</g:createLink>' class="btn btn-default">
+                    <a style="margin: 2px;padding: 2px;" href='<g:createLink action="detail" controller="annotator"
+                                                                             id="${annotatorInstance.annotator.id}">${annotatorInstance.username}</g:createLink>'
+                       class="btn btn-default">
                         ${annotatorInstance.username}
                     </a>
+                    <br/>
+                    <perms:isUserAdmin user="${annotatorInstance.annotator}">
+                        <span class="label label-default">Admin</span>
+                    </perms:isUserAdmin>
+                    <perms:isUserNotAdmin user="${annotatorInstance.annotator}">
+                        <g:if test="${annotatorInstance.userOrganismPermissionList}">
+                            %{--<ul>--}%
+                                <g:each in="${annotatorInstance.userOrganismPermissionList}" var="permission">
+                                    <span >
+                                    %{--<li>--}%
+                                        ${permission.userOrganismPermission.organism.commonName}
+                                        %{--${permission.userOrganismPermission.permissions}--}%
+                                    <g:if test="${permission.userOrganismPermission.permissionValues}">
+                                        <g:each in="${permission.userOrganismPermission.permissionValues}" var="pValue">
+                                            <span class="badge">
+                                            ${pValue}
+                                            </span>
+                                        </g:each>
+                                    </g:if>
+                                    <g:else>
+                                        <span class="badge">None</span>
+                                    </g:else>
+                                        %{--${permission.userOrganismPermission.permissionValues.each {--}%
+                                            %{--it--}%
+                                        %{--}}--}%
+                                    %{--</li>--}%
+                                    </span>
+                                    <br/>
+                                </g:each>
+                            %{--</ul>--}%
+                        </g:if>
+                    </perms:isUserNotAdmin>
+                %{--${annotatorInstance.userOrganismPermissionList.}--}%
+                </td>
                 <td style="text-align: left;">
                     ${annotatorInstance.firstName}
                 </td>
@@ -55,11 +88,13 @@
                             Total
                             <span class="badge">${annotatorInstance.transcriptCount}</span>
                         </div>
+
                         <div class="info-border">
                             Protein encoding
                             <span class="badge"><g:formatNumber
                                     number="${annotatorInstance.proteinCodingTranscriptPercent}" type="percent"/></span>
                         </div>
+
                         <div class="info-border">
                             Exons / transcript
                             <span class="badge"><g:formatNumber number="${annotatorInstance.exonsPerTranscript}"
