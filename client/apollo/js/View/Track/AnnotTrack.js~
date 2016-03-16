@@ -2348,10 +2348,7 @@ define([
                     innerHTML: "Add",
                     'class': "annotation_info_editor_button"
                 }, replacementButtons);
-                var deletereplacementButton = dojo.create("button", {
-                    innerHTML: "Delete",
-                    'class': "annotation_info_editor_button"
-                }, replacementButtons);
+                
 
 
                 var trackNames = Object.keys(JBrowse.trackConfigsByName);
@@ -2413,7 +2410,6 @@ define([
                     dojo.attr(addCommentButton, "disabled", true);
                     dojo.attr(deleteCommentButton, "disabled", true);
 		    dojo.attr(addreplacementButton, "disabled", true);
-                    dojo.attr(deletereplacementButton, "disabled", true);
                 }
 
                 var pubmedIdDb = "PMID";
@@ -3160,7 +3156,6 @@ define([
 
                         var replacementTable = new dojoxDataGrid({
                             singleClickEdit: true,
-                            store: "Received Store",
                             updateDelay: 0,
                             structure: replacementTableLayout
                         });
