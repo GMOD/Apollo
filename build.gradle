@@ -224,9 +224,9 @@ task handleJBrowse(dependsOn: ['evaluateJBrowseConfigs', 'installJBrowse', 'inst
     doLast {
         setupJBrowse
         copyResourcesDev
-        if(buildJBrowseMake){
-            buildJBrowse
-        }
+//        if(buildJBrowseMake){
+//            buildJBrowse
+//        }
     }
 
 }
@@ -251,6 +251,9 @@ def cloneRepo(String url, String directory, String branch, Integer depth) {
     println outputStream
     println errorStream
 
+    if(branch.startsWith("tags")){
+        fetchTags(new File(directory),branch)
+    }
     checkoutBranch(new File(directory),branch)
 }
 
