@@ -145,7 +145,7 @@ elif [[ $1 == "release" ]];then
     check_configs_for_release
     rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
-    $gradle_executable clean-all handleJBrowseRelease gwtc && $grails_executable war
+#    $gradle_executable clean-all handleJBrowseRelease gwtc && $grails_executable war
     $gradle_executable clean-all handleJBrowse release gwtc && $grails_executable war
     deploy_message
 elif [[ $1 == "compile" ]];then
