@@ -139,7 +139,7 @@ task installJBrowse << {
         } else {
 //            new URL(jbrowseConfig.url.url).withInputStream { i -> f.withOutputStream { it << i } }
             println "Must specify type"
-            throw new GradleScriptException("Unable to specify jbrowse download type")
+            throw new GradleException("Unable to specify jbrowse download type")
         }
     }
 //    tasks["setup-jbrowse"]
@@ -168,7 +168,7 @@ task installJBrowsePlugins << {
                 println "Plugin ${path} exists and appears valid."
             } else {
                 println "ERROR: There is a problem with the plugin at ${path}!"
-                throw new GradleScriptException("Included plugin ${path} not found in build")
+                throw new GradleException("Included plugin ${path} not found in build")
             }
         } else if (plugin.value.git) {
             println "Plugin is supplied by git"
@@ -200,7 +200,7 @@ task installJBrowsePlugins << {
                 new URL(plugin.value.url).withInputStream { i -> f.withOutputStream { it << i } }
             }
         } else {
-            throw new GradleScriptException("Invalid plugin settings for ${path}")
+            throw new GradleException("Invalid plugin settings for ${path}")
         }
     }
 }
