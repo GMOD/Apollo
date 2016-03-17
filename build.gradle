@@ -96,7 +96,7 @@ task evaluateJBrowseConfigs {
 task copyResourcesDev(dependsOn: "copy-resources-dev") << {}
 
 
-task installJBrowse << {
+task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
     println "installing jbrowse ${jbrowseConfig}"
 
     File jbrowseFile = new File(jbrowseDirectory)
@@ -155,7 +155,7 @@ task installJBrowse << {
 task setupJBrowse(dependsOn: "setup-jbrowse") << {}
 
 
-task installJBrowsePlugins << {
+task installJBrowsePlugins(dependsOn: evaluateJBrowseConfigs) << {
     println "installing jbrowse plugins  ${jbrowsePlugins}"
 
     for (plugin in jbrowsePlugins) {
@@ -244,10 +244,11 @@ task handleJBrowseRelease(dependsOn: ['evaluateJBrowseConfigs', 'installJBrowse'
 }
 
 // root task
-task handleJBrowse(dependsOn: ['evaluateJBrowseConfigs', 'installJBrowse', 'installJBrowsePlugins']) {
+task handleJBrowse(dependsOn: [installJBrowse ]) {
     println "handling jbrowse ${jbrowseConfig}"
 
     doLast {
+        installJBrowsePlugins
         setupJBrowse
         copyResourcesDev
     }
