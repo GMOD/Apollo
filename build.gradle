@@ -253,7 +253,7 @@ def cloneRepo(String url, String directory, String branch, Integer depth) {
     println errorStream
 
     if(branch.startsWith("tags")){
-        fetchTags(new File(directory),branch)
+        fetchTags(new File(directory))
     }
     checkoutBranch(new File(directory),branch)
 }
