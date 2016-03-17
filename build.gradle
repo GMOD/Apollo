@@ -1,6 +1,7 @@
 //import java.util.zip.ZipEntry
 //import java.util.zip.ZipInputStream
-import groovy.io.FileType
+//import groovy.io.FileType
+//import com.google.javascript.jscomp.*
 
 
 /*
@@ -21,7 +22,8 @@ buildscript {
 }
 
 plugins {
-    id "com.eriwen.gradle.js" version "1.12.1"
+//    id "com.eriwen.gradle.js" version "1.12.1"
+//    id "com.moowork.node" version "0.12"
 }
 
 // In this section you declare where to find the dependencies of your project
@@ -203,51 +205,31 @@ task installJBrowsePlugins << {
     }
 }
 
-//task buildJBrowse(dependsOn: 'build.jbrowse')
+task buildJBrowse(dependsOn: 'build.jbrowse'){}
 
-// Configure the built-in task
-//combineJs {
-////    encoding = "UTF-8"
-//    source = "web-app/jbrowse/**.js"
-//    dest = file("web-app/jbrowse.js")
-//}
-//
-//minifyJs {
-//    source = combineJs
-//    dest = file("web-app/jbrowse-min.js")
-//}
-
-// Create new CombineJsTasks if you have multiple sets of JS files
-//task jsDev(type: com.eriwen.gradle.js.tasks.CombineJsTask) {
-////    source = ["${projectDir}/js/file1.js", "${projectDir}/js/file2.js"]
-////    dest = file("${buildDir}/all-debug.js")
-//}
-
-//task jsProd(type: com.eriwen.gradle.js.tasks.CombineJsTask) {
-////    source = ["${projectDir}/js/file1.js", "${projectDir}/js/file2.js"]
-////    dest = file("${buildDir}/all.js")
-//}
-
-task buildJBrowse(type: com.eriwen.gradle.js.tasks.CombineJsTask) {
-//    def rootFile = new File("web-app/jbrowse")
-//    def list = []
-//    int i = 0
-//    rootFile.eachFileRecurse(FileType.FILES) { file ->
-//        if (file.absolutePath.endsWith(".js") && !file.absolutePath.contains("test") && i < 10) {
-//            list << file.absolutePath
-//            ++i
+//task buildJBrowse(type: com.eriwen.gradle.js.tasks.CombineJsTask) {
+//    println "MinifyJs JBROWSE"
+//    def jbrowseWebappDirectory = new File("web-app/jbrowse")
+//    List list = new ArrayList<>()
+//    jbrowseWebappDirectory.eachFileRecurse(FileType.FILES) { file ->
+//        if (file.absolutePath.endsWith(".js") && !file.absolutePath.contains("test") ) {
+//            list.add(file)
 //        }
 //    }
-////    list.each{ println it.path }
 //    source = list
-//    println "${source}"
 //    dest = file("web-app/jbrowse.js")
-}
-
-task compileJBrowse(type: com.eriwen.gradle.js.tasks.MinifyJsTask) {
-    source = file("web-app/jbrowse.js")
-    dest = file("web-app/jbrowse-min.js")
-}
+//    println "MinifiedJs JBROWSE"
+//}
+//
+//task compileJBrowse(type: com.eriwen.gradle.js.tasks.MinifyJsTask) {
+//    source = file("web-app/jbrowse.js")
+//    dest = file("web-app/jbrowse-min.js")
+//    closure {
+//       warningLevel = 'QUIET'
+//        compilerOptions.languageIn = "ECMASCRIPT5"
+//        compilerOptions.languageOut = "ECMASCRIPT5"
+//    }
+//}
 
 // TODO: should inherent handleJBrowse
 task handleJBrowseRelease(dependsOn: ['evaluateJBrowseConfigs', 'installJBrowse', 'installJBrowsePlugins']) {
