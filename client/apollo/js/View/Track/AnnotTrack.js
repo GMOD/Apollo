@@ -2334,69 +2334,69 @@ define([
                     'class': "annotation_info_editor_button"
                 }, commentButtons);
 
-                var replacementDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
-                var replacementLabel = dojo.create("div", {
-                    'class': "annotation_info_editor_section_header",
-                    innerHTML: "Replace model(s)"
-                }, replacementDiv);
-
-             
-                var replacementsTable = dojo.create("div", {
-                    'class': "replacement",
-                    id: "replacement_" + (selector ? "child" : "parent")
-                }, replacementDiv);
-                var replacementButtonsContainer = dojo.create("div", {style: "text-align: center;"}, replacementDiv);
-                var replacementButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, replacementButtonsContainer);
-                var addreplacementButton = dojo.create("button", {
-                    innerHTML: "Add",
-                    'class': "annotation_info_editor_button"
-                }, replacementButtons);
-                var deletereplacementButton = dojo.create("button", {
-                    innerHTML: "Delete",
-                    'class': "annotation_info_editor_button"
-                }, replacementButtons);
-
-
-                var trackNames = Object.keys(JBrowse.trackConfigsByName);
-                var replacements = new Select({
-                    name: "replacementSelection",
-                    options: array.map(trackNames, function(trackName) {
-                        return {value: track.browser.trackConfigsByName[trackName].label, label: track.browser.trackConfigsByName[trackName].key}
-                    })
-                });
-
-
-                replacements.placeAt(replacementDiv).startup();
-                track.featureReplace = track.featureReplace ||new Select({
-                    name: "featureSelection",
-                    options: []
-                });
-                on(replacements, "change", function(selection) {
-                    console.log(track.browser.trackConfigsByName,selection,replacements);
-                    track.browser.getStore(track.browser.trackConfigsByName[selection].store, function(store) {
-                        console.log("Received store",store);
-                        store.getFeatures({ref: feature.afeature.sequence, start: feature.get('start'), end: feature.get('end')}, function(f) {
-                            console.log(track.featureReplace.options,f);
-                            if(f) {
-                                track.featureReplace.options.push({value: f.get('id'), label: f.get('name')});
-                                track.featureReplace.placeAt(replacementDiv).startup();
-                            }
-                        })
-                    });
-                });
-
-                on(track.featureReplace, "change", function(selection) {
-                    console.log(uniqueName);
-                    track.executeUpdateOperation(JSON.stringify({ "features": [{
-                            non_reserved_properties: [{
-                                tag: "replace",
-                                value: selection
-                            }],
-                            uniquename: uniqueName
-                        }],
-                        operation: "add_non_reserved_properties"
-                    }))
-                });
+                //var replacementDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                //var replacementLabel = dojo.create("div", {
+                //    'class': "annotation_info_editor_section_header",
+                //    innerHTML: "Replace model(s)"
+                //}, replacementDiv);
+                //
+                //
+                //var replacementsTable = dojo.create("div", {
+                //    'class': "replacement",
+                //    id: "replacement_" + (selector ? "child" : "parent")
+                //}, replacementDiv);
+                //var replacementButtonsContainer = dojo.create("div", {style: "text-align: center;"}, replacementDiv);
+                //var replacementButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, replacementButtonsContainer);
+                //var addreplacementButton = dojo.create("button", {
+                //    innerHTML: "Add",
+                //    'class': "annotation_info_editor_button"
+                //}, replacementButtons);
+                //var deletereplacementButton = dojo.create("button", {
+                //    innerHTML: "Delete",
+                //    'class': "annotation_info_editor_button"
+                //}, replacementButtons);
+                //
+                //
+                //var trackNames = Object.keys(JBrowse.trackConfigsByName);
+                //var replacements = new Select({
+                //    name: "replacementSelection",
+                //    options: array.map(trackNames, function(trackName) {
+                //        return {value: track.browser.trackConfigsByName[trackName].label, label: track.browser.trackConfigsByName[trackName].key}
+                //    })
+                //});
+                //
+                //
+                //replacements.placeAt(replacementDiv).startup();
+                //track.featureReplace = track.featureReplace ||new Select({
+                //    name: "featureSelection",
+                //    options: []
+                //});
+                //on(replacements, "change", function(selection) {
+                //    console.log(track.browser.trackConfigsByName,selection,replacements);
+                //    track.browser.getStore(track.browser.trackConfigsByName[selection].store, function(store) {
+                //        console.log("Received store",store);
+                //        store.getFeatures({ref: feature.afeature.sequence, start: feature.get('start'), end: feature.get('end')}, function(f) {
+                //            console.log(track.featureReplace.options,f);
+                //            if(f) {
+                //                track.featureReplace.options.push({value: f.get('id'), label: f.get('name')});
+                //                track.featureReplace.placeAt(replacementDiv).startup();
+                //            }
+                //        })
+                //    });
+                //});
+                //
+                //on(track.featureReplace, "change", function(selection) {
+                //    console.log(uniqueName);
+                //    track.executeUpdateOperation(JSON.stringify({ "features": [{
+                //            non_reserved_properties: [{
+                //                tag: "replace",
+                //                value: selection
+                //            }],
+                //            uniquename: uniqueName
+                //        }],
+                //        operation: "add_non_reserved_properties"
+                //    }))
+                //});
 
 
                 if (!hasWritePermission) {
@@ -2415,8 +2415,8 @@ define([
                     dojo.attr(deleteGoIdButton, "disabled", true);
                     dojo.attr(addCommentButton, "disabled", true);
                     dojo.attr(deleteCommentButton, "disabled", true);
-		    dojo.attr(addreplacementButton, "disabled", true);
-                    dojo.attr(deletereplacementButton, "disabled", true);
+                    //dojo.attr(addreplacementButton, "disabled", true);
+                    //dojo.attr(deletereplacementButton, "disabled", true);
                 }
 
                 var pubmedIdDb = "PMID";
@@ -3129,54 +3129,54 @@ define([
                         dojo.style(commentsDiv, "display", "none");
                     }
                 };
-
-
-
-			var replacementTableLayout = [{
-                            cells: [
-                                {
-                                    name: 'Tag',
-                                    field: 'tag',
-                                    width: '40%',
-                                    formatter: function (tag) {
-                                        if (!tag) {
-                                            return "Enter new tag";
-                                        }
-                                        return tag;
-                                    },
-                                    editable: hasWritePermission
-                                },
-                                {
-                                    name: 'Value',
-                                    field: 'value',
-                                    width: '60%',
-                                    formatter: function (value) {
-                                        if (!value) {
-                                            return "Enter new value";
-                                        }
-                                        return value;
-                                    },
-                                    editable: hasWritePermission
-                                }
-                            ]
-                        }];
-
-                        var replacementTable = new dojoxDataGrid({
-                            singleClickEdit: true,
-                            updateDelay: 0,
-                            structure: replacementTableLayout
-                        });
-
-                        var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
-                            initTable(replacementTable.domNode, replacementsTable, replacementTable);
-                            dojo.disconnect(handle);
-                        });
-                        if (reload) {
-                            initTable(replacementTable.domNode, replacementsTable, replacementTable, timeout);
-                        }
-
-
-
+            //
+            //
+            //
+			//var replacementTableLayout = [{
+             //               cells: [
+             //                   {
+             //                       name: 'Tag',
+             //                       field: 'tag',
+             //                       width: '40%',
+             //                       formatter: function (tag) {
+             //                           if (!tag) {
+             //                               return "Enter new tag";
+             //                           }
+             //                           return tag;
+             //                       },
+             //                       editable: hasWritePermission
+             //                   },
+             //                   {
+             //                       name: 'Value',
+             //                       field: 'value',
+             //                       width: '60%',
+             //                       formatter: function (value) {
+             //                           if (!value) {
+             //                               return "Enter new value";
+             //                           }
+             //                           return value;
+             //                       },
+             //                       editable: hasWritePermission
+             //                   }
+             //               ]
+             //           }];
+            //
+             //           var replacementTable = new dojoxDataGrid({
+             //               singleClickEdit: true,
+             //               updateDelay: 0,
+             //               structure: replacementTableLayout
+             //           });
+            //
+             //           var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
+             //               initTable(replacementTable.domNode, replacementsTable, replacementTable);
+             //               dojo.disconnect(handle);
+             //           });
+             //           if (reload) {
+             //               initTable(replacementTable.domNode, replacementsTable, replacementTable, timeout);
+             //           }
+            //
+            //
+            //
 
 
                 var processOtherMetadata = function () {
