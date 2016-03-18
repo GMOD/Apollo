@@ -93,10 +93,8 @@ task evaluateJBrowseConfigs {
     println "final plugins ${jbrowsePlugins}"
 }
 
-task copyResourcesDev(dependsOn: "copy-resources-dev") << {}
 
-
-task installJBrowse << {
+task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
     println "installing jbrowse ${jbrowseConfig}"
 
     File jbrowseFile = new File(jbrowseDirectory)
@@ -112,11 +110,9 @@ task installJBrowse << {
                 }
                 if (git.alwaysPull && git.branch) {
                     println "Pulling ${git.url}"
-//                    grgit.pull(rebase: false)
                     "git pull".execute()
                     gitPull(jbrowseFile)
                 }
-//                grgit.build()
             }
         } else {
             println "Cloning: ${git.url} into ${jbrowseDirectory}."
@@ -152,10 +148,20 @@ task installJBrowse << {
 //    copyResourcesDev.execute()
 }
 
+task copyResourcesDev(dependsOn: installJBrowse) << {
+    tasks["copy-resources-dev"].execute()
+}
+
+task copyApolloPlugin(dependsOn:installJBrowse,type:Copy){
+    println "Copying apollo plugin"
+    from("client/apollo")
+    into("jbrowse-download/plugins/WebApollo")
+
+}
+
 task setupJBrowse(dependsOn: "setup-jbrowse") << {}
 
-
-task installJBrowsePlugins << {
+task installJBrowsePlugins(dependsOn: copyApolloPlugin) << {
     println "installing jbrowse plugins  ${jbrowsePlugins}"
 
     for (plugin in jbrowsePlugins) {
@@ -177,14 +183,14 @@ task installJBrowsePlugins << {
                 if (plugin.value.alwaysRecheck || plugin.value.alwaysPull) {
                     println "Checking out branch ${plugin.value.branch}"
                     if (plugin.value.tag) {
-                        grgit.checkout(createBranch: false, branch: "tags/" + plugin.value.tag)
+                        checkoutBranch(new File(path),"tags/${plugin.value.tag}")
                     } else if (plugin.value.branch) {
-                        grgit.checkout(createBranch: false, branch: plugin.value.branch)
+                        checkoutBranch(new File(path),plugin.value.branch)
                     }
 
                     if (plugin.value.alwaysPull) {
                         println "Pulling ${plugin.value.git}"
-                        grgit.pull(rebase: false)
+                        gitPull(new File(path))
                     }
                 }
             } else {
@@ -232,10 +238,11 @@ task buildJBrowse(dependsOn: 'build.jbrowse'){}
 //}
 
 // TODO: should inherent handleJBrowse
-task handleJBrowseRelease(dependsOn: ['evaluateJBrowseConfigs', 'installJBrowse', 'installJBrowsePlugins']) {
+task handleJBrowseRelease(dependsOn: [copyApolloPlugin]) {
     println "handling jbrowse release ${jbrowseConfig}"
 
     doLast {
+        installJBrowsePlugins
         setupJBrowse
         copyResourcesDev
         buildJBrowse
@@ -244,7 +251,7 @@ task handleJBrowseRelease(dependsOn: ['evaluateJBrowseConfigs', 'installJBrowse'
 }
 
 // root task
-task handleJBrowse(dependsOn: ['evaluateJBrowseConfigs', 'installJBrowse', 'installJBrowsePlugins']) {
+task handleJBrowse(dependsOn: [installJBrowsePlugins]) {
     println "handling jbrowse ${jbrowseConfig}"
 
     doLast {
