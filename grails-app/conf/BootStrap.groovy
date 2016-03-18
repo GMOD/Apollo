@@ -11,6 +11,7 @@ import org.bbop.apollo.Transcript
 import org.bbop.apollo.User
 import org.bbop.apollo.UserService
 import org.bbop.apollo.sequence.SequenceTranslationHandler
+import org.codehaus.groovy.grails.commons.GrailsApplication
 
 class BootStrap {
 
@@ -30,6 +31,19 @@ class BootStrap {
 
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
         SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
+
+        println grailsApplication.config.dataSource_chado
+        if (configWrapperService.hasChadoDataSource()) {
+            if (org.gmod.chado.Cvterm.all.size() == 0) {
+                String username = grailsApplication.config.dataSource_chado.username
+                String dbName = grailsApplication.config.dataSource_chado.url.split("/")[-1]
+                def errorBuffer = new StringBuffer()
+                def outputBuffer=  new StringBuffer()
+                def proc = "scripts/load_chado.sh ${username} ${dbName}".execute()
+                proc.waitForProcessOutput(outputBuffer, errorBuffer)
+                log.debug "Error: ${errorBuffer.toString()}"
+            }
+        }
 
         if(FeatureType.count==0){
             featureTypeService.stubDefaultFeatureTypes()
