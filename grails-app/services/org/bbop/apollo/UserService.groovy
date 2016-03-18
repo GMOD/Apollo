@@ -1,7 +1,9 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import org.apache.commons.validator.routines.EmailValidator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -19,11 +21,17 @@ class UserService {
         }
     }
 
+    @NotTransactional
+    Boolean isEmail(String emailString){
+        return EmailValidator.instance.isValid(emailString)
+    }
+
     JSONObject convertUserToJson(User currentUser){
 
         def userObject = new JSONObject()
         userObject.userId = currentUser.id
         userObject.username = currentUser.username
+        userObject.email = currentUser.email  ?: ""
         userObject.firstName = currentUser.firstName
         userObject.lastName = currentUser.lastName
         Role role = getHighestRole(currentUser)
