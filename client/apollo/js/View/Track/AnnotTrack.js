@@ -1,6 +1,8 @@
 define([
         'dojo/_base/declare',
         'dojo/_base/array',
+        'dojo/on',
+        'dojo/request',
         'jquery',
         'jqueryui/draggable',
         'jqueryui/droppable',
@@ -45,6 +47,8 @@ define([
     ],
     function (declare,
               array,
+              on,
+              request,
               $,
               draggable,
               droppable,
@@ -1911,6 +1915,8 @@ define([
                 track.openDialog("Information Editor", content);
                 AnnotTrack.popupDialog.resize();
                 AnnotTrack.popupDialog._position();
+
+
             },
 
             getAnnotationInfoEditorConfigs: function (trackName) {
@@ -1951,8 +1957,15 @@ define([
                     'class': "annotation_info_editor_label"
                 }, nameDiv);
                 var nameField = new dijitTextBox({'class': "annotation_editor_field"});
-                dojo.place(nameField.domNode, nameDiv);
+                var nameLabelss = "We recommend that you adhere to GenBank guidelines on protein and CDS nomenclature: http://www.ncbi.nlm.nih.gov/genbank/genomesubmit_annotation#CDS).";
 
+                dojo.place(nameField.domNode, nameDiv);
+                new Tooltip({
+                        connectId: nameDiv,
+                        label: nameLabelss,
+                        position: ["above"],
+                        showDelay: 600
+                    });
                 var symbolDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
                 var symbolLabel = dojo.create("label", {
                     innerHTML: "Symbol",
@@ -2142,7 +2155,7 @@ define([
             },
             createAnnotationInfoEditorPanelForFeature: function (uniqueName, trackName, selector, reload) {
                 var track = this;
-//      var hasWritePermission = this.hasWritePermission();
+                var feature = this.store.getFeatureById(uniqueName);
                 var hasWritePermission = this.canEdit(this.store.getFeatureById(uniqueName));
                 var content = dojo.create("span");
 
@@ -2154,8 +2167,16 @@ define([
                     'class': "annotation_info_editor_label"
                 }, nameDiv);
                 var nameField = new dijitTextBox({'class': "annotation_editor_field"});
+                var nameLabelss="We recommend that you adhere to GenBank guidelines on protein and CDS nomenclature: http://www.ncbi.nlm.nih.gov/genbank/genomesubmit_annotation#CDS).";
                 dojo.place(nameField.domNode, nameDiv);
                 // var nameField = new dojo.create("input", { type: "text" }, nameDiv);
+
+                new Tooltip({
+                        connectId: nameDiv,
+                        label: nameLabelss,
+                        position: ["above"],
+                        showDelay: 600
+                    });
 
                 var symbolDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
                 var symbolLabel = dojo.create("label", {
@@ -2216,6 +2237,13 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, dbxrefButtons);
+		var dbxrefss="Use this field if this model has Cross-references in other databases (e.g. the GenBank Accession number of a cDNA from this gene from the same species). Do NOT use this field to list IDs of models from other species that you used as annotation evidence.";
+		new Tooltip({
+                        connectId: dbxrefsDiv,
+                        label: dbxrefss,
+                        position: ["above"],
+                        showDelay: 600
+                    });
 
                 var attributesDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var attributesLabel = dojo.create("div", {
@@ -2256,7 +2284,13 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, pubmedIdButtons);
-
+		var pubmedss="Use this field if this model has been mentioned in a publication. Do NOT use this field to list publications on models from other species that you used as annotation evidence.";
+		new Tooltip({
+                        connectId: pubmedIdsDiv,
+                        label: dbxrefss,
+                        position: ["above"],
+                        showDelay: 600
+                    });
                 var goIdsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var goIdsLabel = dojo.create("div", {
                     'class': "annotation_info_editor_section_header",
@@ -2276,6 +2310,9 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, goIdButtons);
+
+
+
 
                 var commentsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var commentsLabel = dojo.create("div", {
@@ -2297,6 +2334,71 @@ define([
                     'class': "annotation_info_editor_button"
                 }, commentButtons);
 
+                var replacementDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var replacementLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "Replace model(s)"
+                }, replacementDiv);
+
+             
+                var replacementsTable = dojo.create("div", {
+                    'class': "replacement",
+                    id: "replacement_" + (selector ? "child" : "parent")
+                }, replacementDiv);
+                var replacementButtonsContainer = dojo.create("div", {style: "text-align: center;"}, replacementDiv);
+                var replacementButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, replacementButtonsContainer);
+                var addreplacementButton = dojo.create("button", {
+                    innerHTML: "Add",
+                    'class': "annotation_info_editor_button"
+                }, replacementButtons);
+                var deletereplacementButton = dojo.create("button", {
+                    innerHTML: "Delete",
+                    'class': "annotation_info_editor_button"
+                }, replacementButtons);
+
+
+                var trackNames = Object.keys(JBrowse.trackConfigsByName);
+                var replacements = new Select({
+                    name: "replacementSelection",
+                    options: array.map(trackNames, function(trackName) {
+                        return {value: track.browser.trackConfigsByName[trackName].label, label: track.browser.trackConfigsByName[trackName].key}
+                    })
+                });
+
+
+                replacements.placeAt(replacementDiv).startup();
+                track.featureReplace = track.featureReplace ||new Select({
+                    name: "featureSelection",
+                    options: []
+                });
+                on(replacements, "change", function(selection) {
+                    console.log(track.browser.trackConfigsByName,selection,replacements);
+                    track.browser.getStore(track.browser.trackConfigsByName[selection].store, function(store) {
+                        console.log("Received store",store);
+                        store.getFeatures({ref: feature.afeature.sequence, start: feature.get('start'), end: feature.get('end')}, function(f) {
+                            console.log(track.featureReplace.options,f);
+                            if(f) {
+                                track.featureReplace.options.push({value: f.get('id'), label: f.get('name')});
+                                track.featureReplace.placeAt(replacementDiv).startup();
+                            }
+                        })
+                    });
+                });
+
+                on(track.featureReplace, "change", function(selection) {
+                    console.log(uniqueName);
+                    track.executeUpdateOperation(JSON.stringify({ "features": [{
+                            non_reserved_properties: [{
+                                tag: "replace",
+                                value: selection
+                            }],
+                            uniquename: uniqueName
+                        }],
+                        operation: "add_non_reserved_properties"
+                    }))
+                });
+
+
                 if (!hasWritePermission) {
                     nameField.set("disabled", true);
                     symbolField.set("disabled", true);
@@ -2313,6 +2415,8 @@ define([
                     dojo.attr(deleteGoIdButton, "disabled", true);
                     dojo.attr(addCommentButton, "disabled", true);
                     dojo.attr(deleteCommentButton, "disabled", true);
+		    dojo.attr(addreplacementButton, "disabled", true);
+                    dojo.attr(deletereplacementButton, "disabled", true);
                 }
 
                 var pubmedIdDb = "PMID";
@@ -2348,6 +2452,7 @@ define([
                             initPubmedIds(feature, config);
                             initGoIds(feature, config);
                             initComments(feature, config);
+			    
                         }
                     });
                 };
@@ -2937,6 +3042,8 @@ define([
                     }
                 };
 
+
+
                 var initComments = function (feature, config) {
                     if (config.hasComments) {
                         var cannedComments = feature.canned_comments;
@@ -3022,6 +3129,55 @@ define([
                         dojo.style(commentsDiv, "display", "none");
                     }
                 };
+
+
+
+			var replacementTableLayout = [{
+                            cells: [
+                                {
+                                    name: 'Tag',
+                                    field: 'tag',
+                                    width: '40%',
+                                    formatter: function (tag) {
+                                        if (!tag) {
+                                            return "Enter new tag";
+                                        }
+                                        return tag;
+                                    },
+                                    editable: hasWritePermission
+                                },
+                                {
+                                    name: 'Value',
+                                    field: 'value',
+                                    width: '60%',
+                                    formatter: function (value) {
+                                        if (!value) {
+                                            return "Enter new value";
+                                        }
+                                        return value;
+                                    },
+                                    editable: hasWritePermission
+                                }
+                            ]
+                        }];
+
+                        var replacementTable = new dojoxDataGrid({
+                            singleClickEdit: true,
+                            updateDelay: 0,
+                            structure: replacementTableLayout
+                        });
+
+                        var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
+                            initTable(replacementTable.domNode, replacementsTable, replacementTable);
+                            dojo.disconnect(handle);
+                        });
+                        if (reload) {
+                            initTable(replacementTable.domNode, replacementsTable, replacementTable, timeout);
+                        }
+
+
+
+
 
                 var processOtherMetadata = function () {
                     var config = track.annotationInfoEditorConfigs[featureType] || track.annotationInfoEditorConfigs["default"];
@@ -5703,5 +5859,4 @@ define([
  * redistribute it and/or modify it under the terms of the LGPL (either version
  * 2.1, or at your option, any later version) or the Artistic License 2.0. Refer
  * to LICENSE for the full license text.
- * 
  */

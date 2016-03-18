@@ -19,5 +19,5 @@ cache:
     - $HOME/.m2/
     - jbrowse-download/
 script:
-    - ant copy-resources gwtc && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app --stacktrace
+    - ./gradlew copy-resources gwtc && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app --stacktrace
     - node web-app/jbrowse/src/dojo/dojo.js load=build --require "web-app/jbrowse/src/JBrowse/init.js" --profile "web-app/jbrowse/plugins/WebApollo/js/WebApollo"
