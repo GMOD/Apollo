@@ -907,6 +907,8 @@ class ChadoHandlerService {
 
         /*
         // feature.symbol treated as Chado synonym
+        // TODO: Cannot treat feature.symbol as a Chado synonym because feature -> synonym link requires a Publication,
+        // TODO: according to Chado specification
         if (feature.symbol) {
             String synonymKey = "symbol:" + feature.symbol
             org.gmod.chado.Synonym chadoSynonym
@@ -932,9 +934,7 @@ class ChadoHandlerService {
         }
         */
 
-        // feature.symbol treated as Chado featureprop
-        // Rationale: Cannot treat feature.symbol as a synonym because each feature -> synonym
-        // link requires a Publication, according to Chado specification
+        // As an alternative, feature.symbol is treated as Chado featureprop
         if (feature.symbol) {
             org.gmod.chado.Featureprop chadoFeatureprop = new org.gmod.chado.Featureprop(
                     value: feature.symbol,
