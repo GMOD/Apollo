@@ -110,11 +110,9 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
                 }
                 if (git.alwaysPull && git.branch) {
                     println "Pulling ${git.url}"
-//                    grgit.pull(rebase: false)
                     "git pull".execute()
                     gitPull(jbrowseFile)
                 }
-//                grgit.build()
             }
         } else {
             println "Cloning: ${git.url} into ${jbrowseDirectory}."
@@ -185,14 +183,14 @@ task installJBrowsePlugins(dependsOn: copyApolloPlugin) << {
                 if (plugin.value.alwaysRecheck || plugin.value.alwaysPull) {
                     println "Checking out branch ${plugin.value.branch}"
                     if (plugin.value.tag) {
-                        grgit.checkout(createBranch: false, branch: "tags/" + plugin.value.tag)
+                        checkoutBranch(new File(path),"tags/${plugin.value.tag}")
                     } else if (plugin.value.branch) {
-                        grgit.checkout(createBranch: false, branch: plugin.value.branch)
+                        checkoutBranch(new File(path),plugin.value.branch)
                     }
 
                     if (plugin.value.alwaysPull) {
                         println "Pulling ${plugin.value.git}"
-                        grgit.pull(rebase: false)
+                        gitPull(new File(path))
                     }
                 }
             } else {
