@@ -271,10 +271,6 @@ public class ExportPanel extends Modal {
         SequenceRestService.generateLink(this);
     }
 
-    public void triggerChadoExport() {
-        SequenceRestService.exportToChado(this);
-    }
-
     public List<SequenceInfo> getSequenceList() {
         return sequenceList;
     }
