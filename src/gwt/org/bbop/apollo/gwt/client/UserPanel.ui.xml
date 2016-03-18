@@ -99,10 +99,10 @@
                         </b:Row>
                         <b:Row ui:field="userRow2" visible="false"  marginTop="5">
                             <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}" text="Email"/>
+                                <gwt:HTML styleName="{style.tableKeyName}" text="Username"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <b:TextBox ui:field="email"/>
+                                <b:TextBox ui:field="username"/>
                             </b:Column>
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Role"/>
@@ -114,6 +114,12 @@
                             </b:Column>
                         </b:Row>
                         <b:Row ui:field="passwordRow" visible="false" >
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}" text="Email"/>
+                            </b:Column>
+                            <b:Column size="MD_4">
+                                <b:TextBox ui:field="email"/>
+                            </b:Column>
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Password"/>
                             </b:Column>

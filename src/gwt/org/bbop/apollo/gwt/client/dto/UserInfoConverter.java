@@ -22,7 +22,10 @@ public class UserInfoConverter {
         userInfo.setUserId((long) object.get("userId").isNumber().doubleValue());
         userInfo.setFirstName(object.get("firstName").isString().stringValue());
         userInfo.setLastName(object.get("lastName").isString().stringValue());
-        userInfo.setEmail(object.get("username").isString().stringValue());
+        userInfo.setUsername(object.get("username").isString().stringValue());
+        if(object.get("email")!=null && object.get("email").isString()!=null){
+            userInfo.setEmail(object.get("email").isString().stringValue());
+        }
         if (object.get("role") != null && object.get("role").isString() != null) {
             userInfo.setRole(object.get("role").isString().stringValue().toLowerCase());
         } else {

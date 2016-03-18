@@ -71,6 +71,7 @@ class UserController {
 
                 userObject.userId = it.id
                 userObject.username = it.username
+                userObject.email = it.email
                 userObject.firstName = it.firstName
                 userObject.lastName = it.lastName
                 Role role = userService.getHighestRole(it)

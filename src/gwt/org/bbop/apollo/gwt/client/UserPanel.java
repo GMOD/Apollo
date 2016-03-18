@@ -37,6 +37,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
@@ -100,6 +101,8 @@ public class UserPanel extends Composite {
     Row userRow2;
     @UiField
     org.gwtbootstrap3.client.ui.Label saveLabel;
+    @UiField
+    TextBox username;
 
 
     private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
@@ -358,6 +361,7 @@ public class UserPanel extends Composite {
             return false;
         }
         selectedUserInfo.setEmail(emailString);
+        selectedUserInfo.setUsername(username.getText().trim());
         selectedUserInfo.setFirstName(firstName.getText());
         selectedUserInfo.setLastName(lastName.getText());
         selectedUserInfo.setPassword(passwordTextBox.getText());
@@ -433,7 +437,7 @@ public class UserPanel extends Composite {
         }
     }
 
-    @UiHandler(value = {"firstName", "lastName", "email", "passwordTextBox"})
+    @UiHandler(value = {"firstName", "lastName", "email","username", "passwordTextBox"})
     public void updateInterface(KeyUpEvent keyUpEvent) {
         userIsSame();
     }
@@ -451,6 +455,7 @@ public class UserPanel extends Composite {
 
     private void userIsSame() {
         if(selectedUserInfo.getEmail().equals(email.getText().trim())
+                && selectedUserInfo.getUsername().equals(username.getText().trim())
                 && selectedUserInfo.getFirstName().equals(firstName.getText().trim())
                 && selectedUserInfo.getLastName().equals(lastName.getText().trim())
                 && selectedUserInfo.getRole().equals(roleList.getSelectedValue())
@@ -534,6 +539,7 @@ public class UserPanel extends Composite {
             firstName.setText("");
             lastName.setText("");
             email.setText("");
+            username.setText("");
 
             deleteButton.setEnabled(false);
             deleteButton.setVisible(false);
@@ -563,6 +569,7 @@ public class UserPanel extends Composite {
             firstName.setText(selectedUserInfo.getFirstName());
             lastName.setText(selectedUserInfo.getLastName());
             email.setText(selectedUserInfo.getEmail());
+            username.setText(selectedUserInfo.getUsername());
             cancelButton.setVisible(true);
             saveButton.setVisible(true);
             saveButton.setEnabled(false);
