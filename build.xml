@@ -94,7 +94,8 @@
     <target name="clean-all" depends="clean" description="Cleans this project">
         <delete dir="web-app/WEB-INF/deploy" failonerror="false"/>
         <delete dir="web-app/annotator" failonerror="false"/>
-        <delete dir="target/classes/gwt" failonerror="false"/>
+        <!--<delete dir="target/classes/gwt" failonerror="false"/>-->
+        <delete dir="target" failonerror="false"/>
     </target>
 
 
