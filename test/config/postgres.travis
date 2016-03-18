@@ -12,7 +12,7 @@ environments {
             username = "postgres"
             driverClassName = "org.postgresql.Driver"
             dialect = org.hibernate.dialect.ImprovedPostgresDialect
-            url = "jdbc:postgresql://localhost/apollo_chado"
+            url = "jdbc:postgresql://localhost/apollo-chado"
         }
     }
 }
