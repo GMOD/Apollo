@@ -290,8 +290,8 @@ def fetchTags(File file) {
     def outputStream = new StringBuffer();
     def errorStream = new StringBuffer();
     proc.waitForProcessOutput(outputStream, errorStream);
-    println "Out: " + outputStream
-    println "Error: " + errorStream
+    if(outputStream.length>0) println "Out: " + outputStream
+    if(errorStream.length>0) println "Error: " + errorStream
 }
 
 
@@ -305,8 +305,8 @@ def checkoutBranch(File file, String branch) {
     def outputStream = new StringBuffer();
     def errorStream = new StringBuffer();
     proc.waitForProcessOutput(outputStream, errorStream);
-    println "Out: " + outputStream
-    println "Error: " + errorStream
+    if(outputStream.length>0) println "Out: " + outputStream
+    if(errorStream.length>0) println "Error: " + errorStream
 
 }
 
@@ -320,6 +320,6 @@ def gitPull(File file) {
     def outputStream = new StringBuffer();
     def errorStream = new StringBuffer();
     proc.waitForProcessOutput(outputStream, errorStream);
-    println "Out: " + outputStream
-    println "Error: " + errorStream
+    if(outputStream.length>0) println "Out: " + outputStream
+    if(errorStream.length>0) println "Error: " + errorStream
 }
