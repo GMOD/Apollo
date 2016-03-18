@@ -90,31 +90,6 @@ public class SequenceRestService {
         }
     }
 
-    public static void exportToChado(final ExportPanel exportPanel) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("organism", new JSONString(exportPanel.getOrganismName()));
-        jsonObject.put("type", new JSONString(exportPanel.getType()));
-        jsonObject.put("exportType", new JSONString(exportPanel.getChadoExportType()));
-        jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
-        JSONArray jsonArray = new JSONArray();
-        for (SequenceInfo sequenceInfo : exportPanel.getSequenceList()) {
-            jsonArray.set(jsonArray.size(), new JSONString(sequenceInfo.getName()));
-        }
-        jsonObject.put("sequences", jsonArray);
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Error: " + exception);
-            }
-        };
-        RestService.sendRequest(requestCallback, "IOService/write", "data=" + jsonObject.toString());
-    }
-
     public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Integer start, Integer end) {
         setCurrentSequenceAndLocation(requestCallback,sequenceNameString,start,end,false) ;
     }
