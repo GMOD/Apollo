@@ -15,7 +15,7 @@ environments {
             password = "<CHANGEME>"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-            url = "jdbc:mysql://localhost/apollo_chado"
+            url = "jdbc:mysql://localhost/apollo-chado"
         }
     }
     test {
@@ -25,7 +25,7 @@ environments {
             password = "<CHANGEME>"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-            url = "jdbc:mysql://localhost/apollo_test"
+            url = "jdbc:mysql://localhost/apollo-test"
         }
         dataSource_chado{
             dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
@@ -33,7 +33,7 @@ environments {
             password = "<CHANGEME>"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-            url = "jdbc:mysql://localhost/apollo_test_chado"
+            url = "jdbc:mysql://localhost/apollo-test-chado"
         }
     }
     production {
@@ -43,7 +43,7 @@ environments {
             password = "<CHANGEME>"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-            url = "jdbc:mysql://localhost/apollo_production"
+            url = "jdbc:mysql://localhost/apollo-production"
             properties {
                 // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
                 jmxEnabled = true
@@ -71,7 +71,7 @@ environments {
             password = "<CHANGEME>"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-            url = "jdbc:mysql://localhost/apollo_production_chado"
+            url = "jdbc:mysql://localhost/apollo-production-chado"
             properties {
                 // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
                 jmxEnabled = true

@@ -14,7 +14,7 @@ environments {
             password = "<CHANGEME>"
             driverClassName = "org.postgresql.Driver"
             dialect = org.hibernate.dialect.PostgresPlusDialect
-            url = "jdbc:postgresql://localhost/apollo_chado"
+            url = "jdbc:postgresql://localhost/apollo-chado"
         }
     }
     test {
@@ -25,7 +25,7 @@ environments {
             driverClassName = "org.postgresql.Driver"
 //        dialect = org.hibernate.dialect.PostgresPlusDialect
             dialect = "org.bbop.apollo.ImprovedPostgresDialect"
-            url = "jdbc:postgresql://localhost/apollo_test"
+            url = "jdbc:postgresql://localhost/apollo-test"
         }
         dataSource_chado{
             dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
@@ -34,7 +34,7 @@ environments {
             driverClassName = "org.postgresql.Driver"
 //        dialect = org.hibernate.dialect.PostgresPlusDialect
             dialect = "org.bbop.apollo.ImprovedPostgresDialect"
-            url = "jdbc:postgresql://localhost/apollo_test_chado"
+            url = "jdbc:postgresql://localhost/apollo-test-chado"
         }
     }
     production {
@@ -44,7 +44,7 @@ environments {
             password = "<CHANGEME>"
             driverClassName = "org.postgresql.Driver"
             dialect = org.hibernate.dialect.PostgresPlusDialect
-            url = "jdbc:postgresql://localhost/apollo_production"
+            url = "jdbc:postgresql://localhost/apollo-production"
             properties {
                 // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
                 jmxEnabled = true
@@ -72,7 +72,7 @@ environments {
             password = "<CHANGEME>"
             driverClassName = "org.postgresql.Driver"
             dialect = org.hibernate.dialect.PostgresPlusDialect
-            url = "jdbc:postgresql://localhost/apollo_production_chado"
+            url = "jdbc:postgresql://localhost/apollo-production-chado"
             properties {
                 // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
                 jmxEnabled = true
