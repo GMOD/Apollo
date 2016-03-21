@@ -150,6 +150,8 @@ public class UserRestService {
             }
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
+        // username is not wnated here
+        jsonObject.put("username",null);
         RestService.sendRequest(requestCallback, "user/deleteUser", "data=" + jsonObject.toString());
     }
 
