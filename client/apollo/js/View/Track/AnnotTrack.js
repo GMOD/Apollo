@@ -558,7 +558,7 @@ define([
                 }
 
                 if (!history) {
-                    var label = "Type: " + type.name + "<br/>Owner: " + feature.get("owner") + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified) + " " + FormatUtils.formatTime(feature.afeature.date_last_modified);
+                    var label = "Type: " + type.name + "<br/>Owner: " + feature.afeature.owner + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified) + " " + FormatUtils.formatTime(feature.afeature.date_last_modified);
                     new Tooltip({
                         connectId: featDiv,
                         label: label,

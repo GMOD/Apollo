@@ -393,7 +393,7 @@ public class MainPanel extends Composite {
 
     private void setUserNameForCurrentUser() {
         if(currentUser==null) return ;
-        String displayName = currentUser.getEmail();
+        String displayName = currentUser.getUsername();
         userName.setText(displayName.length() > maxUsernameLength ?
                 displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
     }

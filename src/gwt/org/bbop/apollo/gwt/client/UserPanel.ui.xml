@@ -83,21 +83,7 @@
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
                     <b:Container fluid="true" width="100%">
-                        <b:Row ui:field="userRow1" visible="false">
-                            <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}" text="First Name"/>
-                            </b:Column>
-                            <b:Column size="MD_4">
-                                <b:TextBox ui:field="firstName"/>
-                            </b:Column>
-                            <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}" text="Last Name"/>
-                            </b:Column>
-                            <b:Column size="MD_4">
-                                <b:TextBox ui:field="lastName"/>
-                            </b:Column>
-                        </b:Row>
-                        <b:Row ui:field="userRow2" visible="false"  marginTop="5">
+                        <b:Row ui:field="userRow2" visible="false" >
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Email"/>
                             </b:Column>
@@ -113,7 +99,27 @@
                                 </b:FormGroup>
                             </b:Column>
                         </b:Row>
-                        <b:Row ui:field="passwordRow" visible="false" >
+                        <b:Row ui:field="userRow1" visible="false" >
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}" text="First Name"/>
+                            </b:Column>
+                            <b:Column size="MD_4">
+                                <b:TextBox ui:field="firstName"/>
+                            </b:Column>
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}" text="Last Name"/>
+                            </b:Column>
+                            <b:Column size="MD_4">
+                                <b:TextBox ui:field="lastName"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row ui:field="passwordRow" visible="false"  marginTop="10">
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}" text="Username"/>
+                            </b:Column>
+                            <b:Column size="MD_4">
+                                <b:TextBox ui:field="username"/>
+                            </b:Column>
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Password"/>
                             </b:Column>
@@ -121,6 +127,14 @@
                                 <!--<b:PasswordTextBox ui:field:field:field:field:field:field:field:field:field:field:field:field="passwordTextBox" />-->
                                 <!--<b:TextBox ui:field="passwordTextBox"/>-->
                                 <b:Input ui:field="passwordTextBox" type="PASSWORD"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row>
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}" text="Username is email"/>
+                            </b:Column>
+                            <b:Column size="MD_4">
+                                <b:CheckBox ui:field="usernameIsEmail"/>
                             </b:Column>
                         </b:Row>
                         <b:Row>

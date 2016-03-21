@@ -10,6 +10,7 @@ class AnnotatorSummary extends OrganismSummary{
     List<OrganismPermissionSummary> userOrganismPermissionList
 
     String getUsername(){annotator.username}
+    String getEmail(){annotator.email}
     String getFirstName(){annotator.firstName}
     String getLastName(){annotator.lastName}
 }

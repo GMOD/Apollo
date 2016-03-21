@@ -19,6 +19,7 @@ public class UserInfo implements HasJSON {
     private String firstName;
     private String lastName;
     private String email;
+    private String username;
     private String role;
     private Integer numberUserGroups;
     private String password;
@@ -127,6 +128,14 @@ public class UserInfo implements HasJSON {
         return organismPermissionMap;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public void setOrganismPermissionMap(Map<String, UserOrganismPermissionInfo> organismPermissionMap) {
         this.organismPermissionMap = organismPermissionMap;
     }
@@ -144,7 +153,10 @@ public class UserInfo implements HasJSON {
         }
         jsonObject.put("firstName", new JSONString(firstName));
         jsonObject.put("lastName", new JSONString(lastName));
-        jsonObject.put("email", new JSONString(email));
+        if(email!=null){
+            jsonObject.put("email", new JSONString(email));
+        }
+        jsonObject.put("username", new JSONString(username));
         // TODO: do not use this as it is the "security user" placeholder
 //        jsonObject.put("username", new JSONString(email));
         if (role != null) {

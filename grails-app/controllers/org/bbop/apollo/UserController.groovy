@@ -71,6 +71,7 @@ class UserController {
 
                 userObject.userId = it.id
                 userObject.username = it.username
+                userObject.email = it.email
                 userObject.firstName = it.firstName
                 userObject.lastName = it.lastName
                 Role role = userService.getHighestRole(it)
@@ -251,6 +252,7 @@ class UserController {
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "email", type = "email", paramType = RestApiParamType.QUERY, description = "Email of the user to add")
+            , @RestApiParam(name = "newUserName", type = "string", paramType = RestApiParamType.QUERY, description = "Username of the user to add if not the email")
             , @RestApiParam(name = "firstName", type = "string", paramType = RestApiParamType.QUERY, description = "First name of user to add")
             , @RestApiParam(name = "lastName", type = "string", paramType = RestApiParamType.QUERY, description = "Last name of user to add")
             , @RestApiParam(name = "newPassword", type = "string", paramType = RestApiParamType.QUERY, description = "Password of user to add")
@@ -264,7 +266,10 @@ class UserController {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
-            if (User.findByUsername(dataObject.email) != null) {
+
+            String newUserName = dataObject.newUserName ?: dataObject.email
+
+            if (User.findByUsername(newUserName) != null) {
                 JSONObject error = new JSONObject()
                 error.put(FeatureStringEnum.ERROR.value, "User already exists. Please enter a new username")
                 render error.toString()
@@ -274,7 +279,8 @@ class UserController {
             User user = new User(
                     firstName: dataObject.firstName
                     , lastName: dataObject.lastName
-                    , username: dataObject.email
+                    , username: newUserName
+                    , email: dataObject.email ?: null
                     , passwordHash: new Sha256Hash(dataObject.newPassword ?: dataObject.password).toHex()
             )
             user.save(insert: true)
@@ -311,10 +317,13 @@ class UserController {
         try {
             log.info "Removing user"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            println "A ${dataObject as JSON}"
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+                println "A.1"
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
+            println "B"
             User user = null
             if (dataObject.has('userId')) {
                 user = User.findById(dataObject.userId)
@@ -348,6 +357,7 @@ class UserController {
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "User ID to update")
             , @RestApiParam(name = "email", type = "email", paramType = RestApiParamType.QUERY, description = "Email of the user to update")
+            , @RestApiParam(name = "newUserName", type = "string", paramType = RestApiParamType.QUERY, description = "Username of the user to add if not the email")
             , @RestApiParam(name = "firstName", type = "string", paramType = RestApiParamType.QUERY, description = "First name of user to update")
             , @RestApiParam(name = "lastName", type = "string", paramType = RestApiParamType.QUERY, description = "Last name of user to update")
             , @RestApiParam(name = "newPassword", type = "string", paramType = RestApiParamType.QUERY, description = "Password of user to update")
@@ -362,10 +372,12 @@ class UserController {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
+            String newUserName = dataObject.newUserName ?: dataObject.email
             User user = User.findById(dataObject.userId)
             user.firstName = dataObject.firstName
             user.lastName = dataObject.lastName
-            user.username = dataObject.email
+            user.username = newUserName
+            user.email = dataObject.email ?: null
 
             if (dataObject.newPassword) {
                 user.passwordHash = new Sha256Hash(dataObject.newPassword).toHex()

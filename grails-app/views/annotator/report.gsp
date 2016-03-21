@@ -38,6 +38,9 @@
                        class="btn btn-default">
                         ${annotatorInstance.username}
                     </a>
+                    <g:if test="${annotatorInstance.username!=annotatorInstance.email && annotatorInstance.email}">
+                        (${annotatorInstance.email})
+                    </g:if>
                     <br/>
                     <perms:isUserAdmin user="${annotatorInstance.annotator}">
                         <span class="label label-default">Admin</span>

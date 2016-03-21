@@ -19,7 +19,10 @@ class PermissionService {
 
     boolean isUserAdmin(User user) {
         if(user!=null) {
+            println "user ${user}"
             for (Role role in user.roles) {
+                println "role ${role}"
+                println "role name ${role.name}"
                 if (role.name == UserService.ADMIN) {
                     return true
                 }
@@ -32,7 +35,9 @@ class PermissionService {
     boolean isAdmin() {
         String currentUserName = SecurityUtils.subject.principal
         if (currentUserName) {
+            println "current user name ${currentUserName}"
             User researcher = User.findByUsername(currentUserName)
+            println "researcher ${researcher}"
             if (isUserAdmin(researcher)) {
                 return true
             }
@@ -456,16 +461,26 @@ class PermissionService {
         //def session = RequestContextHolder.currentRequestAttributes().getSession()
         String username = jsonObject.getString(FeatureStringEnum.USERNAME.value)
 
+        println "found username ${username}"
 
         User user = User.findByUsername(username)
 
+        println "found uer ${user}"
+
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
+        println "permission enums ${permissionEnums}"
+        println "is admin ${isUserAdmin(user)}"
+
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
+
+        println "highest value ${highestValue}"
 
         if (highestValue.rank < requiredPermissionEnum.rank) {
             //return false
             throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
+        println "rank returned? ${highestValue}"
+
 
         return highestValue
     }
@@ -473,6 +488,7 @@ class PermissionService {
     Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
         // not sure if permissions with translate through or not
         Session session = SecurityUtils.subject.getSession(false)
+        println "has session ${session}"
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
@@ -497,6 +513,7 @@ class PermissionService {
             jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
         }
 
+        println "username ${jsonObject.username}"
 
         Organism organism = getCurrentOrganismPreference()?.organism
         log.debug "passing in an organism ${jsonObject.organism}"
@@ -520,6 +537,8 @@ class PermissionService {
             log.debug "final organism ${organism.commonName}"
             preferenceService.setCurrentOrganism(getCurrentUser(), organism)
         }
+
+        println "checking permissions ${permissionEnum.display}"
 
         return checkPermissions(jsonObject,organism,permissionEnum)
 

@@ -87,7 +87,8 @@ class GroupController {
                 it.users.each{ user ->
                     JSONObject userObject = new JSONObject()
                     userObject.id=user.id
-                    userObject.email=user.username
+                    userObject.username =user.username
+                    userObject.email=user.email ?: user.username
                     userObject.firstName=user.firstName
                     userObject.lastName=user.lastName
 

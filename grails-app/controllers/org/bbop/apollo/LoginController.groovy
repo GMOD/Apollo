@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse
 class LoginController extends AbstractApolloController {
 
     def permissionService
+    def userService
     def brokerMessagingTemplate
 
     def index() {}
@@ -73,8 +74,12 @@ class LoginController extends AbstractApolloController {
 
         def adminRole = Role.findByName(UserService.ADMIN)
 
+
+        String email = userService.isEmail(username) ? username : null
+
         User user = new User(
                 username: username
+                ,email:email
                 ,passwordHash: new Sha256Hash(password).toHex()
                 ,firstName: jsonObj.firstName
                 ,lastName: jsonObj.lastName
@@ -99,6 +104,12 @@ class LoginController extends AbstractApolloController {
             String username = jsonObj.username
             String password = jsonObj.password
             Boolean rememberMe = jsonObj.rememberMe
+
+            // check the email instead
+            if(!User.findByUsername(username) && userService.isEmail(username) && User.findByEmail(username)){
+                log.info("Logging in with email ${username}")
+                 username = User.findByEmail(username).username
+            }
 
             def authToken = new UsernamePasswordToken(username, password as String)
 

@@ -12,6 +12,7 @@ class DomainMarshallerService {
             def returnArray = [:]
             returnArray['userId'] = it.id
             returnArray['username'] = it.username
+            returnArray['email'] = it.email ?: it.username
             returnArray['firstName'] = it.firstName
             returnArray['lastName'] = it.lastName
             return returnArray
