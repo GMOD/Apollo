@@ -253,6 +253,7 @@ class UserController {
             , @RestApiParam(name = "email", type = "email", paramType = RestApiParamType.QUERY, description = "Email of the user to add")
             , @RestApiParam(name = "firstName", type = "string", paramType = RestApiParamType.QUERY, description = "First name of user to add")
             , @RestApiParam(name = "lastName", type = "string", paramType = RestApiParamType.QUERY, description = "Last name of user to add")
+            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "User metadata (optional)")
             , @RestApiParam(name = "newPassword", type = "string", paramType = RestApiParamType.QUERY, description = "Password of user to add")
     ])
     @Transactional
@@ -275,6 +276,7 @@ class UserController {
                     firstName: dataObject.firstName
                     , lastName: dataObject.lastName
                     , username: dataObject.email
+                    , metadata: dataObject.metadata ?: null
                     , passwordHash: new Sha256Hash(dataObject.newPassword ?: dataObject.password).toHex()
             )
             user.save(insert: true)
@@ -350,6 +352,7 @@ class UserController {
             , @RestApiParam(name = "email", type = "email", paramType = RestApiParamType.QUERY, description = "Email of the user to update")
             , @RestApiParam(name = "firstName", type = "string", paramType = RestApiParamType.QUERY, description = "First name of user to update")
             , @RestApiParam(name = "lastName", type = "string", paramType = RestApiParamType.QUERY, description = "Last name of user to update")
+            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "User metadata (optional)")
             , @RestApiParam(name = "newPassword", type = "string", paramType = RestApiParamType.QUERY, description = "Password of user to update")
     ]
     )
@@ -366,6 +369,7 @@ class UserController {
             user.firstName = dataObject.firstName
             user.lastName = dataObject.lastName
             user.username = dataObject.email
+            user.metadata = dataObject.metadata ?: null
 
             if (dataObject.newPassword) {
                 user.passwordHash = new Sha256Hash(dataObject.newPassword).toHex()
