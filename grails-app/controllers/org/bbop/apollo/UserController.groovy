@@ -317,10 +317,13 @@ class UserController {
         try {
             log.info "Removing user"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            println "A ${dataObject as JSON}"
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+                println "A.1"
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
+            println "B"
             User user = null
             if (dataObject.has('userId')) {
                 user = User.findById(dataObject.userId)

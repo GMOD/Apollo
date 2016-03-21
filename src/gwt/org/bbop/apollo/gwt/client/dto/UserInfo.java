@@ -153,7 +153,10 @@ public class UserInfo implements HasJSON {
         }
         jsonObject.put("firstName", new JSONString(firstName));
         jsonObject.put("lastName", new JSONString(lastName));
-        jsonObject.put("email", new JSONString(email));
+        if(email!=null){
+            jsonObject.put("email", new JSONString(email));
+        }
+        jsonObject.put("username", new JSONString(username));
         // TODO: do not use this as it is the "security user" placeholder
 //        jsonObject.put("username", new JSONString(email));
         if (role != null) {

@@ -103,6 +103,8 @@ public class UserPanel extends Composite {
     org.gwtbootstrap3.client.ui.Label saveLabel;
     @UiField
     TextBox username;
+    @UiField
+    org.gwtbootstrap3.client.ui.CheckBox usernameIsEmail;
 
 
     private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
@@ -521,6 +523,19 @@ public class UserPanel extends Composite {
         passwordRow.setVisible(false);
     }
 
+    @UiHandler("usernameIsEmail")
+    public void setUsernameIsEmail(ClickEvent clickEvent){
+        if(usernameIsEmail.getValue()){
+            username.setText(email.getText());
+            username.setEnabled(false);
+        }
+        else{
+            username.setText(selectedUserInfo.getUsername());
+            username.setEnabled(true);
+        }
+        userIsSame();
+    }
+
     @UiHandler("saveButton")
     public void save(ClickEvent clickEvent) {
         if (selectedUserInfo == null) {
@@ -570,6 +585,7 @@ public class UserPanel extends Composite {
             lastName.setText(selectedUserInfo.getLastName());
             email.setText(selectedUserInfo.getEmail());
             username.setText(selectedUserInfo.getUsername());
+            usernameIsEmail.setValue(username.getText().equals(email.getText()));
             cancelButton.setVisible(true);
             saveButton.setVisible(true);
             saveButton.setEnabled(false);
