@@ -8,7 +8,7 @@ First create a database in PostgreSQL for Chado.
 
 Note: Initial testing has only been done on PostgreSQL.
 
-Default name is `apollo_chado` and `apollo_chado_production` for development and production environment, respectively.
+Default name is `apollo-chado` and `apollo-production-chado` for development and production environment, respectively.
 
 ### Create a Chado user
 
@@ -16,7 +16,7 @@ Now, create a database user that has all access privileges to the newly created 
 
 ### Load Chado schema and ontologies
 
-Apollo assumes that the Chado database has Chado schema v1.2  or greater and has the following ontologies loaded:
+Apollo assumes that the Chado database has Chado schema v1.2 or greater and has the following ontologies loaded:
 
 1. Relations Ontology
 2. Sequence Ontology
@@ -29,18 +29,29 @@ Apollo provides a prebuilt Chado schema with the necessary ontologies. (thanks t
 
 Users can load this prebuilt Chado schema as follows:
 ```
-createdb CHADO_DB
-gunzip -c chado-schema-with-ontologies.sql.gz | psql -U CHADO_USER -h DATABASE_HOST -d CHADO_DB
+scripts/load_chado_schema.sh -u <USER> -d <CHADO_DATABASE> -h <HOST> -p <PORT> -s <CHADO_SCHEMA_SQL>
 ```
+
+If there is already an existing database with the same name and if you would like to dump and create a clean database:
+```
+scripts/load_chado_schema.sh -u <USER> -d <CHADO_DATABASE> -h <HOST> -p <PORT> -s <CHADO_SCHEMA_SQL> -r
+```
+
+The '-r' flag tells the script to perform a pg_dump if `<CHADO_DATABASE>` exists.
+
 
 e.g., 
 
 ```
-createdb apollo-chado
-gunzip -c chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado
+scripts/load_chado_schema.sh -u postgres -d apollo-chado -h localhost -p 5432 -r -s chado-schema-with-ontologies.sql.gz
+
 ```
 
-Note that you will also need to do this for your testing and production instances, as well.  
+The file `chado-schema-with-ontologies.sql.gz` can be found in Apollo directory.
+
+The `load_chado_schema.sh` script creates log files which can be inspected to see if loading the schema was successful.
+
+Note that you will also need to do this for your testing and production instances, as well.
 
 ### Configure data sources
 
