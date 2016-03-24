@@ -1034,7 +1034,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                 alert("Input cannot be empty for " + type);
                 ok = false;
             }
-	    if (commentFieldValue.length == 0) {
+        if (commentFieldValue.length == 0) {
                 alert("Input cannot be empty for " + type);
                 ok = false;
             }
