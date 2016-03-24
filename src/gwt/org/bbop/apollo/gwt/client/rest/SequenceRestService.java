@@ -11,6 +11,7 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ExportPanel;
+import org.bbop.apollo.gwt.client.SequencePanel;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -121,5 +122,21 @@ public class SequenceRestService {
         RestService.sendRequest(requestCallback, searchString);
     }
 
+    public static void getChadoExportStatus(final SequencePanel sequencePanel) {
+        String requestUrl = Annotator.getRootUrl() + "IOService/chadoExportStatus";
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
+                sequencePanel.setChadoExportStatus(responseObject.get("export_status").isString().stringValue());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                sequencePanel.setChadoExportStatus("false");
+            }
+        };
+        RestService.sendRequest(requestCallback, requestUrl);
+    }
 
 }

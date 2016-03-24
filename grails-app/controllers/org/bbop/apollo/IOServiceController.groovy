@@ -229,4 +229,11 @@ class IOServiceController extends AbstractApolloController {
 
         file.delete()
     }
+
+    def chadoExportStatus() {
+        boolean exportStatus = false
+        JSONObject returnObject = new JSONObject()
+        returnObject.export_status = configWrapperService.hasChadoDataSource().toString()
+        render returnObject
+    }
 }

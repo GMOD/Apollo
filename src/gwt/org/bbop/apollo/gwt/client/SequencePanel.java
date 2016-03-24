@@ -86,12 +86,13 @@ public class SequencePanel extends Composite {
     private SequenceInfo selectedSequenceInfo = null;
     private Integer selectedCount = 0;
     private Boolean exportAll = false;
+    private Boolean chadoExportStatus = false;
 
     public SequencePanel() {
 
         initWidget(ourUiBinder.createAndBindUi(this));
         dataGrid.setWidth("100%");
-
+        getChadoExportStatus();
         TextColumn<SequenceInfo> nameColumn = new TextColumn<SequenceInfo>() {
             @Override
             public String getValue(SequenceInfo employee) {
@@ -407,4 +408,12 @@ public class SequencePanel extends Composite {
         dataGrid.redraw();
     }
 
+    public void getChadoExportStatus() {
+        SequenceRestService.getChadoExportStatus(this);
+    }
+
+    public void setChadoExportStatus(String exportStatus) {
+        this.chadoExportStatus = exportStatus.equals("true");
+        this.exportChadoButton.setEnabled(this.chadoExportStatus);
+    }
 }
