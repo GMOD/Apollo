@@ -10,6 +10,7 @@ function EUtils(contextPath, errorHandler) {
 
 EUtils.prototype.validateId = function(db, id) {
 	var valid;
+    var thisB = this;
 	dojo.xhrGet( {
 		url: this.url + "&operation=search&db=" + db + "&id=" + id,
 		handleAs: "json",
@@ -19,7 +20,7 @@ EUtils.prototype.validateId = function(db, id) {
 			valid = !response.eSearchResult.ErrorList;
 		}, 
 		error: function(response, ioArgs) {
-			errorHandler(response);
+			thisB.errorHandler(response);
 		}
 	});
 	return valid;
@@ -27,6 +28,7 @@ EUtils.prototype.validateId = function(db, id) {
 
 EUtils.prototype.fetch = function(db, id) {
 	var record;
+    var thisB = this;
 	dojo.xhrGet( {
 		url: this.url + "&operation=fetch&db=" + db + "&id=" + id,
 		handleAs: "json",
@@ -36,7 +38,7 @@ EUtils.prototype.fetch = function(db, id) {
 			record = response.PubmedArticleSet.PubmedArticle ? response : null;
 		}, 
 		error: function(response, ioArgs) {
-			errorHandler(response);
+			thisB.errorHandler(response);
 		}
 	});
 	return record;
