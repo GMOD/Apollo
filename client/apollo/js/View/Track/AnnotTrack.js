@@ -2028,13 +2028,13 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, dbxrefButtons);
-        var dbxrefss="Use this field if this model has Cross-references in other databases (e.g. the GenBank Accession number of a cDNA from this gene from the same species). Do NOT use this field to list IDs of models from other species that you used as annotation evidence.";
-        new Tooltip({
-                        connectId: dbxrefsDiv,
-                        label: dbxrefss,
-                        position: ["above"],
-                        showDelay: 600
-                    });
+                var dbxrefss="Use this field if this model has Cross-references in other databases (e.g. the GenBank Accession number of a cDNA from this gene from the same species). Do NOT use this field to list IDs of models from other species that you used as annotation evidence.";
+                new Tooltip({
+                    connectId: dbxrefsDiv,
+                    label: dbxrefss,
+                    position: ["above"],
+                    showDelay: 600
+                });
 
                 var attributesDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var attributesLabel = dojo.create("div", {
@@ -2075,13 +2075,13 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, pubmedIdButtons);
-        var pubmedss="Use this field if this model has been mentioned in a publication. Do NOT use this field to list publications on models from other species that you used as annotation evidence.";
-        new Tooltip({
-                        connectId: pubmedIdsDiv,
-                        label: dbxrefss,
-                        position: ["above"],
-                        showDelay: 600
-                    });
+                var pubmedss="Use this field if this model has been mentioned in a publication. Do NOT use this field to list publications on models from other species that you used as annotation evidence.";
+                new Tooltip({
+                    connectId: pubmedIdsDiv,
+                    label: dbxrefss,
+                    position: ["above"],
+                    showDelay: 600
+                });
                 var goIdsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var goIdsLabel = dojo.create("div", {
                     'class': "annotation_info_editor_section_header",
