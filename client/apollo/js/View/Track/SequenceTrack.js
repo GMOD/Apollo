@@ -6,7 +6,8 @@ define( [
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
-    'dojox/widget/Standby'
+    'dojox/widget/Standby',
+    'jquery/jquery'
      ],
 function( declare,
     xhr,
@@ -15,7 +16,8 @@ function( declare,
     DraggableFeatureTrack,
     JSONUtils,
     Permission,
-    Standby
+    Standby,
+    $
 ) {
 
 var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
@@ -1029,10 +1031,6 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             var input = inputField.value.toUpperCase();
             var commentFieldValue = commentField.value;
             if (input.length == 0) {
-                alert("Input cannot be empty for " + type);
-                ok = false;
-            }
-	    if (commentFieldValue.length == 0) {
                 alert("Input cannot be empty for " + type);
                 ok = false;
             }

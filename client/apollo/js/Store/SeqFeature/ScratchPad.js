@@ -3,57 +3,35 @@ define( ['dojo/_base/declare',
         ],
         function( declare, SeqFeatureStore ) {
 
-// return declare( "testScratchPadClass", SeqFeatureStore,
 return declare( SeqFeatureStore,
 {
     constructor: function( args ) {
         this.refSeq = args.refSeq;
         this.features = {};
-	this.sorted_feats = [];
+        this.sorted_feats = [];
         this._calculateStats();
     },
 
     insert: function( feature ) {
         this.features[ feature.id() ] = feature;
-//	this._sort();
         this._calculateStats();
     },
 
     replace: function( feature ) {
-	this.features[ feature.id() ] = feature;
-//	this._sort();
+        this.features[ feature.id() ] = feature;
         this._calculateStats();
     }, 
 
-/*    _sort: function()  {
-	sorted_feats.sort(function(a, b) {
-	    var astart = a.get('start');
-	    var bstart = b.get('start');
-            if (astart != bstart)  {
-		return astart - bstart;
-	    }
-            else {
-		return b.get('end') - a.get('end');
-	    }
-	} );
-    }, 
-*/
-
-/*
-    delete: function( feature ) {
-	this.deleteFeatureById[ feature.id() ];
-    },
-*/
 
     deleteFeatureById: function( id ) {
-	delete  this.features[ id ];
+        delete  this.features[ id ];
         this._calculateStats();
     },
     
 
     /* if feature with given id is present in store, return it.  Otherwise return null */
     getFeatureById: function( id )  {
-	return this.features[ id ];
+        return this.features[ id ];
     },
 
     _calculateStats: function() {
