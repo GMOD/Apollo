@@ -26,7 +26,7 @@ environments {
         dataSource {
             dbCreate = "update"
             //NOTE: production mode uses file instead of mem database
-            //Please speicify the appropriate absolute file path of your h2 database.
+            //Please specify the appropriate file path, otherwise /tmp/prodDb will be used.
             //url = "jdbc:h2:/opt/apollo/h2/prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
             url = "jdbc:h2:/tmp/prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
             properties {
