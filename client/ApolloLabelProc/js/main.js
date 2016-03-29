@@ -45,14 +45,6 @@ return declare( JBrowsePlugin,
                     //     dojo.style(dojo.byId('widget_location'), "width", "0");
                     // }
 
-                    // update the id=location-box if it exists
-                    //var node = dojo.byId("location-info");
-                    //if (node) {
-                    //    html.set(node, obj.label);
-                    //    thisB.browser.locationBox.set('value',"", false);
-                    //}
-                    // dojo.style(dojo.byId('search-box'), "display", "none");
-                    // borderContainer.resize();
                     dojo.addOnLoad(function() {
                         // console.log(borderContainer);
 
@@ -65,10 +57,6 @@ return declare( JBrowsePlugin,
                         counter = 1 ;
 
                         // dojo.style(dojo.byId('search-refseq'), "display", "none");
-                        // dojo.style(searchBox, "width", "0");
-                        // searchBox.resize();
-                        // var navbox = dojo.byId('navbox');
-                        // navbox.resize();
                     });
 
                 }
