@@ -146,9 +146,7 @@ class IOServiceController extends AbstractApolloController {
                     returnObject = chadoHandlerService.writeFeatures(organism, sequenceList, features)
                 }
                 else {
-                    // To avoid doing an export of all the sequences into Chado
-                    // TODO: Remove after optimizations
-                    returnObject = chadoHandlerService.writeFeatures(organism, [], features)
+                    returnObject = chadoHandlerService.writeFeatures(organism, [], features, exportAllSequences.equals("true"))
                 }
 
                 render returnObject
