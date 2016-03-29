@@ -56,9 +56,10 @@ class ProjectionSequence implements Comparable<ProjectionSequence>{
 //            return name <=> o.name
 //        }
 //        else{
-//            int test = order <=> o.order
-//            if(test!=0){ return test }
-            def test = name <=> o.name
+            int test = order <=> o.order
+            if(test!=0){ return test }
+
+            test = name <=> o.name
             return test
 //        }
 
