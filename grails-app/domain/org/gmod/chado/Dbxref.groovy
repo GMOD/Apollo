@@ -3,6 +3,7 @@ package org.gmod.chado
 class Dbxref {
 
     String accession
+    String version
     String description
 //    Serializable searchableAccession
     Db db
