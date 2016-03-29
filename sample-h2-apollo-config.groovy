@@ -9,6 +9,14 @@ dataSource {
 // environment specific settings
 environments {
     development {
+        // sample config to turn on debug logging in development e.g. for apollo run-local
+        log4j.main = {
+            debug "grails.app"
+        }
+        // sample config to edit apollo specific configs in development mode
+        apollo {
+            gff3.source = "testing"
+        }
         dataSource {
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
             url = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
