@@ -167,7 +167,7 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
         String gene1PropertyString1 = addNonReservedPropertyString.replace("@UNIQUENAME@", gene1.uniqueName).replace("@TAG@", "score").replace("@VALUE@", "256.7")
         String gene1PropertyString2 = addNonReservedPropertyString.replace("@UNIQUENAME@", gene1.uniqueName).replace("@TAG@", "score").replace("@VALUE@", "9302")
         String transcript1PropertyString1 = addNonReservedPropertyString.replace("@UNIQUENAME@", mrna1.uniqueName).replace("@TAG@", "score").replace("@VALUE@", "11.2")
-        String transcript1PropertyString2 = addNonReservedPropertyString.replace("@UNIQUENAME@", mrna1.uniqueName).replace("@TAG@", "score").replace("@VALUE", "42")
+        String transcript1PropertyString2 = addNonReservedPropertyString.replace("@UNIQUENAME@", mrna1.uniqueName).replace("@TAG@", "score").replace("@VALUE@", "42")
 
         requestHandlingService.addNonReservedProperties(JSON.parse(gene1PropertyString1) as JSONObject)
         requestHandlingService.addNonReservedProperties(JSON.parse(gene1PropertyString2) as JSONObject)
