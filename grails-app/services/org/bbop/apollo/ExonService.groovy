@@ -420,23 +420,55 @@ class ExonService {
         return rightExon
 
     }
-    
-    //added while working on getSequence() on 03.19.15 by D.U.
+
     String getCodingSequenceInPhase(Exon exon, boolean removePartialCodons) {
         Transcript transcript = getTranscript(exon)
         CDS cds = transcriptService.getCDS(transcript)
         if (cds == null || !overlapperService.overlaps(exon, cds, true)) {
             return ""
         }
-        int length = 0
 
-        List <Exon> exons = transcriptService.getSortedExons(transcript)
+        String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(
+                exon.featureLocation.sequence
+                ,exon.fmin < cds.fmin ? cds.fmin : exon.fmin
+                ,exon.fmax > cds.fmax ? cds.fmax : exon.fmax
+                ,Strand.getStrandForValue(exon.featureLocation.strand)
+        )
+
+        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript)
         if (exon.strand == Strand.NEGATIVE.value) {
             Collections.reverse(exons)
         }
-        
+
+        int phase = getPhaseForExon(exon)
+        if (removePartialCodons) {
+            residues = residues.substring(phase)
+            residues = residues.substring(0, residues.length() - (residues.length() % 3))
+        }
+        return residues
+    }
+
+    int getPhaseForExon(Exon exon) {
+        int phase = 0
+        Transcript transcript = getTranscript(exon)
+        CDS cds = transcriptService.getCDS(transcript)
+        if (cds == null || !overlapperService.overlaps(exon, cds, true)) {
+            return phase
+        }
+
+        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript)
+        if (exon.strand == Strand.NEGATIVE.value) {
+            Collections.reverse(exons)
+        }
+
+        int length = getLengthOfPreviousExons(exons, exon, cds)
+        phase = length % 3 == 0 ? 0 : 3 - (length % 3)
+        return phase
+    }
+
+    int getLengthOfPreviousExons(ArrayList<Exon> exons, Exon exon, CDS cds) {
+        int length = 0
         for (Exon e in exons) {
-            //getting length of the previous exon to calculate phase of current exon
             if (e.equals(exon)) {
                 break
             }
@@ -447,32 +479,6 @@ class ExonService {
             int fmax = e.fmax > cds.fmax ? cds.fmax : e.fmax
             length += fmin < fmax ? fmax - fmin : fmin - fmax
         }
-
-//        FlankingRegion flankingRegion = new FlankingRegion(
-//                name: cds.name
-//                ,uniqueName: cds.uniqueName + "_tmpFlankRegion"
-//        ).save()
-//        FeatureLocation flankingRegionLocation = new FeatureLocation(
-//                feature : flankingRegion
-//                ,fmin : exon.fmin < cds.fmin ? cds.fmin : exon.fmin
-//                ,fmax : exon.fmax > cds.fmax ? cds.fmax : exon.fmax
-//                ,strand : exon.getFeatureLocation().strand
-//                ,sequence : exon.getFeatureLocation().sequence
-//        ).save()
-//        flankingRegion.addToFeatureLocations(flankingRegionLocation)
-//        flankingRegion.save()
-//        String residues = featureService.getResiduesWithAlterationsAndFrameshifts(flankingRegion)
-        String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(
-                exon.featureLocation.sequence
-                ,exon.fmin < cds.fmin ? cds.fmin : exon.fmin
-                ,exon.fmax > cds.fmax ? cds.fmax : exon.fmax
-                ,Strand.getStrandForValue(exon.featureLocation.strand)
-        )
-        if (removePartialCodons) {
-            int phase = length % 3 == 0 ? 0 : 3 - (length % 3)
-            residues = residues.substring(phase)
-            residues = residues.substring(0, residues.length() - (residues.length() % 3))
-        }
-        return residues
+        return length
     }
 }

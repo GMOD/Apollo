@@ -54,9 +54,11 @@
                 <td style="text-align: left;">
                     <g:formatNumber number="${sequenceInstance.length}" type="number"/>
                 </td>
-                <td>
+                <td style="max-width: 10%;display: block;padding-right: 10px;padding-left: 10px;">
                     <g:each in="${sequenceInstance.annotators}" var="annotator">
-                        <g:link action="report" controller="annotator" id="${annotator.id}">${annotator.username}</g:link>
+                        <a style="margin: 2px;padding: 2px;" href='<g:createLink action="report" controller="annotator" id="${annotator.id}">${annotator.username}</g:createLink>' class="btn btn-default">
+                        ${annotator.username}
+                        </a>
                     </g:each>
                 </td>
                 <td>
@@ -65,26 +67,26 @@
                 <td>${sequenceInstance.geneCount}</td>
                 <td>
                     <g:if test="${sequenceInstance.transcriptCount}">
-                        <button>
+                        <div class="info-border">
                             Total
                             <span class="badge">${sequenceInstance.transcriptCount}</span>
-                        </button>
-                        <button>
+                        </div>
+                        <div class="info-border">
                             Protein encoding
                             <span class="badge"><g:formatNumber number="${sequenceInstance.proteinCodingTranscriptPercent}" type="percent"/></span>
-                        </button>
-                        <button>
+                        </div>
+                        <div class="info-border">
                             Exons / transcript
                             <span class="badge"><g:formatNumber number="${sequenceInstance.exonsPerTranscript}" type="number"/></span>
-                        </button>
+                        </div>
 
                         <g:each in="${sequenceInstance.transcriptTypeCount}" var="trans">
-                            <button>
+                            <div class="info-border">
                                 ${trans.key}
                                 <span class="badge">
                                     ${trans.value}
                                 </span>
-                            </button>
+                            </div>
                         </g:each>
                     </g:if>
                     <g:else>0</g:else>
@@ -99,8 +101,8 @@
     </table>
 
     <div class="pagination">
-        <g:paginate total="${sequenceInstanceCount ?: 0}"/>
-    </div>
+        <g:paginate total="${sequenceInstanceCount ?: 0}" params="[id:organism.id]"/>
+   </div>
 </div>
 
 </body>

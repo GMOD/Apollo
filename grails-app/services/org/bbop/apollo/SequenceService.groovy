@@ -8,6 +8,7 @@ import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.alteration.SequenceAlterationInContext
+import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -214,7 +215,6 @@ class SequenceService {
         }
 
         int startPosition = fmin - (startChunkNumber * sequence.seqChunkSize);
-
         return sequenceString.substring(startPosition,startPosition + (fmax-fmin))
     }
 
@@ -332,9 +332,25 @@ class SequenceService {
         } else if (type.equals(FeatureStringEnum.TYPE_CDS.value)) {
             if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
                 featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
+                boolean hasStopCodonReadThrough = false
+                if (cdsService.getStopCodonReadThrough(transcriptService.getCDS((Transcript) gbolFeature)).size() > 0) {
+                    hasStopCodonReadThrough = true
+                }
+                String verifiedResidues = checkForInFrameStopCodon(featureResidues, 0, hasStopCodonReadThrough)
+                featureResidues = verifiedResidues
             } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
                 log.debug "Fetching CDS sequence for selected exon: ${gbolFeature}"
                 featureResidues = exonService.getCodingSequenceInPhase((Exon) gbolFeature, false)
+                boolean hasStopCodonReadThrough = false
+                def stopCodonReadThroughList = cdsService.getStopCodonReadThrough(transcriptService.getCDS(exonService.getTranscript((Exon) gbolFeature)))
+                if (stopCodonReadThroughList.size() > 0) {
+                    if (overlapperService.overlaps(stopCodonReadThroughList.get(0), gbolFeature)) {
+                        hasStopCodonReadThrough = true
+                    }
+                }
+                int phase = exonService.getPhaseForExon((Exon) gbolFeature)
+                String verifiedResidues = checkForInFrameStopCodon(featureResidues, phase, hasStopCodonReadThrough)
+                featureResidues = verifiedResidues
             } else {
                 featureResidues = ""
             }
@@ -369,7 +385,29 @@ class SequenceService {
         }
         return featureResidues
     }
-    
+
+    def checkForInFrameStopCodon(String residues, int phase, boolean hasStopCodonReadThrough = false) {
+        String codon;
+        def stopCodons = configWrapperService.getTranslationTable().stopCodons
+        for (int i = phase; i < residues.length(); i += 3) {
+            if (i + 3 >= residues.length()) {
+                break
+            }
+
+            codon = residues.substring(i, i + 3)
+            if (stopCodons.contains(codon)) {
+                if (hasStopCodonReadThrough) {
+                    hasStopCodonReadThrough = false
+                }
+                else {
+                    return residues.substring(0, i + 3)
+                }
+            }
+
+        }
+        return residues
+    }
+
     def getSequenceForFeatures(JSONObject inputObject, File outputFile=null) {
         // Method returns a JSONObject 
         // Suitable for 'get sequence' operation from AEC

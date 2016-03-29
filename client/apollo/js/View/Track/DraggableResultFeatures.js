@@ -1,8 +1,9 @@
 define( [
          'dojo/_base/declare',
-         'WebApollo/View/Track/DraggableHTMLFeatures'
+         'WebApollo/View/Track/DraggableHTMLFeatures',
+         'WebApollo/JSONUtils'
          ],
-         function( declare, DraggableFeatureTrack) {
+         function( declare, DraggableFeatureTrack, JSONUtils ) {
 
 var DraggableResultFeatures = declare( DraggableFeatureTrack, {   
     constructor: function(args)  {  },

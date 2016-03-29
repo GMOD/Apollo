@@ -791,6 +791,8 @@ class FeatureEventService {
 
     def buildMap(FeatureEvent featureEvent, TreeMap<Integer, Set<FeatureEvent>> unindexedMap, int index, Boolean includePrevious, Boolean includeFuture) {
 
+        if(!featureEvent) return
+
         def featureEventSet = unindexedMap.get(index)
         if (!featureEventSet) {
             featureEventSet = new HashSet<FeatureEvent>()

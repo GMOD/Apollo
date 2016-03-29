@@ -272,8 +272,12 @@ public class TrackPanel extends Composite {
             if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) &&
                     !isReferenceSequence(trackInfo) &&
                     !isAnnotationTrack(trackInfo)) {
-                if( !filteredTrackInfoList.contains(trackInfo)){
+                Integer filteredIndex = filteredTrackInfoList.indexOf(trackInfo);
+                if( filteredIndex < 0 ){
                     filteredTrackInfoList.add(trackInfo);
+                }
+                else{
+                    filteredTrackInfoList.get(filteredIndex).setVisible(trackInfo.getVisible());
                 }
             }
             else{

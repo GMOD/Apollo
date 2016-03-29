@@ -1291,7 +1291,7 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
             JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.NON_RESERVED_PROPERTIES.value);
             for (int j = 0; j < properties.length(); ++j) {
-                JSONObject property = properties.getJSONObject(i);
+                JSONObject property = properties.getJSONObject(j);
 
                 String tag = property.getString(FeatureStringEnum.TAG.value)
                 String value = property.getString(FeatureStringEnum.VALUE.value)
@@ -1362,8 +1362,8 @@ class RequestHandlingService {
             JSONArray oldProperties = jsonFeature.getJSONArray(FeatureStringEnum.OLD_NON_RESERVED_PROPERTIES.value);
             JSONArray newProperties = jsonFeature.getJSONArray(FeatureStringEnum.NEW_NON_RESERVED_PROPERTIES.value);
             for (int j = 0; j < oldProperties.length(); ++j) {
-                JSONObject oldProperty = oldProperties.getJSONObject(i);
-                JSONObject newProperty = newProperties.getJSONObject(i);
+                JSONObject oldProperty = oldProperties.getJSONObject(j);
+                JSONObject newProperty = newProperties.getJSONObject(j);
                 String oldTag = oldProperty.getString(FeatureStringEnum.TAG.value)
                 String oldValue = oldProperty.getString(FeatureStringEnum.VALUE.value)
                 String newTag = newProperty.getString(FeatureStringEnum.TAG.value)

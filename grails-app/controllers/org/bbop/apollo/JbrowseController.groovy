@@ -658,6 +658,22 @@ class JbrowseController {
         if (jsonObject.include == null) jsonObject.put("include", new JSONArray())
         jsonObject.include.add("../plugins/WebApollo/json/annot.json")
 
+        def plugins = grailsApplication.config.jbrowse?.plugins
+        // not sure if I do it this way or via the include
+        if(plugins){
+            if(!jsonObject.plugins){
+                jsonObject.plugins = new JSONArray()
+            }
+            for(plugin in plugins){
+                JSONObject pluginObject = new JSONObject()
+                pluginObject.name = plugin.key
+                pluginObject.location = "./plugins/${plugin.key}"
+                pluginObject.putAll(plugin.value)
+                jsonObject.plugins.add(pluginObject)
+                log.info "Loading plugin: ${pluginObject.name} details: ${pluginObject as JSON}"
+            }
+        }
+
         response.outputStream << jsonObject.toString()
         response.outputStream.close()
     }

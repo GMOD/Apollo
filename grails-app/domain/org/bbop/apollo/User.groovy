@@ -13,6 +13,7 @@ class User implements Ontological {
     String passwordHash
     String firstName
     String lastName
+    String metadata
 
     static String cvTerm = "Owner"
     static String ontologyId = "Owner"
@@ -25,8 +26,9 @@ class User implements Ontological {
 
 
     static constraints = {
-        username(nullable: false, blank: false, unique: true, email: true)
+        username(nullable: false, blank: false, unique: true)
         passwordHash(display: false, blank: false, null: false,minSize: 5)
+        metadata(display: false, blank: true,nullable: true)
     }
 
     static mapping = {

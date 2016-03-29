@@ -38,6 +38,7 @@ define([
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'JBrowse/CodonTable',
            'dojo/io-query',
+           'jquery/jquery',
            'lazyload/lazyload'
        ],
     function( declare,
@@ -68,6 +69,7 @@ define([
             GFF3Driver,
             CodonTable,
             ioQuery,
+            $,
             LazyLoad ) {
 
 return declare( [JBPlugin, HelpMixin],
@@ -98,12 +100,14 @@ return declare( [JBPlugin, HelpMixin],
         if (browser.cookie("colorCdsByFrame")=="true") {
             domClass.add(win.body(), "colorCds");
         }
-        domClass.add(win.body(), "Apollo");
+        if(!browser.config.overrideApolloStyles) {
+            domClass.add(win.body(), "Apollo");
+        }
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
             this.setFavicon(browser.config.favicon);
         }
-        queryParams=ioQuery.queryToObject( window.location.search.slice(1) );
+        var queryParams = ioQuery.queryToObject( window.location.search.slice(1) );
 
         if(queryParams.organism) {
             this.organism=queryParams.organism;
@@ -420,7 +424,7 @@ return declare( [JBPlugin, HelpMixin],
         }
 
         if (typeof window.parent.getEmbeddedVersion == 'undefined') {
-            annotatorButton = new dijitButton(
+            var annotatorButton = new dijitButton(
                 {
                     innerHTML: "Annotator View",
                     onClick: function () {

@@ -8,6 +8,8 @@ addons:
 services:
 - postgresql
 - mysql
+before_install:
+- npm install -g jshint
 before_script:
 - if [ ${DB} == "mysql" ]; then cp config/mysql.travis apollo-config.groovy; mysql -e 'create database apollo'; fi;
 - if [ ${DB} == "postgres" ]; then cp config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; fi;
@@ -19,5 +21,6 @@ cache:
     - $HOME/.m2/
     - jbrowse-download/
 script:
-    - ant copy-resources gwtc && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app --stacktrace
+    - ./gradlew copy-resources gwtc && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app --stacktrace
     - node web-app/jbrowse/src/dojo/dojo.js load=build --require "web-app/jbrowse/src/JBrowse/init.js" --profile "web-app/jbrowse/plugins/WebApollo/js/WebApollo"
+    - jshint client/apollo/js

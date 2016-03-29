@@ -1792,8 +1792,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 properties.put(jsonProperty);
             }
         }
-        JSONObject ownerProperty = JSON.parse("{value: ${finalOwnerString}, type: {name: 'owner', cv: {name: 'feature_property'}}}") as JSONObject
-        properties.put(ownerProperty)
+//        JSONObject ownerProperty = JSON.parse("{value: ${finalOwnerString}, type: {name: 'owner', cv: {name: 'feature_property'}}}") as JSONObject
+//        properties.put(ownerProperty)
 
 
         Collection<DBXref> gsolFeatureDbxrefs = gsolFeature.getFeatureDBXrefs();
