@@ -4,20 +4,22 @@ function usage(){
     echo "";
     echo "Usage: apollo <command>";
     echo "";
-    echo "Commands:";
+    echo "Production Commands:";
     echo "";
     echo "deploy:           Builds Unoptimized war file (no processing of javascript) into the target directory.";
-    echo "devmode:          Runs from current directory debug mode (non-minimized javascript).";
+    echo "release:          Builds in release mode (minimized javascript). (beta)";
     echo "run-local <port>: Runs from current directory, but not in dev-mode. ";
+    echo "help:             This message.";
+    echo "";
+    echo "Development Commands:";
+    echo "devmode:          Runs from current directory debug mode (non-minimized javascript).";
     echo "run-app   <port>: Runs from current directory, but does not compile annotator panel (you have to run run-local once first).";
     echo "test:             Runs test-suite.";
     echo "debug:            Runs from current directory in debug mode (non-minimized javascript).";
-    echo "release:          Builds in release mode (minimized javascript). (advanced)";
     echo "compile:          Compiled the build.";
     echo "clean:            Removes class files.";
     echo "clean-all:        Removes class files and jbrowse files.";
     echo "create-rest-doc:  Recreates REST documentation.";
-    echo "help:             This message.";
 };
 
 
