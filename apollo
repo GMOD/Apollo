@@ -4,19 +4,22 @@ function usage(){
     echo "";
     echo "Usage: apollo <command>";
     echo "";
-    echo "Commands:";
+    echo "Production Commands:";
     echo "";
     echo "deploy:           Builds Unoptimized war file (no processing of javascript) into the target directory.";
-    echo "devmode:          Runs from current directory debug mode (non-minimized javascript).";
+    echo "release:          Builds in release mode (minimized javascript). (beta)";
     echo "run-local <port>: Runs from current directory, but not in dev-mode. ";
+    echo "help:             This message.";
+    echo "";
+    echo "Development Commands:";
+    echo "devmode:          Runs from current directory debug mode (non-minimized javascript).";
+    echo "run-app   <port>: Runs from current directory, but does not compile annotator panel (you have to run run-local once first).";
     echo "test:             Runs test-suite.";
     echo "debug:            Runs from current directory in debug mode (non-minimized javascript).";
-    echo "release:          Builds in release mode (minimized javascript). (advanced)";
     echo "compile:          Compiled the build.";
     echo "clean:            Removes class files.";
     echo "clean-all:        Removes class files and jbrowse files.";
     echo "create-rest-doc:  Recreates REST documentation.";
-    echo "help:             This message.";
 };
 
 
@@ -116,6 +119,15 @@ elif [[ $1 == "run-local" ]];then
         $gradle_executable handleJBrowse copy-resources gwtc && $grails_executable -Dserver.port=$2 run-app
     else
         $gradle_executable handleJBrowse copy-resources gwtc && $grails_executable run-app
+    fi
+    if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
+elif [[ $1 == "run-app" ]];then
+    # should call the copy target first
+    check_configs
+    if [[ $# == 2 ]]; then
+        $gradle_executable handleJBrowse copy-resources && $grails_executable -Dserver.port=$2 run-app
+    else
+        $gradle_executable handleJBrowse copy-resources && $grails_executable run-app
     fi
     if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "debug" ]];then
