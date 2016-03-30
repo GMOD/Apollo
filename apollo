@@ -34,6 +34,7 @@ function deploy_message(){
    echo "***************************************"
 }
 
+
 function check_node(){
     node_executable=$(which node)
     if ! [ -x "$node_executable" ] ; then
@@ -44,6 +45,17 @@ function check_node(){
         else
             echo "Creating an alias 'node' for 'nodejs'"
             alias node="nodejs"
+        fi
+    fi
+}
+
+function check_bower(){
+    bower_executable=$(which bower)
+    if ! [ -x "$bower_executable" ] ; then
+        $node_executable install -g bower
+        if ! [ -x "$bower_executable" ] ; then
+            echo "You must install 'Bower' to do a release of Apollo."
+            exit 1 ;
         fi
     fi
 }

@@ -348,8 +348,8 @@ auditLog {
 jbrowse {
     git {
         url= "https://github.com/GMOD/jbrowse"
-        tag = "1.12.1-release"
-//        branch = "master"
+//        tag = "1.12.1-release"
+        branch = "yeban-bowerise"
         alwaysPull = false
         alwaysRecheck = false
     }
