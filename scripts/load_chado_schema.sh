@@ -56,6 +56,7 @@ dump_database() {
 # Default
 PORT="5432"
 HOST="localhost"
+DEFAULTDB="template1"
 PGDUMP=0
 TIMESTAMP=`date +%F_%T`
 
@@ -91,9 +92,14 @@ if [ -z "${PG_USER}" ] || [ -z "${DB}" ] || [ -z "${CHADO_SCHEMA}" ] ; then
     usage
 fi
 
+if [ ! -f ${CHADO_SCHEMA} ]; then
+    echo "File ${CHADO_SCHEMA} not found."
+    exit
+fi
+
 check_config
 
-psql -U $PG_USER -h $HOST -p $PORT -c "CREATE DATABASE \"$DB\""
+psql -U $PG_USER -h $HOST -p $PORT -d $DEFAULTDB -c "CREATE DATABASE \"$DB\""
 EXIT_STATUS=$?
 
 if [ $EXIT_STATUS -eq 0 ]; then
@@ -111,14 +117,14 @@ elif [ $EXIT_STATUS -eq 1 ]; then
             echo "pg_dump was successful."
             echo "Dropping and creating database '$DB'."
             # DROP DATABASE after a PG_DUMP
-            psql -U $PG_USER -h $HOST -p $PORT -c "DROP DATABASE \"$DB\""
+            psql -U $PG_USER -h $HOST -p $PORT -d $DEFAULTDB -c "DROP DATABASE \"$DB\""
             if [ $? -ne 0 ]; then
                 echo "Cannot drop database '$DB' due to lack of privileges or existing open connections."
                 exit
             fi
 
             # CREATE DATABASE
-            psql -U $PG_USER -h $HOST -p $PORT -c "CREATE DATABASE \"$DB\""
+            psql -U $PG_USER -h $HOST -p $PORT -d $DEFAULTDB -c "CREATE DATABASE \"$DB\""
             if [ $? -ne 0 ]; then
                 echo "Cannot create database '$DB' due to lack of privileges."
                 exit
