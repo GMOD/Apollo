@@ -70,6 +70,14 @@ function check_configs_for_release(){
 }
 
 
+function compile_core_plugin() {
+    cd plugins/DomainClasses
+    $grails_executable refresh-dependencies
+    $grails_executable maven-install
+    cd -
+}
+
+
 function check_configs(){
 
     grails_executable=$(which grails)
@@ -101,7 +109,8 @@ function check_configs(){
        echo "You must install 'git' to install Apollo."
        exit 1 ;
     fi
-
+    
+    compile_core_plugin
 }
 
 
@@ -143,7 +152,7 @@ elif [[ $1 == "debug" ]];then
 elif [[ $1 == "test" ]];then
     # should call the copy target first
     check_configs
-    $grails_executable test-app
+    $gradle_executable handleJBrowse copy-resources gwtc && $grails_executable test-app
 elif [[ $1 == "test-unit" ]];then
     # should call the copy target first
     check_configs
