@@ -9,15 +9,8 @@ class Operation {
    
     OperationEnum operationType
     String featureUniqueName
-    // if not self
-//    private Map<String, Object> attributes;
-    
     String attributes;
-   
-//    List<Feature> oldFeatures
     String oldFeatures;
-    
-//    List<Feature> newFeatures
     String newFeatures;
 
 

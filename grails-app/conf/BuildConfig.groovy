@@ -5,7 +5,6 @@ grails.project.test.reports.dir = "target/test-reports"
 grails.project.work.dir = "target/work"
 grails.project.target.level = 1.7
 grails.project.source.level = 1.7
-//grails.project.war.file = "target/${appName}-${appVersion}.war"
 def gebVersion = '0.9.3'
 def seleniumVersion = '2.21.0'
 
@@ -95,6 +94,7 @@ grails.project.dependency.resolution = {
     plugins {
         // plugins for the build system only
         build ":tomcat:7.0.55"
+        compile ":domain-classes:1.0.0-SNAPSHOT"
 
         // plugins for the compile step
         compile ":rest-api-doc:0.6"

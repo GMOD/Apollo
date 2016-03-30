@@ -2,8 +2,6 @@ package org.bbop.apollo
 
 import org.bbop.apollo.history.FeatureOperation
 
-//import org.bbop.apollo.history.FeatureOperation
-
 class FeatureEvent {
 
 

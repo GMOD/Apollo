@@ -2,7 +2,7 @@ package org.bbop.apollo;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.bbop.apollo.FeatureEvent;
 /**
  * Created by ndunn on 6/15/15.
  */
