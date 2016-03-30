@@ -1,5 +1,13 @@
 environments {
     development {
+        // sample config to turn on debug logging in development e.g. for apollo run-local
+        log4j.main = {
+            debug "grails.app"
+        }
+        // sample config to edit apollo specific configs in development mode
+        apollo {
+            gff3.source = "testing"
+        }
         dataSource.dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
         dataSource.username = "<CHANGEME>"
         dataSource.password = "<CHANGEME>"
@@ -12,7 +20,6 @@ environments {
         dataSource.username = "<CHANGEME>"
         dataSource.password = "<CHANGEME>"
         dataSource.driverClassName = "org.postgresql.Driver"
-//        dataSource.dialect = org.hibernate.dialect.PostgresPlusDialect
         dataSource.dialect = "org.bbop.apollo.ImprovedPostgresDialect"
         dataSource.url = "jdbc:postgresql://localhost/apollo-test"
     }

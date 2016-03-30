@@ -1,6 +1,14 @@
 
 environments {
     development {
+        // sample config to turn on debug logging in development e.g. for apollo run-local
+        log4j.main = {
+            debug "grails.app"
+        }
+        // sample config to edit apollo specific configs in development mode
+        apollo {
+            gff3.source = "testing"
+        }
         dataSource{
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
             username = "<CHANGEME>"
