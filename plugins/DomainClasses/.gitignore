@@ -1,5 +1,5 @@
-grails-domain-classes-1.0.0-SNAPSHOT.zip
-grails-domain-classes-1.0.0-SNAPSHOT.zip.sha1
+grails-apollo-domain-classes*.zip
+grails-apollo-domain-classes*.zip.sha1
 plugin.xml
 target/
 web-app/WEB-INF/tld/c.tld
