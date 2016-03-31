@@ -11,7 +11,9 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ExportPanel;
+import org.bbop.apollo.gwt.client.SequencePanel;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
@@ -26,12 +28,25 @@ public class SequenceRestService {
 
     public static void generateLink(final ExportPanel exportPanel) {
         JSONObject jsonObject = new JSONObject();
+        String type = exportPanel.getType();
         jsonObject.put("type", new JSONString(exportPanel.getType()));
-        jsonObject.put("seqType", new JSONString(exportPanel.getSequenceType()));
         jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
-        jsonObject.put("exportGff3Fasta", new JSONString(exportPanel.getExportGff3Fasta().toString()));
-        jsonObject.put("output", new JSONString("file"));
-        jsonObject.put("format", new JSONString("gzip"));
+
+        if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
+            jsonObject.put("chadoExportType", new JSONString(exportPanel.getChadoExportType()));
+            jsonObject.put("seqType", new JSONString(""));
+            jsonObject.put("exportGff3Fasta", new JSONString(""));
+            jsonObject.put("output", new JSONString(""));
+            jsonObject.put("format", new JSONString(""));
+        }
+        else {
+            jsonObject.put("chadoExportType", new JSONString(""));
+            jsonObject.put("seqType", new JSONString(exportPanel.getSequenceType()));
+            jsonObject.put("exportGff3Fasta", new JSONString(exportPanel.getExportGff3Fasta().toString()));
+            jsonObject.put("output", new JSONString("file"));
+            jsonObject.put("format", new JSONString("gzip"));
+        }
+
         JSONArray jsonArray = new JSONArray();
         for (SequenceInfo sequenceInfo : exportPanel.getSequenceList()) {
             jsonArray.set(jsonArray.size(), new JSONString(sequenceInfo.getName()));
@@ -55,7 +70,25 @@ public class SequenceRestService {
             }
         };
 
-        RestService.sendRequest(requestCallback, "IOService/write", "data=" + jsonObject.toString());
+        RequestCallback requestCallbackForChadoExport = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
+                exportPanel.showExportStatus(responseObject.toString());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error: " + exception);
+            }
+        };
+
+        if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
+            RestService.sendRequest(requestCallbackForChadoExport, "IOService/write", "data=" + jsonObject.toString());
+        }
+        else {
+            RestService.sendRequest(requestCallback, "IOService/write", "data=" + jsonObject.toString());
+        }
     }
 
     public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Integer start, Integer end) {
@@ -89,5 +122,21 @@ public class SequenceRestService {
         RestService.sendRequest(requestCallback, searchString);
     }
 
+    public static void getChadoExportStatus(final SequencePanel sequencePanel) {
+        String requestUrl = Annotator.getRootUrl() + "IOService/chadoExportStatus";
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
+                sequencePanel.setChadoExportStatus(responseObject.get("export_status").isString().stringValue());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                sequencePanel.setChadoExportStatus("false");
+            }
+        };
+        RestService.sendRequest(requestCallback, requestUrl);
+    }
 
 }
