@@ -14,12 +14,6 @@ before_script:
 - if [ ${DB} == "mysql" ]; then cp config/mysql.travis apollo-config.groovy; mysql -e 'create database apollo'; fi;
 - if [ ${DB} == "postgres" ]; then cp config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; fi;
 language: groovy
-cache:
-  directories:
-    - extlib/
-    - $HOME/.grails/
-    - $HOME/.m2/
-    - jbrowse-download/
 script:
     - ./apollo test
     - node web-app/jbrowse/src/dojo/dojo.js load=build --require "web-app/jbrowse/src/JBrowse/init.js" --profile "web-app/jbrowse/plugins/WebApollo/js/WebApollo"
