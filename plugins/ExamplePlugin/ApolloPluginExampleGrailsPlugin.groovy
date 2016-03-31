@@ -9,15 +9,15 @@ class ApolloPluginExampleGrailsPlugin {
     ]
 
     // TODO Fill in these fields
-    def title = "Apollo Plugin Example Plugin" // Headline display name of the plugin
-    def author = "Your name"
+    def title = "Apollo Example Plugin" // Headline display name of the plugin
+    def author = "Colin"
     def authorEmail = ""
     def description = '''\
 Sample plugin showing use of the apollo-domain-classes
 '''
 
     // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/apollo-plugin-example"
+    def documentation = "http://github.com/GMOD/Apollo"
 
     // Extra (optional) plugin metadata
 
