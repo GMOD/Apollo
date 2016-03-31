@@ -75,6 +75,10 @@ function compile_core_plugin() {
     $grails_executable refresh-dependencies
     $grails_executable maven-install
     cd -
+    cd plugins/ExamplePlugin
+    $grails_executable refresh-dependencies
+    $grails_executable maven-install
+    cd 
 }
 
 
