@@ -152,7 +152,7 @@ elif [[ $1 == "debug" ]];then
 elif [[ $1 == "test" ]];then
     # should call the copy target first
     check_configs
-    $gradle_executable handleJBrowse copy-resources gwtc && $grails_executable test-app
+    $gradle_executable handleJBrowse copy-resources gwtc --stacktrace && $grails_executable test-app --stacktrace
 elif [[ $1 == "test-unit" ]];then
     # should call the copy target first
     check_configs
