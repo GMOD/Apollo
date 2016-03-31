@@ -11,6 +11,7 @@ import org.bbop.apollo.Transcript
 import org.bbop.apollo.User
 import org.bbop.apollo.UserService
 import org.bbop.apollo.sequence.SequenceTranslationHandler
+import org.codehaus.groovy.grails.commons.GrailsApplication
 
 class BootStrap {
 

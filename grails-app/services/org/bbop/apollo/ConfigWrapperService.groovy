@@ -68,6 +68,20 @@ class ConfigWrapperService {
     def exportSubFeatureAttrs() {
         return grailsApplication.config.apollo.export_subfeature_attrs
     }
-   
 
+    def hasChadoDataSource() {
+        if (grailsApplication.config.dataSource_chado) {
+            return true
+        }
+        return false
+    }
+
+    def isPostgresChadoDataSource() {
+        if (hasChadoDataSource()) {
+            if (grailsApplication.config.dataSource_chado.url.contains('jdbc:postgresql')) {
+                return true
+            }
+        }
+        return false
+    }
 }

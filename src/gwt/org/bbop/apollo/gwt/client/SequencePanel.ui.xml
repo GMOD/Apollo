@@ -97,6 +97,7 @@
                         <b:ButtonGroup>
                             <b:Button size="EXTRA_SMALL" ui:field="exportGff3Button" type="PRIMARY">GFF3</b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportFastaButton">FASTA</b:Button>
+                            <b:Button size="EXTRA_SMALL" ui:field="exportChadoButton">CHADO</b:Button>
                             <!--<b:Button size="EXTRA_SMALL" ui:field="exportChadoButton">CHADO</b:Button>-->
                         </b:ButtonGroup>
                     </b:Column>
