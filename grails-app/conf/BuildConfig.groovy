@@ -97,8 +97,8 @@ grails.project.dependency.resolution = {
 
 
         // contains apollo
-        compile ":apollo-domain-classes:1.0.0-SNAPSHOT"
-        compile ":apollo-plugin-example:1.0.0-SNAPSHOT"
+        compile ":apollo-domain-classes:1.0.0"
+        compile ":apollo-plugin-example:1.0.0"
 
         // plugins for the compile step
         compile ":rest-api-doc:0.6"
