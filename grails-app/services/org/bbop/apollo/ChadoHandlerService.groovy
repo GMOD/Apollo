@@ -38,8 +38,8 @@ class ChadoHandlerService {
     private static final RELATIONSHIP_ONTOLOGY = "relationship"
     private static final FEATURE_PROPERTY = "feature_property"
 
-    Boolean exportFastaForSequence = configWrapperService.getChadoExportFastaForSequence()
-    Boolean exportFastaForCds = configWrapperService.getChadoExportFastaForCds()
+    boolean exportFastaForSequence = configWrapperService.getChadoExportFastaForSequence()
+    boolean exportFastaForCds = configWrapperService.getChadoExportFastaForCds()
 
     Map<String, org.gmod.chado.Organism> chadoOrganismsMap = new HashMap<String, org.gmod.chado.Organism>()
     Map<String, Integer> exportStatisticsMap = new HashMap<String, Integer>();
@@ -82,7 +82,7 @@ class ChadoHandlerService {
      * @param features
      * @return
      */
-    def writeFeaturesToChado(Organism organism, ArrayList<Sequence> sequenceList, ArrayList<Feature> features, Boolean exportAllSequences = false) {
+    def writeFeaturesToChado(Organism organism, ArrayList<Sequence> sequenceList, ArrayList<Feature> features, boolean exportAllSequences = false) {
         /*
         The exporter assumes that the following ontologies are pre-loaded into the Chado data source:
         1. Sequence Ontology
