@@ -70,6 +70,18 @@ function check_configs_for_release(){
 }
 
 
+function compile_core_plugin() {
+    cd plugins/DomainClasses
+    $grails_executable refresh-dependencies
+    $grails_executable maven-install
+    cd -
+    cd plugins/ExamplePlugin
+    $grails_executable refresh-dependencies
+    $grails_executable maven-install
+    cd -
+}
+
+
 function check_configs(){
 
     grails_executable=$(which grails)
@@ -80,18 +92,18 @@ function check_configs(){
         echo "Watchman not found. Install watchman to automatically update the client side plugins for apollo development modes"
     fi
     if ! [ -x "$grails_executable" ] ; then
-        if [ -f 'grailsw' ]; then
-            echo "Grails not found using grailsw";
-            grails_executable="./grailsw"
-        else
-           echo "You must install 'grails' to install Apollo."
-           exit 1 ;
-        fi
+	   if [ -f 'grailsw' ]; then 
+		   echo "Grails not found using grailsw";
+		   grails_executable="`pwd`/grailsw"
+	   else
+		   echo "You must install 'grails' to install Apollo."
+		   exit 1 ;
+		fi 
     fi
     if ! [ -x "$gradle_executable" ] ; then
 	   if [ -f 'gradlew' ]; then
 		   echo "Gradle not found using gradlew";
-		   gradle_executable="./gradlew"
+		   gradle_executable="`pwd`/gradlew"
 	   else
 		   echo "You must install 'gradle' to install Apollo."
 		   exit 1 ;
@@ -101,7 +113,8 @@ function check_configs(){
        echo "You must install 'git' to install Apollo."
        exit 1 ;
     fi
-
+    
+    compile_core_plugin
 }
 
 function copy_configs(){

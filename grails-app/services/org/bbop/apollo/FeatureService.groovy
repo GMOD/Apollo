@@ -2026,7 +2026,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         for (Gene gene in genes) {
             gene.featureDBXrefs.each {mainGene.addToFeatureDBXrefs(it)}
             gene.featureGenotypes.each {mainGene.addToFeatureGenotypes(it)}
-            gene.featurePhenotypes.each {mainGene.addToFeaturePhenotypes(it)}
             gene.featurePublications.each {mainGene.addToFeaturePublications(it)}
             gene.featureProperties.each {mainGene.addToFeatureProperties(it)}
             gene.featureSynonyms.each {mainGene.addToFeatureSynonyms(it)}

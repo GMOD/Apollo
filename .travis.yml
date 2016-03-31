@@ -1,3 +1,4 @@
+language: groovy
 sudo: false
 env:
 - DB=postgres
@@ -8,19 +9,28 @@ addons:
 services:
 - postgresql
 - mysql
-before_install:
-- npm install -g jshint
-before_script:
-- if [ ${DB} == "mysql" ]; then cp config/mysql.travis apollo-config.groovy; mysql -e 'create database apollo'; fi;
-- if [ ${DB} == "postgres" ]; then cp config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; psql -c 'create database apollo_chado' -U postgres; gunzip -c ../chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado; fi;
-language: groovy
 cache:
   directories:
     - extlib/
     - $HOME/.grails/
     - $HOME/.m2/
     - jbrowse-download/
+before_install:
+- npm install -g jshint
+before_script:
+    - if [ ${DB} == "mysql" ]; then cp config/mysql.travis apollo-config.groovy; mysql -e 'create database apollo'; fi;
+    - if [ ${DB} == "postgres" ]; then cp config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; psql -c 'create database apollo_chado' -U postgres; gunzip -c ../chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado; fi;
+    - cd plugins/DomainClasses
+    - ../../grailsw refresh-dependencies
+    - ../../grailsw maven-install
+    - cd -
+    - cd plugins/ExamplePlugin
+    - ../../grailsw refresh-dependencies
+    - ../../grailsw maven-install
+    - cd -
 script:
     - ./gradlew copy-resources gwtc && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app --stacktrace
     - node web-app/jbrowse/src/dojo/dojo.js load=build --require "web-app/jbrowse/src/JBrowse/init.js" --profile "web-app/jbrowse/plugins/WebApollo/js/WebApollo"
     - jshint client/apollo/js
+after_failure:
+  - find web-app/jbrowse
