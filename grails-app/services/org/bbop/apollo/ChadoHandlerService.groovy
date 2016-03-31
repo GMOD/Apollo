@@ -38,8 +38,8 @@ class ChadoHandlerService {
     private static final RELATIONSHIP_ONTOLOGY = "relationship"
     private static final FEATURE_PROPERTY = "feature_property"
 
-    //TODO: add to configWrapperService
-    Boolean exportFastaForSequence = true
+    Boolean exportFastaForSequence = configWrapperService.getChadoExportFastaForSequence()
+    Boolean exportFastaForCds = configWrapperService.getChadoExportFastaForCds()
 
     Map<String, org.gmod.chado.Organism> chadoOrganismsMap = new HashMap<String, org.gmod.chado.Organism>()
     Map<String, Integer> exportStatisticsMap = new HashMap<String, Integer>();
@@ -165,7 +165,7 @@ class ChadoHandlerService {
                 if (transcript instanceof MRNA) {
                     // TODO: Do we create a chado feature for stop_codon_read_through
                     def cds = transcriptService.getCDS(transcript)
-                    org.gmod.chado.Feature chadoCdsFeature = createChadoCdsFeature(organism, transcript, cds)
+                    org.gmod.chado.Feature chadoCdsFeature = createChadoCdsFeature(organism, transcript, cds, exportFastaForCds)
                     cds.childFeatureRelationships.each { featureRelationship ->
                         createChadoFeatureRelationship(organism, chadoCdsFeature, featureRelationship, "part_of")
                     }
@@ -365,7 +365,7 @@ class ChadoHandlerService {
      * @param storeSequence
      * @return chadoCdsFeature
      */
-    def createChadoCdsFeature(org.bbop.apollo.Organism organism, org.bbop.apollo.Transcript transcript, org.bbop.apollo.CDS cds, boolean storeSequence = false){
+    def createChadoCdsFeature(org.bbop.apollo.Organism organism, org.bbop.apollo.Transcript transcript, org.bbop.apollo.CDS cds, boolean storeSequence = false) {
         long startTime, endTime
         startTime = System.currentTimeMillis()
         org.gmod.chado.Feature chadoCdsFeature = new org.gmod.chado.Feature(
@@ -402,7 +402,7 @@ class ChadoHandlerService {
      * @param storeSequence
      * @return chadoPolyPeptideFeature
      */
-    def createChadoPolypeptide(org.bbop.apollo.Organism organism, org.bbop.apollo.Transcript transcript, org.bbop.apollo.CDS cds, boolean storeSequence = true) {
+    def createChadoPolypeptide(org.bbop.apollo.Organism organism, org.bbop.apollo.Transcript transcript, org.bbop.apollo.CDS cds, boolean storeSequence = false) {
         long startTime, endTime
         Timestamp timestamp = generateTimeStamp()
         startTime = System.currentTimeMillis()
@@ -1063,9 +1063,9 @@ class ChadoHandlerService {
      * @param sequences
      * @return
      */
-    def createChadoFeatureForSequences(Organism organism, Collection<Sequence> sequences, boolean storeSequence = true) {
+    def createChadoFeatureForSequences(Organism organism, Collection<Sequence> sequences, boolean storeSequence = false) {
         sequences.each { sequence ->
-            createChadoFeatureForSequence(organism, sequence, storeSequence)
+            createChadoFeatureForSequence(organism, sequence, storeSequence, storeSequence)
         }
     }
 
@@ -1077,7 +1077,7 @@ class ChadoHandlerService {
      * @param storeSequence
      * @return chadoFeature
      */
-    def createChadoFeatureForSequence(Organism organism, org.bbop.apollo.Sequence sequence, boolean storeSequence = true) {
+    def createChadoFeatureForSequence(Organism organism, org.bbop.apollo.Sequence sequence, boolean storeSequence = false) {
         long startTime, endTime
         Timestamp timeStamp = generateTimeStamp()
         startTime = System.currentTimeMillis()
