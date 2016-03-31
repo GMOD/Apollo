@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.DownloadFile
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -23,6 +24,7 @@ class IOServiceController extends AbstractApolloController {
     def featureService
     def gff3HandlerService
     def fastaHandlerService
+    def chadoHandlerService
     def preferenceService
     def permissionService
     def configWrapperService
@@ -49,7 +51,7 @@ class IOServiceController extends AbstractApolloController {
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
 
-            ,@RestApiParam(name="type", type="string", paramType = RestApiParamType.QUERY,description = "Type of export 'FASTA','GFF3'")
+            ,@RestApiParam(name="type", type="string", paramType = RestApiParamType.QUERY,description = "Type of export 'FASTA','GFF3','CHADO'")
 
 
             ,@RestApiParam(name="seqType", type="string", paramType = RestApiParamType.QUERY,description = "Type of output sequence 'peptide','cds','cdna','genomic'")
@@ -75,6 +77,7 @@ class IOServiceController extends AbstractApolloController {
             String sequenceType = dataObject.seqType
             String exportAllSequences = dataObject.exportAllSequences
             String exportGff3Fasta = dataObject.exportGff3Fasta
+            String chadoExportType = dataObject.chadoExportType
             String output = dataObject.output
             String format = dataObject.format
             def sequences = dataObject.sequences // can be array or string
@@ -112,7 +115,7 @@ class IOServiceController extends AbstractApolloController {
             File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
             String fileName
 
-            if (typeOfExport == "GFF3") {
+            if (typeOfExport == FeatureStringEnum.TYPE_GFF3.getValue()) {
                 // adding sequence alterations to list of features to export
                 if(exportAllSequences!="true"&&sequences!=null&&!(sequences.class == JSONArray.class)) {
                     fileName = "Annotations-" + sequences + "." + typeOfExport.toLowerCase() + (format=="gzip"?".gz":"")
@@ -126,7 +129,7 @@ class IOServiceController extends AbstractApolloController {
                 } else {
                     gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
                 }
-            } else if (typeOfExport == "FASTA") {
+            } else if (typeOfExport == FeatureStringEnum.TYPE_FASTA.getValue()) {
                 if(exportAllSequences!="true"&&sequences!=null&&!(sequences.class == JSONArray.class)) {
                     fileName = "Annotations-" + sequences + "." + sequenceType + "." + typeOfExport.toLowerCase() + (format=="gzip"?".gz":"")
                 }
@@ -137,7 +140,17 @@ class IOServiceController extends AbstractApolloController {
                 // call fastaHandlerService
                 fastaHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
             }
+            else if (typeOfExport == FeatureStringEnum.TYPE_CHADO.getValue()){
+                JSONObject returnObject = new JSONObject()
+                if (sequences) {
+                    returnObject = chadoHandlerService.writeFeatures(organism, sequenceList, features)
+                }
+                else {
+                    returnObject = chadoHandlerService.writeFeatures(organism, [], features, exportAllSequences.equals("true"))
+                }
 
+                render returnObject
+            }
 
             //generating a html fragment with the link for download that can be rendered on client side
             String uuidString = UUID.randomUUID().toString()
@@ -213,5 +226,12 @@ class IOServiceController extends AbstractApolloController {
         }
 
         file.delete()
+    }
+
+    def chadoExportStatus() {
+        boolean exportStatus = false
+        JSONObject returnObject = new JSONObject()
+        returnObject.export_status = configWrapperService.hasChadoDataSource().toString()
+        render returnObject
     }
 }

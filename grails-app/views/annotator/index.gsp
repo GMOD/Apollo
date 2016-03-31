@@ -20,13 +20,23 @@
         var Options = {
             showFrame: '${params.showFrame  && params.showFrame == 'true' ? 'true' : 'false' }'
             ,userId: '${userKey}'
+//            ,top: "10"
+//            ,topUnit: "PCT" // PX, EM, PC, PT, IN, CM
+//            ,height: "80"
+//            ,heightUnit: "PCT" // PX, EM, PC, PT, IN, CM
         };
     </script>
 </head>
 
 <body style="background-color: white;">
 
-%{--<div id="annotator" style="background-color: white;"></div>--}%
+%{--<div style="top: 10%">--}%
+    %{--<h3>Custom Header</h3>--}%
+%{--</div>--}%
+
+%{--<div style="position: absolute;bottom: 0; height: 10%;">--}%
+    %{--<h3>Custom Footer</h3>--}%
+%{--</div>--}%
 
 <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
 <noscript>
