@@ -84,4 +84,12 @@ class ConfigWrapperService {
         }
         return false
     }
+
+    def getChadoExportFastaForSequence() {
+        return grailsApplication.config.apollo.chado_export_fasta_for_sequence
+    }
+
+    def getChadoExportFastaForCds() {
+        return grailsApplication.config.apollo.chado_export_fasta_for_cds
+    }
 }

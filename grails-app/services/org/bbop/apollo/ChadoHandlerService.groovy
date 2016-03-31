@@ -38,9 +38,6 @@ class ChadoHandlerService {
     private static final RELATIONSHIP_ONTOLOGY = "relationship"
     private static final FEATURE_PROPERTY = "feature_property"
 
-    //TODO: add to configWrapperService
-    Boolean exportFastaForSequence = true
-
     Map<String, org.gmod.chado.Organism> chadoOrganismsMap = new HashMap<String, org.gmod.chado.Organism>()
     Map<String, Integer> exportStatisticsMap = new HashMap<String, Integer>();
     ArrayList<org.bbop.apollo.Feature> processedFeatures = new ArrayList<org.bbop.apollo.Feature>()
@@ -82,7 +79,7 @@ class ChadoHandlerService {
      * @param features
      * @return
      */
-    def writeFeaturesToChado(Organism organism, ArrayList<Sequence> sequenceList, ArrayList<Feature> features, Boolean exportAllSequences = false) {
+    def writeFeaturesToChado(Organism organism, ArrayList<Sequence> sequenceList, ArrayList<Feature> features, boolean exportAllSequences = false) {
         /*
         The exporter assumes that the following ontologies are pre-loaded into the Chado data source:
         1. Sequence Ontology
@@ -100,14 +97,14 @@ class ChadoHandlerService {
 
         // Create chado feature for sequence in sequenceList
         if (sequenceList.size() > 0) {
-            createChadoFeatureForSequences(organism, sequenceList, exportFastaForSequence)
+            createChadoFeatureForSequences(organism, sequenceList, configWrapperService.getChadoExportFastaForSequence())
         }
         else {
             if (exportAllSequences) {
                 sequenceList = Sequence.executeQuery(
                         "SELECT DISTINCT s FROM org.bbop.apollo.Sequence s JOIN s.organism o WHERE o.genus = :queryGenus AND o.species = :querySpecies",
                         [queryGenus: organism.genus, querySpecies: organism.species])
-                createChadoFeatureForSequences(organism, sequenceList, exportFastaForSequence)
+                createChadoFeatureForSequences(organism, sequenceList, configWrapperService.getChadoExportFastaForSequence())
             }
         }
 
@@ -165,7 +162,7 @@ class ChadoHandlerService {
                 if (transcript instanceof MRNA) {
                     // TODO: Do we create a chado feature for stop_codon_read_through
                     def cds = transcriptService.getCDS(transcript)
-                    org.gmod.chado.Feature chadoCdsFeature = createChadoCdsFeature(organism, transcript, cds)
+                    org.gmod.chado.Feature chadoCdsFeature = createChadoCdsFeature(organism, transcript, cds, configWrapperService.getChadoExportFastaForCds())
                     cds.childFeatureRelationships.each { featureRelationship ->
                         createChadoFeatureRelationship(organism, chadoCdsFeature, featureRelationship, "part_of")
                     }
@@ -365,7 +362,7 @@ class ChadoHandlerService {
      * @param storeSequence
      * @return chadoCdsFeature
      */
-    def createChadoCdsFeature(org.bbop.apollo.Organism organism, org.bbop.apollo.Transcript transcript, org.bbop.apollo.CDS cds, boolean storeSequence = false){
+    def createChadoCdsFeature(org.bbop.apollo.Organism organism, org.bbop.apollo.Transcript transcript, org.bbop.apollo.CDS cds, boolean storeSequence = false) {
         long startTime, endTime
         startTime = System.currentTimeMillis()
         org.gmod.chado.Feature chadoCdsFeature = new org.gmod.chado.Feature(
@@ -402,7 +399,7 @@ class ChadoHandlerService {
      * @param storeSequence
      * @return chadoPolyPeptideFeature
      */
-    def createChadoPolypeptide(org.bbop.apollo.Organism organism, org.bbop.apollo.Transcript transcript, org.bbop.apollo.CDS cds, boolean storeSequence = true) {
+    def createChadoPolypeptide(org.bbop.apollo.Organism organism, org.bbop.apollo.Transcript transcript, org.bbop.apollo.CDS cds, boolean storeSequence = false) {
         long startTime, endTime
         Timestamp timestamp = generateTimeStamp()
         startTime = System.currentTimeMillis()
@@ -441,7 +438,7 @@ class ChadoHandlerService {
         log.debug "Time taken for querying for sequence ${sequence.name} of organism ${organism.genus} ${organism.species}: ${endTime - startTime} ms"
 
         if (sequenceFeatureResult.size() == 0) {
-            srcFeature = createChadoFeatureForSequence(organism, sequence, exportFastaForSequence)
+            srcFeature = createChadoFeatureForSequence(organism, sequence, configWrapperService.getChadoExportFastaForSequence())
         }
         else if (sequenceFeatureResult.size() == 1) {
             srcFeature = sequenceFeatureResult.get(0)
@@ -1063,7 +1060,7 @@ class ChadoHandlerService {
      * @param sequences
      * @return
      */
-    def createChadoFeatureForSequences(Organism organism, Collection<Sequence> sequences, boolean storeSequence = true) {
+    def createChadoFeatureForSequences(Organism organism, Collection<Sequence> sequences, boolean storeSequence = false) {
         sequences.each { sequence ->
             createChadoFeatureForSequence(organism, sequence, storeSequence)
         }
@@ -1077,7 +1074,7 @@ class ChadoHandlerService {
      * @param storeSequence
      * @return chadoFeature
      */
-    def createChadoFeatureForSequence(Organism organism, org.bbop.apollo.Sequence sequence, boolean storeSequence = true) {
+    def createChadoFeatureForSequence(Organism organism, org.bbop.apollo.Sequence sequence, boolean storeSequence = false) {
         long startTime, endTime
         Timestamp timeStamp = generateTimeStamp()
         startTime = System.currentTimeMillis()
