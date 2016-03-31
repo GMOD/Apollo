@@ -1,17 +1,8 @@
-import grails.converters.JSON
 import grails.util.Environment
 import org.bbop.apollo.FeatureType
-import org.bbop.apollo.Gene
-import org.bbop.apollo.MRNA
-import org.bbop.apollo.SnRNA
-import org.bbop.apollo.Organism
-import org.bbop.apollo.Pseudogene
 import org.bbop.apollo.Role
-import org.bbop.apollo.Transcript
-import org.bbop.apollo.User
 import org.bbop.apollo.UserService
 import org.bbop.apollo.sequence.SequenceTranslationHandler
-import org.codehaus.groovy.grails.commons.GrailsApplication
 
 class BootStrap {
 
