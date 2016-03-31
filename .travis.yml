@@ -1,3 +1,4 @@
+language: groovy
 sudo: false
 env:
 - DB=postgres
@@ -17,10 +18,8 @@ cache:
 before_install:
 - npm install -g jshint
 before_script:
-- if [ ${DB} == "mysql" ]; then cp config/mysql.travis apollo-config.groovy; mysql -e 'create database apollo'; fi;
-- if [ ${DB} == "postgres" ]; then cp config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; fi;
-language: groovy
-before_script:
+    - if [ ${DB} == "mysql" ]; then cp config/mysql.travis apollo-config.groovy; mysql -e 'create database apollo'; fi;
+    - if [ ${DB} == "postgres" ]; then cp config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; fi;
     - cd plugins/DomainClasses
     - ../../grailsw refresh-dependencies
     - ../../grailsw maven-install
