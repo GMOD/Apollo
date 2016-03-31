@@ -33,3 +33,5 @@ script:
     - ./gradlew copy-resources gwtc && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app --stacktrace
     - node web-app/jbrowse/src/dojo/dojo.js load=build --require "web-app/jbrowse/src/JBrowse/init.js" --profile "web-app/jbrowse/plugins/WebApollo/js/WebApollo"
     - jshint client/apollo/js
+after_failure:
+  - find web-app/jbrowse
