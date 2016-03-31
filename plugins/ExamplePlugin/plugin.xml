@@ -1,9 +1,0 @@
-<plugin name='apollo-plugin-example' version='2.0.3-SNAPSHOT' grailsVersion='2.4 &gt; *'>
-  <author>Your name</author>
-  <title>Apollo Plugin Example Plugin</title>
-  <description>Brief summary/description of the plugin.
-</description>
-  <documentation>http://grails.org/plugin/apollo-plugin-example</documentation>
-  <type>ApolloPluginExampleGrailsPlugin</type>
-  <resources />
-</plugin>
