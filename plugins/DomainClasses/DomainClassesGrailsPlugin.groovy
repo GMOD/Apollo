@@ -1,6 +1,6 @@
 class DomainClassesGrailsPlugin {
     // the plugin version
-    def version = "1.0.0-SNAPSHOT"
+    def version = "1.0.0"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.4 > *"
     // resources that are excluded from plugin packaging
@@ -9,15 +9,15 @@ class DomainClassesGrailsPlugin {
     ]
 
     // TODO Fill in these fields
-    def title = "Domain Classes Plugin" // Headline display name of the plugin
-    def author = "Your name"
+    def title = "Apollo Core Domain Classes" // Headline display name of the plugin
+    def author = "Colin"
     def authorEmail = ""
     def description = '''\
-Brief summary/description of the plugin.
+Apollo core domain classes implemented as a plugin so other plugins in turn can use them
 '''
 
     // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/domain-classes"
+    def documentation = "http://github.com/GMOD/Apollo"
 
     // Extra (optional) plugin metadata
 
