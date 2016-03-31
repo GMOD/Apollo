@@ -38,9 +38,6 @@ class ChadoHandlerService {
     private static final RELATIONSHIP_ONTOLOGY = "relationship"
     private static final FEATURE_PROPERTY = "feature_property"
 
-    boolean exportFastaForSequence = configWrapperService.getChadoExportFastaForSequence()
-    boolean exportFastaForCds = configWrapperService.getChadoExportFastaForCds()
-
     Map<String, org.gmod.chado.Organism> chadoOrganismsMap = new HashMap<String, org.gmod.chado.Organism>()
     Map<String, Integer> exportStatisticsMap = new HashMap<String, Integer>();
     ArrayList<org.bbop.apollo.Feature> processedFeatures = new ArrayList<org.bbop.apollo.Feature>()
@@ -100,14 +97,14 @@ class ChadoHandlerService {
 
         // Create chado feature for sequence in sequenceList
         if (sequenceList.size() > 0) {
-            createChadoFeatureForSequences(organism, sequenceList, exportFastaForSequence)
+            createChadoFeatureForSequences(organism, sequenceList, configWrapperService.getChadoExportFastaForSequence())
         }
         else {
             if (exportAllSequences) {
                 sequenceList = Sequence.executeQuery(
                         "SELECT DISTINCT s FROM org.bbop.apollo.Sequence s JOIN s.organism o WHERE o.genus = :queryGenus AND o.species = :querySpecies",
                         [queryGenus: organism.genus, querySpecies: organism.species])
-                createChadoFeatureForSequences(organism, sequenceList, exportFastaForSequence)
+                createChadoFeatureForSequences(organism, sequenceList, configWrapperService.getChadoExportFastaForSequence())
             }
         }
 
@@ -165,7 +162,7 @@ class ChadoHandlerService {
                 if (transcript instanceof MRNA) {
                     // TODO: Do we create a chado feature for stop_codon_read_through
                     def cds = transcriptService.getCDS(transcript)
-                    org.gmod.chado.Feature chadoCdsFeature = createChadoCdsFeature(organism, transcript, cds, exportFastaForCds)
+                    org.gmod.chado.Feature chadoCdsFeature = createChadoCdsFeature(organism, transcript, cds, configWrapperService.getChadoExportFastaForCds())
                     cds.childFeatureRelationships.each { featureRelationship ->
                         createChadoFeatureRelationship(organism, chadoCdsFeature, featureRelationship, "part_of")
                     }
@@ -441,7 +438,7 @@ class ChadoHandlerService {
         log.debug "Time taken for querying for sequence ${sequence.name} of organism ${organism.genus} ${organism.species}: ${endTime - startTime} ms"
 
         if (sequenceFeatureResult.size() == 0) {
-            srcFeature = createChadoFeatureForSequence(organism, sequence, exportFastaForSequence)
+            srcFeature = createChadoFeatureForSequence(organism, sequence, configWrapperService.getChadoExportFastaForSequence())
         }
         else if (sequenceFeatureResult.size() == 1) {
             srcFeature = sequenceFeatureResult.get(0)
@@ -1065,7 +1062,7 @@ class ChadoHandlerService {
      */
     def createChadoFeatureForSequences(Organism organism, Collection<Sequence> sequences, boolean storeSequence = false) {
         sequences.each { sequence ->
-            createChadoFeatureForSequence(organism, sequence, storeSequence, storeSequence)
+            createChadoFeatureForSequence(organism, sequence, storeSequence)
         }
     }
 
