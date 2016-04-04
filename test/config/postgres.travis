@@ -1,10 +1,18 @@
 environments {
     test {
-        dataSource.dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-        dataSource.username = "postgres"
-        dataSource.driverClassName = "org.postgresql.Driver"
-        dataSource.dialect = "org.bbop.apollo.ImprovedPostgresDialect"
-        dataSource.url = "jdbc:postgresql://localhost/apollo"
+        dataSource {
+            dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
+            username = "postgres"
+            driverClassName = "org.postgresql.Driver"
+            dialect = "org.bbop.apollo.ImprovedPostgresDialect"
+            url = "jdbc:postgresql://localhost/apollo"
+        }
+        dataSource_chado {
+            dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
+            username = "postgres"
+            driverClassName = "org.postgresql.Driver"
+            dialect = org.hibernate.dialect.ImprovedPostgresDialect
+            url = "jdbc:postgresql://localhost/apollo-chado"
+        }
     }
 }
-

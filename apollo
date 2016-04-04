@@ -4,19 +4,22 @@ function usage(){
     echo "";
     echo "Usage: apollo <command>";
     echo "";
-    echo "Commands:";
+    echo "Production Commands:";
     echo "";
     echo "deploy:           Builds Unoptimized war file (no processing of javascript) into the target directory.";
-    echo "devmode:          Runs from current directory debug mode (non-minimized javascript).";
+    echo "release:          Builds in release mode (minimized javascript). (beta)";
     echo "run-local <port>: Runs from current directory, but not in dev-mode. ";
+    echo "help:             This message.";
+    echo "";
+    echo "Development Commands:";
+    echo "devmode:          Runs from current directory debug mode (non-minimized javascript).";
+    echo "run-app   <port>: Runs from current directory, but does not compile annotator panel (you have to run run-local once first).";
     echo "test:             Runs test-suite.";
     echo "debug:            Runs from current directory in debug mode (non-minimized javascript).";
-    echo "release:          Builds in release mode (minimized javascript). (advanced)";
     echo "compile:          Compiled the build.";
     echo "clean:            Removes class files.";
     echo "clean-all:        Removes class files and jbrowse files.";
     echo "create-rest-doc:  Recreates REST documentation.";
-    echo "help:             This message.";
 };
 
 
@@ -77,28 +80,33 @@ function check_configs(){
         echo "Watchman not found. Install watchman to automatically update the client side plugins for apollo development modes"
     fi
     if ! [ -x "$grails_executable" ] ; then
-	   if [ -f 'grailsw' ]; then 
-		   echo "Grails not found using grailsw";
-		   grails_executable="./grailsw"
-	   else
-		   echo "You must install 'grails' to install Apollo."
-		   exit 1 ;
-		fi 
+        if [ -f 'grailsw' ]; then
+            echo "Grails not found using grailsw";
+            grails_executable="./grailsw"
+        else
+           echo "You must install 'grails' to install Apollo."
+           exit 1 ;
+        fi
     fi
     if ! [ -x "$gradle_executable" ] ; then
-	   if [ -f 'gradlew' ]; then 
+	   if [ -f 'gradlew' ]; then
 		   echo "Gradle not found using gradlew";
 		   gradle_executable="./gradlew"
 	   else
 		   echo "You must install 'gradle' to install Apollo."
 		   exit 1 ;
-		fi 
+		fi
     fi
     if ! [ -x "$git_executable" ] ; then
        echo "You must install 'git' to install Apollo."
        exit 1 ;
     fi
 
+}
+
+function copy_configs(){
+    rm -f src/java/apollo-config.groovy
+    cp apollo-config.groovy src/java/apollo-config.groovy
 }
 
 
@@ -118,10 +126,20 @@ elif [[ $1 == "run-local" ]];then
         $gradle_executable handleJBrowse copy-resources gwtc && $grails_executable run-app
     fi
     if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
+elif [[ $1 == "run-app" ]];then
+    # should call the copy target first
+    check_configs
+    if [[ $# == 2 ]]; then
+        $gradle_executable handleJBrowse copy-resources && $grails_executable -Dserver.port=$2 run-app
+    else
+        $gradle_executable handleJBrowse copy-resources && $grails_executable run-app
+    fi
+    if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
     OLD_MAVEN_OPTS=$MAVEN_OPTS
     check_configs
+    copy_configs
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
     $gradle_executable handleJBrowse devmode &
     $grails_executable -reloading debug
@@ -131,18 +149,19 @@ elif [[ $1 == "debug" ]];then
 elif [[ $1 == "test" ]];then
     # should call the copy target first
     check_configs
+    copy_configs
     $grails_executable test-app
 elif [[ $1 == "test-unit" ]];then
     # should call the copy target first
     check_configs
+    copy_configs
     $grails_executable test-app :unit
 #    mvn test
 elif [[ $1 == "deploy" ]];then
     # should call the copy target first
     check_configs
     # this makes it globally available
-    rm -f src/java/apollo-config.groovy
-    cp apollo-config.groovy src/java/apollo-config.groovy
+    copy_configs
     #grails deploy
     $gradle_executable handleJBrowse copy-resources gwtc &&  $grails_executable war
     deploy_message
@@ -150,8 +169,7 @@ elif [[ $1 == "release" ]];then
     # should call the copy target first
     check_configs
     check_configs_for_release
-    rm -f src/java/apollo-config.groovy
-    cp apollo-config.groovy src/java/apollo-config.groovy
+    copy_configs
 #   $gradle_executable clean-all handleJBrowseRelease gwtc && $grails_executable war
 #    $gradle_executable clean-all handleJBrowse release gwtc && $grails_executable war
     $gradle_executable clean-all release gwtc && $grails_executable war  # this is the original call

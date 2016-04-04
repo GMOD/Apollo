@@ -7,7 +7,7 @@ There are a couple ways to setup a PostgreSQL.  One would be as a trusted user (
 - On debian/ubuntu/redhat/centOS,requires postgres user to execute command, hence "sudo su postgres"
 ```
 sudo su postgres -c "createuser -RDIElPS database_user"
-sudo su postgres -c "createdb -E UTF-8 -O database_user apollo-production
+sudo su postgres -c "createdb -E UTF-8 -O database_user apollo-production"
 ```
 - On macOSX/homebrew, not necessary to login to postgres user
 
@@ -24,7 +24,7 @@ createdb -O database_user apollo-production
 - On debian/ubuntu/redhat/centOS,requires postgres user to execute command, hence "sudo su postgres"
 ```
 sudo su postgres -c "createuser -RDIElPS $PGUSER"
-sudo su postgres -c "createdb -E UTF-8 -O $PGUSER apollo-production
+sudo su postgres -c "createdb -E UTF-8 -O $PGUSER apollo-production"
 ```
 - On macOSX/homebrew, not necessary to login to postgres user
 ```

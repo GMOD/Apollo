@@ -213,6 +213,13 @@ apollo {
     is_partial_translation_allowed = false // unused so far
     export_subfeature_attrs = false
 
+    // settings for Chado export
+    // set chado_export_fasta_for_sequence if you want the reference sequence FASTA to be exported into the database
+    // Note: Enabling this feature can be memory intensive
+    chado_export_fasta_for_sequence = false
+    // set chado_export_fasta_for_cds if you want the CDS FASTA to be exported into the database
+    chado_export_fasta_for_cds = false
+
     // this is the default
     // other translation codes are of the form ncbi_KEY_translation_table.txt
     // under the web-app/translation_tables  directory

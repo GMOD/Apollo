@@ -1,7 +1,7 @@
-import grails.converters.JSON
 import grails.util.Environment
-import org.bbop.apollo.*
-import org.bbop.apollo.projection.ProjectionSequence
+import org.bbop.apollo.FeatureType
+import org.bbop.apollo.Role
+import org.bbop.apollo.UserService
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 class BootStrap {
