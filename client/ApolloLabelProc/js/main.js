@@ -24,6 +24,8 @@ return declare( JBrowsePlugin,
         var counter = 0 ;
 
         var thisB = this;
+
+        var currentBookmark ;
         
         // this traps the event that happens directly after onCoarseMove function, where the label gets updates.
         dojo.subscribe("/jbrowse/v1/n/navigate", function(currRegion){
@@ -34,11 +36,12 @@ return declare( JBrowsePlugin,
             if (locationStr.charAt(0)=='{') {
                 locationStr = locationStr.substring(0,locationStr.lastIndexOf('}')+1);
                 var obj = JSON.parse(locationStr);
-                
+
                 // look for the "label" property
-                if(obj.hasOwnProperty('label')) {
+                if(obj.hasOwnProperty('sequenceList')) {
                     //console.log("label="+obj.label);
-                    
+                    currentBookmark = obj ;
+
                     // if( thisB.browser.locationBox ){
                     //     // thisB.browser.locationBox.set('value',obj.label, false);
                     //     // dojo.style(dojo.byId('widget_location'), "display", "none");
@@ -51,6 +54,13 @@ return declare( JBrowsePlugin,
                         if(counter==0){
                             var searchBox = dojo.byId('search-box');
                             dojo.style(searchBox, "display", "none");
+                            if(obj.hasOwnProperty("label")){
+                                // TODO: add something next to search-box that displays something slightly different
+                                // bookmark name + location . . . pasting it in should call browser "GO" function
+                                // should call Browser.navigateTo . . with the browser location stuff
+                                // we cann actually store the bookmark data here
+
+                            }
                             var borderContainer = dijit.byId('GenomeBrowser');
                             borderContainer.resize();
                         }
@@ -59,6 +69,9 @@ return declare( JBrowsePlugin,
                         // dojo.style(dojo.byId('search-refseq'), "display", "none");
                     });
 
+                }
+                else{
+                    currentBookmark = null ;
                 }
             }
             
