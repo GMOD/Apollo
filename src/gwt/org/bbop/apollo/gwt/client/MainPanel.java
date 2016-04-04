@@ -16,6 +16,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.*;
@@ -431,7 +432,7 @@ public class MainPanel extends Composite {
 
                 final String finalString = trackListString;
 
-                Bootbox.alert("setting filan string: "+finalString);
+                Bootbox.alert("setting final string: "+finalString);
 //                frame.setUrl(finalString);
 
             }
@@ -448,6 +449,41 @@ public class MainPanel extends Composite {
         // create an orderd list of features / sequences
 
     }
+
+    /**
+     * @param bookmarkInfo
+     * @param minRegion
+     * @param maxRegion
+     */
+    public static void updateGenomicViewerForLocation(BookmarkInfo bookmarkInfo, Long minRegion, Long maxRegion, Boolean forceReload) {
+
+        if (!forceReload && currentBookmark != null && currentBookmark.getName().equals(bookmarkInfo.getName()) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
+            long oldLength = maxRegion - minRegion;
+            double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
+            double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) oldLength;
+            if (diff1 < UPDATE_DIFFERENCE_BUFFER && diff2 < UPDATE_DIFFERENCE_BUFFER) {
+                return;
+            }
+        }
+
+        currentStartBp = minRegion;
+        currentEndBp = maxRegion;
+
+
+        String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
+        currentBookmark = bookmarkInfo ;
+//            currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
+        minRegion = currentBookmark.getStart()!=null ? currentBookmark.getStart() : -1 ;
+        maxRegion = currentBookmark.getEnd()!=null ? currentBookmark.getEnd() : -1 ;
+        trackListString += URL.encodeQueryString(BookmarkInfoConverter.convertBookmarkInfoToJSONObject(currentBookmark).toString());
+        trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
+        trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
+
+        final String finalString = trackListString;
+
+        frame.setUrl(finalString);
+    }
+
 
     /**
      * @param selectedSequence
@@ -471,6 +507,7 @@ public class MainPanel extends Composite {
 
         String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
         if(selectedSequence.startsWith("{")){
+            GWT.log("calling string instead of bookmark for selected sequence");
             currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
             if(selectedSequence.contains("feature")){
                 minRegion = currentBookmark.getStart();
@@ -529,9 +566,9 @@ public class MainPanel extends Composite {
 
     public static void updateGenomicViewer(boolean forceReload) {
         if (currentStartBp != null && currentEndBp != null) {
-            updateGenomicViewerForLocation(currentBookmark.getName(), currentStartBp, currentEndBp, forceReload);
+            updateGenomicViewerForLocation(currentBookmark, currentStartBp, currentEndBp, forceReload);
         } else {
-            updateGenomicViewerForLocation(currentBookmark.getName(), currentBookmark.getStart(), currentBookmark.getEnd(), forceReload);
+            updateGenomicViewerForLocation(currentBookmark, currentBookmark.getStart(), currentBookmark.getEnd(), forceReload);
         }
     }
 
@@ -818,7 +855,7 @@ public class MainPanel extends Composite {
         String url = Annotator.getRootUrl();
         url += "annotator/loadLink";
         if (currentStartBp != null) {
-            url += "?loc=" + currentBookmark.getName() + ":" + currentStartBp + ".." + currentEndBp;
+            url += "?loc=" + currentBookmark.getSequenceList() + ":" + currentStartBp + ".." + currentEndBp;
         } else {
             url += "?loc=" + currentBookmark.getName() + ":" + currentBookmark.getStart() + ".." + currentBookmark.getEnd();
         }
