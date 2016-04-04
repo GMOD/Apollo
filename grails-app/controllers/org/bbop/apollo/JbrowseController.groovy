@@ -190,30 +190,44 @@ class JbrowseController {
             int offset = 0
             for (int i = 0; sequenceList && i < sequenceList.size(); i++) {
                 JSONObject thisSeq = sequenceList.get(i)
-
                 Sequence sequence = Sequence.findByName(thisSeq.name)
-                JSONObject leftObject = new JSONObject(thisSeq.toString())
-                leftObject.refseq = generateRefSeqLabel(thisSeq)
+                JSONObject regionObject = new JSONObject(thisSeq.toString())
+                regionObject.refseq = generateRefSeqLabel(thisSeq)
                 int currentPosition =  thisSeq.start ?: 0
-                leftObject.originalPosition = currentPosition
+                regionObject.originalPosition = currentPosition
                 currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
-                leftObject.start = currentPosition + offset
-                leftObject.end = leftObject.start + 1 + offset
-                leftObject.ref = refererLoc
-                leftObject.color = 'white'
-                leftObject.background = 'red'
-                leftObject.type = 'left-edge'
+                regionObject.start = currentPosition + offset
+                // TODO: if it has an end use that . . otherwise use the sequence value
+                regionObject.end = regionObject.start + sequence.end
+                regionObject.ref = refererLoc
+                regionObject.color = 'none'
+                regionObject.background = 'red'
+//                regionObject.type = 'region-edge'
+                regionObject.type = 'region'
 
-                JSONObject rightObject = new JSONObject(leftObject.toString())
-                // this will change and should come off of the JSONObject
-                currentPosition = thisSeq.end ?: currentPosition + sequence.length
-                rightObject.originalPosition = currentPosition
-                currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
-                rightObject.start = currentPosition -1 + offset
-                rightObject.end = currentPosition + offset
-                rightObject.color = 'white'
-                rightObject.background = 'blue'
-                rightObject.type = 'right-edge'
+//                Sequence sequence = Sequence.findByName(thisSeq.name)
+//                JSONObject leftObject = new JSONObject(thisSeq.toString())
+//                leftObject.refseq = generateRefSeqLabel(thisSeq)
+//                int currentPosition =  thisSeq.start ?: 0
+//                leftObject.originalPosition = currentPosition
+//                currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
+//                leftObject.start = currentPosition + offset
+//                leftObject.end = leftObject.start + 1 + offset
+//                leftObject.ref = refererLoc
+//                leftObject.color = 'white'
+//                leftObject.background = 'red'
+//                leftObject.type = 'left-edge'
+//
+//                JSONObject rightObject = new JSONObject(leftObject.toString())
+//                // this will change and should come off of the JSONObject
+//                currentPosition = thisSeq.end ?: currentPosition + sequence.length
+//                rightObject.originalPosition = currentPosition
+//                currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
+//                rightObject.start = currentPosition -1 + offset
+//                rightObject.end = currentPosition + offset
+//                rightObject.color = 'white'
+//                rightObject.background = 'blue'
+//                rightObject.type = 'right-edge'
 
 //                JSONObject nextSeq = sequenceList.get(i + 1)
 //                pos += projection.findProjectSequenceLength(thisSeq.name)
@@ -223,11 +237,13 @@ class JbrowseController {
 //                )
 //                thisSeq.put()
                 // probably should come from the JSON object
-                currentPosition = +rightObject.start
 
-                displayArray.add(leftObject)
-                displayArray.add(rightObject)
-                offset = rightObject.end
+                currentPosition += regionObject.end + 1
+
+//                displayArray.add(leftObject)
+//                displayArray.add(rightObject)
+                displayArray.add(regionObject)
+                offset = currentPosition
             }
             JSONObject returnObject = new JSONObject()
             returnObject.features = displayArray
