@@ -40,6 +40,11 @@ class UrlMappings {
         "/sequence/stats/regionFeatureDensities"(controller: "sequence",action: "regionFeatureDensities",params:params)
         "/sequence/features/${sequenceName}"(controller: "sequence",action: "features",params:params,sequenceName:sequenceName)
 
+        "/projection/stats/global"(controller: "projection",action: "statsGlobal",params:params)
+        "/projection/stats/region"(controller: "projection",action: "statsRegion",params:params)
+        "/projection/stats/regionFeatureDensities"(controller: "projection",action: "regionFeatureDensities",params:params)
+        "/projection/features/${sequenceName}"(controller: "projection",action: "features",params:params,sequenceName:sequenceName)
+
 //        "/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
     }
 }
