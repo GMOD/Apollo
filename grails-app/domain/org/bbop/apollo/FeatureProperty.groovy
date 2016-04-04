@@ -29,6 +29,11 @@ class FeatureProperty implements Ontological{
     static belongsTo = [
             Feature
     ]
+
+    static mapping = {
+        value type: 'text'
+    }
+
     public boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
