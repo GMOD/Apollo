@@ -91,7 +91,7 @@
         {
           "label":      "Projection Key 1",
           "key":        "REST Test Track 2",
-          "type":       "JBrowse/View/Track/CanvasFeatures",
+          "type":       "JBrowse/View/Track/HTMLFeatures",
           "storeClass": "JBrowse/Store/SeqFeature/REST",
           "baseUrl":    "http://localhost:8080/apollo/projectionTrack",
 //          "query": {
