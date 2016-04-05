@@ -102,21 +102,27 @@ class ProjectionGridTrackController {
 
         JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
         List<ProjectionSequence> projectionSequences = multiSequenceProjection.getReverseProjectionSequences(start, end)
+
+        int range = end - start
+        int stepsPerView = 10
+        double buffer = 1d/stepsPerView
+        int step = Math.round(buffer * range)
+        println "STEP: ${step}"
+
         projectionSequences.each { ProjectionSequence projectionSequence ->
 //        // TODO: show if
-//            def thisStart = start < projectionSequence.start + offset ? start : projectionSequence.start + offset
-//            def thisEnd = end > projectionSequence.end+ offset ? end : projectionSequence.end + offset
-//            def thisStart = start > projectionSequence.start + offset ? start : projectionSequence.start + offset
-//            def thisEnd = end < projectionSequence.end+ offset ? end : projectionSequence.end + offset
-            JSONObject feature = new JSONObject(
-                    start: projectionSequence.start + projectionSequence.offset,
-                    end: projectionSequence.end + + projectionSequence.offset ,
-                    name: projectionSequence.name,
-                    type: "exon",
-                    label: projectionSequence.name,
-                    uniqueID: projectionSequence.name + sequenceObject.toString()
-            )
-            jsonObject.features.add(feature)
+            for(int i = projectionSequence.start ; i < projectionSequence.end ; i+=step){
+                int value = multiSequenceProjection.projectReverseValue(i+projectionSequence.offset)
+                JSONObject feature = new JSONObject(
+                        start: i + projectionSequence.offset,
+                        end: i + projectionSequence.offset ,
+                        name: value,
+                        type: "exon",
+                        label: value,
+                        uniqueID: value + sequenceObject.toString()
+                )
+                jsonObject.features.add(feature)
+            }
         }
 
 

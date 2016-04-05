@@ -114,7 +114,8 @@ class ProjectionLegendTrackController {
                     name: projectionSequence.name,
                     type: "exon",
                     label: projectionSequence.name,
-                    uniqueID: projectionSequence.name + sequenceObject.toString()
+                    uniqueID: projectionSequence.name + sequenceObject.toString(),
+                    order: projectionSequence.order
             )
             jsonObject.features.add(feature)
         }
