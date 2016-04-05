@@ -101,17 +101,22 @@ class ProjectionTrackController {
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
 
         JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
-        Integer offset = 0
         List<ProjectionSequence> projectionSequences = multiSequenceProjection.getReverseProjectionSequences(start, end)
         projectionSequences.each { ProjectionSequence projectionSequence ->
 //        // TODO: show if
 //            def thisStart = start < projectionSequence.start + offset ? start : projectionSequence.start + offset
 //            def thisEnd = end > projectionSequence.end+ offset ? end : projectionSequence.end + offset
-            def thisStart = start > projectionSequence.start + offset ? start : projectionSequence.start + offset
-            def thisEnd = end < projectionSequence.end+ offset ? end : projectionSequence.end + offset
-            JSONObject feature = new JSONObject(start: thisStart, end: thisEnd , name: projectionSequence.name, type: "CDS", label: projectionSequence.name )
+//            def thisStart = start > projectionSequence.start + offset ? start : projectionSequence.start + offset
+//            def thisEnd = end < projectionSequence.end+ offset ? end : projectionSequence.end + offset
+            JSONObject feature = new JSONObject(
+                    start: projectionSequence.start + projectionSequence.offset,
+                    end: projectionSequence.end + + projectionSequence.offset ,
+                    name: projectionSequence.name,
+                    type: "exon",
+                    label: projectionSequence.name,
+                    uniqueID: projectionSequence.name + sequenceObject.toString()
+            )
             jsonObject.features.add(feature)
-            offset += projectionSequence.end // maybe we should calculate the offset somewhere else?
         }
 
 
