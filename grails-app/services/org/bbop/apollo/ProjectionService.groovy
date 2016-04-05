@@ -629,17 +629,17 @@ class ProjectionService {
         projectionDescription.padding = bookmarkObject.padding ?: 0
         projectionDescription.organism = bookmarkObject.organism
         //projectionDescription.referenceTrack = [bookmarkObject.referenceTrack] as List<String>
-        projectionDescription.referenceTrack = new ArrayList<String>()
-        if (isValidJson((String) bookmarkObject.referenceTrack)) {
-            JSONArray referenceTrackJsonArray = JSON.parse(bookmarkObject.referenceTrack.toString()) as JSONArray
-            
-            for (int i = 0; i < referenceTrackJsonArray.size(); i++) {
-                projectionDescription.referenceTrack.add(i, referenceTrackJsonArray.getString(i));
-            }
-        }
-        else {
-            projectionDescription.referenceTrack.add(bookmarkObject.referenceTrack)
-        }
+//        projectionDescription.referenceTrack = new ArrayList<String>()
+//        if (isValidJson((String) bookmarkObject.referenceTrack)) {
+//            JSONArray referenceTrackJsonArray = JSON.parse(bookmarkObject.referenceTrack.toString()) as JSONArray
+//
+//            for (int i = 0; i < referenceTrackJsonArray.size(); i++) {
+//                projectionDescription.referenceTrack.add(i, referenceTrackJsonArray.getString(i));
+//            }
+//        }
+//        else {
+//            projectionDescription.referenceTrack.add(bookmarkObject.referenceTrack)
+//        }
 
         projectionDescription.sequenceList = new ArrayList<>()
 
@@ -691,7 +691,6 @@ class ProjectionService {
  * @return
  */
     MultiSequenceProjection getProjection(JSONObject bookmarkObject) {
-        
         ProjectionDescription projectionDescription = convertJsonObjectToProjectDescription(bookmarkObject)
         return getProjection(projectionDescription)
     }

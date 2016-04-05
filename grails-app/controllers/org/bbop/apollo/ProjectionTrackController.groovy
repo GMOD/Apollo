@@ -1,5 +1,8 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
+import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 /**
@@ -9,53 +12,55 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class ProjectionTrackController {
 
     def projectionService
+    def trackService
     def requestHandlingService
 
     def index() {}
 
     /**
-     *
-     {
-     "bins":  [ 51, 50, 58, 63, 57, 57, 65, 66, 63, 61,
+     *{"bins":  [ 51, 50, 58, 63, 57, 57, 65, 66, 63, 61,
      56, 49, 50, 47, 39, 38, 54, 41, 50, 71,
      61, 44, 64, 60, 42
      ],
-     "stats": {
-     "basesPerBin": 200,
-     "max": 88
-     }
-     }
-     * @return
+     "stats": {"basesPerBin": 200,
+     "max": 88}}* @return
      */
-    def regionFeatureDensities(){
+    def regionFeatureDensities() {
         println "regionFeatureDensities params: ${params}"
         JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
         render jsonObject
     }
 
     /**
-     * {
-
-     "featureDensity": 0.02,
+     *{"featureDensity": 0.02,
 
      "featureCount": 234235,
 
      "scoreMin": 87,
      "scoreMax": 87,
      "scoreMean": 42,
-     "scoreStdDev": 2.1
-     }
-     * @return
+     "scoreStdDev": 2.1}* @return
      */
-    def statsGlobal(){
+    def statsGlobal() {
         println "stats global params: ${params}"
+        String referer = request.getHeader("Referer")
+        String refererLoc = trackService.extractLocation(referer)
+        String sequenceName = refererLoc
+        Integer endIndex = sequenceName.indexOf("}:") + 1
+
+        JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
+        Integer featureCount = sequenceObject.sequenceList.size()
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
+        Integer range = multiSequenceProjection.getLength()
+
         JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
-        jsonObject.featureDensity=1
-        jsonObject.featureCount=1
-        jsonObject.scoreMin=1
-        jsonObject.scoreMax=1
-        jsonObject.scoreMean=1
-        jsonObject.scoreStdDev=1
+        jsonObject.featureCount= featureCount
+        jsonObject.featureDensity = featureCount / (range) * 1.0
+//        jsonObject.featureCount=1
+//        jsonObject.scoreMin=1
+//        jsonObject.scoreMax=1
+//        jsonObject.scoreMean=1
+//        jsonObject.scoreStdDev=1
         render jsonObject
     }
 
@@ -63,30 +68,51 @@ class ProjectionTrackController {
      * Same as statsGlobal, but only for the region
      * @return
      */
-    def statsRegion(){
+    def statsRegion() {
         println "stats region params: ${params}"
+        Integer start = Integer.parseInt(params.start)
+        Integer end = Integer.parseInt(params.end)
+        String sequenceName = params.sequenceName
+        Integer endIndex = sequenceName.indexOf("}:") + 1
+        JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
+        List<ProjectionSequence> projectionSequences = multiSequenceProjection.getReverseProjectionSequences(start, end)
+        Integer featureCount = projectionSequences.size()
+
         JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
-        jsonObject.featureDensity=1
-        jsonObject.featureCount=1
-        jsonObject.scoreMin=1
-        jsonObject.scoreMax=1
-        jsonObject.scoreMean=1
-        jsonObject.scoreStdDev=1
+        jsonObject.featureCount= featureCount
+        jsonObject.featureDensity = featureCount / (end - start) * 1.0
+//        jsonObject.scoreMin=1
+//        jsonObject.scoreMax=1
+//        jsonObject.scoreMean=1
+//        jsonObject.scoreStdDev=1
         render jsonObject
     }
 
-    def features(){
+    def features() {
 
         println "features params: ${params}"
-//        println "id: ${id}"
-//        println "start: ${start}"
-//        println "end: ${end}"
+        String sequenceName = params.sequenceName
+        Integer start = Integer.parseInt(params.start)
+        Integer end = Integer.parseInt(params.end)
 
-        JSONObject features1 = new JSONObject(start:123,end:456,name:"region1",type:"MRNA",label:"first label",Id:"abc123",unique_name:"def567")
-        JSONObject features2 = new JSONObject(start:789,end:1012,name:"region2")
+        Integer endIndex = sequenceName.indexOf("}:") + 1
+        JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
 
-        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer(features1,features2)
-
+        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
+        Integer offset = 0
+        List<ProjectionSequence> projectionSequences = multiSequenceProjection.getReverseProjectionSequences(start, end)
+        projectionSequences.each { ProjectionSequence projectionSequence ->
+//        // TODO: show if
+//            def thisStart = start < projectionSequence.start + offset ? start : projectionSequence.start + offset
+//            def thisEnd = end > projectionSequence.end+ offset ? end : projectionSequence.end + offset
+            def thisStart = start > projectionSequence.start + offset ? start : projectionSequence.start + offset
+            def thisEnd = end < projectionSequence.end+ offset ? end : projectionSequence.end + offset
+            JSONObject feature = new JSONObject(start: thisStart, end: thisEnd , name: projectionSequence.name, type: "CDS", label: projectionSequence.name )
+            jsonObject.features.add(feature)
+            offset += projectionSequence.end // maybe we should calculate the offset somewhere else?
+        }
 
 
         render jsonObject

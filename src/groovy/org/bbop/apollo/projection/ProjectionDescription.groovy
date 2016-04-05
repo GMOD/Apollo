@@ -29,11 +29,11 @@ class ProjectionDescription {
 
     int hashCode() {
         int result
-        result = (referenceTrack != null ? referenceTrack.hashCode() : 0)
-        result = 31 * result + sequenceList.hashCode()
-        result = 31 * result + projection.hashCode()
-        result = 31 * result + padding.hashCode()
-        result = 31 * result + organism.hashCode()
+//        result = (referenceTrack != null ? referenceTrack.hashCode() : 0)
+        result = result + sequenceList.hashCode()
+        if(projection) result = 31 * result + projection.hashCode()
+        if(padding) result = 31 * result + padding.hashCode()
+        if(organism) result = 31 * result + organism.hashCode()
         return result
     }
 }
