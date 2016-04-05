@@ -40,11 +40,15 @@ class UrlMappings {
         "/sequence/stats/regionFeatureDensities"(controller: "sequence",action: "regionFeatureDensities",params:params)
         "/sequence/features/${sequenceName}"(controller: "sequence",action: "features",params:params,sequenceName:sequenceName)
 
-        "/projectionTrack/stats/global"(controller: "projectionTrack",action: "statsGlobal",params:params)
-        "/projectionTrack/stats/region"(controller: "projectionTrack",action: "statsRegion",params:params)
-        "/projectionTrack/stats/regionFeatureDensities"(controller: "projectionTrack",action: "regionFeatureDensities",params:params)
-        "/projectionTrack/features/${sequenceName}"(controller: "projectionTrack",action: "features",params:params,sequenceName:sequenceName)
+        "/projectionLegend/stats/global"(controller: "projectionLegendTrack",action: "statsGlobal",params:params)
+        "/projectionLegend/stats/region"(controller: "projectionLegendTrack",action: "statsRegion",params:params)
+        "/projectionLegend/stats/regionFeatureDensities"(controller: "projectionLegendTrack",action: "regionFeatureDensities",params:params)
+        "/projectionLegend/features/${sequenceName}"(controller: "projectionLegendTrack",action: "features",params:params,sequenceName:sequenceName)
 
+        "/projectionGrid/stats/global"(controller: "projectionGridTrack",action: "statsGlobal",params:params)
+        "/projectionGrid/stats/region"(controller: "projectionGridTrack",action: "statsRegion",params:params)
+        "/projectionGrid/stats/regionFeatureDensities"(controller: "projectionGridTrack",action: "regionFeatureDensities",params:params)
+        "/projectionGrid/features/${sequenceName}"(controller: "projectionGridTrack",action: "features",params:params,sequenceName:sequenceName)
 //        "/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
     }
 }

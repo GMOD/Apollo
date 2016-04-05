@@ -22,6 +22,26 @@
   "share_link": 0,
   "tracks": [
     {
+      "label": "Projection Legend",
+      "key": "Projection Legend",
+      "type": "JBrowse/View/Track/HTMLFeatures",
+      "storeClass": "JBrowse/Store/SeqFeature/REST",
+      "baseUrl": "http://localhost:8080/apollo/projectionLegend",
+      //          "query": {
+      //            "organism": "tyrannosaurus"
+      //          }
+    },
+    {
+      "label": "Projection Grid",
+      "key": "Projection Grid",
+      "type": "JBrowse/View/Track/HTMLFeatures",
+      "storeClass": "JBrowse/Store/SeqFeature/REST",
+      "baseUrl": "http://localhost:8080/apollo/projectionGrid",
+      //          "query": {
+      //            "organism": "tyrannosaurus"
+      //          }
+    },
+    {
       "autocomplete": "none",
       "style": {
         "className": "annot",
@@ -87,28 +107,17 @@
       "type": "WebApollo/View/Track/AnnotTrack",
       "subfeatures": 1
     }
-        ,
-        {
-          "label":      "Projection Legend",
-          "key":        "Projection Legend",
-          "type":       "JBrowse/View/Track/HTMLFeatures",
-          "storeClass": "JBrowse/Store/SeqFeature/REST",
-          "baseUrl":    "http://localhost:8080/apollo/projectionTrack",
-//          "query": {
-//            "organism": "tyrannosaurus"
-//          }
-        }
-//    ,
-//    {
-//      "label":      "Projection",
-//      "key":        "REST Test Track",
-//      "type":       "JBrowse/View/Track/HTMLFeatures",
-//      "storeClass": "JBrowse/Store/SeqFeature/REST",
-//      "baseUrl":    "http://localhost:8080/apollo/sequence/",
-//      "query": {
-//        "organism": "tyrannosaurus"
-//      }
-//    }
+    //    ,
+    //    {
+    //      "label":      "Projection",
+    //      "key":        "REST Test Track",
+    //      "type":       "JBrowse/View/Track/HTMLFeatures",
+    //      "storeClass": "JBrowse/Store/SeqFeature/REST",
+    //      "baseUrl":    "http://localhost:8080/apollo/sequence/",
+    //      "query": {
+    //        "organism": "tyrannosaurus"
+    //      }
+    //    }
   ],
   "favicon": "./plugins/WebApollo/img/webapollo_favicon.ico",
   "locationBox": "searchBox",

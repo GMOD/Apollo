@@ -9,7 +9,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  * Defines REST track here
  * http://gmod.org/wiki/JBrowse_Configuration_Guide#JBrowse_REST_Feature_Store_API
  */
-class ProjectionTrackController {
+class ProjectionGridTrackController {
 
     def projectionService
     def trackService
