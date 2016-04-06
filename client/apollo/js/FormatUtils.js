@@ -8,7 +8,7 @@ function() {
         var year = date.getFullYear();
         var month = date.getMonth() + 1;
         var day = ("" + date.getDate()).length == 1 ? "0" + date.getDate() : date.getDate();
-        if (new String(month).length == 1) {
+        if (String(month).length == 1) {
             month = "0" + month;
         }
         return year + "-" + month + "-" + day;

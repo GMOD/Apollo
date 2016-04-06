@@ -103,7 +103,7 @@ searchSequence: function(trackName, refSeqName, starts) {
                     return;
                 }
                 ok = true;
-                for(key in response.sequence_search_tools) {
+                for(var key in response.sequence_search_tools) {
                     if (response.sequence_search_tools.hasOwnProperty(key)) {
                         dojo.create("option", { innerHTML: response.sequence_search_tools[key].name, id: key }, sequenceToolsSelect);
                     }

@@ -4,10 +4,13 @@ Apollo
 Apollo - An instantaneous, collaborative, genome annotation editor.
 
 The application's technology stack includes a Grails-based Java web application with flexible database backends and a
-Javascript client that runs in a web browser as a JBrowse plugin.
+Javascript client that runs in a web browser as a JBrowse plugin.  
+
+You can find the latest release here: https://github.com/GMOD/Apollo/releases/latest and our setup guide: http://webapollo.readthedocs.org/en/latest/Setup.html
 
 For general information on Apollo, go to: 
 `http://genomearchitect.org/ <http://genomearchitect.org>`__
+
 
 For more information on JBrowse, please visit:
 `http://jbrowse.org <http://jbrowse.org>`__
