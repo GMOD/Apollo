@@ -39,7 +39,8 @@
       "label": "Projection Grid",
       "key": "Projection Grid",
 //      "type": "JBrowse/View/Track/LocationScale",
-      "type": "JBrowse/View/Track/CanvasVariants",
+//      "type": "JBrowse/View/Track/CanvasVariants",
+      "type": "WebApollo/View/Track/LegendTrack",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
       "baseUrl": "http://localhost:8080/apollo/projectionGrid",
       "style":{
