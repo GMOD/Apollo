@@ -5,7 +5,7 @@ define([
         'dojo/_base/event',
         'dojo/dom-construct',
         'dojo/dom-style',
-        'JBrowse/View/Track/SVGTrackBase',
+        'JBrowse/View/Track/SVGTrackSimpleBase',
         'JBrowse/View/Track/SVG/SVGLayerCoords',
         'JBrowse/View/Track/SVG/SVGLayerBpSpace',
         'JBrowse/View/Track/SVG/SVGLayerPxSpace',
@@ -58,13 +58,30 @@ define([
                 _trackMenuOptions: function(){
                 },
 
-                _defaultConfig: function () {
-                    var thisConfig = this.inherited(arguments);
-                    thisConfig.menuTemplate = null;
-                    thisConfig.noExport = true;  // turn off default "Save track data" "
-                    //thisConfig.style.centerChildrenVertically = false;
-                    return thisConfig;
-                },
+                //_defaultConfig: function () {
+                //    var thisConfig = this.inherited(arguments);
+                //    thisConfig.menuTemplate = null;
+                //    thisConfig.noExport = true;  // turn off default "Save track data" "
+                //    //thisConfig.style.centerChildrenVertically = false;
+                //    return thisConfig;
+                //},
+                //heightUpdate: function( height, blockIndex ) {
+                //    //console.log("SVGFeatures::heightUpdate("+height+")");
+                //    //console.dir(arguments);
+                //    //var err = new Error();
+                //    //console.log(err.stack);
+                //
+                //    this.inherited( arguments );
+                //    if( this.svgCanvas ){
+                //        //this.svgCanvas.height = this.svgCanvas.offsetHeight;
+                //        console.log('has height ');
+                //        this.svgCanvas.height = 100 ;
+                //    }
+                //    else{
+                //        console.log('has height ');
+                //        this.svgCanvas.height = 200 ;
+                //    }
+                //},
 
                 setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
                     console.log("SVGLollipop::setViewInfo");
@@ -72,8 +89,8 @@ define([
 
                     this.inherited( arguments );
 
-                    this.svgCoords = new SVGLayerCoords(this);
-                    this.svgCoords.setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale );
+                    //this.svgCoords = new SVGLayerCoords(this);
+                    //this.svgCoords.setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale );
 
                     this.svgSpace = new SVGLayerPxSpace(this);      // px-space svg layer
                     //this.svgSpace = new SVGLayerBpSpace(this);    // bp-space svg layer
