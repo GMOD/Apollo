@@ -6,7 +6,8 @@ define( [
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
-    'dojox/widget/Standby'
+    'dojox/widget/Standby',
+    'jquery/jquery'
      ],
 function( declare,
     xhr,
@@ -15,7 +16,8 @@ function( declare,
     DraggableFeatureTrack,
     JSONUtils,
     Permission,
-    Standby
+    Standby,
+    $
 ) {
 
 var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
@@ -1032,10 +1034,13 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                 alert("Input cannot be empty for " + type);
                 ok = false;
             }
+
 	    if (commentFieldValue.length == 0) {
                 alert("Please provide a justification for the sequence modification (" + type + ") in the 'Comment' field.");
                 ok = false;
             }
+
+
             if (ok) {
                 var input = inputField.value.toUpperCase();
                 if (type == "deletion") {

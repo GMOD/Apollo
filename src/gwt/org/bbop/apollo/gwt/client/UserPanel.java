@@ -39,6 +39,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.Callback;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
@@ -350,20 +351,31 @@ public class UserPanel extends Composite {
         permissionProvider.addDataDisplay(organismPermissionsGrid);
     }
 
+    private Boolean isEmail(String emailString){
+        if(!emailString.contains("@") || !emailString.contains(".")){
+            return false ;
+        }
+        if (emailString.indexOf("@") >= emailString.lastIndexOf(".")) {
+            return false;
+        }
+        return true;
+    }
 
     private Boolean setCurrentUserInfoFromUI() {
         String emailString = email.getText().trim();
-        if (emailString.indexOf("@") >= emailString.lastIndexOf(".")) {
-            Bootbox.alert("Does not appear to be a valid email " + emailString);
-            return false;
+        final MutableBoolean mutableBoolean = new MutableBoolean(true);
+        if(!isEmail(emailString)){
+            mutableBoolean.setBooleanValue(Window.confirm("'" + emailString + "' does not appear to be a valid email.  Use anyway?"));
         }
-        selectedUserInfo.setEmail(emailString);
-        selectedUserInfo.setFirstName(firstName.getText());
-        selectedUserInfo.setLastName(lastName.getText());
-        selectedUserInfo.setPassword(passwordTextBox.getText());
-        selectedUserInfo.setRole(roleList.getSelectedItemText());
+        if(mutableBoolean.getBooleanValue()) {
+            selectedUserInfo.setEmail(emailString);
+            selectedUserInfo.setFirstName(firstName.getText());
+            selectedUserInfo.setLastName(lastName.getText());
+            selectedUserInfo.setPassword(passwordTextBox.getText());
+            selectedUserInfo.setRole(roleList.getSelectedItemText());
+        }
 
-        return true;
+        return mutableBoolean.getBooleanValue();
     }
 
 
@@ -628,7 +640,9 @@ public class UserPanel extends Composite {
     }
 
     public void reload() {
-        UserRestService.loadUsers(userInfoList);
+        if(MainPanel.getInstance().getCurrentUser()!=null) {
+            UserRestService.loadUsers(userInfoList);
+        }
         dataGrid.redraw();
     }
 

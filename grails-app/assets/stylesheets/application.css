@@ -38,4 +38,18 @@
     background-image: url("images/ApolloLogo_100x36.png");
 }
 
+.info-border{
+    border-radius: 20px;
+    border: solid;
+    border-color: darkgray;
+    border-width: 2px;
+    margin: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    /*width: 20%;*/
+    float: left;
+    background-color: #eeeeee;
+}
 

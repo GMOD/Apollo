@@ -13,6 +13,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
     def featureRelationshipService
     def transcriptService
     def exonService
+    def cdsService
     def sequenceService
 
     def setup() {
@@ -1947,6 +1948,92 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
         then: "we will have the same 2 genes and 3 transcripts, but transcript will belong to the other gene"
 
+    }
+
+    void "Sequence alterations that introduce an in-frame stop codon should properly be handled"() {
+        given: "GB40750-RA and a sequence alteration of type 'deletion' that has an in-frame stop codon TAA"
+        String addTranscriptString = '{"operation":"add_transcript","features":[{"location":{"fmin":689640,"strand":-1,"fmax":693859},"name":"GB40750-RA","children":[{"location":{"fmin":693543,"strand":-1,"fmax":693859},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":692451,"strand":-1,"fmax":692480},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":689640,"strand":-1,"fmax":690442},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":689640,"strand":-1,"fmax":690739},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":690844,"strand":-1,"fmax":691015},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":691158,"strand":-1,"fmax":691354},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":691436,"strand":-1,"fmax":691587},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":691674,"strand":-1,"fmax":691846},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":691974,"strand":-1,"fmax":692181},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":692310,"strand":-1,"fmax":692480},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":693543,"strand":-1,"fmax":693859},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":690442,"strand":-1,"fmax":692451},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+        String addDeletionString = '{"operation":"add_sequence_alteration","features":[{"residues":"ATTTC","location":{"fmin":691208,"strand":1,"fmax":691208},"type":{"name":"insertion","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+
+        String knownTranscriptPeptideSequence = 'MMTETHINSNHVLNSGLNTKSEIDKMDDVGWKAKLKIPPKDKRIKTSDVTDTRGNEFEEFCLKRELLMGIFEKGWEKPSPIQEASIPIALSGKDILARAKNGTGKTGAYSIPVLEQVDPRKDVIQALVLVPTRELALQTSQICIELAKHMEIKVMVTTGGTDLRDDIMRIYQSVQVIIATPGRILDLMDKNVANMDHCKTLVLDEADKLLSQDFKGMLDHVISRLPHERQILLYSATFPLTVKQFMEKHLRDPYEINLMEELTLKGVTQYYA'
+        String knownTranscriptCdsSequence = 'ATGATGACAGAAACACATATAAATTCCAATCATGTCCTAAATTCTGGTTTGAATACTAAATCAGAAATCGACAAAATGGACGATGTAGGTTGGAAAGCTAAATTAAAAATTCCACCAAAGGACAAACGAATTAAAACTAGTGATGTTACTGATACTCGTGGCAATGAATTTGAGGAATTTTGCCTAAAACGAGAATTATTAATGGGCATCTTTGAAAAAGGCTGGGAAAAGCCTTCCCCAATTCAAGAAGCCAGTATTCCCATTGCATTATCTGGTAAAGATATCTTGGCCCGTGCAAAAAATGGGACTGGTAAAACTGGGGCCTATTCAATTCCAGTGCTAGAACAGGTTGATCCACGAAAAGATGTGATTCAGGCACTAGTACTTGTACCTACTAGAGAGTTAGCTCTTCAAACATCACAAATTTGCATTGAACTGGCAAAACATATGGAAATAAAAGTAATGGTAACTACTGGAGGAACAGACTTACGGGATGATATTATGAGGATTTACCAGTCAGTGCAAGTAATAATAGCAACCCCAGGAAGAATTCTCGATCTTATGGATAAGAATGTTGCAAATATGGATCATTGTAAAACTCTAGTTTTGGATGAAGCAGATAAACTTCTGTCACAAGATTTTAAAGGAATGTTGGATCATGTCATTTCGAGATTACCACACGAACGTCAGATACTGCTGTATTCAGCCACATTTCCCCTGACAGTGAAACAATTCATGGAAAAACATTTAAGAGATCCATATGAGATTAATTTAATGGAGGAACTCACATTGAAAGGTGTAACACAATATTATGCCTGA'
+        String knownExon6PeptideSequence = 'LPHERQILLYSATFPLTVKQFMEKHLRDPYEINLMEELTLKGVTQYYA'
+        String knownExon6CdsSequence = 'ATTACCACACGAACGTCAGATACTGCTGTATTCAGCCACATTTCCCCTGACAGTGAAACAATTCATGGAAAAACATTTAAGAGATCCATATGAGATTAATTTAATGGAGGAACTCACATTGAAAGGTGTAACACAATATTATGCCTGA'
+
+        when: "we add GB40750-RA"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see the gene and transcript"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+
+        when: "we add the deletion at position 691209"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addDeletionString) as JSONObject)
+
+        then: "we should see the sequence alteration"
+        assert SequenceAlteration.count == 1
+
+        when: "we export the peptide sequence"
+        MRNA mrna = MRNA.all.get(0)
+        String peptideSequence = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_PEPTIDE.value)
+
+        then: "we should get the expected peptide sequence"
+        assert knownTranscriptPeptideSequence == peptideSequence
+
+        when: "we export the CDS sequence"
+        String cdsSequence = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_CDS.value)
+
+        then: "we should get the expected CDS sequence"
+        assert knownTranscriptCdsSequence == cdsSequence
+
+        when: "we export the peptide sequence and CDS sequence from exon 6 of the transcript"
+        def exons = exonService.getSortedExons(mrna, true)
+        String exon6PeptideSequence = sequenceService.getSequenceForFeature(exons.get(5), FeatureStringEnum.TYPE_PEPTIDE.value)
+        String exon6CdsSequence = sequenceService.getSequenceForFeature(exons.get(5), FeatureStringEnum.TYPE_CDS.value)
+
+        then: "we should get the expected peptide and CDS sequences"
+        assert knownExon6PeptideSequence == exon6PeptideSequence
+        assert knownExon6CdsSequence == exon6CdsSequence
+    }
+
+    void "Add a gene, set a stop_codon_read_through and fetch sequence of the exon harboring the stop_codon_read_through"() {
+        given: "GB40833-RA"
+        String addTranscriptString = '{"operation":"add_transcript","features":[{"location":{"fmin":974327,"strand":1,"fmax":976988},"name":"GB40833-RA","children":[{"location":{"fmin":974327,"strand":1,"fmax":974467},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":974616,"strand":1,"fmax":974636},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":975982,"strand":1,"fmax":976988},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":974327,"strand":1,"fmax":974467},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":974616,"strand":1,"fmax":975772},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":975852,"strand":1,"fmax":976988},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":974636,"strand":1,"fmax":975982},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+        String setReadThroughStopCodonString = '{"operation":"set_readthrough_stop_codon","features":[{"readthrough_stop_codon":true,"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+
+        String knownExon2CdsSequence = 'ATGAGTAATAGAGAAAAAAGTGATTTACGATTAGACCAATGCGTTAAATCGAAAGAGGAAAGAGAAAGAAAGCAATCAGTGACCTCACAAAGTGACGATTCTGATTCAAAGAAAAAAAGGCGTAATACATGTAGTAAGGATAAAAGAAAAAAATCAAAGCATAGAAGCAGCTCTAGTAGCTCCAGTTCCTCAAGTATCTCTAGCCGTGAGGCTAAGCATCAAAATGATAGAGATAGAAGAAATGACAAGTGGGATAAAAGATTTGAGAACGGTGTTAGACCATACCGACCAAATCCAAGAGAAGGTAGAGGATATTATAAAGGACGGAGTGGATATTTGGATAATCGTAAACGTAACTTTGGTTATCGACCTTATAAACATTCTGGATTTTATGATAGAAATAGACACAACAATTCACAATATAATAGGTATAATAGTGAAAGAAGAGGTAATAGATTCTTAAATCATAATAGTAGAAGACCACCTTATGATAGATCTAGAAGTAGAAGCACTTTGGATCATGATCATCAAAGAAACTTAAAAGATTCTAGTGAACAATCAAGAGAAAGTAATTCAAAAGAAAGATATGTAAAACAAACTAGTGCTGATAAAGCAGACTCAAAAAGGAAAGATATAGATGACATGCATATGAAAGGAAAAGAAAAGAAAAAAAATGAAGACACCCAAGAAAAGACTGATCATATTGCACGTAAAAAATTAAAAAGAAAAAGATCATTGTCTTCTTCAAGTACCTCAAGCGTTAGCAGCACTAGTAGTGACAGTAGTAGCAGTAGTTCTAGCAGTAGCAGTACTAGTAGTAGTTGTAGTAGTAGCAGTTCAGATACTTCTGAAGATGAAAAAAAACGTAAGAAAGCAAGAAGAAAAGCTAAAAAATTAAAGAAAGCTATGAAAAAACGTAGGAAGAAGAAAAGAATGAAGAAAAAATTAAAGAAAAAATTGAAGAAGTCTAAGAAAAAATTACGAAATACTGATAAATCCAAAGAAAGTATTTCTAAAGATGTTTCCCAAGAAATATCAGAAAAGTCAAAGGCTATGGCACCTATGACAAAAGAAGAATGGGAAAAAAAGCAAAATGTAATACGTAAAGTTTATGATGAAGAAACAGGGAGATACAG'
+        String knownExon3CdsSequence = 'GTTAATTAAAGGTGATGGAGAGGTCATAGAAGAGATAGTGAGTAGGGAGCGTCATAAAGAGATAAATAAACAAGCAACTAAAGGGGATGGAGAATACTTCCAAGCACGCTTGAAAGCCAATGTTTTATGAACTATTTTTCTATGTATGCTAAAAAAATACCCTTATATAATAATTACTTTATTGTCAGTGTTAAAGTCCTGTATGACAATATGTTTTATAATGTCTCAGAGAAAATACTTATATGTTGTACATTAA'
+        String knownExon2PeptideSequence = 'MSNREKSDLRLDQCVKSKEERERKQSVTSQSDDSDSKKKRRNTCSKDKRKKSKHRSSSSSSSSSSISSREAKHQNDRDRRNDKWDKRFENGVRPYRPNPREGRGYYKGRSGYLDNRKRNFGYRPYKHSGFYDRNRHNNSQYNRYNSERRGNRFLNHNSRRPPYDRSRSRSTLDHDHQRNLKDSSEQSRESNSKERYVKQTSADKADSKRKDIDDMHMKGKEKKKNEDTQEKTDHIARKKLKRKRSLSSSSTSSVSSTSSDSSSSSSSSSSTSSSCSSSSSDTSEDEKKRKKARRKAKKLKKAMKKRRKKKRMKKKLKKKLKKSKKKLRNTDKSKESISKDVSQEISEKSKAMAPMTKEEWEKKQNVIRKVYDEETGRY'
+        String knownExon3PeptideSequence = 'LIKGDGEVIEEIVSRERHKEINKQATKGDGEYFQARLKANVLUTIFLCMLKKYPYIIITLLSVLKSCMTICFIMSQRKYLYVVH'
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we see the transcript"
+        MRNA.count == 1
+
+        when: "we set the read through stop codon for the transcript"
+        MRNA mrna = MRNA.all.get(0)
+        requestHandlingService.setReadthroughStopCodon(JSON.parse(setReadThroughStopCodonString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
+
+        then: "we should see the read_through_stop_codon"
+        CDS cds = transcriptService.getCDS(mrna)
+        assert cdsService.getStopCodonReadThrough(cds).size() == 1
+
+        when: "we get the CDS and peptide sequence of the exon 2 and exon 3"
+        def exons = transcriptService.getSortedExons(mrna)
+        String exon2CdsSequence = sequenceService.getSequenceForFeature(exons.get(1), FeatureStringEnum.TYPE_CDS.value)
+        String exon3CdsSequence = sequenceService.getSequenceForFeature(exons.get(2), FeatureStringEnum.TYPE_CDS.value)
+
+        String exon2PeptideSequence = sequenceService.getSequenceForFeature(exons.get(1), FeatureStringEnum.TYPE_PEPTIDE.value)
+        String exon3PeptideSequence = sequenceService.getSequenceForFeature(exons.get(2), FeatureStringEnum.TYPE_PEPTIDE.value)
+
+        then: "we should see the proper sequences"
+        assert exon2CdsSequence == knownExon2CdsSequence
+        assert exon3CdsSequence == knownExon3CdsSequence
+
+        assert exon2PeptideSequence == knownExon2PeptideSequence
+        assert exon3PeptideSequence == knownExon3PeptideSequence
     }
 
     void "when adding a transcript and then a sequence alteration in the intron, should not create non-canonical splice sites"() {

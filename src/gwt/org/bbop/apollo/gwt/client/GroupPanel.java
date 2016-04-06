@@ -177,9 +177,10 @@ public class GroupPanel extends Composite {
             }
         });
 
-        GroupRestService.loadGroups(groupInfoList);
-
-        UserRestService.loadUsers(allUsersList);
+        if(MainPanel.getInstance().getCurrentUser()!=null) {
+            GroupRestService.loadGroups(groupInfoList);
+            UserRestService.loadUsers(allUsersList);
+        }
     }
 
     @UiHandler("updateUsers")
@@ -379,7 +380,9 @@ public class GroupPanel extends Composite {
     }
 
     public void reload() {
-        GroupRestService.loadGroups(groupInfoList);
+        if(MainPanel.getInstance().getCurrentUser()!= null) {
+            GroupRestService.loadGroups(groupInfoList);
+        }
 //        dataGrid.redraw();
     }
 

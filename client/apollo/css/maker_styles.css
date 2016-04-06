@@ -429,18 +429,20 @@
 
 
 .Apollo .feature {
-    height: 16px;
-    background-color: transparent;
     background-image: none;
 }
  
 .Apollo .generic_parent {
-    height: 16px;
-    background-color: transparent;
     background-image: none;
 }
 
-
 .Apollo .transcript, .plus-transcript, .minus-transcript {
     background: white;
+}
+
+.Apollo .plus-feature {
+    background-color: transparent;
+}
+.Apollo .minus-feature {
+    background-color: transparent;
 }

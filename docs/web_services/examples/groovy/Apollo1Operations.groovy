@@ -12,9 +12,11 @@ import groovy.sql.Sql
 
 
 
-static def getFeature(url,track,cookieFile){
+static def getFeature(url,track,cookieFile,ignorePrefix){
 
-    String json = "{ 'operation': 'get_features', 'track': '${track}'}"
+    String prefix = ignorePrefix ? "" : "Annotations-"
+
+    String json = "{ 'operation': 'get_features', 'track': '${prefix}${track}'}"
     def process = ["curl","-b",cookieFile,"-c",cookieFile,"-e",url,"--data",json,"${url}/AnnotationEditorService"].execute()
     def response = process.text
     if(process.exitValue()!=0){

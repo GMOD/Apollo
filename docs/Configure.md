@@ -75,6 +75,68 @@ grails {
 }
 ```
 
+### JBrowse Plugins
+
+You can add / remove jbrowse plugins by copying a jbrowse section into your ```apollo-config.groovy```. 
+
+There are two sections, ```plugins``` and ```main```, which specifies the jbrowse version.
+   
+The main section can either contain a ```git``` block or a ```url``` block, both of which require ```url```.
+If a git block a ```tag``` or ```branch``` can be specified.  
+
+In the ```plugins``` section, options are ```included``` (part of the JBrowse release), ```url``` (requiring a url parameter), 
+or ```git```, which can include a ```tag``` or ```branch``` as above.  
+
+Options for ```alwaysRecheck``` and ```alwaysRepull``` always check the branch and tag and always pull respectiviely. 
+
+
+```
+jbrowse {
+//    git {
+//        url= "https://github.com/GMOD/jbrowse"
+//        tag = "1.12.1-release"
+////        branch = "master"
+//        alwaysPull = true
+//        alwaysRecheck = true
+//    }
+    url {
+        // always use dev for apollo
+        url = "http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=102"
+        type ="zip"
+        fileName = "JBrowse-1.12.0-dev"
+    }
+    plugins {
+        WebApollo{
+            included = true
+        }
+        NeatHTMLFeatures{
+            included = true
+        }
+        NeatCanvasFeatures{
+            included = true
+        }
+        RegexSequenceSearch{
+            included = true
+        }
+        HideTrackLabels{
+            included = true
+        }
+        MyVariantInfo {
+            git = 'https://github.com/GMOD/myvariantviewer'
+            branch = 'master'
+            alwaysRecheck = "true"
+            alwaysPull = "true"
+        }
+        SashimiPlot {
+            git = 'https://github.org/cmdcolin/sashimiplot'
+            branch = 'master'
+            alwaysPull = "true"
+        }
+    }
+}
+```
+
+
 ### Translation tables
 
 
@@ -343,6 +405,8 @@ including the client/apollo/json/annot.json file at run time.
 
 It is not necessary to change your existing JBrowse data directories to use Apollo 2.x, you can just point to existing
 data directories from your previous instances.
+
+More information about [JBrowse](http://jbrowse.org/) can also be found in their [FAQ](http://gmod.org/wiki/JBrowse_FAQ).
 
 #### Adding custom CSS for track styling for JBrowse
 

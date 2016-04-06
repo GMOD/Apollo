@@ -211,6 +211,13 @@ apollo {
     is_partial_translation_allowed = false // unused so far
     export_subfeature_attrs = false
 
+    // settings for Chado export
+    // set chado_export_fasta_for_sequence if you want the reference sequence FASTA to be exported into the database
+    // Note: Enabling this feature can be memory intensive
+    chado_export_fasta_for_sequence = false
+    // set chado_export_fasta_for_cds if you want the CDS FASTA to be exported into the database
+    chado_export_fasta_for_cds = false
+
     // this is the default
     // other translation codes are of the form ncbi_KEY_translation_table.txt
     // under the web-app/translation_tables  directory
@@ -343,4 +350,49 @@ auditLog {
     //verbose = true // verbosely log all changed values to db
     logIds = true  // log db-ids of associated objects.
 
+}
+
+jbrowse {
+    git {
+        url= "https://github.com/GMOD/jbrowse"
+        tag = "1.12.1-release"
+//        branch = "master"
+        alwaysPull = false
+        alwaysRecheck = false
+    }
+//    url {
+//        // always use dev for apollo
+//        url = "http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=102"
+//        type ="zip"
+//        fileName = "JBrowse-1.12.0-dev"
+//    }
+    plugins {
+        WebApollo{
+            included = true
+        }
+        NeatHTMLFeatures{
+            included = true
+        }
+        NeatCanvasFeatures{
+            included = true
+        }
+        RegexSequenceSearch{
+            included = true
+        }
+        HideTrackLabels{
+            included = true
+        }
+//        MyVariantInfo {
+//            git = 'https://github.com/GMOD/myvariantviewer'
+////            git = 'git@github.com:GMOD/myvariantviewer.git'
+//            branch = 'master'
+//            alwaysRecheck = "true"
+//            alwaysPull = "true"
+//        }
+//        SashimiPlot {
+//            git = 'https://github.org/cmdcolin/sashimiplot'
+//            branch = 'master'
+//            alwaysPull = "true"
+//        }
+    }
 }

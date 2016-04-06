@@ -94,7 +94,8 @@
     <target name="clean-all" depends="clean" description="Cleans this project">
         <delete dir="web-app/WEB-INF/deploy" failonerror="false"/>
         <delete dir="web-app/annotator" failonerror="false"/>
-        <delete dir="target/classes/gwt" failonerror="false"/>
+        <!--<delete dir="target/classes/gwt" failonerror="false"/>-->
+        <delete dir="target" failonerror="false"/>
     </target>
 
 
@@ -129,7 +130,7 @@
         </exec>
     </target>
 
-    <target name="unoptimized" description="unoptimized" depends="git.clone,copy.apollo.plugin.jbrowse">
+    <target name="unoptimized" description="unoptimized" depends="cloneJBrowse,copy.apollo.plugin.jbrowse">
         <copy todir="${apollo.jbrowse.directory}">
             <fileset dir="${jbrowse.download.directory}">
                 <not>
@@ -142,7 +143,7 @@
     </target>
 
     <target name="release" description=""
-            depends="clean,git.clone,copy.apollo.plugin.jbrowse,build.jbrowse,install.jbrowse.perl">
+            depends="clean,cloneJBrowse,copy.apollo.plugin.jbrowse,build.jbrowse,install.jbrowse.perl">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}.zip"/>
@@ -159,7 +160,7 @@
     </target>
 
     <target name="debug" description=""
-            depends="clean,git.clone,copy.apollo.plugin.jbrowse,build.jbrowse">
+            depends="clean,cloneJBrowse,copy.apollo.plugin.jbrowse,build.jbrowse">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}-dev.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}-dev.zip"/>
@@ -179,7 +180,7 @@
         </exec>
     </target>
 
-    <target name="git.clone" description="Clone git repository." unless="jbrowse.git.present">
+    <target name="cloneJBrowse" description="Clone git repository." unless="jbrowse.git.present">
         <exec executable="git" failifexecutionfails="false" errorproperty="">
             <arg value="clone"/>
             <arg value="--recursive"/>
@@ -222,7 +223,7 @@
 
 
     <target name="setup-jbrowse" unless="jbrowse.webapp.installed">
-        <antcall target="git.clone"/>
+        <antcall target="cloneJBrowse"/>
         <antcall target="copy.apollo.plugin.jbrowse"/>
 
 
@@ -254,6 +255,24 @@
             <fileset dir="${apollo.client.directory}"/>
         </copy>
     </target>
+
+    <target name="copy-jbrowse-into-webapp">
+        <copy todir="${apollo.jbrowse.directory}">
+            <fileset dir="${jbrowse.download.directory}">
+                <not>
+                    <filename name="sample_data/**"/>
+                </not>
+            </fileset>
+        </copy>
+    </target>
+
+
+    <target name="copy-resources-dev"
+            depends="copy.apollo.plugin.webapp,copy-jbrowse-into-webapp"
+            description="This is called externally by shell script.">
+
+    </target>
+	
 
 
     <target name="copy-resources"

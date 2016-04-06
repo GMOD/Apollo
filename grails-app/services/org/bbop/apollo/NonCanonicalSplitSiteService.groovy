@@ -275,7 +275,7 @@ class NonCanonicalSplitSiteService {
 
 
     private NonCanonicalThreePrimeSpliceSite createNonCanonicalThreePrimeSpliceSite(Transcript transcript, int position) {
-        String uniqueName = transcript.getUniqueName() + "-non_canonical_three_prive_splice_site-" + position;
+        String uniqueName = transcript.getUniqueName() + "-non_canonical_three_prime_splice_site-" + position;
         NonCanonicalThreePrimeSpliceSite spliceSite = new NonCanonicalThreePrimeSpliceSite(
                 uniqueName: uniqueName
                 ,name: uniqueName
