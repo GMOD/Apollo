@@ -22,6 +22,11 @@ define([
         SVGLayerBpSpace,
         SVGLayerPxSpace
     ) {
+
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        };
+
         return declare(
             [ SVGTrackBase ]
             ,
@@ -175,15 +180,16 @@ define([
                     console.log("cx="+cx+" color="+color);
                     this.addSVGObject(id2,bpCoord,100,100,function () {
                         var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
-                        var xlength = 3 ;
+                        var xlength = 3 ; // for 0 case only
+                        var formattedLabel = numberWithCommas(label);
                         if(label!='0'){
-                            xlength = -17 ;
+                            xlength = - (formattedLabel.length-1) * 3 ;
                         }
                         apple.setAttribute('x',xlength);
                         apple.setAttribute('y','20');
                         apple.setAttribute('fill',color);
                         apple.setAttribute('display','block');
-                        apple.innerHTML = label ;
+                        apple.innerHTML =  formattedLabel;
                         return apple;
                     });
                     return;     // skip the rest
