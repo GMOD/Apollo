@@ -99,7 +99,7 @@ define([
 
                     this.inherited(arguments);      // call the superclass's showRange
 
-                    this.svgCoords.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+                    //this.svgCoords.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
                     this.svgSpace.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
 
                 },
