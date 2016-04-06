@@ -89,6 +89,15 @@ class ProjectionGridTrackController {
         render jsonObject
     }
 
+    String getColorForIndex(int i ){
+        switch (i){
+            case 0: return 'green';
+            case 1: return 'blue';
+            case 2: return 'brown';
+            default: return 'gray';
+        }
+    }
+
     def features() {
 
         println "features params: ${params}"
@@ -109,7 +118,7 @@ class ProjectionGridTrackController {
         int step = Math.round(buffer * range)
         println "STEP: ${step}"
 
-        projectionSequences.each { ProjectionSequence projectionSequence ->
+        projectionSequences.eachWithIndex { ProjectionSequence projectionSequence , Integer index ->
 //        // TODO: show if
             for(int i = projectionSequence.start ; i < projectionSequence.end ; i+=step){
                 int value = multiSequenceProjection.projectReverseValue(i+projectionSequence.offset)
@@ -117,8 +126,9 @@ class ProjectionGridTrackController {
                         start: i + projectionSequence.offset,
                         end: i + projectionSequence.offset ,
                         name: value,
-                        type: "exon",
+//                        type: "exon",
                         label: value,
+                        color: getColorForIndex(index),
                         uniqueID: value + sequenceObject.toString()
                 )
                 jsonObject.features.add(feature)
