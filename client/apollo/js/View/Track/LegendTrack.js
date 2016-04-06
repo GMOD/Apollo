@@ -147,14 +147,10 @@ define([
                 //    return (val - this.svgParent.displayContext.startBase) * this.svgParent.displayContext.scale;
                 //},
 
-                // draw each feature
-                renderFeature: function( context, fRect ) {
-
-                    this.inherited(arguments);      // call the superclass
-
-                    var feature = fRect.f;
+                renderGrid: function(context,fRect){
                     var thisB = this;
                     // create svg element new
+                    var feature = fRect.f;
 
                     // draw line
                     var svgSpace = this.svgSpace;
@@ -175,10 +171,10 @@ define([
                         var svgItem = document.createElementNS('http://www.w3.org/2000/svg','line');
                         svgItem.setAttribute('x1',0);
                         //svgItem.setAttribute('y1',len);
-                        svgItem.setAttribute('y1',23);
+                        svgItem.setAttribute('y1',40);
                         svgItem.setAttribute('x2',0);
                         //svgItem.setAttribute('y2',svgSpace.getHeight());
-                        svgItem.setAttribute('y2',30);
+                        svgItem.setAttribute('y2',50);
                         svgItem.setAttribute('stroke','rgba(255,0,0,.5)');
                         svgItem.setAttribute('stroke-width',2);
                         svgItem.setAttribute('stroke-linecap','round');
@@ -188,12 +184,6 @@ define([
                     // draw delicious candy
                     var id2 = "C-"+this.fixId(fRect.f.id());
 
-                    //this.addSVGObject(id,bpCoord,100,100,function () {
-                    //    var apple = document.createElementNS('http://www.w3.org/2000/svg','circle');
-                    //    apple.setAttribute('r',"15");
-                    //    apple.setAttribute('style', 'cy:'+len+';fill:rgba(0,0,255,.5)');
-                    //    return apple;
-                    //});
                     console.log("cx="+cx+" color="+color);
                     this.addSVGObject(id2,bpCoord,100,100,function () {
                         var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
@@ -203,14 +193,126 @@ define([
                             xlength = - (formattedLabel.length-1) * 3 ;
                         }
                         apple.setAttribute('x',xlength);
-                        apple.setAttribute('y','20');
+                        apple.setAttribute('y','35');
                         apple.setAttribute('fill',color);
                         apple.setAttribute('display','block');
                         apple.innerHTML =  formattedLabel;
                         return apple;
                     });
-                    return;     // skip the rest
+                },
 
+                renderRegion: function(context,fRect){
+                    var thisB = this;
+                    // create svg element new
+                    var feature = fRect.f;
+
+                    // draw line
+                    var svgSpace = this.svgSpace;
+
+                    // compute the x coord given the bpCoord
+                    var bpCoord = feature.get("start");
+                    var label = feature.get("label");
+                    var color = feature.get("color");
+                    var cx = svgSpace.bp2Native(bpCoord);
+                    var start = feature.get("start");
+                    var end = feature.get("end");
+                    var len = (end - start ) * .18 ;
+                    len = svgSpace.getHeight() - len;
+                    console.log("bpCoord="+bpCoord+" cx="+cx+" len="+len+" scale="+this.svgScale);
+                    console.log("rendering region "+label + " from "+ start + " to "+end) ;
+
+                    // draw stems
+                    var id = "R-"+this.fixId(fRect.f.id());
+
+                    this.addSVGObject(id,bpCoord,100,100,function () {
+                        var svgItem = document.createElementNS('http://www.w3.org/2000/svg','rect');
+                        svgItem.setAttribute('width',end-start);
+                        //svgItem.setAttribute('y1',len);
+                        svgItem.setAttribute('height',50);
+                        svgItem.setAttribute('x',0);
+                        svgItem.setAttribute('y',0);
+                        svgItem.setAttribute('fill',color);
+                        svgItem.setAttribute('fill-opacity',0.1);
+                        return svgItem;
+                    });
+
+                    var id2 = "RL-"+this.fixId(fRect.f.id());
+
+                    console.log("cx="+cx+" color="+color);
+                    this.addSVGObject(id2,bpCoord,100,100,function () {
+                        var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
+                        var xlength = (end-start)/ 2.0 ; // for 0 case only
+                        //var xLoc = svgSpace.bp2Native(xlength);
+                        apple.setAttribute('x',8);
+                        apple.setAttribute('y',13);
+                        //apple.setAttribute('fill','white');
+                        apple.setAttribute('stroke','black');
+                        apple.setAttribute('display','block');
+                        apple.innerHTML =  label ;
+                        return apple;
+                    });
+
+                },
+
+                renderRegionRight: function(context, fRect){
+                    var thisB = this;
+                    // create svg element new
+                    var feature = fRect.f;
+
+                    // draw line
+                    var svgSpace = this.svgSpace;
+
+                    // compute the x coord given the bpCoord
+                    var bpCoord = feature.get("start");
+                    var label = feature.get("label");
+                    var color = feature.get("color");
+                    var cx = svgSpace.bp2Native(bpCoord);
+                    var start = feature.get("start");
+                    var end = feature.get("end");
+                    var len = (end - start ) * .18 ;
+                    len = svgSpace.getHeight() - len;
+                    console.log("bpCoord="+bpCoord+" cx="+cx+" len="+len+" scale="+this.svgScale);
+                    console.log("rendering region "+label + " from "+ start + " to "+end) ;
+
+                    var id3 = "RR-"+this.fixId(fRect.f.id());
+
+                    console.log("cx="+cx+" color="+color);
+                    this.addSVGObject(id3,bpCoord,100,100,function () {
+                        var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
+                        var formattedLabel = numberWithCommas(label);
+                        var xlength = -((formattedLabel.length-1) * 8) ;
+                        apple.setAttribute('x',xlength);
+                        //var xLoc = svgSpace.bp2Native(xlength);
+                        //apple.setAttribute('x',-30);
+                        apple.setAttribute('y',13);
+                        //apple.setAttribute('fill','white');
+                        apple.setAttribute('stroke','black');
+                        apple.setAttribute('display','block');
+                        apple.innerHTML =  label ;
+                        return apple;
+                    });
+                },
+
+                // draw each feature
+                renderFeature: function( context, fRect ) {
+
+                    this.inherited(arguments);      // call the superclass
+
+                    var feature = fRect.f;
+                    var type = feature.get("type");
+                    if(type=='grid'){
+                        this.renderGrid(context,fRect);
+                    }
+                    else
+                    if(type=='region'){
+                        console.log('render region');
+                        this.renderRegion(context,fRect);
+                    }
+                    else
+                    if(type=='region-right'){
+                        console.log('render region right');
+                        this.renderRegionRight(context,fRect);
+                    }
                 },
 
             });

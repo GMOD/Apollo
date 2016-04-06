@@ -118,11 +118,34 @@ class ProjectionGridTrackController {
         int step = Math.round(buffer * range)
         println "STEP: ${step}"
 
-        projectionSequences.eachWithIndex { ProjectionSequence projectionSequence , Integer index ->
+        projectionSequences.each{ ProjectionSequence projectionSequence  ->
+
+           Integer index = projectionSequence.order
 //        // TODO: show if
+            JSONObject region = new JSONObject(
+                    type: 'region',
+                    start: projectionSequence.offset,
+                    end: projectionSequence.unprojectedLength + projectionSequence.offset,
+                    name: projectionSequence.name,
+                    label: projectionSequence.name,
+                    color: getColorForIndex(index),
+                    uniqueID: projectionSequence.name + sequenceObject.toString()
+            )
+            jsonObject.features.add(region)
+            JSONObject regionRight = new JSONObject(
+                    type: 'region-right',
+                    start: projectionSequence.unprojectedLength + projectionSequence.offset,
+                    end: projectionSequence.unprojectedLength + projectionSequence.offset,
+                    name: projectionSequence.name,
+                    label: projectionSequence.name,
+                    color: getColorForIndex(index),
+                    uniqueID: projectionSequence.name + sequenceObject.toString()
+            )
+            jsonObject.features.add(regionRight)
             for(int i = projectionSequence.start ; i < projectionSequence.end ; i+=step){
                 int value = multiSequenceProjection.projectReverseValue(i+projectionSequence.offset)
                 JSONObject feature = new JSONObject(
+                        type: 'grid',
                         start: i + projectionSequence.offset,
                         end: i + projectionSequence.offset ,
                         name: value,
