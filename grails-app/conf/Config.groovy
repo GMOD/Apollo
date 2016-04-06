@@ -349,9 +349,9 @@ jbrowse {
     git {
         url= "https://github.com/GMOD/jbrowse"
 //        tag = "1.12.1-release"
-        branch = "yeban-bowerise"
-        alwaysPull = false
-        alwaysRecheck = false
+        branch = "master"
+        alwaysPull = true
+        alwaysRecheck = true
     }
 //    url {
 //        // always use dev for apollo
