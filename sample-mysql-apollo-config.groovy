@@ -104,39 +104,43 @@ environments {
     }
 }
 
-jbrowse {
-    url {
-        url = "http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=102"
-        type ="zip"
-        fileName = "JBrowse-1.12.0-dev"
-    }
-    plugins {
-        WebApollo{
-            included = true
-        }
-        NeatHTMLFeatures{
-            included = true
-        }
-        NeatCanvasFeatures{
-            included = true
-        }
-        RegexSequenceSearch{
-            included = true
-        }
-        HideTrackLabels{
-            included = true
-        }
-        MyVariantInfo {
-            git = 'https://github.com/GMOD/myvariantviewer'
-            branch = 'master'
-            alwaysRecheck = "true"
-            alwaysPull = "true"
-        }
-        SashimiPlot {
-            git = 'https://github.org/cmdcolin/sashimiplot'
-            branch = 'master'
-            alwaysPull = "true"
-        }
-    }
-}
+// Uncomment to make changes
+//
+//jbrowse {
+//    git {
+//        url= "https://github.com/GMOD/jbrowse"
+//        tag = "1.12.2-release"
+////        branch = "master"
+//        alwaysPull = true
+//        alwaysRecheck = true
+//    }
+//    plugins {
+//        WebApollo{
+//            included = true
+//        }
+//        NeatHTMLFeatures{
+//            included = true
+//        }
+//        NeatCanvasFeatures{
+//            included = true
+//        }
+//        RegexSequenceSearch{
+//            included = true
+//        }
+//        HideTrackLabels{
+//            included = true
+//        }
+////        MyVariantInfo {
+////            git = 'https://github.com/GMOD/myvariantviewer'
+////            branch = 'master'
+////            alwaysRecheck = "true"
+////            alwaysPull = "true"
+////        }
+////        SashimiPlot {
+////            git = 'https://github.org/cmdcolin/sashimiplot'
+////            branch = 'master'
+////            alwaysPull = "true"
+////        }
+//    }
+//}
 
