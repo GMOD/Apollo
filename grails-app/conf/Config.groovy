@@ -356,9 +356,9 @@ auditLog {
 
 jbrowse {
     git {
-        url= "https://github.com/GMOD/jbrowse"
+        url= "https://github.com/nathandunn/jbrowse"
 //        tag = "1.12.1-release"
-        branch = "master"
+        branch = "projection_v2_server"
         alwaysPull = true
         alwaysRecheck = true
     }
