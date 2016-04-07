@@ -66,3 +66,30 @@ apollo {
 
     google_analytics = System.getenv("WEBAPOLLO_GOOGLE_ANALYTICS_ID")
 }
+
+jbrowse {
+    git {
+        url = System.getenv("WEBAPOLLO_JBROWSE_GIT_URL") ? System.getenv("WEBAPOLLO_JBROWSE_GIT_URL") : "https://github.com/GMOD/jbrowse"
+        tag = System.getenv("WEBAPOLLO_JBROWSE_GIT_TAG") ? System.getenv("WEBAPOLLO_JBROWSE_GIT_TAG") : "1.12.1-release"
+        alwaysPull = System.getenv("WEBAPOLLO_JBROWSE_GIT_ALWAYS_PULL").equals("true")
+        alwaysRecheck = System.getenv("WEBAPOLLO_JBROWSE_GIT_ALWAYS_RECHECK").equals("true")
+    }
+    plugins {
+        WebApollo{
+            included = true
+        }
+        NeatHTMLFeatures{
+            included = System.getenv("WEBAPOLLO_JBROWSE_PLUGIN_NEATHTML").equals("true")
+        }
+        NeatCanvasFeatures{
+            included = System.getenv("WEBAPOLLO_JBROWSE_PLUGIN_NEATCANVAS").equals("true")
+        }
+        RegexSequenceSearch{
+            included = System.getenv("WEBAPOLLO_JBROWSE_PLUGIN_REGEXSEARCH").equals("true")
+        }
+        HideTrackLabels{
+            included = System.getenv("WEBAPOLLO_JBROWSE_PLUGIN_HIDELABELS").equals("true")
+        }
+        // TODO
+    }
+}
