@@ -66,5 +66,9 @@ Domains, Controllers, Services.  They will all be in the “test” directory an
 test.
 
 
+### Chado
 
+If you test with the [chado export](ChadoExport.md) you will need to make sure you load ontologies into your chado database or integration steps will fail.  If you don't specify chado in your apollo-config.groovy then no further action would be necessary.
+
+    ./scripts/load_chado_schema.sh -u nathandunn -d apollo-chado-test -s chado-schema-with-ontologies.sql.gz -r
 
