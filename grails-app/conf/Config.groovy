@@ -357,10 +357,10 @@ auditLog {
 jbrowse {
     git {
         url= "https://github.com/GMOD/jbrowse"
-        tag = "1.12.1-release"
-//        branch = "master"
-        alwaysPull = false
-        alwaysRecheck = false
+//        tag = "1.12.1-release"
+        branch = "master"
+        alwaysPull = true
+        alwaysRecheck = true
     }
 //    url {
 //        // always use dev for apollo
