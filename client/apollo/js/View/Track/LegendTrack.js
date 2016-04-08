@@ -152,7 +152,7 @@ define([
                 //    return (val - this.svgParent.displayContext.startBase) * this.svgParent.displayContext.scale;
                 //},
 
-                renderGrid: function(context,fRect){
+                renderGrid: function(context,fRect,offsetMultiplier){
                     var thisB = this;
                     // create svg element new
                     var feature = fRect.f;
@@ -211,7 +211,7 @@ define([
                         var xlength = 3 ; // for 0 case only
                         var formattedLabel = numberWithCommas(label);
                         if(label!='0'){
-                            xlength = - (formattedLabel.length-1) * 3 ;
+                            xlength = - (formattedLabel.length-1) * offsetMultiplier ;
                         }
                         apple.setAttribute('x',xlength);
                         apple.setAttribute('y','30');
@@ -332,7 +332,12 @@ define([
                     else
                     if(type=='region-right'){
                         console.log('render region right');
-                        this.renderRegionRight(context,fRect);
+                        this.renderRegionRight(context,fRect,3);
+                    }
+                    else
+                    if(type=='grid-right'){
+                        console.log('render region right');
+                        this.renderGrid(context,fRect,7);
                     }
                 },
 
