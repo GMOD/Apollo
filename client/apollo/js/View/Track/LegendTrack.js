@@ -43,7 +43,7 @@ define([
 
                 constructor: function (args) {//name, labelClass, posHeight) {
                     console.log(args);
-                    //this.loaded = true;
+                    this.loaded = true;
                     this.labelClass = args.labelClass;
                     this.pinned = true;
                     //this.posHeight = args.posHeight;
@@ -79,7 +79,7 @@ define([
                     if( this.svgSpace){
                         //this.svgCanvas.height = this.svgCanvas.offsetHeight;
                         console.log('has height ');
-                        this.svgSpace.height = 100 ;
+                        this.svgSpace.height = 30;
                     }
                     else{
                         console.log('has no space ');
@@ -186,6 +186,22 @@ define([
                         return svgItem;
                     });
 
+                    var id3 = "L3-"+this.fixId(fRect.f.id());
+                    this.addSVGObject(id3,bpCoord,100,100,function () {
+                        var svgItem = document.createElementNS('http://www.w3.org/2000/svg','line');
+                        svgItem.setAttribute('x1',0);
+                        //svgItem.setAttribute('y1',len);
+                        svgItem.setAttribute('y1',0);
+                        svgItem.setAttribute('x2',0);
+                        //svgItem.setAttribute('y2',svgSpace.getHeight());
+                        svgItem.setAttribute('y2',10);
+                        svgItem.setAttribute('stroke','rgba(255,0,0,.5)');
+                        svgItem.setAttribute('stroke-width',2);
+                        svgItem.setAttribute('stroke-linecap','round');
+                        return svgItem;
+                    });
+
+
                     // draw delicious candy
                     var id2 = "C-"+this.fixId(fRect.f.id());
 
@@ -198,7 +214,7 @@ define([
                             xlength = - (formattedLabel.length-1) * 3 ;
                         }
                         apple.setAttribute('x',xlength);
-                        apple.setAttribute('y','35');
+                        apple.setAttribute('y','30');
                         apple.setAttribute('fill',color);
                         apple.setAttribute('display','block');
                         apple.innerHTML =  formattedLabel;
