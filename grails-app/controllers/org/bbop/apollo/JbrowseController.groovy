@@ -33,15 +33,18 @@ class JbrowseController {
     def indexRouter(){
         log.debug "indexRouter ${params}"
 
-        List<String> paramList = new ArrayList<>()
-        params.eachWithIndex{ entry, int i ->
-            if(entry.key!="action" && entry.key!="controller"&& entry.key!="organism" ){
+        def paramList = []
+        params.each { entry ->
+            if(entry.key != "action" && entry.key != "controller" && entry.key!="organism"){
                 paramList.add(entry.key+"="+entry.value)
             }
         }
         // case 3 - validated login (just read from preferences, then
         if(permissionService.currentUser&&params.organism){
-            Organism organism = Organism.findById(params.organism)
+            Organism organism = Organism.findByCommonName(params.organism)
+            if(!organism&&params.organism.isInteger()) {
+                organism = Organism.findById(params.organism.toInteger())
+            }
             preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
         }
 
