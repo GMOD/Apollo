@@ -627,7 +627,7 @@ class FeatureService {
             }
             int stopCodonCount = 0;
             for (int i = convertSourceCoordinateToLocalCoordinateForTranscript(transcript, translationStart); i < transcript.getLength(); i += 3) {
-                if (i + 3 > mrna.length()) {
+                if (i<0 || i + 3 > mrna.length()) {
                     break;
                 }
                 String codon = mrna.substring(i, i + 3);
