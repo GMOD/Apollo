@@ -43,10 +43,13 @@ define([
 
                 constructor: function (args) {//name, labelClass, posHeight) {
                     console.log(args);
-                    this.loaded = true;
+                    //this.loaded = true;
                     this.labelClass = args.labelClass;
-                    this.posHeight = args.posHeight;
-                    this.height = Math.round(args.posHeight * 1.2);
+                    this.pinned = true;
+                    //this.posHeight = args.posHeight;
+                    this.posHeight = 30 ;
+                    //this.height = Math.round(args.posHeight * 1.2);
+                    this.height = 30 ;
                 },
 
                 // this track has no track label or track menu, stub them out
@@ -58,30 +61,32 @@ define([
                 _trackMenuOptions: function(){
                 },
 
-                //_defaultConfig: function () {
-                //    var thisConfig = this.inherited(arguments);
-                //    thisConfig.menuTemplate = null;
-                //    thisConfig.noExport = true;  // turn off default "Save track data" "
-                //    //thisConfig.style.centerChildrenVertically = false;
-                //    return thisConfig;
-                //},
-                //heightUpdate: function( height, blockIndex ) {
-                //    //console.log("SVGFeatures::heightUpdate("+height+")");
-                //    //console.dir(arguments);
-                //    //var err = new Error();
-                //    //console.log(err.stack);
-                //
-                //    this.inherited( arguments );
-                //    if( this.svgCanvas ){
-                //        //this.svgCanvas.height = this.svgCanvas.offsetHeight;
-                //        console.log('has height ');
-                //        this.svgCanvas.height = 100 ;
-                //    }
-                //    else{
-                //        console.log('has height ');
-                //        this.svgCanvas.height = 200 ;
-                //    }
-                //},
+                _defaultConfig: function () {
+                    var thisConfig = this.inherited(arguments);
+                    thisConfig.menuTemplate = null;
+                    thisConfig.noExport = true;  // turn off default "Save track data" "
+                    //thisConfig.style.centerChildrenVertically = false;
+                    thisConfig.pinned = true;
+                    return thisConfig;
+                },
+                heightUpdate: function( height, blockIndex ) {
+                    //console.log("SVGFeatures::heightUpdate("+height+")");
+                    //console.dir(arguments);
+                    //var err = new Error();
+                    //console.log(err.stack);
+
+                    this.inherited( arguments );
+                    if( this.svgSpace){
+                        //this.svgCanvas.height = this.svgCanvas.offsetHeight;
+                        console.log('has height ');
+                        this.svgSpace.height = 100 ;
+                    }
+                    else{
+                        console.log('has no space ');
+                        //this.svgCanvas.height = 200 ;
+                    }
+                    this.height = 30;
+                },
 
                 setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
                     console.log("SVGLollipop::setViewInfo");
