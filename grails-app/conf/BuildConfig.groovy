@@ -90,6 +90,11 @@ grails.project.dependency.resolution = {
 //        test "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
 //        test "org.gebish:geb-spock:$gebVersion"
         //test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
+
+        // for coveralls
+        build 'org.apache.httpcomponents:httpcore:4.3.2'
+        build 'org.apache.httpcomponents:httpclient:4.3.2'
+        build 'org.apache.httpcomponents:httpmime:4.3.3'
     }
 
     plugins {
@@ -145,7 +150,6 @@ grails.project.dependency.resolution = {
         //compile ":twitter-bootstrap:3.1.1.3"
         //compile ":jasypt-encryption:1.1.0"
         //compile ":joda-time:1.4"
-        runtime ":rest-client-builder:2.1.1"
         // TODO: re-add when ready to install functional tests
 //        test    ":geb:$gebVersion"
 //        grails.plugin.location.'chado-grails' = "../chado-grails"
@@ -154,6 +158,15 @@ grails.project.dependency.resolution = {
 //        compile ":test-plugin:0.1"
 //        compile ":chado-plugin:0.1"
 
+        // remember to sync rest
+        runtime ":rest-client-builder:2.1.1"
+        // for coveralls: https://github.com/agorapulse/grails-coveralls
+        build(':coveralls:0.1.3', ':rest-client-builder:2.1.1') {
+            export = false
+        }
+        test(':code-coverage:2.0.3-3') {
+            export = false
+        }
     }
 }
 
