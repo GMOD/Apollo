@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import grails.util.Environment
 import org.apache.shiro.SecurityUtils
@@ -629,5 +630,15 @@ class PermissionService {
             return user?.id == jsonObject.userId
         }
         return false
+    }
+
+    @NotTransactional
+    def getInsufficientPermissionMessage(PermissionEnum permissionEnum) {
+        if(permissionEnum==PermissionEnum.ADMINISTRATE){
+            return "Must have permissions ${PermissionEnum.ADMINISTRATE.display}."
+        }
+        else{
+            return "Must have permissions ${permissionEnum.display} or better."
+        }
     }
 }

@@ -23,7 +23,8 @@ class FeatureEventController {
 
     def changes(Integer max) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+            redirect(uri: "/auth/login")
             return
         }
 

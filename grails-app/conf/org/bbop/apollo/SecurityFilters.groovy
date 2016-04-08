@@ -11,6 +11,17 @@ import grails.converters.JSON
 class SecurityFilters {
     def filters = {
 
+        // TODO: this is the right way to do this as it uses proper forwarding, but
+        // the user object lacks permissions
+//        all(uri: "/**") {
+//            before = {
+//                // Ignore direct views (e.g. the default main index page).
+//                if (!controllerName) return true
+//                // Access control by convention.
+//                accessControl(auth:false)
+//            }
+//        }
+
         all(controller: 'organism', action: '*') {
             before = {
                 try {
@@ -24,7 +35,8 @@ class SecurityFilters {
                             subject.login(authToken)
                         } else {
                             log.warn "username/password not submitted"
-                            render text: ([error: "Not authorized"] as JSON), status: HttpStatus.UNAUTHORIZED
+                            redirect(uri: "/auth/login")
+//                            render text: ([error: "Not authorized"] as JSON), status: HttpStatus.UNAUTHORIZED
                             return false
                         }
                     }
