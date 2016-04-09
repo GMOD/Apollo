@@ -275,6 +275,8 @@ define([
 
                 },
 
+                // TODO: 1 - extend based in SVGTrackBase and SVGTrackSimpleBase, 2 - append to the blockDomNode (and remove in thee same way?
+                // TODO: 3 - revert to call the showRange one for svgCoords (does the lollipop track do the looping zoom properly?)
                 //fillBlock: function( args ) {
                 //    var blockIndex = args.blockIndex;
                 //    var block = args.block;
@@ -297,6 +299,7 @@ define([
                 //    // more-or-less center it over the left boundary of the block
                 //    posLabel.style.left = "-" + Number(numtext.length)/1.7 + labelOffset + "ex";
                 //
+                //    // TODO: put the ticks here only!!
                 //    posLabel.appendChild( document.createTextNode( numtext ) );
                 //    block.domNode.appendChild(posLabel);
                 //
