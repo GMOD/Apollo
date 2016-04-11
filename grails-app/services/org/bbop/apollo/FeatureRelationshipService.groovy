@@ -187,33 +187,35 @@ class FeatureRelationshipService {
 
     /**
      * Iterate to all of the children, and delete the child and thereby the feature relationship automatically.
+     *
+     *
      * @param feature
      * @return
      */
     @Transactional
     def deleteFeatureAndChildren(Feature feature) {
-        println "delteing feature and children"
 
-        if (feature.parentFeatureRelationships) {
-            def parentFeatureRelationships = feature.parentFeatureRelationships
-            // if child lacks child then delete the relationship, else go down
-            Iterator<FeatureRelationship> featureRelationshipIterator = parentFeatureRelationships.iterator()
-            while (featureRelationshipIterator.hasNext()) {
-                println "iter 1"
-                FeatureRelationship featureRelationship = featureRelationshipIterator.next()
-                if (featureRelationship.childFeature?.parentFeatureRelationships) {
-                    println "grandchildren . . iterating down"
-                    deleteFeatureAndChildren(featureRelationship.childFeature)
-                }
-//                else{
-                println "no grandchildren . . deleting immediately"
-                // delete child and remove relatonship
-                featureRelationship.childFeature.delete()
-                feature.removeFromParentFeatureRelationships(featureRelationship)
-                featureRelationship.delete()
-//                }
+        // if grandchildren then delete those
+        for (FeatureRelationship featureRelationship in feature.parentFeatureRelationships) {
+            if (featureRelationship.childFeature?.parentFeatureRelationships) {
+                deleteFeatureAndChildren(featureRelationship.childFeature)
             }
         }
+
+        // create a list of relationships to remove (assume we have no grandchildren here)
+        List<FeatureRelationship> relationshipsToRemove = []
+        for (FeatureRelationship featureRelationship in feature.parentFeatureRelationships) {
+            relationshipsToRemove << featureRelationship
+        }
+
+        // actually delete those
+        relationshipsToRemove.each {
+            it.childFeature.delete()
+            feature.removeFromParentFeatureRelationships(it)
+            it.delete()
+        }
+
+        // last, delete self or save updated relationships
         if (!feature.parentFeatureRelationships && !feature.childFeatureRelationships) {
             println "deleting remaining feature"
             feature.delete(flush: true)
