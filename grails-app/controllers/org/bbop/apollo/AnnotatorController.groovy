@@ -380,7 +380,8 @@ class AnnotatorController {
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismInstance.directory)
 
         if (!permissionService.checkPermissions(PermissionEnum.READ)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.READ)
+            redirect(uri: "/auth/login")
             return
         }
 
@@ -392,7 +393,8 @@ class AnnotatorController {
     @Transactional
     def setCurrentSequence(Sequence sequenceInstance) {
         if (!permissionService.checkPermissions(PermissionEnum.READ)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.READ)
+            redirect(uri: "/auth/login")
             return
         }
         // set the current organism and sequence Id (if both)
@@ -408,7 +410,8 @@ class AnnotatorController {
 
     def report(Integer max) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+            redirect(uri: "/auth/login")
             return
         }
         List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
@@ -425,7 +428,8 @@ class AnnotatorController {
 
     def detail(User user) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+            redirect(uri: "/auth/login")
             return
         }
         render view:"detail", model:[annotatorInstance:reportService.generateAnnotatorSummary(user)]

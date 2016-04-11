@@ -20,10 +20,10 @@ class FeatureEventController {
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
 
-
     def changes(Integer max) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+            redirect(uri: "/auth/login")
             return
         }
 
@@ -93,87 +93,6 @@ class FeatureEventController {
         render view: "changes", model: [features: list, featureCount: list.totalCount, organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
     }
 
-    def index(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond FeatureEvent.list(params), model: [featureEventInstanceCount: FeatureEvent.count()]
-    }
-
-    def show(FeatureEvent featureEventInstance) {
-        respond featureEventInstance
-    }
-
-    def create() {
-        respond new FeatureEvent(params)
-    }
-
-    @Transactional
-    def save(FeatureEvent featureEventInstance) {
-        if (featureEventInstance == null) {
-            notFound()
-            return
-        }
-
-        if (featureEventInstance.hasErrors()) {
-            respond featureEventInstance.errors, view: 'create'
-            return
-        }
-
-        featureEventInstance.save flush: true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.created.message', args: [message(code: 'featureEvent.label', default: 'FeatureEvent'), featureEventInstance.id])
-                redirect featureEventInstance
-            }
-            '*' { respond featureEventInstance, [status: CREATED] }
-        }
-    }
-
-    def edit(FeatureEvent featureEventInstance) {
-        respond featureEventInstance
-    }
-
-    @Transactional
-    def update(FeatureEvent featureEventInstance) {
-        if (featureEventInstance == null) {
-            notFound()
-            return
-        }
-
-        if (featureEventInstance.hasErrors()) {
-            respond featureEventInstance.errors, view: 'edit'
-            return
-        }
-
-        featureEventInstance.save flush: true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.updated.message', args: [message(code: 'FeatureEvent.label', default: 'FeatureEvent'), featureEventInstance.id])
-                redirect featureEventInstance
-            }
-            '*' { respond featureEventInstance, [status: OK] }
-        }
-    }
-
-    @Transactional
-    def delete(FeatureEvent featureEventInstance) {
-
-        if (featureEventInstance == null) {
-            notFound()
-            return
-        }
-
-        featureEventInstance.delete flush: true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.deleted.message', args: [message(code: 'FeatureEvent.label', default: 'FeatureEvent'), featureEventInstance.id])
-                redirect action: "index", method: "GET"
-            }
-            '*' { render status: NO_CONTENT }
-        }
-    }
 
     protected void notFound() {
         request.withFormat {

@@ -212,8 +212,13 @@ class SequenceController {
     }
 
     def report(Organism organism,Integer max) {
+        println "params: ${params}"
+        println "props: ${request.properties}"
+        println "request URI: ${request.requestURI}"
+        println "request URL: ${request.requestURL}"
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+            redirect(uri: "/auth/login")
             return
         }
         organism = organism ?: Organism.first()
