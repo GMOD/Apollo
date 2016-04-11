@@ -13,8 +13,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
     def requestHandlingService
     def sequenceService
     def exonService
-    def featureService
-    
+
     def setup() {
         Organism organism = new Organism(
                 directory: "test/integration/resources/sequences/honeybee-Group1.10/"

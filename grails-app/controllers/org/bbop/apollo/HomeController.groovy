@@ -38,11 +38,11 @@ class HomeController {
         render view: "systemInfo", model: [javaMapInstance: javaMapInstance, servletMapInstance: servletMapInstance, runtimeMapInstance: runtimeMapInstance]
     }
 
-    private String getMethodName(String timerName) {
+    protected String getMethodName(String timerName) {
         return timerName.substring(timerName.lastIndexOf(".") + 1).replaceAll("Timer", "")
     }
 
-    private String getClassName(String timerName) {
+    protected String getClassName(String timerName) {
         return timerName.substring("org.bbop.apollo.".length(), timerName.lastIndexOf("."))
     }
 
