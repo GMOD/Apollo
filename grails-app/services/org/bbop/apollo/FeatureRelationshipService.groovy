@@ -217,11 +217,9 @@ class FeatureRelationshipService {
 
         // last, delete self or save updated relationships
         if (!feature.parentFeatureRelationships && !feature.childFeatureRelationships) {
-            println "deleting remaining feature"
             feature.delete(flush: true)
         } else {
             feature.save(flush: true)
-            println "still connections so long alble to "
         }
 
     }
