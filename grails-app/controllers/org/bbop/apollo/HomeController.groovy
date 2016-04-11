@@ -14,7 +14,8 @@ class HomeController {
     @Timed(name = "SystemInfo")
     def systemInfo() {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+            redirect(uri: "/auth/login")
             return
         }
 
@@ -47,7 +48,8 @@ class HomeController {
 
     def metrics() {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+            redirect(uri: "/auth/login")
             return
         }
         def link = createLink(absolute: true, action: "metrics", controller: "metrics")

@@ -362,7 +362,8 @@ class OrganismController {
      */
     def report() {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+            redirect(uri: "/auth/login")
             return
         }
         Map<Organism, OrganismSummary> organismSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
