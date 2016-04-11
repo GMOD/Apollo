@@ -1735,8 +1735,10 @@ class RequestHandlingService {
                             }
                         }
                     } else {
-                        if (transcriptService.getCDS(transcript) != null) {
+                        CDS cds = transcriptService.getCDS(transcript)
+                        if (cds != null) {
                             featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
+                            cds.delete()
                         }
                     }
                     nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
