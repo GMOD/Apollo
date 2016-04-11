@@ -6,8 +6,8 @@ import grails.transaction.Transactional
 class FeatureRelationshipService {
 
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
-        def list=new ArrayList<Feature>()
-        if(feature?.parentFeatureRelationships!=null) {
+        def list = new ArrayList<Feature>()
+        if (feature?.parentFeatureRelationships != null) {
             feature.parentFeatureRelationships.each { it ->
                 if (ontologyIds.size() == 0 || (it && ontologyIds.contains(it.childFeature.ontologyId))) {
                     list.push(it.childFeature)
@@ -51,10 +51,10 @@ class FeatureRelationshipService {
     }
 
     List<Feature> getParentsForFeature(Feature feature, String... ontologyIds) {
-        def list=new ArrayList<Feature>()
-        if(feature?.childFeatureRelationships!=null) {
+        def list = new ArrayList<Feature>()
+        if (feature?.childFeatureRelationships != null) {
             feature.childFeatureRelationships.each { it ->
-                if(ontologyIds.size()==0 || (it && ontologyIds.contains(it.parentFeature.ontologyId))) {
+                if (ontologyIds.size() == 0 || (it && ontologyIds.contains(it.parentFeature.ontologyId))) {
                     list.push(it.parentFeature)
                 }
             }
@@ -98,13 +98,13 @@ class FeatureRelationshipService {
         def featureRelationships = criteria {
             eq("parentFeature", feature)
         }.findAll() {
-            ontologyIds.length==0 || it.childFeature.ontologyId in ontologyIds
+            ontologyIds.length == 0 || it.childFeature.ontologyId in ontologyIds
         }
-       
+
         int numRelationships = featureRelationships.size()
-        for(int i = 0 ; i < numRelationships ; i++){
+        for (int i = 0; i < numRelationships; i++) {
             FeatureRelationship featureRelationship = featureRelationships.get(i)
-            removeFeatureRelationship(featureRelationship.parentFeature,featureRelationship.childFeature)
+            removeFeatureRelationship(featureRelationship.parentFeature, featureRelationship.childFeature)
         }
     }
 
@@ -126,7 +126,7 @@ class FeatureRelationshipService {
     // based on Transcript.setCDS
     @Transactional
     def addChildFeature(Feature parent, Feature child, boolean replace = true) {
-        
+
         // replace if of the same type
         if (replace) {
             boolean found = false
@@ -138,19 +138,19 @@ class FeatureRelationshipService {
                 it.childFeature.ontologyId == child.ontologyId
             }
             .each {
-                found = true 
+                found = true
                 it.childFeature = child
                 it.save()
-                return 
+                return
             }
-           
-            if(found){
+
+            if (found) {
                 return
             }
 
         }
-        
-        
+
+
 
         FeatureRelationship fr = new FeatureRelationship(
                 parentFeature: parent
@@ -159,7 +159,7 @@ class FeatureRelationshipService {
         parent.addToParentFeatureRelationships(fr)
         child.addToChildFeatureRelationships(fr)
         child.save(flush: true)
-        parent.save(flush: true )
+        parent.save(flush: true)
     }
 
     @Transactional
@@ -179,7 +179,7 @@ class FeatureRelationshipService {
     }
 
     List<Feature> getChildren(Feature feature) {
-        def exonRelations=feature.parentFeatureRelationships.findAll()
+        def exonRelations = feature.parentFeatureRelationships.findAll()
         return exonRelations.collect { it ->
             it.childFeature
         }
@@ -192,16 +192,35 @@ class FeatureRelationshipService {
      */
     @Transactional
     def deleteFeatureAndChildren(Feature feature) {
+        println "delteing feature and children"
 
-        if(feature.parentFeatureRelationships){
+        if (feature.parentFeatureRelationships) {
             def parentFeatureRelationships = feature.parentFeatureRelationships
+            // if child lacks child then delete the relationship, else go down
             Iterator<FeatureRelationship> featureRelationshipIterator = parentFeatureRelationships.iterator()
-            while(featureRelationshipIterator.hasNext()){
+            while (featureRelationshipIterator.hasNext()) {
+                println "iter 1"
                 FeatureRelationship featureRelationship = featureRelationshipIterator.next()
-                deleteFeatureAndChildren(featureRelationship.childFeature)
+                if (featureRelationship.childFeature?.parentFeatureRelationships) {
+                    println "grandchildren . . iterating down"
+                    deleteFeatureAndChildren(featureRelationship.childFeature)
+                }
+//                else{
+                println "no grandchildren . . deleting immediately"
+                // delete child and remove relatonship
+                featureRelationship.childFeature.delete()
+                feature.removeFromParentFeatureRelationships(featureRelationship)
+                featureRelationship.delete()
+//                }
             }
         }
-        feature.delete()
+        if (!feature.parentFeatureRelationships && !feature.childFeatureRelationships) {
+            println "deleting remaining feature"
+            feature.delete(flush: true)
+        } else {
+            feature.save(flush: true)
+            println "still connections so long alble to "
+        }
 
     }
 }
