@@ -9,6 +9,7 @@ import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.Random;
 
@@ -20,9 +21,10 @@ public class Annotator implements EntryPoint {
 
     public static EventBus eventBus = GWT.create(SimpleEventBus.class);
     private static Storage preferenceStore = Storage.getSessionStorageIfSupported();
-    private final Random random = new Random(); // or SecureRandom
+    private final static Random random = new Random(); // or SecureRandom
 
-    String generateRandomString(int length) {
+    // TODO: move
+    private static String generateRandomString(int length) {
         final byte[] buffer = new byte[length];
 
         Integer value = Math.abs(Integer.valueOf(random.nextInt()));
@@ -57,11 +59,6 @@ public class Annotator implements EntryPoint {
         }
         rp.setWidgetTopHeight(mainPanel, top, topUnit, height, heightUnit);
 
-        String clientID = getPreference("clientID");
-        if (clientID == null) {
-            setPreference("clientID", generateRandomString(130));
-        }
-        clientID = getPreference("clientID");
         exportStaticMethod();
     }
 
@@ -90,4 +87,12 @@ public class Annotator implements EntryPoint {
         return rootUrl ;
     }
 
+    public static String getClientId() {
+        String clientID = getPreference(FeatureStringEnum.CLIENT_ID.getValue());
+        if (clientID == null) {
+            setPreference(FeatureStringEnum.CLIENT_ID.getValue(), generateRandomString(130));
+        }
+        return getPreference(FeatureStringEnum.CLIENT_ID.getValue());
+
+    }
 }

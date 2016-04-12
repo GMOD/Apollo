@@ -130,7 +130,7 @@ class PermissionService {
     }
 
 
-    void setOrganismPermissionsForUser(List<PermissionEnum> permissions, Organism organism, User user) {
+    void setOrganismPermissionsForUser(List<PermissionEnum> permissions, Organism organism, User user,String token) {
 
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByOrganismAndUser(organism, user)
         if (!userOrganismPermission) {
@@ -138,6 +138,7 @@ class PermissionService {
                     organism: organism
                     , permissions: generatePermissionString(permissions)
                     , user: user
+                    , clientToken: token
             ).save(insert: true)
         } else {
             userOrganismPermission.permissions = generatePermissionString(permissions)
@@ -146,7 +147,7 @@ class PermissionService {
 
     }
 
-    void setOrganismPermissionsForUserGroup(List<PermissionEnum> permissions, Organism organism, UserGroup group) {
+    void setOrganismPermissionsForUserGroup(List<PermissionEnum> permissions, Organism organism, UserGroup group,String token) {
 
         GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findByOrganismAndGroup(organism, group)
         if (!groupOrganismPermission) {
@@ -154,6 +155,7 @@ class PermissionService {
                     organism: organism
                     , permissions: generatePermissionString(permissions)
                     , group: group
+                    , clientToken: token
             ).save(insert: true)
         } else {
             groupOrganismPermission.permissions = generatePermissionString(permissions)
@@ -270,7 +272,7 @@ class PermissionService {
      * @param requiredPermissionEnum
      * @return
      */
-    Organism checkPermissionsForOrganism(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
+    Organism checkPermissionsForOrganism(JSONObject inputObject, PermissionEnum requiredPermissionEnum,String token) {
         Organism organism
 
         // this is for testing only
@@ -307,6 +309,7 @@ class PermissionService {
                         , organism: organism
                         , currentOrganism: true
                         , sequence: Sequence.findByOrganism(organism)
+                        , token: token
                 ).save(insert: true)
             }
             else{
@@ -526,15 +529,15 @@ class PermissionService {
 
     }
 
-    UserOrganismPreference getCurrentOrganismPreference(){
+    UserOrganismPreference getCurrentOrganismPreference(String token){
         User currentUser = getCurrentUser()
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser, true)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, true,token)
         if (userOrganismPreference) {
             return userOrganismPreference
         }
 
         // find another one
-        userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser, false)
+        userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, false,token)
         if (userOrganismPreference) {
             userOrganismPreference.currentOrganism = true
             userOrganismPreference.save(flush: true)
@@ -555,6 +558,7 @@ class PermissionService {
                 user: currentUser
                 , currentOrganism: true
                 , organism: organism
+                , token: token
         ).save(insert: true, flush: true)
         return userOrganismPreference
     }
