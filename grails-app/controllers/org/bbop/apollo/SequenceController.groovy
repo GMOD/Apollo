@@ -138,8 +138,8 @@ class SequenceController {
     }
 
 
-    def lookupSequenceByName(String q) {
-        Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+    def lookupSequenceByName(String q,String clientToken) {
+        Organism organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         def sequences = Sequence.findAllByNameIlikeAndOrganism(q + "%", organism, ["sort": "name", "order": "asc", "max": 20]).collect() {
             it.name
         }

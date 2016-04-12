@@ -352,10 +352,10 @@ class PermissionService {
         return organism
     }
 
-    Organism getOrganismFromPreferences(User user, String trackName) {
+    Organism getOrganismFromPreferences(User user, String trackName,String clientToken) {
         Organism organism
 
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(user, true,clientToken)
         if(user!=null) {
 
 
@@ -373,6 +373,7 @@ class PermissionService {
                         , organism: organism
                         , currentOrganism: true
                         , sequence: sequence
+                        , clientToken: clientToken
                 ).save(insert: true)
             }
 
@@ -401,7 +402,7 @@ class PermissionService {
 
         User user = getCurrentUser(inputObject)
         organism = getOrganismFromInput(inputObject)
-        if(!organism) organism = getOrganismFromPreferences(user,trackName)
+        if(!organism) organism = getOrganismFromPreferences(user,trackName,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
 
         Sequence sequence = Sequence.findByNameAndOrganism(trackName,organism)

@@ -15,6 +15,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.*;
@@ -408,6 +409,8 @@ public class MainPanel extends Composite {
      */
     public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion, boolean forceReload) {
 
+        Window.alert("updating genomcic view for current: "+currentSequence.getName()+ " vs "+selectedSequence);
+
         if (!forceReload && currentSequence != null && currentSequence.getName().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
             int oldLength = maxRegion - minRegion;
             double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
@@ -428,6 +431,8 @@ public class MainPanel extends Composite {
         trackListString += "&clientToken=" + Annotator.getClientToken();
 
         final String finalString = trackListString;
+
+        Window.alert(finalString);
 
         frame.setUrl(finalString);
     }
