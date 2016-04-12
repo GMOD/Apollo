@@ -409,8 +409,6 @@ public class MainPanel extends Composite {
      */
     public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion, boolean forceReload) {
 
-        Window.alert("updating genomcic view for current: "+currentSequence.getName()+ " vs "+selectedSequence);
-
         if (!forceReload && currentSequence != null && currentSequence.getName().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
             int oldLength = maxRegion - minRegion;
             double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
@@ -424,15 +422,16 @@ public class MainPanel extends Composite {
         currentEndBp = maxRegion;
 
 
-        String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
+        String trackListString = Annotator.getRootUrl() ;
+        trackListString +=  Annotator.getClientToken() +"/";
+        trackListString += "jbrowse/index.html?loc=";
         trackListString += selectedSequence;
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
         trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
-        trackListString += "&clientToken=" + Annotator.getClientToken();
+//        trackListString += "&clientToken=" + Annotator.getClientToken();
 
         final String finalString = trackListString;
-
-        Window.alert(finalString);
+//        Window.alert(finalString);
 
         frame.setUrl(finalString);
     }

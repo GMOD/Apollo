@@ -1,13 +1,13 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.*;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestOracle;
-import com.google.inject.binder.AnnotatedBindingBuilder;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
