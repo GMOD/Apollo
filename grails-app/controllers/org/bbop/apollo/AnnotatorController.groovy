@@ -368,7 +368,8 @@ class AnnotatorController {
      */
     @Transactional
     def getAppState() {
-        render annotatorService.getAppState() as JSON
+        println "app state: ${params.token}"
+        render annotatorService.getAppState(params.token) as JSON
     }
 
     /**

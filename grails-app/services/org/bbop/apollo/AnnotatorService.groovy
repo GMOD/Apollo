@@ -11,11 +11,11 @@ class AnnotatorService {
     def permissionService
     def requestHandlingService
 
-    def getAppState() {
+    def getAppState(String token) {
         JSONObject appStateObject = new JSONObject()
         try {
             def organismList = permissionService.getOrganismsForCurrentUser()
-            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.currentUser, true)
+            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(permissionService.currentUser, true,token)
             Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
 
 
@@ -41,7 +41,7 @@ class AnnotatorService {
                 organismArray.add(jsonObject)
             }
             appStateObject.put("organismList", organismArray)
-            UserOrganismPreference currentUserOrganismPreference = permissionService.currentOrganismPreference
+            UserOrganismPreference currentUserOrganismPreference = permissionService.getCurrentOrganismPreference(token)
             if(currentUserOrganismPreference){
                 Organism currentOrganism = currentUserOrganismPreference?.organism
                 appStateObject.put("currentOrganism", currentOrganism )

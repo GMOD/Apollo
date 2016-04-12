@@ -480,6 +480,7 @@ public class MainPanel extends Composite {
 
     public void getAppState() {
         String url = Annotator.getRootUrl() + "annotator/getAppState";
+        url += "?token="+Annotator.getClientId();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         final LoadingDialog loadingDialog = new LoadingDialog();
