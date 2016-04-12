@@ -97,7 +97,7 @@ class JbrowseController {
             return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         }
 
-        String organismJBrowseDirectory = preferenceService.currentOrganismForCurrentUser.directory
+        String organismJBrowseDirectory = preferenceService.getCurrentOrganismForCurrentUser(request.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)).directory
         if (!organismJBrowseDirectory) {
             for (Organism organism in Organism.all) {
                 // load if not
@@ -293,6 +293,7 @@ class JbrowseController {
     }
 
     def trackList() {
+        println "track list client token: ${params.get(FeatureStringEnum.CLIENT_TOKEN.value)}"
         String dataDirectory = getJBrowseDirectoryForSession()
         String absoluteFilePath = dataDirectory + "/trackList.json"
         File file = new File(absoluteFilePath);
@@ -309,7 +310,7 @@ class JbrowseController {
 
         // add datasets to the configuration
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
-        Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
+        Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser()
         if(currentOrganism!=null) {
             jsonObject.put("dataset_id",currentOrganism.id)
         }

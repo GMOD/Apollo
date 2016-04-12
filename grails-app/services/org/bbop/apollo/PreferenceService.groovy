@@ -7,8 +7,8 @@ class PreferenceService {
 
     def permissionService
 
-    Organism getCurrentOrganismForCurrentUser() {
-        return permissionService.currentUser == null ? null : getCurrentOrganism(permissionService.currentUser);
+    Organism getCurrentOrganismForCurrentUser(String clientToken) {
+        return permissionService.currentUser == null ? null : getCurrentOrganism(permissionService.currentUser,clientToken);
     }
 
     /**
@@ -17,8 +17,8 @@ class PreferenceService {
      * @param user
      * @return
      */
-    Organism getCurrentOrganism(User user) {
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByCurrentOrganismAndUser(true, user)
+    Organism getCurrentOrganism(User user,String clientToken) {
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByCurrentOrganismAndUserAndClientToken(true, user,clientToken)
         if (!userOrganismPreference) {
             userOrganismPreference = UserOrganismPreference.findByUser(user)
 
@@ -31,6 +31,7 @@ class PreferenceService {
                             , organism: organism
                             , sequence: Sequence.findByOrganism(organism)
                             , currentOrganism: true
+                            , clientToken: clientToken
                     ).save()
                 } else {
                     throw new PermissionException("User has no access to any organisms!")
@@ -109,7 +110,7 @@ class PreferenceService {
 
     def setCurrentSequence(User user, Sequence sequence,String clientToken) {
         Organism organism = sequence.organism
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(user, organism,clientToken)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientTokenAndSequence(user, organism,clientToken,sequence)
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user

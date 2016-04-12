@@ -221,6 +221,7 @@ class AnnotatorController {
             JSONObject returnObject = createJSONFeatureContainer()
             returnObject.clientToken = clientToken
             println "finding annotations for client token: ${clientToken}"
+            println "return object: ${returnObject as JSON}"
             if (sequenceName && !Sequence.countByName(sequenceName)) return
 
             if (sequenceName) {
