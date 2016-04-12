@@ -81,53 +81,56 @@ class PreferenceService {
         return userOrganismPreference.sequence
     }
 
-    def setCurrentOrganism(User user, Organism organism) {
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
+    def setCurrentOrganism(User user, Organism organism,String clientToken) {
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(user, organism,clientToken)
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
                     , currentOrganism: true
                     , sequence: Sequence.findByOrganism(organism)
+                    , clientToken: clientToken
             ).save(flush: true)
-            setOtherCurrentOrganismsFalse(userOrganismPreference, user)
+            setOtherCurrentOrganismsFalse(userOrganismPreference, user,clientToken)
         } else if (!userOrganismPreference.currentOrganism) {
             userOrganismPreference.currentOrganism = true;
             userOrganismPreference.save(flush: true)
-            setOtherCurrentOrganismsFalse(userOrganismPreference, user)
+            setOtherCurrentOrganismsFalse(userOrganismPreference, user,clientToken)
         }
     }
 
-    protected def setOtherCurrentOrganismsFalse(UserOrganismPreference userOrganismPreference, User user) {
+    protected static  def setOtherCurrentOrganismsFalse(UserOrganismPreference userOrganismPreference, User user,String clientToken) {
+        println "setting other orgs false for ${clientToken}"
         UserOrganismPreference.executeUpdate(
                 "update UserOrganismPreference  pref set pref.currentOrganism = false " +
-                        "where pref.id != :prefId and pref.user = :user",
-                [prefId: userOrganismPreference.id, user: user])
+                        "where pref.id != :prefId and pref.user = :user and pref.clientToken = :clientToken",
+                [prefId: userOrganismPreference.id, user: user,clientToken: clientToken])
     }
 
-    def setCurrentSequence(User user, Sequence sequence) {
+    def setCurrentSequence(User user, Sequence sequence,String clientToken) {
         Organism organism = sequence.organism
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(user, organism,clientToken)
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
                     , currentOrganism: true
                     , sequence: sequence
+                    ,clientToken: clientToken
             ).save(flush: true)
-            setOtherCurrentOrganismsFalse(userOrganismPreference, user)
+            setOtherCurrentOrganismsFalse(userOrganismPreference, user,clientToken)
         } else
         if(!userOrganismPreference.currentOrganism) {
             userOrganismPreference.currentOrganism = true;
             userOrganismPreference.sequence = sequence
             userOrganismPreference.save()
-            setOtherCurrentOrganismsFalse(userOrganismPreference, user)
+            setOtherCurrentOrganismsFalse(userOrganismPreference, user,clientToken)
         }
     }
 
-    UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp) {
+    UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp,String clientToken) {
         User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser, true)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, true,clientToken)
         if (!userOrganismPreference) {
             userOrganismPreference = UserOrganismPreference.findByUser(currentUser)
         }
@@ -144,6 +147,7 @@ class PreferenceService {
 
         userOrganismPreference.refresh()
 
+        userOrganismPreference.clientToken = clientToken
         userOrganismPreference.currentOrganism = true
         userOrganismPreference.sequence = sequence
         userOrganismPreference.setStartbp(startBp ?: 0)

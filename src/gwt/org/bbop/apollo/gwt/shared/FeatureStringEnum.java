@@ -63,7 +63,7 @@ public enum FeatureStringEnum {
         TRACK,
         DB,
         DBXREFS,
-        CLIENT_ID,
+        CLIENT_TOKEN("clientToken"),
         ACCESSION,
         CDS_SUFFIX("-CDS"),
         MINUS1FRAMESHIFT("Minus1Frameshift"),

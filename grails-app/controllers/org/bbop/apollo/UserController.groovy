@@ -143,6 +143,7 @@ class UserController {
         }
     }
 
+    @Transactional
     def checkLogin() {
         def currentUser = permissionService.currentUser
         if (currentUser) {
@@ -150,7 +151,7 @@ class UserController {
             UserOrganismPreference userOrganismPreference
             try {
                 // sets it by default
-                userOrganismPreference = permissionService.getCurrentOrganismPreference()
+                userOrganismPreference = permissionService.getCurrentOrganismPreference(params[FeatureStringEnum.CLIENT_TOKEN.value])
             } catch (e) {
                 log.error(e)
             }

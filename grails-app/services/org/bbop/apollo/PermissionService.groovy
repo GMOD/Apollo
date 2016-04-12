@@ -309,7 +309,7 @@ class PermissionService {
                         , organism: organism
                         , currentOrganism: true
                         , sequence: Sequence.findByOrganism(organism)
-                        , clientToken: inputObject.token
+                        , clientToken: inputObject.clientToken
                 ).save(insert: true)
             }
             else{
