@@ -217,3 +217,4 @@ elif [[ $1 == "jbrowse" ]];then
 else
     usage
 fi
+
