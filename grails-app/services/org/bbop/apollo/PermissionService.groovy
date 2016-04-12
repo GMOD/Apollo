@@ -138,7 +138,7 @@ class PermissionService {
                     organism: organism
                     , permissions: generatePermissionString(permissions)
                     , user: user
-                    , clientToken: token
+                    , token: token
             ).save(insert: true)
         } else {
             userOrganismPermission.permissions = generatePermissionString(permissions)
@@ -155,7 +155,7 @@ class PermissionService {
                     organism: organism
                     , permissions: generatePermissionString(permissions)
                     , group: group
-                    , clientToken: token
+                    , token: token
             ).save(insert: true)
         } else {
             groupOrganismPermission.permissions = generatePermissionString(permissions)
@@ -272,7 +272,7 @@ class PermissionService {
      * @param requiredPermissionEnum
      * @return
      */
-    Organism checkPermissionsForOrganism(JSONObject inputObject, PermissionEnum requiredPermissionEnum,String token) {
+    Organism checkPermissionsForOrganism(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
 
         // this is for testing only
@@ -309,7 +309,7 @@ class PermissionService {
                         , organism: organism
                         , currentOrganism: true
                         , sequence: Sequence.findByOrganism(organism)
-                        , token: token
+                        , clientToken: inputObject.token
                 ).save(insert: true)
             }
             else{
@@ -477,6 +477,7 @@ class PermissionService {
     Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
         // not sure if permissions with translate through or not
         Session session = SecurityUtils.subject.getSession(false)
+        String token = jsonObject.token
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
@@ -502,7 +503,7 @@ class PermissionService {
         }
 
 
-        Organism organism = getCurrentOrganismPreference()?.organism
+        Organism organism = getCurrentOrganismPreference(token)?.organism
         log.debug "passing in an organism ${jsonObject.organism}"
         if (jsonObject.organism) {
             Organism thisOrganism = null
@@ -558,7 +559,7 @@ class PermissionService {
                 user: currentUser
                 , currentOrganism: true
                 , organism: organism
-                , token: token
+                , clientToken: token
         ).save(insert: true, flush: true)
         return userOrganismPreference
     }

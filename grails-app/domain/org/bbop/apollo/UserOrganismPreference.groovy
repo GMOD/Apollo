@@ -9,6 +9,7 @@ class UserOrganismPreference extends UserPreference{
         sequence nullable: true, blank: false
         startbp nullable: true, blank: false
         endbp nullable: true, blank: false
+        clientToken nullable: true, blank: false
         token nullable: true, blank: false
     }
 
@@ -18,6 +19,6 @@ class UserOrganismPreference extends UserPreference{
     Sequence sequence
     Integer startbp
     Integer endbp
-    String token
-    String clientToken
+    String clientToken // this is a token from the browser
+    String token   // this is a general purpose token or JSON string
 }
