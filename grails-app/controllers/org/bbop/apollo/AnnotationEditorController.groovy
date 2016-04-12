@@ -78,7 +78,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         if (username) {
 
             User user = User.findByUsername(username)
-            Organism organism = preferenceService.getCurrentOrganism(user)
+            Organism organism = preferenceService.getCurrentOrganism(user,returnObject.getString(FeatureStringEnum.PREFERENCE.value))
             if (!organism) {
                 log.error "somehow no organism shown, getting for all"
             }
