@@ -9,6 +9,7 @@ class UserOrganismPreference extends UserPreference{
         sequence nullable: true, blank: false
         startbp nullable: true, blank: false
         endbp nullable: true, blank: false
+        clientToken nullable: true, blank: false
     }
 
     Organism organism
@@ -17,5 +18,5 @@ class UserOrganismPreference extends UserPreference{
     Sequence sequence
     Integer startbp
     Integer endbp
-
+    String clientToken
 }

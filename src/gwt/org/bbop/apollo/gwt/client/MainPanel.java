@@ -72,7 +72,6 @@ public class MainPanel extends Composite {
     private int maxUsernameLength = 15;
     private static final double UPDATE_DIFFERENCE_BUFFER = 0.3;
     private static final double GENE_VIEW_BUFFER = 0.4;
-    private Storage preferenceStore = Storage.getLocalStorageIfSupported();
 
 
     @UiField
@@ -155,7 +154,7 @@ public class MainPanel extends Composite {
             @Override
             public void onResize() {
                 super.onResize();
-                setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), mainSplitPanel.getWidgetSize(eastDockPanel));
+                Annotator.setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), mainSplitPanel.getWidgetSize(eastDockPanel));
             }
         };
 
@@ -190,7 +189,7 @@ public class MainPanel extends Composite {
 
 
         try {
-            String dockOpen = getPreference(FeatureStringEnum.DOCK_OPEN.getValue());
+            String dockOpen = Annotator.getPreference(FeatureStringEnum.DOCK_OPEN.getValue());
             if (dockOpen != null) {
                 Boolean setDockOpen = Boolean.valueOf(dockOpen);
                 toggleOpen = !setDockOpen;
@@ -198,19 +197,19 @@ public class MainPanel extends Composite {
             }
         } catch (Exception e) {
             GWT.log("Error setting preference: " + e.fillInStackTrace().toString());
-            setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), true);
+           Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), true);
         }
 
 
         try {
-            String dockWidth = getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
+            String dockWidth = Annotator.getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
             if (dockWidth != null && toggleOpen) {
                 Integer dockWidthInt = Integer.parseInt(dockWidth);
                 mainSplitPanel.setWidgetSize(eastDockPanel, dockWidthInt);
             }
         } catch (NumberFormatException e) {
             GWT.log("Error setting preference: " + e.fillInStackTrace().toString());
-            setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), 600);
+            Annotator.setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), 600);
         }
 
         setUserNameForCurrentUser();
@@ -630,7 +629,7 @@ public class MainPanel extends Composite {
     }
 
     private void openPanel() {
-        String dockWidth = getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
+        String dockWidth = Annotator.getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
         if (dockWidth != null) {
             Integer dockWidthInt = Integer.parseInt(dockWidth);
             mainSplitPanel.setWidgetSize(eastDockPanel, dockWidthInt);
@@ -654,21 +653,7 @@ public class MainPanel extends Composite {
         mainSplitPanel.animate(400);
 
         toggleOpen = !toggleOpen;
-        setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
-    }
-
-    private void setPreference(String key, Object value) {
-        if (preferenceStore != null) {
-            preferenceStore.setItem(key, value.toString());
-        }
-    }
-
-    private String getPreference(String key) {
-        if (preferenceStore != null) {
-            String returnValue = preferenceStore.getItem(key);
-            return returnValue;
-        }
-        return null;
+        Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
     }
 
 
