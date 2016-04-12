@@ -329,10 +329,7 @@ define([
                         browser.subscribe('/jbrowse/v1/c/tracks/hide', function() { console.log("hide update");handleTrackVisibility({command:"list"}); });
                         window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
 
-
-                        var getSessionToken = function(){
-                            return window.parent.getClientToken();
-                        };
+                        track.clientToken = window.parent.getClientToken();
 
 
 
@@ -351,7 +348,7 @@ define([
                 else {
                     console.log('No embedded server is present.');
 
-                    var getSessionToken = function(){
+                    var getClientToken = function(){
                         var returnItem = window.sessionStorage.getItem("clientToken");
                         if(!returnItem){
                             var randomNumber = Math.random();
@@ -359,6 +356,7 @@ define([
                         }
                         return window.sessionStorage.getItem("clientToken");
                     };
+                    track.clientToken = getClientToken();
 
                     client.connect({}, function () {
 
@@ -4649,7 +4647,7 @@ define([
                 var success = true;
                 dojo.xhrPost({
                     sync: true,
-                    postData: '{ "track": "' + thisB.getUniqueTrackName() + '", "operation": "get_user_permission" }',
+                    postData: '{ "track": "' + thisB.getUniqueTrackName() + '", "operation": "get_user_permission" ,"preference":'+thisB.clientToken+'}',
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5 * 1000, // Time in milliseconds

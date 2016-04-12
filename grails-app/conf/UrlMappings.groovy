@@ -24,7 +24,7 @@ class UrlMappings {
         "/proxy/request/${url}"(controller:"proxy", action: "request")
 
 
-        "/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params)
+        "/${preference}/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params)
         "/Login"(controller:"login",action: "handleOperation",params:params)
         "/ProxyService"(controller:"ncbiProxyService",action: "index",params:params)
         "/IOService"(controller:"IOService",action: "handleOperation",params:params)
