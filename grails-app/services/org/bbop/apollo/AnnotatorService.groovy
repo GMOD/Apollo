@@ -1,11 +1,9 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.hibernate.Hibernate
 
 @Transactional
 class AnnotatorService {
