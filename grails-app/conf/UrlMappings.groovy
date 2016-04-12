@@ -14,11 +14,14 @@ class UrlMappings {
         "/version.jsp"(controller: 'annotator', view: "version")
 
         // set this routing here
-        "/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
-        "/jbrowse/index.html"(controller: "jbrowse", action: "indexRouter", params:params)
-        "/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
-        "/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
-        "/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
+        "/${preference}/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
+        "/${preference}/jbrowse/index.html"(controller: "jbrowse", action: "indexRouter", params:params)
+        "/${preference}/jbrowse/css/**"(controller:"jbrowse", action: "indexRouter",params:params)
+        "/${preference}/jbrowse/src/**"(controller:"jbrowse", action: "indexRouter",params:params)
+
+        "/${preference}/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
+        "/${preference}/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
+        "/${preference}/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
         "/proxy/request/${url}"(controller:"proxy", action: "request")
 
 

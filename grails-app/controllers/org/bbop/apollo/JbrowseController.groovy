@@ -32,9 +32,10 @@ class JbrowseController {
 
     def indexRouter(){
         log.debug "indexRouter ${params}"
+        println "request path: ${request.requestURL}"
 
         def paramList = []
-        String clientToken = params[FeatureStringEnum.CLIENT_TOKEN.value]
+        String clientToken = params[FeatureStringEnum.PREFERENCE.value]
         params.each { entry ->
             if(entry.key != "action" && entry.key != "controller" && entry.key!="organism"){
                 paramList.add(entry.key+"="+entry.value)
@@ -399,5 +400,9 @@ class JbrowseController {
     private static long sublong(String value, int beginIndex, int endIndex) {
         String substring = value.substring(beginIndex, endIndex);
         return (substring.length() > 0) ? Long.parseLong(substring) : -1;
+    }
+
+    def passthrough(){
+        println "passing through ${params}"
     }
 }
