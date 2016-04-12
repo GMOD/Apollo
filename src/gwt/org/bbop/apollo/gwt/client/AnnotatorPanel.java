@@ -155,6 +155,7 @@ public class AnnotatorPanel extends Composite {
                 url += "&offset=" + start + "&max=" + length;
                 url += "&annotationName=" + nameSearchBox.getText() + "&type=" + typeList.getSelectedValue();
                 url += "&user=" + userField.getSelectedValue();
+                url += "&token=" + Annotator.getClientId();
 
 
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);

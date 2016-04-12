@@ -218,7 +218,7 @@ class AnnotatorController {
      * @param sort
      * @return
      */
-    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort) {
+    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort,String token) {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
             if (sequenceName && !Sequence.countByName(sequenceName)) return
