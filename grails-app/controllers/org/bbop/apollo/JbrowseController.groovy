@@ -32,6 +32,7 @@ class JbrowseController {
 
     def indexRouter(){
         log.debug "indexRouter ${params}"
+        log.debug "path ${params.path}"
         println "request path: ${request.requestURL}"
 
         def paramList = []
@@ -402,7 +403,14 @@ class JbrowseController {
         return (substring.length() > 0) ? Long.parseLong(substring) : -1;
     }
 
-    def passthrough(){
-        println "passing through ${params}"
+    /**
+     * TODO: move back to URL Mapper.
+     * Doing the redirect there causes problems for some reason.
+     * @return
+     */
+    def jbrowsePassthrough(){
+        // TODO: set these to true
+//        redirect(url: "/jbrowse/${params.path}",permanent:true,params:params)
+        redirect(url: "/jbrowse/${params.path}",permanent:false,params:params)
     }
 }

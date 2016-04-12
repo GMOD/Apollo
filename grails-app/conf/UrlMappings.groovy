@@ -16,8 +16,7 @@ class UrlMappings {
         // set this routing here
         "/${preference}/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
         "/${preference}/jbrowse/index.html"(controller: "jbrowse", action: "indexRouter", params:params)
-        "/${preference}/jbrowse/css/**"(controller:"jbrowse", action: "indexRouter",params:params)
-        "/${preference}/jbrowse/src/**"(controller:"jbrowse", action: "indexRouter",params:params)
+        "/${preference}/jbrowse/${path}**" (controller: "jbrowse",action: "jbrowsePassthrough", params:params)
 
         "/${preference}/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/${preference}/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
