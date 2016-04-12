@@ -11,7 +11,6 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.storage.client.Storage;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -197,7 +196,7 @@ public class MainPanel extends Composite {
             }
         } catch (Exception e) {
             GWT.log("Error setting preference: " + e.fillInStackTrace().toString());
-           Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), true);
+            Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), true);
         }
 
 
@@ -332,6 +331,7 @@ public class MainPanel extends Composite {
 
     private void loginUser() {
         String url = Annotator.getRootUrl() + "user/checkLogin";
+        url += "?clientToken=" + Annotator.getClientToken();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
@@ -391,7 +391,7 @@ public class MainPanel extends Composite {
     }
 
     private void setUserNameForCurrentUser() {
-        if(currentUser==null) return ;
+        if (currentUser == null) return;
         String displayName = currentUser.getEmail();
         userName.setText(displayName.length() > maxUsernameLength ?
                 displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
@@ -425,6 +425,7 @@ public class MainPanel extends Composite {
         trackListString += selectedSequence;
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
         trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
+        trackListString += "&clientToken=" + Annotator.getClientToken();
 
         final String finalString = trackListString;
 
@@ -480,7 +481,7 @@ public class MainPanel extends Composite {
 
     public void getAppState() {
         String url = Annotator.getRootUrl() + "annotator/getAppState";
-        url += "?clientToken="+Annotator.getClientId();
+        url += "?"+FeatureStringEnum.CLIENT_TOKEN.getValue() + "=" + Annotator.getClientToken();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         final LoadingDialog loadingDialog = new LoadingDialog();

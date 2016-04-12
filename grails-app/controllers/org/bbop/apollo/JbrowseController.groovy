@@ -34,6 +34,7 @@ class JbrowseController {
         log.debug "indexRouter ${params}"
 
         def paramList = []
+        String clientToken = params[FeatureStringEnum.CLIENT_TOKEN.value]
         params.each { entry ->
             if(entry.key != "action" && entry.key != "controller" && entry.key!="organism"){
                 paramList.add(entry.key+"="+entry.value)
@@ -42,10 +43,11 @@ class JbrowseController {
         // case 3 - validated login (just read from preferences, then
         if(permissionService.currentUser&&params.organism){
             Organism organism = Organism.findByCommonName(params.organism)
+            println "is current organism eing set? "
             if(!organism&&params.organism.isInteger()) {
                 organism = Organism.findById(params.organism.toInteger())
             }
-            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
+            preferenceService.setCurrentOrganism(permissionService.currentUser,organism,clientToken)
         }
 
         if(permissionService.currentUser) {

@@ -262,6 +262,7 @@ define([
 
             },
 
+
             createAnnotationChangeListener: function (numTry) {
                 //this.listener = new SockJS(context_path+"/stomp");
                 var stomp_url = window.location.href;
@@ -329,6 +330,12 @@ define([
                         window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
 
 
+                        var getSessionToken = function(){
+                            return window.parent.getClientToken();
+                        };
+
+
+
                         client.connect({}, function () {
                             // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
                             var organism = JSON.parse(window.parent.getCurrentOrganism());
@@ -343,6 +350,15 @@ define([
                 }
                 else {
                     console.log('No embedded server is present.');
+
+                    var getSessionToken = function(){
+                        var returnItem = window.sessionStorage.getItem("clientToken");
+                        if(!returnItem){
+                            var randomNumber = Math.random();
+                            window.sessionStorage.setItem("clientToken",randomNumber)
+                        }
+                        return window.sessionStorage.getItem("clientToken");
+                    };
 
                     client.connect({}, function () {
 
@@ -2244,7 +2260,7 @@ define([
                             initPubmedIds(feature, config);
                             initGoIds(feature, config);
                             initComments(feature, config);
-                
+
                         }
                     });
                 };
@@ -2921,7 +2937,7 @@ define([
                         dojo.style(commentsDiv, "display", "none");
                     }
                 };
-                
+
 
                 function updateTimeLastUpdated() {
                     var date = new Date();
@@ -3954,7 +3970,7 @@ define([
                 };
                 if (selected && (selected.length > 0)) {
 
-                    
+
 
                     var selfeat = selected[0].feature;
                     // find current center genome coord, compare to subfeatures,

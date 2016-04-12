@@ -32,7 +32,7 @@ class SequenceController {
     def setCurrentSequenceLocation(String name,Integer start, Integer end) {
 
         try {
-            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end)
+            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end,params[FeatureStringEnum.CLIENT_TOKEN.value])
             if(params.suppressOutput){
                 render new JSONObject() as JSON
             }

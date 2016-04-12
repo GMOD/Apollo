@@ -7,7 +7,6 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.storage.client.Storage;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
@@ -25,8 +24,6 @@ public class Annotator implements EntryPoint {
 
     // TODO: move
     private static String generateRandomString(int length) {
-        final byte[] buffer = new byte[length];
-
         Integer value = Math.abs(Integer.valueOf(random.nextInt()));
         return value.toString();
     }
@@ -65,6 +62,7 @@ public class Annotator implements EntryPoint {
     public static native void exportStaticMethod() /*-{
         $wnd.setPreference = $entry(@org.bbop.apollo.gwt.client.Annotator::setPreference(Ljava/lang/String;Ljava/lang/Object;));
         $wnd.getPreference = $entry(@org.bbop.apollo.gwt.client.Annotator::getPreference(Ljava/lang/String;));
+        $wnd.getClientToken = $entry(@org.bbop.apollo.gwt.client.Annotator::getClientToken());
     }-*/;
 
     public static void setPreference(String key, Object value) {
@@ -87,12 +85,12 @@ public class Annotator implements EntryPoint {
         return rootUrl ;
     }
 
-    public static String getClientId() {
-        String clientID = getPreference(FeatureStringEnum.CLIENT_ID.getValue());
+    public static String getClientToken() {
+        String clientID = getPreference(FeatureStringEnum.CLIENT_TOKEN.getValue());
         if (clientID == null) {
-            setPreference(FeatureStringEnum.CLIENT_ID.getValue(), generateRandomString(130));
+            setPreference(FeatureStringEnum.CLIENT_TOKEN.getValue(), generateRandomString(130));
         }
-        return getPreference(FeatureStringEnum.CLIENT_ID.getValue());
+        return getPreference(FeatureStringEnum.CLIENT_TOKEN.getValue());
 
     }
 }
