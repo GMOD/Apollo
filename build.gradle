@@ -110,6 +110,7 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
     if (jbrowseConfig.git) {
         def git = jbrowseConfig.git
         if (jbrowseFile.exists()) {
+            println "JBrowse file exists" 
             if (git.alwaysRecheck || git.alwaysPull && !hasBower()) {
                 if (git.tag) {
                     fetchTags(jbrowseFile)
