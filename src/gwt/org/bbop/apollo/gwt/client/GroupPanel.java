@@ -41,7 +41,9 @@ import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 import org.gwtbootstrap3.extras.select.client.ui.Option;
 import org.gwtbootstrap3.extras.select.client.ui.Select;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -177,10 +179,11 @@ public class GroupPanel extends Composite {
             }
         });
 
-        if(MainPanel.getInstance().getCurrentUser()!=null) {
+        // TODO: not sure why this is not being set or if it matters
+//        if (MainPanel.getInstance().getCurrentUser() != null) {
             GroupRestService.loadGroups(groupInfoList);
             UserRestService.loadUsers(allUsersList);
-        }
+//        }
     }
 
     @UiHandler("updateUsers")
@@ -207,7 +210,7 @@ public class GroupPanel extends Composite {
     public void deleteGroup(ClickEvent clickEvent) {
         Integer numberOfUsers = selectedGroupInfo.getNumberOfUsers();
         if (numberOfUsers > 0) {
-            Bootbox.confirm("Group '" + selectedGroupInfo.getName() + "' has "+numberOfUsers+" associated with it.  Still remove?", new ConfirmCallback() {
+            Bootbox.confirm("Group '" + selectedGroupInfo.getName() + "' has " + numberOfUsers + " associated with it.  Still remove?", new ConfirmCallback() {
                 @Override
                 public void callback(boolean result) {
                     if (result) {
@@ -342,6 +345,7 @@ public class GroupPanel extends Composite {
                 optionsList.add(option);
             }
 
+            Window.alert("all user size: " + allUsersList.size());
             for (UserInfo userInfo : allUsersList) {
                 Option option = new Option();
                 option.setText(userInfo.getName() + " (" + userInfo.getEmail() + ")");
@@ -380,7 +384,7 @@ public class GroupPanel extends Composite {
     }
 
     public void reload() {
-        if(MainPanel.getInstance().getCurrentUser()!= null) {
+        if (MainPanel.getInstance().getCurrentUser() != null) {
             GroupRestService.loadGroups(groupInfoList);
         }
 //        dataGrid.redraw();
