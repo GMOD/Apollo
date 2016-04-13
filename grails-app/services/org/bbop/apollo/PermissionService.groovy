@@ -265,78 +265,6 @@ class PermissionService {
     }
 
 
-    /**
-     * This method finds the proper username with their proper organism for the current organism.
-     *
-     * @param inputObject
-     * @param requiredPermissionEnum
-     * @return
-     */
-    Organism checkPermissionsForOrganism(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
-        Organism organism
-
-        // this is for testing only
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            return null
-        }
-
-        //def session = RequestContextHolder.currentRequestAttributes().getSession()
-        User user = getCurrentUser(inputObject)
-
-
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
-
-        if (!userOrganismPreference) {
-            userOrganismPreference = UserOrganismPreference.findByUser(user)
-        }
-
-        if (!userOrganismPreference) {
-            // see if this user has any permissions or an organism . . just grab the first one
-            UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByUser(user)
-            if(userOrganismPermission){
-                organism = userOrganismPermission.organism
-            }
-            else
-            // if not, but we are admin, then just grab the first organism
-            if(!userOrganismPermission && isAdmin() && Organism.count>0){
-                organism = Organism.list().iterator().next()
-            }
-
-
-            if(organism){
-                userOrganismPreference = new UserOrganismPreference(
-                        user: user
-                        , organism: organism
-                        , currentOrganism: true
-                        , sequence: Sequence.findByOrganism(organism)
-                        , clientToken: inputObject.clientToken
-                ).save(insert: true)
-            }
-            else{
-                if(Organism.count>0){
-                    throw new PermissionException("User has no access to an organism and/or is not admin")
-                }
-                else{
-                    return null
-                }
-            }
-
-        }
-
-        organism = userOrganismPreference.organism
-
-        List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
-        PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
-
-        if (highestValue.rank < requiredPermissionEnum.rank) {
-            //return false
-            throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
-        }
-
-        return organism
-    }
-
-
     Organism getOrganismFromInput(JSONObject inputObject) {
 
         Organism organism
@@ -402,10 +330,22 @@ class PermissionService {
 
         User user = getCurrentUser(inputObject)
         organism = getOrganismFromInput(inputObject)
-        if(!organism) organism = getOrganismFromPreferences(user,trackName,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+        if(!organism) {
+            organism = getOrganismFromPreferences(user,trackName,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+        }
 
+        Sequence sequence
+        if(!trackName){
+            sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName,organism)?.sequence
+        }
+        else{
+            sequence = Sequence.findByNameAndOrganism(trackName,organism)
+        }
 
-        Sequence sequence = Sequence.findByNameAndOrganism(trackName,organism)
+        if(!sequence && organism){
+            sequence = Sequence.findByOrganism(organism,[max:1,sort:"end",order:"desc"])
+        }
+
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
