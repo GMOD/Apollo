@@ -36,7 +36,7 @@ class JbrowseController {
         println "request path: ${request.requestURL}"
 
         def paramList = []
-        String clientToken = params[FeatureStringEnum.PREFERENCE.value]
+        String clientToken = params[FeatureStringEnum.CLIENT_TOKEN.value]
         params.each { entry ->
             if(entry.key != "action" && entry.key != "controller" && entry.key!="organism"){
                 paramList.add(entry.key+"="+entry.value)
