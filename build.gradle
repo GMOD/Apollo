@@ -110,24 +110,31 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
     if (jbrowseConfig.git) {
         def git = jbrowseConfig.git
         if (jbrowseFile.exists()) {
-            if (git.alwaysRecheck || git.alwaysPull && !hasBower()) {
-                if (git.tag) {
-                    fetchTags(jbrowseFile)
-                    checkoutBranch(jbrowseFile, "tags/" + git.tag)
-                } else if (git.branch) {
-                    checkoutBranch(jbrowseFile, git.branch)
+            if ( (git.alwaysRecheck || git.alwaysPull)) {
+                if(hasBower()) {
+                    refreshBowerRepo(jbrowseDirectory)
                 }
-                if (git.alwaysPull && git.branch) {
-                    println "Pulling ${git.url}"
-                    "git pull".execute()
-                    gitPull(jbrowseFile)
+                else{
+                    if (git.tag) {
+                        fetchTags(jbrowseFile)
+                        checkoutBranch(jbrowseFile, "tags/" + git.tag)
+                    } else if (git.branch) {
+                        checkoutBranch(jbrowseFile, git.branch)
+                    }
+                    if (git.alwaysPull && git.branch) {
+                        println "Pulling ${git.url}"
+                        "git pull".execute()
+                        gitPull(jbrowseFile)
+                    }
                 }
             }
         } else {
             println "Cloning: ${git.url} into ${jbrowseDirectory}."
             def branch = git.branch ?: (git.tag ? "tags/${git.tag}" : null)
             cloneRepo(git.url, jbrowseDirectory, branch, 1)
-            if(!hasBower()) checkoutBranch(jbrowseFile, branch)
+            if(!hasBower()){
+                checkoutBranch(jbrowseFile, branch)
+            }
         }
     } else if (jbrowseConfig.url && !jbrowseFile.exists()) {
 
@@ -313,6 +320,18 @@ task moveBowerJBrowse(dependsOn:removeJBrowseDownload) {
 task installJBrowseBower(type:Exec) {
     workingDir 'jbrowse-download'
     commandLine './setup.sh'
+}
+
+def refreshBowerRepo(String directory){
+    exec{
+        println "using bower to update: ${directory}"
+        workingDir directory
+        commandLine "bower","update","-F"
+//        if(finalUrl.split("#")[0].endsWith("jbrowse")){
+        // mv bower_components/jbrowse -> jbrowse-download
+//        }
+        // installs it in bower_components
+    }
 }
 
 def cloneRepoBower(String url,String directory,String branch){
