@@ -216,6 +216,7 @@ define([
                     track.createAnnotationChangeListener(0);
 
                     var query = {
+                        "clientToken": track.clientToken,
                         "track": track.getUniqueTrackName(),
                         "operation": "get_features",
                         "organism": track.webapollo.organism
@@ -4647,7 +4648,7 @@ define([
                 var success = true;
                 dojo.xhrPost({
                     sync: true,
-                    postData: '{ "track": "' + thisB.getUniqueTrackName() + '", "operation": "get_user_permission" ,"preference":'+thisB.clientToken+'}',
+                    postData: '{ "track": "' + thisB.getUniqueTrackName() + '", "operation": "get_user_permission" ,"clientToken":'+thisB.clientToken+'}',
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5 * 1000, // Time in milliseconds
