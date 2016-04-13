@@ -1,20 +1,17 @@
 package org.bbop.apollo
 
-import grails.test.spock.IntegrationSpec
 import grails.converters.JSON
+import grails.test.spock.IntegrationSpec
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.lang.Ignore
 
 class CdsServiceIntegrationSpec extends IntegrationSpec {
     
-    def cdsService
     def sequenceService
     def requestHandlingService
     def transcriptService
-    def featureService
-    
+
     def setup() {
         Organism organism = new Organism(
                 directory: "test/integration/resources/sequences/honeybee-Group1.10/"
@@ -56,7 +53,7 @@ class CdsServiceIntegrationSpec extends IntegrationSpec {
         when: "a stopCodonReadThrough is created"
         Transcript transcript = Transcript.findByName("GB40828-RA-00001")
         CDS cds = transcriptService.getCDS(transcript)
-        String setReadThroughStopCodonString = "{\"operation\":\"set_readthrough_stop_codon\",\"username\":\"deepak.unni3@gmail.com\",\"features\":[{\"readthrough_stop_codon\":true,\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
+        String setReadThroughStopCodonString = "{\"operation\":\"set_readthrough_stop_codon\",\"username\":\"deepak.unni3@gmail.com\",\"features\":[{\"readthrough_stop_codon\":true,\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"clientToken\":\"1231232\"}"
         setReadThroughStopCodonString = setReadThroughStopCodonString.replace("@UNIQUENAME@", transcript.uniqueName)
         JSONObject setReadThroughRequestObject = JSON.parse(setReadThroughStopCodonString) as JSONObject
         JSONObject setReadThroughReturnObject = requestHandlingService.setReadthroughStopCodon(setReadThroughRequestObject)
