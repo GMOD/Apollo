@@ -16,6 +16,12 @@ class BootStrap {
 
 
     def init = { servletContext ->
+        log.info "Initializing..."
+        def dataSource = grailsApplication.config.dataSource
+        log.info "Datasource"
+        log.info "Url: ${dataSource.url}"
+        log.info "Driver: ${dataSource.driverClassName}"
+        log.info "Dialect: ${dataSource.dialect}"
 
         println "Initializing..."
         def dataSource = grailsApplication.config.dataSource
