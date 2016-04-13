@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import grails.util.Environment
+import org.apache.commons.lang.RandomStringUtils
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
@@ -12,6 +13,9 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
+
+import javax.servlet.http.HttpServletRequest
 
 @Transactional
 class PermissionService {
@@ -418,7 +422,7 @@ class PermissionService {
     Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
         // not sure if permissions with translate through or not
         Session session = SecurityUtils.subject.getSession(false)
-        String token = jsonObject.token
+        String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
@@ -444,7 +448,7 @@ class PermissionService {
         }
 
 
-        Organism organism = getCurrentOrganismPreference(token)?.organism
+        Organism organism = getCurrentOrganismPreference(clientToken)?.organism
         log.debug "passing in an organism ${jsonObject.organism}"
         if (jsonObject.organism) {
             Organism thisOrganism = null
@@ -464,7 +468,7 @@ class PermissionService {
                 organism = thisOrganism
             }
             log.debug "final organism ${organism.commonName}"
-            preferenceService.setCurrentOrganism(getCurrentUser(), organism)
+            preferenceService.setCurrentOrganism(getCurrentUser(), organism,clientToken)
         }
 
         return checkPermissions(jsonObject,organism,permissionEnum)
@@ -586,5 +590,24 @@ class PermissionService {
         else{
             return "Must have permissions ${permissionEnum.display} or better."
         }
+    }
+
+    @NotTransactional
+    String handleToken(GrailsParameterMap params, JSONObject dataObject) {
+        if(params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)){
+            println "trying to fix token if coming from the interface"
+            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,params.get(FeatureStringEnum.CLIENT_TOKEN.value))
+        }
+        else{
+            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,RandomStringUtils.random(20))
+        }
+        return dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
+    }
+
+    @NotTransactional
+    JSONObject handleInput(HttpServletRequest request, GrailsParameterMap params) {
+        JSONObject payloadJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
+        handleToken(params,payloadJson)
+        return payloadJson
     }
 }

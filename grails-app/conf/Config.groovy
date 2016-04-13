@@ -358,8 +358,8 @@ jbrowse {
         url= "https://github.com/GMOD/jbrowse"
 //        tag = "1.12.2-release"
         branch = "master"
-        alwaysPull = true
-        alwaysRecheck = true
+//        alwaysPull = true
+//        alwaysRecheck = true
     }
 //    url {
 //        // always use dev for apollo
