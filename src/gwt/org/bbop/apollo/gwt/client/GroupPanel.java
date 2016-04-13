@@ -345,7 +345,6 @@ public class GroupPanel extends Composite {
                 optionsList.add(option);
             }
 
-            Window.alert("all user size: " + allUsersList.size());
             for (UserInfo userInfo : allUsersList) {
                 Option option = new Option();
                 option.setText(userInfo.getName() + " (" + userInfo.getEmail() + ")");
