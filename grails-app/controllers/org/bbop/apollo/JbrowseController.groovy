@@ -413,4 +413,9 @@ class JbrowseController {
 //        redirect(url: "/jbrowse/${params.path}",permanent:true,params:params)
         redirect(url: "/jbrowse/${params.path}",permanent:false,params:params)
     }
+
+    def passthrough(){
+        println "passthorgh ${params}"
+        redirect(url: "/${params.prefix}/${params.path}",permanent:false,params:params)
+    }
 }

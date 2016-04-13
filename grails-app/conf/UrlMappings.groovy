@@ -14,17 +14,35 @@ class UrlMappings {
         "/version.jsp"(controller: 'annotator', view: "version")
 
         // set this routing here
-        "/${preference}/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
-        "/${preference}/jbrowse/index.html"(controller: "jbrowse", action: "indexRouter", params:params)
-        "/${preference}/jbrowse/${path}**" (controller: "jbrowse",action: "jbrowsePassthrough", params:params)
+        "/${clientToken}/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
+        "/${clientToken}/jbrowse/index.html"(controller: "jbrowse", action: "indexRouter", params:params)
+//        "/${clientToken}/jbrowse/${path}**" (controller: "jbrowse",action: "jbrowsePassthrough", params:params)
+//        "/${clientToken}/jbrowse/${path}**" (controller: "jbrowse",action: "passthrough", prefix:"jbrowse")
+        "/${clientToken}/jbrowse/${path}**" {
+            controller= "jbrowse"
+            action= "passthrough"
+            prefix= "jbrowse"
+//            permanent = true
+        }
+        "/${clientToken}/stomp/${path}**" {
+            controller= "jbrowse"
+            action= "passthrough"
+            prefix= "stomp"
+//            permanent = true
+        }
+//        "/${clientToken}/jbrowse/${path}**" {
+//            controller= "jbrowse"
+//            action= "passthrough"
+//            prefix= "jbrowse"
+//        }
 
-        "/${preference}/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
-        "/${preference}/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
-        "/${preference}/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
+        "/${clientToken}/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
+        "/${clientToken}/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
+        "/${clientToken}/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
         "/proxy/request/${url}"(controller:"proxy", action: "request")
 
 
-        "/${preference}/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params)
+        "/${clientToken}/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params)
         "/Login"(controller:"login",action: "handleOperation",params:params)
         "/ProxyService"(controller:"ncbiProxyService",action: "index",params:params)
         "/IOService"(controller:"IOService",action: "handleOperation",params:params)
