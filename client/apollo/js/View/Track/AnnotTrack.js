@@ -2009,6 +2009,71 @@ define([
                 var statusFlags = dojo.create("div", {'class': "status"}, statusDiv);
                 var statusRadios = new Object();
 
+if(feature){
+                var replacementDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var replacementLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "Replace model(s)"
+                }, replacementDiv);
+
+             
+                var replacementsTable = dojo.create("div", {
+                    'class': "replacement",
+                    id: "replacement_" + (selector ? "child" : "parent")
+                }, replacementDiv);
+                var replacementButtonsContainer = dojo.create("div", {style: "text-align: center;"}, replacementDiv);
+                var replacementButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, replacementButtonsContainer);
+                var addreplacementButton = dojo.create("button", {
+                    innerHTML: "Add",
+                    'class': "annotation_info_editor_button"
+                }, replacementButtons);
+                
+
+
+                var trackNames = Object.keys(JBrowse.trackConfigsByName);
+                var replacements = new Select({
+                    name: "replacementSelection",
+                    options: array.map(trackNames, function(trackName) {
+                        return {value: track.browser.trackConfigsByName[trackName].label, label: track.browser.trackConfigsByName[trackName].key}
+                    })
+                });
+
+
+                replacements.placeAt(replacementDiv).startup();
+                track.featureReplace = track.featureReplace ||new Select({
+                    name: "featureSelection",
+                    options: []
+                });
+                on(replacements, "change", function(selection) {
+                    console.log(track.browser.trackConfigsByName,selection,replacements);
+                    track.browser.getStore(track.browser.trackConfigsByName[selection].store, function(store) {
+                        console.log("Received store",store);
+                        store.getFeatures({ref: feature.afeature.sequence, start: feature.get('start'), end: feature.get('end')}, function(f) {
+                            console.log(track.featureReplace.options,f);
+                            if(f) {
+                                track.featureReplace.options.push({value: f.get('id'), label: f.get('name')});
+                                track.featureReplace.placeAt(replacementDiv).startup();
+                            }
+                        })
+                    });
+                });
+
+                on(track.featureReplace, "change", function(selection) {
+                    console.log(uniqueName);
+                    track.executeUpdateOperation(JSON.stringify({ "features": [{
+                            non_reserved_properties: [{
+                                tag: "replace",
+                                value: selection
+                            }],
+                            uniquename: uniqueName
+                        }],
+                        operation: "add_non_reserved_properties"
+                    }))
+                });
+
+           }
+
+
                 var dbxrefsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var dbxrefsLabel = dojo.create("div", {
                     'class': "annotation_info_editor_section_header",
@@ -2125,6 +2190,7 @@ define([
                     'class': "annotation_info_editor_button"
                 }, commentButtons);
 
+
                 //var replacementDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 //var replacementLabel = dojo.create("div", {
                 //    'class': "annotation_info_editor_section_header",
@@ -2190,6 +2256,7 @@ define([
                 //});
 
 
+
                 if (!hasWritePermission) {
                     nameField.set("disabled", true);
                     symbolField.set("disabled", true);
@@ -2206,8 +2273,11 @@ define([
                     dojo.attr(deleteGoIdButton, "disabled", true);
                     dojo.attr(addCommentButton, "disabled", true);
                     dojo.attr(deleteCommentButton, "disabled", true);
+	    dojo.attr(addreplacementButton, "disabled", true);
+
                     //dojo.attr(addreplacementButton, "disabled", true);
                     //dojo.attr(deletereplacementButton, "disabled", true);
+
                 }
 
                 var pubmedIdDb = "PMID";
