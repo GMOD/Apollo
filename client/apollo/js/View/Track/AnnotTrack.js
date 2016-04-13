@@ -282,6 +282,10 @@ define([
                 var stomp_url = window.location.href;
                 var index = stomp_url.search('/jbrowse');
                 stomp_url = stomp_url.substr(0, index) + '/stomp/';
+                var numberIndex = stomp_url.search('/[0-9]+/');
+                var stompIndex = stomp_url.search('/stomp/');
+                stomp_url = stomp_url.substr(0,numberIndex) + stomp_url.substr(stompIndex);
+
                 this.listener = new SockJS(stomp_url);
                 this.client = Stomp.over(this.listener);
                 this.client.debug = function (str) {
@@ -5471,6 +5475,11 @@ define([
             },
 
             executeUpdateOperation: function (postData, loadCallback) {
+                if(postData.search('clientToken')<0){
+                    var postObject = JSON.parse(postData);
+                    postObject.clientToken = this.getClientToken();
+                    postData = JSON.stringify(postObject);
+                }
                 console.log('connected and sending notifications');
                 this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));
                 console.log('sent notification message');
