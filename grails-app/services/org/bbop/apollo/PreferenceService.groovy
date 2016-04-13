@@ -18,7 +18,10 @@ class PreferenceService {
      * @return
      */
     Organism getCurrentOrganism(User user,String clientToken) {
+        println "getting current organism for token: ${clientToken}"
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByCurrentOrganismAndUserAndClientToken(true, user,clientToken)
+
+
         if (!userOrganismPreference) {
             userOrganismPreference = UserOrganismPreference.findByUser(user)
 

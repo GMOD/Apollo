@@ -14,6 +14,7 @@ class UrlMappings {
         "/version.jsp"(controller: 'annotator', view: "version")
 
         // set this routing here
+        "/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
         "/${clientToken}/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
         "/${clientToken}/jbrowse/index.html"(controller: "jbrowse", action: "indexRouter", params:params)
 //        "/${clientToken}/jbrowse/${path}**" (controller: "jbrowse",action: "jbrowsePassthrough", params:params)
@@ -39,6 +40,9 @@ class UrlMappings {
         "/${clientToken}/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/${clientToken}/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/${clientToken}/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
+        "/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
+        "/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
+        "/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
         "/proxy/request/${url}"(controller:"proxy", action: "request")
 
 

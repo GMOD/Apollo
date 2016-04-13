@@ -45,7 +45,6 @@ class JbrowseController {
         // case 3 - validated login (just read from preferences, then
         if(permissionService.currentUser&&params.organism){
             Organism organism = Organism.findByCommonName(params.organism)
-            println "is current organism eing set? "
             if(!organism&&params.organism.isInteger()) {
                 organism = Organism.findById(params.organism.toInteger())
             }
@@ -60,7 +59,9 @@ class JbrowseController {
 
 
         // case 1 - anonymous login with organism ID, show organism
+        println "attempt anonymous login!"
         if(params.organism){
+            println "got org ID? ${params.organism}"
             log.debug "organism ID specified: ${params.organism}"
 
             // set the organism
@@ -77,9 +78,9 @@ class JbrowseController {
 
 
             def session = request.getSession(true)
-//            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
-//            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
-//            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value,organism.commonName)
+            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
+            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value,organism.commonName)
 
             // create an anonymous login
             File file = new File(servletContext.getRealPath("/jbrowse/index.html") as String)
@@ -95,11 +96,33 @@ class JbrowseController {
 
 
     private String getJBrowseDirectoryForSession(String clientToken) {
-//        if(!permissionService.currentUser){
-//            return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
-//        }
-
-        String organismJBrowseDirectory = preferenceService.getCurrentOrganismForCurrentUser(clientToken).directory
+        println "current user? ${permissionService.currentUser}"
+        if(!permissionService.currentUser){
+            println "returning something not set clearly"
+            String directory = request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
+            if(!directory){
+                Organism organism = Organism.findByCommonName(directory)
+                if(organism) {
+                    def session = request.getSession(true)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value,organism.commonName)
+                    return organism.directory
+                }
+                organism = Organism.findById(directory as Long)
+                if(organism) {
+                    def session = request.getSession(true)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value,organism.commonName)
+                    return organism.directory
+                }
+            }
+        }
+        println "getting organism for client token ${clientToken}"
+        Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+        println "got organism ${currentOrganism} for client token ${clientToken}"
+        String organismJBrowseDirectory = currentOrganism.directory
         if (!organismJBrowseDirectory) {
             for (Organism organism in Organism.all) {
                 // load if not
@@ -126,10 +149,10 @@ class JbrowseController {
                     }
 
                     organismJBrowseDirectory = organism.directory
-//                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)
-//                    session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequence.name)
-//                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequence.organismId)
-//                    session.setAttribute(FeatureStringEnum.ORGANISM.value, sequence.organism.commonName)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)
+                    session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequence.name)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequence.organismId)
+                    session.setAttribute(FeatureStringEnum.ORGANISM.value, sequence.organism.commonName)
                     return organismJBrowseDirectory
                 }
             }
@@ -298,6 +321,7 @@ class JbrowseController {
     def trackList() {
         println "track list client token: ${params.get(FeatureStringEnum.CLIENT_TOKEN.value)}"
         String dataDirectory = getJBrowseDirectoryForSession(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+        println "got data directory of . . . ? ${dataDirectory}"
         String absoluteFilePath = dataDirectory + "/trackList.json"
         File file = new File(absoluteFilePath);
         def mimeType = "application/json";
