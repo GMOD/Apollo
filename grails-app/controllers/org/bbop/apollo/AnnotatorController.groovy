@@ -228,14 +228,15 @@ class AnnotatorController {
                 returnObject.track = sequenceName
             }
 
-            Sequence sequenceObj
-            Organism organism
-            if (returnObject.has("track")) {
-                sequenceObj = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
-                organism = sequenceObj.organism
-            } else {
-                organism = permissionService.checkPermissionsForOrganism(returnObject, PermissionEnum.READ)
-            }
+            Sequence sequenceObj = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+            Organism organism = sequenceObj.organism
+            println "searching for organism ${organism} and sequence ${sequenceObj}"
+//            if (returnObject.has("track")) {
+
+
+//            } else {
+//                organism = permissionService.checkPermissionsForOrganism(returnObject, PermissionEnum.READ)
+//            }
             Integer index = Integer.parseInt(request)
 
             List<String> viewableTypes

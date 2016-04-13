@@ -15,4 +15,6 @@ class Preference {
     String preferencesString // can embed JSONObject
     String clientToken // this is a token from the browser
     String token   // this is a general purpose token or JSON string
+    Date dateCreated
+    Date lastUpdated
 }
