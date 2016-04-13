@@ -96,6 +96,7 @@
 
 .dataGridHoveredRowCell {
     border: selectionBorderWidth solid #eee;
+    color: black;
 }
 
 .dataGridKeyboardSelectedRow {
@@ -108,7 +109,7 @@
 
 .dataGridSelectedRow {
     background: #628cd5;
-    color: white;
+    color: black;
     height: auto;
     overflow: auto;
 }
