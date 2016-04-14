@@ -109,7 +109,6 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
             }
         }
         log.debug "${features}"
-        chadoHandlerService.createChadoOrganism(Organism.findByCommonName("honey bee"));
         chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), Sequence.all, features)
 
 
