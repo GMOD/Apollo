@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 import java.security.MessageDigest
@@ -178,9 +177,7 @@ class ChadoHandlerService {
      */
     def getChadoFeature(String uniqueName) {
         org.gmod.chado.Feature chadoFeature
-        def featureResult = org.gmod.chado.Feature.executeQuery(
-                "SELECT DISTINCT f FROM org.gmod.chado.Feature f WHERE f.uniquename = :queryUniqueName",
-                [queryUniqueName: uniqueName])
+        def featureResult = org.gmod.chado.Feature.findAllByUniquename(uniqueName)
         if (featureResult.size() == 0) {
             chadoFeature = null
         }
@@ -314,6 +311,8 @@ class ChadoHandlerService {
         //feature.featureLocations - TODO: If Apollo has features with multiple Feature Locations
         //feature.featureCVTerms - TODO: If Apollo has features with multiple CvTerms
 
+        chadoFeature.save(flush: true)
+
         return chadoFeature
     }
 
@@ -344,7 +343,7 @@ class ChadoHandlerService {
                 rank: feature.featureLocation.rank,
                 feature: chadoFeature,
                 srcfeature: getSrcFeatureForFeature(organism, feature.featureLocation.sequence)
-        ).save()
+        ).save(flush: true)
         endTime = System.currentTimeMillis()
         log.debug "Time taken to create Chado featureloc for feature fmin: ${feature.fmin} fmax: ${feature.fmax}: ${endTime - startTime} ms"
         exportStatisticsMap['featureloc_count'] += 1
@@ -477,6 +476,7 @@ class ChadoHandlerService {
     def createChadoFeatureRelationship(org.bbop.apollo.Organism organism, org.gmod.chado.Feature feature, org.bbop.apollo.FeatureRelationship featureRelationship, String relationshipType = "part_of") {
         long startTime, endTime
         startTime = System.currentTimeMillis()
+        println "trying to create feature relationship from ${featureRelationship.parentFeature.uniqueName}"
         org.gmod.chado.FeatureRelationship chadoFeatureRelationship = new org.gmod.chado.FeatureRelationship(
                 subject: feature,
                 object: getChadoFeature(featureRelationship.parentFeature.uniqueName),
@@ -1096,7 +1096,7 @@ class ChadoHandlerService {
             chadoFeature.md5checksum = generateMD5checksum(residues)
         }
 
-        chadoFeature.save()
+        chadoFeature.save(flush: true)
         exportStatisticsMap['sequence_feature_count'] += 1
         endTime = System.currentTimeMillis()
         log.debug "Time taken to create Chado Feature for sequence ${sequence.name}: ${endTime - startTime} ms"
@@ -1169,9 +1169,7 @@ class ChadoHandlerService {
     def getChadoDb(org.bbop.apollo.DB db) {
         org.gmod.chado.Db chadoDb
         long startTime = System.currentTimeMillis()
-        def dbResult = org.gmod.chado.Db.executeQuery(
-                "SELECT DISTINCT db FROM org.gmod.chado.Db db WHERE db.name = :queryDbName",
-                [queryDbName: db.name])
+        def dbResult = org.gmod.chado.Db.findAllByName(db.name)
         long endTime = System.currentTimeMillis()
         log.debug "Time taken for querying for db ${db.name}: ${endTime - startTime} ms"
 
@@ -1212,6 +1210,8 @@ class ChadoHandlerService {
         }
 
         chadoOrganismsMap.put(organism.commonName, chadoOrganism)
+
+        chadoOrganism.save(flush: true)
     }
 
     /**
