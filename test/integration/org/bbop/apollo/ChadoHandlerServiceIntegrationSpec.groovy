@@ -38,8 +38,6 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
         ).save(flush: true)
         organism.sequences = [sequence]
         organism.save(flush: true)
-
-
     }
 
     def cleanup() {
@@ -51,7 +49,7 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
         Standard annotations signifies no modifications/attributes added to the annotations
          */
         if (! configWrapperService.isPostgresChadoDataSource()) {
-            println "Skipping test as the currently specified Chado data source is not PostgreSQL."
+            log.debug "Skipping test as the currently specified Chado data source is not PostgreSQL."
             return
         }
 
@@ -110,6 +108,7 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
                 features.add(it)
             }
         }
+        log.debug "${features}"
         chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), Sequence.all, features)
 
 
@@ -123,7 +122,7 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
     void "test CHADO export for annotations with additional information"() {
 
         if (! configWrapperService.isPostgresChadoDataSource()) {
-            println "Skipping test as the currently specified Chado data source is not PostgreSQL."
+            log.debug "Skipping test as the currently specified Chado data source is not PostgreSQL."
             return
         }
 

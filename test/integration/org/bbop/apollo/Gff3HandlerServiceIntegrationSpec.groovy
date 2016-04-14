@@ -56,7 +56,7 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         File tempFile = File.createTempFile("output", ".gff3")
         tempFile.deleteOnExit()
         log.debug "${tempFile.absolutePath}"
-        def featuresToWrite = Gene.findAll()+SequenceAlteration.findAll()+RepeatRegion.findAll()
+        def featuresToWrite = Gene.list(sort: "class")+SequenceAlteration.findAll()+RepeatRegion.findAll()
         gff3HandlerService.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,".")
         String tempFileText = tempFile.text
 
