@@ -7,6 +7,15 @@ environments {
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
             url = "jdbc:mysql://localhost/apollo"
+
+           maxActive = 20
+           maxWait = 60000
+           testWhileIdle = true
+           maxAge = 10 * 600000
+           timeBetweenEvictionRunsMillis = 300000
+           minEvictableIdleTimeMillis = 300000
+           testOnBorrow = true
+           validationQuery = "SELECT 1"
         }
     }
 }
