@@ -413,15 +413,15 @@ return declare( [JBPlugin, HelpMixin],
                                     dropDown: userMenu
                             });
         }
-        //else  {
-        //    loginButton = new dijitButton(
-        //                    { className: 'login',
-        //                            innerHTML: "Login",
-        //                            onClick: function()  {
-        //                                    webapollo.getAnnotTrack().login();
-        //                            }
-        //                    });
-        //}
+        else  {
+            loginButton = new dijitButton(
+                            { className: 'login',
+                                    innerHTML: "Login",
+                                    onClick: function()  {
+                                            webapollo.getAnnotTrack().login();
+                                    }
+                            });
+        }
 
         if (typeof window.parent.getEmbeddedVersion == 'undefined') {
             var annotatorButton = new dijitButton(
@@ -434,7 +434,7 @@ return declare( [JBPlugin, HelpMixin],
             this.browser.menuBar.appendChild( annotatorButton.domNode );
         }
 
-        this.browser.menuBar.appendChild( loginButton.domNode );
+        //this.browser.menuBar.appendChild( loginButton.domNode );
         this.loginMenuInitialized = true;
     },
 

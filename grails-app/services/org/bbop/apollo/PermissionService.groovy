@@ -274,7 +274,7 @@ class PermissionService {
         Organism organism
         if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
             String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
-            organism = Organism.findByCommonName(organismString)
+            organism = Organism.findByCommonNameIlike(organismString)
             if(!organism)
                 organism=Organism.findById(organismString as Long);
             if(!organism)
@@ -458,7 +458,7 @@ class PermissionService {
                 // obviously not a long type
             }
             if (!thisOrganism) {
-                thisOrganism = Organism.findByCommonName(jsonObject.organism)
+                thisOrganism = Organism.findByCommonNameIlike(jsonObject.organism)
             }
             if (!thisOrganism) {
                 thisOrganism = Organism.findByAbbreviation(jsonObject.organism)

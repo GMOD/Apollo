@@ -7,10 +7,12 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.storage.client.Storage;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.Random;
+import java.util.UUID;
 
 
 /**
@@ -24,8 +26,12 @@ public class Annotator implements EntryPoint {
 
     // TODO: move
     private static String generateRandomString(int length) {
-        Integer value = Math.abs(Integer.valueOf(random.nextInt()));
-        return value.toString();
+        StringBuilder stringBuilder = new StringBuilder();
+        while(stringBuilder.length()<length){
+            stringBuilder.append(Math.abs(random.nextInt()));
+        }
+        Window.alert("generating random string form annotator: "+stringBuilder.toString());
+        return stringBuilder.toString();
     }
 
     /**
@@ -88,7 +94,7 @@ public class Annotator implements EntryPoint {
     public static String getClientToken() {
         String clientID = getPreference(FeatureStringEnum.CLIENT_TOKEN.getValue());
         if (clientID == null) {
-            setPreference(FeatureStringEnum.CLIENT_TOKEN.getValue(), generateRandomString(130));
+            setPreference(FeatureStringEnum.CLIENT_TOKEN.getValue(), generateRandomString(20));
         }
         return getPreference(FeatureStringEnum.CLIENT_TOKEN.getValue());
 

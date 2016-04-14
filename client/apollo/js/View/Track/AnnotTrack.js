@@ -263,6 +263,15 @@ define([
 
             },
 
+            generateRandomNumber: function(length){
+                var string = '';
+                while(string.length()<length){
+                    string += Math.floor(Math.random()*1000);
+                }
+                alert("generating random string from Annottract: "+string);
+                return string ;
+            },
+
             getClientToken: function () {
                 if (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
                     return window.parent.getClientToken();

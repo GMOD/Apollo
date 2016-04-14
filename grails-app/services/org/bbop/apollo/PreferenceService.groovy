@@ -25,7 +25,7 @@ class PreferenceService {
         }
         else{
             println "is NOT long "
-            return Organism.findByCommonName(s)
+            return Organism.findByCommonNameIlike(s)
         }
 
     }

@@ -167,9 +167,9 @@ class SequenceController {
     }
 
     @Transactional
-    def getSequences(String name, Integer start, Integer length, String sort, Boolean asc, Integer minFeatureLength, Integer maxFeatureLength) {
+    def getSequences(String name, Integer start, Integer length, String sort, Boolean asc, Integer minFeatureLength, Integer maxFeatureLength,String clientToken) {
         try {
-            Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+            Organism organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
 
             if(!organism) {
                 render ([] as JSON)

@@ -42,12 +42,18 @@ class JbrowseController {
             }
         }
         // case 3 - validated login (just read from preferences, then
-        if (permissionService.currentUser && params.organism) {
-            Organism organism = Organism.findByCommonName(params.organism)
-            if (!organism && params.organism.isInteger()) {
-                organism = Organism.findById(params.organism.toInteger())
+        if (permissionService.currentUser && clientToken) {
+            Organism organism = Organism.findByCommonNameIlike(clientToken)
+            if (!organism && clientToken.isInteger()) {
+                organism = Organism.findById(clientToken.toInteger())
             }
-            preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
+            // if there is no organism
+            if(!organism){
+                organism = preferenceService.getCurrentOrganism(permissionService.currentUser,clientToken)
+            }
+            else{
+                preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
+            }
         }
 
         if (permissionService.currentUser) {
@@ -57,23 +63,12 @@ class JbrowseController {
         }
 //        // case 1 - anonymous login with organism ID, show organism
         else {
-//        {
-//
-//        }
-//
-//
-//        println "attempt anonymous login!"
-//        if(params.organism){
-            println "got org ID? ${params.organism}"
-            log.debug "organism ID specified: ${params.organism}"
-
-            // set the organism
-
+            log.debug "organism ID specified: ${clientToken}"
 
             if(clientToken){
-                Organism organism = Organism.findByCommonName(clientToken)
-                if (!organism && clientToken?.isInteger()) {
-                    organism = Organism.findById(clientToken)
+                Organism organism = Organism.findByCommonNameIlike(clientToken)
+                if (!organism && clientToken?.isLong()) {
+                    organism = Organism.findById(clientToken.toLong())
                 }
                 if (!organism) {
                     String urlString = "/jbrowse/index.html?${paramList.join("&")}"
@@ -95,7 +90,7 @@ class JbrowseController {
         }
 
         // case 2 - anonymous login with-OUT organism ID, show organism list
-        paramList.add("organism=${params.organism}")
+        paramList.add("organism=${clientToken}")
         String urlString = "/jbrowse/index.html?${paramList.join("&")}"
         forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString])
     }
@@ -107,7 +102,7 @@ class JbrowseController {
             println "returning something not set clearly"
             String directory = request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
             if (!directory) {
-                Organism organism = Organism.findByCommonName(clientToken)
+                Organism organism = Organism.findByCommonNameIlike(clientToken)
                 if (organism) {
                     def session = request.getSession(true)
                     session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
