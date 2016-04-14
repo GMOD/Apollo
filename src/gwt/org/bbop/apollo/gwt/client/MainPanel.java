@@ -688,13 +688,14 @@ public class MainPanel extends Composite {
 
     public String generatePublicUrl() {
         String url2 = Annotator.getRootUrl();
+        url2 += currentOrganism.getId()+"/";
         url2 += "jbrowse/index.html";
         if (currentStartBp != null) {
             url2 += "?loc=" + currentSequence.getName() + ":" + currentStartBp + ".." + currentEndBp;
         } else {
             url2 += "?loc=" + currentSequence.getName() + ":" + currentSequence.getStart() + ".." + currentSequence.getEnd();
         }
-        url2 += "&organism=" + currentOrganism.getId();
+//        url2 += "&organism=" + currentOrganism.getId();
         url2 += "&tracks=";
 
         List<String> trackList = trackPanel.getTrackList();

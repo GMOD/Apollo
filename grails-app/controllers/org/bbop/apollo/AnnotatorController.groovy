@@ -41,6 +41,7 @@ class AnnotatorController {
         try {
             Organism organism = Organism.findById(params.organism as Long)
             log.debug "loading organism: ${organism}"
+
             preferenceService.setCurrentOrganism(permissionService.currentUser, organism,params[FeatureStringEnum.CLIENT_TOKEN.value])
             if (params.loc) {
                 String location = params.loc
