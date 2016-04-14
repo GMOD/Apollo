@@ -43,6 +43,8 @@ class BootStrap {
             adminRole.addToPermissions("*:*")
         }
 
+
+
         if (grailsApplication.config.apollo.bootstrap || Environment.current == Environment.TEST) {
             log.debug "attempting to bootstrap the data "
             mockupService.bootstrapData()

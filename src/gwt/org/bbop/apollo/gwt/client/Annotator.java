@@ -30,7 +30,6 @@ public class Annotator implements EntryPoint {
         while(stringBuilder.length()<length){
             stringBuilder.append(Math.abs(random.nextInt()));
         }
-        Window.alert("generating random string form annotator: "+stringBuilder.toString());
         return stringBuilder.toString();
     }
 

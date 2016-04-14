@@ -2186,7 +2186,6 @@ class RequestHandlingService {
         }
 
         Gene mergedTranscriptGene = transcriptService.getGene(transcript1)
-        mergedTranscriptGene = mergedTranscriptGene.refresh()
         transcript1.name = transcript1.name ?: nameService.generateUniqueName(transcript1)
 
         JSONObject returnObject = createJSONFeatureContainerFromFeatures(featureService.getTopLevelFeature(transcript1))

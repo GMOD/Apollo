@@ -265,10 +265,9 @@ define([
 
             generateRandomNumber: function(length){
                 var string = '';
-                while(string.length()<length){
+                while(string.length<length){
                     string += Math.floor(Math.random()*1000);
                 }
-                alert("generating random string from Annottract: "+string);
                 return string ;
             },
 
@@ -279,7 +278,7 @@ define([
                 else{
                     var returnItem = window.sessionStorage.getItem("clientToken");
                     if (!returnItem) {
-                        var randomNumber = Math.random();
+                        var randomNumber = this.generateRandomNumber(30);
                         window.sessionStorage.setItem("clientToken", randomNumber)
                     }
                     return window.sessionStorage.getItem("clientToken");
