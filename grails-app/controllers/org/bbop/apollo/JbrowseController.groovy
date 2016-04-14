@@ -70,25 +70,28 @@ class JbrowseController {
             // set the organism
 
 
-            Organism organism = Organism.findByCommonName(clientToken)
-            if (!organism && clientToken.isInteger()) {
-                organism = Organism.findById(clientToken)
+            if(clientToken){
+                Organism organism = Organism.findByCommonName(clientToken)
+                if (!organism && clientToken?.isInteger()) {
+                    organism = Organism.findById(clientToken)
+                }
+                if (!organism) {
+                    String urlString = "/jbrowse/index.html?${paramList.join("&")}"
+                    forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "Unable to find organism for '${clientToken}'"])
+                    return
+                }
+                def session = request.getSession(true)
+                session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
+                session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
+                session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
+                // create an anonymous login
+                File file = new File(servletContext.getRealPath("/jbrowse/index.html") as String)
+                render file.text
+                return
             }
-            if (!organism) {
-                String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-                forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "Unable to find organism '${params.organism}'"])
-            }
 
 
-            def session = request.getSession(true)
-            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
-            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
 
-            // create an anonymous login
-            File file = new File(servletContext.getRealPath("/jbrowse/index.html") as String)
-            render file.text
-            return
         }
 
         // case 2 - anonymous login with-OUT organism ID, show organism list
@@ -318,14 +321,15 @@ class JbrowseController {
     }
 
     def trackList() {
-        println "track list client token: ${params.get(FeatureStringEnum.CLIENT_TOKEN.value)}"
-        String dataDirectory = getJBrowseDirectoryForSession(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+        String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
+        println "track list client token: ${clientToken}"
+        String dataDirectory = getJBrowseDirectoryForSession(clientToken)
         println "got data directory of . . . ? ${dataDirectory}"
         String absoluteFilePath = dataDirectory + "/trackList.json"
         File file = new File(absoluteFilePath);
         def mimeType = "application/json";
         response.setContentType(mimeType);
-        int id
+        Long id
 
         if (!file.exists()) {
             log.warn("Could not get for name and path: ${absoluteFilePath}");
@@ -336,15 +340,14 @@ class JbrowseController {
 
         // add datasets to the configuration
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
-        Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser()
+        Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         if (currentOrganism != null) {
             jsonObject.put("dataset_id", currentOrganism.id)
         }
-
-//        else {
-//            id=request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
-//            jsonObject.put("dataset_id",id);
-//        }
+        else {
+            id=request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
+            jsonObject.put("dataset_id",id);
+        }
         List<Organism> list = permissionService.getOrganismsForCurrentUser()
         JSONObject organismObjectContainer = new JSONObject()
         for (organism in list) {
@@ -360,7 +363,8 @@ class JbrowseController {
 
         if (list.size() == 0) {
             JSONObject organismObject = new JSONObject()
-            organismObject.put("name", Organism.findById(id).commonName)
+//            organismObject.put("name", Organism.findById(id).commonName)
+            organismObject.put("name", currentOrganism.commonName)
             organismObject.put("url", "#")
             organismObjectContainer.put(id, organismObject)
         }

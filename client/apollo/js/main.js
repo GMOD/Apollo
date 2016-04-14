@@ -413,22 +413,22 @@ return declare( [JBPlugin, HelpMixin],
                                     dropDown: userMenu
                             });
         }
-        else  {
-            loginButton = new dijitButton(
-                            { className: 'login',
-                                    innerHTML: "Login",
-                                    onClick: function()  {
-                                            webapollo.getAnnotTrack().login();
-                                    }
-                            });
-        }
+        //else  {
+        //    loginButton = new dijitButton(
+        //                    { className: 'login',
+        //                            innerHTML: "Login",
+        //                            onClick: function()  {
+        //                                    webapollo.getAnnotTrack().login();
+        //                            }
+        //                    });
+        //}
 
         if (typeof window.parent.getEmbeddedVersion == 'undefined') {
             var annotatorButton = new dijitButton(
                 {
-                    innerHTML: "Annotator View",
+                    innerHTML: "Login",
                     onClick: function () {
-                        window.location.href = '../';
+                        window.location.href = '../../';
                     }
                 });
             this.browser.menuBar.appendChild( annotatorButton.domNode );

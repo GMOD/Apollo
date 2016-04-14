@@ -8,10 +8,28 @@ class PreferenceService {
     def permissionService
 
     Organism getCurrentOrganismForCurrentUser(String clientToken) {
-        return permissionService.currentUser == null ? null : getCurrentOrganism(permissionService.currentUser,clientToken);
+        if(permissionService.currentUser==null){
+            return getOrganismForToken(clientToken)
+        }
+        else{
+            return getCurrentOrganism(permissionService.currentUser,clientToken)
+        }
+//        return permissionService.currentUser == null ? null : getCurrentOrganism(permissionService.currentUser,clientToken);
     }
 
-    /**
+    Organism getOrganismForToken(String s) {
+        println "token for org ${s}"
+        if(s.isLong()){
+            println "is long "
+            return Organism.findById(Long.parseLong(s))
+        }
+        else{
+            println "is NOT long "
+            return Organism.findByCommonName(s)
+        }
+
+    }
+/**
      * Get the current user preference.
      * If no preference, then set one
      * @param user
