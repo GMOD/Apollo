@@ -11,6 +11,7 @@ services:
 before_install:
 - npm install -g jshint bower
 before_script:
+#- if [ ${DB} == "mysql" ]; then cp test/config/mysql.travis apollo-config.groovy; cat "$TRAVIS_BUILD_DIR/test/config/mysql.cnf" | sudo tee -a /etc/mysql/my.cnf ; sudo service mysql restart ; mysql -e 'create database apollo'; fi;
 - if [ ${DB} == "mysql" ]; then cp test/config/mysql.travis apollo-config.groovy; mysql -e 'create database apollo'; fi;
 - if [ ${DB} == "postgres" ]; then cp test/config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; psql -c 'create database apollo_chado' -U postgres; gunzip -c chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado; fi;
 language: groovy
