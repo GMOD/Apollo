@@ -23,13 +23,6 @@ class BootStrap {
         log.info "Driver: ${dataSource.driverClassName}"
         log.info "Dialect: ${dataSource.dialect}"
 
-        println "Initializing..."
-        def dataSource = grailsApplication.config.dataSource
-        println "Datasource"
-        println "Url: ${dataSource.url}"
-        println "Driver: ${dataSource.driverClassName}"
-        println "Dialect: ${dataSource.dialect}"
-
         domainMarshallerService.registerObjects()
         proxyService.initProxies()
 
