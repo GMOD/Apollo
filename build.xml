@@ -126,7 +126,7 @@
     <target name="build.jbrowse" description="Build JBrowse using the build/Makefile">
         <exec executable="sh" failifexecutionfails="false">
             <arg value="-c"/>
-            <arg line="'ulimit -n 1000; cd ${jbrowse.download.directory} &amp;&amp; make -f build/Makefile release-notest'"/>
+            <arg line="'ulimit -n 1000; cd ${jbrowse.download.directory} &amp;&amp; make -f build/Makefile RELEASE_VERSION=dev release-notest'"/>
         </exec>
     </target>
 
