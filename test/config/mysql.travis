@@ -8,16 +8,16 @@ environments {
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
             url = "jdbc:mysql://localhost/apollo"
 
-           maxActive = 50
-           minIdle = 5
-           maxIdle = 25
-           maxWait = 10000
-           maxAge = 10 * 60000
-           timeBetweenEvictionRunsMillis = 5000
-           minEvictableIdleTimeMillis = 60000
+           maxActive = 500
+           minIdle = 50
+           maxIdle = 250
+           maxWait = 100000
+           maxAge = 10 * 600000
+           timeBetweenEvictionRunsMillis = 50000
+           minEvictableIdleTimeMillis = 600000
            validationQuery = "SELECT 1"
-           validationQueryTimeout = 3
-           validationInterval = 15000
+           validationQueryTimeout = 300
+           validationInterval = 150000
            testOnBorrow = true
            testWhileIdle = true
            testOnReturn = false
