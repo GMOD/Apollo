@@ -221,7 +221,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     )
     def addComments() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-        println inputObject.toString()
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addComments(inputObject)
         } else {
@@ -463,48 +462,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render featureContainer
     }
 
-    // TODO: implement
-    def getResiduesWithAlterations() {
-        throw new RuntimeException("Not yet implemented")
-//        JSONObject featureContainer = createJSONFeatureContainer();
-//        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-//        try {
-//            permissionService.checkPermissions(inputObject, PermissionEnum.EXPORT)
-//            println "updated 2 "
-//            JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-//            for (int i = 0; i < featuresArray.size(); ++i) {
-//                JSONObject jsonFeature = featuresArray.getJSONObject(i);
-//                String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
-//                Feature feature = Feature.findByUniqueName(uniqueName)
-//                String residue = sequenceService.getResiduesFromFeature(feature)
-//                JSONObject info = new JSONObject();
-//                info.put(FeatureStringEnum.UNIQUENAME.value, uniqueName);
-//                info.put("residues", residue)
-//                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(info);
-//            }
-//            render featureContainer
-//        } catch (e) {
-//            def error= [error: 'problem getting features: '+e.fillInStackTrace()]
-//            render error as JSON
-//            log.error(error.error)
-//        }
-    }
-
-    // TODO: implement
-    def addFrameshift() {
-        throw new RuntimeException("Not yet implemented")
-    }
-
-    // TODO: implement
-    def getResiduesWithFrameShifts() {
-        throw new RuntimeException("Not yet implemented")
-    }
-
-    // TODO: implement
-    def getResiduesWithAlternationsAndFrameshifts() {
-        throw new RuntimeException("Not yet implemented")
-    }
-
 
     @RestApiMethod(description="Get sequence alterations for a given sequence" ,path="/annotationEditor/getSequenceAlterations",verb = RestApiVerb.POST )
     @RestApiParams(params=[
@@ -516,8 +473,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @Timed
     def getSequenceAlterations() {
         JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-
-        println "return object for sequence alterations: ${returnObject as JSON}"
 
         Sequence sequence = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
 

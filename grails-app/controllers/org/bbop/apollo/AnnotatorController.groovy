@@ -229,8 +229,6 @@ class AnnotatorController {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
             returnObject.clientToken = clientToken
-            println "finding annotations for client token: ${clientToken}"
-            println "return object: ${returnObject as JSON}"
             if (sequenceName && !Sequence.countByName(sequenceName)) return
 
             if (sequenceName) {
@@ -239,13 +237,6 @@ class AnnotatorController {
 
             Sequence sequenceObj = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             Organism organism = sequenceObj.organism
-            println "searching for organism ${organism} and sequence ${sequenceObj}"
-//            if (returnObject.has("track")) {
-
-
-//            } else {
-//                organism = permissionService.checkPermissionsForOrganism(returnObject, PermissionEnum.READ)
-//            }
             Integer index = Integer.parseInt(request)
 
             List<String> viewableTypes
@@ -379,7 +370,6 @@ class AnnotatorController {
      */
     @Transactional
     def getAppState() {
-        println "app client clientToken: ${params.get(FeatureStringEnum.CLIENT_TOKEN.value)} for ${params}"
         render annotatorService.getAppState(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString()) as JSON
     }
 

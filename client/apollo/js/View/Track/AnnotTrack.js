@@ -278,7 +278,7 @@ define([
                 else{
                     var returnItem = window.sessionStorage.getItem("clientToken");
                     if (!returnItem) {
-                        var randomNumber = this.generateRandomNumber(30);
+                        var randomNumber = this.generateRandomNumber(20);
                         window.sessionStorage.setItem("clientToken", randomNumber)
                     }
                     return window.sessionStorage.getItem("clientToken");
