@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
+import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.AnnotatorSummary
@@ -34,15 +35,21 @@ class AnnotatorController {
      * This is a public method, but is really used only internally.
      *
      * Loads the shared link and moves over:
-     * http://localhost:8080/apollo/annotator/loadLink?loc=chrII:302089..337445&organism=23357&highlight=0&tracklist=0&tracks=Reference%20sequence,User-created%20Annotations
+     * http://localhost:8080/apollo/annotator/loadLink?loc=chrII:302089..337445&organism=23357&highlight=0&tracklist=0&tracks=Reference%20sequence,User-created%20Annotations&clientToken=12312321
      * @return
      */
     def loadLink() {
+        String clientToken
         try {
+            if(params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)){
+                clientToken = params[FeatureStringEnum.CLIENT_TOKEN.value]
+            }
+            else{
+                clientToken = ClientTokenGenerator.generateRandomString()
+            }
             Organism organism = Organism.findById(params.organism as Long)
             log.debug "loading organism: ${organism}"
-
-            preferenceService.setCurrentOrganism(permissionService.currentUser, organism,params[FeatureStringEnum.CLIENT_TOKEN.value])
+            preferenceService.setCurrentOrganism(permissionService.currentUser, organism,clientToken)
             if (params.loc) {
                 String location = params.loc
                 String[] splitString = location.split(":")
@@ -63,14 +70,14 @@ class AnnotatorController {
                 }
                 log.debug "fmin ${fmin} . . fmax ${fmax} . . ${sequence}"
 
-                preferenceService.setCurrentSequenceLocation(sequence.name, fmin, fmax,params[FeatureStringEnum.CLIENT_TOKEN.value])
+                preferenceService.setCurrentSequenceLocation(sequence.name, fmin, fmax,clientToken)
             }
 
         } catch (e) {
             log.error "problem parsing the string ${e}"
         }
 
-        redirect uri: "/annotator/index"
+        redirect uri: "/annotator/index?clientToken="+clientToken
     }
 
     /**
@@ -82,7 +89,8 @@ class AnnotatorController {
         Organism.all.each {
             log.info it.commonName
         }
-        [userKey: uuid]
+        String clientToken = params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value) ? params.get(FeatureStringEnum.CLIENT_TOKEN.value) : null
+        [userKey: uuid,clientToken:clientToken]
     }
 
 
@@ -371,8 +379,8 @@ class AnnotatorController {
      */
     @Transactional
     def getAppState() {
-        println "app client clientToken: ${params[FeatureStringEnum.CLIENT_TOKEN.value]} for ${params}"
-        render annotatorService.getAppState(params[FeatureStringEnum.CLIENT_TOKEN.value]) as JSON
+        println "app client clientToken: ${params.get(FeatureStringEnum.CLIENT_TOKEN.value)} for ${params}"
+        render annotatorService.getAppState(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString()) as JSON
     }
 
     /**

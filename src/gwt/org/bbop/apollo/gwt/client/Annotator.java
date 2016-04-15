@@ -7,13 +7,9 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.storage.client.Storage;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
+import org.bbop.apollo.gwt.shared.ClientTokenGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-
-import java.util.Random;
-import java.util.UUID;
-
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -22,16 +18,6 @@ public class Annotator implements EntryPoint {
 
     public static EventBus eventBus = GWT.create(SimpleEventBus.class);
     private static Storage preferenceStore = Storage.getSessionStorageIfSupported();
-    private final static Random random = new Random(); // or SecureRandom
-
-    // TODO: move
-    private static String generateRandomString(int length) {
-        StringBuilder stringBuilder = new StringBuilder();
-        while(stringBuilder.length()<length){
-            stringBuilder.append(Math.abs(random.nextInt()));
-        }
-        return stringBuilder.toString();
-    }
 
     /**
      * This is the entry point method.
@@ -42,6 +28,12 @@ public class Annotator implements EntryPoint {
         rp.add(mainPanel);
 
         Dictionary optionsDictionary = Dictionary.getDictionary("Options");
+        if(optionsDictionary.keySet().contains(FeatureStringEnum.CLIENT_TOKEN.getValue())){
+            String clientToken = optionsDictionary.get(FeatureStringEnum.CLIENT_TOKEN.getValue());
+            if(ClientTokenGenerator.isValidToken(clientToken)){
+                setPreference(FeatureStringEnum.CLIENT_TOKEN.getValue(),clientToken);
+            }
+        }
         Double height = 100d;
         Style.Unit heightUnit = Style.Unit.PCT;
         Double top = 0d;
@@ -67,7 +59,7 @@ public class Annotator implements EntryPoint {
     public static native void exportStaticMethod() /*-{
         $wnd.setPreference = $entry(@org.bbop.apollo.gwt.client.Annotator::setPreference(Ljava/lang/String;Ljava/lang/Object;));
         $wnd.getPreference = $entry(@org.bbop.apollo.gwt.client.Annotator::getPreference(Ljava/lang/String;));
-        $wnd.getClientToken = $entry(@org.bbop.apollo.gwt.client.Annotator::getClientToken());
+        $wnd.getClientToken = $entry(@org.bbop.apollo.gwt.shared.ClientTokenGenerator::generateRandomString());
     }-*/;
 
     public static void setPreference(String key, Object value) {
@@ -92,8 +84,8 @@ public class Annotator implements EntryPoint {
 
     public static String getClientToken() {
         String clientID = getPreference(FeatureStringEnum.CLIENT_TOKEN.getValue());
-        if (clientID == null) {
-            setPreference(FeatureStringEnum.CLIENT_TOKEN.getValue(), generateRandomString(20));
+        if (!ClientTokenGenerator.isValidToken(clientID)) {
+            setPreference(FeatureStringEnum.CLIENT_TOKEN.getValue(), ClientTokenGenerator.generateRandomString());
         }
         return getPreference(FeatureStringEnum.CLIENT_TOKEN.getValue());
 
