@@ -69,7 +69,7 @@
 
     <target name="build" depends="gwtc" description="Build this project"/>
 
-    <target name="clean" depends="clean-grails,clean-grailsw" description="Cleans this project using grails">
+    <target name="clean-ant" depends="clean-grails,clean-grailsw" description="Cleans this project using grails">
     </target>
 
     <property name="grails-clean" value="false"/>
@@ -91,10 +91,9 @@
         </exec>
     </target>
 
-    <target name="clean-all" depends="clean" description="Cleans this project">
+    <target name="clean-all" depends="clean-ant" description="Cleans this project">
         <delete dir="web-app/WEB-INF/deploy" failonerror="false"/>
         <delete dir="web-app/annotator" failonerror="false"/>
-        <!--<delete dir="target/classes/gwt" failonerror="false"/>-->
         <delete dir="target" failonerror="false"/>
     </target>
 
@@ -129,7 +128,7 @@
     <target name="build.jbrowse" description="Build JBrowse using the build/Makefile">
         <exec executable="sh" failifexecutionfails="false">
             <arg value="-c"/>
-            <arg line="'ulimit -n 1000; cd ${jbrowse.download.directory} &amp;&amp; make -f build/Makefile release-notest'"/>
+            <arg line="'ulimit -n 1000; cd ${jbrowse.download.directory} &amp;&amp; make -f build/Makefile RELEASE_VERSION=dev release-notest'"/>
         </exec>
     </target>
 
@@ -146,7 +145,7 @@
     </target>
 
     <target name="release" description=""
-            depends="clean,cloneJBrowse,copy.apollo.plugin.jbrowse,build.jbrowse,install.jbrowse.perl">
+            depends="clean-ant,cloneJBrowse,copy.apollo.plugin.jbrowse,build.jbrowse,install.jbrowse.perl">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}.zip"/>
@@ -163,7 +162,7 @@
     </target>
 
     <target name="debug" description=""
-            depends="clean,cloneJBrowse,copy.apollo.plugin.jbrowse,build.jbrowse">
+            depends="clean-ant,cloneJBrowse,copy.apollo.plugin.jbrowse,build.jbrowse">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}-dev.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}-dev.zip"/>

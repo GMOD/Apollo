@@ -81,7 +81,7 @@ class FeatureEventService {
         }
         FeatureEvent lastFeatureEvent = lastFeatureEventList[0]
         lastFeatureEvent.current = false;
-        lastFeatureEvent.save()
+        lastFeatureEvent.save(flush: true)
         deleteFutureHistoryEvents(lastFeatureEvent)
 
         Date addDate = new Date()
@@ -201,7 +201,7 @@ class FeatureEventService {
 
         featureEvent1.save()
         lastFeatureEventLeft.save()
-        lastFeatureEventRight.save()
+        lastFeatureEventRight.save(flush: true)
 
         featureEventList.add(featureEvent1)
 
@@ -227,7 +227,7 @@ class FeatureEventService {
         }
         if (lastFeatureEvent) {
             lastFeatureEvent.current = false;
-            lastFeatureEvent.save()
+            lastFeatureEvent.save(flush: true)
             deleteFutureHistoryEvents(lastFeatureEvent)
         }
 
@@ -243,12 +243,12 @@ class FeatureEventService {
                 , oldFeaturesJsonArray: oldFeatureArray.toString()
                 , dateCreated: new Date()
                 , lastUpdated: new Date()
-        ).save()
+        ).save(flush: true)
 
         // set the children here properly
         if (lastFeatureEvent) {
             lastFeatureEvent.childId = featureEvent.id
-            lastFeatureEvent.save()
+            lastFeatureEvent.save(flush: true)
         }
 
         return featureEvent
@@ -296,7 +296,7 @@ class FeatureEventService {
             array.each {
                 if (it.current) {
                     it.current = false
-                    it.save()
+                    it.save(flush: true)
                 }
             }
         }
@@ -308,7 +308,7 @@ class FeatureEventService {
             array.each {
                 if (it.current) {
                     it.current = false
-                    it.save()
+                    it.save(flush: true)
                 }
             }
         }
@@ -461,6 +461,8 @@ class FeatureEventService {
 
         setNotPreviousFutureHistoryEvents(currentFeatureEvent)
         setNotCurrentFutureHistoryEvents(currentFeatureEvent)
+
+        currentFeatureEvent.save(flush: true)
 
         return findCurrentFeatureEvent(uniqueName, featureEventMap)
     }

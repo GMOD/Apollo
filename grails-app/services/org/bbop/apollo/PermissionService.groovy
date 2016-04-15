@@ -12,6 +12,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.codehaus.groovy.grails.web.json.parser.JSONParser
 
 @Transactional
 class PermissionService {
@@ -426,6 +427,7 @@ class PermissionService {
      * @return
      */
     Bookmark checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
+        println "checking permissions with ${inputObject as JSON}"
         Organism organism
         List<String> sequenceStrings = extractSequenceNamesFromJson(inputObject)
         if (!sequenceStrings) {
@@ -459,7 +461,7 @@ class PermissionService {
         }
         sequences.each {
             Integer index = sequenceStrings.indexOf(it.name)
-            foundSequences.set(index,it)
+            foundSequences.set(index, it)
         }
 
 
@@ -475,28 +477,42 @@ class PermissionService {
             throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
 
-        if(foundSequences){
+        if (foundSequences) {
 //            Bookmark bookmark = bookmarkService.generateBookmarkForSequence(user, foundSequences as Sequence[])
             Bookmark bookmark = null
-            if(inputObject.track instanceof String){
-                Sequence sequence = Sequence.findByName(inputObject.track)
-                if(sequence){
-                    bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+            if (inputObject.track instanceof String) {
+                if (inputObject.track.startsWith("{")) {
+                    JSONArray sequenceListArray = (JSON.parse(inputObject.track) as JSONObject).sequenceList
+                    List<String> sequenceList = []
+                    for (int i = 0; i < sequenceListArray.size(); i++) {
+                        sequenceList << sequenceListArray.getJSONObject(i).name
+                    }
+                    if (sequenceList) {
+                        def sequenceObjects = Sequence.findAllByNameInList(sequenceList)
+                        bookmark = bookmarkService.generateBookmarkForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
+                    }
+                    println "bookmark sequence list ${bookmark} vs ${sequenceList} and ${inputObject as JSON}"
+                } else {
+                    Sequence sequence = Sequence.findByName(inputObject.track)
+                    if (sequence) {
+                        bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+                    }
+                    println "has a sequence: ${sequence} for ${inputObject.track}"
                 }
-                else{
-                    log.error("Invalid sequence name: "+inputObject.track)
+                if (!bookmark) {
+                    log.error("Invalid sequence name: " + inputObject.track)
                 }
+            } else {
+                bookmark = bookmarkService.convertJsonToBookmark(inputObject.track)
+                println "NO Track bookmark ${bookmark} and ${inputObject as JSON}"
             }
-            else{
-                bookmark = bookmarkService.convertJsonToBookmark( inputObject.track)
-            }
-            preferenceService.setCurrentBookmark(user,bookmark)
-            if((inputObject.track instanceof JSONObject) && inputObject?.track?.projection){
+            preferenceService.setCurrentBookmark(user, bookmark)
+            if ((inputObject.track instanceof JSONObject) && inputObject?.track?.projection) {
                 bookmark.projection = inputObject.track.projection
                 bookmark.padding = inputObject.track?.padding
                 bookmark.referenceTrack = inputObject.track?.referenceTrack
                 println "save here?"
-                bookmark.save(flush: true )
+                bookmark.save(flush: true)
             }
             return bookmark
         }
@@ -712,5 +728,14 @@ class PermissionService {
             return user?.id == jsonObject.userId
         }
         return false
+    }
+
+    @NotTransactional
+    def getInsufficientPermissionMessage(PermissionEnum permissionEnum) {
+        if (permissionEnum == PermissionEnum.ADMINISTRATE) {
+            return "Must have permissions ${PermissionEnum.ADMINISTRATE.display}."
+        } else {
+            return "Must have permissions ${permissionEnum.display} or better."
+        }
     }
 }

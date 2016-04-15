@@ -220,14 +220,13 @@ class AnnotatorController {
     def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort) {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
-            String[] sequenceNames = sequenceName.length()==0 ? [] : sequenceName.split("\\:\\:")
+            String[] sequenceNames = sequenceName.length() == 0 ? [] : sequenceName.split("\\:\\:")
             List<Sequence> sequences = Sequence.findAllByNameInList(sequenceNames as List<String>)
-            if (!sequences){
+            if (!sequences) {
                 sequences = []
 //                render returnObject as JSON
 //              return
-            }
-            else{
+            } else {
                 Bookmark generatedBookmark = bookmarkService.generateBookmarkForSequence(sequences as Sequence[])
                 String bookmarkString = bookmarkService.convertBookmarkToJson(generatedBookmark).toString()
 
@@ -277,57 +276,58 @@ class AnnotatorController {
             log.debug "${sort} ${sortorder}"
 
             List<Sequence> sequenceList
-            if(bookmark){
+            if (bookmark) {
                 sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
             }
-            else{
-
-            }
+//            else{
+//
+//            }
             //use two step query. step 1 gets genes in a page
             def pagination = Feature.createCriteria().list(max: max, offset: offset) {
                 featureLocations {
-                    if(sequences && !BookmarkService.isProjectionString(sequenceName) && !BookmarkService.isProjectionReferer(sequence)) {
-                        'in'('sequence',sequences)
+//                    if(sequences && !BookmarkService.isProjectionString(sequenceName) && !BookmarkService.isProjectionReferer(bookmark)) {
+                    if (sequences && !BookmarkService.isProjectionString(sequenceName)) {
+                        'in'('sequence', sequences)
                     }
-                    if(sort=="length") {
+                    if (sort == "length") {
                         order('length', sortorder)
                     }
                     sequence {
-                        if(sort=="sequence") {
-                            order('name',sortorder)
+                        if (sort == "sequence") {
+                            order('name', sortorder)
                         }
                         eq('organism', organism)
                     }
                 }
-                if(sort=="name") {
+                if (sort == "name") {
                     order('name', sortorder)
                 }
-                if(sort=="date") {
+                if (sort == "date") {
                     order('lastUpdated', sortorder)
                 }
-                if(annotationName) {
-                    ilike('name','%'+annotationName+'%')
+                if (annotationName) {
+                    ilike('name', '%' + annotationName + '%')
                 }
                 'in'('class', viewableTypes)
             }
 
             //step 2 does a distinct query with extra attributes added in
-            def features = pagination.size()==0 ? [] : Feature.createCriteria().listDistinct {
+            def features = pagination.size() == 0 ? [] : Feature.createCriteria().listDistinct {
                 'in'('id', pagination.collect { it.id })
                 featureLocations {
-                    if(sort=="length") {
+                    if (sort == "length") {
                         order('length', sortorder)
                     }
                     sequence {
-                        if(sort=="sequence") {
-                            order('name',sortorder)
+                        if (sort == "sequence") {
+                            order('name', sortorder)
                         }
                     }
                 }
-                if(sort=="name") {
+                if (sort == "name") {
                     order('name', sortorder)
                 }
-                if(sort=="date") {
+                if (sort == "date") {
                     order('lastUpdated', sortorder)
                 }
                 fetchMode 'owners', FetchMode.JOIN
@@ -361,9 +361,9 @@ class AnnotatorController {
 
             render returnObject
         }
-        catch(PermissionException e) {
-            def error=[error: e.message]
-            log.warn "Permission exception: "+e.message
+        catch (PermissionException e) {
+            def error = [error: e.message]
+            log.warn "Permission exception: " + e.message
             render error as JSON
         }
         catch (Exception e) {
@@ -401,7 +401,8 @@ class AnnotatorController {
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismInstance.directory)
 
         if (!permissionService.checkPermissions(PermissionEnum.READ)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.READ)
+            redirect(uri: "/auth/login")
             return
         }
 
@@ -413,7 +414,8 @@ class AnnotatorController {
     @Transactional
     def setCurrentSequence(Sequence sequenceInstance) {
         if (!permissionService.checkPermissions(PermissionEnum.READ)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.READ)
+            redirect(uri: "/auth/login")
             return
         }
         // set the current organism and sequence Id (if both)
@@ -429,7 +431,8 @@ class AnnotatorController {
 
     def report(Integer max) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+            redirect(uri: "/auth/login")
             return
         }
         List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
@@ -438,17 +441,18 @@ class AnnotatorController {
         List<User> annotators = User.list(params)
 
         annotators.each {
-            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it,true))
+            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it, true))
         }
 
-        render view:"report", model:[annotatorInstanceList:annotatorSummaryList,annotatorInstanceCount:User.count]
+        render view: "report", model: [annotatorInstanceList: annotatorSummaryList, annotatorInstanceCount: User.count]
     }
 
     def detail(User user) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            redirect(uri: "/auth/unauthorized")
+            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+            redirect(uri: "/auth/login")
             return
         }
-        render view:"detail", model:[annotatorInstance:reportService.generateAnnotatorSummary(user)]
+        render view: "detail", model: [annotatorInstance: reportService.generateAnnotatorSummary(user)]
     }
 }

@@ -128,6 +128,7 @@ class ExonService {
         exon.featureLocations.clear()
         exon.parentFeatureRelationships?.clear()
         exon.childFeatureRelationships?.clear()
+        exon.featureProperties?.clear()
         List<FeatureRelationship> parentFeatures = FeatureRelationship.findAllByChildFeature(exon)
         def childFeatures = FeatureRelationship.findAllByParentFeature(exon)
         if(parentFeatures){
@@ -136,8 +137,9 @@ class ExonService {
             }
         }
 
-        FeatureProperty.executeUpdate("delete from FeatureProperty fp where fp.feature.id = :exonId",[exonId:exon.id])
-        Exon.executeUpdate("delete from Exon e where e.id = :exonId",[exonId:exon.id])
+//        FeatureProperty.executeUpdate("delete from FeatureProperty fp where fp.feature.id = :exonId",[exonId:exon.id])
+//        Exon.executeUpdate("delete from Exon e where e.id = :exonId",[exonId:exon.id])
+        exon.delete(flush: true)
 //        Exon.deleteAll(exon)
         transcript.save(flush: true)
 

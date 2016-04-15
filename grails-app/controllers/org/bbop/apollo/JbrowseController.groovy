@@ -10,10 +10,11 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 import javax.servlet.http.HttpServletResponse
+import java.text.DateFormat
 import java.text.SimpleDateFormat
+import static org.springframework.http.HttpStatus.*
 
-import static org.springframework.http.HttpStatus.NOT_FOUND
-
+//@CompileStatic
 class JbrowseController {
 
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
@@ -32,43 +33,52 @@ class JbrowseController {
     }
 
 
-    def indexRouter() {
+    def indexRouter(){
         log.debug "indexRouter ${params}"
 
-        List<String> paramList = new ArrayList<>()
+        def paramList = []
         params.each { entry ->
-            if (entry.key != "action" && entry.key != "controller" && entry.key != "organism") {
-                paramList.add(entry.key + "=" + entry.value)
+            if(entry.key != "action" && entry.key != "controller" && entry.key!="organism"){
+                paramList.add(entry.key+"="+entry.value)
             }
         }
         // case 3 - validated login (just read from preferences, then
-        if (permissionService.currentUser && params.organism) {
-            Organism organism = Organism.findById(params.organism)
-            preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
+        if(permissionService.currentUser&&params.organism){
+            Organism organism = Organism.findByCommonName(params.organism)
+            if(!organism&&params.organism.isInteger()) {
+                organism = Organism.findById(params.organism.toInteger())
+            }
+            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
         }
 
-        if (permissionService.currentUser) {
+        if(permissionService.currentUser) {
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
             render file.text
             return
         }
 
+
         // case 1 - anonymous login with organism ID, show organism
-        if (params.organism) {
+        if(params.organism){
+            log.debug "organism ID specified: ${params.organism}"
+
+            // set the organism
+
+
             Organism organism = Organism.findByCommonName(params.organism)
-            if (!organism && params.organism.isInteger()) {
+            if(!organism&&params.organism.isInteger()) {
                 organism = Organism.findById(params.organism.toInteger())
             }
-            if (!organism) {
+            if(!organism) {
                 String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-                forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "Unable to find organism '${params.organism}'"])
+                forward(controller: "jbrowse", action: "chooseOrganismForJbrowse",params:[urlString:urlString,error:"Unable to find organism '${params.organism}'"])
             }
 
 
             def session = request.getSession(true)
-            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
-            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
+            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
+            session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value,organism.commonName)
 
             // create an anonymous login
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
@@ -79,12 +89,12 @@ class JbrowseController {
         // case 2 - anonymous login with-OUT organism ID, show organism list
         paramList.add("organism=${params.organism}")
         String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-        forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString])
+        forward(controller: "jbrowse", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
     }
 
 
     private String getJBrowseDirectoryForSession() {
-        if (!permissionService.currentUser) {
+        if(!permissionService.currentUser){
             return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         }
 
@@ -333,6 +343,7 @@ class JbrowseController {
 
         String mimeType = getServletContext().getMimeType(fileName);
         if (!mimeType) {
+            log.debug("No input MIME type of " + fileName);
             if (fileName.endsWith(".json") || params.format == "json") {
                 mimeType = "application/json";
                 response.setContentType(mimeType);
@@ -348,7 +359,7 @@ class JbrowseController {
                 log.info("Could not get MIME type of " + fileName + " falling back to text/plain");
                 mimeType = "text/plain";
             }
-            if (fileName.endsWith("jsonz") || fileName.endsWith("txtz")) {
+            if(fileName.endsWith("jsonz")||fileName.endsWith("txtz")) {
                 response.setHeader 'Content-Encoding', 'x-gzip'
             }
         }
@@ -551,31 +562,32 @@ class JbrowseController {
             response.setHeader("Content-Length", String.valueOf(r.length));
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
 
-            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+            BufferedInputStream bis= new BufferedInputStream(new FileInputStream(file));
 
             OutputStream output = response.getOutputStream();
             byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-            long count = r.start;
+            long count=r.start;
             try {
 
                 // Copy single part range.
-                long ret = bis.skip(r.start);
-                if (ret != r.start) {
+                long ret=bis.skip(r.start);
+                if(ret != r.start) {
                     log.error("Failed to read range request!");
                     bis.close();
                     output.close();
                     return;
                 }
 
-                while (count < r.end) {
-                    int bret = bis.read(buf, 0, DEFAULT_BUFFER_SIZE);
-                    if (bret != -1) {
+                while (count<r.end) {
+                    int bret=bis.read(buf,0,DEFAULT_BUFFER_SIZE);
+                    if(bret!=-1) {
                         output.write(buf, 0, bret);
-                        count += bret;
-                    } else break;
+                        count+=bret;
+                    }
+                    else break;
                 }
 
-            } catch (Exception e) {
+            } catch(Exception e) {
                 log.error(e.message);
                 e.printStackTrace();
             }
@@ -625,53 +637,37 @@ class JbrowseController {
         // add datasets to the configuration
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
         Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
-//        projectionService.createTranscriptProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value),50)
-
-        // this comes from the
-//        if (grailsApplication.config.apollo.doProjection) {
-//            if (grailsApplication.config.apollo.useMultiSequence) {
-//                ProjectionDescription projectionDescription = new ProjectionDescription()
-//                projectionDescription.padding = 50
-////                projectionDescription.featureNames = ["ALL"]
-//                projectionDescription.referenceTracks = ["Official Gene Set v3.2"]
-//                // TODO: get the proper name from the UI
-//                projectionDescription.projection = "EXON"
-//                List<Location> locationList = projectionService.extractExonLocations(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), projectionDescription)
-//                projectionService.createMultiSequenceProjection(projectionDescription, locationList)
-//            } else {
-//                projectionService.createExonLevelProjection(currentOrganism, jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), 50)
-//            }
-//        }
-
-        if (currentOrganism != null) {
-            jsonObject.put("dataset_id", currentOrganism.id)
-        } else {
-            id = request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
-            jsonObject.put("dataset_id", id);
+        if(currentOrganism!=null) {
+            jsonObject.put("dataset_id",currentOrganism.id)
         }
-        List<Organism> list = permissionService.getOrganismsForCurrentUser()
+
+        else {
+            id=request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
+            jsonObject.put("dataset_id",id);
+        }
+        List<Organism> list=permissionService.getOrganismsForCurrentUser()
         JSONObject organismObjectContainer = new JSONObject()
-        for (organism in list) {
+        for(organism in list) {
             JSONObject organismObject = new JSONObject()
-            organismObject.put("name", organism.commonName)
+            organismObject.put("name",organism.commonName)
             String url = "javascript:window.top.location.href = '../annotator/loadLink?"
             url += "organism=" + organism.getId();
             url += "&highlight=0";
             url += "&tracks='";
-            organismObject.put("url", url)
+            organismObject.put("url",url)
             organismObjectContainer.put(organism.id, organismObject)
         }
 
-        if (list.size() == 0) {
+        if(list.size()==0) {
             JSONObject organismObject = new JSONObject()
-            organismObject.put("name", Organism.findById(id).commonName)
-            organismObject.put("url", "#")
+            organismObject.put("name",Organism.findById(id).commonName)
+            organismObject.put("url","#")
             organismObjectContainer.put(id, organismObject)
         }
 
-        jsonObject.put("datasets", organismObjectContainer)
+        jsonObject.put("datasets",organismObjectContainer)
 
-        if (jsonObject.include == null) jsonObject.put("include", new JSONArray())
+        if(jsonObject.include==null) jsonObject.put("include",new JSONArray())
         jsonObject.include.add("../plugins/WebApollo/json/annot.json")
 
         def plugins = grailsApplication.config.jbrowse?.plugins
@@ -695,8 +691,8 @@ class JbrowseController {
     }
 
     private static boolean isCacheableFile(String fileName) {
-        if (fileName.endsWith(".txt") || fileName.endsWith("txtz")) return true;
-        if (fileName.endsWith(".json") || fileName.endsWith("jsonz")) {
+        if (fileName.endsWith(".txt")||fileName.endsWith("txtz")) return true;
+        if (fileName.endsWith(".json")||fileName.endsWith("jsonz")) {
             String[] names = fileName.split("\\/");
             String requestName = names[names.length - 1];
             return requestName.startsWith("lf-");

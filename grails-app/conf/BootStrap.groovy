@@ -16,6 +16,12 @@ class BootStrap {
 
 
     def init = { servletContext ->
+        log.info "Initializing..."
+        def dataSource = grailsApplication.config.dataSource
+        log.info "Datasource"
+        log.info "Url: ${dataSource.url}"
+        log.info "Driver: ${dataSource.driverClassName}"
+        log.info "Dialect: ${dataSource.dialect}"
 
         domainMarshallerService.registerObjects()
         proxyService.initProxies()
@@ -37,6 +43,8 @@ class BootStrap {
             def adminRole = new Role(name: UserService.ADMIN).save()
             adminRole.addToPermissions("*:*")
         }
+
+
 
         if (grailsApplication.config.apollo.bootstrap || Environment.current == Environment.TEST) {
             log.debug "attempting to bootstrap the data "

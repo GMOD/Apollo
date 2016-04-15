@@ -1,4 +1,4 @@
-# Chado Export
+# Chado Export Configuration
 
 Following are the steps for setting up a Chado data source that is compatible with Apollo Chado Export.
 
@@ -47,7 +47,7 @@ scripts/load_chado_schema.sh -u postgres -d apollo-chado -h localhost -p 5432 -r
 
 ```
 
-The file `chado-schema-with-ontologies.sql.gz` can be found in Apollo directory.
+The file `chado-schema-with-ontologies.sql.gz` can be found in `Apollo/scripts/` directory.
 
 The `load_chado_schema.sh` script creates log files which can be inspected to see if loading the schema was successful.
 
@@ -55,7 +55,7 @@ Note that you will also need to do this for your testing and production instance
 
 ### Configure data sources
 
-In `apollo-config.groovy`, specify the proper database name, database user name and database user password.
+In `apollo-config.groovy`, uncomment the configuration for `datasource_chado` and specify the proper database name, database user name and database user password.
 
 ### Export via UI
 
