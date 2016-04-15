@@ -37,6 +37,7 @@ function deploy_message(){
    echo "***************************************"
 }
 
+
 function check_node(){
     node_executable=$(which node)
     if ! [ -x "$node_executable" ] ; then
@@ -47,6 +48,17 @@ function check_node(){
         else
             echo "Creating an alias 'node' for 'nodejs'"
             alias node="nodejs"
+        fi
+    fi
+}
+
+function check_bower(){
+    bower_executable=$(which bower)
+    if ! [ -x "$bower_executable" ] ; then
+        $node_executable install -g bower
+        if ! [ -x "$bower_executable" ] ; then
+            echo "You must install 'Bower' to do a release of Apollo."
+            exit 1 ;
         fi
     fi
 }
@@ -89,13 +101,13 @@ function check_configs(){
         fi
     fi
     if ! [ -x "$gradle_executable" ] ; then
-	   if [ -f 'gradlew' ]; then
-		   echo "Gradle not found using gradlew";
-		   gradle_executable="./gradlew"
-	   else
-		   echo "You must install 'gradle' to install Apollo."
-		   exit 1 ;
-		fi
+       if [ -f 'gradlew' ]; then
+           echo "Gradle not found using gradlew";
+           gradle_executable="./gradlew"
+       else
+           echo "You must install 'gradle' to install Apollo."
+           exit 1 ;
+        fi
     fi
     if ! [ -x "$git_executable" ] ; then
        echo "You must install 'git' to install Apollo."
@@ -112,13 +124,11 @@ function copy_configs(){
 
 
 if [[ $1 == "devmode" ]];then
-    # should call the copy target first
     check_configs
     $gradle_executable devmode &
     $grails_executable -reloading run-app
     if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "run-local" ]];then
-    # should call the copy target first
     check_configs
     if [[ $# == 2 ]]; then
         $gradle_executable handleJBrowse copy-resources gwtc && $grails_executable -Dserver.port=$2 run-app
@@ -127,7 +137,6 @@ elif [[ $1 == "run-local" ]];then
     fi
     if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "run-app" ]];then
-    # should call the copy target first
     check_configs
     if [[ $# == 2 ]]; then
         $gradle_executable handleJBrowse copy-resources && $grails_executable -Dserver.port=$2 run-app
@@ -147,44 +156,31 @@ elif [[ $1 == "debug" ]];then
     unset OLD_MAVEN_OPTS
     if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "test" ]];then
-    # should call the copy target first
     check_configs
     copy_configs
     $grails_executable test-app
 elif [[ $1 == "test-unit" ]];then
-    # should call the copy target first
     check_configs
     copy_configs
     $grails_executable test-app :unit
-#    mvn test
 elif [[ $1 == "deploy" ]];then
-    # should call the copy target first
     check_configs
-    # this makes it globally available
     copy_configs
-    #grails deploy
     $gradle_executable handleJBrowse copy-resources gwtc &&  $grails_executable war
     deploy_message
 elif [[ $1 == "release" ]];then
-    # should call the copy target first
     check_configs
     check_configs_for_release
     copy_configs
-#   $gradle_executable clean-all handleJBrowseRelease gwtc && $grails_executable war
-#    $gradle_executable clean-all handleJBrowse release gwtc && $grails_executable war
-    $gradle_executable clean-all release gwtc && $grails_executable war  # this is the original call
+    $gradle_executable clean-all handleJBrowse release gwtc && $grails_executable war
     deploy_message
 elif [[ $1 == "compile" ]];then
-    # should call the copy target first
     check_configs
     $gradle_executable handleJBrowse gwtc && $grails_executable compile
 elif [[ $1 == "create-rest-doc" ]];then
     check_configs
-    # should call the copy target first
-	# need to copy it 
     $grails_executable compile && $grails_executable rest-api-doc && cp restapidoc.json web-app/js/restapidoc/
 elif [[ $1 == "clean-all" ]];then
-    # should call the copy target first
     check_configs
     rm -rf bin
     rm -rf jbrowse-download
@@ -192,16 +188,14 @@ elif [[ $1 == "clean-all" ]];then
     rm -rf src/main/webapp/jbrowse
     rm -f *.zip
     $gradle_executable clean-all
-    $grails_executable clean 
+    $grails_executable clean
 elif [[ $1 == "clean" ]];then
-    # should call the copy target first
     check_configs
-    $gradle_executable clean &&  $grails_executable clean
+    $gradle_executable clean-ant &&  $grails_executable clean
 elif [[ $1 == "jbrowse" ]];then
-    # used to update / force jbrowse?
-    # should call the copy target first
     check_configs
     $gradle_executable handleJbrowse
 else
     usage
 fi
+

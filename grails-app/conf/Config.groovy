@@ -352,11 +352,12 @@ auditLog {
 
 }
 
+// Default JBrowse configuration 
 jbrowse {
     git {
         url= "https://github.com/GMOD/jbrowse"
-        tag = "1.12.1-release"
-//        branch = "master"
+//        tag = "1.12.2-release"
+        branch = "master"
         alwaysPull = false
         alwaysRecheck = false
     }
@@ -384,7 +385,6 @@ jbrowse {
         }
 //        MyVariantInfo {
 //            git = 'https://github.com/GMOD/myvariantviewer'
-////            git = 'git@github.com:GMOD/myvariantviewer.git'
 //            branch = 'master'
 //            alwaysRecheck = "true"
 //            alwaysPull = "true"
@@ -395,4 +395,5 @@ jbrowse {
 //            alwaysPull = "true"
 //        }
     }
+
 }
