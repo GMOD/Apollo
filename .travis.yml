@@ -12,7 +12,7 @@ before_install:
 - npm install -g jshint bower
 before_script:
 - if [ ${DB} == "mysql" ]; then cp test/config/mysql.travis apollo-config.groovy; mysql -e 'SET GLOBAL interactive_timeout=28800;'; mysql -e 'SET GLOBAL wait_timeout=28800;'; mysql -e 'SET GLOBAL connect_timeout=28800;';  mysql -e 'create database apollo'; fi;
-- if [ ${DB} == "postgres" ]; then cp test/config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; psql -c 'create database apollo_chado' -U postgres; gunzip -c chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado; fi;
+- if [ ${DB} == "postgres" ]; then cp test/config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; psql -c 'create database apollo_chado' -U postgres; gunzip -c scripts/chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado; fi;
 language: groovy
 cache:
   directories:
