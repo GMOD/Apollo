@@ -1,4 +1,4 @@
-# Chado Export
+# Chado Export Configuration
 
 Following are the steps for setting up a Chado data source that is compatible with Apollo Chado Export.
 
