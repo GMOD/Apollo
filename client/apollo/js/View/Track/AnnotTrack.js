@@ -273,14 +273,20 @@ define([
 
             getClientToken: function () {
                 if (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
-                    return window.parent.getClientToken();
+                    var token = window.parent.getClientToken();
+                    //alert("AnnotTrack have to get client token in AnnotTrack.js using GWT function: "+token);
+                    return token ;
                 }
                 else{
                     var returnItem = window.sessionStorage.getItem("clientToken");
                     if (!returnItem) {
                         var randomNumber = this.generateRandomNumber(20);
-                        window.sessionStorage.setItem("clientToken", randomNumber)
+                        //alert('AnnotTrack generating and storing random number: '+randomNumber);
+                        window.sessionStorage.setItem("clientToken", randomNumber);
                     }
+                    //else{
+                    //    alert("AnnotTrack found client token: "+returnItem);
+                    //}
                     return window.sessionStorage.getItem("clientToken");
                 }
             },

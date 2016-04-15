@@ -71,13 +71,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @Timed
     def getUserPermission() {
         log.debug "getUserPermission ${params.data}"
-        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+        JSONObject returnObject = permissionService.handleInput(request,params)
+//        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         String username = SecurityUtils.subject.principal
-        int permission = PermissionEnum.NONE.value
         if (username) {
+            int permission = PermissionEnum.NONE.value
 
             User user = User.findByUsername(username)
+            println "getting user permission for ${user}, returnOBject"
             Organism organism = preferenceService.getCurrentOrganism(user,returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             if (!organism) {
                 log.error "somehow no organism shown, getting for all"

@@ -271,58 +271,29 @@ class PermissionService {
 
     Organism getOrganismFromInput(JSONObject inputObject) {
 
-        Organism organism
         if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
             String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
-            organism = Organism.findByCommonNameIlike(organismString)
-            if(!organism)
-                organism=Organism.findById(organismString as Long);
-            if(!organism)
+            Organism organism = Organism.findByCommonNameIlike(organismString)
+            if(organism){
+                log.debug "return organism ${organism} by name ${organismString}"
+                return organism
+            }
+            if(!organism){
+                organism = Organism.findById(organismString as Long);
+            }
+            if(organism){
+                log.debug "return organism ${organism} by ID ${organismString}"
+                return organism
+            }
+            else{
                 log.info "organism not found ${organismString}"
-        }
-
-        return organism
-    }
-
-    Organism getOrganismFromPreferences(User user, String trackName,String clientToken) {
-        if(user!=null) {
-            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(user, true,clientToken)
-            if(userOrganismPreference){
-                return userOrganismPreference.organism
-            }
-
-            if (!userOrganismPreference) {
-                userOrganismPreference = UserOrganismPreference.findByUserAndClientTokenAndCurrentOrganism(user,clientToken,false)
-                if(userOrganismPreference){
-                    Integer updated = UserOrganismPreference.executeUpdate("update UserOrganismPreference p set currentOrganism = 'f' where p.clientToken = :clientToken",[clientToken:clientToken])
-                    log.info("Updated preference: "+updated)
-                    userOrganismPreference.currentOrganism = true
-                    userOrganismPreference.save(flush: true)
-                    return userOrganismPreference.organism
-                }
-            }
-
-            if (!userOrganismPreference) {
-                // find a random organism based on sequence
-                Sequence sequence = Sequence.findByName(trackName)
-                Organism organism  = sequence.organism
-
-                userOrganismPreference = new UserOrganismPreference(
-                        user: user
-                        , organism: organism
-                        , currentOrganism: true
-                        , sequence: sequence
-                        , clientToken: clientToken
-                ).save(insert: true)
-                return userOrganismPreference.organism
             }
         }
-        log.warn("No organism preference if no user")
         return null
-
     }
+
     /**
-     * This method finds the proper username with their proper organism for the current organism.
+     * This method finds the proper username with their proper organism for the current organism when including the track name.
      *
      * @param inputObject
      * @param requiredPermissionEnum
@@ -341,7 +312,7 @@ class PermissionService {
         User user = getCurrentUser(inputObject)
         organism = getOrganismFromInput(inputObject)
         if(!organism) {
-            organism = getOrganismFromPreferences(user,trackName,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            organism = preferenceService.getOrganismFromPreferences(user,trackName,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         }
 
         Sequence sequence

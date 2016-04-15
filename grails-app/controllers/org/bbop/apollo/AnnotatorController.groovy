@@ -46,6 +46,7 @@ class AnnotatorController {
             }
             else{
                 clientToken = ClientTokenGenerator.generateRandomString()
+                println 'generating client token on the backend: '+clientToken
             }
             Organism organism = Organism.findById(params.organism as Long)
             log.debug "loading organism: ${organism}"

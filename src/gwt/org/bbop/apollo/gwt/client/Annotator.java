@@ -59,7 +59,7 @@ public class Annotator implements EntryPoint {
     public static native void exportStaticMethod() /*-{
         $wnd.setPreference = $entry(@org.bbop.apollo.gwt.client.Annotator::setPreference(Ljava/lang/String;Ljava/lang/Object;));
         $wnd.getPreference = $entry(@org.bbop.apollo.gwt.client.Annotator::getPreference(Ljava/lang/String;));
-        $wnd.getClientToken = $entry(@org.bbop.apollo.gwt.shared.ClientTokenGenerator::generateRandomString());
+        $wnd.getClientToken = $entry(@org.bbop.apollo.gwt.client.Annotator::getClientToken());
     }-*/;
 
     public static void setPreference(String key, Object value) {
@@ -83,11 +83,13 @@ public class Annotator implements EntryPoint {
     }
 
     public static String getClientToken() {
-        String clientID = getPreference(FeatureStringEnum.CLIENT_TOKEN.getValue());
-        if (!ClientTokenGenerator.isValidToken(clientID)) {
-            setPreference(FeatureStringEnum.CLIENT_TOKEN.getValue(), ClientTokenGenerator.generateRandomString());
+        String token = getPreference(FeatureStringEnum.CLIENT_TOKEN.getValue());
+        if (!ClientTokenGenerator.isValidToken(token)) {
+            token = ClientTokenGenerator.generateRandomString();
+            setPreference(FeatureStringEnum.CLIENT_TOKEN.getValue(), token);
         }
-        return getPreference(FeatureStringEnum.CLIENT_TOKEN.getValue());
+        token = getPreference(FeatureStringEnum.CLIENT_TOKEN.getValue());
+        return token ;
 
     }
 }
