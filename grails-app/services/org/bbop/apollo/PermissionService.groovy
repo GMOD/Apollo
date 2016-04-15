@@ -285,20 +285,27 @@ class PermissionService {
     }
 
     Organism getOrganismFromPreferences(User user, String trackName,String clientToken) {
-        Organism organism
-
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(user, true,clientToken)
         if(user!=null) {
-
+            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(user, true,clientToken)
+            if(userOrganismPreference){
+                return userOrganismPreference.organism
+            }
 
             if (!userOrganismPreference) {
-                userOrganismPreference = UserOrganismPreference.findByUser(user)
+                userOrganismPreference = UserOrganismPreference.findByUserAndClientTokenAndCurrentOrganism(user,clientToken,false)
+                if(userOrganismPreference){
+                    Integer updated = UserOrganismPreference.executeUpdate("update UserOrganismPreference p set currentOrganism = 'f' where p.clientToken = :clientToken",[clientToken:clientToken])
+                    log.info("Updated preference: "+updated)
+                    userOrganismPreference.currentOrganism = true
+                    userOrganismPreference.save(flush: true)
+                    return userOrganismPreference.organism
+                }
             }
 
             if (!userOrganismPreference) {
                 // find a random organism based on sequence
                 Sequence sequence = Sequence.findByName(trackName)
-                organism  = sequence.organism
+                Organism organism  = sequence.organism
 
                 userOrganismPreference = new UserOrganismPreference(
                         user: user
@@ -307,12 +314,11 @@ class PermissionService {
                         , sequence: sequence
                         , clientToken: clientToken
                 ).save(insert: true)
+                return userOrganismPreference.organism
             }
-
-            organism = userOrganismPreference.organism
-
         }
-        return organism
+        log.warn("No organism preference if no user")
+        return null
 
     }
     /**
@@ -595,7 +601,6 @@ class PermissionService {
     @NotTransactional
     String handleToken(GrailsParameterMap params, JSONObject dataObject) {
         if(params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)){
-            println "trying to fix token if coming from the interface"
             dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,params.get(FeatureStringEnum.CLIENT_TOKEN.value))
         }
         else{
