@@ -17,8 +17,6 @@ class UrlMappings {
         "/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
         "/${clientToken}/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
         "/${clientToken}/jbrowse/index.html"(controller: "jbrowse", action: "indexRouter", params:params)
-//        "/${clientToken}/jbrowse/${path}**" (controller: "jbrowse",action: "jbrowsePassthrough", params:params)
-//        "/${clientToken}/jbrowse/${path}**" (controller: "jbrowse",action: "passthrough", prefix:"jbrowse")
         "/${clientToken}/jbrowse/${path}**" {
             controller= "jbrowse"
             action= "passthrough"
@@ -31,11 +29,6 @@ class UrlMappings {
             prefix= "stomp"
 //            permanent = true
         }
-//        "/${clientToken}/jbrowse/${path}**" {
-//            controller= "jbrowse"
-//            action= "passthrough"
-//            prefix= "jbrowse"
-//        }
 
         "/${clientToken}/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/${clientToken}/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
