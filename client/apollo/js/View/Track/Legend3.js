@@ -44,6 +44,7 @@ define([
                  */
 
                 constructor: function (args) {//name, labelClass, posHeight) {
+                    console.log('legend3 args: ');
                     console.log(args);
                     this.loaded = true;
                     this.labelClass = args.labelClass;
@@ -134,7 +135,6 @@ define([
 
                  */
                 addSVGObject: function(id,bpCoord,width,height,callback) {
-
                     this.svgSpace.addSVGObject(id,bpCoord,width,height,callback);
                 },
                 fixId: function(val) {
@@ -144,7 +144,6 @@ define([
                     return this.svgSpace.getHeight();
                 },
                 fillFeatures: function( args ) {
-
                     this.inherited(arguments);      // call the superclass's
                 },
 

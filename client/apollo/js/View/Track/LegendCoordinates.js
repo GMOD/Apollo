@@ -30,6 +30,8 @@ return declare(
         console.log("SVGLayerCoords::setViewInfo");
 
         this.inherited( arguments );
+        //console.log('setting view info in LegendCoordinates: '+arguments);
+        //console.log(arguments);
 
         // make svg canvas coord group
         this.svgCoords = document.createElementNS('http://www.w3.org/2000/svg','svg');
@@ -52,6 +54,18 @@ return declare(
         this.svgScale = 1;
 
     },
+
+    calculateBpForSequence: function(bp){
+        var seqList =  this.svgParent.refSeq.sequenceList;
+        for(var seq in seqList){
+            var seqValue = seqList[seq];
+            if(bp >= seqValue.offset && bp <= seqValue.offset + seqValue.end){
+                return bp - seqValue.offset ;
+            }
+        }
+        return bp ;
+    },
+
     showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
         console.log("SVGLayerCoords::showRange");
 
@@ -65,9 +79,6 @@ return declare(
         this.svgCoords.setAttribute('style', 'left:'+left+'%;width:'+width+'%;height:100%;position:absolute;z-index:15');
         this.coordGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
 
-        //var maxLen = this.svgHeight;
-        //var len = 0;
-
         // erase test coordinates
         for (var bpCoord in this.svgCoords.fCoord) {
             this.svgCoords.fCoord[bpCoord].setAttribute("display","none");
@@ -78,6 +89,7 @@ return declare(
         // draw test coordinates
         for(i=first;i < last;i++) {
             var bpCoord = this.svgParent.blocks[i].startBase;
+            var coordinateLabel = this.calculateBpForSequence(bpCoord);
             var x = this.bp2Native(bpCoord);
             var svgCoord;
             if (bpCoord in this.svgCoords.fCoord) {
@@ -88,7 +100,8 @@ return declare(
                 this.svgCoords.fCoord[bpCoord] = svgCoord;
             }
             var xlength = 5; // for 0 case only
-            var formattedLabel = numberWithCommas(bpCoord + 1);
+            //var formattedLabel = numberWithCommas(bpCoord + 1);
+            var formattedLabel = numberWithCommas(coordinateLabel + 1);
             var offsetMultiplier = 5;
             if (x != 0) {
                 xlength = -(formattedLabel.length - 1) * offsetMultiplier;
@@ -101,10 +114,6 @@ return declare(
             svgCoord.innerHTML = formattedLabel;
             this.coordGroup.appendChild(svgCoord);
         }
-
-        //for (var tCoord in this.svgCoords.tCoord) {
-        //    this.svgCoords.tCoord[tCoord].setAttribute("display","none");
-        //}
 
         for(var i=first;i < last;i++) {
             bpCoord = this.svgParent.blocks[i].startBase;

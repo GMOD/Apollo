@@ -29,13 +29,18 @@ class RefSeqProjectorService {
                 JSONArray sequenceArray = sequenceObject.sequenceList
                 for(int i = 0 ; i < sequenceArray.size() ; ++i){
                     JSONObject sequence = sequenceArray.getJSONObject(i)
+                    ProjectionSequence projectionSequence = projection.getProjectionSequence(sequence.name,currentOrganism)
+                    if(!sequence.start && !sequence.end){
+//                        sequenceObject.end =  projection.length
+                        sequence.offset = projectionSequence.offset
+                        sequence.order = projectionSequence.order
+                        sequence.start = projectionSequence.start
+                        sequence.end = projectionSequence.end
+                    }
                     if(sequence.start && sequence.end){
                         Integer sequenceLength = projection.projectValue(sequence.end,0,0)
                         length += sequenceLength
                         sequenceObject.end = length
-                    }
-                    else{
-                        sequenceObject.end =  projection.length
                     }
                 }
 //"sequenceList":[{"name":"GroupUn87", "feature":{"name":"GB53499-RA"}, "start":45455, "end":45575},{"name":"Group11.4", "feature":{"name":"GB52236-RA"}, "start":52853, "end":58962}]
