@@ -125,7 +125,7 @@ function copy_configs(){
 
 if [[ $1 == "devmode" ]];then
     check_configs
-    $gradle_executable devmode &
+    $gradle_executable handleJBrowse devmode &
     $grails_executable -reloading run-app
     if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "run-local" ]];then
