@@ -230,6 +230,7 @@ define([
                     var thisB = this;
                     // create svg element new
                     var feature = fRect.f;
+                    var data = feature.data;
 
                     // draw line
                     var svgSpace = this.svgSpace;
@@ -273,7 +274,7 @@ define([
                         //apple.setAttribute('fill','white');
                         leftLabelSvg.setAttribute('stroke','black');
                         leftLabelSvg.setAttribute('display','block');
-                        leftLabelSvg.innerHTML =  label+" -> " ;
+                        leftLabelSvg.innerHTML =  label+" ("+start+")" ;
                         return leftLabelSvg;
                     });
 
@@ -346,7 +347,7 @@ define([
                     console.log("cx="+cx+" color="+color);
                     this.addSVGObject(id3,start,100,100,function () {
                         var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
-                        var formattedLabel = '<- '+ numberWithCommas(label);
+                        var formattedLabel = '('+end+') '+ numberWithCommas(label);
                         var xlength = -((formattedLabel.length-1) * 8) ;
                         apple.setAttribute('x',xlength);
                         //var xLoc = svgSpace.bp2Native(xlength);
@@ -367,6 +368,7 @@ define([
 
                     var feature = fRect.f;
                     var type = feature.get("type");
+                    //console.log('feautre: '+JSON.stringify(feature));
                     //if(type=='grid'){
                     //    this.renderGrid(context,fRect,5);
                     //}
@@ -385,7 +387,7 @@ define([
                     //    console.log('render region right');
                     //    this.renderGrid(context,fRect,7);
                     //}
-                },
+                }
 
             });
     });

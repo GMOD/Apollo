@@ -130,7 +130,8 @@ class ProjectionGridTrackController {
                     name: projectionSequence.name,
                     label: projectionSequence.name,
                     color: getColorForIndex(index),
-                    uniqueID: projectionSequence.name + sequenceObject.toString()
+                    uniqueID: projectionSequence.name + sequenceObject.toString(),
+                    data: sequenceObject
             )
             jsonObject.features.add(region)
             JSONObject regionRight = new JSONObject(
@@ -140,7 +141,8 @@ class ProjectionGridTrackController {
                     name: projectionSequence.name,
                     label: projectionSequence.name,
                     color: getColorForIndex(index),
-                    uniqueID: projectionSequence.name + sequenceObject.toString()
+                    uniqueID: projectionSequence.name + sequenceObject.toString(),
+                    data: sequenceObject
             )
             jsonObject.features.add(regionRight)
 
@@ -151,7 +153,8 @@ class ProjectionGridTrackController {
                     name: projectionSequence.unprojectedLength + projectionSequence.offset,
                     label: projectionSequence.unprojectedLength + projectionSequence.offset,
                     color: getColorForIndex(index),
-                    uniqueID: (projectionSequence.unprojectedLength + projectionSequence.offset) + sequenceObject.toString()
+                    uniqueID: (projectionSequence.unprojectedLength + projectionSequence.offset) + sequenceObject.toString(),
+                    data: sequenceObject
             )
             jsonObject.features.add(tickRight)
             for(int i = projectionSequence.start ; i < projectionSequence.end ; i+=step){
@@ -163,7 +166,8 @@ class ProjectionGridTrackController {
                         name: value,
                         label: value,
                         color: getColorForIndex(index),
-                        uniqueID: value + sequenceObject.toString()
+                        uniqueID: value + sequenceObject.toString(),
+                        data: sequenceObject
                 )
                 jsonObject.features.add(feature)
             }
