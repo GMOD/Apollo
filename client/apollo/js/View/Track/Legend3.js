@@ -8,7 +8,8 @@ define([
         'JBrowse/View/Track/SVGTrackSimpleBase',
         'JBrowse/View/Track/SVG/SVGLayerCoords',
         'JBrowse/View/Track/SVG/SVGLayerBpSpace',
-        'JBrowse/View/Track/SVG/SVGLayerPxSpace'
+        'JBrowse/View/Track/SVG/SVGLayerPxSpace',
+        'WebApollo/View/Track/LegendCoordinates'
 ],
     function (
         declare,
@@ -20,7 +21,8 @@ define([
         SVGTrackBase,
         SVGLayerCoords,
         SVGLayerBpSpace,
-        SVGLayerPxSpace
+        SVGLayerPxSpace,
+        LegendCoordinates
     ) {
 
         function numberWithCommas(x) {
@@ -94,10 +96,10 @@ define([
 
                     this.inherited( arguments );
 
-                    //this.svgCoords = new SVGLayerCoords(this);
-                    //this.svgCoords.setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale );
+                    this.svgCoords = new SVGLayerCoords(this);
+                    this.svgCoords.setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale );
 
-                    this.svgSpace = new SVGLayerPxSpace(this);      // px-space svg layer
+                    this.svgSpace = new LegendCoordinates(this);      // px-space svg layer
                     //this.svgSpace = new SVGLayerBpSpace(this);    // bp-space svg layer
                     this.svgSpace.setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale );
 
@@ -121,7 +123,7 @@ define([
 
                     this.inherited(arguments);      // call the superclass's showRange
 
-                    //this.svgCoords.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+                    this.svgCoords.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
                     this.svgSpace.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
 
                 },
