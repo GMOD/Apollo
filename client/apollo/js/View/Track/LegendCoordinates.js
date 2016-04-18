@@ -18,15 +18,19 @@ define( [
             domConstruct,
             SVGLayerBase
         ) {
+            function numberWithCommas(x) {
+                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
 
 return declare(
     [ SVGLayerBase ], {
+
 
     setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
         console.log("SVGLayerCoords::setViewInfo");
 
         this.inherited( arguments );
-        
+
         // make svg canvas coord group
         this.svgCoords = document.createElementNS('http://www.w3.org/2000/svg','svg');
         this.svgCoords.setAttribute('class', 'svg-coords');
@@ -35,26 +39,26 @@ return declare(
         this.svgCoords.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
         this.svgCoords.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
         domConstruct.place(this.svgCoords,trackDiv);
-        
+
         // container for coord elements (this is just to test the coordinate space)
         this.coordGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
         this.svgCoords.appendChild(this.coordGroup);
         this.svgCoords.fCoord = new Array();
 
-       
+
         this.svgHeight = 100;
         this.svgScale = 1;
-      
+
     },
     showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
         console.log("SVGLayerCoords::showRange");
 
         this.inherited( arguments );
-    
+
         // adjust svg size
         var left = first * this.svgParent.widthPct;
         var width = (last - first + 1) * this.svgParent.widthPct;
-        
+
         // coords group
         this.svgCoords.setAttribute('style', 'left:'+left+'%;width:'+width+'%;height:100%;position:absolute;z-index:15');
         this.coordGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
@@ -65,8 +69,8 @@ return declare(
         // erase test coordinates
         for (var bpCoord in this.svgCoords.fCoord) {
             this.svgCoords.fCoord[bpCoord].setAttribute("display","none");
-        }        
-        
+        }
+
         // draw test coordinates
         for(var i=first;i < last;i++) {
             var bpCoord = this.svgParent.blocks[i].startBase;
@@ -79,13 +83,42 @@ return declare(
                 svgCoord = document.createElementNS('http://www.w3.org/2000/svg','text');
                 this.svgCoords.fCoord[bpCoord] = svgCoord;
             }
-            svgCoord.setAttribute('x',x);
-            svgCoord.setAttribute('y','20');
+            var xlength = 5 ; // for 0 case only
+            var formattedLabel = numberWithCommas(bpCoord+1);
+            var offsetMultiplier = 5 ;
+            if(x!=0){
+                xlength = - (formattedLabel.length-1) * offsetMultiplier ;
+            }
+            svgCoord.setAttribute('x',x+xlength);
+            svgCoord.setAttribute('y',30);
             svgCoord.setAttribute('fill','blue');
             //svgCoord.setAttribute('transform','rotate(90 '+x+' 20)');
             svgCoord.setAttribute('display','block');
-            svgCoord.innerHTML = bpCoord + 1;            
+            svgCoord.innerHTML = formattedLabel;
             this.coordGroup.appendChild(svgCoord);
+
+            // draw stems
+            var topTick = document.createElementNS('http://www.w3.org/2000/svg','line');
+            topTick.setAttribute('x1',x);
+            //topTick.setAttribute('y1',len);
+            topTick.setAttribute('y1',0);
+            topTick.setAttribute('x2',x);
+            topTick.setAttribute('y2',10);
+            topTick.setAttribute('stroke','rgba(0,0,0,.5)');
+            topTick.setAttribute('stroke-width',2);
+            topTick.setAttribute('stroke-linecap','round');
+            this.coordGroup.appendChild(topTick);
+
+            var bottomTick = document.createElementNS('http://www.w3.org/2000/svg','line');
+            bottomTick.setAttribute('x1',x);
+            //bottomTick.setAttribute('y1',len);
+            bottomTick.setAttribute('y1',40);
+            bottomTick.setAttribute('x2',x);
+            bottomTick.setAttribute('y2',50);
+            bottomTick.setAttribute('stroke','rgba(0,0,0,.5)');
+            bottomTick.setAttribute('stroke-width',2);
+            bottomTick.setAttribute('stroke-linecap','round');
+            this.coordGroup.appendChild(bottomTick);
         }
     },
     bp2Native: function(val) {

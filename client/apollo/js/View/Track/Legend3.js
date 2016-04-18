@@ -27,7 +27,7 @@ define([
 
         function numberWithCommas(x) {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        };
+        }
 
         return declare(
             [ SVGTrackBase ]
@@ -52,6 +52,7 @@ define([
                     this.posHeight = 30 ;
                     //this.height = Math.round(args.posHeight * 1.2);
                     this.height = 30 ;
+                    this.noCache = true ;
                 },
 
                 // this track has no track label or track menu, stub them out
@@ -96,10 +97,10 @@ define([
 
                     this.inherited( arguments );
 
-                    this.svgCoords = new SVGLayerCoords(this);
+                    this.svgCoords = new LegendCoordinates(this);
                     this.svgCoords.setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale );
 
-                    this.svgSpace = new LegendCoordinates(this);      // px-space svg layer
+                    this.svgSpace = new SVGLayerPxSpace(this);      // px-space svg layer
                     //this.svgSpace = new SVGLayerBpSpace(this);    // bp-space svg layer
                     this.svgSpace.setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale );
 
@@ -164,6 +165,7 @@ define([
 
                     // compute the x coord given the bpCoord
                     var bpCoord = feature.get("start");
+
                     var label = feature.get("label");
                     var color = feature.get("color");
                     var cx = svgSpace.bp2Native(bpCoord);
@@ -204,23 +206,23 @@ define([
                     });
 
 
-                    // draw delicious candy
+                    // draw on right side?
                     var id2 = "C-"+this.fixId(fRect.f.id());
-
                     console.log("cx="+cx+" color="+color);
                     this.addSVGObject(id2,bpCoord,100,100,function () {
-                        var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
+                        var labelSVG = document.createElementNS('http://www.w3.org/2000/svg','text');
                         var xlength = 3 ; // for 0 case only
                         var formattedLabel = numberWithCommas(label);
                         if(label!='0'){
-                            xlength = - (formattedLabel.length-1) * offsetMultiplier ;
+                            xlength = - (formattedLabel.length-1) * (offsetMultiplier ? offsetMultiplier : 1) ;
                         }
-                        apple.setAttribute('x',xlength);
-                        apple.setAttribute('y','30');
-                        apple.setAttribute('fill',color);
-                        apple.setAttribute('display','block');
-                        apple.innerHTML =  formattedLabel;
-                        return apple;
+                        console.log('xlength: '+xlength + ' label: '+label  + ' formatted lnegh: ' + formattedLabel + 'offset: '+ offsetMultiplier);
+                        labelSVG.setAttribute('x',xlength);
+                        labelSVG.setAttribute('y','30');
+                        labelSVG.setAttribute('fill',color);
+                        labelSVG.setAttribute('display','block');
+                        labelSVG.innerHTML =  formattedLabel;
+                        return labelSVG;
                     });
                 },
 
@@ -233,21 +235,21 @@ define([
                     var svgSpace = this.svgSpace;
 
                     // compute the x coord given the bpCoord
-                    var bpCoord = feature.get("start");
+                    var start = feature.get("start");
                     var label = feature.get("label");
                     var color = feature.get("color");
-                    var cx = svgSpace.bp2Native(bpCoord);
-                    var start = feature.get("start");
+                    var cx = svgSpace.bp2Native(start);
                     var end = feature.get("end");
                     var len = (end - start ) * .18 ;
                     len = svgSpace.getHeight() - len;
-                    console.log("bpCoord="+bpCoord+" cx="+cx+" len="+len+" scale="+this.svgScale);
+                    console.log("bpCoord="+start+" cx="+cx+" len="+len+" scale="+this.svgScale);
                     console.log("rendering region "+label + " from "+ start + " to "+end) ;
+
 
                     // draw stems
                     var id = "R-"+this.fixId(fRect.f.id());
 
-                    this.addSVGObject(id,bpCoord,100,100,function () {
+                    this.addSVGObject(id,start,100,100,function () {
                         var svgItem = document.createElementNS('http://www.w3.org/2000/svg','rect');
                         svgItem.setAttribute('width',end-start);
                         //svgItem.setAttribute('y1',len);
@@ -262,17 +264,17 @@ define([
                     var id2 = "RL-"+this.fixId(fRect.f.id());
 
                     console.log("cx="+cx+" color="+color);
-                    this.addSVGObject(id2,bpCoord,100,100,function () {
-                        var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
+                    this.addSVGObject(id2,start,100,100,function () {
+                        var leftLabelSvg = document.createElementNS('http://www.w3.org/2000/svg','text');
                         var xlength = (end-start)/ 2.0 ; // for 0 case only
                         //var xLoc = svgSpace.bp2Native(xlength);
-                        apple.setAttribute('x',8);
-                        apple.setAttribute('y',13);
+                        leftLabelSvg.setAttribute('x',8);
+                        leftLabelSvg.setAttribute('y',13);
                         //apple.setAttribute('fill','white');
-                        apple.setAttribute('stroke','black');
-                        apple.setAttribute('display','block');
-                        apple.innerHTML =  label ;
-                        return apple;
+                        leftLabelSvg.setAttribute('stroke','black');
+                        leftLabelSvg.setAttribute('display','block');
+                        leftLabelSvg.innerHTML =  label+" -> " ;
+                        return leftLabelSvg;
                     });
 
                 },
@@ -329,23 +331,22 @@ define([
                     var svgSpace = this.svgSpace;
 
                     // compute the x coord given the bpCoord
-                    var bpCoord = feature.get("start");
-                    var label = feature.get("label");
-                    var color = feature.get("color");
-                    var cx = svgSpace.bp2Native(bpCoord);
                     var start = feature.get("start");
                     var end = feature.get("end");
+                    var label = feature.get("label");
+                    var color = feature.get("color");
+                    var cx = svgSpace.bp2Native(start);
                     var len = (end - start ) * .18 ;
                     len = svgSpace.getHeight() - len;
-                    console.log("bpCoord="+bpCoord+" cx="+cx+" len="+len+" scale="+this.svgScale);
+                    console.log("bpCoord="+start+" cx="+cx+" len="+len+" scale="+this.svgScale);
                     console.log("rendering region "+label + " from "+ start + " to "+end) ;
 
                     var id3 = "RR-"+this.fixId(fRect.f.id());
 
                     console.log("cx="+cx+" color="+color);
-                    this.addSVGObject(id3,bpCoord,100,100,function () {
+                    this.addSVGObject(id3,start,100,100,function () {
                         var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
-                        var formattedLabel = numberWithCommas(label);
+                        var formattedLabel = '<- '+ numberWithCommas(label);
                         var xlength = -((formattedLabel.length-1) * 8) ;
                         apple.setAttribute('x',xlength);
                         //var xLoc = svgSpace.bp2Native(xlength);
@@ -354,7 +355,7 @@ define([
                         //apple.setAttribute('fill','white');
                         apple.setAttribute('stroke','black');
                         apple.setAttribute('display','block');
-                        apple.innerHTML =  label ;
+                        apple.innerHTML =  formattedLabel ;
                         return apple;
                     });
                 },
@@ -366,10 +367,10 @@ define([
 
                     var feature = fRect.f;
                     var type = feature.get("type");
-                    if(type=='grid'){
-                        this.renderGrid(context,fRect);
-                    }
-                    else
+                    //if(type=='grid'){
+                    //    this.renderGrid(context,fRect,5);
+                    //}
+                    //else
                     if(type=='region'){
                         console.log('render region');
                         this.renderRegion(context,fRect);
@@ -379,11 +380,11 @@ define([
                         console.log('render region right');
                         this.renderRegionRight(context,fRect,3);
                     }
-                    else
-                    if(type=='grid-right'){
-                        console.log('render region right');
-                        this.renderGrid(context,fRect,7);
-                    }
+                    //else
+                    //if(type=='grid-right'){
+                    //    console.log('render region right');
+                    //    this.renderGrid(context,fRect,7);
+                    //}
                 },
 
             });

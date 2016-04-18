@@ -31,13 +31,14 @@
           "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
       },
       "pinned": true
+
       //          "query": {
       //            "organism": "tyrannosaurus"
       //          }
     },
     {
-      "label": "Projection Grid",
-      "key": "Projection Grid",
+      "label": "Legend3",
+      "key": "Legend3",
 //      "type": "JBrowse/View/Track/LocationScale",
 //      "type": "JBrowse/View/Track/CanvasVariants",
       "type": "WebApollo/View/Track/Legend3",
@@ -53,8 +54,8 @@
       //          }
     },
     {
-      "label": "2 - Projection Grid",
-      "key": "2 - Projection Grid",
+      "label": "LegendTrack",
+      "key": "LegendTrack",
       //      "type": "JBrowse/View/Track/LocationScale",
       //      "type": "JBrowse/View/Track/CanvasVariants",
       //      "type": "WebApollo/View/Track/Legend2",
@@ -64,6 +65,7 @@
       "style":{
         "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
       },
+      "noCache": true,
       "pinned": true
       //          "query": {
       //            "organism": "tyrannosaurus"

@@ -50,6 +50,7 @@ define([
                     this.posHeight = 30 ;
                     //this.height = Math.round(args.posHeight * 1.2);
                     this.height = 30 ;
+                    this.noCache = true ;
                 },
 
                 // this track has no track label or track menu, stub them out
@@ -67,6 +68,7 @@ define([
                     thisConfig.noExport = true;  // turn off default "Save track data" "
                     //thisConfig.style.centerChildrenVertically = false;
                     thisConfig.pinned = true;
+                    thisConfig.noCache = true;
                     return thisConfig;
                 },
                 heightUpdate: function( height, blockIndex ) {
@@ -107,6 +109,15 @@ define([
                     console.log("SVGLollipop::showRange");
                     console.log(first+" "+last+" "+startBase+" "+bpPerBlock+" "+scale+" "+containerStart+" "+containerEnd);
 
+                    // used to delete
+                    //for (var bpCoord in this.svgSpace.svgCanvas.fItem) {
+                    //    console.log(this.svgSpace.svgCanvas.fItem[bpCoord].id);
+                    //    var svgId = this.svgSpace.svgCanvas.fItem[bpCoord].id;
+                    //    if(svgId.startsWith('L3')){
+                    //        this.svgSpace.svgCanvas.fItem[bpCoord].setAttribute("display","none");
+                    //    }
+                    //}
+
                     this.displayContext = {
                         first: first,
                         last: last,
@@ -118,6 +129,7 @@ define([
                     };
 
                     this.svgScale = scale;
+
 
                     this.inherited(arguments);      // call the superclass's showRange
 
@@ -365,12 +377,12 @@ define([
                     var feature = fRect.f;
                     var type = feature.get("type");
                     if(type=='grid'){
-                        this.renderGrid(context,fRect);
+                        this.renderGrid(context,fRect,5);
                     }
                     else
                     if(type=='region'){
                         console.log('render region');
-                        this.renderRegion(context,fRect);
+                        this.renderRegion(context,fRect,5);
                     }
                     else
                     if(type=='region-right'){
