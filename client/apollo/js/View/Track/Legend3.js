@@ -232,6 +232,7 @@ define([
                     var feature = fRect.f;
                     var data = feature.data;
 
+
                     // draw line
                     var svgSpace = this.svgSpace;
 
@@ -263,65 +264,43 @@ define([
                     });
 
                     var id2 = "RL-"+this.fixId(fRect.f.id());
-
                     console.log("cx="+cx+" color="+color);
                     this.addSVGObject(id2,start,100,100,function () {
                         var leftLabelSvg = document.createElementNS('http://www.w3.org/2000/svg','text');
-                        var xlength = (end-start)/ 2.0 ; // for 0 case only
+                        //var xlength = (end-start)/ 2.0 ; // for 0 case only
                         //var xLoc = svgSpace.bp2Native(xlength);
-                        leftLabelSvg.setAttribute('x',8);
+                        leftLabelSvg.setAttribute('x',28);
                         leftLabelSvg.setAttribute('y',13);
                         //apple.setAttribute('fill','white');
                         leftLabelSvg.setAttribute('stroke','black');
                         leftLabelSvg.setAttribute('display','block');
-                        leftLabelSvg.innerHTML =  label+" ("+start+")" ;
+                        //leftLabelSvg.innerHTML =  label+" ("+numberWithCommas(start)+")" ;
+                        leftLabelSvg.innerHTML =  label ;
                         return leftLabelSvg;
                     });
 
+                    var id4 = "RLL-"+this.fixId(fRect.f.id());
+                    console.log("cx="+cx+" color="+color);
+                    if(start>0){
+                        this.addSVGObject(id4,start,100,100,function () {
+                            var rightEdgeText = document.createElementNS('http://www.w3.org/2000/svg','text');
+                            var formattedLabel = numberWithCommas(start) ;
+                            var xlength = -((formattedLabel.length-1) * 5) ;
+                            //rightEdgeText.setAttribute('x',end);
+                            //var xLoc = svgSpace.bp2Native(xlength);
+                            rightEdgeText.setAttribute('x',5);
+                            rightEdgeText.setAttribute('y',42);
+                            rightEdgeText.setAttribute('font-size','x-small');
+                            //rightEdgeText.setAttribute('transform','rotate(90 0 20)');
+                            //rightEdgeText.setAttribute('fill','white');
+                            rightEdgeText.setAttribute('stroke','blue');
+                            rightEdgeText.setAttribute('display','block');
+                            rightEdgeText.innerHTML =  formattedLabel;
+                            return rightEdgeText;
+                        });
+                    }
                 },
 
-                // TODO: 1 - extend based in SVGTrackBase and SVGTrackSimpleBase, 2 - append to the blockDomNode (and remove in thee same way?
-                // TODO: 3 - revert to call the showRange one for svgCoords (does the lollipop track do the looping zoom properly?)
-                //fillBlock: function( args ) {
-                //    var blockIndex = args.blockIndex;
-                //    var block = args.block;
-                //    var leftBase = args.leftBase;
-                //    var scale = args.scale;
-                //    var thisB = this;
-                //
-                //    // find the number that is within 2 px of the left boundary of
-                //    // the block that ends with the most zeroes, or a 5 if no
-                //    // zeroes
-                //    var labelNumber = this.chooseLabel( args );
-                //    var labelOffset = (leftBase+1-labelNumber)*scale/10;
-                //    // console.log( leftBase+1, labelNumber, labelOffset );
-                //
-                //    var posLabel = document.createElement("div");
-                //    var numtext = Util.addCommas( labelNumber );
-                //    posLabel.className = this.labelClass;
-                //
-                //    // give the position label a negative left offset in ex's to
-                //    // more-or-less center it over the left boundary of the block
-                //    posLabel.style.left = "-" + Number(numtext.length)/1.7 + labelOffset + "ex";
-                //
-                //    // TODO: put the ticks here only!!
-                //    posLabel.appendChild( document.createTextNode( numtext ) );
-                //    block.domNode.appendChild(posLabel);
-                //
-                //    var highlight = this.browser.getHighlight();
-                //    if( highlight && highlight.ref == this.refSeq.name ) {
-                //        this.renderRegionHighlight( args, highlight );
-                //    }
-                //
-                //
-                //    var bookmarks = this.browser.getBookmarks();
-                //    if( bookmarks ) {
-                //        this.renderRegionBookmark( args, bookmarks, this.refSeq.name, true );
-                //    }
-                //
-                //    this.heightUpdate( Math.round( this.posHeight*1.2 ), blockIndex);
-                //    args.finishCallback();
-                //},
 
                 renderRegionRight: function(context, fRect){
                     var thisB = this;
@@ -346,18 +325,38 @@ define([
 
                     console.log("cx="+cx+" color="+color);
                     this.addSVGObject(id3,start,100,100,function () {
-                        var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
-                        var formattedLabel = '('+end+') '+ numberWithCommas(label);
-                        var xlength = -((formattedLabel.length-1) * 8) ;
-                        apple.setAttribute('x',xlength);
+                        var rightLabelRegion = document.createElementNS('http://www.w3.org/2000/svg','text');
+                        //var formattedLabel = '('+numberWithCommas(end)+') '+ label;
+                        var formattedLabel =  label;
+                        var xlength = -((formattedLabel.length-1) * 12) ;
+                        rightLabelRegion.setAttribute('x',xlength);
                         //var xLoc = svgSpace.bp2Native(xlength);
-                        //apple.setAttribute('x',-30);
-                        apple.setAttribute('y',13);
-                        //apple.setAttribute('fill','white');
-                        apple.setAttribute('stroke','black');
-                        apple.setAttribute('display','block');
-                        apple.innerHTML =  formattedLabel ;
-                        return apple;
+                        //rightLabelRegion.setAttribute('x',-30);
+                        rightLabelRegion.setAttribute('y',13);
+                        //rightLabelRegion.setAttribute('fill','white');
+                        rightLabelRegion.setAttribute('stroke','black');
+                        rightLabelRegion.setAttribute('display','block');
+                        rightLabelRegion.innerHTML =  formattedLabel ;
+                        return rightLabelRegion;
+                    });
+
+                    var id4 = "RRR-"+this.fixId(fRect.f.id());
+                    console.log("cx="+cx+" color="+color);
+                    this.addSVGObject(id4,start,100,100,function () {
+                        var rightEdgeText = document.createElementNS('http://www.w3.org/2000/svg','text');
+                        var formattedLabel = numberWithCommas(end) ;
+                        var xlength = -((formattedLabel.length-1) * 8) ;
+                        //rightEdgeText.setAttribute('x',end);
+                        //var xLoc = svgSpace.bp2Native(xlength);
+                        rightEdgeText.setAttribute('x',xlength);
+                        rightEdgeText.setAttribute('y',42);
+                        rightEdgeText.setAttribute('font-size','x-small');
+                        //rightEdgeText.setAttribute('transform','rotate(90 0 20)');
+                        //rightEdgeText.setAttribute('fill','white');
+                        rightEdgeText.setAttribute('stroke','blue');
+                        rightEdgeText.setAttribute('display','block');
+                        rightEdgeText.innerHTML =  formattedLabel;
+                        return rightEdgeText;
                     });
                 },
 
