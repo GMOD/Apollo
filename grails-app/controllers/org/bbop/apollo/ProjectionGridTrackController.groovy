@@ -131,7 +131,8 @@ class ProjectionGridTrackController {
                     label: projectionSequence.name,
                     color: getColorForIndex(index),
                     uniqueID: projectionSequence.name + sequenceObject.toString(),
-                    data: sequenceObject
+//                    data: sequenceObject,
+                    sequence: projectionSequence.toJSONObject()
             )
             jsonObject.features.add(region)
             JSONObject regionRight = new JSONObject(
@@ -142,35 +143,37 @@ class ProjectionGridTrackController {
                     label: projectionSequence.name,
                     color: getColorForIndex(index),
                     uniqueID: projectionSequence.name + sequenceObject.toString(),
-                    data: sequenceObject
+//                    data: sequenceObject,
+                    sequence: projectionSequence.toJSONObject()
             )
             jsonObject.features.add(regionRight)
 
-            JSONObject tickRight = new JSONObject(
-                    type: 'grid-right',
-                    start: projectionSequence.unprojectedLength + projectionSequence.offset,
-                    end: projectionSequence.unprojectedLength + projectionSequence.offset,
-                    name: projectionSequence.unprojectedLength + projectionSequence.offset,
-                    label: projectionSequence.unprojectedLength + projectionSequence.offset,
-                    color: getColorForIndex(index),
-                    uniqueID: (projectionSequence.unprojectedLength + projectionSequence.offset) + sequenceObject.toString(),
-                    data: sequenceObject
-            )
-            jsonObject.features.add(tickRight)
-            for(int i = projectionSequence.start ; i < projectionSequence.end ; i+=step){
-                int value = multiSequenceProjection.projectReverseValue(i+projectionSequence.offset)
-                JSONObject feature = new JSONObject(
-                        type: 'grid',
-                        start: i + projectionSequence.offset,
-                        end: i + projectionSequence.offset ,
-                        name: value,
-                        label: value,
-                        color: getColorForIndex(index),
-                        uniqueID: value + sequenceObject.toString(),
-                        data: sequenceObject
-                )
-                jsonObject.features.add(feature)
-            }
+            // TODO: remove if LegendTrack removed
+//            JSONObject tickRight = new JSONObject(
+//                    type: 'grid-right',
+//                    start: projectionSequence.unprojectedLength + projectionSequence.offset,
+//                    end: projectionSequence.unprojectedLength + projectionSequence.offset,
+//                    name: projectionSequence.unprojectedLength + projectionSequence.offset,
+//                    label: projectionSequence.unprojectedLength + projectionSequence.offset,
+//                    color: getColorForIndex(index),
+//                    uniqueID: (projectionSequence.unprojectedLength + projectionSequence.offset) + sequenceObject.toString(),
+//                    data: sequenceObject
+//            )
+//            jsonObject.features.add(tickRight)
+//            for(int i = projectionSequence.start ; i < projectionSequence.end ; i+=step){
+//                int value = multiSequenceProjection.projectReverseValue(i+projectionSequence.offset)
+//                JSONObject feature = new JSONObject(
+//                        type: 'grid',
+//                        start: i + projectionSequence.offset,
+//                        end: i + projectionSequence.offset ,
+//                        name: value,
+//                        label: value,
+//                        color: getColorForIndex(index),
+//                        uniqueID: value + sequenceObject.toString(),
+//                        data: sequenceObject
+//                )
+//                jsonObject.features.add(feature)
+//            }
         }
 
 
