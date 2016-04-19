@@ -28,6 +28,7 @@ class FeatureService {
     def exonService
     def cdsService
     def nonCanonicalSplitSiteService
+    def featureEventService
     def featureRelationshipService
     def featurePropertyService
     def sequenceService
@@ -2467,5 +2468,250 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         log.debug "Returning ${localCoordinate-deletionOffset+insertionOffset}"
         return localCoordinate-deletionOffset+insertionOffset
 
+    }
+
+    def changeAnnotationType(Feature feature, Sequence sequence, User user, String type) {
+        String uniqueName = feature.uniqueName
+        String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
+        def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
+        def canonicalFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
+
+        FeatureEvent currentFeatureEvent = featureEventService.findCurrentFeatureEvent(feature.uniqueName).get(0)
+        JSONObject currentFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
+        Feature newFeature = null
+
+        def currentFeatureSymbol = feature.symbol
+        def currentFeatureDescription = feature.description
+        def currentFeatureDbxrefs = feature.featureDBXrefs
+        def currentFeatureProperties = feature.featureProperties
+
+        if (originalType in canonicalFeatureTypes && type in canonicalFeatureTypes) {
+            // *RNA to *RNA
+            Gene parentGene = transcriptService.getGene((Transcript) feature)
+            JSONObject parentGeneJsonObject = convertFeatureToJSON(parentGene)
+            String parentGeneSymbol = parentGene.symbol
+            String parentGeneDescription = parentGene.description
+            def transcripts = transcriptService.getTranscripts(parentGene)
+
+            currentFeatureJsonObject.put(FeatureStringEnum.USERNAME.value, currentFeatureJsonObject.get(FeatureStringEnum.OWNER.value.toLowerCase()))
+            currentFeatureJsonObject.remove(FeatureStringEnum.PARENT_ID.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.ID.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.OWNER.value.toLowerCase())
+            currentFeatureJsonObject.remove(FeatureStringEnum.DATE_CREATION.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.DATE_LAST_MODIFIED.value)
+            currentFeatureJsonObject.get(FeatureStringEnum.TYPE.value).name = type
+            for (JSONObject child : currentFeatureJsonObject.get(FeatureStringEnum.CHILDREN.value)) {
+                child.remove(FeatureStringEnum.ID.value)
+                child.remove(FeatureStringEnum.OWNER.value)
+                child.remove(FeatureStringEnum.DATE_CREATION.value)
+                child.remove(FeatureStringEnum.DATE_LAST_MODIFIED.value)
+                child.get(FeatureStringEnum.PARENT_TYPE.value).name = type
+            }
+
+            if (transcripts.size() == 1) {
+                featureRelationshipService.deleteFeatureAndChildren(parentGene)
+            }
+            else {
+                featureRelationshipService.removeFeatureRelationship(parentGene, feature)
+                featureRelationshipService.deleteFeatureAndChildren(feature)
+            }
+
+            if (type == Transcript.alternateCvTerm) {
+                currentFeatureJsonObject.get(FeatureStringEnum.PARENT_TYPE.value).name = FeatureStringEnum.PSEUDOGENE.value
+                parentGeneJsonObject.get(FeatureStringEnum.TYPE.value).name = FeatureStringEnum.PSEUDOGENE.value
+            }
+            else {
+                currentFeatureJsonObject.get(FeatureStringEnum.PARENT_TYPE.value).name = FeatureStringEnum.GENE.value
+                parentGeneJsonObject.get(FeatureStringEnum.TYPE.value).name = FeatureStringEnum.GENE.value
+            }
+
+            // at this point the JSONObject is ready for creating a feature
+            if (type == MRNA.alternateCvTerm) {
+                Transcript transcript = generateTranscript(currentFeatureJsonObject, sequence, true)
+                setLongestORF(transcript)
+
+                Gene newGene = transcriptService.getGene(transcript)
+                newGene.description = parentGeneDescription
+                newGene.symbol = parentGeneSymbol
+                newGene.save()
+                newFeature = transcript
+            }
+            else {
+                // NOTE: Input to addFeature should be a JSON Object of a Gene
+                parentGeneJsonObject.put(FeatureStringEnum.USERNAME.value, parentGeneJsonObject.get(FeatureStringEnum.OWNER.value.toLowerCase()))
+                parentGeneJsonObject.remove(FeatureStringEnum.ID.value)
+                parentGeneJsonObject.remove(FeatureStringEnum.UNIQUENAME.value)
+                parentGeneJsonObject.remove(FeatureStringEnum.OWNER.value.toLowerCase())
+                parentGeneJsonObject.remove(FeatureStringEnum.DATE_CREATION.value)
+                parentGeneJsonObject.remove(FeatureStringEnum.DATE_LAST_MODIFIED.value)
+                JSONArray childrenJsonArray = new JSONArray()
+                childrenJsonArray.add(currentFeatureJsonObject)
+                parentGeneJsonObject.put(FeatureStringEnum.CHILDREN.value, childrenJsonArray)
+                Gene gene = addFeature(parentGeneJsonObject, sequence, user, true)
+                newFeature = gene
+            }
+        }
+        else if (originalType in canonicalFeatureTypes && type in singletonFeatureTypes) {
+            // *RNA to singleton
+            Gene parentGene = transcriptService.getGene((Transcript) feature)
+            JSONObject parentGeneJsonObject = convertFeatureToJSON(parentGene)
+            def transcripts = transcriptService.getTranscripts(parentGene)
+
+            parentGeneJsonObject.put(FeatureStringEnum.USERNAME.value, parentGeneJsonObject.get(FeatureStringEnum.OWNER.value.toLowerCase()))
+            currentFeatureJsonObject.remove(FeatureStringEnum.PARENT_ID.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.ID.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.OWNER.value.toLowerCase())
+            currentFeatureJsonObject.remove(FeatureStringEnum.DATE_CREATION.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.DATE_LAST_MODIFIED.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.CHILDREN.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.PARENT_TYPE.value)
+            currentFeatureJsonObject.get(FeatureStringEnum.TYPE.value).name = type
+
+            if (transcripts.size() == 1) {
+                // removing gene and its transcripts
+                featureRelationshipService.deleteFeatureAndChildren(parentGene)
+            }
+            else {
+                // removing relationship between parentGene and feature (transcript)
+                featureRelationshipService.removeFeatureRelationship(parentGene, feature)
+                // deleting the feature (transcript)
+                featureRelationshipService.deleteFeatureAndChildren(feature)
+            }
+
+            // at this point the JSONObject is ready for creating a feature
+            Feature singleton = addFeature(currentFeatureJsonObject, sequence, user, true)
+            newFeature = singleton
+        }
+        else if (originalType in singletonFeatureTypes && type in singletonFeatureTypes) {
+            // singleton to singleton
+            featureRelationshipService.deleteFeatureAndChildren(feature)
+            currentFeatureJsonObject.put(FeatureStringEnum.USERNAME.value, currentFeatureJsonObject.get(FeatureStringEnum.OWNER.value.toLowerCase()))
+            currentFeatureJsonObject.remove(FeatureStringEnum.PARENT_ID.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.ID.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.OWNER.value.toLowerCase())
+            currentFeatureJsonObject.remove(FeatureStringEnum.DATE_CREATION.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.DATE_LAST_MODIFIED.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.CHILDREN.value)
+            currentFeatureJsonObject.remove(FeatureStringEnum.PARENT_TYPE.value)
+            currentFeatureJsonObject.get(FeatureStringEnum.TYPE.value).name = type
+
+            // at this point the JSONObject is ready for creating a feature
+            Feature singleton = addFeature(currentFeatureJsonObject, sequence, user, true)
+            newFeature = singleton
+        }
+        else {
+            log.error "Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
+        }
+
+        if (newFeature instanceof Gene) {
+            Feature transcriptFeature = Feature.findByUniqueName(uniqueName)
+            transcriptFeature.symbol = currentFeatureSymbol
+            transcriptFeature.description = currentFeatureDescription
+            currentFeatureDbxrefs.each { it ->
+                DBXref dbxref = new DBXref(
+                        db: it.db,
+                        accession: it.accession,
+                        version: it.version,
+                        description: it.description
+                ).save(flush: true)
+                transcriptFeature.addToFeatureDBXrefs(dbxref)
+            }
+
+            currentFeatureProperties.each { it ->
+                if (it instanceof Comment) {
+                    featurePropertyService.addComment(transcriptFeature, it.value)
+                }
+                else {
+                    FeatureProperty fp = new FeatureProperty(
+                            type: it.type,
+                            value: it.value,
+                            rank: it.rank,
+                            tag: it.tag,
+                            feature: newFeature
+                    ).save(flush: true)
+                    transcriptFeature.addToFeatureProperties(fp)
+                }
+            }
+            transcriptFeature.save()
+        }
+        else {
+            newFeature.symbol = currentFeatureSymbol
+            newFeature.description = currentFeatureDescription
+            currentFeatureDbxrefs.each { it ->
+                DBXref dbxref = new DBXref(
+                        db: it.db,
+                        accession: it.accession,
+                        version: it.version,
+                        description: it.description
+                ).save(flush: true)
+                newFeature.addToFeatureDBXrefs(dbxref)
+            }
+
+            currentFeatureProperties.each { it ->
+                if (it instanceof Comment) {
+                    featurePropertyService.addComment(newFeature, it.value)
+                }
+                else {
+                    FeatureProperty fp = new FeatureProperty(
+                            type: it.type,
+                            value: it.value,
+                            rank: it.rank,
+                            tag: it.tag,
+                            feature: newFeature
+                    ).save(flush: true)
+                    newFeature.addToFeatureProperties(fp)
+                }
+            }
+            newFeature.save()
+        }
+
+        // TODO: synonyms, featureSynonyms, featureGenotypes, featurePhenotypes
+
+        return newFeature
+    }
+
+    def addFeature(JSONObject jsonFeature, Sequence sequence, User user, boolean suppressHistory) {
+        if (!jsonFeature.containsKey(FeatureStringEnum.NAME.value) && jsonFeature.containsKey(FeatureStringEnum.CHILDREN.value)) {
+            JSONArray childArray = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
+            if (childArray?.size() == 1 && childArray.getJSONObject(0).containsKey(FeatureStringEnum.NAME.value)) {
+                jsonFeature.put(FeatureStringEnum.NAME.value, childArray.getJSONObject(0).getString(FeatureStringEnum.NAME.value))
+            }
+        }
+        Feature feature = convertJSONToFeature(jsonFeature, sequence)
+        if (!suppressHistory) {
+            feature.name = nameService.generateUniqueName(feature, feature.name)
+        }
+        updateNewGsolFeatureAttributes(feature, sequence)
+
+        if (feature instanceof Gene) {
+            for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
+                removeExonOverlapsAndAdjacencies(transcript);
+                CDS cds = transcriptService.getCDS(transcript)
+                if (cds != null) {
+                    featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
+                    cds.delete()
+                }
+                nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
+                if (grails.util.Environment.current != grails.util.Environment.TEST) {
+                    if (user) {
+                        transcript.addToOwners(user)
+                    } else {
+                        log.error "Unable to find valid user to set on feature!" + transcript.toString()
+                    }
+                }
+            }
+        } else if (feature instanceof Transcript) {
+            removeExonOverlapsAndAdjacencies((Transcript) feature);
+        }
+
+        if (grails.util.Environment.current != grails.util.Environment.TEST) {
+            if (user) {
+                feature.addToOwners(user)
+            } else {
+                log.error "Unable to find valid user to set on feature!" + jsonFeature.toString()
+            }
+        }
+        feature.save(insert: true, flush: true)
+        return feature
     }
 }

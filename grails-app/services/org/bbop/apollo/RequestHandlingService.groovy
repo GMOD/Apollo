@@ -2298,4 +2298,63 @@ class RequestHandlingService {
         }
         return new JSONObject()
     }
+
+    def changeAnnotationType(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        User user = permissionService.getCurrentUser(inputObject)
+        JSONObject featureContainer = createJSONFeatureContainer()
+
+        def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
+        def canonicalFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
+
+        for (int i = 0; i < features.length(); i++) {
+            String type = features.get(i).type
+            String uniqueName = features.get(i).uniquename
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
+            JSONObject returnObject = null
+
+            if (originalType == type) {
+                log.warn "Cannot change ${uniqueName} from ${originalType} -> ${type}. Nothing to do."
+            }
+            else if (originalType in singletonFeatureTypes && type in canonicalFeatureTypes) {
+                log.error "Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
+            }
+            else {
+                log.info "Changing ${uniqueName} from ${originalType} to ${type}"
+                featureService.changeAnnotationType(feature, sequence, user, type)
+                Feature newFeature = Feature.findByUniqueName(uniqueName)
+                returnObject = featureService.convertFeatureToJSON(newFeature)
+                JSONArray oldFeatureJsonArray = new JSONArray()
+                JSONArray newFeatureJsonArray = new JSONArray()
+                oldFeatureJsonArray.add(originalFeatureJsonObject)
+                newFeatureJsonArray.add(returnObject)
+                featureEventService.addChangeAnnotationTypeEvent(FeatureOperation.CHANGE_ANNOTATION_TYPE, feature.name,
+                    uniqueName, inputObject, oldFeatureJsonArray, newFeatureJsonArray, user)
+
+                JSONObject deleteFeatureContainer = createJSONFeatureContainer()
+                deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(originalFeatureJsonObject)
+                AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
+                        features: deleteFeatureContainer,
+                        sequence: sequence,
+                        operation: AnnotationEvent.Operation.DELETE
+                )
+                fireAnnotationEvent(deleteAnnotationEvent)
+
+                JSONObject addFeatureContainer = createJSONFeatureContainer()
+                addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(returnObject)
+                AnnotationEvent addAnnotationEvent = new AnnotationEvent(
+                        features: addFeatureContainer,
+                        sequence: sequence,
+                        operation: AnnotationEvent.Operation.ADD
+                )
+                fireAnnotationEvent(addAnnotationEvent)
+            }
+            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(returnObject)
+        }
+
+        return featureContainer
+    }
 }
