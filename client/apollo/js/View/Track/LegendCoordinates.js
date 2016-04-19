@@ -60,7 +60,7 @@ return declare(
         for(var seq in seqList){
             var seqValue = seqList[seq];
             var offset = seqValue.offset ? seqValue.offset : 0 ;
-            if(bp >= offset && bp <= offset + seqValue.end){
+            if(bp >= offset && bp <= offset + seqValue.length){
                 return bp - offset + seqValue.start  ;
             }
         }

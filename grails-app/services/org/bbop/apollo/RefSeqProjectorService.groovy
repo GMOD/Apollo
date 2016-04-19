@@ -32,8 +32,6 @@ class RefSeqProjectorService {
                     ProjectionSequence projectionSequence = projection.getProjectionSequence(sequence.name,currentOrganism)
                     if(!sequence.start && !sequence.end){
 //                        sequenceObject.end =  projection.length
-                        sequence.offset = projectionSequence.offset
-                        sequence.order = projectionSequence.order
                         sequence.start = projectionSequence.start
                         sequence.end = projectionSequence.end
                     }
@@ -43,6 +41,8 @@ class RefSeqProjectorService {
                         sequenceObject.end = length
                         sequence.length = sequence.end - sequence.start
                     }
+                    sequence.order = projectionSequence.order
+                    sequence.offset = projectionSequence.offset
                 }
 //"sequenceList":[{"name":"GroupUn87", "feature":{"name":"GB53499-RA"}, "start":45455, "end":45575},{"name":"Group11.4", "feature":{"name":"GB52236-RA"}, "start":52853, "end":58962}]
 //                        {"sequenceList":[{"name":"GroupUn87", "feature":{"name":"GB53499-RA"}, "start":45455, "end":45575},{"name":"Group11.4", "feature":{"name":"GB52236-RA"}, "start":52853, "end":58962}], "start":45455, "end":104537, "label":"GB53499-RAGroupUn87::GB52236-RAGroup11.4"}:45455..104537

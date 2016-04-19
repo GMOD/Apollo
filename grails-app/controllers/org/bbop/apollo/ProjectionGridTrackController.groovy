@@ -128,15 +128,12 @@ class ProjectionGridTrackController {
 //        // TODO: show if
             JSONObject region = new JSONObject(
                     type: 'region',
-//                    start: projectionSequence.offset,
-//                    end: projectionSequence.unprojectedLength + projectionSequence.offset,
                     start: projectionSequence.offset,
                     end: projectionSequence.length+ projectionSequence.offset,
                     name: projectionSequence.name,
                     label: projectionSequence.name,
                     color: getColorForIndex(index),
                     uniqueID: projectionSequence.name + sequenceObject.toString(),
-//                    data: sequenceObject,
                     sequence: projectionSequence.toJSONObject()
             )
             jsonObject.features.add(region)
