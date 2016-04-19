@@ -59,8 +59,9 @@ return declare(
         var seqList =  this.svgParent.refSeq.sequenceList;
         for(var seq in seqList){
             var seqValue = seqList[seq];
-            if(bp >= seqValue.offset && bp <= seqValue.offset + seqValue.end){
-                return bp - seqValue.offset ;
+            var offset = seqValue.offset ? seqValue.offset : 0 ;
+            if(bp >= offset && bp <= offset + seqValue.end){
+                return bp - offset + seqValue.start  ;
             }
         }
         return bp ;
