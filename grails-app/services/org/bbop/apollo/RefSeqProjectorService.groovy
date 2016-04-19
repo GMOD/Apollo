@@ -22,39 +22,35 @@ class RefSeqProjectorService {
         if (projection) {
             JSONArray projectedArray = new JSONArray()
             // in this case, we just want a single object
-            JSONObject sequenceObject = refSeqJsonObject ? refSeqJsonObject.first(): new JSONObject()
+            JSONObject sequenceObject = refSeqJsonObject ? refSeqJsonObject.first() : new JSONObject()
 
-            int length  = 0
-            if(sequenceObject.sequenceList){
+            int length = 0
+            if (sequenceObject.sequenceList) {
                 JSONArray sequenceArray = sequenceObject.sequenceList
-                for(int i = 0 ; i < sequenceArray.size() ; ++i){
+                for (int i = 0; i < sequenceArray.size(); ++i) {
                     JSONObject sequence = sequenceArray.getJSONObject(i)
-                    ProjectionSequence projectionSequence = projection.getProjectionSequence(sequence.name,currentOrganism)
-                    if(!sequence.start && !sequence.end){
-//                        sequenceObject.end =  projection.length
-                        sequence.start = projectionSequence.start
-                        sequence.end = projectionSequence.end
-                    }
-                    if(sequence.start && sequence.end){
-                        Integer sequenceLength = projection.projectValue(sequence.end,0,0)
-                        length += sequenceLength
-                        sequenceObject.end = length
-                        sequence.length = sequence.end - sequence.start
-                    }
+                    ProjectionSequence projectionSequence = projection.getProjectionSequence(sequence.name, currentOrganism)
+                    sequence.start = sequence.start ?: projectionSequence.start
+                    sequence.end = sequence.end ?: projectionSequence.end
+
+                    Integer sequenceLength = projection.projectValue(sequence.end, 0, 0)
+                    length += sequenceLength
+                    sequenceObject.end = length
+                    sequence.length = sequence.end - sequence.start
+
                     sequence.order = projectionSequence.order
                     sequence.offset = projectionSequence.offset
                 }
 //"sequenceList":[{"name":"GroupUn87", "feature":{"name":"GB53499-RA"}, "start":45455, "end":45575},{"name":"Group11.4", "feature":{"name":"GB52236-RA"}, "start":52853, "end":58962}]
 //                        {"sequenceList":[{"name":"GroupUn87", "feature":{"name":"GB53499-RA"}, "start":45455, "end":45575},{"name":"Group11.4", "feature":{"name":"GB52236-RA"}, "start":52853, "end":58962}], "start":45455, "end":104537, "label":"GB53499-RAGroupUn87::GB52236-RAGroup11.4"}:45455..104537
-            }
-            else{
-                sequenceObject.end =  projection.length
+            } else {
+                sequenceObject.end = projection.length
             }
             sequenceObject.start = 0
-            sequenceObject.length =  sequenceObject.end - sequenceObject.start
+            sequenceObject.length = sequenceObject.end - sequenceObject.start
             sequenceObject.name = refererLoc
 
-            if(sequenceObject.length < sequenceObject.seqChunkSize){
+            if (sequenceObject.length < sequenceObject.seqChunkSize) {
                 sequenceObject.seqChunkSize = sequenceObject.length
             }
 
@@ -74,8 +70,7 @@ class RefSeqProjectorService {
 //            }
             projectedArray.add(sequenceObject)
             return projectedArray.toString()
-        }
-        else {
+        } else {
             return refSeqJsonObject.toString()
         }
     }

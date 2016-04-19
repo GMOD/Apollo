@@ -40,7 +40,8 @@ define([
            'JBrowse/CodonTable',
            'dojo/io-query',
            'jquery/jquery',
-           'lazyload/lazyload'
+           'lazyload/lazyload',
+            'JBrowse/Util'
        ],
     function( declare,
             lang,
@@ -72,7 +73,9 @@ define([
             CodonTable,
             ioQuery,
             $,
-            LazyLoad ) {
+            LazyLoad,
+            Util
+    ) {
 
 return declare( [JBPlugin, HelpMixin],
 {
@@ -146,7 +149,7 @@ return declare( [JBPlugin, HelpMixin],
                 "title": "Apollo Help",
                 "content": this.defaultHelp()
             }
-        };
+        }
 
         // register the WebApollo track types with the browser, so
         // that the open-file dialog and other things will have them
@@ -195,6 +198,8 @@ return declare( [JBPlugin, HelpMixin],
         if(browser.config.show_nav&&browser.config.show_menu) {
             this.createMenus();
         }
+
+        this.replaceSearchBoxes();
 
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
@@ -686,8 +691,46 @@ return declare( [JBPlugin, HelpMixin],
                 })
         );
         this.updateLabels();
-    }
+    },
 
+    replaceSearchBoxes: function () {
+        var thisB = this ;
+        // integrate ApolloLabelProc fix
+        // this traps the event that happens directly after onCoarseMove function, where the label gets updates.
+        dojo.subscribe("/jbrowse/v1/n/navigate", function(currRegion){
+            var locationStr = Util.assembleLocStringWithLength( currRegion );
+            //console.log("locationStr="+locationStr);
+
+            // is locationStr JSON?
+            if (locationStr.charAt(0)=='{') {
+                locationStr = locationStr.substring(0,locationStr.lastIndexOf('}')+1);
+                var obj = JSON.parse(locationStr);
+
+                // look for the "label" property
+                if(obj.hasOwnProperty('sequenceList')) {
+                    //console.log("label="+obj.label);
+
+                    if( thisB.browser.locationBox ){
+                        thisB.browser.locationBox.set('style','width: 34ex;');
+                        thisB.browser.locationBox.set('value',obj.name, false);
+                    }
+
+                    // update the id=location-box if it exists
+                    //var node = dojo.byId("location-info");
+                    //if (node) {
+                    //    html.set(node, obj.html);
+                    //    thisB.browser.locationBox.set('value',"", false);
+                    //}
+
+                    dojo.addOnLoad(function() {
+                        dojo.style(dojo.byId('search-refseq'), "display", "none");
+                    });
+
+                }
+            }
+
+        });
+    },
 
 });
 
