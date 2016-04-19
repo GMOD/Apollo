@@ -53,7 +53,8 @@ class ProjectionGridTrackController {
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
         Integer range = multiSequenceProjection.getLength()
 
-        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
+//        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
+        JSONObject jsonObject = new JSONObject()
         jsonObject.featureCount= featureCount
         jsonObject.featureDensity = featureCount / (range) * 1.0
 //        jsonObject.featureCount=1
@@ -121,12 +122,16 @@ class ProjectionGridTrackController {
 
         projectionSequences.each{ ProjectionSequence projectionSequence  ->
 
+            println "projection: ${projectionSequence.toJSONObject() as JSON}"
+
            Integer index = projectionSequence.order
 //        // TODO: show if
             JSONObject region = new JSONObject(
                     type: 'region',
+//                    start: projectionSequence.offset,
+//                    end: projectionSequence.unprojectedLength + projectionSequence.offset,
                     start: projectionSequence.offset,
-                    end: projectionSequence.unprojectedLength + projectionSequence.offset,
+                    end: projectionSequence.length+ projectionSequence.offset,
                     name: projectionSequence.name,
                     label: projectionSequence.name,
                     color: getColorForIndex(index),
@@ -137,8 +142,8 @@ class ProjectionGridTrackController {
             jsonObject.features.add(region)
             JSONObject regionRight = new JSONObject(
                     type: 'region-right',
-                    start: projectionSequence.unprojectedLength + projectionSequence.offset,
-                    end: projectionSequence.unprojectedLength + projectionSequence.offset,
+                    start: projectionSequence.length + projectionSequence.offset,
+                    end: projectionSequence.length + projectionSequence.offset,
                     name: projectionSequence.name,
                     label: projectionSequence.name,
                     color: getColorForIndex(index),

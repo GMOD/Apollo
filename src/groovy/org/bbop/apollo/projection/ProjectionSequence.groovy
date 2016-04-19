@@ -49,6 +49,10 @@ class ProjectionSequence implements Comparable<ProjectionSequence>{
         return result
     }
 
+    Integer getLength(){
+        end-start
+    }
+
     @Override
     int compareTo(ProjectionSequence o) {
 //        id <=> o.id

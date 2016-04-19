@@ -221,7 +221,7 @@ public class BookmarkPanel extends Composite {
 
         // TODO: get fro the UI
         String paddingValue = paddingForm.getValue();
-        Integer padding = paddingValue !=null ? Integer.parseInt(paddingValue) : 30 ;
+        Integer padding = paddingValue !=null ? Integer.parseInt(paddingValue) : 0 ;
         bookmarkObject.put("padding", new JSONNumber(padding));
         return bookmarkObject;
     }

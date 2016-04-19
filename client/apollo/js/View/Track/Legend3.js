@@ -10,27 +10,25 @@ define([
         'JBrowse/View/Track/SVG/SVGLayerBpSpace',
         'JBrowse/View/Track/SVG/SVGLayerPxSpace',
         'WebApollo/View/Track/LegendCoordinates'
-],
-    function (
-        declare,
-        array,
-        lang,
-        domEvent,
-        domConstruct,
-        domStyle,
-        SVGTrackBase,
-        SVGLayerCoords,
-        SVGLayerBpSpace,
-        SVGLayerPxSpace,
-        LegendCoordinates
-    ) {
+    ],
+    function (declare,
+              array,
+              lang,
+              domEvent,
+              domConstruct,
+              domStyle,
+              SVGTrackBase,
+              SVGLayerCoords,
+              SVGLayerBpSpace,
+              SVGLayerPxSpace,
+              LegendCoordinates) {
 
         function numberWithCommas(x) {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
         return declare(
-            [ SVGTrackBase ]
+            [SVGTrackBase]
             ,
             /**
              * @lends JBrowse.View.Track.LocationScale.prototype
@@ -49,8 +47,8 @@ define([
                     this.loaded = true;
                     this.labelClass = args.labelClass;
                     this.pinned = true;
-                    this.posHeight = 30 ;
-                    this.height = 30 ;
+                    this.posHeight = 30;
+                    this.height = 30;
                 },
 
                 // this track has no track label or track menu, stub them out
@@ -59,7 +57,7 @@ define([
                 makeTrackMenu: function () {
                 },
 
-                _trackMenuOptions: function(){
+                _trackMenuOptions: function () {
                 },
 
                 _defaultConfig: function () {
@@ -70,43 +68,43 @@ define([
                     thisConfig.pinned = true;
                     return thisConfig;
                 },
-                heightUpdate: function( height, blockIndex ) {
+                heightUpdate: function (height, blockIndex) {
                     //console.log("SVGFeatures::heightUpdate("+height+")");
                     //console.dir(arguments);
                     //var err = new Error();
                     //console.log(err.stack);
 
-                    this.inherited( arguments );
-                    if( this.svgSpace){
+                    this.inherited(arguments);
+                    if (this.svgSpace) {
                         //this.svgCanvas.height = this.svgCanvas.offsetHeight;
                         console.log('has height ');
                         this.svgSpace.height = 30;
                     }
-                    else{
+                    else {
                         console.log('has no space ');
                         //this.svgCanvas.height = 200 ;
                     }
                     this.height = 30;
                 },
 
-                setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
+                setViewInfo: function (genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale) {
                     console.log("SVGLollipop::setViewInfo");
-                    console.log(numBlocks+" "+widthPct+" "+widthPx+" "+scale);
+                    console.log(numBlocks + " " + widthPct + " " + widthPx + " " + scale);
 
-                    this.inherited( arguments );
+                    this.inherited(arguments);
 
                     this.svgCoords = new LegendCoordinates(this);
-                    this.svgCoords.setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale );
+                    this.svgCoords.setViewInfo(genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale);
 
                     this.svgSpace = new SVGLayerPxSpace(this);      // px-space svg layer
                     //this.svgSpace = new SVGLayerBpSpace(this);    // bp-space svg layer
-                    this.svgSpace.setViewInfo( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale );
+                    this.svgSpace.setViewInfo(genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale);
 
                 },
 
-                showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
+                showRange: function (first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
                     console.log("SVGLollipop::showRange");
-                    console.log(first+" "+last+" "+startBase+" "+bpPerBlock+" "+scale+" "+containerStart+" "+containerEnd);
+                    console.log(first + " " + last + " " + startBase + " " + bpPerBlock + " " + scale + " " + containerStart + " " + containerEnd);
 
                     this.displayContext = {
                         first: first,
@@ -134,112 +132,114 @@ define([
                  callback = function that returns object
 
                  */
-                addSVGObject: function(id,bpCoord,width,height,callback) {
-                    this.svgSpace.addSVGObject(id,bpCoord,width,height,callback);
+                addSVGObject: function (id, bpCoord, width, height, callback) {
+                    this.svgSpace.addSVGObject(id, bpCoord, width, height, callback);
                 },
-                fixId: function(val) {
+                fixId: function (val) {
                     return val.replace(",", "-");
                 },
-                computeHeight: function() {
+                computeHeight: function () {
                     return this.svgSpace.getHeight();
                 },
-                fillFeatures: function( args ) {
+                fillFeatures: function (args) {
                     this.inherited(arguments);      // call the superclass's
                 },
 
 
-                renderRegion: function(context,fRect){
+                renderRegion: function (context, fRect) {
                     var thisB = this;
                     // create svg element new
                     var feature = fRect.f;
                     //var data = feature.sequence;
                     var sequence = feature.data.sequence;
-                    console.log(sequence);
+                    console.log(feature);
 
 
                     // draw line
                     var svgSpace = this.svgSpace;
 
-                    var startLabel = sequence.start ;
+                    var padding = sequence.padding ? sequence.padding : 0;
+                    var startLabel = sequence.start-padding;
 
                     // compute the x coord given the bpCoord
                     var start = feature.get("start");
                     var label = feature.get("label");
                     var color = feature.get("color");
-                    var cx = svgSpace.bp2Native(start);
                     var end = feature.get("end");
-                    var len = (end - start ) * .18 ;
+                    var len = (end - start ) * .18;
+                    //var cx = svgSpace.bp2Native(start);
+                    var nativePadding = svgSpace.bp2Native(padding);
+                    var nativeStart = svgSpace.bp2Native(start);
+                    var nativeEnd = svgSpace.bp2Native(end);
+                    var nativeLength = nativeEnd - nativeStart;
                     len = svgSpace.getHeight() - len;
-                    console.log("bpCoord="+start+" cx="+cx+" len="+len+" scale="+this.svgScale);
-                    console.log("rendering region "+label + " from "+ start + " to "+end) ;
+                    console.log("bpCoord=" + start + " cx=" + nativeStart + " len=" + len + " scale=" + this.svgScale);
+                    console.log("rendering region " + label + " from " + start + " to " + end);
 
 
                     // draw stems
-                    var id = "R-"+this.fixId(fRect.f.id());
+                    var id = "R-" + this.fixId(fRect.f.id());
 
-                    this.addSVGObject(id,start,100,100,function () {
-                        var svgItem = document.createElementNS('http://www.w3.org/2000/svg','rect');
-                        svgItem.setAttribute('width',end-start);
+                    this.addSVGObject(id, start, 100, 100, function () {
+                        var svgItem = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        svgItem.setAttribute('width', nativeLength);
                         //svgItem.setAttribute('y1',len);
-                        svgItem.setAttribute('height',50);
-                        svgItem.setAttribute('x',0);
-                        svgItem.setAttribute('y',0);
-                        svgItem.setAttribute('fill',color);
-                        svgItem.setAttribute('fill-opacity',0.1);
+                        svgItem.setAttribute('height', 50);
+                        svgItem.setAttribute('x', 0);
+                        svgItem.setAttribute('y', 0);
+                        svgItem.setAttribute('fill', color);
+                        svgItem.setAttribute('fill-opacity', 0.1);
                         return svgItem;
                     });
 
-                    var id2 = "RL-"+this.fixId(fRect.f.id());
-                    console.log("cx="+cx+" color="+color);
-                    this.addSVGObject(id2,start,100,100,function () {
-                        var leftLabelSvg = document.createElementNS('http://www.w3.org/2000/svg','text');
+                    var id2 = "RL-" + this.fixId(fRect.f.id());
+                    console.log("cx=" + nativeStart + " color=" + color);
+                    this.addSVGObject(id2, start, 100, 100, function () {
+                        var leftLabelSvg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                         //var xlength = (end-start)/ 2.0 ; // for 0 case only
                         //var xLoc = svgSpace.bp2Native(xlength);
-                        leftLabelSvg.setAttribute('x',28);
-                        leftLabelSvg.setAttribute('y',13);
+                        leftLabelSvg.setAttribute('x', 28);
+                        leftLabelSvg.setAttribute('y', 13);
                         //apple.setAttribute('fill','white');
-                        leftLabelSvg.setAttribute('stroke','black');
-                        leftLabelSvg.setAttribute('display','block');
+                        leftLabelSvg.setAttribute('stroke', 'black');
+                        leftLabelSvg.setAttribute('display', 'block');
                         //leftLabelSvg.innerHTML =  label+" ("+numberWithCommas(start)+")" ;
-                        leftLabelSvg.innerHTML =  label ;
+                        leftLabelSvg.innerHTML = label;
                         return leftLabelSvg;
                     });
 
-                    var id4 = "RLL-"+this.fixId(fRect.f.id());
-                    console.log("cx="+cx+" color="+color);
-                    if(start>0){
-                        this.addSVGObject(id4,start,100,100,function () {
-                            var rightEdgeText = document.createElementNS('http://www.w3.org/2000/svg','text');
-                            var formattedLabel = numberWithCommas(startLabel) ;
-                            //var formattedLabel = numberWithCommas(start) ;
-                            var xlength = -((formattedLabel.length-1) * 5) ;
-                            //rightEdgeText.setAttribute('x',end);
-                            //var xLoc = svgSpace.bp2Native(xlength);
-                            rightEdgeText.setAttribute('x',5);
-                            rightEdgeText.setAttribute('y',42);
-                            rightEdgeText.setAttribute('font-size','x-small');
-                            //rightEdgeText.setAttribute('transform','rotate(90 0 20)');
-                            //rightEdgeText.setAttribute('fill','white');
-                            rightEdgeText.setAttribute('stroke','blue');
-                            rightEdgeText.setAttribute('display','block');
-                            rightEdgeText.innerHTML =  formattedLabel;
-                            return rightEdgeText;
-                        });
-                    }
+                    var id4 = "RLL-" + this.fixId(fRect.f.id());
+                    console.log("cx=" + nativeStart + " color=" + color);
+                    this.addSVGObject(id4, start, 100, 100, function () {
+                        var rightEdgeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        var formattedLabel = numberWithCommas(startLabel);
+                        //var formattedLabel = numberWithCommas(start) ;
+                        var xlength = -((formattedLabel.length - 1) * 5);
+                        //rightEdgeText.setAttribute('x',end);
+                        //var xLoc = svgSpace.bp2Native(xlength);
+                        rightEdgeText.setAttribute('x', 5);
+                        rightEdgeText.setAttribute('y', 42);
+                        rightEdgeText.setAttribute('font-size', 'x-small');
+                        //rightEdgeText.setAttribute('transform','rotate(90 0 20)');
+                        //rightEdgeText.setAttribute('fill','white');
+                        rightEdgeText.setAttribute('stroke', 'blue');
+                        rightEdgeText.setAttribute('display', 'block');
+                        rightEdgeText.innerHTML = formattedLabel;
+                        return rightEdgeText;
+                    });
                 },
 
 
-
-                renderRegionRight: function(context, fRect){
+                renderRegionRight: function (context, fRect) {
                     var thisB = this;
                     // create svg element new
                     var feature = fRect.f;
-                    var sequence = feature.data.sequence ;
+                    var sequence = feature.data.sequence;
 
                     // draw line
                     var svgSpace = this.svgSpace;
 
-                    var endLabel = sequence.end ;
+                    var endLabel = sequence.end;
 
                     // compute the x coord given the bpCoord
                     var start = feature.get("start");
@@ -247,66 +247,65 @@ define([
                     var label = feature.get("label");
                     var color = feature.get("color");
                     var cx = svgSpace.bp2Native(start);
-                    var len = (end - start ) * .18 ;
+                    var len = (end - start ) * .18;
                     len = svgSpace.getHeight() - len;
-                    console.log("bpCoord="+start+" cx="+cx+" len="+len+" scale="+this.svgScale);
-                    console.log("rendering region "+label + " from "+ start + " to "+end) ;
+                    console.log("bpCoord=" + start + " cx=" + cx + " len=" + len + " scale=" + this.svgScale);
+                    console.log("rendering region " + label + " from " + start + " to " + end);
 
-                    var id3 = "RR-"+this.fixId(fRect.f.id());
+                    var id3 = "RR-" + this.fixId(fRect.f.id());
 
-                    console.log("cx="+cx+" color="+color);
-                    this.addSVGObject(id3,start,100,100,function () {
-                        var rightLabelRegion = document.createElementNS('http://www.w3.org/2000/svg','text');
+                    console.log("cx=" + cx + " color=" + color);
+                    this.addSVGObject(id3, start, 100, 100, function () {
+                        var rightLabelRegion = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                         //var formattedLabel = '('+numberWithCommas(end)+') '+ label;
-                        var formattedLabel =  label;
-                        var xlength = -((formattedLabel.length-1) * 12) ;
-                        rightLabelRegion.setAttribute('x',xlength);
+                        var formattedLabel = label;
+                        var xlength = -((formattedLabel.length - 1) * 12);
+                        rightLabelRegion.setAttribute('x', xlength);
                         //var xLoc = svgSpace.bp2Native(xlength);
                         //rightLabelRegion.setAttribute('x',-30);
-                        rightLabelRegion.setAttribute('y',13);
+                        rightLabelRegion.setAttribute('y', 13);
                         //rightLabelRegion.setAttribute('fill','white');
-                        rightLabelRegion.setAttribute('stroke','black');
-                        rightLabelRegion.setAttribute('display','block');
-                        rightLabelRegion.innerHTML =  formattedLabel ;
+                        rightLabelRegion.setAttribute('stroke', 'black');
+                        rightLabelRegion.setAttribute('display', 'block');
+                        rightLabelRegion.innerHTML = formattedLabel;
                         return rightLabelRegion;
                     });
 
-                    var id4 = "RRR-"+this.fixId(fRect.f.id());
-                    console.log("cx="+cx+" color="+color);
-                    this.addSVGObject(id4,start,100,100,function () {
-                        var rightEdgeText = document.createElementNS('http://www.w3.org/2000/svg','text');
-                        var formattedLabel = numberWithCommas(endLabel) ;
+                    var id4 = "RRR-" + this.fixId(fRect.f.id());
+                    console.log("cx=" + cx + " color=" + color);
+                    this.addSVGObject(id4, start, 100, 100, function () {
+                        var rightEdgeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        var formattedLabel = numberWithCommas(endLabel);
                         //var formattedLabel = numberWithCommas(end) ;
-                        var xlength = -((formattedLabel.length-1) * 8) ;
+                        var xlength = -((formattedLabel.length - 1) * 8);
                         //rightEdgeText.setAttribute('x',end);
                         //var xLoc = svgSpace.bp2Native(xlength);
-                        rightEdgeText.setAttribute('x',xlength);
-                        rightEdgeText.setAttribute('y',42);
-                        rightEdgeText.setAttribute('font-size','x-small');
+                        rightEdgeText.setAttribute('x', xlength);
+                        rightEdgeText.setAttribute('y', 42);
+                        rightEdgeText.setAttribute('font-size', 'x-small');
                         //rightEdgeText.setAttribute('transform','rotate(90 0 20)');
                         //rightEdgeText.setAttribute('fill','white');
-                        rightEdgeText.setAttribute('stroke','blue');
-                        rightEdgeText.setAttribute('display','block');
-                        rightEdgeText.innerHTML =  formattedLabel;
+                        rightEdgeText.setAttribute('stroke', 'blue');
+                        rightEdgeText.setAttribute('display', 'block');
+                        rightEdgeText.innerHTML = formattedLabel;
                         return rightEdgeText;
                     });
                 },
 
                 // draw each feature
-                renderFeature: function( context, fRect ) {
+                renderFeature: function (context, fRect) {
 
                     this.inherited(arguments);      // call the superclass
 
                     var feature = fRect.f;
                     var type = feature.get("type");
-                    if(type=='region'){
+                    if (type == 'region') {
                         console.log('render region');
-                        this.renderRegion(context,fRect);
+                        this.renderRegion(context, fRect);
                     }
-                    else
-                    if(type=='region-right'){
+                    else if (type == 'region-right') {
                         console.log('render region right');
-                        this.renderRegionRight(context,fRect,3);
+                        this.renderRegionRight(context, fRect, 3);
                     }
                 }
 
