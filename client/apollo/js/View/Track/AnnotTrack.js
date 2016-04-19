@@ -1854,6 +1854,43 @@ define([
                 this.getAnnotationInfoEditorForSelectedFeatures(selected);
             },
 
+            changeAnnotationType: function(type) {
+                var selected = this.selectionManager.getSelection();
+                if (selected[0].feature.afeature.type.name === type) {
+                    this.alertAnnotationType(selected[0], type);
+                }
+                else {
+                    console.log("changing ", selected[0].feature.afeature.name, " to type: ", type);
+                    this.changeAnnotations(selected[0], type);
+                    this.selectionManager.clearSelection();
+                }
+            },
+
+            changeAnnotations: function(record, type) {
+                var track = this;
+                var selectedFeature = record.feature;
+                var selectedTrack = record.track;
+                var uniqueName = selectedFeature.afeature.type.name === "exon" ? selectedFeature.afeature.parent_id : selectedFeature.getUniqueName();
+
+                if (selectedTrack == track) {
+                    var trackdiv = track.div;
+                    var trackName = track.getUniqueTrackName();
+                    var features = [{ uniquename: uniqueName, type: type }];
+                    var postData = { track: trackName, features: features, operation: "change_annotation_type" };
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                }
+            },
+
+            alertAnnotationType: function(selectedFeature, type) {
+                var message = "Feature " + selectedFeature.feature.afeature.name + " is already of type " + type;
+                var confirm = new ConfirmDialog({
+                    title: 'Change annotation type',
+                    message: message,
+                    confirmLabel: 'OK',
+                    denyLabel: 'Cancel'
+                }).show();
+            },
+
             getAnnotationInfoEditorForSelectedFeatures: function (records) {
                 var track = this;
                 var record = records[0];
@@ -4335,6 +4372,129 @@ define([
                             thisB.getAnnotationInfoEditor();
                         }
                     }));
+
+                    var changeAnnotationMenu = new dijitMenu();
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "gene",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("mRNA");
+                        }
+
+                    }));
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "pseudogene",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("transcript");
+                        }
+                    }));
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "rRNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("rRNA");
+                        }
+                    }));
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "snRNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("snRNA");
+                        }
+                    }));
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "snoRNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("snoRNA");
+                        }
+                    }));
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "tRNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("tRNA");
+                        }
+                    }));
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "ncRNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("ncRNA");
+                        }
+                    }));
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "miRNA",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("miRNA");
+                        }
+                    }));
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "repeat_region",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("repeat_region");
+                        }
+                    }));
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "transposable_element",
+                        onClick: function(event) {
+                            thisB.changeAnnotationType("transposable_element");
+                        }
+                    }));
+                    contextMenuItems["annotation_info_editor"] = index++;
+                    annot_context_menu.addChild(new dijit.MenuSeparator());
+                    index++;
+                    var changeAnnotationMenuItem = new dijitPopupMenuItem( {
+                        label: "Change annotation type",
+                        popup: changeAnnotationMenu,
+                        onFocus: function(event) {
+                            var selected = thisB.selectionManager.getSelection();
+                            var selectedType = selected[0].feature.afeature.type.name === "exon" ?
+                                selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
+                            var menuItems = changeAnnotationMenu.getChildren();
+                            for (var i in menuItems) {
+                                if (selectedType === "mRNA") {
+                                    if (menuItems[i].label === "gene") {
+                                        menuItems[i].setDisabled(true);
+                                    }
+                                    else {
+                                        menuItems[i].setDisabled(false);
+                                    }
+                                }
+                                else if (selectedType === "transcript") {
+                                    if (menuItems[i].label === "pseudogene") {
+                                        menuItems[i].setDisabled(true);
+                                    }
+                                    else {
+                                        menuItems[i].setDisabled(false);
+                                    }
+                                }
+                                else if (selectedType === "miRNA" || selectedType == "snRNA" || selectedType === "snoRNA" ||
+                                    selectedType === "rRNA" || selectedType === "tRNA" || selectedType === "ncRNA") {
+                                    if (menuItems[i].label === selectedType) {
+                                        menuItems[i].setDisabled(true);
+                                    }
+                                    else {
+                                        menuItems[i].setDisabled(false);
+                                    }
+                                }
+                                else if (selectedType === "repeat_region") {
+                                    if (menuItems[i].label === "transposable_element") {
+                                        menuItems[i].setDisabled(false);
+                                    }
+                                    else {
+                                        menuItems[i].setDisabled(true);
+                                    }
+                                }
+                                else if (selectedType === "transposable_element") {
+                                    if (menuItems[i].label === "repeat_region") {
+                                        menuItems[i].setDisabled(false);
+                                    }
+                                    else {
+                                        menuItems[i].setDisabled(true);
+                                    }
+                                }
+                                else {
+                                    menuItems[i].setDisabled(false);
+                                }
+                            }
+                        }
+                    });
+                    annot_context_menu.addChild(changeAnnotationMenuItem);
                     contextMenuItems["annotation_info_editor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
