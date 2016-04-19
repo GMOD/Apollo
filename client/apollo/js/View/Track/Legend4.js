@@ -167,32 +167,6 @@ define([
                     var label = feature.get("label");
                     var color = feature.get("color");
                     var end = feature.get("end");
-                    //var len = (end - start ) * .18;
-                    //var cx = svgSpace.bp2Native(start);
-                    //var nativePadding = svgSpace.bp2Native(padding);
-                    //var nativeStart = svgSpace.bp2Native(start);
-                    //var nativeEnd = svgSpace.bp2Native(end);
-                    //len = svgSpace.getHeight() - len;
-                    //console.log("bpCoord=" + start + " cx=" + nativeStart + " len=" + len + " scale=" + this.svgScale);
-                    //console.log("rendering region " + label + " from " + start + " to " + end);
-                    //
-                    //console.log("start=" + start +  " end=" + end+ " length=" + (end-start) + " scale=" + this.svgScale);
-                    //console.log("nativeStart=" + nativeStart+  " nativeEnd=" + nativeEnd+ " length=" + (nativeEnd-nativeStart)+ " scale=" + this.svgScale);
-                    // draw stems
-                    //var id = "R-" + this.fixId(fRect.f.id());
-
-                    //this.addSVGObject(id, start, 100, 100, function () {
-                    //    var svgItem = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    //    //svgItem.setAttribute('width', nativeEnd-nativeStart);
-                    //    svgItem.setAttribute('width', nativeEnd-nativeStart);
-                    //    //svgItem.setAttribute('y1',len);
-                    //    svgItem.setAttribute('height', 50);
-                    //    svgItem.setAttribute('x', 0);
-                    //    svgItem.setAttribute('y', 0);
-                    //    svgItem.setAttribute('fill', color);
-                    //    svgItem.setAttribute('fill-opacity', 0.1);
-                    //    return svgItem;
-                    //});
                     var id = "R-" + this.fixId(fRect.f.id());
 
                     this.addSVGObject(id, start, 100, 100, function () {
@@ -209,10 +183,10 @@ define([
                         var leftLabelSvg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                         //var xlength = (end-start)/ 2.0 ; // for 0 case only
                         //var xLoc = svgSpace.bp2Native(xlength);
-                        leftLabelSvg.setAttribute('x', 28);
-                        leftLabelSvg.setAttribute('y', 13);
+                        leftLabelSvg.setAttribute('x', 50);
+                        leftLabelSvg.setAttribute('y', 42);
                         //apple.setAttribute('fill','white');
-                        leftLabelSvg.setAttribute('stroke', 'black');
+                        leftLabelSvg.setAttribute('stroke', color);
                         leftLabelSvg.setAttribute('display', 'block');
                         //leftLabelSvg.innerHTML =  label+" ("+numberWithCommas(start)+")" ;
                         leftLabelSvg.innerHTML = label;
@@ -233,7 +207,7 @@ define([
                         rightEdgeText.setAttribute('font-size', 'x-small');
                         //rightEdgeText.setAttribute('transform','rotate(90 0 20)');
                         //rightEdgeText.setAttribute('fill','white');
-                        rightEdgeText.setAttribute('stroke', 'blue');
+                        rightEdgeText.setAttribute('stroke', color);
                         rightEdgeText.setAttribute('display', 'block');
                         rightEdgeText.innerHTML = formattedLabel;
                         return rightEdgeText;
@@ -268,15 +242,12 @@ define([
                     //console.log("cx=" + cx + " color=" + color);
                     this.addSVGObject(id3, start, 100, 100, function () {
                         var rightLabelRegion = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                        //var formattedLabel = '('+numberWithCommas(end)+') '+ label;
                         var formattedLabel = label;
-                        var xlength = -((formattedLabel.length - 1) * 12);
+                        var xlength = -((formattedLabel.length - 1) * 14 + 30);
                         rightLabelRegion.setAttribute('x', xlength);
-                        //var xLoc = svgSpace.bp2Native(xlength);
                         //rightLabelRegion.setAttribute('x',-30);
-                        rightLabelRegion.setAttribute('y', 13);
-                        //rightLabelRegion.setAttribute('fill','white');
-                        rightLabelRegion.setAttribute('stroke', 'black');
+                        rightLabelRegion.setAttribute('y', 42);
+                        rightLabelRegion.setAttribute('stroke', color);
                         rightLabelRegion.setAttribute('display', 'block');
                         rightLabelRegion.innerHTML = formattedLabel;
                         return rightLabelRegion;
@@ -287,16 +258,11 @@ define([
                     this.addSVGObject(id4, start, 100, 100, function () {
                         var rightEdgeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                         var formattedLabel = numberWithCommas(endLabel);
-                        //var formattedLabel = numberWithCommas(end) ;
                         var xlength = -((formattedLabel.length - 1) * 8);
-                        //rightEdgeText.setAttribute('x',end);
-                        //var xLoc = svgSpace.bp2Native(xlength);
                         rightEdgeText.setAttribute('x', xlength);
                         rightEdgeText.setAttribute('y', 42);
                         rightEdgeText.setAttribute('font-size', 'x-small');
-                        //rightEdgeText.setAttribute('transform','rotate(90 0 20)');
-                        //rightEdgeText.setAttribute('fill','white');
-                        rightEdgeText.setAttribute('stroke', 'blue');
+                        rightEdgeText.setAttribute('stroke', color);
                         rightEdgeText.setAttribute('display', 'block');
                         rightEdgeText.innerHTML = formattedLabel;
                         return rightEdgeText;

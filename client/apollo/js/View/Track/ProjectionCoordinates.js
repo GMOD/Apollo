@@ -134,7 +134,8 @@ return declare(
             }
             svgCoord.setAttribute('x', x + xlength);
             svgCoord.setAttribute('y', 30);
-            svgCoord.setAttribute('fill', 'blue');
+            svgCoord.setAttribute('fill', 'black');
+            svgCoord.setAttribute('fill-opacity', '0.5');
             //svgCoord.setAttribute('transform','rotate(90 '+x+' 20)');
             svgCoord.setAttribute('display', 'block');
             svgCoord.innerHTML = formattedLabel ;
