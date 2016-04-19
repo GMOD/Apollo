@@ -706,19 +706,19 @@ return declare( [JBPlugin, HelpMixin],
                 locationStr = locationStr.substring(0,locationStr.lastIndexOf('}')+1);
                 var obj = JSON.parse(locationStr);
 
-                // look for the "label" property
+                // look for the "sequenceList" property
                 if(obj.hasOwnProperty('sequenceList')) {
                     //console.log("label="+obj.label);
 
 
-                    if( thisB.browser.locationBox ){
-                        thisB.browser.locationBox.set('value',obj.label, false);
-                    }
-
                     //if( thisB.browser.locationBox ){
-                    //    thisB.browser.locationBox.set('style','width: 34ex;');
-                    //    thisB.browser.locationBox.set('value',obj.name, false);
+                    //    thisB.browser.locationBox.set('value',obj.label, false);
                     //}
+
+                    if( thisB.browser.locationBox ){
+                        thisB.browser.locationBox.set('style','width: 34ex;');
+                        thisB.browser.locationBox.set('value',obj.name, false);
+                    }
 
                     // update the id=location-box if it exists
                     var node = dojo.byId("location-info");

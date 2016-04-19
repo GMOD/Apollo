@@ -45,15 +45,27 @@ return declare(
         // container for coord elements (this is just to test the coordinate space)
         this.coordGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
         this.svgCoords.appendChild(this.coordGroup);
-        this.svgCoords.fCoord = [];
-        this.svgCoords.tCoord = [];
-        this.svgCoords.bCoord = [];
+        this.svgCoords.middleCoord = [];
+        this.svgCoords.topCoord = [];
+        this.svgCoords.bottomCoord = [];
         this.svgCoords.shadeCoord = [];
 
 
         this.svgHeight = 100;
         this.svgScale = 1;
 
+    },
+
+    getSequenceForBp: function(bp){
+        var seqList =  this.svgParent.refSeq.sequenceList;
+        for(var seq in seqList){
+            var seqValue = seqList[seq];
+            var offset = seqValue.offset ? seqValue.offset : 0 ;
+            if(bp >= offset && bp <= offset + seqValue.length){
+                return seqValue.name ;
+            }
+        }
+        return 'N/A';
     },
 
     calculateBpForSequence: function(bp){
@@ -82,10 +94,10 @@ return declare(
         this.coordGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
 
         // erase test coordinates
-        for (var bpCoord in this.svgCoords.fCoord) {
-            this.svgCoords.fCoord[bpCoord].setAttribute("display","none");
-            this.svgCoords.tCoord[bpCoord].setAttribute("display","none");
-            this.svgCoords.bCoord[bpCoord].setAttribute("display","none");
+        for (var bpCoord in this.svgCoords.middleCoord) {
+            this.svgCoords.middleCoord[bpCoord].setAttribute("display","none");
+            this.svgCoords.topCoord[bpCoord].setAttribute("display","none");
+            this.svgCoords.bottomCoord[bpCoord].setAttribute("display","none");
         }
 
         // draw test coordinates
@@ -94,12 +106,12 @@ return declare(
             var coordinateLabel = this.calculateBpForSequence(bpCoord+1);
             var x = this.bp2Native(bpCoord);
             var svgCoord;
-            if (bpCoord in this.svgCoords.fCoord) {
-                svgCoord = this.svgCoords.fCoord[bpCoord];
+            if (bpCoord in this.svgCoords.middleCoord) {
+                svgCoord = this.svgCoords.middleCoord[bpCoord];
             }
             else {
                 svgCoord = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                this.svgCoords.fCoord[bpCoord] = svgCoord;
+                this.svgCoords.middleCoord[bpCoord] = svgCoord;
             }
             var xlength = 5; // for 0 case only
             //var formattedLabel = numberWithCommas(bpCoord + 1);
@@ -113,7 +125,7 @@ return declare(
             svgCoord.setAttribute('fill', 'blue');
             //svgCoord.setAttribute('transform','rotate(90 '+x+' 20)');
             svgCoord.setAttribute('display', 'block');
-            svgCoord.innerHTML = formattedLabel;
+            svgCoord.innerHTML = formattedLabel ;
             this.coordGroup.appendChild(svgCoord);
         }
 
@@ -121,12 +133,12 @@ return declare(
             bpCoord = this.svgParent.blocks[i].startBase;
             x = this.bp2Native(bpCoord);
             var topTick;
-            if (bpCoord in this.svgCoords.tCoord) {
-                topTick= this.svgCoords.tCoord[bpCoord];
+            if (bpCoord in this.svgCoords.topCoord) {
+                topTick= this.svgCoords.topCoord[bpCoord];
             }
             else {
                 topTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                this.svgCoords.tCoord[bpCoord] = topTick;
+                this.svgCoords.topCoord[bpCoord] = topTick;
             }
 
             // draw stems
@@ -147,12 +159,12 @@ return declare(
             var bpCoord = this.svgParent.blocks[i].startBase;
             var x = this.bp2Native(bpCoord);
             var bottomTick;
-            if (bpCoord in this.svgCoords.bCoord) {
-                bottomTick = this.svgCoords.bCoord[bpCoord];
+            if (bpCoord in this.svgCoords.bottomCoord) {
+                bottomTick = this.svgCoords.bottomCoord[bpCoord];
             }
             else {
                 bottomTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                this.svgCoords.bCoord[bpCoord] = bottomTick;
+                this.svgCoords.bottomCoord[bpCoord] = bottomTick;
             }
 
             //var bottomTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
