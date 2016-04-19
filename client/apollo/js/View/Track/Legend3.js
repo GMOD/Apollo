@@ -171,18 +171,16 @@ define([
                     var nativePadding = svgSpace.bp2Native(padding);
                     var nativeStart = svgSpace.bp2Native(start);
                     var nativeEnd = svgSpace.bp2Native(end);
-                    var nativeLength = nativeEnd - nativeStart;
                     len = svgSpace.getHeight() - len;
                     console.log("bpCoord=" + start + " cx=" + nativeStart + " len=" + len + " scale=" + this.svgScale);
                     console.log("rendering region " + label + " from " + start + " to " + end);
-
 
                     // draw stems
                     var id = "R-" + this.fixId(fRect.f.id());
 
                     this.addSVGObject(id, start, 100, 100, function () {
                         var svgItem = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                        svgItem.setAttribute('width', nativeLength);
+                        svgItem.setAttribute('width', nativeEnd-nativeStart);
                         //svgItem.setAttribute('y1',len);
                         svgItem.setAttribute('height', 50);
                         svgItem.setAttribute('x', 0);
