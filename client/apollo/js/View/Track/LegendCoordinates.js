@@ -90,7 +90,7 @@ return declare(
         // draw test coordinates
         for(i=first;i < last;i++) {
             var bpCoord = this.svgParent.blocks[i].startBase;
-            var coordinateLabel = this.calculateBpForSequence(bpCoord);
+            var coordinateLabel = this.calculateBpForSequence(bpCoord+1);
             var x = this.bp2Native(bpCoord);
             var svgCoord;
             if (bpCoord in this.svgCoords.fCoord) {
@@ -102,9 +102,9 @@ return declare(
             }
             var xlength = 5; // for 0 case only
             //var formattedLabel = numberWithCommas(bpCoord + 1);
-            var formattedLabel = numberWithCommas(coordinateLabel + 1);
+            var formattedLabel = numberWithCommas(coordinateLabel);
             var offsetMultiplier = 5;
-            if (x != 0) {
+            if (bpCoord +1 != 0) {
                 xlength = -(formattedLabel.length - 1) * offsetMultiplier;
             }
             svgCoord.setAttribute('x', x + xlength);
