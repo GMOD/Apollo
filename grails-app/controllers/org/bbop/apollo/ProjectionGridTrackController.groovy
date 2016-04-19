@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import org.bbop.apollo.gwt.shared.ColorGenerator
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -90,14 +91,6 @@ class ProjectionGridTrackController {
         render jsonObject
     }
 
-    String getColorForIndex(int i ){
-        switch (i){
-            case 0: return 'green';
-            case 1: return 'blue';
-            case 2: return 'brown';
-            default: return 'gray';
-        }
-    }
 
     def features() {
 
@@ -132,7 +125,7 @@ class ProjectionGridTrackController {
                     end: projectionSequence.length+ projectionSequence.offset,
                     name: projectionSequence.name,
                     label: projectionSequence.name,
-                    color: getColorForIndex(index),
+                    color: ColorGenerator.getColorForIndex(index),
                     uniqueID: projectionSequence.name + sequenceObject.toString(),
                     sequence: projectionSequence.toJSONObject()
             )
@@ -143,7 +136,7 @@ class ProjectionGridTrackController {
                     end: projectionSequence.length + projectionSequence.offset,
                     name: projectionSequence.name,
                     label: projectionSequence.name,
-                    color: getColorForIndex(index),
+                    color: ColorGenerator.getColorForIndex(index),
                     uniqueID: projectionSequence.name + sequenceObject.toString(),
 //                    data: sequenceObject,
                     sequence: projectionSequence.toJSONObject()

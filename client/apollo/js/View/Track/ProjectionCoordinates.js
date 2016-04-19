@@ -48,7 +48,7 @@ return declare(
         this.svgCoords.middleCoord = [];
         this.svgCoords.topCoord = [];
         this.svgCoords.bottomCoord = [];
-        this.svgCoords.shadeCoord = [];
+        this.svgCoords.shadedCoord = [];
 
 
         this.svgHeight = 100;
@@ -65,7 +65,19 @@ return declare(
                 return seqValue.name ;
             }
         }
-        return 'N/A';
+        return '';
+    },
+
+    getColorForBp: function(bp){
+        var seqList =  this.svgParent.refSeq.sequenceList;
+        for(var seq in seqList){
+            var seqValue = seqList[seq];
+            var offset = seqValue.offset ? seqValue.offset : 0 ;
+            if(bp >= offset && bp <= offset + seqValue.length){
+                return seqValue.color;
+            }
+        }
+        return '';
     },
 
     calculateBpForSequence: function(bp){
@@ -98,6 +110,7 @@ return declare(
             this.svgCoords.middleCoord[bpCoord].setAttribute("display","none");
             this.svgCoords.topCoord[bpCoord].setAttribute("display","none");
             this.svgCoords.bottomCoord[bpCoord].setAttribute("display","none");
+            this.svgCoords.shadedCoord[bpCoord].setAttribute("display","none");
         }
 
         // draw test coordinates
@@ -114,9 +127,8 @@ return declare(
                 this.svgCoords.middleCoord[bpCoord] = svgCoord;
             }
             var xlength = 5; // for 0 case only
-            //var formattedLabel = numberWithCommas(bpCoord + 1);
             var formattedLabel = numberWithCommas(coordinateLabel);
-            var offsetMultiplier = 5;
+            var offsetMultiplier = 4;
             if (bpCoord +1 != 0) {
                 xlength = -(formattedLabel.length - 1) * offsetMultiplier;
             }
@@ -131,27 +143,26 @@ return declare(
 
         for(var i=first;i < last;i++) {
             bpCoord = this.svgParent.blocks[i].startBase;
-            x = this.bp2Native(bpCoord);
+            var label = this.getSequenceForBp(bpCoord);
+            //if(label=='') continue ;
             var topTick;
             if (bpCoord in this.svgCoords.topCoord) {
                 topTick= this.svgCoords.topCoord[bpCoord];
             }
             else {
-                topTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                topTick = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 this.svgCoords.topCoord[bpCoord] = topTick;
             }
 
+            x = this.bp2Native(bpCoord);
             // draw stems
-            //var topTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            topTick.setAttribute('x1', x);
-            //topTick.setAttribute('y1',len);
-            topTick.setAttribute('y1', 0);
-            topTick.setAttribute('x2', x);
-            topTick.setAttribute('y2', 10);
-            topTick.setAttribute('stroke', 'rgba(0,0,0,.5)');
-            topTick.setAttribute('stroke-width', 2);
-            topTick.setAttribute('stroke-linecap', 'round');
+            var xlength = -((label.length - 1) * 3);
+            topTick.setAttribute('x', x+xlength);
+            topTick.setAttribute('y', 10);
+            topTick.setAttribute('stroke-width', 0.5);
+            topTick.setAttribute('stroke', 'black');
             topTick.setAttribute('display', 'block');
+            topTick.innerHTML = label ;
             this.coordGroup.appendChild(topTick);
         }
 
@@ -167,9 +178,7 @@ return declare(
                 this.svgCoords.bottomCoord[bpCoord] = bottomTick;
             }
 
-            //var bottomTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             bottomTick.setAttribute('x1', x);
-            //bottomTick.setAttribute('y1',len);
             bottomTick.setAttribute('y1', 40);
             bottomTick.setAttribute('x2', x);
             bottomTick.setAttribute('y2', 50);
@@ -178,6 +187,25 @@ return declare(
             bottomTick.setAttribute('stroke-linecap', 'round');
             bottomTick.setAttribute('display', 'block');
             this.coordGroup.appendChild(bottomTick);
+        }
+
+        for(var i=first;i < last;i++) {
+            var bpCoord = this.svgParent.blocks[i].startBase;
+            var x = this.bp2Native(bpCoord);
+            var tick;
+            if (bpCoord in this.svgCoords.shadedCoord) {
+                tick = this.svgCoords.shadedCoord[bpCoord];
+            }
+            else {
+                tick = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                this.svgCoords.shadedCoord[bpCoord] = tick;
+            }
+            tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 0 L'+(x+50)+' 0 Z');
+            tick.setAttribute('fill', this.getColorForBp(bpCoord));
+            //tick.setAttribute('color', 'black');
+            tick.setAttribute('fill-opacity', 0.1);
+            tick.setAttribute('display', 'block');
+            this.coordGroup.appendChild(tick);
         }
     },
     bp2Native: function(val) {

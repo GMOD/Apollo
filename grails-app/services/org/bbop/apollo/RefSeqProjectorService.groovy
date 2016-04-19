@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.ColorGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.MultiSequenceProjection
@@ -39,6 +40,7 @@ class RefSeqProjectorService {
                     sequence.length = sequence.end - sequence.start
 
                     sequence.order = projectionSequence.order
+                    sequence.color = ColorGenerator.getColorForIndex(projectionSequence.order)
                     sequence.offset = projectionSequence.offset
                 }
 //"sequenceList":[{"name":"GroupUn87", "feature":{"name":"GB53499-RA"}, "start":45455, "end":45575},{"name":"Group11.4", "feature":{"name":"GB52236-RA"}, "start":52853, "end":58962}]
