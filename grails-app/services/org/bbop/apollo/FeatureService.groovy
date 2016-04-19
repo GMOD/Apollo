@@ -2580,6 +2580,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             // at this point the JSONObject is ready for creating a feature
             Feature singleton = addFeature(currentFeatureJsonObject, sequence, user, true)
+            singleton.featureLocation.strand = 0
+            singleton.save()
             newFeature = singleton
         }
         else if (originalType in singletonFeatureTypes && type in singletonFeatureTypes) {
@@ -2597,6 +2599,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             // at this point the JSONObject is ready for creating a feature
             Feature singleton = addFeature(currentFeatureJsonObject, sequence, user, true)
+            singleton.featureLocation.strand = 0
+            singleton.save()
             newFeature = singleton
         }
         else {
