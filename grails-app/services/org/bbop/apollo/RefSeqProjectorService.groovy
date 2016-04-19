@@ -41,6 +41,7 @@ class RefSeqProjectorService {
                         Integer sequenceLength = projection.projectValue(sequence.end,0,0)
                         length += sequenceLength
                         sequenceObject.end = length
+                        sequence.length = sequence.end - sequence.start
                     }
                 }
 //"sequenceList":[{"name":"GroupUn87", "feature":{"name":"GB53499-RA"}, "start":45455, "end":45575},{"name":"Group11.4", "feature":{"name":"GB52236-RA"}, "start":52853, "end":58962}]
@@ -52,6 +53,10 @@ class RefSeqProjectorService {
             sequenceObject.start = 0
             sequenceObject.length =  sequenceObject.end - sequenceObject.start
             sequenceObject.name = refererLoc
+
+            if(sequenceObject.length < sequenceObject.seqChunkSize){
+                sequenceObject.seqChunkSize = sequenceObject.length
+            }
 
 //            for (int i = 0; i < refSeqJsonObject.size(); i++) {
 //
