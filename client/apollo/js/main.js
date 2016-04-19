@@ -710,20 +710,26 @@ return declare( [JBPlugin, HelpMixin],
                 if(obj.hasOwnProperty('sequenceList')) {
                     //console.log("label="+obj.label);
 
+
                     if( thisB.browser.locationBox ){
-                        thisB.browser.locationBox.set('style','width: 34ex;');
-                        thisB.browser.locationBox.set('value',obj.name, false);
+                        thisB.browser.locationBox.set('value',obj.label, false);
                     }
 
-                    // update the id=location-box if it exists
-                    //var node = dojo.byId("location-info");
-                    //if (node) {
-                    //    html.set(node, obj.html);
-                    //    thisB.browser.locationBox.set('value',"", false);
+                    //if( thisB.browser.locationBox ){
+                    //    thisB.browser.locationBox.set('style','width: 34ex;');
+                    //    thisB.browser.locationBox.set('value',obj.name, false);
                     //}
+
+                    // update the id=location-box if it exists
+                    var node = dojo.byId("location-info");
+                    if (node) {
+                        node.html.set(node, "<h3>BIG</h3>");
+                        thisB.browser.locationBox.set('value',"", false);
+                    }
 
                     dojo.addOnLoad(function() {
                         dojo.style(dojo.byId('search-refseq'), "display", "none");
+                        //dojo.style(dojo.byId('search-box'), "display", "none");
                     });
 
                 }

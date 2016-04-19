@@ -23,8 +23,8 @@
       "type": "JBrowse/View/Track/CanvasFeatures",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
       "baseUrl": "http://localhost:8080/apollo/projectionLegend",
-      "style":{
-          "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
+      "style": {
+        "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
       },
       "pinned": true
 
@@ -35,15 +35,17 @@
     {
       "label": "Legend",
       "key": "Legend",
-//      "type": "JBrowse/View/Track/LocationScale",
-//      "type": "JBrowse/View/Track/CanvasVariants",
-      "type": "WebApollo/View/Track/Legend3",
-//      "type": "WebApollo/View/Track/LegendTrack",
+      //      "type": "JBrowse/View/Track/LocationScale",
+      //      "type": "JBrowse/View/Track/CanvasVariants",
+//      "type": "WebApollo/View/Track/Legend3",
+      "type": "WebApollo/View/Track/Legend4",
+      //      "type": "WebApollo/View/Track/LegendTrack",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
       "baseUrl": "http://localhost:8080/apollo/projectionGrid",
-      "style":{
+      "style": {
         "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
       },
+      "noCache": true,
       "pinned": true
       //          "query": {
       //            "organism": "tyrannosaurus"
@@ -58,7 +60,7 @@
       "type": "WebApollo/View/Track/LegendTrack",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
       "baseUrl": "http://localhost:8080/apollo/projectionGrid",
-      "style":{
+      "style": {
         "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
       },
       "noCache": true,
@@ -75,7 +77,7 @@
       "type": "JBrowse/View/Track/SVGLollipop",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
       "baseUrl": "http://localhost:8080/apollo/projectionGrid",
-      "style":{
+      "style": {
         "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
       },
       "pinned": true
@@ -162,7 +164,7 @@
     //    }
   ],
   "favicon": "./plugins/WebApollo/img/webapollo_favicon.ico",
-//  "locationBox": "searchBox",
+  "locationBox": "searchBox",
   "alwaysOnTracks": "DNA,Legend,Annotations",
   "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
   "formatVersion": 1
