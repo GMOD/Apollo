@@ -192,6 +192,7 @@ public class BookmarkPanel extends Composite {
             String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
             JSONObject sequenceObject = new JSONObject();
             BookmarkInfo selectedBookmarkInfo = bookmarkInfoMap.get(groupName);
+            // map the specific genes
             if (groupName.contains(" (")) {
                 Integer startIndex = groupName.indexOf(" (");
                 Integer endIndex = groupName.indexOf(")");
@@ -204,7 +205,10 @@ public class BookmarkPanel extends Composite {
                 sequenceObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getStart()));
                 sequenceObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getEnd()));
             } else {
+                // map the entire scaffold
                 sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(groupName));
+                sequenceObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getStart()));
+                sequenceObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getEnd()));
             }
             sequenceList.set(sequenceList.size(), sequenceObject);
             if(i==0){
