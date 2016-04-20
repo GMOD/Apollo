@@ -202,14 +202,12 @@ public class BookmarkPanel extends Composite {
                 featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(featureString));
                 sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(sequenceString));
                 sequenceObject.put(FeatureStringEnum.FEATURE.getValue(),featureObject);
-                sequenceObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getStart()));
-                sequenceObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getEnd()));
             } else {
                 // map the entire scaffold
                 sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(groupName));
-                sequenceObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getStart()));
-                sequenceObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getEnd()));
             }
+            sequenceObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getStart()));
+            sequenceObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getEnd()));
             sequenceList.set(sequenceList.size(), sequenceObject);
             if(i==0){
                 start = selectedBookmarkInfo.getStart();

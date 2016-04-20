@@ -34,10 +34,14 @@ class RefSeqProjectorService {
                     sequence.start = sequence.start ?: projectionSequence.start
                     sequence.end = sequence.end ?: projectionSequence.end
 
+                    // TODO:  use the projection sequence offset
+//                    Integer sequenceLength = projection.projectValue(sequence.end + projectionSequence.offset, 0, 0)
                     Integer sequenceLength = projection.projectValue(sequence.end, 0, 0)
-                    length += sequenceLength
-                    sequenceObject.end = length
                     sequence.length = sequence.end - sequence.start
+                    // tODO: use the sequenceLength here
+//                    length += sequenceLength
+                    length += sequence.length
+                    sequenceObject.end = length
 
                     sequence.order = projectionSequence.order
                     sequence.color = ColorGenerator.getColorForIndex(projectionSequence.order)
@@ -49,7 +53,7 @@ class RefSeqProjectorService {
                 sequenceObject.end = projection.length
             }
             sequenceObject.start = 0
-            sequenceObject.length = sequenceObject.end - sequenceObject.start
+            sequenceObject.length = length
             sequenceObject.name = refererLoc
 
             if (sequenceObject.length < sequenceObject.seqChunkSize) {
