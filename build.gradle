@@ -327,10 +327,6 @@ def refreshBowerRepo(String directory){
         println "using bower to update: ${directory}"
         workingDir directory
         commandLine "bower","update","-F"
-//        if(finalUrl.split("#")[0].endsWith("jbrowse")){
-        // mv bower_components/jbrowse -> jbrowse-download
-//        }
-        // installs it in bower_components
     }
 }
 
@@ -348,18 +344,23 @@ def cloneRepoBower(String url,String directory,String branch){
         // installs it in bower_components
     }
 
+    File bowerDirectory = new File('bower_components')
     if((finalUrl.contains("#")&&finalUrl.endsWith("jbrowse"))  || finalUrl.split("#")[0].endsWith("jbrowse")) {
         println "Moving JBrowse into position ${finalUrl}"
         tasks.moveBowerJBrowse.execute()
         tasks.installJBrowseBower.execute()
     }
     else{
-        File file = new File('bower_components')
-        file.eachDir {
+        bowerDirectory.eachDir {
             File targetFile = new File(directory)
-            println "Moving plugin into place: ${file.absolutePath} -> ${targetFile}"
+            println "Moving plugin into place: ${bowerDirectory.absolutePath} -> ${targetFile}"
             it.renameTo(targetFile)
         }
+    }
+
+    // delete on exit
+    if(bowerDirectory.listFiles().length==0){
+        assert bowerDirectory.delete()
     }
 }
 
