@@ -38,7 +38,7 @@
       //      "type": "JBrowse/View/Track/LocationScale",
       //      "type": "JBrowse/View/Track/CanvasVariants",
 //      "type": "WebApollo/View/Track/Legend3",
-      "type": "WebApollo/View/Track/Legend4",
+      "type": "WebApollo/View/Track/ProjectionLegend",
       //      "type": "WebApollo/View/Track/LegendTrack",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
       "baseUrl": "http://localhost:8080/apollo/projectionGrid",

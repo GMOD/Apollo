@@ -102,6 +102,7 @@ return declare(
     },
 
     addGridLabel: function(bpCoord){
+
         var coordinateLabel = this.calculateBpForSequence(bpCoord+1);
         var x = this.bp2Native(bpCoord);
         var svgCoord;
@@ -173,24 +174,24 @@ return declare(
         this.coordGroup.appendChild(bottomTick);
     },
 
-        addShadedTick: function (bpCoord) {
-            var x = this.bp2Native(bpCoord);
-            var tick;
-            if (bpCoord in this.svgCoords.shadedCoord) {
-                tick = this.svgCoords.shadedCoord[bpCoord];
-            }
-            else {
-                tick = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                this.svgCoords.shadedCoord[bpCoord] = tick;
-            }
-            tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 0 L'+(x+50)+' 0 Z');
-            tick.setAttribute('fill', this.getColorForBp(bpCoord));
-            tick.setAttribute('fill-opacity', 0.1);
-            tick.setAttribute('display', 'block');
-            this.coordGroup.appendChild(tick);
-        },
+    addShadedTick: function (bpCoord) {
+        var x = this.bp2Native(bpCoord);
+        var tick;
+        if (bpCoord in this.svgCoords.shadedCoord) {
+            tick = this.svgCoords.shadedCoord[bpCoord];
+        }
+        else {
+            tick = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            this.svgCoords.shadedCoord[bpCoord] = tick;
+        }
+        tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 0 L'+(x+50)+' 0 Z');
+        tick.setAttribute('fill', this.getColorForBp(bpCoord));
+        tick.setAttribute('fill-opacity', 0.1);
+        tick.setAttribute('display', 'block');
+        this.coordGroup.appendChild(tick);
+    },
 
-        showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
+    showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
         console.log("SVGLayerCoords::showRange");
 
         this.inherited( arguments );
