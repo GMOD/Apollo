@@ -94,7 +94,7 @@ environments {
 ////            alwaysPull = "true"
 ////        }
 ////        SashimiPlot {
-////            git = 'https://github.org/cmdcolin/sashimiplot'
+////            git = 'https://github.com/cmdcolin/sashimiplot'
 ////            branch = 'master'
 ////            alwaysPull = "true"
 ////        }

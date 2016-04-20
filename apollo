@@ -194,7 +194,7 @@ elif [[ $1 == "clean" ]];then
     $gradle_executable clean-ant &&  $grails_executable clean
 elif [[ $1 == "jbrowse" ]];then
     check_configs
-    $gradle_executable handleJbrowse
+    $gradle_executable handleJBrowse
 else
     usage
 fi
