@@ -348,9 +348,18 @@ def cloneRepoBower(String url,String directory,String branch){
         // installs it in bower_components
     }
 
-    if(!(finalUrl.contains("#")&&finalUrl.endsWith("jbrowse"))  || finalUrl.split("#")[0].endsWith("jbrowse")) {
+    if((finalUrl.contains("#")&&finalUrl.endsWith("jbrowse"))  || finalUrl.split("#")[0].endsWith("jbrowse")) {
+        println "Moving JBrowse into position ${finalUrl}"
         tasks.moveBowerJBrowse.execute()
         tasks.installJBrowseBower.execute()
+    }
+    else{
+        File file = new File('bower_components')
+        file.eachDir {
+            File targetFile = new File(directory)
+            println "Moving plugin into place: ${file.absolutePath} -> ${targetFile}"
+            it.renameTo(targetFile)
+        }
     }
 }
 
