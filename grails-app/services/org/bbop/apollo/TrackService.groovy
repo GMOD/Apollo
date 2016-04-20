@@ -572,8 +572,8 @@ class TrackService {
         Integer priorSequenceLength = 0
         Integer priorChunkArrayOffset = 0
         String trackName = null
+
         // a sequence name
-//        List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceStrings,currentOrganism)
         List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceStrings,currentOrganism)
 
         int calculatedEnd = 0

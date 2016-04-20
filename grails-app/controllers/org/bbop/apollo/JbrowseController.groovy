@@ -171,31 +171,12 @@ class JbrowseController {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-//            JSONArray refSeqJsonObject = new JSONArray(file.text)
-//
-//            MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
-
-//            String results = refSeqProjectorService.projectRefSeq(refSeqJsonObject, projection, currentOrganism, refererLoc)
-//            def resultObject = JSON.parse(results)
             def refererLocObject = JSON.parse(refererLoc)
             def sequenceList = refererLocObject.sequenceList
-//            def names = sequenceList.name
-//            def sequenceAndTheirLengths = new JSONArray()
-//            int pos = 0;
+
             // for each sequence we have: name (typically sequence), location start, location end,
             // original start (0 if full scaffold), original end (length if full scaffold) left text (nullable), right text (nullable)
             // we also have folding information once that is available
-//            if (sequenceList != null) {
-//                for (int i = 0; i < sequenceList.size()-1; i++) {
-//                    JSONObject thisSeq = sequenceList.get(i)
-//                    JSONObject nextSeq = sequenceList.get(i+1)
-//                    pos+=projection.findProjectSequenceLength(thisSeq.name)
-//                    sequenceAndTheirLengths.add(i,
-//                            [label: thisSeq.name, rlabel: nextSeq.name, start: pos, end: pos+1, ref: refererLoc,color:'black'] as JSONObject
-//                    )
-//                }
-//            }
-
             JSONArray displayArray = new JSONArray()
             int offset = 0
             for (int i = 0; sequenceList && i < sequenceList.size(); i++) {
