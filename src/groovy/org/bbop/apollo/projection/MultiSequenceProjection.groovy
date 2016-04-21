@@ -252,7 +252,9 @@ class MultiSequenceProjection extends AbstractProjection {
             }
 
             lastLength += discontinuousProjection.bufferedLength
+            // TODO: this is the incorrect length . . . should be the other one + buffered
             originalLength += discontinuousProjection.originalLength
+//            originalLength += discontinuousProjection.length
             ++currentOrder
         }
     }
