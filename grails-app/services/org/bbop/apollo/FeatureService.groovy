@@ -246,8 +246,7 @@ class FeatureService {
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
             }
-            // I don't think that this does anything
-            addFeature(gene)
+            removeExonOverlapsAndAdjacenciesForFeature(gene)
             if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
@@ -300,7 +299,7 @@ class FeatureService {
 
     @Timed
     @Transactional
-    def addFeature(Feature feature) {
+    def removeExonOverlapsAndAdjacenciesForFeature(Feature feature) {
         if (feature instanceof Gene) {
             for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                 removeExonOverlapsAndAdjacencies(transcript);
