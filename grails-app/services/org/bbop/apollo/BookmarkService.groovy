@@ -73,7 +73,7 @@ class BookmarkService {
 
 
         jsonObject.padding = bookmark.padding ?: 0
-        jsonObject.referenceTrack = bookmark.referenceTrack
+//        jsonObject.referenceTrack = bookmark.referenceTrack
 
         jsonObject.payload = bookmark.payload ?: "{}"
         jsonObject.organism = bookmark.organism.commonName

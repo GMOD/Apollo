@@ -84,6 +84,7 @@ return declare( [JBPlugin, HelpMixin],
         console.log("loaded WebApollo plugin");
         var thisB = this;
         this.searchMenuInitialized = false;
+        this.replaceSearchBox = false;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
         [
           'plugins/WebApollo/jslib/bbop/bbop.js',
@@ -695,6 +696,7 @@ return declare( [JBPlugin, HelpMixin],
 
     replaceSearchBoxes: function () {
         var thisB = this ;
+        var currentBookmark ;
         // integrate ApolloLabelProc fix
         // this traps the event that happens directly after onCoarseMove function, where the label gets updates.
         dojo.subscribe("/jbrowse/v1/n/navigate", function(currRegion){
@@ -709,6 +711,8 @@ return declare( [JBPlugin, HelpMixin],
                 // look for the "sequenceList" property
                 if(obj.hasOwnProperty('sequenceList')) {
                     //console.log("label="+obj.label);
+                    var counter = 0 ;
+                    currentBookmark = obj ;
 
 
                     //if( thisB.browser.locationBox ){
@@ -729,13 +733,40 @@ return declare( [JBPlugin, HelpMixin],
                     //}
 
                     dojo.addOnLoad(function() {
-                        //dojo.style(dojo.byId('search-refseq'), "display", "none");
-                        dojo.style(dojo.byId('search-box'), "display", "none");
+                        if(!thisB.replaceSearchBox){
+                            //dojo.style(dojo.byId('search-refseq'), "display", "none");
+                            var searchBox = dojo.byId('search-box');
+                            dojo.style(searchBox, "display", "none");
+                            var borderContainer = dijit.byId('GenomeBrowser');
+                            borderContainer.resize();
+                            thisB.replaceSearchBox = true ;
+                        }
                     });
 
+                    //dojo.addOnLoad(function() {
+                    //    // console.log(borderContainer);
+                    //
+                    //    if(counter==0){
+                    //        var searchBox = dojo.byId('search-box');
+                    //        dojo.style(searchBox, "display", "none");
+                    //        if(obj.hasOwnProperty("name")){
+                    //            // TODO: add something next to search-box that displays something slightly different
+                    //            // bookmark name + location . . . pasting it in should call browser "GO" function
+                    //            // should call Browser.navigateTo . . with the browser location stuff
+                    //            // we cann actually store the bookmark data here
+                    //        }
+                    //        var borderContainer = dijit.byId('GenomeBrowser');
+                    //        borderContainer.resize();
+                    //    }
+                    //    counter = 1 ;
+                    //
+                    //    // dojo.style(dojo.byId('search-refseq'), "display", "none");
+                    //});
+                }
+                else{
+                    currentBookmark = null ;
                 }
             }
-
         });
     },
 
