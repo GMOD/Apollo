@@ -1198,29 +1198,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return cvTerm
     }
 
-
-    List<String> cvTermTranscriptList = [
-            MRNA.cvTerm,
-            MRNA.alternateCvTerm,
-//            MiRNA.cvTerm,
-//            MiRNA.alternateCvTerm,
-//            NcRNA.cvTerm,
-//            NcRNA.alternateCvTerm,
-//            SnoRNA.cvTerm,
-//            SnoRNA.alternateCvTerm,
-//            SnRNA.cvTerm,
-//            SnRNA.alternateCvTerm,
-//            RRNA.cvTerm,
-//            RRNA.alternateCvTerm,
-//            TRNA.cvTerm,
-//            TRNA.alternateCvTerm,
-//            Transcript.cvTerm
-    ]
-
     boolean isJsonTranscript(JSONObject jsonObject) {
         JSONObject typeObject = jsonObject.getJSONObject(FeatureStringEnum.TYPE.value)
         String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
-        return cvTermTranscriptList.contains(typeString)
+        if (typeString == MRNA.cvTerm || typeString == MRNA.alternateCvTerm) {
+            return true
+        }
+        else {
+            return false
+        }
     }
 
     // TODO: (perform on client side, slightly ugly)
@@ -2481,6 +2467,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         FeatureEvent currentFeatureEvent = featureEventService.findCurrentFeatureEvent(feature.uniqueName).get(0)
         JSONObject currentFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
+        String topLevelFeatureType = null
         Feature newFeature = null
         JSONObject originalFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
         JSONObject preparedJsonObject = new JSONObject()
@@ -2489,12 +2476,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         def currentFeatureDbxrefs = feature.featureDBXrefs
         def currentFeatureProperties = feature.featureProperties
 
-        String topLevelFeatureType = Gene.alternateCvTerm
         if (type == Transcript.alternateCvTerm) {
             topLevelFeatureType = Pseudogene.alternateCvTerm
         }
-        else {
+        else if (singletonFeatureTypes.contains(type)) {
             topLevelFeatureType = type
+        }
+        else {
+            topLevelFeatureType = Gene.alternateCvTerm
         }
 
         Gene parentGene = null
@@ -2570,6 +2559,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             preparedJsonObject = parentGeneJsonObject
         }
+        println "Prepared JSON Object: ${preparedJsonObject.toString()}"
         // at this point the input object is prepared for any of the destination cases
         if (!singletonFeatureTypes.contains(originalType) && rnaFeatureTypes.contains(type)) {
             // *RNA to *RNA
@@ -2717,6 +2707,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 jsonFeature.put(FeatureStringEnum.NAME.value, childArray.getJSONObject(0).getString(FeatureStringEnum.NAME.value))
             }
         }
+        println "@FS::addFeature JSONFeature: ${jsonFeature.toString()}"
         Feature feature = convertJSONToFeature(jsonFeature, sequence)
         if (!suppressHistory) {
             feature.name = nameService.generateUniqueName(feature, feature.name)
@@ -2752,6 +2743,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
         feature.save(insert: true, flush: true)
+
+        println "added feature is of type ${feature.class.canonicalName}"
         return feature
     }
 }
