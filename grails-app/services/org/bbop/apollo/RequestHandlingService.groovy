@@ -1779,7 +1779,6 @@ class RequestHandlingService {
 
             fireAnnotationEvent(annotationEvent)
         }
-
         return returnObject
     }
 
@@ -2306,36 +2305,46 @@ class RequestHandlingService {
         JSONObject featureContainer = createJSONFeatureContainer()
 
         def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
-        def canonicalFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
+        def rnaFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
 
         for (int i = 0; i < features.length(); i++) {
             String type = features.get(i).type
             String uniqueName = features.get(i).uniquename
             Feature feature = Feature.findByUniqueName(uniqueName)
-            JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            FeatureEvent currentFeatureEvent = featureEventService.findCurrentFeatureEvent(feature.uniqueName).get(0)
+            JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            JSONObject originalFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
             String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
             JSONObject returnObject = null
 
             if (originalType == type) {
                 log.warn "Cannot change ${uniqueName} from ${originalType} -> ${type}. Nothing to do."
             }
-            else if (originalType in singletonFeatureTypes && type in canonicalFeatureTypes) {
+            else if (originalType in singletonFeatureTypes && type in rnaFeatureTypes) {
                 log.error "Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
             }
             else {
                 log.info "Changing ${uniqueName} from ${originalType} to ${type}"
-                featureService.changeAnnotationType(feature, sequence, user, type)
-                Feature newFeature = Feature.findByUniqueName(uniqueName)
-                returnObject = featureService.convertFeatureToJSON(newFeature)
+                Feature newFeature = featureService.changeAnnotationType(inputObject, feature, sequence, user, type)
+                JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
                 JSONArray oldFeatureJsonArray = new JSONArray()
                 JSONArray newFeatureJsonArray = new JSONArray()
                 oldFeatureJsonArray.add(originalFeatureJsonObject)
-                newFeatureJsonArray.add(returnObject)
+                newFeatureJsonArray.add(newFeatureJsonObject)
                 featureEventService.addChangeAnnotationTypeEvent(FeatureOperation.CHANGE_ANNOTATION_TYPE, feature.name,
-                    uniqueName, inputObject, oldFeatureJsonArray, newFeatureJsonArray, user)
+                        uniqueName, inputObject, oldFeatureJsonArray, newFeatureJsonArray, user)
+                if (singletonFeatureTypes.contains(newFeatureJsonObject.get(FeatureStringEnum.TYPE.value).name)) {
+                    returnObject = newFeatureJsonObject
+                }
+                else if (newFeatureJsonObject.get(FeatureStringEnum.TYPE.value).name == MRNA.alternateCvTerm) {
+                    returnObject = newFeatureJsonObject
+                }
+                else {
+                    returnObject = newFeatureJsonObject.get(FeatureStringEnum.CHILDREN.value).get(0)
+                }
 
                 JSONObject deleteFeatureContainer = createJSONFeatureContainer()
-                deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(originalFeatureJsonObject)
+                deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(currentFeatureJsonObject)
                 AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
                         features: deleteFeatureContainer,
                         sequence: sequence,
