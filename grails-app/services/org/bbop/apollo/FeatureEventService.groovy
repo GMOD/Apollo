@@ -527,10 +527,11 @@ class FeatureEventService {
                 addCommandObject = permissionService.copyUserName(inputObject, addCommandObject)
 
                 addCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY.value, true)
-                addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
+
 
                 if (featureService.isJsonTranscript(jsonFeature)) {
                     // set the original gene name
+                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
                     for (int k = 0; k < featuresToAddArray.size(); k++) {
                         JSONObject featureObject = featuresToAddArray.getJSONObject(k)
                         featureObject.put(FeatureStringEnum.GENE_NAME.value, featureEvent.name)
@@ -541,6 +542,7 @@ class FeatureEventService {
                     transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
 
                 } else {
+                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, false)
                     requestHandlingService.addFeature(addCommandObject)
                 }
 
@@ -887,7 +889,6 @@ class FeatureEventService {
             // delete all history downstream of this point
             deleteFutureHistoryEvents(lastFeatureEvent)
         }
-
         FeatureEvent featureEvent = new FeatureEvent(
                 editor: user,
                 name: name,
