@@ -216,6 +216,7 @@ define([
                     track.createAnnotationChangeListener(0);
 
                     var query = {
+                        "clientToken": track.getClientToken(),
                         "track": track.getUniqueTrackName(),
                         "operation": "get_features",
                         "organism": track.webapollo.organism
@@ -262,11 +263,43 @@ define([
 
             },
 
+            generateRandomNumber: function(length){
+                var string = '';
+                while(string.length<length){
+                    string += Math.floor(Math.random()*1000);
+                }
+                return string ;
+            },
+
+            getClientToken: function () {
+                if (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
+                    var token = window.parent.getClientToken();
+                    //alert("AnnotTrack have to get client token in AnnotTrack.js using GWT function: "+token);
+                    return token ;
+                }
+                else{
+                    var returnItem = window.sessionStorage.getItem("clientToken");
+                    if (!returnItem) {
+                        var randomNumber = this.generateRandomNumber(20);
+                        //alert('AnnotTrack generating and storing random number: '+randomNumber);
+                        window.sessionStorage.setItem("clientToken", randomNumber);
+                    }
+                    //else{
+                    //    alert("AnnotTrack found client token: "+returnItem);
+                    //}
+                    return window.sessionStorage.getItem("clientToken");
+                }
+            },
+
             createAnnotationChangeListener: function (numTry) {
                 //this.listener = new SockJS(context_path+"/stomp");
                 var stomp_url = window.location.href;
                 var index = stomp_url.search('/jbrowse');
                 stomp_url = stomp_url.substr(0, index) + '/stomp/';
+                var numberIndex = stomp_url.search('/[0-9]+/');
+                var stompIndex = stomp_url.search('/stomp/');
+                stomp_url = stomp_url.substr(0,numberIndex) + stomp_url.substr(stompIndex);
+
                 this.listener = new SockJS(stomp_url);
                 this.client = Stomp.over(this.listener);
                 this.client.debug = function (str) {
@@ -278,72 +311,77 @@ define([
                 var track = this;
                 var browser = this.gview.browser;
 
-                if (typeof window.parent.getEmbeddedVersion == 'function') {
-                    if (window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
-                        console.log('Registering embedded system with ApolloGwt-2.0.');
+                if (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
+                    console.log('Registering embedded system with ApolloGwt-2.0.');
 
-                        browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                            window.parent.handleNavigationEvent(JSON.stringify(currRegion));
-                        }));
-
-
-                        var sendTracks = function (trackList, visibleTrackNames, showLabels) {
-                            var filteredTrackList = [];
-                            for (var trackConfigIndex in trackList) {
-                                var filteredTrack = {};
-                                var trackConfig = trackList[trackConfigIndex];
-                                var visible = visibleTrackNames.indexOf(trackConfig.label)>=0||showLabels.indexOf(trackConfig.label)>=0;
-                                filteredTrack.label = trackConfig.label;
-                                filteredTrack.key = trackConfig.key;
-                                filteredTrack.name = trackConfig.name;
-                                filteredTrack.type = trackConfig.type;
-                                filteredTrack.urlTemplate = trackConfig.urlTemplate;
-                                filteredTrack.visible = visible;
-                                filteredTrackList.push(filteredTrack);
-                            }
-
-                            //console.log('AnnotTrack::returning filtered track list: ' + filteredTrackList.length);
-                            window.parent.loadTracks(JSON.stringify(filteredTrackList));
-                        };
-
-                        var handleTrackVisibility = function (trackInfo) {
-                            var command = trackInfo.command;
-                            if (command == "show") {
-                                browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
-                            }
-                            else if (command == "hide") {
-                                browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
-                            }
-                            else if (command == "list") {
-                                var trackList = browser.trackConfigsByName;
-                                var visibleTrackNames = browser.view.visibleTrackNames();
-                                var showLabels = array.map(trackInfo.labels,function(track) { return track.label; });
-                                sendTracks(trackList, visibleTrackNames, showLabels);
-                            }
-                            else {
-                                console.log('unknown command: ' + command);
-                            }
-                        };
-                        browser.subscribe('/jbrowse/v1/c/tracks/show', function(labels) { console.log("show update");handleTrackVisibility({command:"list",labels:labels}); });
-                        browser.subscribe('/jbrowse/v1/c/tracks/hide', function() { console.log("hide update");handleTrackVisibility({command:"list"}); });
-                        window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
+                    browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
+                        window.parent.handleNavigationEvent(JSON.stringify(currRegion));
+                    }));
 
 
-                        client.connect({}, function () {
-                            // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
-                            var organism = JSON.parse(window.parent.getCurrentOrganism());
-                            var sequence = JSON.parse(window.parent.getCurrentSequence());
-                            var user = JSON.parse(window.parent.getCurrentUser());
-                            client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
-                            client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
-                        });
-                        console.log('connection established');
-                    }
+                    var sendTracks = function (trackList, visibleTrackNames, showLabels) {
+                        var filteredTrackList = [];
+                        for (var trackConfigIndex in trackList) {
+                            var filteredTrack = {};
+                            var trackConfig = trackList[trackConfigIndex];
+                            var visible = visibleTrackNames.indexOf(trackConfig.label) >= 0 || showLabels.indexOf(trackConfig.label) >= 0;
+                            filteredTrack.label = trackConfig.label;
+                            filteredTrack.key = trackConfig.key;
+                            filteredTrack.name = trackConfig.name;
+                            filteredTrack.type = trackConfig.type;
+                            filteredTrack.urlTemplate = trackConfig.urlTemplate;
+                            filteredTrack.visible = visible;
+                            filteredTrackList.push(filteredTrack);
+                        }
 
+                        //console.log('AnnotTrack::returning filtered track list: ' + filteredTrackList.length);
+                        window.parent.loadTracks(JSON.stringify(filteredTrackList));
+                    };
+
+                    var handleTrackVisibility = function (trackInfo) {
+                        var command = trackInfo.command;
+                        if (command == "show") {
+                            browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
+                        }
+                        else if (command == "hide") {
+                            browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
+                        }
+                        else if (command == "list") {
+                            var trackList = browser.trackConfigsByName;
+                            var visibleTrackNames = browser.view.visibleTrackNames();
+                            var showLabels = array.map(trackInfo.labels, function (track) {
+                                return track.label;
+                            });
+                            sendTracks(trackList, visibleTrackNames, showLabels);
+                        }
+                        else {
+                            console.log('unknown command: ' + command);
+                        }
+                    };
+                    browser.subscribe('/jbrowse/v1/c/tracks/show', function (labels) {
+                        console.log("show update");
+                        handleTrackVisibility({command: "list", labels: labels});
+                    });
+                    browser.subscribe('/jbrowse/v1/c/tracks/hide', function () {
+                        console.log("hide update");
+                        handleTrackVisibility({command: "list"});
+                    });
+                    window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
+
+
+
+                    client.connect({}, function () {
+                        // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
+                        var organism = JSON.parse(window.parent.getCurrentOrganism());
+                        var sequence = JSON.parse(window.parent.getCurrentSequence());
+                        var user = JSON.parse(window.parent.getCurrentUser());
+                        client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
+                        client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
+                    });
+                    console.log('connection established');
                 }
                 else {
                     console.log('No embedded server is present.');
-
                     client.connect({}, function () {
 
                         var request = {
@@ -359,7 +397,7 @@ define([
                                     alert("Failed to subscribe to websocket, no seq/org id available");
                                     return;
                                 }
-                                if(typeof track.webapollo.organism == 'undefined'){
+                                if (typeof track.webapollo.organism == 'undefined') {
                                     track.webapollo.organism = response.organismId;
                                 }
                                 client.subscribe("/topic/AnnotationNotification/" + track.webapollo.organism + "/" + response.id, dojo.hitch(track, 'annotationNotification'));
@@ -385,10 +423,10 @@ define([
 
                     if (changeData.operation == "logout" && changeData.username == track.username) {
                         alert("You have been logged out or your session has expired");
-                        if(window.parent){
+                        if (window.parent) {
                             parent.location.reload();
                         }
-                        else{
+                        else {
                             location.reload();
                         }
 
@@ -514,41 +552,41 @@ define([
                 if (featDiv && featDiv != null && !history) {
                     annot_context_menu.bindDomNode(featDiv);
                     $(featDiv).droppable({
-                        accept: ".selected-feature",   // only accept draggables that
-                        // are selected feature divs
-                        tolerance: "pointer",
-                        hoverClass: "annot-drop-hover",
-                        over: function (event, ui) {
-                            track.annot_under_mouse = event.target;
-                        },
-                        out: function (event, ui) {
-                            track.annot_under_mouse = null;
-                        },
-                        drop: function (event, ui) {
-                            // ideally in the drop() on annot div is where would handle
-                            // adding feature(s) to annot,
-                            // but JQueryUI droppable doesn't actually call drop unless
-                            // draggable helper div is actually
-                            // over the droppable -- even if tolerance is set to pointer
-                            // tolerance=pointer will trigger hover styling when over
-                            // droppable,
-                            // as well as call to over method (and out when leave
-                            // droppable)
-                            // BUT location of pointer still does not influence actual
-                            // dropping and drop() call
-                            // therefore getting around this by handling hover styling
-                            // here based on pointer over annot,
-                            // but drop-to-add part is handled by whole-track droppable,
-                            // and uses annot_under_mouse
-                            // tracking variable to determine if drop was actually on
-                            // top of an annot instead of
-                            // track whitespace
-                            if (track.verbose_drop) {
-                                console.log("dropped feature on annot:");
-                                console.log(featDiv);
+                            accept: ".selected-feature",   // only accept draggables that
+                            // are selected feature divs
+                            tolerance: "pointer",
+                            hoverClass: "annot-drop-hover",
+                            over: function (event, ui) {
+                                track.annot_under_mouse = event.target;
+                            },
+                            out: function (event, ui) {
+                                track.annot_under_mouse = null;
+                            },
+                            drop: function (event, ui) {
+                                // ideally in the drop() on annot div is where would handle
+                                // adding feature(s) to annot,
+                                // but JQueryUI droppable doesn't actually call drop unless
+                                // draggable helper div is actually
+                                // over the droppable -- even if tolerance is set to pointer
+                                // tolerance=pointer will trigger hover styling when over
+                                // droppable,
+                                // as well as call to over method (and out when leave
+                                // droppable)
+                                // BUT location of pointer still does not influence actual
+                                // dropping and drop() call
+                                // therefore getting around this by handling hover styling
+                                // here based on pointer over annot,
+                                // but drop-to-add part is handled by whole-track droppable,
+                                // and uses annot_under_mouse
+                                // tracking variable to determine if drop was actually on
+                                // top of an annot instead of
+                                // track whitespace
+                                if (track.verbose_drop) {
+                                    console.log("dropped feature on annot:");
+                                    console.log(featDiv);
+                                }
                             }
-                        }
-                    })
+                        })
                         .click(function (event) {
                             if (event.altKey) {
                                 track.getAnnotationInfoEditor();
@@ -1002,12 +1040,19 @@ define([
                         }
                         featureToAdd.get("subfeatures").push(dragfeat);
                     });
-                    if(!subfeatures.length) {
-                        featureToAdd = new SimpleFeature({data: {strand: strand, start: featureToAdd.get('start'), end: featureToAdd.get('end'), subfeatures: [featureToAdd]}});
+                    if (!subfeatures.length) {
+                        featureToAdd = new SimpleFeature({
+                            data: {
+                                strand: strand,
+                                start: featureToAdd.get('start'),
+                                end: featureToAdd.get('end'),
+                                subfeatures: [featureToAdd]
+                            }
+                        });
                     }
 
-                    if(fmin) featureToAdd.set("start", fmin);
-                    if(fmax) featureToAdd.set("end", fmax);
+                    if (fmin) featureToAdd.set("start", fmin);
+                    if (fmax) featureToAdd.set("end", fmax);
                     var afeat = JSONUtils.createApolloFeature(featureToAdd, "mRNA", true);
                     featuresToAdd.push(afeat);
 
@@ -1385,20 +1430,20 @@ define([
                 track.executeUpdateOperation(postData);
             },
 
-            confirmDeleteAnnotations: function(track, selectedFeatures, message) {
+            confirmDeleteAnnotations: function (track, selectedFeatures, message) {
                 var confirm = new ConfirmDialog({
                     title: 'Delete feature',
                     message: message,
                     confirmLabel: 'Yes',
                     denyLabel: 'Cancel'
-                }).show(function(confirmed) {
+                }).show(function (confirmed) {
                     if (confirmed) {
                         var postData = {};
                         postData.track = track.getUniqueTrackName();
                         postData.operation = "delete_feature";
                         postData.features = [];
                         for (var i = 0; i < selectedFeatures.length; i++) {
-                            postData.features[i] = { uniquename: selectedFeatures[i].getUniqueName() };
+                            postData.features[i] = {uniquename: selectedFeatures[i].getUniqueName()};
                         }
                         track.executeUpdateOperation(JSON.stringify(postData));
                     }
@@ -1958,16 +2003,16 @@ define([
                     'class': "annotation_info_editor_label"
                 }, nameDiv);
                 var nameField = new dijitTextBox({'class': "annotation_editor_field"});
-                var nameLabelss="We recommend that you adhere to GenBank guidelines on protein and CDS nomenclature: http://www.ncbi.nlm.nih.gov/genbank/genomesubmit_annotation#CDS).";
+                var nameLabelss = "We recommend that you adhere to GenBank guidelines on protein and CDS nomenclature: http://www.ncbi.nlm.nih.gov/genbank/genomesubmit_annotation#CDS).";
                 dojo.place(nameField.domNode, nameDiv);
                 // var nameField = new dojo.create("input", { type: "text" }, nameDiv);
 
                 new Tooltip({
-                        connectId: nameDiv,
-                        label: nameLabelss,
-                        position: ["above"],
-                        showDelay: 600
-                    });
+                    connectId: nameDiv,
+                    label: nameLabelss,
+                    position: ["above"],
+                    showDelay: 600
+                });
 
                 var symbolDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
                 var symbolLabel = dojo.create("label", {
@@ -2028,7 +2073,7 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, dbxrefButtons);
-                var dbxrefss="Use this field if this model has Cross-references in other databases (e.g. the GenBank Accession number of a cDNA from this gene from the same species). Do NOT use this field to list IDs of models from other species that you used as annotation evidence.";
+                var dbxrefss = "Use this field if this model has Cross-references in other databases (e.g. the GenBank Accession number of a cDNA from this gene from the same species). Do NOT use this field to list IDs of models from other species that you used as annotation evidence.";
                 new Tooltip({
                     connectId: dbxrefsDiv,
                     label: dbxrefss,
@@ -2075,7 +2120,7 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, pubmedIdButtons);
-                var pubmedss="Use this field if this model has been mentioned in a publication. Do NOT use this field to list publications on models from other species that you used as annotation evidence.";
+                var pubmedss = "Use this field if this model has been mentioned in a publication. Do NOT use this field to list publications on models from other species that you used as annotation evidence.";
                 new Tooltip({
                     connectId: pubmedIdsDiv,
                     label: dbxrefss,
@@ -2101,8 +2146,6 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, goIdButtons);
-
-
 
 
                 var commentsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
@@ -2244,7 +2287,7 @@ define([
                             initPubmedIds(feature, config);
                             initGoIds(feature, config);
                             initComments(feature, config);
-                
+
                         }
                     });
                 };
@@ -2736,11 +2779,11 @@ define([
                                             //var original = 'http://golr.geneontology.org/solr/';
                                             //var original = 'http://golr.berkeleybop.org/solr/';
                                             var encoded_original = encodeURI(original);
-                                            encoded_original = encoded_original.replace(/:/g,"%3A");
-                                            encoded_original = encoded_original.replace(/\//g,"%2F");
+                                            encoded_original = encoded_original.replace(/:/g, "%3A");
+                                            encoded_original = encoded_original.replace(/\//g, "%2F");
 
                                             //var gserv = context_path + "/proxy/request/http/golr.geneontology.org%2Fsolr%2Fselect/json/";
-                                            var gserv = context_path + "/proxy/request/"+encoded_original;
+                                            var gserv = context_path + "/proxy/request/" + encoded_original;
                                             var gconf = new bbop.golr.conf(amigo.data.golr);
                                             var args = {
                                                 label_template: '{{annotation_class_label}} [{{annotation_class}}]',
@@ -2835,7 +2878,6 @@ define([
                 };
 
 
-
                 var initComments = function (feature, config) {
                     if (config.hasComments) {
                         cannedComments = feature.canned_comments;
@@ -2921,7 +2963,7 @@ define([
                         dojo.style(commentsDiv, "display", "none");
                     }
                 };
-                
+
 
                 function updateTimeLastUpdated() {
                     var date = new Date();
@@ -3392,7 +3434,7 @@ define([
                     selectedIndex = index;
                 };
 
-                var cleanOperation= function(inputString){
+                var cleanOperation = function (inputString) {
                     return inputString.charAt(0) + inputString.toLowerCase().replace(new RegExp("_", 'g'), " ").slice(1);
                 };
 
@@ -3427,26 +3469,23 @@ define([
                         }
 
                         var labelText = "&uarr;";
-                        var isCurrent = true ;
+                        var isCurrent = true;
 
-                        if(typeof current !== 'undefined'){
-                            if(i == current ){
+                        if (typeof current !== 'undefined') {
+                            if (i == current) {
                                 labelText = "";
-                                isCurrent = false ;
+                                isCurrent = false;
                             }
-                            else
-                            if(i > current ){
+                            else if (i > current) {
                                 labelText = "&darr;";
                             }
-                            else
-                            if(i < current ){
+                            else if (i < current) {
                                 labelText = "&uarr;";
                             }
                         }
 
 
-
-                        if(isCurrent){
+                        if (isCurrent) {
                             var revertButton = new dijitButton({
                                 label: labelText,
                                 showLabel: true,
@@ -3467,7 +3506,7 @@ define([
                             }
                             dojo.place(revertButton.domNode, row);
                         }
-                        else{
+                        else {
                             var currentLabel = new dijitButton({
                                 label: labelText,
                                 showLabel: false,
@@ -3934,6 +3973,7 @@ define([
                 var vregion = this.gview.visibleRegion();
                 var coordinate = (vregion.start + vregion.end) / 2;
                 var selected = this.selectionManager.getSelection();
+
                 function centerAtBase(position) {
                     track.gview.centerAtBase(position, false);
                     track.selectionManager.removeFromSelection(selected[0]);
@@ -3954,7 +3994,6 @@ define([
                 };
                 if (selected && (selected.length > 0)) {
 
-                    
 
                     var selfeat = selected[0].feature;
                     // find current center genome coord, compare to subfeatures,
@@ -4006,6 +4045,7 @@ define([
                 var vregion = this.gview.visibleRegion();
                 var coordinate = (vregion.start + vregion.end) / 2;
                 var selected = this.selectionManager.getSelection();
+
                 function centerAtBase(position) {
                     track.gview.centerAtBase(position, false);
                     track.selectionManager.removeFromSelection(selected[0]);
@@ -4025,7 +4065,6 @@ define([
                     }
                 };
                 if (selected && (selected.length > 0)) {
-
 
 
                     var selfeat = selected[0].feature;
@@ -4633,7 +4672,7 @@ define([
                 var success = true;
                 dojo.xhrPost({
                     sync: true,
-                    postData: '{ "track": "' + thisB.getUniqueTrackName() + '", "operation": "get_user_permission" }',
+                    postData: '{ "track": "' + thisB.getUniqueTrackName() + '", "operation": "get_user_permission" ,"clientToken":' + thisB.getClientToken() + '}',
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5 * 1000, // Time in milliseconds
@@ -5450,6 +5489,11 @@ define([
             },
 
             executeUpdateOperation: function (postData, loadCallback) {
+                if(postData.search('clientToken')<0){
+                    var postObject = JSON.parse(postData);
+                    postObject.clientToken = this.getClientToken();
+                    postData = JSON.stringify(postObject);
+                }
                 console.log('connected and sending notifications');
                 this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));
                 console.log('sent notification message');

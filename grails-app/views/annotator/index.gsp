@@ -20,6 +20,7 @@
         var Options = {
             showFrame: '${params.showFrame  && params.showFrame == 'true' ? 'true' : 'false' }'
             ,userId: '${userKey}'
+            ,clientToken:'${clientToken}'
 //            ,top: "10"
 //            ,topUnit: "PCT" // PX, EM, PC, PT, IN, CM
 //            ,height: "80"

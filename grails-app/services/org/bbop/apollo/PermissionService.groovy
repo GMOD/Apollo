@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import grails.util.Environment
+import org.apache.commons.lang.RandomStringUtils
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
@@ -12,6 +13,9 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
+
+import javax.servlet.http.HttpServletRequest
 
 @Transactional
 class PermissionService {
@@ -130,7 +134,7 @@ class PermissionService {
     }
 
 
-    void setOrganismPermissionsForUser(List<PermissionEnum> permissions, Organism organism, User user) {
+    void setOrganismPermissionsForUser(List<PermissionEnum> permissions, Organism organism, User user,String token) {
 
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByOrganismAndUser(organism, user)
         if (!userOrganismPermission) {
@@ -138,6 +142,7 @@ class PermissionService {
                     organism: organism
                     , permissions: generatePermissionString(permissions)
                     , user: user
+                    , token: token
             ).save(insert: true)
         } else {
             userOrganismPermission.permissions = generatePermissionString(permissions)
@@ -146,7 +151,7 @@ class PermissionService {
 
     }
 
-    void setOrganismPermissionsForUserGroup(List<PermissionEnum> permissions, Organism organism, UserGroup group) {
+    void setOrganismPermissionsForUserGroup(List<PermissionEnum> permissions, Organism organism, UserGroup group,String token) {
 
         GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findByOrganismAndGroup(organism, group)
         if (!groupOrganismPermission) {
@@ -154,6 +159,7 @@ class PermissionService {
                     organism: organism
                     , permissions: generatePermissionString(permissions)
                     , group: group
+                    , token: token
             ).save(insert: true)
         } else {
             groupOrganismPermission.permissions = generatePermissionString(permissions)
@@ -263,124 +269,31 @@ class PermissionService {
     }
 
 
-    /**
-     * This method finds the proper username with their proper organism for the current organism.
-     *
-     * @param inputObject
-     * @param requiredPermissionEnum
-     * @return
-     */
-    Organism checkPermissionsForOrganism(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
-        Organism organism
-
-        // this is for testing only
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            return null
-        }
-
-        //def session = RequestContextHolder.currentRequestAttributes().getSession()
-        User user = getCurrentUser(inputObject)
-
-
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
-
-        if (!userOrganismPreference) {
-            userOrganismPreference = UserOrganismPreference.findByUser(user)
-        }
-
-        if (!userOrganismPreference) {
-            // see if this user has any permissions or an organism . . just grab the first one
-            UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByUser(user)
-            if(userOrganismPermission){
-                organism = userOrganismPermission.organism
-            }
-            else
-            // if not, but we are admin, then just grab the first organism
-            if(!userOrganismPermission && isAdmin() && Organism.count>0){
-                organism = Organism.list().iterator().next()
-            }
-
-
-            if(organism){
-                userOrganismPreference = new UserOrganismPreference(
-                        user: user
-                        , organism: organism
-                        , currentOrganism: true
-                        , sequence: Sequence.findByOrganism(organism)
-                ).save(insert: true)
-            }
-            else{
-                if(Organism.count>0){
-                    throw new PermissionException("User has no access to an organism and/or is not admin")
-                }
-                else{
-                    return null
-                }
-            }
-
-        }
-
-        organism = userOrganismPreference.organism
-
-        List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
-        PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
-
-        if (highestValue.rank < requiredPermissionEnum.rank) {
-            //return false
-            throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
-        }
-
-        return organism
-    }
-
-
     Organism getOrganismFromInput(JSONObject inputObject) {
 
-        Organism organism
         if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
             String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
-            organism = Organism.findByCommonName(organismString)
-            if(!organism)
-                organism=Organism.findById(organismString as Long);
-            if(!organism)
+            Organism organism = Organism.findByCommonNameIlike(organismString)
+            if(organism){
+                log.debug "return organism ${organism} by name ${organismString}"
+                return organism
+            }
+            if(!organism){
+                organism = Organism.findById(organismString as Long);
+            }
+            if(organism){
+                log.debug "return organism ${organism} by ID ${organismString}"
+                return organism
+            }
+            else{
                 log.info "organism not found ${organismString}"
+            }
         }
-
-        return organism
+        return null
     }
 
-    Organism getOrganismFromPreferences(User user, String trackName) {
-        Organism organism
-
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
-        if(user!=null) {
-
-
-            if (!userOrganismPreference) {
-                userOrganismPreference = UserOrganismPreference.findByUser(user)
-            }
-
-            if (!userOrganismPreference) {
-                // find a random organism based on sequence
-                Sequence sequence = Sequence.findByName(trackName)
-                organism  = sequence.organism
-
-                userOrganismPreference = new UserOrganismPreference(
-                        user: user
-                        , organism: organism
-                        , currentOrganism: true
-                        , sequence: sequence
-                ).save(insert: true)
-            }
-
-            organism = userOrganismPreference.organism
-
-        }
-        return organism
-
-    }
     /**
-     * This method finds the proper username with their proper organism for the current organism.
+     * This method finds the proper username with their proper organism for the current organism when including the track name.
      *
      * @param inputObject
      * @param requiredPermissionEnum
@@ -398,10 +311,22 @@ class PermissionService {
 
         User user = getCurrentUser(inputObject)
         organism = getOrganismFromInput(inputObject)
-        if(!organism) organism = getOrganismFromPreferences(user,trackName)
+        if(!organism) {
+            organism = preferenceService.getOrganismFromPreferences(user,trackName,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+        }
 
+        Sequence sequence
+        if(!trackName){
+            sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName,organism)?.sequence
+        }
+        else{
+            sequence = Sequence.findByNameAndOrganism(trackName,organism)
+        }
 
-        Sequence sequence = Sequence.findByNameAndOrganism(trackName,organism)
+        if(!sequence && organism){
+            sequence = Sequence.findByOrganism(organism,[max:1,sort:"end",order:"desc"])
+        }
+
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
@@ -474,6 +399,7 @@ class PermissionService {
     Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
         // not sure if permissions with translate through or not
         Session session = SecurityUtils.subject.getSession(false)
+        String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
@@ -499,7 +425,7 @@ class PermissionService {
         }
 
 
-        Organism organism = getCurrentOrganismPreference()?.organism
+        Organism organism = getCurrentOrganismPreference(clientToken)?.organism
         log.debug "passing in an organism ${jsonObject.organism}"
         if (jsonObject.organism) {
             Organism thisOrganism = null
@@ -509,7 +435,7 @@ class PermissionService {
                 // obviously not a long type
             }
             if (!thisOrganism) {
-                thisOrganism = Organism.findByCommonName(jsonObject.organism)
+                thisOrganism = Organism.findByCommonNameIlike(jsonObject.organism)
             }
             if (!thisOrganism) {
                 thisOrganism = Organism.findByAbbreviation(jsonObject.organism)
@@ -519,22 +445,22 @@ class PermissionService {
                 organism = thisOrganism
             }
             log.debug "final organism ${organism.commonName}"
-            preferenceService.setCurrentOrganism(getCurrentUser(), organism)
+            preferenceService.setCurrentOrganism(getCurrentUser(), organism,clientToken)
         }
 
         return checkPermissions(jsonObject,organism,permissionEnum)
 
     }
 
-    UserOrganismPreference getCurrentOrganismPreference(){
+    UserOrganismPreference getCurrentOrganismPreference(String token){
         User currentUser = getCurrentUser()
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser, true)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, true,token)
         if (userOrganismPreference) {
             return userOrganismPreference
         }
 
         // find another one
-        userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser, false)
+        userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, false,token)
         if (userOrganismPreference) {
             userOrganismPreference.currentOrganism = true
             userOrganismPreference.save(flush: true)
@@ -555,6 +481,7 @@ class PermissionService {
                 user: currentUser
                 , currentOrganism: true
                 , organism: organism
+                , clientToken: token
         ).save(insert: true, flush: true)
         return userOrganismPreference
     }
@@ -640,5 +567,23 @@ class PermissionService {
         else{
             return "Must have permissions ${permissionEnum.display} or better."
         }
+    }
+
+    @NotTransactional
+    String handleToken(GrailsParameterMap params, JSONObject dataObject) {
+        if(params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)){
+            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,params.get(FeatureStringEnum.CLIENT_TOKEN.value))
+        }
+        else{
+            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,RandomStringUtils.random(20))
+        }
+        return dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
+    }
+
+    @NotTransactional
+    JSONObject handleInput(HttpServletRequest request, GrailsParameterMap params) {
+        JSONObject payloadJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
+        handleToken(params,payloadJson)
+        return payloadJson
     }
 }

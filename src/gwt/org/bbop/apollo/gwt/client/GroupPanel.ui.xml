@@ -115,7 +115,7 @@
                         <b:Row>
                             <b:Column size="MD_8">
                                 <select:Select width="100%" title="Membership" multiple="true"
-                                               selectedTextFormat="count > 2" visibleSize="0" ui:field="availableUsers"
+                                               selectedTextFormat="count > 2" visibleSize="5" ui:field="availableUsers"
                                                liveSearch="true">
                                 </select:Select>
                             </b:Column>

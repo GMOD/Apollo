@@ -32,7 +32,7 @@ class SequenceController {
     def setCurrentSequenceLocation(String name,Integer start, Integer end) {
 
         try {
-            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end)
+            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end,params[FeatureStringEnum.CLIENT_TOKEN.value])
             if(params.suppressOutput){
                 render new JSONObject() as JSON
             }
@@ -138,8 +138,8 @@ class SequenceController {
     }
 
 
-    def lookupSequenceByName(String q) {
-        Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+    def lookupSequenceByName(String q,String clientToken) {
+        Organism organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         def sequences = Sequence.findAllByNameIlikeAndOrganism(q + "%", organism, ["sort": "name", "order": "asc", "max": 20]).collect() {
             it.name
         }
@@ -167,9 +167,9 @@ class SequenceController {
     }
 
     @Transactional
-    def getSequences(String name, Integer start, Integer length, String sort, Boolean asc, Integer minFeatureLength, Integer maxFeatureLength) {
+    def getSequences(String name, Integer start, Integer length, String sort, Boolean asc, Integer minFeatureLength, Integer maxFeatureLength,String clientToken) {
         try {
-            Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+            Organism organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
 
             if(!organism) {
                 render ([] as JSON)

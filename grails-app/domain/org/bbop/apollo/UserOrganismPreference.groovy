@@ -12,10 +12,9 @@ class UserOrganismPreference extends UserPreference{
     }
 
     Organism organism
-    Boolean currentOrganism
+    Boolean currentOrganism  // this means the "active" client token
     Boolean nativeTrackList
     Sequence sequence
     Integer startbp
     Integer endbp
-
 }

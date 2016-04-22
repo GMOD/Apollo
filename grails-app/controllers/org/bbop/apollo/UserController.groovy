@@ -1,13 +1,12 @@
 package org.bbop.apollo
 
-import grails.transaction.Transactional
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import grails.converters.JSON
+import grails.transaction.Transactional
 import org.apache.shiro.crypto.hash.Sha256Hash
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.restapidoc.annotation.RestApi
 import org.restapidoc.annotation.RestApiMethod
 import org.restapidoc.annotation.RestApiParam
@@ -24,19 +23,19 @@ class UserController {
     def userService
 
 
-
-    @RestApiMethod(description="Load all users",path="/user/loadUsers",verb = RestApiVerb.POST)
-    @RestApiParams(params=[
-            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="userId", type="long", paramType = RestApiParamType.QUERY,description="Optionally only user a specific userId")
+    @RestApiMethod(description = "Load all users", path = "/user/loadUsers", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId")
     ])
     def loadUsers() {
         try {
-            JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data?:"{}"))) as JSONObject
+            JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data ?: "{}"))) as JSONObject
+            permissionService.handleToken(params,dataObject)
             JSONArray returnArray = new JSONArray()
-            if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
-                render status:  HttpStatus.UNAUTHORIZED
+            if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+                render status: HttpStatus.UNAUTHORIZED
                 return
             }
 
@@ -57,12 +56,12 @@ class UserController {
                 log.debug "${v.key} ${v.value}"
             }
 
-            def c=User.createCriteria()
+            def c = User.createCriteria()
             def users = c.list() {
-                if(dataObject.userId && dataObject.userId in Integer) {
-                    eq('id', (Long)dataObject.userId)
+                if (dataObject.userId && dataObject.userId in Integer) {
+                    eq('id', (Long) dataObject.userId)
                 }
-                if(dataObject.userId && dataObject.userId in String) {
+                if (dataObject.userId && dataObject.userId in String) {
                     eq('username', dataObject.userId)
                 }
             }
@@ -135,14 +134,15 @@ class UserController {
 
             render returnArray as JSON
         }
-        catch(Exception e) {
-            response.status=HttpStatus.INTERNAL_SERVER_ERROR.value()
-            def error=[error: e.message]
+        catch (Exception e) {
+            response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
+            def error = [error: e.message]
             log.error error
             render error as JSON
         }
     }
 
+    @Transactional
     def checkLogin() {
         def currentUser = permissionService.currentUser
         if (currentUser) {
@@ -150,7 +150,7 @@ class UserController {
             UserOrganismPreference userOrganismPreference
             try {
                 // sets it by default
-                userOrganismPreference = permissionService.getCurrentOrganismPreference()
+                userOrganismPreference = permissionService.getCurrentOrganismPreference(params[FeatureStringEnum.CLIENT_TOKEN.value])
             } catch (e) {
                 log.error(e)
             }
@@ -160,8 +160,7 @@ class UserController {
 
             if ((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserAdmin(currentUser)) {
                 userObject.put(FeatureStringEnum.ERROR.value, "You do not have access to any organism on this server.  Please contact your administrator.")
-            }
-            else if(userOrganismPreference) {
+            } else if (userOrganismPreference) {
                 userObject.put("tracklist", userOrganismPreference.nativeTrackList)
             }
 
@@ -177,23 +176,23 @@ class UserController {
     @Transactional
     def updateTrackListPreference() {
         try {
-            JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            JSONObject dataObject = permissionService.handleInput(request, params)
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.READ)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
             log.info "updateTrackListPreference"
 
-            UserOrganismPreference uop=permissionService.getCurrentOrganismPreference()
+            UserOrganismPreference uop = permissionService.getCurrentOrganismPreference(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
             uop.nativeTrackList = dataObject.get("tracklist")
             uop.save(flush: true)
             log.info "Added userOrganismPreference ${uop.nativeTrackList}"
             render new JSONObject() as JSON
         }
-        catch(Exception e) {
+        catch (Exception e) {
             log.error "${e.message}"
-            render ([error: e.message]) as JSON
+            render([error: e.message]) as JSON
         }
     }
 
@@ -208,7 +207,7 @@ class UserController {
     ])
     @Transactional
     def addUserToGroup() {
-        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject dataObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -232,7 +231,7 @@ class UserController {
     ])
     @Transactional
     def removeUserFromGroup() {
-        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject dataObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -260,7 +259,7 @@ class UserController {
     def createUser() {
         try {
             log.info "Creating user"
-            JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            JSONObject dataObject = permissionService.handleInput(request, params)
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
@@ -312,7 +311,7 @@ class UserController {
     def deleteUser() {
         try {
             log.info "Removing user"
-            JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            JSONObject dataObject = permissionService.handleInput(request, params)
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
@@ -360,7 +359,7 @@ class UserController {
     def updateUser() {
         try {
             log.info "Updating user"
-            JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            JSONObject dataObject = permissionService.handleInput(request, params)
             if (!permissionService.sameUser(dataObject) && !permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
@@ -426,7 +425,7 @@ class UserController {
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Name of organism to update")
             , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Permission ID to update (can get from userId/organism instead)")
 
-            , @RestApiParam(name = "administrate", type = "boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has administrative (including user/group) privileges for the organism")
+            , @RestApiParam(name = "administrate", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has administrative (including user/group) privileges for the organism")
             , @RestApiParam(name = "write", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has write privileges for the organism")
             , @RestApiParam(name = "export", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has export privileges for the organism")
             , @RestApiParam(name = "read", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has read privileges for the organism")
@@ -434,7 +433,7 @@ class UserController {
     @Transactional
     def updateOrganismPermission() {
         log.info "Updating organism permissions"
-        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject dataObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED
             return

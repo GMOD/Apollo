@@ -1,11 +1,9 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.hibernate.Hibernate
 
 @Transactional
 class AnnotatorService {
@@ -13,11 +11,12 @@ class AnnotatorService {
     def permissionService
     def requestHandlingService
 
-    def getAppState() {
+    def getAppState(String token) {
         JSONObject appStateObject = new JSONObject()
         try {
             def organismList = permissionService.getOrganismsForCurrentUser()
-            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.currentUser, true)
+            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(permissionService.currentUser, true,token)
+            println "found organism preference: ${userOrganismPreference} for token ${token}"
             Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
 
 
@@ -43,7 +42,7 @@ class AnnotatorService {
                 organismArray.add(jsonObject)
             }
             appStateObject.put("organismList", organismArray)
-            UserOrganismPreference currentUserOrganismPreference = permissionService.currentOrganismPreference
+            UserOrganismPreference currentUserOrganismPreference = permissionService.getCurrentOrganismPreference(token)
             if(currentUserOrganismPreference){
                 Organism currentOrganism = currentUserOrganismPreference?.organism
                 appStateObject.put("currentOrganism", currentOrganism )
