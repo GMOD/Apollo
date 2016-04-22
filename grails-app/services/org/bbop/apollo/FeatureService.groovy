@@ -1080,6 +1080,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             } else {
                 gsolFeature.name = gsolFeature.uniqueName + "-${type.get('name')}"
             }
+            if (jsonFeature.has(FeatureStringEnum.SYMBOL.value)) {
+                gsolFeature.setSymbol(jsonFeature.getString(FeatureStringEnum.SYMBOL.value));
+            }
+            if (jsonFeature.has(FeatureStringEnum.DESCRIPTION.value)) {
+                gsolFeature.setDescription(jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value));
+            }
             if (gsolFeature instanceof Deletion) {
                 int deletionLength = jsonFeature.location.fmax - jsonFeature.location.fmin
                 gsolFeature.deletionLength = deletionLength
@@ -1138,7 +1144,18 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 for (int i = 0; i < properties.length(); ++i) {
                     JSONObject property = properties.getJSONObject(i);
                     JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);
-                    FeatureProperty gsolProperty = new FeatureProperty();
+                    String propertyName = property.get(FeatureStringEnum.NAME.value)
+                    String propertyValue = property.get(FeatureStringEnum.VALUE.value)
+
+                    FeatureProperty gsolProperty = null;
+                    if (propertyName == FeatureStringEnum.COMMENT.value) {
+                        // property of type 'Comment'
+                        gsolProperty = new Comment();
+                    }
+                    else {
+                        gsolProperty = new FeatureProperty();
+                    }
+
                     if (propertyType.has(FeatureStringEnum.NAME.value)) {
                         CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
                         CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
@@ -1146,19 +1163,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     } else {
                         log.warn "No proper type for the CV is set ${propertyType as JSON}"
                     }
-                    // TODO: The input JSON Object doesn't have key=value pairs.
-                    // TODO: Instead its of the form: "properties":[{"value":"@VALUE@","type":{"name":"@KEY@","cv":{"name":"feature_property"}}}]
-                    // TODO: Even then, this type of formatting is not applied consistently in convertFeatureToJSON().
-                    // TODO: The assumption below is not in-sync with convertFeatureToJSON().
-                    String[] propertySet = property.getString(FeatureStringEnum.VALUE.value).split(FeatureStringEnum.TAG_VALUE_DELIMITER.value)
-                    if (propertySet.length > 1) {
-                        gsolProperty.setTag(propertySet[0]);
-                        gsolProperty.setValue(propertySet[1]);
-                    } else if (propertySet.length == 1) {
-                        gsolProperty.setValue(propertySet[0]);
-
-                    }
+                    gsolProperty.setTag(propertyName)
+                    gsolProperty.setValue(propertyValue)
                     gsolProperty.setFeature(gsolFeature);
+
                     int rank = 0;
                     for (FeatureProperty fp : gsolFeature.getFeatureProperties()) {
                         if (fp.getType().equals(gsolProperty.getType())) {
@@ -1168,6 +1176,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         }
                     }
                     gsolProperty.setRank(rank + 1);
+                    gsolProperty.save()
                     gsolFeature.addToFeatureProperties(gsolProperty);
                 }
             }
@@ -1634,34 +1643,34 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 JSONObject jsonProperty = new JSONObject();
                 JSONObject jsonPropertyType = new JSONObject()
                 if (property instanceof Comment) {
-                    //  TODO: This is a hack
-                    jsonPropertyType.put(FeatureStringEnum.NAME.value, "comment")
                     JSONObject jsonPropertyTypeCv = new JSONObject()
                     jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
                     jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
+
                     jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
+                    jsonProperty.put(FeatureStringEnum.NAME.value, FeatureStringEnum.COMMENT.value);
                     jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
                     properties.put(jsonProperty);
                     continue
                 }
                 if (property.tag == "justification") {
-                    jsonPropertyType.put(FeatureStringEnum.NAME.value, "justification")
                     JSONObject jsonPropertyTypeCv = new JSONObject()
                     jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
                     jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
+
                     jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
+                    jsonProperty.put(FeatureStringEnum.NAME.value, "justification");
                     jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
                     properties.put(jsonProperty);
                     continue
                 }
-                // TODO: To capture the tag shouldn't it be a tag=value pair, as expected by convertJSONToFeature().
-                // TODO: property.type is empty for all features because type (Cvterm) is empty for all FeatureProperty entities.
                 jsonPropertyType.put(FeatureStringEnum.NAME.value, property.type)
                 JSONObject jsonPropertyTypeCv = new JSONObject()
                 jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
                 jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
 
                 jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
+                jsonProperty.put(FeatureStringEnum.NAME.value, property.getTag());
                 jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
                 properties.put(jsonProperty);
             }
