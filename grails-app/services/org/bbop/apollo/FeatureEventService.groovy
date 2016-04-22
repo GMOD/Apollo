@@ -870,44 +870,4 @@ class FeatureEventService {
         }
         return historyContainer
     }
-
-    def addChangeAnnotationTypeEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputObject, JSONArray oldFeatureArray, JSONArray newFeatureArray, User user) {
-        Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
-        List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName, featureEventMap)
-
-        FeatureEvent lastFeatureEvent = null
-        lastFeatureEventList?.each { event ->
-            if (event.uniqueName == uniqueName) {
-                lastFeatureEvent = event
-            }
-        }
-
-        if (lastFeatureEvent) {
-            // set 'current' status to false
-            lastFeatureEvent.current = false
-            lastFeatureEvent.save()
-            // delete all history downstream of this point
-            deleteFutureHistoryEvents(lastFeatureEvent)
-        }
-        FeatureEvent featureEvent = new FeatureEvent(
-                editor: user,
-                name: name,
-                uniqueName: uniqueName,
-                operation: featureOperation.name(),
-                current: true,
-                parentId: lastFeatureEvent?.id,
-                originalJsonCommand: inputObject.toString(),
-                oldFeaturesJsonArray: oldFeatureArray.toString(),
-                newFeaturesJsonArray: newFeatureArray.toString(),
-                dateCreated: new Date(),
-                lastUpdated: new Date()
-        ).save()
-
-        if (lastFeatureEvent) {
-            lastFeatureEvent.childId = featureEvent.id
-            lastFeatureEvent.save()
-        }
-
-        return featureEvent
-    }
 }
