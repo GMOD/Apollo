@@ -1146,6 +1146,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     } else {
                         log.warn "No proper type for the CV is set ${propertyType as JSON}"
                     }
+                    // TODO: The input JSON Object doesn't have key=value pairs.
+                    // TODO: Instead its of the form: "properties":[{"value":"@VALUE@","type":{"name":"@KEY@","cv":{"name":"feature_property"}}}]
+                    // TODO: Even then, this type of formatting is not applied consistently in convertFeatureToJSON().
+                    // TODO: The assumption below is not in-sync with convertFeatureToJSON().
                     String[] propertySet = property.getString(FeatureStringEnum.VALUE.value).split(FeatureStringEnum.TAG_VALUE_DELIMITER.value)
                     if (propertySet.length > 1) {
                         gsolProperty.setTag(propertySet[0]);
@@ -1650,6 +1654,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     properties.put(jsonProperty);
                     continue
                 }
+                // TODO: To capture the tag shouldn't it be a tag=value pair, as expected by convertJSONToFeature().
+                // TODO: property.type is empty for all features because type (Cvterm) is empty for all FeatureProperty entities.
                 jsonPropertyType.put(FeatureStringEnum.NAME.value, property.type)
                 JSONObject jsonPropertyTypeCv = new JSONObject()
                 jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
