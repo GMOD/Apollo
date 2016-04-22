@@ -123,7 +123,6 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
                     }
                     if (git.alwaysPull && git.branch) {
                         println "Pulling ${git.url}"
-                        "git pull".execute()
                         gitPull(jbrowseFile)
                     }
                 }
@@ -407,6 +406,8 @@ def cloneRepo(String url, String directory, String branch, Integer depth) {
 
 def fetchTags(File file) {
     println "fetching tags"
+    if(!isValidGitDirectory(file)) return
+
     def processBuilder = new ProcessBuilder()
     processBuilder.redirectErrorStream(true)
     processBuilder.directory(file)
@@ -419,9 +420,20 @@ def fetchTags(File file) {
     if(errorStream.length()>0) println "Error: " + errorStream
 }
 
+Boolean isValidGitDirectory(File file){
+    File gitFile = new File(file.absolutePath+"/.git")
+    if(!gitFile.exists() || !gitFile.canRead()){
+        println "Not a valid git directory so no git operations will run ${file.absolutePath}"
+        return false
+    }
+    return true
+}
 
 def checkoutBranch(File file, String branch) {
     println "checkout out branch ${branch}"
+
+    if(!isValidGitDirectory(file)) return
+
     def processBuilder = new ProcessBuilder()
     processBuilder.redirectErrorStream(true)
     processBuilder.directory(file)
@@ -437,6 +449,8 @@ def checkoutBranch(File file, String branch) {
 
 def gitPull(File file) {
     println "git pull ${file.absolutePath}"
+    if(!isValidGitDirectory(file)) return
+
     def processBuilder = new ProcessBuilder()
     processBuilder.redirectErrorStream(true)
     processBuilder.directory(file)
