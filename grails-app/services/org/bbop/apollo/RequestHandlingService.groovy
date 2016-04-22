@@ -2283,7 +2283,7 @@ class RequestHandlingService {
                 JSONArray newFeatureJsonArray = new JSONArray()
                 oldFeatureJsonArray.add(originalFeatureJsonObject)
                 newFeatureJsonArray.add(newFeatureJsonObject)
-                featureEventService.addChangeAnnotationTypeEvent(FeatureOperation.CHANGE_ANNOTATION_TYPE, feature.name,
+                featureEventService.addNewFeatureEvent(FeatureOperation.CHANGE_ANNOTATION_TYPE, feature.name,
                         uniqueName, inputObject, oldFeatureJsonArray, newFeatureJsonArray, user)
                 if (singletonFeatureTypes.contains(newFeatureJsonObject.get(FeatureStringEnum.TYPE.value).name)) {
                     returnObject = newFeatureJsonObject
