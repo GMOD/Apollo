@@ -2513,15 +2513,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (currentFeatureJsonObject.has(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray levelOneJsonArray = currentFeatureJsonObject.get(FeatureStringEnum.CHILDREN.value)
                 for (JSONObject levelOne : levelOneJsonArray) {
+                    levelOne.get(FeatureStringEnum.PARENT_TYPE.value).name = topLevelFeatureType
                     levelOne.get(FeatureStringEnum.TYPE.value).name = type
                     levelOne.get(FeatureStringEnum.USERNAME.value, levelOne.get(FeatureStringEnum.OWNER.value.toLowerCase()))
                     levelOne.remove(FeatureStringEnum.ID.value)
                     levelOne.remove(FeatureStringEnum.OWNER.value.toLowerCase())
                     levelOne.remove(FeatureStringEnum.DATE_CREATION.value)
                     levelOne.remove(FeatureStringEnum.DATE_LAST_MODIFIED.value)
-                    levelOne.get(FeatureStringEnum.PARENT_TYPE.value).name = topLevelFeatureType
-                    if (currentFeatureJsonObject.has(FeatureStringEnum.CHILDREN.value)) {
-                        for (JSONObject levelTwo : currentFeatureJsonObject.get(FeatureStringEnum.CHILDREN.value)) {
+                    if (levelOne.has(FeatureStringEnum.CHILDREN.value)) {
+                        for (JSONObject levelTwo : levelOne.get(FeatureStringEnum.CHILDREN.value)) {
                             levelTwo.remove(FeatureStringEnum.ID.value)
                             levelTwo.remove(FeatureStringEnum.OWNER.value.toLowerCase())
                             levelTwo.remove(FeatureStringEnum.DATE_CREATION.value)
@@ -2543,7 +2543,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             currentFeatureJsonObject.remove(FeatureStringEnum.OWNER.value.toLowerCase())
             currentFeatureJsonObject.remove(FeatureStringEnum.DATE_CREATION.value)
             currentFeatureJsonObject.remove(FeatureStringEnum.DATE_LAST_MODIFIED.value)
-
+            if (currentFeatureJsonObject.has(FeatureStringEnum.CHILDREN.value)) {
+                for(JSONObject childFeature : currentFeatureJsonObject.get(FeatureStringEnum.CHILDREN.value)) {
+                    childFeature.remove(FeatureStringEnum.ID.value)
+                    childFeature.remove(FeatureStringEnum.OWNER.value.toLowerCase())
+                    childFeature.remove(FeatureStringEnum.DATE_CREATION.value)
+                    childFeature.remove(FeatureStringEnum.DATE_LAST_MODIFIED.value)
+                    childFeature.get(FeatureStringEnum.PARENT_TYPE.value).name = type
+                }
+            }
             parentGeneJsonObject.get(FeatureStringEnum.TYPE.value).name = topLevelFeatureType
             parentGeneJsonObject.put(FeatureStringEnum.USERNAME.value, parentGeneJsonObject.get(FeatureStringEnum.OWNER.value.toLowerCase()))
             parentGeneJsonObject.remove(FeatureStringEnum.ID.value)
