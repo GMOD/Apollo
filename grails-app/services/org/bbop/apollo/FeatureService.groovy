@@ -2472,24 +2472,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     }
 
+
     def changeAnnotationType(JSONObject inputObject, Feature feature, Sequence sequence, User user, String type) {
         String uniqueName = feature.uniqueName
         println "uniquename: ${uniqueName}"
         String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
         def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
         def rnaFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
-
         FeatureEvent currentFeatureEvent = featureEventService.findCurrentFeatureEvent(feature.uniqueName).get(0)
         JSONObject currentFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
-        String topLevelFeatureType = null
         Feature newFeature = null
         JSONObject originalFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
         JSONObject preparedJsonObject = new JSONObject()
-        def currentFeatureSymbol = feature.symbol
-        def currentFeatureDescription = feature.description
-        def currentFeatureDbxrefs = feature.featureDBXrefs
-        def currentFeatureProperties = feature.featureProperties
 
+        String topLevelFeatureType = null
         if (type == Transcript.alternateCvTerm) {
             topLevelFeatureType = Pseudogene.alternateCvTerm
         }
@@ -2503,6 +2499,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         Gene parentGene = null
         String parentGeneSymbol = null
         String parentGeneDescription = null
+        def parentGeneDbxrefs = null
+        def parentGeneFeatureProperties = null
         def transcriptList = []
         JSONObject parentGeneJsonObject = new JSONObject()
         if (feature instanceof Transcript) {
@@ -2510,6 +2508,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             parentGeneJsonObject = convertFeatureToJSON(parentGene)
             parentGeneSymbol = parentGene.symbol
             parentGeneDescription = parentGene.description
+            parentGeneDbxrefs = parentGene.featureDBXrefs
+            parentGeneFeatureProperties = parentGene.featureProperties
             transcriptList = transcriptService.getTranscripts(parentGene)
         }
 
@@ -2603,7 +2603,31 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 Gene newGene = transcriptService.getGene(transcript)
                 newGene.description = parentGeneDescription
                 newGene.symbol = parentGeneSymbol
-                newGene.save()
+                parentGeneDbxrefs.each { it ->
+                    DBXref dbxref = new DBXref(
+                            db: it.db,
+                            accession: it.accession,
+                            version: it.version,
+                            description: it.description
+                    ).save(flush: true)
+                    newGene.addToFeatureDBXrefs(dbxref)
+                }
+                parentGeneFeatureProperties.each { it ->
+                    if (it instanceof Comment) {
+                        featurePropertyService.addComment(newGene, it.value)
+                    }
+                    else {
+                        FeatureProperty fp = new FeatureProperty(
+                                type: it.type,
+                                value: it.value,
+                                rank: it.rank,
+                                tag: it.tag,
+                                feature: newGene
+                        ).save(flush: true)
+                        newGene.addToFeatureProperties(fp)
+                    }
+                }
+                newGene.save(flush: true)
                 newFeature = transcript
             }
             else {
@@ -2644,80 +2668,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             log.error "Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
         }
 
-        if (newFeature instanceof Gene) {
-            Feature transcriptFeature = Feature.findByUniqueName(uniqueName)
-            transcriptFeature.symbol = currentFeatureSymbol
-            transcriptFeature.description = currentFeatureDescription
-            currentFeatureDbxrefs.each { it ->
-                DBXref dbxref = new DBXref(
-                        db: it.db,
-                        accession: it.accession,
-                        version: it.version,
-                        description: it.description
-                ).save(flush: true)
-                transcriptFeature.addToFeatureDBXrefs(dbxref)
-            }
-
-            currentFeatureProperties.each { it ->
-                if (it instanceof Comment) {
-                    featurePropertyService.addComment(transcriptFeature, it.value)
-                }
-                else {
-                    FeatureProperty fp = new FeatureProperty(
-                            type: it.type,
-                            value: it.value,
-                            rank: it.rank,
-                            tag: it.tag,
-                            feature: newFeature
-                    ).save(flush: true)
-                    transcriptFeature.addToFeatureProperties(fp)
-                }
-            }
-            transcriptFeature.save()
-        }
-        else {
-            if (currentFeatureSymbol) {
-                newFeature.symbol = currentFeatureSymbol
-            }
-            if (currentFeatureDescription) {
-                newFeature.description = currentFeatureDescription
-            }
-            currentFeatureDbxrefs.each { it ->
-                DBXref dbxref = new DBXref(
-                        db: it.db,
-                        accession: it.accession,
-                        version: it.version,
-                        description: it.description
-                ).save(flush: true)
-                newFeature.addToFeatureDBXrefs(dbxref)
-            }
-
-            currentFeatureProperties.each { it ->
-                if (it instanceof Comment) {
-                    featurePropertyService.addComment(newFeature, it.value)
-                }
-                else {
-                    FeatureProperty fp = new FeatureProperty(
-                            type: it.type,
-                            value: it.value,
-                            rank: it.rank,
-                            tag: it.tag,
-                            feature: newFeature
-                    ).save(flush: true)
-                    newFeature.addToFeatureProperties(fp)
-                }
-            }
-            newFeature.save()
-        }
-
         // TODO: synonyms, featureSynonyms, featureGenotypes, featurePhenotypes
-//        JSONObject newFeatureJsonObject = convertFeatureToJSON(newFeature)
-//        JSONArray oldFeatureJsonArray = new JSONArray()
-//        JSONArray newFeatureJsonArray = new JSONArray()
-//        oldFeatureJsonArray.add(originalFeatureJsonObject)
-//        newFeatureJsonArray.add(newFeatureJsonObject)
-//        featureEventService.addChangeAnnotationTypeEvent(FeatureOperation.CHANGE_ANNOTATION_TYPE, feature.name,
-//                uniqueName, inputObject, oldFeatureJsonArray, newFeatureJsonArray, user)
 
         return newFeature
     }
