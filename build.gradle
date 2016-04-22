@@ -123,7 +123,6 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
                     }
                     if (git.alwaysPull && git.branch) {
                         println "Pulling ${git.url}"
-                        "git pull".execute()
                         gitPull(jbrowseFile)
                     }
                 }
@@ -327,10 +326,6 @@ def refreshBowerRepo(String directory){
         println "using bower to update: ${directory}"
         workingDir directory
         commandLine "bower","update","-F"
-//        if(finalUrl.split("#")[0].endsWith("jbrowse")){
-        // mv bower_components/jbrowse -> jbrowse-download
-//        }
-        // installs it in bower_components
     }
 }
 
@@ -348,9 +343,23 @@ def cloneRepoBower(String url,String directory,String branch){
         // installs it in bower_components
     }
 
-    if(!(finalUrl.contains("#")&&finalUrl.endsWith("jbrowse"))  || finalUrl.split("#")[0].endsWith("jbrowse")) {
+    File bowerDirectory = new File('bower_components')
+    if((finalUrl.contains("#")&&finalUrl.endsWith("jbrowse"))  || finalUrl.split("#")[0].endsWith("jbrowse")) {
+        println "Moving JBrowse into position ${finalUrl}"
         tasks.moveBowerJBrowse.execute()
         tasks.installJBrowseBower.execute()
+    }
+    else{
+        bowerDirectory.eachDir {
+            File targetFile = new File(directory)
+            println "Moving plugin into place: ${bowerDirectory.absolutePath} -> ${targetFile}"
+            it.renameTo(targetFile)
+        }
+    }
+
+    // delete on exit
+    if(bowerDirectory.listFiles().length==0){
+        assert bowerDirectory.delete()
     }
 }
 
@@ -397,6 +406,8 @@ def cloneRepo(String url, String directory, String branch, Integer depth) {
 
 def fetchTags(File file) {
     println "fetching tags"
+    if(!isValidGitDirectory(file)) return
+
     def processBuilder = new ProcessBuilder()
     processBuilder.redirectErrorStream(true)
     processBuilder.directory(file)
@@ -409,9 +420,20 @@ def fetchTags(File file) {
     if(errorStream.length()>0) println "Error: " + errorStream
 }
 
+Boolean isValidGitDirectory(File file){
+    File gitFile = new File(file.absolutePath+"/.git")
+    if(!gitFile.exists() || !gitFile.canRead()){
+        println "Not a valid git directory so no git operations will run ${file.absolutePath}"
+        return false
+    }
+    return true
+}
 
 def checkoutBranch(File file, String branch) {
     println "checkout out branch ${branch}"
+
+    if(!isValidGitDirectory(file)) return
+
     def processBuilder = new ProcessBuilder()
     processBuilder.redirectErrorStream(true)
     processBuilder.directory(file)
@@ -427,6 +449,8 @@ def checkoutBranch(File file, String branch) {
 
 def gitPull(File file) {
     println "git pull ${file.absolutePath}"
+    if(!isValidGitDirectory(file)) return
+
     def processBuilder = new ProcessBuilder()
     processBuilder.redirectErrorStream(true)
     processBuilder.directory(file)
