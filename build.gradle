@@ -358,7 +358,7 @@ def cloneRepoBower(String url,String directory,String branch){
     }
 
     // delete on exit
-    if(bowerDirectory.listFiles().length==0){
+    if(bowerDirectory.exists() && bowerDirectory.listFiles()?.length==0){
         assert bowerDirectory.delete()
     }
 }
