@@ -2475,15 +2475,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     def changeAnnotationType(JSONObject inputObject, Feature feature, Sequence sequence, User user, String type) {
         String uniqueName = feature.uniqueName
-        println "uniquename: ${uniqueName}"
         String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
         def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
         def rnaFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
         FeatureEvent currentFeatureEvent = featureEventService.findCurrentFeatureEvent(feature.uniqueName).get(0)
-        JSONObject currentFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
-        Feature newFeature = null
-        JSONObject originalFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
+        JSONObject currentFeatureJsonObject = convertFeatureToJSON(feature)
         JSONObject preparedJsonObject = new JSONObject()
+        Feature newFeature = null
 
         String topLevelFeatureType = null
         if (type == Transcript.alternateCvTerm) {
