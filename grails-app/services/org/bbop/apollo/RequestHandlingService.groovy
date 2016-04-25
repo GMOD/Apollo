@@ -642,7 +642,6 @@ class RequestHandlingService {
 
     @Timed
     JSONObject addTranscript(JSONObject inputObject) throws Exception {
-        println "@RHS::addTranscript()"
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnObject = createJSONFeatureContainer()
 
@@ -1673,7 +1672,6 @@ class RequestHandlingService {
 
     @Timed
     def addFeature(JSONObject inputObject) {
-        println "@RHS::addFeature()"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         log.debug "adding sequence with found sequence ${sequence}"
         User user = permissionService.getCurrentUser(inputObject)
@@ -1689,34 +1687,16 @@ class RequestHandlingService {
         if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {
             suppressEvents = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_EVENTS.value)
         }
-        println "SuppressHistory: ${suppressHistory}"
-        println "SuppressEvent: ${suppressEvents}"
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             Feature newFeature = featureService.addFeature(jsonFeature, sequence, user, suppressHistory)
             JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
-            println "newFeatureJsonObject: ${newFeatureJsonObject.toString()}"
-            JSONObject jsonObject = new JSONObject()
-            if (newFeature instanceof Gene || newFeature instanceof Pseudogene) {
-                // TODO: Is Gene different from Pseudogene?
-                jsonObject = newFeatureJsonObject.get(FeatureStringEnum.CHILDREN.value).get(0)
-            }
-            else {
-                jsonObject = newFeatureJsonObject
-            }
+            log.debug "newFeatureJsonObject: ${newFeatureJsonObject.toString()}"
+            JSONObject jsonObject = newFeatureJsonObject
 
             if (!suppressHistory) {
-                if (newFeature instanceof Gene || newFeature instanceof Pseudogene) {
-                    String nameForHistory = jsonObject.get(FeatureStringEnum.NAME.value)
-                    String uniqueNameForHistory = jsonObject.get(FeatureStringEnum.UNIQUENAME.value)
-                    println "::a:: Adding to history with name: ${nameForHistory} and uniquename: ${uniqueNameForHistory} and JSONObject ${newFeatureJsonObject.toString()}"
-                    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, nameForHistory, uniqueNameForHistory, inputObject, newFeatureJsonObject, user)
-                }
-                else {
-                    println "::b:: Adding to history with name: ${newFeature.name} and uniquename: ${newFeature.uniqueName} and JSONObject ${newFeatureJsonObject.toString()}"
-                    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, newFeatureJsonObject, user)
-                }
+                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, newFeatureJsonObject, user)
             }
 
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
@@ -2267,7 +2247,6 @@ class RequestHandlingService {
             JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
             JSONObject originalFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
             String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
-            JSONObject returnObject = null
 
             if (originalType == type) {
                 log.warn "Cannot change ${uniqueName} from ${originalType} -> ${type}. Nothing to do."
@@ -2279,21 +2258,13 @@ class RequestHandlingService {
                 log.info "Changing ${uniqueName} from ${originalType} to ${type}"
                 Feature newFeature = featureService.changeAnnotationType(inputObject, feature, sequence, user, type)
                 JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
+                log.debug "New feature json object: ${newFeatureJsonObject.toString()}"
                 JSONArray oldFeatureJsonArray = new JSONArray()
                 JSONArray newFeatureJsonArray = new JSONArray()
                 oldFeatureJsonArray.add(originalFeatureJsonObject)
                 newFeatureJsonArray.add(newFeatureJsonObject)
                 featureEventService.addNewFeatureEvent(FeatureOperation.CHANGE_ANNOTATION_TYPE, feature.name,
                         uniqueName, inputObject, oldFeatureJsonArray, newFeatureJsonArray, user)
-                if (singletonFeatureTypes.contains(newFeatureJsonObject.get(FeatureStringEnum.TYPE.value).name)) {
-                    returnObject = newFeatureJsonObject
-                }
-                else if (newFeatureJsonObject.get(FeatureStringEnum.TYPE.value).name == MRNA.alternateCvTerm) {
-                    returnObject = newFeatureJsonObject
-                }
-                else {
-                    returnObject = newFeatureJsonObject.get(FeatureStringEnum.CHILDREN.value).get(0)
-                }
 
                 JSONObject deleteFeatureContainer = createJSONFeatureContainer()
                 deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(currentFeatureJsonObject)
@@ -2305,7 +2276,7 @@ class RequestHandlingService {
                 fireAnnotationEvent(deleteAnnotationEvent)
 
                 JSONObject addFeatureContainer = createJSONFeatureContainer()
-                addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(returnObject)
+                addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeatureJsonObject)
                 AnnotationEvent addAnnotationEvent = new AnnotationEvent(
                         features: addFeatureContainer,
                         sequence: sequence,
@@ -2313,7 +2284,7 @@ class RequestHandlingService {
                 )
                 fireAnnotationEvent(addAnnotationEvent)
             }
-            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(returnObject)
+            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeatureJsonObject)
         }
 
         return featureContainer
