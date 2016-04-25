@@ -578,7 +578,7 @@ class TrackService {
 
         int calculatedEnd = 0
         Map<String,Integer> sequenceMap = new HashMap<>()
-        if(refererLoc.contains("sequenceList")){
+        if(refererLoc.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
             JSONObject refSeqObject = JSON.parse(refererLoc) as JSONObject
             JSONArray sequenceArray = refSeqObject.sequenceList
             for(int i = 0 ; i < sequenceArray.size() ; i++){
@@ -616,13 +616,13 @@ class TrackService {
                     projectionChunk.addChunk()
                 }
                 // if the index is the last one
-                // TODO: refactor
-                if(multiSequenceProjection.projectionDescription.projection.toUpperCase()=="EXON"){
-                    lastLength = internalArray.getInt(trackIndex.end)
-                }
-                else{
+//                // TODO: refactor
+//                if(multiSequenceProjection.projectionDescription.projection.toUpperCase()=="EXON"){
+//                    lastLength = internalArray.getInt(trackIndex.end)
+//                }
+//                else{
                     lastLength = sequenceLength
-                }
+//                }
 
                 ++lastChunkArrayOffset
             }
@@ -644,7 +644,7 @@ class TrackService {
 
         JSONObject trackObject = mergeTrackObject(trackObjectList, multiSequenceProjection,currentOrganism,trackName)
 
-        if(refererLoc.contains("sequenceList")){
+        if(refererLoc.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
             trackObject.intervals.minStart = 0
             trackObject.intervals.maxEnd = calculatedEnd
         }

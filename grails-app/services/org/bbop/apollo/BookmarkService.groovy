@@ -18,8 +18,7 @@ class BookmarkService {
         JSONArray sequenceArray = new JSONArray()
         int end = 0;
         for (Sequence seq in sequences) {
-            JSONObject sequenceObject = new JSONObject()
-            sequenceObject.name = seq.name
+            JSONObject sequenceObject = JSON.parse( (seq as JSON).toString())
             sequenceArray.add(sequenceObject)
             organism = organism ?: seq.organism
             end += seq.end
@@ -116,7 +115,7 @@ class BookmarkService {
     @NotTransactional
     static Boolean isProjectionString(String inputString ){
 //        return (inputString.contains("{") && inputString.contains("projection"))
-        return (inputString.startsWith("{") && inputString.contains("sequenceList"))
+        return (inputString.startsWith("{") && inputString.contains(FeatureStringEnum.SEQUENCE_LIST.value))
     }
 
     Bookmark convertStringToBookmark(String inputString, Organism organism) {

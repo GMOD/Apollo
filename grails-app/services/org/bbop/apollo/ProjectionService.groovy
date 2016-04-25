@@ -582,25 +582,25 @@ class ProjectionService {
      * @param sequenceName
      * @return
      */
-    @NotTransactional
-    ProjectionInterface getProjection(Organism organism, String trackName, String sequenceName) {
-
+//    @NotTransactional
+//    ProjectionInterface getProjection(Organism organism, String trackName, String sequenceName) {
 //
-        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
-        ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTrack: [trackName]
-                , projection: "Exon"
-                , padding: 50
-        )
-        ProjectionSequence projectionSequence = new ProjectionSequence(
-                id: sequence.id
-                , name: sequence.name
-                , organism: organism.commonName
-        )
-
-        projectionDescription.sequenceList = [projectionSequence]
-        return getProjection(projectionDescription)
-    }
+////
+//        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
+//        ProjectionDescription projectionDescription = new ProjectionDescription(
+//                referenceTrack: [trackName]
+//                , projection: "Exon"
+//                , padding: 50
+//        )
+//        ProjectionSequence projectionSequence = new ProjectionSequence(
+//                id: sequence.id
+//                , name: sequence.name
+//                , organism: organism.commonName
+//        )
+//
+//        projectionDescription.sequenceList = [projectionSequence]
+//        return getProjection(projectionDescription)
+//    }
 
     def getProjection(String putativeProjectionLoc, Organism organism) {
         if (BookmarkService.isProjectionString(putativeProjectionLoc)) {
@@ -692,15 +692,9 @@ class ProjectionService {
  */
     MultiSequenceProjection getProjection(JSONObject bookmarkObject) {
         ProjectionDescription projectionDescription = convertJsonObjectToProjectDescription(bookmarkObject)
-        return getProjection(projectionDescription)
-    }
-
-    MultiSequenceProjection getProjection(ProjectionDescription projectionDescription) {
         if (true || !multiSequenceProjectionMap.containsKey(projectionDescription)) {
             MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(projectionDescription)
             multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
-        } else {
-            
         }
         return multiSequenceProjectionMap.get(projectionDescription)
     }
