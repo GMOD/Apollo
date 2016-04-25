@@ -3017,14 +3017,14 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         then: "we should see all the properties of the gene transferred to the repeat_region"
         Feature repeatRegionFeature = RepeatRegion.findByUniqueName(featureUniqueName)
 
-        def expectedFeaturePropertiesForRepeatRegion = ["type:Protein coding", "validated:false"]
-        def expectedDbxrefsForRepeatRegion = ["NCBI:9823742", "Ensembl:ENSG000000000012", "PMID:2304723", "GO:0005872"]
+        def expectedFeaturePropertiesForRepeatRegion = ["type:Protein coding transcript", "validated:false"]
+        def expectedDbxrefsForRepeatRegion = ["NCBI:XM_73202812.1", "Ensembl:ENSTAT00000005254", "PMID:2304723", "GO:0005872"]
 
-        assert repeatRegionFeature.symbol == "TGN1"
-        assert repeatRegionFeature.description == "TGN1 gene"
+        assert repeatRegionFeature.symbol == "TGN1-1A"
+        assert repeatRegionFeature.description == "TGN1 isoform 1A"
         repeatRegionFeature.featureProperties.each { fp ->
             if (fp instanceof Comment) {
-                assert fp.value == "This is a test gene"
+                assert fp.value == "This is a test isoform"
             }
             else {
                 String key = fp.tag + ":" + fp.value
@@ -3048,12 +3048,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         then: "we should see the miRNA features with all its attributes"
         Transcript newTranscript = Feature.findByUniqueName(featureUniqueName)
         Gene newGene = transcriptService.getGene(newTranscript)
-
-        assert newGene.symbol != null
-        assert newGene.description != null
-        assert newGene.featureDBXrefs.size() == 4
-        assert newGene.featureProperties.size() == 3
-
+        assert newGene != null
         assert newTranscript.symbol != null
         assert newTranscript.description != null
         assert newTranscript.featureDBXrefs.size() == 4
