@@ -64,7 +64,9 @@
 
     <session-config>
         <!-- 2 days -->
-        <session-timeout>2880</session-timeout>
+        <!--<session-timeout>2880</session-timeout>-->
+        <!-- 16 hours -->
+        <session-timeout>960</session-timeout>
     </session-config>
 
     <welcome-file-list>
