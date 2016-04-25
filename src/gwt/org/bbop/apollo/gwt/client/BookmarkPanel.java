@@ -19,7 +19,6 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
@@ -71,6 +70,8 @@ public class BookmarkPanel extends Composite {
     org.gwtbootstrap3.client.ui.TextBox searchBox;
     @UiField
     Input paddingForm;
+    @UiField
+    Button clearButton;
 //    @UiField
 //    Button goButton;
 
@@ -158,6 +159,11 @@ public class BookmarkPanel extends Composite {
             }
         });
 
+    }
+
+    @UiHandler("clearButton")
+    public void clear(ClickEvent clickEvent){
+        BookmarkRestService.clearBookmarkCache();
     }
 
     @UiHandler("removeButton")

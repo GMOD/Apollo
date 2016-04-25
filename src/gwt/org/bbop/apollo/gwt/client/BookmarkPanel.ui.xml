@@ -80,9 +80,12 @@
                     <!--<b:Column size="MD_3">-->
                     <!--<gwt:HTML><b>Search</b></gwt:HTML>-->
                     <!--</b:Column>-->
-                    <b:Column size="MD_6">
+                    <b:Column size="MD_7">
                         <b:TextBox ui:field="searchBox" width="300px" enabled="true"
                                    placeholder="Search for Bookmarks"/>
+                    </b:Column>
+                    <b:Column size="MD_3">
+                        <b:Button text="Clear Bookmark Cache" icon="REMOVE" ui:field="clearButton"/>
                     </b:Column>
                 </b:Row>
             </b:Container>
@@ -106,12 +109,13 @@
                                 </b:ButtonGroup>
                             </b:Column>
                             <b:Column size="MD_2">
-                                <b:Input  type="NUMBER" b:id="padding" value="padding" ui:field="paddingForm" placeholder="Padding"/>
+                                <b:Input type="NUMBER" b:id="padding" value="padding" ui:field="paddingForm"
+                                         placeholder="Padding"/>
                                 <!--&lt;!&ndash;<b:Form>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<b:Field&ndash;&gt;-->
+                                <!--&lt;!&ndash;<b:Field&ndash;&gt;-->
                                 <!--&lt;!&ndash;<b:FormGroup>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<b:FormLabel for="padding">Padding</b:FormLabel>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;<b:TextBox  size="30" b:id="padding" value="padding" ui:field="paddingForm"/>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<b:FormLabel for="padding">Padding</b:FormLabel>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<b:TextBox  size="30" b:id="padding" value="padding" ui:field="paddingForm"/>&ndash;&gt;-->
                                 <!--&lt;!&ndash;</b:FormGroup>&ndash;&gt;-->
                                 <!--&lt;!&ndash;</b:Form>&ndash;&gt;-->
                             </b:Column>

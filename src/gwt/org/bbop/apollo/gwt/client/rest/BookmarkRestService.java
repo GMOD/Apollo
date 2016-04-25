@@ -1,16 +1,11 @@
 package org.bbop.apollo.gwt.client.rest;
 
+import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.http.client.Response;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfoConverter;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
  * This class stores Boorkmars
@@ -37,5 +32,21 @@ public class BookmarkRestService {
     public static void searchBookmarks(RequestCallback requestCallback, String searchString) {
         String requestString = "bookmark/searchBookmarks/?searchQuery=" + searchString;
         RestService.sendRequest(requestCallback, requestString);
+    }
+
+    public static void clearBookmarkCache() {
+        String requestString = "bookmark/clearBookmarkCache";
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                Bootbox.alert("Removed Bookmark Cache");
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error clearning bookmark cache: "+exception.fillInStackTrace().toString());
+            }
+        };
+        RestService.sendRequest(requestCallback,requestString);
     }
 }

@@ -87,4 +87,9 @@ class BookmarkController {
             render new JSONObject() as JSON
         }
     }
+
+    def clearBookmarkCache(){
+        projectionService.clearProjections()
+        render new JSONObject() as JSON
+    }
 }
