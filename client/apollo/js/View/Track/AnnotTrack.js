@@ -870,7 +870,7 @@ define([
                     var source_track = subfeat.track;
                     if (subfeat.get('type') != "wholeCDS") {
                         var jsonFeature = JSONUtils.createApolloFeature(subfeats[i], "exon");
-                        postData[features].push(jsonFeature);
+                        postData.features.push(jsonFeature);
                     }
                 }
                 // var parent = JSONUtils.createApolloFeature(annot, target_track.fields,
