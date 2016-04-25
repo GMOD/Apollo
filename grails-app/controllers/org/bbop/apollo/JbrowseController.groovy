@@ -275,14 +275,9 @@ class JbrowseController {
 
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
-                List<String> sequenceStrings = new ArrayList<>()
-                for (int i = 0; i < sequenceArray.size(); i++) {
-                    JSONObject sequenceObject = sequenceArray.getJSONObject(i)
-                    sequenceStrings.add(sequenceObject.name)
-                }
 
                 if (fileName.endsWith("trackData.json")) {
-                    JSONObject trackObject = trackService.projectTrackData(sequenceStrings, dataFileName, refererLoc, currentOrganism)
+                    JSONObject trackObject = trackService.projectTrackData(sequenceArray, dataFileName, refererLoc, currentOrganism)
                     if (trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value).size() == 0) {
                         response.setStatus(HttpServletResponse.SC_NOT_FOUND)
                     } else {
@@ -300,9 +295,8 @@ class JbrowseController {
                     return
                 }
 
-
-            } else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
-
+            } else
+            if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
 
                 String returnSequence = refSeqProjectorService.projectSequence(dataFileName, currentOrganism)
                 // output the string the response
@@ -319,7 +313,6 @@ class JbrowseController {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-
 
 
         String mimeType = getServletContext().getMimeType(fileName);
