@@ -5683,7 +5683,7 @@ define([
                 }
 
                 console.log('connected and sending notifications');
-                this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));
+                this.client.send("/app/AnnotationNotification", {}, JSON.stringify(JSON.stringify(postData)));
                 console.log('sent notification message');
             },
 
