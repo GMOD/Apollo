@@ -2264,9 +2264,16 @@ define([
                 };
 
                 function init() {
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-                    var operation = "get_annotation_info_editor_data";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = JSON.stringify({
+                        features: [
+                            {
+                                uniquename: uniqueName
+                            }
+                        ],
+                        operation: "get_annotation_info_editor_data",
+                        track: trackName,
+                        clientToken: track.getClientToken()
+                    });
                     dojo.xhrPost({
                         sync: true,
                         postData: postData,
@@ -5559,7 +5566,7 @@ define([
 
 /*
  * Copyright (c) 2010-2011 Berkeley Bioinformatics Open Projects (BBOP)
- * 
+ *
  * This package and its accompanying libraries are free software; you can
  * redistribute it and/or modify it under the terms of the LGPL (either version
  * 2.1, or at your option, any later version) or the Artistic License 2.0. Refer
