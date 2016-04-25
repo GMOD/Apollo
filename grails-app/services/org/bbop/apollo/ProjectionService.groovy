@@ -692,7 +692,7 @@ class ProjectionService {
  */
     MultiSequenceProjection getProjection(JSONObject bookmarkObject) {
         ProjectionDescription projectionDescription = convertJsonObjectToProjectDescription(bookmarkObject)
-        if (true || !multiSequenceProjectionMap.containsKey(projectionDescription)) {
+        if (!multiSequenceProjectionMap.containsKey(projectionDescription)) {
             MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(projectionDescription)
             multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
         }
