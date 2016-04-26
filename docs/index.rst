@@ -37,6 +37,7 @@ Contents:
    Apollo2Build
    Setup
    Configure
+   ChadoExport
    Data_loading
    Troubleshooting
    Migration
