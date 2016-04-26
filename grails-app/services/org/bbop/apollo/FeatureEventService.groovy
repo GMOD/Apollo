@@ -524,7 +524,7 @@ class FeatureEventService {
                     addCommandObject.put(FeatureStringEnum.TRACK.value, featuresToAddArray.getJSONObject(0).getString(FeatureStringEnum.SEQUENCE.value))
                 }
 
-                addCommandObject = permissionService.copyUserName(inputObject, addCommandObject)
+                addCommandObject = permissionService.copyRequestValues(inputObject, addCommandObject)
 
                 addCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY.value, true)
 
@@ -608,7 +608,7 @@ class FeatureEventService {
             log.debug "final deleteCommandObject ${deleteCommandObject as JSON}"
 
             deleteCommandObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
-            deleteCommandObject = permissionService.copyUserName(inputObject, deleteCommandObject)
+            deleteCommandObject = permissionService.copyRequestValues(inputObject, deleteCommandObject)
 
             log.debug " final delete JSON ${deleteCommandObject as JSON}"
             // suppress any events that are not part of the new state
@@ -641,7 +641,6 @@ class FeatureEventService {
         int count = currentIndex + countForward
         log.info "current Index ${currentIndex}"
         log.info "${count} = ${currentIndex}-${countForward}"
-
         setHistoryState(inputObject, count)
     }
 

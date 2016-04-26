@@ -661,7 +661,7 @@ class RequestHandlingService {
         def transcriptJSONList = []
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
-            jsonTranscript = permissionService.copyUserName(inputObject, jsonTranscript)
+            jsonTranscript = permissionService.copyRequestValues(inputObject, jsonTranscript)
             Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence, suppressHistory)
 
             // should automatically write to history
@@ -2207,7 +2207,7 @@ class RequestHandlingService {
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             int count = inputObject.containsKey(FeatureStringEnum.COUNT.value) ? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
-            jsonFeature = permissionService.copyUserName(inputObject, jsonFeature)
+            jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
             featureEventService.undo(jsonFeature, count)
         }
         return new JSONObject()
@@ -2222,7 +2222,7 @@ class RequestHandlingService {
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             int count = inputObject.containsKey(FeatureStringEnum.COUNT.value) ? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
-            jsonFeature = permissionService.copyUserName(inputObject, jsonFeature)
+            jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
             featureEventService.redo(jsonFeature, count)
         }
         return new JSONObject()

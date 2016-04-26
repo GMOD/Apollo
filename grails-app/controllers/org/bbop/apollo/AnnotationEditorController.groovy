@@ -122,7 +122,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @Timed
     def getHistoryForFeatures() {
         log.debug "getHistoryForFeatures ${params}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = permissionService.handleInput(request,params)
         inputObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         permissionService.checkPermissions(inputObject, PermissionEnum.READ)

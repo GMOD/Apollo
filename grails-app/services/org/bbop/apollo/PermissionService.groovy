@@ -214,15 +214,25 @@ class PermissionService {
         return highestValue
     }
 
-
-
-
-    JSONObject copyUserName(JSONObject fromJSON, JSONObject toJSON) {
-        if (fromJSON.containsKey(FeatureStringEnum.USERNAME.value)) {
-            toJSON.put(FeatureStringEnum.USERNAME.value, fromJSON.getString(FeatureStringEnum.USERNAME.value))
+    JSONObject copyValue(FeatureStringEnum featureStringEnum,JSONObject fromJSON, JSONObject toJSON){
+        if (fromJSON.containsKey(featureStringEnum.value)) {
+            toJSON.put(featureStringEnum.value, fromJSON.getString(featureStringEnum.value))
         } else {
-            log.info "No username to copy from ${fromJSON}"
+            log.info "No ${featureStringEnum.value} to copy from ${fromJSON}"
         }
+        return toJSON
+    }
+
+    /**
+     * Copies values relevant to request
+     * @param fromJSON
+     * @param toJSON
+     * @return
+     */
+    JSONObject copyRequestValues(JSONObject fromJSON, JSONObject toJSON) {
+        copyValue(FeatureStringEnum.USERNAME,fromJSON,toJSON)
+        copyValue(FeatureStringEnum.CLIENT_TOKEN,fromJSON,toJSON)
+        copyValue(FeatureStringEnum.ORGANISM,fromJSON,toJSON)
         return toJSON
     }
 
