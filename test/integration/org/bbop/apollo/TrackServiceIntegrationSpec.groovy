@@ -47,7 +47,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "non-projection of contiguous tracks should work"() {
 
         given: "proper inputs"
-        List<String> sequenceStrings = ["GroupUn87", "Group11.4"]
+        JSONArray sequenceStrings = new JSONArray('[{name:"GroupUn87"}, {name:"Group11.4"}]')
         String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1/trackData.json"
         String refererLoc = "{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1:1..16607"
 
@@ -90,7 +90,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
      */
     void "un-projected 11.4 individually"() {
         given: "proper inputs"
-        List<String> sequenceStrings = ["Group11.4"]
+        JSONArray sequenceStrings = new JSONArray('[{name:"Group11.4"}]')
         String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1/trackData.json"
         String refererLoc = "{\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1:1..16607"
 
@@ -121,7 +121,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
      */
     void "Projected 11.4 individually"() {
         given: "proper inputs"
-        List<String> sequenceStrings = ["Group11.4"]
+        JSONArray sequenceStrings = new JSONArray('[{name:"Group11.4"}]')
         String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1/trackData.json"
         String refererLoc = "{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1:1..16607"
 
@@ -153,7 +153,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
      */
     void "Projected 11.4 individually with padding"() {
         given: "proper inputs"
-        List<String> sequenceStrings = ["Group11.4"]
+        JSONArray sequenceStrings = new JSONArray('[{name:"Group11.4"}]')
         Integer padding = 20
         String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\": ${padding}, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1/trackData.json"
         String refererLoc = "{\"padding\":${padding}, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1:1..16607"
@@ -187,7 +187,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "exon projections of contiguous tracks should work"() {
 
         given: "proper inputs"
-        List<String> sequenceStrings = ["GroupUn87", "Group11.4"]
+        JSONArray sequenceStrings = new JSONArray('[{name:"GroupUn87"}, {name:"Group11.4"}]')
         String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1/trackData.json"
         String refererLoc = "{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1:1..16607"
 
@@ -226,7 +226,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "exon projections of contiguous tracks should work with padding"() {
 
         given: "proper inputs"
-        List<String> sequenceStrings = ["GroupUn87", "Group11.4"]
+        JSONArray sequenceStrings = new JSONArray('[{name:"GroupUn87"}, {name:"Group11.4"}]')
         Integer padding = 20
         String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\":${padding}, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1/trackData.json"
         String refererLoc = "{\"padding\":${padding}, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"},{\"name\":\"Group11.4\"}], \"label\":\"GroupUn87::Group11.4\"}:-1..-1:1..16607"
@@ -298,7 +298,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "chunking / chunking projection"() {
 
         given: "proper inputs"
-        List<String> sequenceStrings = ["Group11.6", "Group1.10"]
+        JSONArray sequenceStrings = new JSONArray('[{name:"Group11.6"},{name:"Group1.10"}]')
         String trackName = "Official Gene Set v3.2"
         String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceStrings[0]}\"},{\"name\":\"${sequenceStrings[1]}\"}], \"label\":\"${sequenceStrings.join('::')}\"}:-1..-1/trackData.json"
         String chunk1 = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${sequenceStrings[0]}/lf-1.json"

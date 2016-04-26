@@ -276,7 +276,7 @@ class TrackService {
      * @param currentOrganism
      * @param trackName
      */
-    private JSONArray sanitizeCoordinateArray(JSONArray coordinateJsonArray, Organism currentOrganism, String trackName) {
+    protected JSONArray sanitizeCoordinateArray(JSONArray coordinateJsonArray, Organism currentOrganism, String trackName) {
         for (int i = 0; i < coordinateJsonArray.size(); i++) {
             JSONArray coordinateArray = coordinateJsonArray.getJSONArray(i)
             TrackIndex trackIndex = trackMapperService.getIndices(currentOrganism.commonName, trackName, coordinateArray.getInt(0))
@@ -310,7 +310,7 @@ class TrackService {
                     //if (trackIndex.hasSubList() && coordinateArray.get(trackIndex.sublistColumn)) {
                     if (coordinateArray.size() == 12) {
                         // coordinateArray has subList and has the same form as that of the coordinateJsonArray which enables recursion
-                        JSONArray sanitizedSubListArray = sanitizeCoordinateArray(coordinateArray.getJSONObject(11).get("Sublist"), currentOrganism, trackName)
+                        JSONArray sanitizedSubListArray = sanitizeCoordinateArray(coordinateArray.getJSONObject(11).getJSONArray("Sublist"), currentOrganism, trackName)
                         coordinateArray.getJSONObject(11).put("Sublist", sanitizedSubListArray)
                     }
                 }
