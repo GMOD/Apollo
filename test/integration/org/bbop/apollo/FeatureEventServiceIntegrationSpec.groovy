@@ -219,7 +219,9 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         when: "when we undo the same transcript again"
         def allFeatures = Feature.all
-        redoString2 = redoString2.replace("@TRANSCRIPT_2@", transcript2UniqueName)
+        def featureEvents = FeatureEvent.all
+//        redoString2 = redoString2.replace("@TRANSCRIPT_2@", transcript2UniqueName)
+        redoString2 = redoString2.replace("@TRANSCRIPT_2@", transcript1UniqueName)
         requestHandlingService.redo(JSON.parse(redoString2))
         allFeatures = Feature.all
 
@@ -269,7 +271,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcript2UniqueName = MRNA.findByName("GB40736-RAa-00001").uniqueName
         undoString1 = undoString1.replace("@TRANSCRIPT_1@", transcript1UniqueName)
         undoString2 = undoString2.replace("@TRANSCRIPT_2@", transcript2UniqueName)
-        redoString2 = redoString2.replace("@TRANSCRIPT_2@", transcript2UniqueName)
+        redoString2 = redoString2.replace("@TRANSCRIPT_2@", transcript1UniqueName)
         requestHandlingService.undo(JSON.parse(undoString1))
 
         then: "we should have the original transcript"
@@ -279,9 +281,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Gene.count == 1
 
         when: "when we redo transcript 2"
-        def allFeatures = Feature.all
         requestHandlingService.redo(JSON.parse(redoString2))
-        allFeatures = Feature.all
 
         then: "we should have two transcripts, A3/B1"
         assert Exon.count == 2
