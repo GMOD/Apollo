@@ -2283,8 +2283,8 @@ class RequestHandlingService {
                         operation: AnnotationEvent.Operation.ADD
                 )
                 fireAnnotationEvent(addAnnotationEvent)
+                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeatureJsonObject)
             }
-            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeatureJsonObject)
         }
 
         return featureContainer

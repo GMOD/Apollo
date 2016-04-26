@@ -2474,7 +2474,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
 
-    @Transactional
+
     def changeAnnotationType(JSONObject inputObject, Feature feature, Sequence sequence, User user, String type) {
         String uniqueName = feature.uniqueName
         String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
@@ -2495,9 +2495,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         Gene parentGene = null
         String parentGeneSymbol = null
         String parentGeneDescription = null
-        def parentGeneDbxrefs = null
-        def parentGeneFeatureProperties = null
-        def transcriptList = []
+        Set<DBXref> parentGeneDbxrefs = null
+        Set<FeatureProperty> parentGeneFeatureProperties = null
+        List<Transcript> transcriptList = []
 
         if (feature instanceof Transcript) {
             parentGene = transcriptService.getGene((Transcript) feature)
@@ -2507,6 +2507,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             parentGeneFeatureProperties = parentGene.featureProperties
             transcriptList = transcriptService.getTranscripts(parentGene)
         }
+
+        log.debug "Parent gene Dbxrefs: ${parentGeneDbxrefs}"
+        log.debug "Parent gene Feature Properties: ${parentGeneFeatureProperties}"
 
         if (currentFeatureJsonObject.has(FeatureStringEnum.PARENT_TYPE.value)) {
             currentFeatureJsonObject.get(FeatureStringEnum.PARENT_TYPE.value).name = topLevelFeatureType
@@ -2541,90 +2544,49 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             log.debug "Converting ${originalType} to ${type}"
 
+            Transcript transcript = null
             if (type == MRNA.alternateCvTerm) {
                 // *RNA to mRNA
-                Transcript transcript = generateTranscript(currentFeatureJsonObject, sequence, true)
+                transcript = generateTranscript(currentFeatureJsonObject, sequence, true)
                 setLongestORF(transcript)
-
-                Gene newGene = transcriptService.getGene(transcript)
-                newGene.description = parentGeneDescription
-                newGene.symbol = parentGeneSymbol
-
-                if (parentGeneDbxrefs != null) {
-                    parentGeneDbxrefs.each { it ->
-                        DBXref dbxref = new DBXref(
-                                db: it.db,
-                                accession: it.accession,
-                                version: it.version,
-                                description: it.description
-                        ).save(flush: true)
-                        newGene.addToFeatureDBXrefs(dbxref)
-                    }
-                }
-
-                if (parentGeneFeatureProperties) {
-                    parentGeneFeatureProperties.each { it ->
-                        if (it instanceof Comment) {
-                            featurePropertyService.addComment(newGene, it.value)
-                        }
-                        else {
-                            FeatureProperty fp = new FeatureProperty(
-                                    type: it.type,
-                                    value: it.value,
-                                    rank: it.rank,
-                                    tag: it.tag,
-                                    feature: newGene
-                            ).save(flush: true)
-                            newGene.addToFeatureProperties(fp)
-                        }
-                    }
-                }
-
-                newGene.save(flush: true)
-                newFeature = transcript
             }
             else {
                 // *RNA to *RNA
-                Transcript transcript = addFeature(currentFeatureJsonObject, sequence, user, true)
+                transcript = addFeature(currentFeatureJsonObject, sequence, user, true)
                 setLongestORF(transcript)
-
-                Gene newGene = transcriptService.getGene(transcript)
-                newGene.symbol = parentGeneSymbol
-                newGene.description = parentGeneDescription
-
-                if (parentGeneDbxrefs != null) {
-                    parentGeneDbxrefs.each { it ->
-                        DBXref dbxref = new DBXref(
-                                db: it.db,
-                                accession: it.accession,
-                                version: it.version,
-                                description: it.description
-                        ).save(flush: true)
-                        newGene.addToFeatureDBXrefs(dbxref)
-                    }
-                }
-
-                if (parentGeneFeatureProperties != null) {
-                    parentGeneFeatureProperties.each { it ->
-                        if (it instanceof Comment) {
-                            featurePropertyService.addComment(newGene, it.value)
-                        }
-                        else {
-                            FeatureProperty fp = new FeatureProperty(
-                                    type: it.type,
-                                    value: it.value,
-                                    rank: it.rank,
-                                    tag: it.tag,
-                                    feature: newGene
-                            ).save(flush: true)
-                            newGene.addToFeatureProperties(fp)
-                        }
-                    }
-                }
-
-                newGene.save(flush: true)
-                newFeature = transcript
             }
+
+            Gene newGene = transcriptService.getGene(transcript)
+            newGene.symbol = parentGeneSymbol
+            newGene.description = parentGeneDescription
+
+            parentGeneDbxrefs.each { it ->
+                DBXref dbxref = new DBXref(
+                        db: it.db,
+                        accession: it.accession,
+                        version: it.version,
+                        description: it.description
+                ).save(flush: true)
+                newGene.addToFeatureDBXrefs(dbxref)
+            }
+
+            parentGeneFeatureProperties.each { it ->
+                if (it instanceof Comment) {
+                    featurePropertyService.addComment(newGene, it.value)
+                }
+                else {
+                    FeatureProperty fp = new FeatureProperty(
+                            type: it.type,
+                            value: it.value,
+                            rank: it.rank,
+                            tag: it.tag,
+                            feature: newGene
+                    ).save(flush: true)
+                    newGene.addToFeatureProperties(fp)
+                }
+            }
+            newGene.save(flush: true)
+            newFeature = transcript
         }
         else if (!singletonFeatureTypes.contains(originalType) && singletonFeatureTypes.contains(type)) {
             // *RNA to singleton
