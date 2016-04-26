@@ -661,7 +661,7 @@ class RequestHandlingService {
         def transcriptJSONList = []
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
-            jsonTranscript = permissionService.copyUserName(inputObject, jsonTranscript)
+            jsonTranscript = permissionService.copyRequestValues(inputObject, jsonTranscript)
             Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence, suppressHistory)
 
             // should automatically write to history
@@ -1688,82 +1688,16 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            // pull transcript name and put it in the top if not there
-            if (!jsonFeature.containsKey(FeatureStringEnum.NAME.value) && jsonFeature.containsKey(FeatureStringEnum.CHILDREN.value)) {
-                JSONArray childArray = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
-                if (childArray?.size() == 1 && childArray.getJSONObject(0).containsKey(FeatureStringEnum.NAME.value)) {
-                    jsonFeature.put(FeatureStringEnum.NAME.value, childArray.getJSONObject(0).getString(FeatureStringEnum.NAME.value))
-                }
-            }
-            Feature newFeature = featureService.convertJSONToFeature(jsonFeature, sequence)
-            String principalName = newFeature.name
-            log.debug "principal name ${principalName}"
+            Feature newFeature = featureService.addFeature(jsonFeature, sequence, user, suppressHistory)
+            JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
+            log.debug "newFeatureJsonObject: ${newFeatureJsonObject.toString()}"
+            JSONObject jsonObject = newFeatureJsonObject
+
             if (!suppressHistory) {
-                newFeature.name = nameService.generateUniqueName(newFeature, newFeature.name)
-            }
-            featureService.updateNewGsolFeatureAttributes(newFeature, sequence)
-            featureService.addFeature(newFeature)
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                if (user) {
-                    newFeature.addToOwners(user)
-                } else {
-                    log.error("Unable to find valid user to set on feature!" + jsonFeature.toString())
-                }
+                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, newFeatureJsonObject, user)
             }
 
-            newFeature.save(insert: true, flush: true)
-
-            if (newFeature instanceof Gene) {
-                for (Transcript transcript : transcriptService.getTranscripts((Gene) newFeature)) {
-                    if (!(newFeature instanceof Pseudogene) && transcriptService.isProteinCoding(transcript)) {
-                        if (!configWrapperService.useCDS() || transcriptService.getCDS(transcript) == null) {
-                            featureService.calculateCDS(transcript);
-                            def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
-                            if (transcriptsToUpdate.size() > 0) {
-                                JSONObject updateFeatureContainer = createJSONFeatureContainer()
-                                transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
-                                if (sequence) {
-                                    AnnotationEvent annotationEvent = new AnnotationEvent(
-                                            features: updateFeatureContainer,
-                                            sequence: sequence,
-                                            operation: AnnotationEvent.Operation.UPDATE
-                                    )
-                                    fireAnnotationEvent(annotationEvent)
-                                }
-                            }
-                        }
-                    } else {
-                        if (transcriptService.getCDS(transcript) != null) {
-                            featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
-                        }
-                    }
-                    nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
-                    if (!suppressHistory) {
-                        transcript.name = nameService.generateUniqueName(transcript, newFeature.name)
-                        transcript.uniqueName = nameService.generateUniqueName()
-                    }
-                    if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                        if (user) {
-                            transcript.addToOwners(user)
-                        } else {
-                            log.error("Unable to find valid user to set on feature!" + transcript.toString())
-                        }
-                    }
-
-
-                    JSONObject jsonObject = featureService.convertFeatureToJSON(transcript)
-                    if (!suppressHistory) {
-                        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, jsonObject, user)
-                    }
-                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
-                }
-            } else {
-                JSONObject jsonObject = featureService.convertFeatureToJSON(newFeature)
-                if (!suppressHistory) {
-                    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, jsonObject, user)
-                }
-                returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
-            }
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
         }
 
         if (!suppressEvents) {
@@ -1775,7 +1709,6 @@ class RequestHandlingService {
 
             fireAnnotationEvent(annotationEvent)
         }
-
         return returnObject
     }
 
@@ -2274,7 +2207,7 @@ class RequestHandlingService {
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             int count = inputObject.containsKey(FeatureStringEnum.COUNT.value) ? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
-            jsonFeature = permissionService.copyUserName(inputObject, jsonFeature)
+            jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
             featureEventService.undo(jsonFeature, count)
         }
         return new JSONObject()
@@ -2289,9 +2222,69 @@ class RequestHandlingService {
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             int count = inputObject.containsKey(FeatureStringEnum.COUNT.value) ? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
-            jsonFeature = permissionService.copyUserName(inputObject, jsonFeature)
+            jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
             featureEventService.redo(jsonFeature, count)
         }
         return new JSONObject()
+    }
+
+    def changeAnnotationType(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        User user = permissionService.getCurrentUser(inputObject)
+        JSONObject featureContainer = createJSONFeatureContainer()
+
+        def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
+        def rnaFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
+
+        for (int i = 0; i < features.length(); i++) {
+            String type = features.get(i).type
+            String uniqueName = features.get(i).uniquename
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            FeatureEvent currentFeatureEvent = featureEventService.findCurrentFeatureEvent(feature.uniqueName).get(0)
+            JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            JSONObject originalFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
+            String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
+
+            if (originalType == type) {
+                log.warn "Cannot change ${uniqueName} from ${originalType} -> ${type}. Nothing to do."
+            }
+            else if (originalType in singletonFeatureTypes && type in rnaFeatureTypes) {
+                log.error "Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
+            }
+            else {
+                log.info "Changing ${uniqueName} from ${originalType} to ${type}"
+                Feature newFeature = featureService.changeAnnotationType(inputObject, feature, sequence, user, type)
+                JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
+                log.debug "New feature json object: ${newFeatureJsonObject.toString()}"
+                JSONArray oldFeatureJsonArray = new JSONArray()
+                JSONArray newFeatureJsonArray = new JSONArray()
+                oldFeatureJsonArray.add(originalFeatureJsonObject)
+                newFeatureJsonArray.add(newFeatureJsonObject)
+                featureEventService.addNewFeatureEvent(FeatureOperation.CHANGE_ANNOTATION_TYPE, feature.name,
+                        uniqueName, inputObject, oldFeatureJsonArray, newFeatureJsonArray, user)
+
+                JSONObject deleteFeatureContainer = createJSONFeatureContainer()
+                deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(currentFeatureJsonObject)
+                AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
+                        features: deleteFeatureContainer,
+                        sequence: sequence,
+                        operation: AnnotationEvent.Operation.DELETE
+                )
+                fireAnnotationEvent(deleteAnnotationEvent)
+
+                JSONObject addFeatureContainer = createJSONFeatureContainer()
+                addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeatureJsonObject)
+                AnnotationEvent addAnnotationEvent = new AnnotationEvent(
+                        features: addFeatureContainer,
+                        sequence: sequence,
+                        operation: AnnotationEvent.Operation.ADD
+                )
+                fireAnnotationEvent(addAnnotationEvent)
+                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeatureJsonObject)
+            }
+        }
+
+        return featureContainer
     }
 }

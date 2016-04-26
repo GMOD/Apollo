@@ -37,6 +37,12 @@ function deploy_message(){
    echo "***************************************"
 }
 
+function check_rest_api(){
+	if [ ! -f web-app/js/restapidoc/restapidoc.json ]; then 
+		$grails_executable rest-api-doc 
+	fi
+}
+
 
 function check_node(){
     node_executable=$(which node)
@@ -158,7 +164,9 @@ elif [[ $1 == "debug" ]];then
 elif [[ $1 == "test" ]];then
     check_configs
     copy_configs
-    $grails_executable handleJBrowse test-app
+    $gradle_executable handleJBrowse 
+    check_rest_api
+	$grails_executable test-app 
 elif [[ $1 == "test-unit" ]];then
     check_configs
     copy_configs

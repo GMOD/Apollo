@@ -2799,4 +2799,259 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert transcriptService.getTranscripts(geneList.get(0)).size() == 1
         assert transcriptService.getTranscripts(geneList.get(1)).size() == 2
     }
+
+    void "when we change an annotation type from one form to another, we should see the proper changes and be able to go back in history"() {
+
+        given: "GB40821-RA"
+        String transcriptString = '{"operation":"add_transcript","features":[{"location":{"fmin":621650,"strand":1,"fmax":628275},"name":"GB40821-RA","children":[{"location":{"fmin":621650,"strand":1,"fmax":622270},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":628037,"strand":1,"fmax":628275},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":621650,"strand":1,"fmax":622330},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":623090,"strand":1,"fmax":623213},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":624547,"strand":1,"fmax":624610},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":624680,"strand":1,"fmax":624743},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":624885,"strand":1,"fmax":624927},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":625015,"strand":1,"fmax":625090},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":627962,"strand":1,"fmax":628275},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":622270,"strand":1,"fmax":628037},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+        String changeAnnotationTypeOperationString = '{"operation":"change_annotation_type","features":[{"type":"@TYPE@","uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String undoOperationString = '{"operation":"undo","count":1,"features":[{"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String redoOperationString = '{"operation":"redo","count":1,"features":[{"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(transcriptString) as JSONObject)
+
+        then: "we should have 1 gene, 1 MRNA, 7 exons and 1 CDS"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 7
+        assert CDS.count == 1
+        MRNA mrna = MRNA.findByName("GB40821-RA-00001")
+        String featureUniqueName = mrna.uniqueName
+
+        when: "we change the annotation type from a protein coding Gene to a Pseudogene"
+        String changeAnnotationTypeForTranscriptString = changeAnnotationTypeOperationString.replace("@UNIQUENAME@", featureUniqueName).replace("@TYPE@", "transcript")
+        requestHandlingService.changeAnnotationType(JSON.parse(changeAnnotationTypeForTranscriptString) as JSONObject)
+
+        then: "we should have 1 gene of type Pseudogene, 1 Transcript and no CDS"
+        assert Pseudogene.count == 1
+        assert Transcript.count == 1
+        assert Exon.count == 7
+
+        assert MRNA.count == 0
+        assert CDS.count == 0
+
+        when: "we again change the annotation type from Pseudogene to ncRNA"
+        changeAnnotationTypeForTranscriptString = changeAnnotationTypeOperationString.replace("@UNIQUENAME@", featureUniqueName).replace("@TYPE@", "ncRNA")
+        requestHandlingService.changeAnnotationType(JSON.parse(changeAnnotationTypeForTranscriptString) as JSONObject)
+
+        then: "we should have 1 gene of type Gene, 1 ncRNA and no CDS"
+        assert Gene.count == 1
+        assert NcRNA.count == 1
+
+        assert Pseudogene.count == 0
+
+        when: "we undo twice and redo once"
+        String undoString = undoOperationString.replace("@UNIQUENAME@", featureUniqueName)
+        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+
+        String redoString = redoOperationString.replace("@UNIQUENAME@", featureUniqueName)
+        requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
+
+        then: "we should arrive at the state where the current feature is of type Pseudogene"
+        Feature feature = Feature.findByUniqueName(featureUniqueName)
+        assert feature instanceof Transcript
+        Gene gene = transcriptService.getGene((Transcript) feature)
+        assert gene instanceof Pseudogene
+
+        when: "we change the annotation type to transposable_element"
+        changeAnnotationTypeForTranscriptString = changeAnnotationTypeOperationString.replace("@UNIQUENAME@", featureUniqueName).replace("@TYPE@", "transposable_element")
+        requestHandlingService.changeAnnotationType(JSON.parse(changeAnnotationTypeForTranscriptString) as JSONObject)
+
+        then: "we should have 1 TransposableElement"
+        assert TransposableElement.count == 1
+        assert Gene.count == 0
+        assert Transcript.count == 0
+        assert Exon.count == 0
+        assert CDS.count == 0
+
+        when: "we change the annotation type to repeat_region"
+        changeAnnotationTypeForTranscriptString = changeAnnotationTypeOperationString.replace("@UNIQUENAME@", featureUniqueName).replace("@TYPE@", "repeat_region")
+        requestHandlingService.changeAnnotationType(JSON.parse(changeAnnotationTypeForTranscriptString) as JSONObject)
+
+        then: "we should have 1 RepeatRegion"
+        assert RepeatRegion.count == 1
+        assert TransposableElement.count == 0
+
+        when: "we undo thrice"
+        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+        then: "we should get back the original mRNA added at the very beginning"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 7
+        assert CDS.count == 1
+    }
+
+    void "When we change the annotation type of a feature, its attributes, dbxrefs and properties, these properties must be preserved throughout the process"() {
+
+        given: "GB40744-RA"
+        String transcriptString = '{"operation":"add_transcript","features":[{"location":{"fmin":761542,"strand":-1,"fmax":768063},"name":"GB40744-RA","children":[{"location":{"fmin":767945,"strand":-1,"fmax":768063},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":761542,"strand":-1,"fmax":763070},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":761542,"strand":-1,"fmax":763513},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":765327,"strand":-1,"fmax":765472},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":765551,"strand":-1,"fmax":766176},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":766255,"strand":-1,"fmax":767133},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":767207,"strand":-1,"fmax":767389},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":767485,"strand":-1,"fmax":768063},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":763070,"strand":-1,"fmax":767945},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+        String changeAnnotationTypeOperationString = '{"operation":"change_annotation_type","features":[{"type":"@TYPE@","uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String undoOperationString = '{"operation":"undo","count":1,"features":[{"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String redoOperationString = '{"operation":"redo","count":1,"features":[{"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String setSymbolString = '{"operation":"set_symbol","features":[{"symbol":"@SYMBOL@","uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String setDescriptionString = '{"operation":"set_description","features":[{"description":"@DESCRIPTION@","uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String addNonPrimaryDbxrefString = '{"operation":"add_non_primary_dbxrefs","features":[{"dbxrefs":[{"db":"@DB@","accession":"@ACCESSION@"}],"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String addNonReservedPropertyString = '{"operation":"add_non_reserved_properties","features":[{"non_reserved_properties":[{"tag":"@TAG@","value":"@VALUE@"}],"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String addCommentString = '{"operation":"add_comments","features":[{"uniquename":"@UNIQUENAME@","comments":["@COMMENT@"]}],"track":"Group1.10"}'
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(transcriptString) as JSONObject)
+
+        then: "we should see 1 Gene, 1 MRNA, 6 exons and 1 CDS"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 6
+        assert CDS.count == 1
+        MRNA mrna = MRNA.findByName("GB40744-RA-00001")
+        String featureUniqueName = mrna.uniqueName
+        Gene gene = transcriptService.getGene(mrna)
+
+        when: "we add dbxrefs, attributes and comments to the added feature"
+        String setSymbolForGeneString = setSymbolString.replace("@UNIQUENAME@", gene.uniqueName).replace("@SYMBOL@", "TGN1")
+        String setDescriptionForGeneString = setDescriptionString.replace("@UNIQUENAME@", gene.uniqueName).replace("@DESCRIPTION@", "TGN1 gene")
+        String addNonPrimaryDbxrefForGeneString1 = addNonPrimaryDbxrefString.replace("@UNIQUENAME@", gene.uniqueName).replace("@DB@", "NCBI").replace("@ACCESSION@", "9823742")
+        String addNonPrimaryDbxrefForGeneString2 = addNonPrimaryDbxrefString.replace("@UNIQUENAME@", gene.uniqueName).replace("@DB@", "Ensembl").replace("@ACCESSION@", "ENSG000000000012")
+        String addNonPrimaryDbxrefForGeneString3 = addNonPrimaryDbxrefString.replace("@UNIQUENAME@", gene.uniqueName).replace("@DB@", "GO").replace("@ACCESSION@", "0005872")
+        String addNonPrimaryDbxrefForGeneString4 = addNonPrimaryDbxrefString.replace("@UNIQUENAME@", gene.uniqueName).replace("@DB@", "PMID").replace("@ACCESSION@", "2304723")
+        String addNonReservedPropertyForGeneString1 = addNonReservedPropertyString.replace("@UNIQUENAME@", gene.uniqueName).replace("@TAG@", "type").replace("@VALUE@", "Protein coding")
+        String addNonReservedPropertyForGeneString2 = addNonReservedPropertyString.replace("@UNIQUENAME@", gene.uniqueName).replace("@TAG@", "validated").replace("@VALUE@", "false")
+        String addCommentForGeneString = addCommentString.replace("@UNIQUENAME@", gene.uniqueName).replace("@COMMENT@", "This is a test gene")
+
+        String setSymbolForTranscriptString = setSymbolString.replace("@UNIQUENAME@", featureUniqueName).replace("@SYMBOL@", "TGN1-1A")
+        String setDescriptionForTranscriptString = setDescriptionString.replace("@UNIQUENAME@", featureUniqueName).replace("@DESCRIPTION@", "TGN1 isoform 1A")
+        String addNonPrimaryDbxrefForTranscriptString1 = addNonPrimaryDbxrefString.replace("@UNIQUENAME@", featureUniqueName).replace("@DB@", "NCBI").replace("@ACCESSION@", "XM_73202812.1")
+        String addNonPrimaryDbxrefForTranscriptString2 = addNonPrimaryDbxrefString.replace("@UNIQUENAME@", featureUniqueName).replace("@DB@", "Ensembl").replace("@ACCESSION@", "ENSTAT00000005254")
+        String addNonPrimaryDbxrefForTranscriptString3 = addNonPrimaryDbxrefString.replace("@UNIQUENAME@", featureUniqueName).replace("@DB@", "GO").replace("@ACCESSION@", "0005872")
+        String addNonPrimaryDbxrefForTranscriptString4 = addNonPrimaryDbxrefString.replace("@UNIQUENAME@", featureUniqueName).replace("@DB@", "PMID").replace("@ACCESSION@", "2304723")
+        String addNonReservedPropertyForTranscriptString1 = addNonReservedPropertyString.replace("@UNIQUENAME@", featureUniqueName).replace("@TAG@", "type").replace("@VALUE@", "Protein coding transcript")
+        String addNonReservedPropertyForTranscriptString2 = addNonReservedPropertyString.replace("@UNIQUENAME@", featureUniqueName).replace("@TAG@", "validated").replace("@VALUE@", "false")
+        String addCommentForTranscriptString = addCommentString.replace("@UNIQUENAME@", featureUniqueName).replace("@COMMENT@", "This is a test isoform")
+
+        requestHandlingService.setSymbol(JSON.parse(setSymbolForGeneString) as JSONObject)
+        requestHandlingService.setDescription(JSON.parse(setDescriptionForGeneString) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefForGeneString1) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefForGeneString2) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefForGeneString3) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefForGeneString4) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addNonReservedPropertyForGeneString1) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addNonReservedPropertyForGeneString2) as JSONObject)
+        requestHandlingService.addComments(JSON.parse(addCommentForGeneString) as JSONObject)
+
+        requestHandlingService.setSymbol(JSON.parse(setSymbolForTranscriptString) as JSONObject)
+        requestHandlingService.setDescription(JSON.parse(setDescriptionForTranscriptString) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefForTranscriptString1) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefForTranscriptString2) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefForTranscriptString3) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefForTranscriptString4) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addNonReservedPropertyForTranscriptString1) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addNonReservedPropertyForTranscriptString2) as JSONObject)
+        requestHandlingService.addComments(JSON.parse(addCommentForTranscriptString) as JSONObject)
+
+        then: "we should see the added entries"
+        FeatureProperty.count > 0
+        DBXref.count > 0
+
+        when: "we change annotation type from MRNA to miRNA"
+        String changeAnnotationTypeString = changeAnnotationTypeOperationString.replace("@UNIQUENAME@", featureUniqueName).replace("@TYPE@", "miRNA")
+        requestHandlingService.changeAnnotationType(JSON.parse(changeAnnotationTypeString) as JSONObject)
+
+        then: "we should see all the previously added properties in the transformed miRNA"
+        Transcript transcript = Transcript.findByUniqueName(featureUniqueName)
+        Gene parentGene = transcriptService.getGene(transcript)
+        def expectedFeaturePropertiesForGene = ["type:Protein coding", "validated:false"]
+        def expectedDbxrefsForGene = ["NCBI:9823742", "Ensembl:ENSG000000000012", "PMID:2304723", "GO:0005872"]
+        def expectedFeaturePropertiesForTranscript = ["type:Protein coding transcript", "validated:false"]
+        def expectedDbxrefsForTranscript = ["NCBI:XM_73202812.1", "Ensembl:ENSTAT00000005254", "PMID:2304723", "GO:0005872"]
+
+        assert parentGene.symbol == "TGN1"
+        assert parentGene.description == "TGN1 gene"
+        parentGene.featureProperties.each { fp ->
+            if (fp instanceof Comment) {
+                assert fp.value == "This is a test gene"
+            }
+            else {
+                String key = fp.tag + ":" + fp.value
+                assert expectedFeaturePropertiesForGene.indexOf(key) != -1
+                expectedFeaturePropertiesForGene.remove(key)
+            }
+        }
+        assert expectedFeaturePropertiesForGene.size() == 0
+
+        parentGene.featureDBXrefs.each { dbxref ->
+            String key = dbxref.db.name + ":" + dbxref.accession
+            assert expectedDbxrefsForGene.indexOf(key) != -1
+            expectedDbxrefsForGene.remove(key)
+        }
+        assert expectedDbxrefsForGene.size() == 0
+
+        assert transcript.symbol == "TGN1-1A"
+        assert transcript.description == "TGN1 isoform 1A"
+        transcript.featureProperties.each { fp ->
+            if (fp instanceof Comment) {
+                assert fp.value == "This is a test isoform"
+            }
+            else {
+                String key = fp.tag + ":" + fp.value
+                assert expectedFeaturePropertiesForTranscript.indexOf(key) != -1
+                expectedFeaturePropertiesForTranscript.remove(key)
+            }
+        }
+        assert expectedFeaturePropertiesForTranscript.size() == 0
+
+        transcript.featureDBXrefs.each { dbxref ->
+            String key = dbxref.db.name + ":" + dbxref.accession
+            assert expectedDbxrefsForTranscript.indexOf(key) != -1
+            expectedDbxrefsForTranscript.remove(key)
+        }
+        assert expectedDbxrefsForTranscript.size() == 0
+
+        when: "we change the annotation type to a singleton feature such as repeat_region"
+        changeAnnotationTypeString = changeAnnotationTypeOperationString.replace("@UNIQUENAME@", featureUniqueName).replace("@TYPE@", "repeat_region")
+        requestHandlingService.changeAnnotationType(JSON.parse(changeAnnotationTypeString) as JSONObject)
+
+        then: "we should see all the properties of the gene transferred to the repeat_region"
+        Feature repeatRegionFeature = RepeatRegion.findByUniqueName(featureUniqueName)
+
+        def expectedFeaturePropertiesForRepeatRegion = ["type:Protein coding transcript", "validated:false"]
+        def expectedDbxrefsForRepeatRegion = ["NCBI:XM_73202812.1", "Ensembl:ENSTAT00000005254", "PMID:2304723", "GO:0005872"]
+
+        assert repeatRegionFeature.symbol == "TGN1-1A"
+        assert repeatRegionFeature.description == "TGN1 isoform 1A"
+        repeatRegionFeature.featureProperties.each { fp ->
+            if (fp instanceof Comment) {
+                assert fp.value == "This is a test isoform"
+            }
+            else {
+                String key = fp.tag + ":" + fp.value
+                assert expectedFeaturePropertiesForRepeatRegion.indexOf(key) != -1
+                expectedFeaturePropertiesForRepeatRegion.remove(key)
+            }
+        }
+        assert expectedFeaturePropertiesForGene.size() == 0
+
+        repeatRegionFeature.featureDBXrefs.each { dbxref ->
+            String key = dbxref.db.name + ":" + dbxref.accession
+            assert expectedDbxrefsForRepeatRegion.indexOf(key) != -1
+            expectedDbxrefsForRepeatRegion.remove(key)
+        }
+        assert expectedDbxrefsForRepeatRegion.size() == 0
+
+        when: "we undo"
+        String undoString = undoOperationString.replace("@UNIQUENAME@", featureUniqueName)
+        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+
+        then: "we should see the miRNA features with all its attributes"
+        Transcript newTranscript = Feature.findByUniqueName(featureUniqueName)
+        Gene newGene = transcriptService.getGene(newTranscript)
+        assert newGene != null
+        assert newTranscript.symbol != null
+        assert newTranscript.description != null
+        assert newTranscript.featureDBXrefs.size() == 4
+        assert newTranscript.featureProperties.size() == 3
+
+    }
 }

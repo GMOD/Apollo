@@ -49,7 +49,7 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         assert RepeatRegion.count == 1
         assert Pseudogene.count == 1
         assert Exon.count == 8
-        assert CDS.count == 2
+        assert CDS.count == 1
 
 
         when: "we write the feature to test"
