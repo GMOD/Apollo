@@ -1,5 +1,7 @@
 package org.bbop.apollo
 
+import spock.lang.Ignore
+
 
 /**
  */
@@ -100,6 +102,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
+    @Ignore // ignoring exon projection type
     void "get projected single"() {
         given:
         String sequenceName = "GroupUn87"
@@ -115,6 +118,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert returnedSequence.endsWith(un87EndSequence)
     }
 
+    @Ignore // ignoring exon projection type
     void "get OTHER projected single"() {
         given:
         String sequenceName = "Group11.4"
@@ -131,6 +135,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
 
+    @Ignore // ignoring exon projection type
     void "get projected contiguous"() {
         given:
         String sequenceName1 = "GroupUn87"  // 78,258 unprojected . . . projected: 9966  -> 45575 (4 projections, length ~800)
@@ -156,6 +161,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert un87Length+elevenFourLength==returnedSequence.length()
     }
 
+    @Ignore // ignoring exon projection type
     void "get projected contiguous - reverse"() {
         given:
         String sequenceName1 = "Group11.4"  // 78K unprojected . . . projected: 9966  -> 45575 (4 projections, length ~800)

@@ -2,24 +2,15 @@ package org.bbop.apollo
 
 import grails.test.spock.IntegrationSpec
 import grails.converters.JSON
-class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
+import org.bbop.apollo.gwt.shared.PermissionEnum
+
+class Gff3HandlerServiceIntegrationSpec extends AbstractIntegrationSpec {
    
     def gff3HandlerService
     def requestHandlingService
 
     def setup() {
-        Organism organism = new Organism(
-                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-                , commonName: "honeybee"
-        ).save(flush: true)
-        Sequence sequence = new Sequence(
-                length: 1405242
-                , seqChunkSize: 20000
-                , start: 0
-                , organism: organism
-                , end: 1405242
-                , name: "Group1.10"
-        ).save()
+        setupDefaultUserOrg()
     }
 
     def cleanup() {

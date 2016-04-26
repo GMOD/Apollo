@@ -1632,7 +1632,7 @@ class RequestHandlingService {
     @Timed
     def addFeature(JSONObject inputObject) {
         Bookmark bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-        log.debug "adding sequence with found sequence ${sequence}"
+        log.debug "adding sequence with found bookmark ${bookmark}"
         User user = permissionService.getCurrentUser(inputObject)
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -1663,7 +1663,7 @@ class RequestHandlingService {
             if (!suppressHistory) {
                 newFeature.name = nameService.generateUniqueName(newFeature, newFeature.name)
             }
-            featureService.updateNewGsolFeatureAttributes(newFeature, sequence)
+            featureService.updateNewGsolFeatureAttributes(newFeature, bookmark)
             featureService.addFeature(newFeature)
             if (grails.util.Environment.current != grails.util.Environment.TEST) {
                 if (user) {

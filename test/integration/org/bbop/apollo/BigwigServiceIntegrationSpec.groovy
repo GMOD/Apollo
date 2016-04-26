@@ -158,6 +158,7 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
      *  Group11.4: Projected: 0,2546 <-> 14601,15764  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
      *
      */
+    @Ignore // ignoring the Exon type of projection
     void "Projected 11.4 individually"() {
         given: "proper inputs"
         List<String> sequenceStrings = ["Group11.4"]
@@ -185,6 +186,7 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
     /**
      *  GroupUn87
      */
+    @Ignore // ignoring the Exon type of projection
     void "Projected Un87 individually"() {
         given: "proper inputs"
         List<String> sequenceStrings = ["GroupUn87"]

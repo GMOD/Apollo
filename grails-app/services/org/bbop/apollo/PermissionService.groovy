@@ -302,9 +302,9 @@ class PermissionService {
         Organism organism
 
         // this is for testing only
-//        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-//            return null
-//        }
+        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
+            return null
+        }
 
         //def session = RequestContextHolder.currentRequestAttributes().getSession()
         User user = getCurrentUser(inputObject)
