@@ -570,19 +570,23 @@ class TrackService {
         }
 
         // a sequence name
-        List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceStrings,currentOrganism)
+        Map<String,Sequence> sequenceEntryMaps = Sequence.findAllByNameInListAndOrganism(sequenceStrings,currentOrganism).collectEntries(){
+            [it.name,it]
+        }
 
         int calculatedEnd = 0
         Map<String,Integer> sequenceMap = new HashMap<>()
         if(refererLoc.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
             for(int i = 0 ; i < sequenceArray.size() ; i++){
-                def sequenceObject = sequenceArray.get(i)
+                def sequenceObject = sequenceArray.getJSONObject(i)
+                sequenceObject.start = sequenceObject.start ?: sequenceEntryMaps.get(sequenceObject.name).start
+                sequenceObject.end = sequenceObject.end ?: sequenceEntryMaps.get(sequenceObject.name).end
                 calculatedEnd += multiSequenceProjection.projectValue(sequenceObject.end,0,0)
                 sequenceMap.put(sequenceObject.name,multiSequenceProjection.projectValue(sequenceObject.end,0,0))
             }
         }
         else{
-            for(Sequence sequence in sequenceList){
+            for(Sequence sequence in sequenceEntryMaps.values()){
                 sequenceMap.put(sequence.name,sequence.length)
             }
         }

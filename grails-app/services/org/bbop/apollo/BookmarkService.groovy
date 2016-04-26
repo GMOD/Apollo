@@ -88,10 +88,10 @@ class BookmarkService {
         String sequenceListString = jsonObject.sequenceList.toString()
         Bookmark bookmark = Bookmark.findBySequenceList(sequenceListString)
         if(bookmark==null){
-            println "creating bookarm "
+            log.info "creating bookarmk from ${jsonObject as JSON} "
             bookmark = new Bookmark()
             bookmark.projection = jsonObject.projection
-            bookmark.sequenceList = jsonObject.sequenceList
+            bookmark.sequenceList = jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)
 
             bookmark.start = jsonObject.getLong(FeatureStringEnum.START.value)
             bookmark.end = jsonObject.getLong(FeatureStringEnum.END.value)
