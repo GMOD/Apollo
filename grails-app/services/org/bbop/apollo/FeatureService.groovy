@@ -2566,7 +2566,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         accession: it.accession,
                         version: it.version,
                         description: it.description
-                ).save(flush: true)
+                ).save()
                 newGene.addToFeatureDBXrefs(dbxref)
             }
 
@@ -2581,7 +2581,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                             rank: it.rank,
                             tag: it.tag,
                             feature: newGene
-                    ).save(flush: true)
+                    ).save()
                     newGene.addToFeatureProperties(fp)
                 }
             }
