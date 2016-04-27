@@ -239,20 +239,25 @@ class PermissionService {
             inputObject.sequenceList.each { it ->
                 sequences << it.name
             }
-        } else if (inputObject.has(FeatureStringEnum.SEQUENCE.value)) {
-            if (BookmarkService.isProjectionString(inputObject.sequence)) {
-                inputObject.sequences.each { it ->
-                    sequences << it.name
-                }
-            } else {
-                sequences << inputObject.getString(FeatureStringEnum.SEQUENCE.value)
-            }
-        } else if (inputObject.has(FeatureStringEnum.TRACK.value)) {
+        }
+//        else if (inputObject.has(FeatureStringEnum.SEQUENCE.value)) {
+//            if (BookmarkService.isProjectionString(inputObject.sequence)) {
+//                inputObject.sequences.each { it ->
+//                    sequences << it.name
+//                }
+//            } else {
+//                sequences << inputObject.getString(FeatureStringEnum.SEQUENCE.value)
+//            }
+//        }
+        else if (inputObject.has(FeatureStringEnum.TRACK.value)) {
             if (BookmarkService.isProjectionString(inputObject.track.toString())) {
 //                JSONObject sequenceObject = inputObject.track
                 def track = inputObject.track
                 if (track instanceof String) {
                     track = JSON.parse(inputObject.track) as JSONObject
+                }
+                if (track.sequenceList instanceof String) {
+                    track.sequenceList  = JSON.parse(track.sequenceList) as JSONArray
                 }
                 track.sequenceList.each { it ->
                     sequences << it.name
@@ -457,7 +462,7 @@ class PermissionService {
         // re-order sequences by original input
         List<Sequence> foundSequences = new ArrayList<>(sequences.size())
         sequences.each {
-            foundSequences.add(null)
+            foundSequences.add(it)
         }
         sequences.each {
             Integer index = sequenceStrings.indexOf(it.name)

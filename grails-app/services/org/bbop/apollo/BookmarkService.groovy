@@ -18,12 +18,12 @@ class BookmarkService {
         JSONArray sequenceArray = new JSONArray()
         int end = 0;
         for (Sequence seq in sequences) {
-            JSONObject sequenceObject = JSON.parse( (seq as JSON).toString())
+            // note this creates the proper JSON string
+            JSONObject sequenceObject = JSON.parse( (seq as JSON).toString()) as JSONObject
             sequenceArray.add(sequenceObject)
             organism = organism ?: seq.organism
             end += seq.end
         }
-
         Bookmark bookmark = Bookmark.findByOrganismAndSequenceListAndUser(organism, sequenceArray.toString(), user) ?: new Bookmark(
                 organism: organism
                 , sequenceList: sequenceArray.toString()
@@ -40,28 +40,24 @@ class BookmarkService {
         return sequences ? generateBookmarkForSequence(user,sequences) : null
     }
 
-    List<Sequence> getSequencesFromBookmark(Bookmark bookmark) {
-        JSONArray sequeneArray = JSON.parse(bookmark.sequenceList) as JSONArray
-//        List<String> sequenceNames = []
+    List<Sequence> getSequencesFromBookmark(Organism organism,String sequenceListString) {
+        JSONArray sequenceArray = JSON.parse(sequenceListString) as JSONArray
         List<Sequence> sequenceList = []
-        
-        for (int i = 0; i < sequeneArray.size(); i++) {
-//            sequenceNames << sequeneArray.getJSONObject(i).name
-            String sequenceName = sequeneArray.getJSONObject(i).name
-            if (bookmark.organism) {
-                sequenceList << Sequence.findByOrganismAndName(bookmark.organism, sequenceName)
+
+        for (int i = 0; i < sequenceArray.size(); i++) {
+            String sequenceName = sequenceArray.getJSONObject(i).name
+            if (organism) {
+                sequenceList << Sequence.findByOrganismAndName(organism, sequenceName)
             } else {
                 sequenceList << Sequence.findByName(sequenceName)
             }
         }
-        // if unsaved without the organism
-//        
-//        if (bookmark.organism) {
-//            sequenceList = Sequence.findAllByOrganismAndNameInList(bookmark.organism, sequenceNames)
-//        } else {
-//            sequenceList = Sequence.findAllByNameInList(sequenceNames)
-//        }
         return sequenceList
+    }
+
+    List<Sequence> getSequencesFromBookmark(Bookmark bookmark) {
+
+        return getSequencesFromBookmark(bookmark.organism,bookmark.sequenceList)
     }
 
     // should match ProjectionDescription
@@ -84,14 +80,36 @@ class BookmarkService {
         return jsonObject
     }
 
+    JSONObject standardizeSequenceList(JSONObject inputObject) {
+        JSONArray sequenceArray = JSON.parse(inputObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
+        UserOrganismPreference userOrganismPreference = permissionService.currentOrganismPreference
+        Map<String,Sequence> sequenceMap = getSequencesFromBookmark(userOrganismPreference.organism,sequenceArray.toString()).collectEntries(){
+            [it.name,it]
+        }
+
+        for(int i = 0 ; i < sequenceArray.size() ; i++){
+            JSONObject sequenceObject = sequenceArray.getJSONObject(i)
+            Sequence sequence = sequenceMap.get(sequenceObject.name)
+            sequenceObject.id = sequence.id
+            sequenceObject.start = sequenceObject.start ?: sequence.start
+            sequenceObject.end = sequenceObject.end ?: sequence.end
+            sequenceObject.length = sequenceObject.length ?: sequence.length
+        }
+        inputObject.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceArray.toString())
+
+        return inputObject
+    }
+
+
     Bookmark convertJsonToBookmark(JSONObject jsonObject) {
-        String sequenceListString = jsonObject.sequenceList.toString()
+        standardizeSequenceList(jsonObject)
+        String sequenceListString = jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)
         Bookmark bookmark = Bookmark.findBySequenceList(sequenceListString)
         if(bookmark==null){
-            log.info "creating bookarmk from ${jsonObject as JSON} "
+            log.info "creating bookmark from ${jsonObject as JSON} "
             bookmark = new Bookmark()
             bookmark.projection = jsonObject.projection
-            bookmark.sequenceList = jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)
+            bookmark.sequenceList = sequenceListString
 
             bookmark.start = jsonObject.getLong(FeatureStringEnum.START.value)
             bookmark.end = jsonObject.getLong(FeatureStringEnum.END.value)
@@ -99,9 +117,12 @@ class BookmarkService {
             UserOrganismPreference userOrganismPreference = permissionService.currentOrganismPreference
             bookmark.user = userOrganismPreference.user
             bookmark.organism = userOrganismPreference.organism
+            bookmark.save(insert: true,flush:true)
         }
-        bookmark.padding = jsonObject.padding
-        bookmark.save()
+        else{
+            bookmark.padding = jsonObject.padding
+            bookmark.save(insert:false,flush:true)
+        }
 
 //        return generateBookmarkForSequence(sequences as Sequence[])
         return bookmark

@@ -17,7 +17,7 @@ class Bookmark {
 
     static constraints = {
         projection nullable: true
-        sequenceList nullable: false
+        sequenceList nullable: false,unique: ['organism','user']
 //        referenceTrack nullable: true
         padding nullable: true
         payload nullable: true
@@ -25,7 +25,7 @@ class Bookmark {
         start nullable: false
         end nullable: false
         user nullable: false
-        name nullable: true, blank: false
+        name nullable: true, blank: false, unique: ['organism','user']
     }
 
     static mapping = {
