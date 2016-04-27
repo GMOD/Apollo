@@ -15,22 +15,22 @@ public class BookmarkInfoConverter {
         JSONObject jsonObject = new JSONObject();
 
         if (bookmarkInfo.getId() != null) {
-            jsonObject.put("id", new JSONNumber(bookmarkInfo.getId()));
+            jsonObject.put(FeatureStringEnum.ID.getValue(), new JSONNumber(bookmarkInfo.getId()));
         }
-        jsonObject.put("name", new JSONString(bookmarkInfo.getName()));
+        jsonObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(bookmarkInfo.getName()));
         if (bookmarkInfo.getType() != null) {
-            jsonObject.put("type", new JSONString(bookmarkInfo.getType()));
+            jsonObject.put(FeatureStringEnum.TYPE.getValue(), new JSONString(bookmarkInfo.getType()));
         }
         if (bookmarkInfo.getPadding() != null) {
             jsonObject.put("padding", new JSONNumber(bookmarkInfo.getPadding()));
         }
         if (bookmarkInfo.getStart() != null) {
-            jsonObject.put("start", new JSONNumber(bookmarkInfo.getStart()));
+            jsonObject.put(FeatureStringEnum.START.getValue(), new JSONNumber(bookmarkInfo.getStart()));
         }
         if (bookmarkInfo.getEnd() != null) {
-            jsonObject.put("end", new JSONNumber(bookmarkInfo.getEnd()));
+            jsonObject.put(FeatureStringEnum.END.getValue(), new JSONNumber(bookmarkInfo.getEnd()));
         }
-        jsonObject.put("sequenceList", bookmarkInfo.getSequenceList());
+        jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(), bookmarkInfo.getSequenceList());
         if (bookmarkInfo.getPayload() != null) {
             jsonObject.put("payload", bookmarkInfo.getPayload());
         }

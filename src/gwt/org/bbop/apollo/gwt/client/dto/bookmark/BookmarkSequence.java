@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client.dto.bookmark;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 /**
@@ -29,6 +30,12 @@ public class BookmarkSequence extends JSONObject {
 //        if (jsonObject.containsKey(FeatureStringEnum.FEATURES.getValue())) {
 //            this.put(FeatureStringEnum.FEATURES.getValue(), jsonObject.get(FeatureStringEnum.FEATURES.getValue()).isArray());
 //        }
+    }
+
+    public BookmarkSequence(SequenceInfo sequenceInfo) {
+        setStart(sequenceInfo.getStart());
+        setEnd(sequenceInfo.getEnd());
+        setName(sequenceInfo.getName());
     }
 
 

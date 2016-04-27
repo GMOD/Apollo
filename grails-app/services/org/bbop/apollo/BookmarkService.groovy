@@ -103,16 +103,16 @@ class BookmarkService {
 
     Bookmark convertJsonToBookmark(JSONObject jsonObject) {
         standardizeSequenceList(jsonObject)
-        String sequenceListString = jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)
-        Bookmark bookmark = Bookmark.findBySequenceList(sequenceListString)
+        JSONArray sequenceListArray = JSON.parse(jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
+        Bookmark bookmark = Bookmark.findBySequenceList(sequenceListArray.toString())
         if(bookmark==null){
             log.info "creating bookmark from ${jsonObject as JSON} "
             bookmark = new Bookmark()
             bookmark.projection = jsonObject.projection
-            bookmark.sequenceList = sequenceListString
+            bookmark.sequenceList = sequenceListArray.toString()
 
-            bookmark.start = jsonObject.getLong(FeatureStringEnum.START.value)
-            bookmark.end = jsonObject.getLong(FeatureStringEnum.END.value)
+            bookmark.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value): sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
+            bookmark.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size()-1).getInt(FeatureStringEnum.END.value)
 
             UserOrganismPreference userOrganismPreference = permissionService.currentOrganismPreference
             bookmark.user = userOrganismPreference.user

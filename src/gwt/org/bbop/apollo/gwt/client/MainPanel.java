@@ -50,6 +50,7 @@ import java.util.Map;
 public class MainPanel extends Composite {
 
 
+
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
 
@@ -1107,5 +1108,16 @@ public class MainPanel extends Composite {
         bookmarkPanel.addBookmark(requestCallback, bookmarkInfo);
     }
 
+    public BookmarkInfo getCurrentBookmark() {
+        return currentBookmark;
+    }
 
+    public void setCurrentBookmark(BookmarkInfo bookmark) {
+        currentBookmark = bookmark;
+    }
+
+    public void setCurrentBookmarkAndView(BookmarkInfo bookmarkInfo) {
+        setCurrentBookmark(bookmarkInfo);
+        updateGenomicViewerForBookmark(bookmarkInfo);
+    }
 }

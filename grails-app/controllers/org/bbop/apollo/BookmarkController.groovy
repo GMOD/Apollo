@@ -47,7 +47,6 @@ class BookmarkController {
 //        User user = permissionService.currentUser
         JSONObject bookmarkJsonObject = bookmarkArray.getJSONObject(0)
         Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkJsonObject)
-
         return list()
     }
 

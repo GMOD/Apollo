@@ -60,9 +60,9 @@
                     </b:Column>
                     <b:Column size="MD_4">
                         <!--<gwt:SuggestBox ui:field="sequenceList" width="200px"/>-->
-                        <b:Button type="PRIMARY" icon="BOOKMARK" text="+" title="Add new bookmark" ui:field="addNewBookmark" enabled="false" addStyleNames="right-space bookmark-buttons"/>
-                        <b:Button type="PRIMARY" icon="EYE" text="+" title="Add to view" ui:field="addToView" enabled="false" addStyleNames="bookmark-buttons"/>
-                        <b:Button type="PRIMARY" icon="EYE" title="View" ui:field="viewAnnotation" enabled="false" addStyleNames="bookmark-buttons"/>
+                        <b:Button type="PRIMARY" icon="BOOKMARK" text="+" size="EXTRA_SMALL" title="Add new bookmark" ui:field="addNewBookmark" enabled="false" addStyleNames="right-space bookmark-buttons"/>
+                        <b:Button type="PRIMARY" icon="EYE" text="+" size="EXTRA_SMALL" title="Add to view" ui:field="addToView" enabled="false" addStyleNames="bookmark-buttons"/>
+                        <b:Button type="PRIMARY" icon="EYE" title="View" size="EXTRA_SMALL" ui:field="viewAnnotation" enabled="false" addStyleNames="bookmark-buttons"/>
                     </b:Column>
                 </b:Row>
             </b:Container>

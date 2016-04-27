@@ -3,6 +3,8 @@ package org.bbop.apollo.gwt.client.rest;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONParser;
+import org.bbop.apollo.gwt.client.MainPanel;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfoConverter;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -48,5 +50,20 @@ public class BookmarkRestService {
             }
         };
         RestService.sendRequest(requestCallback,requestString);
+    }
+
+    public static void addBoorkmarkAndView(BookmarkInfo newBookmark){
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                MainPanel.getInstance().setCurrentBookmarkAndView(BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(response.getText()).isObject()));
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        BookmarkRestService.addBookmark(requestCallback,newBookmark);
     }
 }

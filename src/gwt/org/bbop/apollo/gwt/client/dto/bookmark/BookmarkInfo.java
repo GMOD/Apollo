@@ -1,6 +1,9 @@
 package org.bbop.apollo.gwt.client.dto.bookmark;
 
 import com.google.gwt.json.client.JSONObject;
+import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+
+import java.util.Set;
 
 /**
  * Created by Nathan Dunn on 12/18/14.
@@ -158,5 +161,16 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
 
     public void setEnd(Long end) {
         this.end = end;
+    }
+
+    public BookmarkInfo addSequenceInfoSet(Set<SequenceInfo> sequenceInfoSet) {
+        if(sequenceList==null){
+            sequenceList = new BookmarkSequenceList();
+        }
+        for(SequenceInfo sequenceInfo: sequenceInfoSet){
+            BookmarkSequence bookmarkSequence = new BookmarkSequence(sequenceInfo);
+            sequenceList.addSequence(bookmarkSequence);
+        }
+        return this;
     }
 }

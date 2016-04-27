@@ -73,8 +73,8 @@
                     <b:Column size="MD_2" styleName="{style.widgetPanel}">
                         <!--<b:ButtonGroup>-->
                             <b:Button type="PRIMARY" ui:field="bookmarkButton" icon="BOOKMARK" size="EXTRA_SMALL" title="Add new bookmark" text="+" enabled="false" addStyleNames="bookmark-buttons right-space"/>
-                            <b:Button type="PRIMARY" icon="EYE" text="+" title="Add to view" ui:field="addToView" enabled="false" addStyleNames="bookmark-buttons"/>
-                            <b:Button type="PRIMARY" icon="EYE" title="View" ui:field="viewSequence" enabled="false" addStyleNames="bookmark-buttons"/>
+                            <b:Button type="PRIMARY" icon="EYE" text="+" title="Add to view" size="EXTRA_SMALL" ui:field="addToView" enabled="false" addStyleNames="bookmark-buttons"/>
+                            <b:Button type="PRIMARY" icon="EYE" title="View" ui:field="viewSequence" size="EXTRA_SMALL" enabled="false" addStyleNames="bookmark-buttons"/>
                         <!--</b:ButtonGroup>-->
                     </b:Column>
                 </b:Row>
