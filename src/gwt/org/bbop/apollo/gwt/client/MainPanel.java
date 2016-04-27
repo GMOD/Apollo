@@ -264,7 +264,7 @@ public class MainPanel extends Composite {
             }
             labelHtml += bookmarkSequence.getName();
             if(sequenceFeatureInfo!=null){
-                labelHtml += " )";
+                labelHtml += ")";
             }
             labelHtml += "</div>";
         }
