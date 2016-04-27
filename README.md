@@ -21,10 +21,6 @@ The Apollo client is implemented as a plugin for JBrowse, for more information o
 
 Apollo 2.0.2 [is now released](https://github.com/GMOD/Apollo/releases/tag/2.0.2).  
 
-Apollo 2.0.1 [is now released](https://github.com/GMOD/Apollo/releases/tag/2.0.1).  
-
-Apollo 2.0.0 is now released! See [the announcement](http://genomearchitect.org/Apollo2_first_release).
-
 ## Quick-start guide
 
 The [quick-start guide](docs/Apollo2Build.md) shows how to easily get started with Apollo, and further setup steps are
