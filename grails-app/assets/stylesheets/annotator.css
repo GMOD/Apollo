@@ -166,3 +166,11 @@ h1 {
   /*height: 25px;*/
   /*width: 100px;*/
 }
+
+.individual-label{
+  color: white;
+  padding: 5px;
+  margin: 5px;
+  border-radius: 5px;
+  display: inline;
+}

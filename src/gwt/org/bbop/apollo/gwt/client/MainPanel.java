@@ -6,7 +6,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -20,26 +19,24 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.*;
+import org.bbop.apollo.gwt.client.dto.bookmark.*;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
-import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
-import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfoConverter;
-import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequence;
-import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequenceList;
 import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.shared.ColorGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Anchor;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.SuggestBox;
 import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
+import org.gwtbootstrap3.client.ui.html.Div;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
@@ -83,7 +80,7 @@ public class MainPanel extends Composite {
 
     @UiField
     Button dockOpenClose;
-    @UiField(provided = false)
+    @UiField
     static NamedFrame frame;
     @UiField
     static AnnotatorPanel annotatorPanel;
@@ -118,7 +115,7 @@ public class MainPanel extends Composite {
     @UiField
     ListBox organismListBox;
     @UiField(provided = true)
-    static SuggestBox sequenceSuggestBox;
+    static HTML currentSequenceLabel;
     @UiField
     Modal notificationModal;
     @UiField
@@ -157,7 +154,8 @@ public class MainPanel extends Composite {
 
     MainPanel() {
         instance = this;
-        sequenceSuggestBox = new SuggestBox(new ReferenceSequenceOracle());
+        currentSequenceLabel = new HTML();
+        currentSequenceLabel.setHTML("<H3>Loading...</H3>");
 
         mainSplitPanel = new SplitLayoutPanel() {
             @Override
@@ -189,12 +187,12 @@ public class MainPanel extends Composite {
             }
         });
 
-        sequenceSuggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
-            @Override
-            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
-                setCurrentSequence(sequenceSuggestBox.getText().trim(), null, null, true, false);
-            }
-        });
+//        currentSequenceLabel.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+//            @Override
+//            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
+//                setCurrentSequence(currentSequenceLabel.getText().trim(), null, null, true, false);
+//            }
+//        });
 
 
         try {
@@ -252,6 +250,27 @@ public class MainPanel extends Composite {
 
     }
 
+    private static void setLabelForCurrentBookmark(){
+//        currentSequenceLabel.setText(currentBookmark.getName());
+        String labelHtml = "";
+        BookmarkSequenceList bookmarkSequenceList = currentBookmark.getSequenceList();
+        for(int i = 0 ; i < bookmarkSequenceList.size(); ++i){
+            BookmarkSequence bookmarkSequence = bookmarkSequenceList.getSequence(i);
+            labelHtml += "<div class=\"individual-label\" style=\"background-color: "+ ColorGenerator.getColorForIndex(i)+";\">";
+            SequenceFeatureInfo sequenceFeatureInfo = bookmarkSequence.getFeature();
+            if(sequenceFeatureInfo!=null){
+                labelHtml += sequenceFeatureInfo.getName();
+                labelHtml += " (";
+            }
+            labelHtml += bookmarkSequence.getName();
+            if(sequenceFeatureInfo!=null){
+                labelHtml += " )";
+            }
+            labelHtml += "</div>";
+        }
+        currentSequenceLabel.setHTML(labelHtml);
+    }
+
     private static void setCurrentSequence(String sequenceNameString, final Long start, final Long end, final boolean updateViewer, final boolean blocking) {
 
         final LoadingDialog loadingDialog = new LoadingDialog(false);
@@ -267,7 +286,7 @@ public class MainPanel extends Composite {
                 currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(sequenceInfoJson);
                 currentStartBp = start != null ? start : 0;
                 currentEndBp = end != null ? end : currentBookmark.getEnd().intValue();
-                sequenceSuggestBox.setText(currentBookmark.getName());
+                setLabelForCurrentBookmark();
 
 
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentBookmark.getName()));
@@ -584,7 +603,8 @@ public class MainPanel extends Composite {
         currentEndBp = appStateInfo.getCurrentEndBp();
 
         if (currentBookmark != null) {
-            sequenceSuggestBox.setText(currentBookmark.getName());
+            setLabelForCurrentBookmark();
+//            currentSequenceLabel.setText(currentBookmark.getName());
         }
 
 
@@ -800,8 +820,7 @@ public class MainPanel extends Composite {
 
     private String getPreference(String key) {
         if (preferenceStore != null) {
-            String returnValue = preferenceStore.getItem(key);
-            return returnValue;
+            return preferenceStore.getItem(key);
         }
         return null;
     }

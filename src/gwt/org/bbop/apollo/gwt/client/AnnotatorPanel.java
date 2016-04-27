@@ -333,7 +333,7 @@ public class AnnotatorPanel extends Composite {
         bookmarkInfo.setType("Exon");
 
         SequenceFeatureInfo sequenceObject = new SequenceFeatureInfo();
-        sequenceObject.setReverseComplement(false);
+//        sequenceObject.setReverseComplement(false);
         sequenceObject.setName(currentAnnotationInfo.getSequence());
         sequenceObject.setStart(currentAnnotationInfo.getMin());
         sequenceObject.setEnd(currentAnnotationInfo.getMax());

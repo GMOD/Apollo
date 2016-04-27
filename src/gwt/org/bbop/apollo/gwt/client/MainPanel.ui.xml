@@ -39,6 +39,7 @@
         .dropdown-display:focus {
             background-color: gray;
         }
+
         .dropdown-display {
             margin-left: 5px;
             margin-right: 5px;
@@ -53,6 +54,7 @@
         .lookup-display:focus {
             background-color: gray;
         }
+
         .lookup-display {
             margin-left: 5px;
             margin-right: 5px;
@@ -79,7 +81,14 @@
         .buffer {
             margin-top: 5px;
         }
-    </ui:style>
+
+        .position-label {
+            /*background-color: white;*/
+            padding: 5px;
+            margin: 5px;
+            border-radius: 5px;
+            display: inline;
+        }</ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
             <gwt:NamedFrame ui:field="frame" width="100%" height="100%" visible="true" name="genomeViewer"/>
@@ -92,7 +101,9 @@
                                   styleName="{style.details-button}"/>
                         <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
                         <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
-                        <gwt:SuggestBox ui:field="sequenceSuggestBox" stylePrimaryName="{style.lookup-display}"/>
+                        <!--<gwt:SuggestBox ui:field="currentSequenceLabel" stylePrimaryName="{style.lookup-display}"/>-->
+                        <gwt:HTML ui:field="currentSequenceLabel" visible="true" styleName="{style.position-label}"/>
+                        <!--<b:Label text="Test label" styleName="{style.lookup-display}"/>-->
                         <b:Panel styleName="pull-right">
                             <b:Button ui:field="userName" icon="USER"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT" title="Logout"/>

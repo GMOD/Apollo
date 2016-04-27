@@ -70,7 +70,7 @@ public class BookmarkPanel extends Composite {
     Button viewButton;
     @UiField
     org.gwtbootstrap3.client.ui.TextBox searchBox;
-    @UiField
+//    @UiField
     Input paddingForm;
     @UiField
     Button clearButton;
@@ -230,9 +230,9 @@ public class BookmarkPanel extends Composite {
         bookmarkObject.put("label", new JSONString(createLabelFromBookmark(bookmarkObject)));
 
         // TODO: get fro the UI
-        String paddingValue = paddingForm.getValue();
-        Integer padding = paddingValue !=null ? Integer.parseInt(paddingValue) : 0 ;
-        bookmarkObject.put("padding", new JSONNumber(padding));
+//        String paddingValue = paddingForm.getValue();
+//        Integer padding = paddingValue !=null ? Integer.parseInt(paddingValue) : 0 ;
+//        bookmarkObject.put("padding", new JSONNumber(padding));
         return bookmarkObject;
     }
 
