@@ -4,6 +4,7 @@ import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
@@ -29,6 +30,7 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
+import org.bbop.apollo.gwt.shared.ColorGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
@@ -88,7 +90,7 @@ public class BookmarkPanel extends Composite {
     private static Storage preferenceStore = Storage.getLocalStorageIfSupported();
 
     public BookmarkPanel() {
-        exportStaticMethod();
+//        exportStaticMethod();
         Widget rootElement = ourUiBinder.createAndBindUi(this);
 
         initWidget(rootElement);
@@ -395,12 +397,14 @@ public class BookmarkPanel extends Composite {
                 }
                 FocusPanel bookmarkWrapperFocusPanel = new FocusPanel();
                 bookmarkWrapperFocusPanel.setStyleName("bookmark-FlowPanel-draggable");
+                bookmarkWrapperFocusPanel.getElement().getStyle().setBackgroundColor(ColorGenerator.getColorForIndex(i));
 
                 FlowPanel bookmarkObjectPanel = new FlowPanel();
                 bookmarkWrapperFocusPanel.add(bookmarkObjectPanel);
 
                 HTML label = new HTML(name);
                 label.setStyleName("bookmark-FlowPanel-label");
+//                label.getElement().getStyle().setColor(ColorGenerator.getColorForIndex(i));
                 HTML spacer = new HTML(" ");
                 bookmarkObjectPanel.add(label);
                 bookmarkObjectPanel.add(spacer);
@@ -471,87 +475,5 @@ public class BookmarkPanel extends Composite {
         }
     }
 
-    public static native void exportStaticMethod() /*-{
-        console.log("@exportstaticmethod in BookmarkPanel");
-        $wnd.loadTracksForReference = $entry(@org.bbop.apollo.gwt.client.BookmarkPanel::getTracks(Ljava/lang/String;));
-    }-*/;
 
-    /**
-     * This method is called by the JavaScript client-code which passes all the available
-     * tracks as argument, which is used to populate the reference track selection
-     *
-     * @param jsonString
-     */
-    public static void getTracks(String jsonString) {
-//        JSONArray returnValueObject = JSONParser.parseStrict(jsonString).isArray();
-//        referenceTrackSelector.clear();
-//        for (int i = 0; i < returnValueObject.size(); i++) {
-//            JSONObject eachTrackObject = (JSONObject) returnValueObject.get(i);
-//            String key = eachTrackObject.get("key").toString().replaceAll("\"", "");
-//            if ("reference sequence".equals(key.toLowerCase())) {
-//                continue;
-//            }
-//            else {
-//                Option option = new Option();
-//                option.setName(key);
-//                option.setTitle(key);
-//                option.setValue(key);
-//                option.setText(key);
-//                referenceTrackSelector.add(option);
-//            }
-//        }
-//        if (preferenceStore != null) {
-//            if (getPreference(SELECTED_REFERENCE_TRACKS) != null) {
-//                String[] previouslySelectedTracks = getPreference(SELECTED_REFERENCE_TRACKS).split(",");
-//                referenceTrackSelector.setValues(previouslySelectedTracks);
-//            }
-//        }
-//        referenceTrackSelector.refresh();
-    }
-
-    /**
-     * Stores the user selected preferences as key, value pairs in Storage
-     *
-     * @param key
-     * @param value
-     */
-    private static void setPreference(String key, List<String> value) {
-        if (preferenceStore != null) {
-            preferenceStore.setItem(key, joinCollection(value, ","));
-        }
-    }
-
-    /**
-     * Checks if a preference already exists in the Storage
-     *
-     * @param key
-     * @return
-     */
-    private static String getPreference(String key) {
-        if (preferenceStore != null) {
-            String returnValue = preferenceStore.getItem(key);
-            return returnValue;
-        }
-        return null;
-    }
-
-    /**
-     * A simple method to join a collection based on a separator
-     *
-     * @param collection
-     * @param separator
-     * @return
-     */
-    private static String joinCollection(Collection collection, String separator) {
-        Iterator iterator = collection.iterator();
-        String returnString = "";
-        while (iterator.hasNext()) {
-            if ("".equals(returnString)) {
-                returnString += iterator.next().toString();
-            } else {
-                returnString += separator + iterator.next().toString();
-            }
-        }
-        return returnString;
-    }
 }
