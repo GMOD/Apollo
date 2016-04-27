@@ -6,7 +6,7 @@
              xmlns:wa="urn:import:org.bbop.apollo.gwt.client"
 
 
-        >
+>
     <ui:style>
         .northPanel {
             padding: 0px;
@@ -67,8 +67,15 @@
         <gwt:north size="180">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
-                    <b:Column size="MD_6" styleName="{style.widgetPanel}">
-                        <b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                        <b:TextBox placeholder="Search" width="150px" ui:field="nameSearchBox"/>
+                    </b:Column>
+                    <b:Column size="MD_2" styleName="{style.widgetPanel}">
+                        <!--<b:ButtonGroup>-->
+                            <b:Button type="PRIMARY" ui:field="bookmarkButton" icon="BOOKMARK" size="EXTRA_SMALL" title="Add new bookmark" text="+" enabled="false" addStyleNames="bookmark-buttons right-space"/>
+                            <b:Button type="PRIMARY" icon="EYE" text="+" title="Add to view" ui:field="addToView" enabled="false" addStyleNames="bookmark-buttons"/>
+                            <b:Button type="PRIMARY" icon="EYE" title="View" ui:field="viewSequence" enabled="false" addStyleNames="bookmark-buttons"/>
+                        <!--</b:ButtonGroup>-->
                     </b:Column>
                 </b:Row>
                 <b:Row paddingTop="4">
@@ -90,7 +97,7 @@
                 <b:Row>
                     <b:Column size="MD_2">
                         <gwt:HTML>
-                            <h5>Export</h5>
+                            <h5>Type</h5>
                         </gwt:HTML>
                     </b:Column>
                     <b:Column size="MD_5" marginTop="8">
@@ -101,17 +108,23 @@
                             <!--<b:Button size="EXTRA_SMALL" ui:field="exportChadoButton">CHADO</b:Button>-->
                         </b:ButtonGroup>
                     </b:Column>
+                </b:Row>
+                <b:Row>
+                    <b:Column size="MD_2">
+                        <gwt:HTML>
+                            <h5>Export</h5>
+                        </gwt:HTML>
+                    </b:Column>
                     <b:Column size="MD_7" marginTop="8">
                         <b:ButtonGroup>
                             <b:Button ui:field="exportAllButton" size="EXTRA_SMALL" text="All"/>
                             <b:Button ui:field="exportSelectedButton" size="EXTRA_SMALL" text="Selected"
                                       enabled="false"/>
                             <b:Button ui:field="exportSingleButton" size="EXTRA_SMALL" text="Single"/>
-                            <b:Button ui:field="bookmarkButton" icon="BOOKMARK" size="EXTRA_SMALL" text="+" enabled="false"/>
                         </b:ButtonGroup>
                     </b:Column>
-                    <b:Column size="MD_4" >
-                        <b:Alert ui:field="panelMessage" visible="false" dismissable="true" />
+                    <b:Column size="MD_4">
+                        <b:Alert ui:field="panelMessage" visible="false" dismissable="true"/>
                     </b:Column>
                 </b:Row>
             </b:Container>

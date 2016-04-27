@@ -103,6 +103,10 @@ public class AnnotatorPanel extends Composite {
     Container northPanelContainer;
     @UiField
     static Button addNewBookmark;
+    @UiField
+    static Button addToView;
+    @UiField
+    static Button viewAnnotation;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
@@ -323,6 +327,15 @@ public class AnnotatorPanel extends Composite {
 
     }
 
+    @UiHandler("addToView")
+    void addToView(ClickEvent clickEvent) {
+
+    }
+
+    @UiHandler("viewAnnotation")
+    void viewAnnotation(ClickEvent clickEvent) {
+
+    }
 
     @UiHandler("addNewBookmark")
     void addNewBookmark(ClickEvent clickEvent) {
@@ -402,6 +415,8 @@ public class AnnotatorPanel extends Composite {
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
         currentAnnotationInfo = annotationInfo;
         addNewBookmark.setEnabled(currentAnnotationInfo != null);
+        viewAnnotation.setEnabled(currentAnnotationInfo != null);
+        addToView.setEnabled(currentAnnotationInfo != null);
         if (currentAnnotationInfo == null) return;
 
         String type = annotationInfo.getType();

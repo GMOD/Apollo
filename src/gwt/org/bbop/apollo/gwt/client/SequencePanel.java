@@ -87,6 +87,10 @@ public class SequencePanel extends Composite {
     Button bookmarkButton;
     @UiField
     Alert panelMessage;
+    @UiField
+    Button addToView;
+    @UiField
+    Button viewSequence;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -143,10 +147,10 @@ public class SequencePanel extends Composite {
                 }
                 if (selectedSequenceInfo.size() > 0) {
                     exportSelectedButton.setText("Selected (" + selectedSequenceInfo.size() + ")");
-                    bookmarkButton.setEnabled(true);
+                    enableBookmarks(true);
                 } else {
                     exportSelectedButton.setText("Selected");
-                    bookmarkButton.setEnabled(false);
+                    enableBookmarks(false);
                 }
                 exportSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
 
@@ -278,6 +282,23 @@ public class SequencePanel extends Composite {
         );
 
     }
+
+    private void enableBookmarks(boolean b) {
+        bookmarkButton.setEnabled(b);
+        addToView.setEnabled(b);
+        viewSequence.setEnabled(b);
+    }
+
+    @UiHandler("addToView")
+    void addSequenceToView(ClickEvent clickEvent){
+
+    }
+
+    @UiHandler("viewSequence")
+    void viewSequence(ClickEvent clickEvent){
+
+    }
+
 
     @UiHandler("bookmarkButton")
     void addNewBookmark(ClickEvent clickEvent){

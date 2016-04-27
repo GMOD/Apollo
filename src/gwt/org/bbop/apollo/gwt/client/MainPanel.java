@@ -221,6 +221,13 @@ public class MainPanel extends Composite {
 
         setUserNameForCurrentUser();
 
+        String tabPreferenceString = getPreference("current_tab");
+        try {
+            detailTabs.selectTab(Integer.parseInt(tabPreferenceString));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         loginUser();
     }
 
@@ -250,20 +257,20 @@ public class MainPanel extends Composite {
 
     }
 
-    private static void setLabelForCurrentBookmark(){
+    private static void setLabelForCurrentBookmark() {
 //        currentSequenceLabel.setText(currentBookmark.getName());
         String labelHtml = "";
         BookmarkSequenceList bookmarkSequenceList = currentBookmark.getSequenceList();
-        for(int i = 0 ; i < bookmarkSequenceList.size(); ++i){
+        for (int i = 0; i < bookmarkSequenceList.size(); ++i) {
             BookmarkSequence bookmarkSequence = bookmarkSequenceList.getSequence(i);
-            labelHtml += "<div class=\"individual-label\" style=\"background-color: "+ ColorGenerator.getColorForIndex(i)+";\">";
+            labelHtml += "<div class=\"individual-label\" style=\"background-color: " + ColorGenerator.getColorForIndex(i) + ";\">";
             SequenceFeatureInfo sequenceFeatureInfo = bookmarkSequence.getFeature();
-            if(sequenceFeatureInfo!=null){
+            if (sequenceFeatureInfo != null) {
                 labelHtml += sequenceFeatureInfo.getName();
                 labelHtml += " (";
             }
             labelHtml += bookmarkSequence.getName();
-            if(sequenceFeatureInfo!=null){
+            if (sequenceFeatureInfo != null) {
                 labelHtml += ")";
             }
             labelHtml += "</div>";
@@ -419,7 +426,7 @@ public class MainPanel extends Composite {
     }
 
     private void setUserNameForCurrentUser() {
-        if(currentUser==null) return ;
+        if (currentUser == null) return;
         String displayName = currentUser.getEmail();
         userName.setText(displayName.length() > maxUsernameLength ?
                 displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
@@ -431,8 +438,9 @@ public class MainPanel extends Composite {
 
     /**
      * TODO: remove?
-     *
+     * <p/>
      * Need to preserver the order
+     *
      * @param bookmarkInfo
      */
     public static void updateGenomicViewerForBookmark(BookmarkInfo bookmarkInfo) {
@@ -451,18 +459,18 @@ public class MainPanel extends Composite {
 
                 final String finalString = trackListString;
 
-                Bootbox.alert("setting final string: "+finalString);
+                Bootbox.alert("setting final string: " + finalString);
 //                frame.setUrl(finalString);
 
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Problem viewing bookmarks: "+exception);
+                Bootbox.alert("Problem viewing bookmarks: " + exception);
             }
         };
 
-        BookmarkRestService.getBookmarks(requestCallback,bookmarkInfo);
+        BookmarkRestService.getBookmarks(requestCallback, bookmarkInfo);
 
 //        List<UserBookmark> bookmarks = UserBookmark.findById(bookmarkList);
         // create an orderd list of features / sequences
@@ -490,10 +498,10 @@ public class MainPanel extends Composite {
 
 
         String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
-        currentBookmark = bookmarkInfo ;
+        currentBookmark = bookmarkInfo;
 //            currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
-        minRegion = currentBookmark.getStart()!=null ? currentBookmark.getStart() : -1 ;
-        maxRegion = currentBookmark.getEnd()!=null ? currentBookmark.getEnd() : -1 ;
+        minRegion = currentBookmark.getStart() != null ? currentBookmark.getStart() : -1;
+        maxRegion = currentBookmark.getEnd() != null ? currentBookmark.getEnd() : -1;
         trackListString += URL.encodeQueryString(BookmarkInfoConverter.convertBookmarkInfoToJSONObject(currentBookmark).toString());
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
         trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
@@ -525,25 +533,24 @@ public class MainPanel extends Composite {
 
 
         String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
-        if(selectedSequence.startsWith("{")){
+        if (selectedSequence.startsWith("{")) {
             GWT.log("calling string instead of bookmark for selected sequence");
             currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
-            if(selectedSequence.contains("feature")){
+            if (selectedSequence.contains("feature")) {
                 minRegion = currentBookmark.getStart();
                 maxRegion = currentBookmark.getEnd();
             }
             trackListString += URL.encodeQueryString(selectedSequence);
             trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
             trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
-        }
-        else{
+        } else {
             BookmarkInfo bookmark = new BookmarkInfo();
             BookmarkSequenceList bookmarkSequenceList = new BookmarkSequenceList();
             BookmarkSequence bookmarkSequence = new BookmarkSequence();
             bookmarkSequence.setName(selectedSequence);
             bookmarkSequenceList.addSequence(bookmarkSequence);
             bookmark.setSequenceList(bookmarkSequenceList);
-            currentBookmark = bookmark ;
+            currentBookmark = bookmark;
 //            currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
             trackListString += selectedSequence;
             trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
@@ -558,16 +565,16 @@ public class MainPanel extends Composite {
     /**
      * In this case we add the following
      * variables in are: padding, type, reference at the top level
-     *
+     * <p/>
      * then a JSON Array "sequence" . . . which includes the entire sequence
      * each sequence potentially has a features array . . of which each has a name
-     *
+     * <p/>
      * URL should turn to:
      * - reference-track=<Official OGS, etc.>
      * - project=<none,exon,transcript>
      * - paddding=<0-200>
      * - sequences=[name1:[X1,X2],name2,name3:[X3]]   . . where X1, X2, etc. are features . . and not requried.
-     *
+     * <p/>
      * These settings
      */
     public void updateGenomicViewer(JSONObject genomicObject) {
@@ -745,6 +752,7 @@ public class MainPanel extends Composite {
 
     @UiHandler("detailTabs")
     public void onSelection(SelectionEvent<Integer> event) {
+        setPreference("current_tab", event.getSelectedItem());
         reloadTabPerIndex(event.getSelectedItem());
     }
 
@@ -1095,7 +1103,7 @@ public class MainPanel extends Composite {
         this.organismInfoList = organismInfoList;
     }
 
-    public void addBookmark(RequestCallback requestCallback,BookmarkInfo bookmarkInfo){
+    public void addBookmark(RequestCallback requestCallback, BookmarkInfo bookmarkInfo) {
         bookmarkPanel.addBookmark(requestCallback, bookmarkInfo);
     }
 
