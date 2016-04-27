@@ -1448,7 +1448,7 @@ define([
                 }
                 if (this.verbose_delete) {
                     console.log("annotations to delete:");
-                    console.log(features);
+                    console.log(postData.features);
                 }
                 track.executeUpdateOperation(postData);
             },
@@ -1570,7 +1570,7 @@ define([
                             {
                                 uniquename: leftAnnot.id(),
                                 location: {
-                                    fmax: coodinate,
+                                    fmax: coordinate,
                                     fmin: (coordinate + 1)
                                 }
                             }
@@ -1743,7 +1743,7 @@ define([
                         var trackdiv = track.div;
                         var trackName = track.getUniqueTrackName();
 
-                        postData.features.push({ uniquename: uniquename })
+                        postData.features.push({ uniquename: uniqueName })
                     }
                 }
                 track.executeUpdateOperation(postData);
