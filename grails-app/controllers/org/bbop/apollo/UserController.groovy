@@ -143,6 +143,7 @@ class UserController {
         }
     }
 
+    @Transactional
     def checkLogin() {
         def currentUser = permissionService.currentUser
         if (currentUser) {

@@ -17,7 +17,7 @@ class Bookmark {
 
     static constraints = {
         projection nullable: true
-        sequenceList nullable: false,unique: ['organism','user']
+        sequenceList nullable: false,unique: ['organism','user'],minSize: 50 // [{'name':'A','id':1,'start':0,'end':0,'length':0}]
 //        referenceTrack nullable: true
         padding nullable: true
         payload nullable: true

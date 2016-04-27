@@ -56,20 +56,10 @@ class AnnotatorService {
                     if (!bookmark) {
                         // just need the first random one
                         Sequence sequence = Sequence.findByOrganism(currentOrganism)
-                        JSONArray sequenceArray = new JSONArray()
-                        JSONObject sequenceObject = new JSONObject()
-                        sequenceObject.name = sequence.name
-                        sequenceArray.add(sequenceObject)
-                        bookmark = new Bookmark(
-                                organism: currentOrganism
-                                , sequenceList: sequenceArray.toString()
-                                , start: sequence.start
-                                , end: sequence.end
-                                , user: permissionService.currentUser
-                        ).save(failOnError: true)
+                        bookmark = bookmarkService.generateBookmarkForSequence(sequence)
                     }
                     currentUserOrganismPreference.bookmark = bookmark
-                    currentUserOrganismPreference.save()
+                    currentUserOrganismPreference.save(flush: true)
                 }
                 appStateObject.put(FeatureStringEnum.CURRENT_BOOKMARK.getValue(), bookmarkService.convertBookmarkToJson(currentUserOrganismPreference.bookmark))
 
