@@ -47,7 +47,7 @@ return declare( null, {
                 + '<div style="float: left; width: 49%;"><dt>Apollo links</dt>'
                 + '<dd><ul>'
                 + '<li><a href="http://genomearchitect.org/web_apollo_user_guide" target="_blank">Apollo User Guide</a></li>'
-                + '<li><a href="http://webapollo.readthedocs.org" target="_blank">Apollo Configuration and Installation Guide</a></li>'
+                + '<li><a href="http://webapollo.readthedocs.io" target="_blank">Apollo Configuration and Installation Guide</a></li>'
                 + '</ul></dd>'
                 + '</div>'
                 + '<div style="float: right; width:49%; margin-top: 10px;"><a href="http://genomearchitect.org" target="_blank"><img src="plugins/WebApollo/img/ApolloLogo_100x36.png"/></a></div>'
