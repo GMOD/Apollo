@@ -23,6 +23,10 @@ public class BookmarkRestService {
         RestService.sendRequest(requestCallback, "bookmark/addBookmark", BookmarkInfoConverter.convertBookmarkInfoToJSONArray(bookmarkInfoCollection));
     }
 
+    public static void addBookmarkAndReturn(RequestCallback requestCallback,BookmarkInfo... bookmarkInfoCollection) {
+        RestService.sendRequest(requestCallback, "bookmark/addBookmarkAndReturn", BookmarkInfoConverter.convertBookmarkInfoToJSONArray(bookmarkInfoCollection));
+    }
+
     public static void removeBookmarks(RequestCallback requestCallback,BookmarkInfo... selectedSet) {
         RestService.sendRequest(requestCallback, "bookmark/deleteBookmark",BookmarkInfoConverter.convertBookmarkInfoToJSONArray(selectedSet));
     }
@@ -52,11 +56,12 @@ public class BookmarkRestService {
         RestService.sendRequest(requestCallback,requestString);
     }
 
-    public static void addBoorkmarkAndView(BookmarkInfo newBookmark){
+    public static void addBoorkmarkAndView(final BookmarkInfo newBookmark){
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 MainPanel.getInstance().setCurrentBookmarkAndView(BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(response.getText()).isObject()));
+//                MainPanel.getInstance().setCurrentBookmarkAndView(newBookmark);
             }
 
             @Override
@@ -64,6 +69,6 @@ public class BookmarkRestService {
                 Bootbox.alert(exception.getMessage());
             }
         };
-        BookmarkRestService.addBookmark(requestCallback,newBookmark);
+        BookmarkRestService.addBookmarkAndReturn(requestCallback,newBookmark);
     }
 }

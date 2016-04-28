@@ -450,18 +450,21 @@ public class MainPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
-                String bookmarkValue = returnValue.get("bookmark").isString().stringValue();
+                currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(returnValue);
+//                String bookmarkValue = returnValue.get("bookmark").isString().stringValue();
 //                String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
 //                trackListString += selectedSequence;
-                String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?bookmark=";
-                // return a lookup hash or ID . . .
-                trackListString += bookmarkValue;
-                trackListString += "&highlight=&tracklist=0";
-
-                final String finalString = trackListString;
-
-                Bootbox.alert("setting final string: " + finalString);
+//                String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?bookmark=";
+//                // return a lookup hash or ID . . .
+////                trackListString += bookmarkValue;
+//                trackListString += returnValue.toString();
+//                trackListString += "&highlight=&tracklist=0";
+//
+//                final String finalString = trackListString;
+//
+//                Bootbox.alert("setting final string: " + finalString);
 //                frame.setUrl(finalString);
+                updateGenomicViewer(true);
 
             }
 
