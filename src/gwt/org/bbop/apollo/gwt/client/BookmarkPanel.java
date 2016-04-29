@@ -20,6 +20,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
@@ -199,7 +200,6 @@ public class BookmarkPanel extends Composite {
             Widget widget = dragAndDropPanel.getWidget(i);
             String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
             JSONObject sequenceObject = new JSONObject();
-            BookmarkInfo selectedBookmarkInfo = bookmarkInfoMap.get(groupName);
             // map the specific genes
             if (groupName.contains(" (")) {
                 Integer startIndex = groupName.indexOf(" (");
@@ -214,13 +214,20 @@ public class BookmarkPanel extends Composite {
                 // map the entire scaffold
                 sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(groupName));
             }
-            sequenceObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getStart()));
-            sequenceObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getEnd()));
-            sequenceList.set(sequenceList.size(), sequenceObject);
-            if(i==0){
-                start = selectedBookmarkInfo.getStart();
+            BookmarkInfo selectedBookmarkInfo = bookmarkInfoMap.get(groupName);
+            if(selectedBookmarkInfo!=null){
+                sequenceObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getStart()));
+                sequenceObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(selectedBookmarkInfo.getSequenceList().getSequence(0).getEnd()));
+                sequenceList.set(sequenceList.size(), sequenceObject);
+                if(i==0){
+                    start = selectedBookmarkInfo.getStart();
+                }
+                end += selectedBookmarkInfo.getEnd();
             }
-            end += selectedBookmarkInfo.getEnd();
+            else{
+                sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
+                sequenceList.set(sequenceList.size(), sequenceObject);
+            }
         }
 
 
