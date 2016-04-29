@@ -173,4 +173,18 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         }
         return this;
     }
+
+    /**
+     * Basically merge the sequenceInfoSet
+     * @param bookmarkInfo
+     * @return
+     */
+    public BookmarkInfo addBookmarkToEnd(BookmarkInfo bookmarkInfo) {
+        BookmarkSequenceList bookmarkSequenceList = bookmarkInfo.getSequenceList();
+        for(int i = 0 ; i < bookmarkSequenceList.size() ;i++){
+            this.getSequenceList().addSequence(bookmarkSequenceList.getSequence(i));
+        }
+
+        return this;
+    }
 }

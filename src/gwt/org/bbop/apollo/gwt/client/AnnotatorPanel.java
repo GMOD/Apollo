@@ -41,6 +41,7 @@ import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.dto.bookmark.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
@@ -331,16 +332,20 @@ public class AnnotatorPanel extends Composite {
 
     @UiHandler("addToView")
     void addToView(ClickEvent clickEvent) {
-
+        BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
+        BookmarkInfo currentBookmark = MainPanel.getInstance().getCurrentBookmark();
+        currentBookmark = currentBookmark.addBookmarkToEnd(bookmarkInfo);
+        BookmarkRestService.addBoorkmarkAndView(currentBookmark);
     }
 
     @UiHandler("viewAnnotation")
     void viewAnnotation(ClickEvent clickEvent) {
-
+        BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
+        BookmarkRestService.addBoorkmarkAndView(bookmarkInfo);
     }
 
-    @UiHandler("addNewBookmark")
-    void addNewBookmark(ClickEvent clickEvent) {
+    BookmarkInfo collectBookmarkFromSelectedFeature(AnnotationInfo annotationInfo){
+
         BookmarkInfo bookmarkInfo = new BookmarkInfo();
         BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
 
@@ -349,20 +354,26 @@ public class AnnotatorPanel extends Composite {
 
         SequenceFeatureInfo sequenceObject = new SequenceFeatureInfo();
 //        sequenceObject.setReverseComplement(false);
-        sequenceObject.setName(currentAnnotationInfo.getSequence());
-        sequenceObject.setStart(currentAnnotationInfo.getMin());
-        sequenceObject.setEnd(currentAnnotationInfo.getMax());
+        sequenceObject.setName(annotationInfo.getSequence());
+        sequenceObject.setStart(annotationInfo.getMin());
+        sequenceObject.setEnd(annotationInfo.getMax());
 
         SequenceFeatureInfo featuresObject = new SequenceFeatureInfo() ;
-        featuresObject.setName(currentAnnotationInfo.getName());
+        featuresObject.setName(annotationInfo.getName());
 
         sequenceObject.setFeature(featuresObject);
         sequenceArray.set(sequenceArray.size(), sequenceObject);
 
         bookmarkInfo.setSequenceList(sequenceArray);
-        bookmarkInfo.setStart(currentAnnotationInfo.getMin());
-        bookmarkInfo.setEnd(currentAnnotationInfo.getMax());
+        bookmarkInfo.setStart(annotationInfo.getMin());
+        bookmarkInfo.setEnd(annotationInfo.getMax());
 
+        return bookmarkInfo;
+    }
+
+    @UiHandler("addNewBookmark")
+    void addNewBookmark(ClickEvent clickEvent) {
+        BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -419,7 +430,9 @@ public class AnnotatorPanel extends Composite {
         addNewBookmark.setEnabled(currentAnnotationInfo != null);
         viewAnnotation.setEnabled(currentAnnotationInfo != null);
         addToView.setEnabled(currentAnnotationInfo != null);
-        if (currentAnnotationInfo == null) return;
+        if (currentAnnotationInfo == null) {
+            return;
+        }
 
         String type = annotationInfo.getType();
         GWT.log("annotation type: " + type);
