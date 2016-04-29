@@ -445,6 +445,7 @@ public class AnnotatorPanel extends Composite {
                 geneDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.selectTab(0);
+                break;
             case "Transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
