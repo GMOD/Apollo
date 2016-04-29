@@ -107,6 +107,8 @@ public class AnnotatorPanel extends Composite {
     static Button addToView;
     @UiField
     static Button viewAnnotation;
+    @UiField
+    Button showAllSequences;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
@@ -580,6 +582,11 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
+    @UiHandler("showAllSequences")
+    public void setShowAllSequences(ClickEvent clickEvent){
+        sequenceList.setText("");
+        reload();
+    }
 
     // TODO: need to cache these or retrieve from the backend
     public static void displayTranscript(int geneIndex, String uniqueName) {
