@@ -4,7 +4,6 @@ import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
@@ -13,14 +12,12 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.*;
-import com.google.gwt.storage.client.Storage;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
@@ -88,10 +85,7 @@ public class BookmarkPanel extends Composite {
 
     private MultiSelectionModel<BookmarkInfo> selectionModel = new MultiSelectionModel<BookmarkInfo>();
 
-    private static Storage preferenceStore = Storage.getLocalStorageIfSupported();
-
     public BookmarkPanel() {
-//        exportStaticMethod();
         Widget rootElement = ourUiBinder.createAndBindUi(this);
 
         initWidget(rootElement);
@@ -99,7 +93,7 @@ public class BookmarkPanel extends Composite {
         loadingDialog = new LoadingDialog("Processing ...", null, false);
 
         dragController = new PickupDragController(absolutePanel, true);
-        FlowPanelDropController flowPanelDropController = new FlowPanelDropController(dragAndDropPanel);
+        FlowPanelDropController flowPanelDropController = new BookmarkFlowPanelDropController(dragAndDropPanel);
         dragController.registerDropController(flowPanelDropController);
         dataGrid.setWidth("100%");
         // Set the message to display when the table is empty.
