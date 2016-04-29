@@ -80,8 +80,8 @@
                     <!--<b:Column size="MD_3">-->
                     <!--<gwt:HTML><b>Search</b></gwt:HTML>-->
                     <!--</b:Column>-->
-                    <b:Column size="MD_7">
-                        <b:TextBox ui:field="searchBox" width="300px" enabled="true"
+                    <b:Column size="MD_6">
+                        <b:TextBox ui:field="searchBox" width="200px" enabled="true"
                                    placeholder="Search for Bookmarks"/>
                     </b:Column>
                     <b:Column size="MD_3">

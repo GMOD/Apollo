@@ -344,7 +344,7 @@ public class AnnotatorPanel extends Composite {
         BookmarkRestService.addBoorkmarkAndView(bookmarkInfo);
     }
 
-    BookmarkInfo collectBookmarkFromSelectedFeature(AnnotationInfo annotationInfo){
+    static BookmarkInfo collectBookmarkFromSelectedFeature(AnnotationInfo annotationInfo){
 
         BookmarkInfo bookmarkInfo = new BookmarkInfo();
         BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
@@ -614,7 +614,9 @@ public class AnnotatorPanel extends Composite {
                 exonDetailPanel.updateData(childAnnotation);
                 updateAnnotationInfo(childAnnotation);
                 if(display){
-                    Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
+                    BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
+                    BookmarkRestService.addBoorkmarkAndView(bookmarkInfo);
+//                    Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
                 }
                 return;
             }
@@ -656,7 +658,7 @@ public class AnnotatorPanel extends Composite {
             if (showTranscripts) {
                 // TODO: this is ugly, but it works
                 // a custom cell rendering might work as well, but not sure
-                String viewString = "<a href='' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "',true);\">View</a>";
+                String viewString = "<a href='' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "',true);\"><i class='fa fa-eye'></i></a>";
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
                 String linkString = "<a style='" + transcriptStyle + "' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "',false);\">" + rowValue.getName() + "</a>";
                 HTML html = new HTML(viewString + linkString);
