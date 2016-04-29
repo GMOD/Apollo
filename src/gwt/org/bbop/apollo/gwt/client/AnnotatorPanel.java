@@ -603,22 +603,26 @@ public class AnnotatorPanel extends Composite {
     }
 
     // TODO: need to cache these or retrieve from the backend
-    public static void displayTranscript(int geneIndex, String uniqueName) {
-        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
+    public static void displayTranscript(String geneIndex, String uniqueName,String displayString) {
+        int geneInt = Integer.parseInt(geneIndex);
+        boolean display = Boolean.parseBoolean(displayString);
+        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneInt));
         AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
 
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
             if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
                 exonDetailPanel.updateData(childAnnotation);
                 updateAnnotationInfo(childAnnotation);
-                Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
+                if(display){
+                    Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
+                }
                 return;
             }
         }
     }
 
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
-        $wnd.displayTranscript = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;));
+        $wnd.displayTranscript = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
     private class CustomTableBuilder extends AbstractCellTableBuilder<AnnotationInfo> {
@@ -652,9 +656,10 @@ public class AnnotatorPanel extends Composite {
             if (showTranscripts) {
                 // TODO: this is ugly, but it works
                 // a custom cell rendering might work as well, but not sure
-
+                String viewString = "<a href='' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "',true);\">View</a>";
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
-                HTML html = new HTML("<a style='" + transcriptStyle + "' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
+                String linkString = "<a style='" + transcriptStyle + "' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "',false);\">" + rowValue.getName() + "</a>";
+                HTML html = new HTML(viewString + linkString);
                 SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
                 td.html(htmlString);
             } else {
