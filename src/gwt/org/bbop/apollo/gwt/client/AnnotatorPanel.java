@@ -607,17 +607,17 @@ public class AnnotatorPanel extends Composite {
         int geneInt = Integer.parseInt(geneIndex);
         boolean display = Boolean.parseBoolean(displayString);
         AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneInt));
-        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
+//        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
 
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
             if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
                 exonDetailPanel.updateData(childAnnotation);
                 updateAnnotationInfo(childAnnotation);
-                if(display){
-                    BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
-                    BookmarkRestService.addBoorkmarkAndView(bookmarkInfo);
+//                if(display){
+//                    BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
+//                    BookmarkRestService.addBoorkmarkAndView(bookmarkInfo);
 //                    Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
-                }
+//                }
                 return;
             }
         }
@@ -661,7 +661,7 @@ public class AnnotatorPanel extends Composite {
                 String viewString = "<a href='' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "',true);\"><i class='fa fa-eye'></i></a>";
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
                 String linkString = "<a style='" + transcriptStyle + "' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "',false);\">" + rowValue.getName() + "</a>";
-                HTML html = new HTML(viewString + linkString);
+                HTML html = new HTML(linkString);
                 SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
                 td.html(htmlString);
             } else {
