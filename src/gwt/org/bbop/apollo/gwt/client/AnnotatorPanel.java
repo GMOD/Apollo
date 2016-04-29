@@ -5,6 +5,7 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.builder.shared.DivBuilder;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
@@ -73,8 +74,10 @@ public class AnnotatorPanel extends Composite {
     long requestIndex = 0;
 
     @UiField
+    static
     TextBox nameSearchBox;
     @UiField(provided = true)
+    static
     org.gwtbootstrap3.client.ui.SuggestBox sequenceList;
 
     static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
@@ -579,7 +582,7 @@ public class AnnotatorPanel extends Composite {
         return internalData.get("type").isObject().get("name").isString().stringValue();
     }
 
-    public void reload() {
+    public static void reload() {
         updateAnnotationInfo(null);
 //        pager.setPageStart(0);
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
@@ -599,6 +602,13 @@ public class AnnotatorPanel extends Composite {
     @UiHandler("showAllSequences")
     public void setShowAllSequences(ClickEvent clickEvent){
         sequenceList.setText("");
+        reload();
+    }
+    public static void showInAnnotatorPanel(String featureName,String scaffold){
+        Window.alert(featureName + " " + scaffold);
+
+        sequenceList.setText(scaffold);
+        nameSearchBox.setText(featureName);
         reload();
     }
 
@@ -625,6 +635,7 @@ public class AnnotatorPanel extends Composite {
 
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
         $wnd.displayTranscript = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
+        $wnd.showInAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::showInAnnotatorPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
     private class CustomTableBuilder extends AbstractCellTableBuilder<AnnotationInfo> {

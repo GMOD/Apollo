@@ -3686,6 +3686,13 @@ define([
                 this.getGff3ForSelectedFeatures(selected);
             },
 
+            showInAnnotatorPanel: function () {
+                var selected = this.selectionManager.getSelection();
+                var selectedFeature = selected[0].feature.afeature ;
+                //alert(JSON.stringify(selected));
+                window.parent.showInAnnotatorPanel(selectedFeature.name,selected[0].feature.afeature.sequence);
+            },
+
             getGff3ForSelectedFeatures: function (records) {
                 var track = this;
 
@@ -4370,6 +4377,14 @@ define([
                         }
                     }
                 }));
+
+                annot_context_menu.addChild(new dijit.MenuItem({
+                    label: "Show in Annotator Panel",
+                    onClick: function (event) {
+                        thisB.showInAnnotatorPanel();
+                    }
+                }));
+
                 contextMenuItems["zoom_to_base_level"] = index++;
                 if (!(permission & Permission.WRITE)) {
                     annot_context_menu.addChild(new dijit.MenuSeparator());
