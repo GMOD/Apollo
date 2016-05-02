@@ -7,12 +7,12 @@
     {
       "location": "./plugins/NeatHTMLFeatures",
       "name": "NeatHTMLFeatures",
-      "gradientFeatures": 1
+      "gradientFeatures": 0
     },
     {
       "location": "./plugins/NeatCanvasFeatures",
       "name": "NeatCanvasFeatures",
-      "gradientFeatures": 1
+      "gradientFeatures": 0
     }
   ],
   "share_link": 0,

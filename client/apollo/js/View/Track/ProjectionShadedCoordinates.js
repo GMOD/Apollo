@@ -25,6 +25,7 @@ define( [
 return declare(
     [ SVGLayerBase ], {
 
+
     setViewInfo: function( genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale ) {
         console.log("SVGLayerCoords::setViewInfo");
 
@@ -94,20 +95,15 @@ return declare(
     removeLabels: function(){
         for (var bpCoord in this.svgCoords.middleCoord) {
             this.svgCoords.middleCoord[bpCoord].setAttribute("display","none");
-            if(this.svgCoords.topCoord[bpCoord]){
-                this.svgCoords.topCoord[bpCoord].setAttribute("display","none");
-            }
+            this.svgCoords.topCoord[bpCoord].setAttribute("display","none");
             this.svgCoords.bottomCoord[bpCoord].setAttribute("display","none");
             this.svgCoords.shadedCoord[bpCoord].setAttribute("display","none");
         }
-        console.log('removed labels');
     },
 
     addSequenceLabel: function(bpCoord){
+
         var coordinateLabel = this.calculateBpForSequence(bpCoord+1);
-        if(!this.showSequenceLabel(coordinateLabel)){
-            return ;
-        }
         var x = this.bp2Native(bpCoord);
         var svgCoord;
         if (bpCoord in this.svgCoords.middleCoord) {
@@ -124,35 +120,17 @@ return declare(
             xlength = -(formattedLabel.length - 1) * offsetMultiplier;
         }
         svgCoord.setAttribute('x', x + xlength);
-        svgCoord.setAttribute('y', 13);
-        svgCoord.setAttribute('fill', 'white');
-        svgCoord.setAttribute('weight', 'bolder');
-        //svgCoord.setAttribute('fill-opacity', '0.5');
+        svgCoord.setAttribute('y', 30);
+        svgCoord.setAttribute('fill', 'black');
+        svgCoord.setAttribute('fill-opacity', '0.5');
         svgCoord.setAttribute('display', 'block');
         svgCoord.innerHTML = formattedLabel ;
         this.coordGroup.appendChild(svgCoord);
     },
 
-    showSequenceLabel: function(label){
-        if(label=='0'){
-            return false;
-        }
-        return true ;
-    },
-
-    showTrackLabel: function(label){
-        if(label==''){
-            return false;
-        }
-        return true ;
-    },
-
     addTrackLabel: function(bpCoord){
-        x = this.bp2Native(bpCoord);
         var label = this.getSequenceForBp(bpCoord);
-        if(!this.showTrackLabel(label)){
-            return ;
-        }
+        //if(label=='') continue ;
         var topTick;
         if (bpCoord in this.svgCoords.topCoord) {
             topTick= this.svgCoords.topCoord[bpCoord];
@@ -162,9 +140,10 @@ return declare(
             this.svgCoords.topCoord[bpCoord] = topTick;
         }
 
+        x = this.bp2Native(bpCoord);
         // draw stems
         var xlength = -((label.length - 1) * 3);
-        topTick.setAttribute('x', x+xlength+100);
+        topTick.setAttribute('x', x+xlength);
         topTick.setAttribute('y', 10);
         topTick.setAttribute('stroke-width', 0.5);
         topTick.setAttribute('stroke', 'black');
@@ -205,10 +184,9 @@ return declare(
             tick = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             this.svgCoords.shadedCoord[bpCoord] = tick;
         }
-        //tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 0 L'+(x+50)+' 0 Z');
-        tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 20 L'+(x-50)+' 0 L'+(x+50)+ ' 0 L'+(x+50)+' 20 Z');
+        tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 0 L'+(x+50)+' 0 Z');
         tick.setAttribute('fill', this.getColorForBp(bpCoord));
-        //tick.setAttribute('fill-opacity', 0.1);
+        tick.setAttribute('fill-opacity', 0.1);
         tick.setAttribute('display', 'block');
         this.coordGroup.appendChild(tick);
     },
@@ -234,12 +212,10 @@ return declare(
         // draw test coordinates
         for(i=first;i < last;i++) {
             var bpCoord = this.svgParent.blocks[i].startBase;
-            if(bpCoord>0){
-                this.addShadedTick(bpCoord);
-                this.addSequenceLabel(bpCoord);
-                this.addTrackLabel(bpCoord);
-            }
+            this.addSequenceLabel(bpCoord);
+            this.addTrackLabel(bpCoord);
             this.addBottomTick(bpCoord);
+            this.addShadedTick(bpCoord);
         }
     },
     bp2Native: function(val) {
@@ -248,7 +224,7 @@ return declare(
     destroy: function() {
 
         domConstruct.destroy( this.svgCoords );
-        delete this.svgCoords;
+        delete this.svgCoords
 
         this.inherited( arguments );
     }
