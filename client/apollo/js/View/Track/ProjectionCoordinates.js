@@ -165,37 +165,41 @@ return declare(
         // draw stems
         var xlength = -((label.length - 1) * 3);
         topTick.setAttribute('x', x+xlength+100);
-        topTick.setAttribute('y', 10);
+        topTick.setAttribute('y', 12);
         topTick.setAttribute('stroke-width', 0.5);
-        topTick.setAttribute('stroke', 'black');
+        topTick.setAttribute('stroke', 'white');
+        topTick.setAttribute('fill', 'white');
         topTick.setAttribute('display', 'block');
         topTick.innerHTML = label ;
         this.coordGroup.appendChild(topTick);
     },
 
-    addBottomTick: function(bpCoord){
-        var x = this.bp2Native(bpCoord);
+    addBlockTick: function(startCoord,endCoord){
+        var start = this.bp2Native(startCoord);
+        var end = this.bp2Native(endCoord);
         var bottomTick;
-        if (bpCoord in this.svgCoords.bottomCoord) {
-            bottomTick = this.svgCoords.bottomCoord[bpCoord];
+        if (startCoord in this.svgCoords.bottomCoord) {
+            bottomTick = this.svgCoords.bottomCoord[startCoord];
         }
         else {
-            bottomTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            this.svgCoords.bottomCoord[bpCoord] = bottomTick;
+            bottomTick = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            this.svgCoords.bottomCoord[startCoord] = bottomTick;
+        }
+        var color = this.getColorForBp(startCoord);
+        if(!color){
+            color = 'green';
         }
 
-        bottomTick.setAttribute('x1', x);
-        bottomTick.setAttribute('y1', 40);
-        bottomTick.setAttribute('x2', x);
-        bottomTick.setAttribute('y2', 50);
-        bottomTick.setAttribute('stroke', 'rgba(0,0,0,.5)');
-        bottomTick.setAttribute('stroke-width', 2);
-        bottomTick.setAttribute('stroke-linecap', 'round');
+        bottomTick.setAttribute('x', start);
+        bottomTick.setAttribute('y', 0);
+        bottomTick.setAttribute('height', 20);
+        bottomTick.setAttribute('width', end-start);
+        bottomTick.setAttribute('fill', color);
         bottomTick.setAttribute('display', 'block');
         this.coordGroup.appendChild(bottomTick);
     },
 
-    addShadedTick: function (bpCoord) {
+    addSequenceTick: function (bpCoord) {
         var x = this.bp2Native(bpCoord);
         var tick;
         if (bpCoord in this.svgCoords.shadedCoord) {
@@ -234,12 +238,13 @@ return declare(
         // draw test coordinates
         for(i=first;i < last;i++) {
             var bpCoord = this.svgParent.blocks[i].startBase;
+            var endCoord = this.svgParent.blocks[i].endBase;
+            this.addBlockTick(bpCoord,endCoord);
             if(bpCoord>0){
-                this.addShadedTick(bpCoord);
+                this.addSequenceTick(bpCoord);
                 this.addSequenceLabel(bpCoord);
                 this.addTrackLabel(bpCoord);
             }
-            this.addBottomTick(bpCoord);
         }
     },
     bp2Native: function(val) {

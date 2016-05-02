@@ -152,7 +152,7 @@ return declare(
         this.coordGroup.appendChild(topTick);
     },
 
-    addBottomTick: function(bpCoord){
+    addBlockTick: function(bpCoord){
         var x = this.bp2Native(bpCoord);
         var bottomTick;
         if (bpCoord in this.svgCoords.bottomCoord) {
@@ -174,7 +174,7 @@ return declare(
         this.coordGroup.appendChild(bottomTick);
     },
 
-    addShadedTick: function (bpCoord) {
+    addSequenceTick: function (bpCoord) {
         var x = this.bp2Native(bpCoord);
         var tick;
         if (bpCoord in this.svgCoords.shadedCoord) {
@@ -214,8 +214,8 @@ return declare(
             var bpCoord = this.svgParent.blocks[i].startBase;
             this.addSequenceLabel(bpCoord);
             this.addTrackLabel(bpCoord);
-            this.addBottomTick(bpCoord);
-            this.addShadedTick(bpCoord);
+            this.addBlockTick(bpCoord);
+            this.addSequenceTick(bpCoord);
         }
     },
     bp2Native: function(val) {
