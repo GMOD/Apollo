@@ -23,6 +23,7 @@ define([
               SVGLayerPxSpace,
               ProjectionCoordinates) {
 
+        // TODO: move to util funciton
         function numberWithCommas(x) {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
@@ -171,7 +172,7 @@ define([
 
                     this.addSVGObject(id, start, 100, 100, function () {
                         var svgItem = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        svgItem.setAttribute('d', 'M0 0 L0 50 L80 50 L160 0');
+                        svgItem.setAttribute('d', 'M0 0 L0 50 L160 50 L160 0');
                         svgItem.setAttribute('fill', color);
                         svgItem.setAttribute('fill-opacity', 0.1);
                         return svgItem;
@@ -183,7 +184,7 @@ define([
                         var leftLabelSvg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                         //var xlength = (end-start)/ 2.0 ; // for 0 case only
                         //var xLoc = svgSpace.bp2Native(xlength);
-                        leftLabelSvg.setAttribute('x', 50);
+                        leftLabelSvg.setAttribute('x', 30);
                         leftLabelSvg.setAttribute('y', 42);
                         //apple.setAttribute('fill','white');
                         leftLabelSvg.setAttribute('stroke', color);
@@ -272,7 +273,7 @@ define([
 
                     this.addSVGObject(id5, start, 100, 100, function () {
                         var svgItem = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        svgItem.setAttribute('d', 'M0 0 L0 50 L-80 50 L-160 0 Z');
+                        svgItem.setAttribute('d', 'M0 0 L0 50 L-160 50 L-160 0 Z');
                         //svgItem.setAttribute('d', 'M-160 0 L-160 50 L-80 50 L0 0');
                         svgItem.setAttribute('fill', color);
                         svgItem.setAttribute('fill-opacity', 0.1);

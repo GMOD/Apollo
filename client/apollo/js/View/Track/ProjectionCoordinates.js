@@ -91,13 +91,14 @@ return declare(
         return bp ;
     },
 
+    // TODO: this is being called multiple times
     removeLabels: function(){
         for (var bpCoord in this.svgCoords.middleCoord) {
             this.svgCoords.middleCoord[bpCoord].setAttribute("display","none");
             if(this.svgCoords.topCoord[bpCoord]){
                 this.svgCoords.topCoord[bpCoord].setAttribute("display","none");
             }
-            this.svgCoords.bottomCoord[bpCoord].setAttribute("display","none");
+            //this.svgCoords.bottomCoord[bpCoord].setAttribute("display","none");
             this.svgCoords.shadedCoord[bpCoord].setAttribute("display","none");
         }
         console.log('removed labels');
@@ -167,8 +168,10 @@ return declare(
         topTick.setAttribute('x', x+xlength+100);
         topTick.setAttribute('y', 12);
         topTick.setAttribute('stroke-width', 0.5);
-        topTick.setAttribute('stroke', 'white');
-        topTick.setAttribute('fill', 'white');
+        //topTick.setAttribute('stroke', 'white');
+        var color = this.getColorForBp(bpCoord);
+        topTick.setAttribute('stroke', color);
+        topTick.setAttribute('fill', color);
         topTick.setAttribute('display', 'block');
         topTick.innerHTML = label ;
         this.coordGroup.appendChild(topTick);
@@ -239,7 +242,7 @@ return declare(
         for(i=first;i < last;i++) {
             var bpCoord = this.svgParent.blocks[i].startBase;
             var endCoord = this.svgParent.blocks[i].endBase;
-            this.addBlockTick(bpCoord,endCoord);
+            //this.addBlockTick(bpCoord,endCoord);
             if(bpCoord>0){
                 this.addSequenceTick(bpCoord);
                 this.addSequenceLabel(bpCoord);
