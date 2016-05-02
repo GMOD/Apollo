@@ -220,6 +220,32 @@ return declare(
         this.coordGroup.appendChild(tick);
     },
 
+    /**
+     * If the start of the block is greater than or equal to the start of a sequenceList,
+     * but less than its own length or the length of the block, then return the start
+     * else report -1
+     * @param block
+     * @returns {*}
+     */
+    getStartBorder: function(block){
+        var start = block.startBase ;
+        var end = block.endBase ;
+        var seqList =  this.svgParent.refSeq.sequenceList;
+        for(var seq in seqList){
+            var seqValue = seqList[seq];
+            var offset = seqValue.offset ? seqValue.offset : 0 ;
+            //if(start < offset && )
+            //if(bp >= offset && bp <= offset + seqValue.length){
+            //    return bp - offset + seqValue.start  ;
+            //}
+        }
+        return -1 ;
+    },
+
+    getEndBorder: function(block){
+
+    },
+
     showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
         console.log("SVGLayerCoords::showRange");
 
@@ -240,13 +266,16 @@ return declare(
         // TODO: refactor for a single loop
         // draw test coordinates
         for(i=first;i < last;i++) {
-            var bpCoord = this.svgParent.blocks[i].startBase;
+            var startCoord = this.svgParent.blocks[i].startBase;
             var endCoord = this.svgParent.blocks[i].endBase;
+            var startBorder = this.getStartBorder(this.svgParent.blocks[i]);
+            var endBorder = this.getEndBorder(this.svgParent.blocks[i]);
+
             //this.addBlockTick(bpCoord,endCoord);
-            if(bpCoord>0){
-                this.addSequenceTick(bpCoord);
-                this.addSequenceLabel(bpCoord);
-                this.addTrackLabel(bpCoord);
+            if(startCoord>0){
+                this.addSequenceTick(startCoord);
+                this.addSequenceLabel(startCoord);
+                this.addTrackLabel(startCoord);
             }
         }
     },
