@@ -35,7 +35,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.*;
@@ -163,16 +162,18 @@ public class AnnotatorPanel extends Composite {
                 String sequenceName = sequenceList.getText().trim();
 
 
-                String url = Annotator.getRootUrl() + "annotator/findAnnotationsForSequence/?sequenceName=" + sequenceName + "&request=" + requestIndex;
+                String url = Annotator.getRootUrl() + "annotator/findAnnotationsForSequence/?sequenceName=" + sequenceName;
+                url += "&request=" + requestIndex;
                 url += "&offset=" + start + "&max=" + length;
                 url += "&annotationName=" + nameSearchBox.getText() + "&type=" + typeList.getSelectedValue();
                 url += "&user=" + userField.getSelectedValue();
+                url += "&clientToken=" + Annotator.getClientToken();
 
 
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
                 Column<AnnotationInfo, ?> sortColumn = (Column<AnnotationInfo, ?>) sortList.get(0).getColumn();
                 Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
-                String searchColumnString = null ;
+                String searchColumnString = null;
                 switch (columnIndex) {
                     case 0:
                         searchColumnString = "name";
@@ -228,7 +229,7 @@ public class AnnotatorPanel extends Composite {
                     }
                 };
                 try {
-                    if(MainPanel.getInstance().getCurrentUser()!=null) {
+                    if (MainPanel.getInstance().getCurrentUser() != null) {
                         builder.setCallback(requestCallback);
                         builder.send();
                     }
@@ -402,7 +403,7 @@ public class AnnotatorPanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
-                for (int i = 0; array!=null && i < array.size(); i++) {
+                for (int i = 0; array != null && i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
                     UserInfo userInfo = UserInfoConverter.convertToUserInfoFromJSON(object);
                     userField.addItem(userInfo.getName(), userInfo.getEmail());
@@ -415,7 +416,7 @@ public class AnnotatorPanel extends Composite {
                 Bootbox.alert("Error retrieving users: " + exception.fillInStackTrace());
             }
         };
-        if(MainPanel.getInstance().getCurrentUser()!=null) {
+        if (MainPanel.getInstance().getCurrentUser() != null) {
             UserRestService.loadUsers(requestCallback);
         }
     }
@@ -730,8 +731,7 @@ public class AnnotatorPanel extends Composite {
                 div.text(outputFormat.format(date));
 //                div.text(date.toString());
                 td.endDiv();
-            }
-            else {
+            } else {
                 Date date = new Date(Long.parseLong(rowValue.getDate()));
                 td.text(outputFormat.format(date));
 //                td.text(date.toString());

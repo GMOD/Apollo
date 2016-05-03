@@ -82,7 +82,7 @@ class BookmarkService {
 
     JSONObject standardizeSequenceList(JSONObject inputObject) {
         JSONArray sequenceArray = JSON.parse(inputObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
-        UserOrganismPreference userOrganismPreference = permissionService.currentOrganismPreference
+        UserOrganismPreference userOrganismPreference = permissionService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         Map<String,Sequence> sequenceMap = getSequencesFromBookmark(userOrganismPreference.organism,sequenceArray.toString()).collectEntries(){
             [it.name,it]
         }
@@ -102,6 +102,7 @@ class BookmarkService {
 
 
     Bookmark convertJsonToBookmark(JSONObject jsonObject) {
+        println "convert json to bookmark ${jsonObject as JSON}"
         standardizeSequenceList(jsonObject)
         JSONArray sequenceListArray = JSON.parse(jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
         Bookmark bookmark = Bookmark.findBySequenceList(sequenceListArray.toString())
@@ -114,7 +115,7 @@ class BookmarkService {
             bookmark.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value): sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
             bookmark.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size()-1).getInt(FeatureStringEnum.END.value)
 
-            UserOrganismPreference userOrganismPreference = permissionService.currentOrganismPreference
+            UserOrganismPreference userOrganismPreference = permissionService.getCurrentOrganismPreference(jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             bookmark.user = userOrganismPreference.user
             bookmark.organism = userOrganismPreference.organism
             bookmark.save(insert: true,flush:true)

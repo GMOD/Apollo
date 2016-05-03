@@ -1,10 +1,11 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.*;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestOracle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -22,7 +23,9 @@ public class ReferenceSequenceOracle extends MultiWordSuggestOracle{
     @Override
     public void requestSuggestions(final SuggestOracle.Request suggestRequest, final Callback suggestCallback) {
 
-        RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, rootUrl+ suggestRequest.getQuery());
+        String url = rootUrl+ suggestRequest.getQuery();
+        url += "&clientToken="+ Annotator.getClientToken();
+        RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, url);
 //        rb.setHeader("Content-type", "application/x-www-form-urlencoded");
 
         try {

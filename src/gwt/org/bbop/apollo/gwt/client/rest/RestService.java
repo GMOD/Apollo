@@ -7,6 +7,7 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
@@ -31,6 +32,13 @@ public class RestService {
         String rootUrl = Annotator.getRootUrl();
         if(!url.startsWith(rootUrl)){
             url = rootUrl+url;
+        }
+        // add the clientToken parameter if not exists
+        if(!url.contains(FeatureStringEnum.CLIENT_TOKEN.getValue())){
+            url += url.contains("?") ? "&" : "?";
+            url += FeatureStringEnum.CLIENT_TOKEN.getValue();
+            url += "=";
+            url += Annotator.getClientToken();
         }
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         if(data!=null){

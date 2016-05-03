@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import grails.converters.JSON
 import org.bbop.apollo.report.OrganismSummary
@@ -126,7 +127,8 @@ class OrganismController {
     ])
     @Transactional
     def addOrganism() {
-        JSONObject organismJson = request.JSON ?: JSON.parse(params.data) as JSONObject
+        JSONObject organismJson = permissionService.handleInput(request,params)
+        String clientToken = organismJson.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         try {
             if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
                 if (organismJson.get("commonName") == "" || organismJson.get("directory") == "") {
@@ -147,7 +149,7 @@ class OrganismController {
                 if (checkOrganism(organism)) {
                     organism.save(failOnError: true, flush: true, insert: true)
                 }
-                preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism)
+                preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism,clientToken)
                 sequenceService.loadRefSeqs(organism)
                 render findAllOrganisms()
             } else {
@@ -243,7 +245,7 @@ class OrganismController {
     def updateOrganismInfo() {
         log.debug "updating organism info ${params}"
         try {
-            JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
+            JSONObject organismJson = permissionService.handleInput(request,params)
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             Organism organism = Organism.findById(organismJson.id)
             if (organism) {

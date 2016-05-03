@@ -6,7 +6,6 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.hibernate.Hibernate
 
 @Transactional
 class AnnotatorService {
@@ -15,11 +14,12 @@ class AnnotatorService {
     def requestHandlingService
     def bookmarkService
 
-    def getAppState() {
+    def getAppState(String token) {
         JSONObject appStateObject = new JSONObject()
         try {
             def organismList = permissionService.getOrganismsForCurrentUser()
-            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.currentUser, true)
+            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(permissionService.currentUser, true,token)
+            println "found organism preference: ${userOrganismPreference} for token ${token}"
             Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
 
 
@@ -39,16 +39,16 @@ class AnnotatorService {
                         valid          : organism.valid,
                         publicMode     : organism.publicMode,
                         currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false,
-                        editable       : permissionService.userHasOrganismPermission(organism, PermissionEnum.ADMINISTRATE)
+                        editable       : permissionService.userHasOrganismPermission(organism,PermissionEnum.ADMINISTRATE)
 
                 ] as JSONObject
                 organismArray.add(jsonObject)
             }
             appStateObject.put("organismList", organismArray)
-            UserOrganismPreference currentUserOrganismPreference = permissionService.currentOrganismPreference
-            if (currentUserOrganismPreference) {
+            UserOrganismPreference currentUserOrganismPreference = permissionService.getCurrentOrganismPreference(token)
+            if(currentUserOrganismPreference){
                 Organism currentOrganism = currentUserOrganismPreference?.organism
-                appStateObject.put("currentOrganism", currentOrganism)
+                appStateObject.put("currentOrganism", currentOrganism )
 
 
                 if (!currentUserOrganismPreference.bookmark) {
@@ -70,8 +70,8 @@ class AnnotatorService {
                 }
             }
         }
-        catch (PermissionException e) {
-            def error = [error: "Error: " + e]
+        catch(PermissionException e) {
+            def error=[error: "Error: "+e]
             log.error(error.error)
             return error
         }

@@ -434,9 +434,9 @@ return declare( [JBPlugin, HelpMixin],
         if (typeof window.parent.getEmbeddedVersion == 'undefined') {
             var annotatorButton = new dijitButton(
                 {
-                    innerHTML: "Annotator View",
+                    innerHTML: "Show Annotator Panel",
                     onClick: function () {
-                        window.location.href = '../';
+                        window.location.href = '../../';
                     }
                 });
             this.browser.menuBar.appendChild( annotatorButton.domNode );
@@ -667,7 +667,7 @@ return declare( [JBPlugin, HelpMixin],
                                     {
                                         id: 'menubar_powered_by_jbrowse',
                                         label: 'Powered by JBrowse',
-                                        // iconClass: 'jbrowseIconHelp', 
+                                        // iconClass: 'jbrowseIconHelp',
                                         onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
                                     })
                               );

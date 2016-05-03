@@ -10,12 +10,10 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.storage.client.Storage;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.*;
@@ -76,7 +74,6 @@ public class MainPanel extends Composite {
     private int maxUsernameLength = 15;
     private static final double UPDATE_DIFFERENCE_BUFFER = 0.3;
     private static final double GENE_VIEW_BUFFER = 0.4;
-    private Storage preferenceStore = Storage.getLocalStorageIfSupported();
 
 
     @UiField
@@ -162,7 +159,7 @@ public class MainPanel extends Composite {
             @Override
             public void onResize() {
                 super.onResize();
-                setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), mainSplitPanel.getWidgetSize(eastDockPanel));
+                Annotator.setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), mainSplitPanel.getWidgetSize(eastDockPanel));
             }
         };
 
@@ -197,7 +194,7 @@ public class MainPanel extends Composite {
 
 
         try {
-            String dockOpen = getPreference(FeatureStringEnum.DOCK_OPEN.getValue());
+            String dockOpen = Annotator.getPreference(FeatureStringEnum.DOCK_OPEN.getValue());
             if (dockOpen != null) {
                 Boolean setDockOpen = Boolean.valueOf(dockOpen);
                 toggleOpen = !setDockOpen;
@@ -205,19 +202,19 @@ public class MainPanel extends Composite {
             }
         } catch (Exception e) {
             GWT.log("Error setting preference: " + e.fillInStackTrace().toString());
-            setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), true);
+            Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), true);
         }
 
 
         try {
-            String dockWidth = getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
+            String dockWidth = Annotator.getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
             if (dockWidth != null && toggleOpen) {
                 Integer dockWidthInt = Integer.parseInt(dockWidth);
                 mainSplitPanel.setWidgetSize(eastDockPanel, dockWidthInt);
             }
         } catch (NumberFormatException e) {
             GWT.log("Error setting preference: " + e.fillInStackTrace().toString());
-            setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), 600);
+            Annotator.setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), 600);
         }
 
         setUserNameForCurrentUser();
@@ -232,7 +229,7 @@ public class MainPanel extends Composite {
         loginUser();
     }
 
-    private static void setCurrentSequence(String sequenceNameString, final Long start, final Long end) {
+    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
         setCurrentSequence(sequenceNameString, start, end, false, false);
     }
 
@@ -368,6 +365,7 @@ public class MainPanel extends Composite {
 
     private void loginUser() {
         String url = Annotator.getRootUrl() + "user/checkLogin";
+        url += "?clientToken=" + Annotator.getClientToken();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
@@ -547,6 +545,13 @@ public class MainPanel extends Composite {
             trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
             trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
         }
+//        String trackListString = Annotator.getRootUrl() ;
+//        trackListString +=  Annotator.getClientToken() +"/";
+//        trackListString += "jbrowse/index.html?loc=";
+//        trackListString += selectedSequence;
+//        trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
+//        trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
+////        trackListString += "&clientToken=" + Annotator.getClientToken();
 
         final String finalString = trackListString;
 
@@ -569,7 +574,6 @@ public class MainPanel extends Composite {
      * These settings
      */
     public void updateGenomicViewer(JSONObject genomicObject) {
-
 //        String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
 //        trackListString += selectedSequence;
 //        trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
@@ -631,6 +635,7 @@ public class MainPanel extends Composite {
 
     public void getAppState() {
         String url = Annotator.getRootUrl() + "annotator/getAppState";
+        url += "?"+FeatureStringEnum.CLIENT_TOKEN.getValue() + "=" + Annotator.getClientToken();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         final LoadingDialog loadingDialog = new LoadingDialog();
@@ -784,7 +789,7 @@ public class MainPanel extends Composite {
     }
 
     private void openPanel() {
-        String dockWidth = getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
+        String dockWidth = Annotator.getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
         if (dockWidth != null) {
             Integer dockWidthInt = Integer.parseInt(dockWidth);
             mainSplitPanel.setWidgetSize(eastDockPanel, dockWidthInt);
@@ -808,22 +813,8 @@ public class MainPanel extends Composite {
         mainSplitPanel.animate(400);
 
         toggleOpen = !toggleOpen;
-        setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
+        Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
     }
-
-    private void setPreference(String key, Object value) {
-        if (preferenceStore != null) {
-            preferenceStore.setItem(key, value.toString());
-        }
-    }
-
-    private String getPreference(String key) {
-        if (preferenceStore != null) {
-            return preferenceStore.getItem(key);
-        }
-        return null;
-    }
-
 
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
         annotrackFunctionMap.put(name, javaScriptObject);
@@ -850,13 +841,14 @@ public class MainPanel extends Composite {
 
     public String generatePublicUrl() {
         String url2 = Annotator.getRootUrl();
+        url2 += currentOrganism.getId()+"/";
         url2 += "jbrowse/index.html";
         if (currentStartBp != null) {
             url2 += "?loc=" + currentBookmark.getName() + ":" + currentStartBp + ".." + currentEndBp;
         } else {
             url2 += "?loc=" + currentBookmark.getName() + ":" + currentBookmark.getStart() + ".." + currentBookmark.getEnd();
         }
-        url2 += "&organism=" + currentOrganism.getId();
+//        url2 += "&organism=" + currentOrganism.getId();
         url2 += "&tracks=";
 
         List<String> trackList = trackPanel.getTrackList();

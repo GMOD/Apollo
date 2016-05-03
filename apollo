@@ -37,6 +37,12 @@ function deploy_message(){
    echo "***************************************"
 }
 
+function check_rest_api(){
+	if [ ! -f web-app/js/restapidoc/restapidoc.json ]; then 
+		$grails_executable rest-api-doc 
+	fi
+}
+
 
 function check_node(){
     node_executable=$(which node)
@@ -125,23 +131,23 @@ function copy_configs(){
 
 if [[ $1 == "devmode" ]];then
     check_configs
-    $gradle_executable handleJBrowse devmode &
+    $gradle_executable handleJBrowse copy-resources-dev devmode &
     $grails_executable -reloading run-app
     if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "run-local" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable handleJBrowse copy-resources gwtc && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable handleJBrowse copy-resources-dev gwtc && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable handleJBrowse copy-resources gwtc && $grails_executable run-app
+        $gradle_executable handleJBrowse copy-resources-dev gwtc && $grails_executable run-app
     fi
     if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "run-app" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable handleJBrowse copy-resources && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable handleJBrowse copy-resources-dev && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable handleJBrowse copy-resources && $grails_executable run-app
+        $gradle_executable handleJBrowse copy-resources-dev && $grails_executable run-app
     fi
     if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "debug" ]];then
@@ -158,11 +164,13 @@ elif [[ $1 == "debug" ]];then
 elif [[ $1 == "test" ]];then
     check_configs
     copy_configs
-    $grails_executable test-app
+    $gradle_executable handleJBrowse 
+    check_rest_api
+	$grails_executable test-app 
 elif [[ $1 == "test-unit" ]];then
     check_configs
     copy_configs
-    $grails_executable test-app :unit
+    $grails_executable handleJBrowse test-app :unit
 elif [[ $1 == "deploy" ]];then
     check_configs
     copy_configs
@@ -176,7 +184,7 @@ elif [[ $1 == "release" ]];then
     deploy_message
 elif [[ $1 == "compile" ]];then
     check_configs
-    $gradle_executable handleJBrowse gwtc && $grails_executable compile
+    $gradle_executable gwtc && $grails_executable compile
 elif [[ $1 == "create-rest-doc" ]];then
     check_configs
     $grails_executable compile && $grails_executable rest-api-doc && cp restapidoc.json web-app/js/restapidoc/

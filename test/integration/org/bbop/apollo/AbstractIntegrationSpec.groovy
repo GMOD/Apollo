@@ -21,6 +21,10 @@ class AbstractIntegrationSpec extends IntegrationSpec{
     String password = "testPass"
     String passwordHash = new Sha256Hash(password).toHex()
 
+    String getTestCredentials(){
+        "\"${FeatureStringEnum.CLIENT_TOKEN.value}\":\"1231232\",\"${FeatureStringEnum.USERNAME.value}\":\"test@test.com\","
+    }
+
     def setupDefaultUserOrg(){
 
         User testUser = new User(

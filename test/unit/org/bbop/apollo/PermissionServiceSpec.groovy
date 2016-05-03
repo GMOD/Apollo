@@ -100,7 +100,7 @@ class PermissionServiceSpec extends Specification {
         permissionEnumList2.add(PermissionEnum.ADMINISTRATE)
         permissionEnumList2.add(PermissionEnum.READ)
         permissionEnumList2.add(PermissionEnum.WRITE)
-        service.setOrganismPermissionsForUser(permissionEnumList2,organism,user)
+        service.setOrganismPermissionsForUser(permissionEnumList2,organism,user,"123123")
         List<PermissionEnum> userPermissionEnumsReceived2 = service.getOrganismPermissionsForUser(organism,user)
 
         then: "we should see the same come back "
@@ -114,7 +114,7 @@ class PermissionServiceSpec extends Specification {
         List<PermissionEnum> permissionEnumList1 = new ArrayList<>()
         permissionEnumList1.add(PermissionEnum.READ)
         permissionEnumList1.add(PermissionEnum.EXPORT)
-        service.setOrganismPermissionsForUserGroup(permissionEnumList1,organism,group)
+        service.setOrganismPermissionsForUserGroup(permissionEnumList1,organism,group,"123123")
         List<PermissionEnum> userPermissionEnumsReceived1 = service.getOrganismPermissionsForUserGroup(organism,group)
         userPermissionEnumsReceived2 = service.getOrganismPermissionsForUser(organism,user)
         List<PermissionEnum> userPermissionEnumsReceived3 = service.getOrganismPermissionsForUser(organism,User.all.get(1))
@@ -134,7 +134,7 @@ class PermissionServiceSpec extends Specification {
         assert userPermissionEnumsReceived3.contains(PermissionEnum.READ)
         assert userPermissionEnumsReceived3.contains(PermissionEnum.EXPORT)
 
-        
+
 
     }
 
@@ -144,7 +144,7 @@ class PermissionServiceSpec extends Specification {
 
         when: "it gets processed"
         JSONObject inputObject = new JSONObject(inputString)
-        def sequenceNames = service.extractSequenceNamesFromJson(inputObject)
+        def sequenceNames = service.getSequenceNameFromInput(inputObject)
 
         then: "we should have a few sequence names "
         assert 2==sequenceNames.size()

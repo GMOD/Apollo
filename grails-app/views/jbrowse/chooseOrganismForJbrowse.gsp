@@ -36,7 +36,7 @@
 
     <div class="btn-group-vertical" role="group" style="width: 300px;">
             <g:each in="${organisms}" var="organism">
-                <a href="${createLink(uri:'')}/jbrowse/index.html?organism=${organism.id}" type="button" class="btn btn-default">${organism.commonName}</a>
+                <a href="${createLink(uri:'')}/${organism.id}/jbrowse/index.html" type="button" class="btn btn-default">${organism.commonName}</a>
             </g:each>
     </div>
 

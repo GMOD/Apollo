@@ -1,9 +1,8 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
-import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -20,23 +19,23 @@ class GroupController {
 
     def permissionService
 
-    @RestApiMethod(description="Get organism permissions for group",path="/group/getOrganismPermissionsForGroup",verb = RestApiVerb.POST)
-    @RestApiParams(params=[
-            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="id", type="long", paramType = RestApiParamType.QUERY,description = "Group ID (or specify the name)")
-            ,@RestApiParam(name="name", type="string", paramType = RestApiParamType.QUERY,description = "Group name")
+    @RestApiMethod(description = "Get organism permissions for group", path = "/group/getOrganismPermissionsForGroup", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID (or specify the name)")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
     ]
     )
-    def getOrganismPermissionsForGroup(){
-        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+    def getOrganismPermissionsForGroup() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
         UserGroup group = UserGroup.findById(dataObject.groupId)
-        if(!group){
+        if (!group) {
             group = UserGroup.findByName(dataObject.name)
         }
-        if(!group){
+        if (!group) {
             JSONObject jsonObject = new JSONObject()
-            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to get organism permissions" )
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to get organism permissions")
             render jsonObject as JSON
             return
         }
@@ -45,37 +44,38 @@ class GroupController {
         render groupOrganismPermissions as JSON
     }
 
-    @RestApiMethod(description="Load all groups",path="/group/loadGroups",verb = RestApiVerb.POST)
-    @RestApiParams(params=[
-            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="groupId", type="long", paramType = RestApiParamType.QUERY,description="Optional only load a specific groupId")
+    @RestApiMethod(description = "Load all groups", path = "/group/loadGroups", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Optional only load a specific groupId")
     ])
     def loadGroups() {
         try {
             log.debug "loadGroups"
             JSONArray returnArray = new JSONArray()
-            JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data?:"{}"))) as JSONObject
-            if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+            JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data ?: "{}"))) as JSONObject
+            permissionService.handleToken(params,dataObject)
+            if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
             def allowableOrganisms = permissionService.getOrganisms((User) permissionService.currentUser)
 
-            Map<String,List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
+            Map<String, List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
 
             List<GroupOrganismPermission> groupOrganismPermissionList = GroupOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
-            for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList){
-                List<GroupOrganismPermission> groupOrganismPermissionListTemp =  groupOrganismPermissionMap.get(groupOrganismPermission.group.name)
-                if(groupOrganismPermissionListTemp==null){
+            for (GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList) {
+                List<GroupOrganismPermission> groupOrganismPermissionListTemp = groupOrganismPermissionMap.get(groupOrganismPermission.group.name)
+                if (groupOrganismPermissionListTemp == null) {
                     groupOrganismPermissionListTemp = new ArrayList<>()
                 }
                 groupOrganismPermissionListTemp.add(groupOrganismPermission)
-                groupOrganismPermissionMap.put(groupOrganismPermission.group.name,groupOrganismPermissionListTemp)
+                groupOrganismPermissionMap.put(groupOrganismPermission.group.name, groupOrganismPermissionListTemp)
             }
 
 
-            def groups = dataObject.groupId?[UserGroup.findById(dataObject.groupId)]:UserGroup.all
+            def groups = dataObject.groupId ? [UserGroup.findById(dataObject.groupId)] : UserGroup.all
             groups.each {
                 def groupObject = new JSONObject()
                 groupObject.id = it.id
@@ -84,43 +84,42 @@ class GroupController {
                 groupObject.numberOfUsers = it.users?.size()
 
                 JSONArray userArray = new JSONArray()
-                it.users.each{ user ->
+                it.users.each { user ->
                     JSONObject userObject = new JSONObject()
-                    userObject.id=user.id
-                    userObject.email=user.username
-                    userObject.firstName=user.firstName
-                    userObject.lastName=user.lastName
+                    userObject.id = user.id
+                    userObject.email = user.username
+                    userObject.firstName = user.firstName
+                    userObject.lastName = user.lastName
 
                     userArray.add(userObject)
                 }
                 groupObject.users = userArray
 
-
                 // add organism permissions
                 JSONArray organismPermissionsArray = new JSONArray()
-                def  groupOrganismPermissionList3 = groupOrganismPermissionMap.get(it.name)
+                def groupOrganismPermissionList3 = groupOrganismPermissionMap.get(it.name)
                 List<Long> organismsWithPermissions = new ArrayList<>()
-                for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList3){
-                    if(allowableOrganisms.contains(groupOrganismPermission.organism )){
+                for (GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList3) {
+                    if (allowableOrganisms.contains(groupOrganismPermission.organism)) {
                         JSONObject organismJSON = new JSONObject()
-                        organismJSON.organism=groupOrganismPermission.organism.commonName
-                        organismJSON.permissions=groupOrganismPermission.permissions
-                        organismJSON.groupId=groupOrganismPermission.groupId
-                        organismJSON.id=groupOrganismPermission.id
+                        organismJSON.organism = groupOrganismPermission.organism.commonName
+                        organismJSON.permissions = groupOrganismPermission.permissions
+                        organismJSON.groupId = groupOrganismPermission.groupId
+                        organismJSON.id = groupOrganismPermission.id
                         organismPermissionsArray.add(organismJSON)
                         organismsWithPermissions.add(groupOrganismPermission.organism.id)
                     }
                 }
 
-                Set<Organism> organismList = allowableOrganisms.findAll(){
+                Set<Organism> organismList = allowableOrganisms.findAll() {
                     !organismsWithPermissions.contains(it.id)
                 }
 
-                for(Organism organism in organismList){
+                for (Organism organism in organismList) {
                     JSONObject organismJSON = new JSONObject()
-                    organismJSON.organism= organism.commonName
-                    organismJSON.permissions="[]"
-                    organismJSON.groupId=it.id
+                    organismJSON.organism = organism.commonName
+                    organismJSON.permissions = "[]"
+                    organismJSON.groupId = it.id
                     organismPermissionsArray.add(organismJSON)
                 }
 
@@ -131,25 +130,25 @@ class GroupController {
 
             render returnArray as JSON
         }
-        catch(Exception e) {
-            response.status=HttpStatus.INTERNAL_SERVER_ERROR.value()
-            def error=[error: e.message]
+        catch (Exception e) {
+            response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
+            def error = [error: e.message]
             log.error error
             render error as JSON
         }
     }
 
-    @RestApiMethod(description="Create group",path="/group/createGroup",verb = RestApiVerb.POST)
-    @RestApiParams(params=[
-            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="name", type="string", paramType = RestApiParamType.QUERY,description = "Group name to add")
+    @RestApiMethod(description = "Create group", path = "/group/createGroup", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to add")
     ]
     )
     @Transactional
-    def createGroup(){
-        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-        if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+    def createGroup() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -165,29 +164,29 @@ class GroupController {
 
     }
 
-    @RestApiMethod(description="Delete a group",path="/group/deleteGroup",verb = RestApiVerb.POST)
-    @RestApiParams(params=[
-            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="id", type="long", paramType = RestApiParamType.QUERY,description = "Group ID to remove (or specify the name)")
-            ,@RestApiParam(name="name", type="string", paramType = RestApiParamType.QUERY,description = "Group name to remove")
+    @RestApiMethod(description = "Delete a group", path = "/group/deleteGroup", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to remove (or specify the name)")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to remove")
     ]
     )
     @Transactional
-    def deleteGroup(){
-        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-        if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+    def deleteGroup() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
         log.info "Removing group"
         UserGroup group = UserGroup.findById(dataObject.id)
-        if(!group){
+        if (!group) {
             group = UserGroup.findByName(dataObject.name)
         }
-        if(!group){
+        if (!group) {
             JSONObject jsonObject = new JSONObject()
-            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the group" )
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the group")
             render jsonObject as JSON
             return
         }
@@ -209,19 +208,19 @@ class GroupController {
         render new JSONObject() as JSON
     }
 
-    @RestApiMethod(description="Update group",path="/group/updateGroup",verb = RestApiVerb.POST)
-    @RestApiParams(params=[
-            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="id", type="long", paramType = RestApiParamType.QUERY,description = "Group ID to update")
-            ,@RestApiParam(name="name", type="string", paramType = RestApiParamType.QUERY,description = "Group name to change to (the only editable optoin)")
+    @RestApiMethod(description = "Update group", path = "/group/updateGroup", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to update")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to change to (the only editable optoin)")
     ]
     )
     @Transactional
-    def updateGroup(){
+    def updateGroup() {
         log.info "Updating group"
-        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-        if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
@@ -237,26 +236,24 @@ class GroupController {
      * Only changing one of the boolean permissions
      * @return
      */
-    @RestApiMethod(description="Update organism permission",path="/group/updateOrganismPermission",verb = RestApiVerb.POST)
-    @RestApiParams(params=[
-            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="groupId", type="long", paramType = RestApiParamType.QUERY,description = "Group ID to modify permissions for")
-            ,@RestApiParam(name="name", type="string", paramType = RestApiParamType.QUERY,description = "Group name to modify permissions for")
-            ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "Organism common name")
+    @RestApiMethod(description = "Update organism permission", path = "/group/updateOrganismPermission", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to modify permissions for")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to modify permissions for")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name")
 
-
-
-            ,@RestApiParam(name="administrate", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has administrative (including user/group) privileges for the organism")
-            ,@RestApiParam(name="write", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has write privileges for the organism")
-            ,@RestApiParam(name="export", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has export privileges for the organism")
-            ,@RestApiParam(name="read", type="boolean", paramType = RestApiParamType.QUERY,description = "Indicate if user has read privileges for the organism")
+            , @RestApiParam(name = "administrate", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has administrative (including user/group) privileges for the organism")
+            , @RestApiParam(name = "write", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has write privileges for the organism")
+            , @RestApiParam(name = "export", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has export privileges for the organism")
+            , @RestApiParam(name = "read", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has read privileges for the organism")
     ]
     )
     @Transactional
-    def updateOrganismPermission(){
-        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-        if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+    def updateOrganismPermission() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
@@ -265,36 +262,36 @@ class GroupController {
 
 
         UserGroup group
-        if(dataObject.groupId){
+        if (dataObject.groupId) {
             group = UserGroup.findById(dataObject.groupId)
         }
-        if(!group){
+        if (!group) {
             group = UserGroup.findByName(dataObject.name)
         }
-        if(!group){
-            render ([(FeatureStringEnum.ERROR.value):"Failed to find group"] as JSON)
+        if (!group) {
+            render([(FeatureStringEnum.ERROR.value): "Failed to find group"] as JSON)
             return
         }
 
-        Organism organism =  Organism.findByCommonName(dataObject.organism)
-        if(!organism)  Organism.findById(dataObject.organism)
-        if(!organism) {
-            render ([(FeatureStringEnum.ERROR.value):"Failed to find organism"] as JSON)
+        Organism organism = Organism.findByCommonName(dataObject.organism)
+        if (!organism) Organism.findById(dataObject.organism)
+        if (!organism) {
+            render([(FeatureStringEnum.ERROR.value): "Failed to find organism"] as JSON)
             return
         }
 
 
         log.debug "found ${groupOrganismPermission}"
-        if(!groupOrganismPermission){
-            groupOrganismPermission = GroupOrganismPermission.findByGroupAndOrganism(group,organism)
+        if (!groupOrganismPermission) {
+            groupOrganismPermission = GroupOrganismPermission.findByGroupAndOrganism(group, organism)
         }
 
-        if(!groupOrganismPermission){
+        if (!groupOrganismPermission) {
             log.debug "creating new permissions! "
             groupOrganismPermission = new GroupOrganismPermission(
                     group: group
-                    ,organism: organism
-                    ,permissions: "[]"
+                    , organism: organism
+                    , permissions: "[]"
             ).save(insert: true)
             log.debug "created new permissions! "
         }
@@ -302,16 +299,16 @@ class GroupController {
 
 
         JSONArray permissionsArray = new JSONArray()
-        if(dataObject.getBoolean(PermissionEnum.ADMINISTRATE.name())){
+        if (dataObject.getBoolean(PermissionEnum.ADMINISTRATE.name())) {
             permissionsArray.add(PermissionEnum.ADMINISTRATE.name())
         }
-        if(dataObject.getBoolean(PermissionEnum.WRITE.name())){
+        if (dataObject.getBoolean(PermissionEnum.WRITE.name())) {
             permissionsArray.add(PermissionEnum.WRITE.name())
         }
-        if(dataObject.getBoolean(PermissionEnum.EXPORT.name())){
+        if (dataObject.getBoolean(PermissionEnum.EXPORT.name())) {
             permissionsArray.add(PermissionEnum.EXPORT.name())
         }
-        if(dataObject.getBoolean(PermissionEnum.READ.name())){
+        if (dataObject.getBoolean(PermissionEnum.READ.name())) {
             permissionsArray.add(PermissionEnum.READ.name())
         }
 
@@ -325,17 +322,17 @@ class GroupController {
 
     }
 
-    @RestApiMethod(description="Update group membership",path="/group/updateMembership",verb = RestApiVerb.POST)
-    @RestApiParams(params=[
-            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="groupId", type="long", paramType = RestApiParamType.QUERY,description = "Group ID to alter membership of")
-            ,@RestApiParam(name="user", type="JSONArray", paramType = RestApiParamType.QUERY,description = "A JSON array of strings of emails of users the now belong to the group")
+    @RestApiMethod(description = "Update group membership", path = "/group/updateMembership", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to alter membership of")
+            , @RestApiParam(name = "user", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "A JSON array of strings of emails of users the now belong to the group")
     ]
     )
     @Transactional
     def updateMembership() {
-        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject dataObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return

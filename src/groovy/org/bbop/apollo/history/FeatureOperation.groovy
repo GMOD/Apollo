@@ -25,7 +25,8 @@ enum FeatureOperation {
     FLIP_STRAND,
     SET_READTHROUGH_STOP_CODON,
     UNSET_READTHROUGH_STOP_CODON,
-    SET_BOUNDARIES
+    SET_BOUNDARIES,
+    CHANGE_ANNOTATION_TYPE
 
     public String toLower(){
         return name().toLowerCase()
