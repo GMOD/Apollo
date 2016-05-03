@@ -234,6 +234,20 @@ return declare(
         for(var seq in seqList){
             var seqValue = seqList[seq];
             var offset = seqValue.offset ? seqValue.offset : 0 ;
+            if(start > seqValue.end + offset){
+                // continue ;
+            }
+            else{
+                //if(start==seqValue.start + offset){
+                //    return start ;
+                //}
+                //if(start < seqValue.start + offset && end > seqValue.start + offset ){
+                //    return seqValue.start;
+                //}
+                if(start <= seqValue.start + offset ){
+                    return seqValue.start;
+                }
+            }
             //if(start < offset && )
             //if(bp >= offset && bp <= offset + seqValue.length){
             //    return bp - offset + seqValue.start  ;
@@ -243,6 +257,29 @@ return declare(
     },
 
     getEndBorder: function(block){
+        var start = block.startBase ;
+        var end = block.endBase ;
+        var seqList =  this.svgParent.refSeq.sequenceList;
+        for(var seq in seqList){
+            var seqValue = seqList[seq];
+            var offset = seqValue.offset ? seqValue.offset : 0 ;
+            if(end > seqValue.end + seqValue.offset){
+                //continue ;
+            }
+            else{
+                if(end >= seqValue.end + offset ){
+                    return seqValue.end + offset ;
+                }
+                //if(end < seqValue.end + seqValue.offset ){
+                //    return -1 ;
+                //}
+            }
+            //if(start < offset && )
+            //if(bp >= offset && bp <= offset + seqValue.length){
+            //    return bp - offset + seqValue.start  ;
+            //}
+        }
+        return -1 ;
 
     },
 
