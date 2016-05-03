@@ -36,6 +36,7 @@ public enum FeatureStringEnum {
         DATE_CREATION,
         DATE,
         CURRENT,
+        CURRENT_TAB,
         CURRENT_ORGANISM("currentOrganism"),
         CURRENT_BOOKMARK("currentBookmark"),
         COMMENT("Comment"),

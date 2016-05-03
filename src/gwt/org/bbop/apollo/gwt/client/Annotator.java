@@ -63,6 +63,11 @@ public class Annotator implements EntryPoint {
         $wnd.setPreference = $entry(@org.bbop.apollo.gwt.client.Annotator::setPreference(Ljava/lang/String;Ljava/lang/Object;));
         $wnd.getPreference = $entry(@org.bbop.apollo.gwt.client.Annotator::getPreference(Ljava/lang/String;));
         $wnd.getClientToken = $entry(@org.bbop.apollo.gwt.client.Annotator::getClientToken());
+        $wnd.getEmbeddedVersion = $entry(
+            function apolloEmbeddedVersion() {
+                return 'ApolloGwt-2.0';
+            }
+        );
     }-*/;
 
     public static void setPreference(String key, Object value) {
@@ -85,15 +90,6 @@ public class Annotator implements EntryPoint {
         return rootUrl ;
     }
 
-
-    public static native void exportStaticMethod() /*-{
-        $wnd.getEmbeddedVersion = $entry(
-            function apolloEmbeddedVersion() {
-                return 'ApolloGwt-2.0';
-            }
-        );
-
-    }-*/;
 
     public static String getClientToken() {
         String token = getPreference(FeatureStringEnum.CLIENT_TOKEN.getValue());

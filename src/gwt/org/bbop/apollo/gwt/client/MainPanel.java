@@ -219,7 +219,7 @@ public class MainPanel extends Composite {
 
         setUserNameForCurrentUser();
 
-        String tabPreferenceString = getPreference("current_tab");
+        String tabPreferenceString = Annotator.getPreference(FeatureStringEnum.CURRENT_TAB.getValue());
         try {
             detailTabs.selectTab(Integer.parseInt(tabPreferenceString));
         } catch (Exception e) {
@@ -229,9 +229,9 @@ public class MainPanel extends Composite {
         loginUser();
     }
 
-    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
-        setCurrentSequence(sequenceNameString, start, end, false, false);
-    }
+//    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
+//        setCurrentSequence(sequenceNameString, start, end, false, false);
+//    }
 
     private static void sendCurrentSequenceLocation(String sequenceNameString, final Long start, final Long end) {
 
@@ -748,7 +748,7 @@ public class MainPanel extends Composite {
 
     @UiHandler("detailTabs")
     public void onSelection(SelectionEvent<Integer> event) {
-        setPreference("current_tab", event.getSelectedItem());
+        Annotator.setPreference(FeatureStringEnum.CURRENT_TAB.getValue(), event.getSelectedItem());
         reloadTabPerIndex(event.getSelectedItem());
     }
 
