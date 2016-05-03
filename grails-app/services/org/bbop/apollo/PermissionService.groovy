@@ -500,7 +500,7 @@ class PermissionService {
                     log.error("Invalid sequence name: " + inputObject.track)
                 }
             } else {
-                bookmark = bookmarkService.convertJsonToBookmark(inputObject.track)
+                bookmark = bookmarkService.convertJsonToBookmark(inputObject)
                 println "NO Track bookmark ${bookmark} and ${inputObject as JSON}"
             }
             String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
