@@ -32,7 +32,7 @@ class SequenceController {
     def setCurrentSequenceLocation(String name,Integer start, Integer end) {
 
         try {
-            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end,params[FeatureStringEnum.CLIENT_TOKEN.value])
+            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end,params[FeatureStringEnum.CLIENT_TOKEN.value].toString())
             if(params.suppressOutput){
                 render new JSONObject() as JSON
             }
@@ -61,10 +61,12 @@ class SequenceController {
     @Transactional
     def setCurrentSequence(Sequence sequenceInstance) {
         log.debug "setting default sequences: ${params}"
+        JSONObject inputObject = permissionService.handleInput(request,params)
+        String token = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         Organism organism = sequenceInstance.organism
 
         User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser, organism)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token)
 
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
@@ -72,13 +74,14 @@ class SequenceController {
                     , organism: organism
                     , sequence: sequenceInstance
                     , currentOrganism: true
+                    , clientToken: token
             ).save(insert: true, flush: true, failOnError: true)
         } else {
             userOrganismPreference.sequence = sequenceInstance
             userOrganismPreference.currentOrganism = true
             userOrganismPreference.save(flush: true, failOnError: true)
         }
-        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser)
+        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser,token)
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
