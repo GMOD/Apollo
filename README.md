@@ -10,7 +10,7 @@ Javascript client that runs in a web browser as a JBrowse plugin.
 For general information on Apollo, go to: [http://genomearchitect.org/](http://genomearchitect.org/)
 
 Complete Apollo installation and configuration instructions are available at:
-[http://webapollo.readthedocs.org](http://webapollo.readthedocs.org)
+[http://webapollo.readthedocs.io/en/latest/](http://webapollo.readthedocs.io/)
 
 The Apollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
 [http://jbrowse.org](http://jbrowse.org)
@@ -20,10 +20,6 @@ The Apollo client is implemented as a plugin for JBrowse, for more information o
 
 
 Apollo 2.0.2 [is now released](https://github.com/GMOD/Apollo/releases/tag/2.0.2).  
-
-Apollo 2.0.1 [is now released](https://github.com/GMOD/Apollo/releases/tag/2.0.1).  
-
-Apollo 2.0.0 is now released! See [the announcement](http://genomearchitect.org/Apollo2_first_release).
 
 ## Quick-start guide
 

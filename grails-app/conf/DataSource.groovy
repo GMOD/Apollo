@@ -50,7 +50,7 @@ environments {
     production {
         dataSource {
             dbCreate = "update"
-            // NOTE: Not to be used for production.  Please see:  http://webapollo.readthedocs.org/en/latest/Configure/
+            // NOTE: Not to be used for production.  Please see:  http://webapollo.readthedocs.io/en/latest/Configure/
             // you should copy over sample-XXX-config.groovy
 //            url = "jdbc:h2:/tmp/prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
             url = ""
@@ -77,7 +77,7 @@ environments {
         }
 //        dataSource_chado {
 //            dbCreate = "update"
-//            // NOTE: Not to be used for production.  Please see:  http://webapollo.readthedocs.org/en/latest/Configure/
+//            // NOTE: Not to be used for production.  Please see:  http://webapollo.readthedocs.io/en/latest/Configure/
 //            // you should copy over sample-XXX-config.groovy
 ////            url = "jdbc:h2:/tmp/chadoProdDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
 //            url = ""

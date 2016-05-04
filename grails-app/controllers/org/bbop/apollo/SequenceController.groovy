@@ -69,7 +69,7 @@ class SequenceController {
         Organism organism = sequenceInstance.organism
 
         User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser, organism)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token)
 
 //        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(currentUser,sequenceInstance)
         Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequenceInstance)
