@@ -17,7 +17,8 @@ class AnnotatorService {
     def getAppState(String token) {
         JSONObject appStateObject = new JSONObject()
         try {
-            def organismList = permissionService.getCurrentOrganismPreference(token).organism
+//            def organismList = permissionService.getCurrentOrganismPreference(token).organism
+            List<Organism> organismList = permissionService.getOrganismsForCurrentUser()
             UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(permissionService.currentUser, true,token)
             println "found organism preference: ${userOrganismPreference} for token ${token}"
             Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
@@ -54,7 +55,8 @@ class AnnotatorService {
                 if (!currentUserOrganismPreference.bookmark) {
                     User currentUser = currentUserOrganismPreference.user
                     // find the first bookmark with a matching organism
-                    Bookmark bookmark = bookmarkService.getBookmarksForUserAndOrganism(currentUser,currentOrganism)?.first()
+                    def bookmarks = bookmarkService.getBookmarksForUserAndOrganism(currentUser,currentOrganism)
+                    Bookmark bookmark = bookmarks.size()>0 ? bookmarks.first() : null
 //                    Bookmark bookmark = Bookmark.findByOrganism(currentOrganism,currentUserOrganismPreference.user)
                     if (!bookmark) {
                         // just need the first random one

@@ -230,6 +230,7 @@ class AnnotatorController {
      * @return
      */
     def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort,String clientToken) {
+        JSONObject inputObject = permissionService.handleInput(this.request,params)
         try {
             JSONObject returnObject = createJSONFeatureContainer()
             returnObject.clientToken = clientToken
@@ -259,7 +260,7 @@ class AnnotatorController {
             if (returnObject.has("track")) {
                 bookmark = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             } else {
-                organism = permissionService.checkPermissions(returnObject, PermissionEnum.READ)?.organism
+                organism = permissionService.checkPermissions(inputObject, PermissionEnum.READ)?.organism
             }
             Integer index = Integer.parseInt(request)
 

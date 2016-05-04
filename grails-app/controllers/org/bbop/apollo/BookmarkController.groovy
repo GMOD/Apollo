@@ -33,9 +33,10 @@ class BookmarkController {
     }
 
     def getBookmark(){
+        JSONObject inputObject = permissionService.handleInput(request,params)
         JSONObject bookmarkObject = (request.JSON ?: JSON.parse(params.data.toString())) as JSONObject
         User user = permissionService.currentUser
-        Organism organism = preferenceService.getCurrentOrganism(user)
+        Organism organism = preferenceService.getCurrentOrganism(user,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
         // creates a projection based on the Bookmarks and caches them
         bookmarkObject.organism = organism.commonName
@@ -55,18 +56,21 @@ class BookmarkController {
 
     @Transactional
     def addBookmarkAndReturn() {
+        JSONObject inputObject = permissionService.handleInput(request,params)
         JSONArray bookmarkArray = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
 //        User user = permissionService.currentUser
         JSONObject bookmarkJsonObject = bookmarkArray.getJSONObject(0)
+        permissionService.copyRequestValues(inputObject,bookmarkJsonObject)
         Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkJsonObject)
         render bookmarkService.convertBookmarkToJson(bookmark) as JSON
     }
 
     @Transactional
     def deleteBookmark() {
+        JSONObject inputObject = permissionService.handleInput(request,params)
         JSONArray bookmarkJson = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
-        User user = permissionService.getCurrentUser(new JSONObject())
-        Organism organism = preferenceService.getCurrentOrganism(user)
+        User user = permissionService.getCurrentUser(inputObject)
+        Organism organism = preferenceService.getCurrentOrganism(user,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         
 
         def idList = []
