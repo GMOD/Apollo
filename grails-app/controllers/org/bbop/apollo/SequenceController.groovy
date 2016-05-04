@@ -62,11 +62,14 @@ class SequenceController {
     @Transactional
     def setCurrentSequence(Sequence sequenceInstance) {
         log.debug "setting default sequences: ${params}"
+        JSONObject inputObject = permissionService.handleInput(request,params)
+        String token = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         Organism organism = sequenceInstance.organism
 
         User currentUser = permissionService.currentUser
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser, organism)
 
+//        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(currentUser,sequenceInstance)
         Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequenceInstance)
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
@@ -74,13 +77,14 @@ class SequenceController {
                     , organism: organism
                     , bookmark: bookmark
                     , currentOrganism: true
+                    , token: token
             ).save(insert: true, flush: true, failOnError: true)
         } else {
             userOrganismPreference.bookmark = bookmark
             userOrganismPreference.currentOrganism = true
             userOrganismPreference.save(flush: true, failOnError: true)
         }
-        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser)
+        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser,token)
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)

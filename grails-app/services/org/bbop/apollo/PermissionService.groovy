@@ -492,16 +492,19 @@ class PermissionService {
                 } else {
                     sequence = Sequence.findByName(inputObject.track)
                     if (sequence) {
-                        bookmark = bookmarkService.generateBookmarkForSequence(user,sequence)
+                        bookmark = bookmarkService.generateBookmarkForSequence(sequence)
                     }
                     println "has a sequence: ${sequence} for ${inputObject.track}"
                 }
                 if (!bookmark) {
                     log.error("Invalid sequence name: " + inputObject.track)
                 }
-            } else {
-                bookmark = bookmarkService.convertJsonToBookmark(inputObject)
-                println "NO Track bookmark ${bookmark} and ${inputObject as JSON}"
+            }
+            else
+            if (inputObject.track instanceof JSONObject) {
+                println "NO Track bookmark ${bookmark} and ${inputObject.track as JSON}"
+                copyRequestValues(inputObject,inputObject.track)
+                bookmark = bookmarkService.convertJsonToBookmark(inputObject.getJSONObject(FeatureStringEnum.TRACK.value))
             }
             String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
             preferenceService.setCurrentBookmark(user, bookmark,clientToken)
@@ -511,6 +514,9 @@ class PermissionService {
 //                bookmark.referenceTrack = inputObject.track?.referenceTrack
                 println "save here?"
                 bookmark.save(flush: true)
+            }
+            if(user && bookmark){
+                user.addToBookmarks(bookmark)
             }
             return bookmark
         }
@@ -629,8 +635,8 @@ class PermissionService {
 
     }
 
-    UserOrganismPreference getCurrentOrganismPreference(String token){
-        User currentUser = getCurrentUser()
+    UserOrganismPreference getCurrentOrganismPreference(String token,User user = null ){
+        User currentUser = user ?: getCurrentUser()
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, true,token)
         if (userOrganismPreference) {
             return userOrganismPreference

@@ -107,6 +107,11 @@ class RequestHandlingService {
         }
 
         Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+        User user = permissionService.getCurrentUser(inputObject)
+        if(user && bookmark){
+            user.addToBookmarks(bookmark)
+            user.save(fluhs: true)
+        }
         fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
 
         return new JSONObject()

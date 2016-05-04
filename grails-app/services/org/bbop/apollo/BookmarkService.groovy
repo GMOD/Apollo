@@ -13,7 +13,7 @@ class BookmarkService {
     def permissionService
 
 
-    Bookmark generateBookmarkForSequence(User user,Sequence... sequences) {
+    Bookmark generateBookmarkForSequence(Sequence... sequences) {
         Organism organism = null
         JSONArray sequenceArray = new JSONArray()
         int end = 0;
@@ -24,20 +24,14 @@ class BookmarkService {
             organism = organism ?: seq.organism
             end += seq.end
         }
-        Bookmark bookmark = Bookmark.findByOrganismAndSequenceListAndUser(organism, sequenceArray.toString(), user) ?: new Bookmark(
+        Bookmark bookmark = Bookmark.findByOrganismAndSequenceList(organism, sequenceArray.toString()) ?: new Bookmark(
                 organism: organism
                 , sequenceList: sequenceArray.toString()
                 , start: 0
                 , end: end
-                , user: user
-        ).save(insert: true, flush: true, failOnError: true)
+        ).save(flush: true, failOnError: true)
 
         return bookmark
-    }
-
-    Bookmark generateBookmarkForSequence(Sequence... sequences) {
-        User user = permissionService.currentUser
-        return sequences ? generateBookmarkForSequence(user,sequences) : null
     }
 
     List<Sequence> getSequencesFromBookmark(Organism organism,String sequenceListString) {
@@ -82,7 +76,8 @@ class BookmarkService {
 
     JSONObject standardizeSequenceList(JSONObject inputObject) {
         JSONArray sequenceArray = JSON.parse(inputObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
-        UserOrganismPreference userOrganismPreference = permissionService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+        User user = permissionService.getCurrentUser(inputObject)
+        UserOrganismPreference userOrganismPreference = permissionService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value),user)
         Map<String,Sequence> sequenceMap = getSequencesFromBookmark(userOrganismPreference.organism,sequenceArray.toString()).collectEntries(){
             [it.name,it]
         }
@@ -115,8 +110,9 @@ class BookmarkService {
             bookmark.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value): sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
             bookmark.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size()-1).getInt(FeatureStringEnum.END.value)
 
-            UserOrganismPreference userOrganismPreference = permissionService.getCurrentOrganismPreference(jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-            bookmark.user = userOrganismPreference.user
+            User user = permissionService.getCurrentUser(jsonObject)
+            UserOrganismPreference userOrganismPreference = permissionService.getCurrentOrganismPreference(jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value),user)
+//            bookmark.user = userOrganismPreference.user
             bookmark.organism = userOrganismPreference.organism
             bookmark.save(insert: true,flush:true)
         }

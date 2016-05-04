@@ -179,9 +179,12 @@ class PreferenceService {
 //    def setCurrentSequence(User user, Sequence sequence) {
     def setCurrentSequence(User user, Sequence sequence, String clientToken) {
         Organism organism = sequence.organism
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientTokenAndSequence(user, organism, clientToken, sequence)
 //        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
-        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(user,sequence)
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+        if(user && bookmark){
+            user.addToBookmarks(bookmark)
+        }
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientTokenAndBookmark(user, organism, clientToken, bookmark)
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user

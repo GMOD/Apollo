@@ -40,7 +40,7 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         when: "we parse it"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
-        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(User.first(),Sequence.first())
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(Sequence.first())
 
         then: "is is a valid object"
         assert jsonObject != null
