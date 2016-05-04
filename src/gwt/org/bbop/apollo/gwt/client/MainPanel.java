@@ -486,7 +486,7 @@ public class MainPanel extends Composite {
         currentEndBp = maxRegion;
 
 
-        String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
+        String trackListString = Annotator.getRootUrl() + Annotator.getClientToken() + "/jbrowse/index.html?loc=";
         currentBookmark = bookmarkInfo;
 //            currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
         minRegion = currentBookmark.getStart() != null ? currentBookmark.getStart() : -1;
@@ -521,7 +521,7 @@ public class MainPanel extends Composite {
         currentEndBp = maxRegion;
 
 
-        String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
+        String trackListString = Annotator.getRootUrl() + Annotator.getClientToken() +"/jbrowse/index.html?loc=";
         if (selectedSequence.startsWith("{")) {
             GWT.log("calling string instead of bookmark for selected sequence");
             currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());

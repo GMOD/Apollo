@@ -420,7 +420,7 @@ class PermissionService {
         Organism organism
         List<String> sequenceStrings = getSequenceNameFromInput(inputObject)
         if (!sequenceStrings) {
-            throw new RuntimeException("Unable to process sequences: " + sequenceStrings)
+            throw new RuntimeException("Unable to process sequences: " + (inputObject as JSON))
         }
 
         String trackName = sequenceStrings.first()

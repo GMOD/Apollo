@@ -95,6 +95,11 @@ class BookmarkService {
         return inputObject
     }
 
+    def getBookmarksForUserAndOrganism(User user,Organism organism){
+        return user.bookmarks.findAll(){
+            it.organism==organism
+        }
+    }
 
     Bookmark convertJsonToBookmark(JSONObject jsonObject) {
         println "convert json to bookmark ${jsonObject as JSON}"
@@ -136,13 +141,4 @@ class BookmarkService {
         return (inputString.startsWith("{") && inputString.contains(FeatureStringEnum.SEQUENCE_LIST.value))
     }
 
-    Bookmark convertStringToBookmark(String inputString, Organism organism) {
-        if (isProjectionString(inputString)) {
-            JSONObject jsonObject = JSON.parse(inputString) as JSONObject
-            return convertJsonToBookmark(jsonObject)
-        } else {
-            Sequence sequence = Sequence.findByNameAndOrganism(inputString, organism)
-            return generateBookmarkForSequence(sequence)
-        }
-    }
 }

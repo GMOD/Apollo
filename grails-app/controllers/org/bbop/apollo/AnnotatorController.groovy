@@ -252,13 +252,14 @@ class AnnotatorController {
 //            Sequence sequenceObj = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
 //            Organism organism = sequenceObj.organism
             Bookmark bookmark
-            Organism organism = permissionService.currentOrganismPreference.organism
+//            Organism organism = permissionService.currentOrganismPreference.organism
+            Organism organism = permissionService.getCurrentOrganismPreference(clientToken)?.organism
 
-            returnObject.organism = organism.id
+            returnObject.organism = organism?.id
             if (returnObject.has("track")) {
                 bookmark = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             } else {
-                organism = permissionService.checkPermissionsForOrganism(returnObject, PermissionEnum.READ)
+                organism = permissionService.checkPermissions(returnObject, PermissionEnum.READ)?.organism
             }
             Integer index = Integer.parseInt(request)
 
@@ -297,8 +298,9 @@ class AnnotatorController {
             //use two step query. step 1 gets genes in a page
             def pagination = Feature.createCriteria().list(max: max, offset: offset) {
                 featureLocations {
-                    if(sequenceName) {
-                        eq('sequence',sequenceObj)
+//                    if(sequences && !BookmarkService.isProjectionString(sequenceName) && !BookmarkService.isProjectionReferer(bookmark)) {
+                    if(sequences && !BookmarkService.isProjectionString(sequenceName)) {
+                        'in'('sequence',sequences)
                     }
                     if(sort=="length") {
                         order('length', sortorder)

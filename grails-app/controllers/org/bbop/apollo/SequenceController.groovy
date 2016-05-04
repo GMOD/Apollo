@@ -32,8 +32,10 @@ class SequenceController {
     @Transactional
     def setCurrentSequenceLocation(String name,Integer start, Integer end) {
 
+        JSONObject inputObject = permissionService.handleInput(request,params)
+
         try {
-            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end,params[FeatureStringEnum.CLIENT_TOKEN.value])
+            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             if(params.suppressOutput){
                 render new JSONObject() as JSON
             }

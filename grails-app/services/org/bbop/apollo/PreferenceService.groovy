@@ -1,6 +1,9 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 
 @Transactional
@@ -213,7 +216,17 @@ class PreferenceService {
             throw new AnnotationException("Organism preference is not set for user")
         }
 
-        Bookmark bookmark = bookmarkService.convertStringToBookmark(sequenceName,userOrganismPreference.organism)
+        Bookmark bookmark ;
+        if(BookmarkService.isProjectionString(sequenceName)){
+            JSONObject jsonObject = JSON.parse(sequenceName) as JSONObject
+            jsonObject.put(FeatureStringEnum.CLIENT_TOKEN.value,clientToken)
+            bookmark = bookmarkService.convertJsonToBookmark(jsonObject)
+        }
+        else{
+            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
+            bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+        }
+
         userOrganismPreference.refresh()
 
         userOrganismPreference.clientToken = clientToken

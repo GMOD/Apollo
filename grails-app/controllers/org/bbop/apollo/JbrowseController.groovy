@@ -126,6 +126,7 @@ class JbrowseController {
             }
         }
         println "getting organism for client token ${clientToken}"
+//        Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         println "got organism ${currentOrganism} for client token ${clientToken}"
         String organismJBrowseDirectory = currentOrganism.directory
@@ -181,15 +182,17 @@ class JbrowseController {
     }
 
     def getSeqBoundaries() {
+        JSONObject inputObject = permissionService.handleInput(request,params)
+        String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         try {
-            String dataDirectory = getJBrowseDirectoryForSession()
+            String dataDirectory = getJBrowseDirectoryForSession(clientToken)
             String dataFileName = dataDirectory + "/seq/refSeqs.json"
             String referer = request.getHeader("Referer")
             String refererLoc = trackService.extractLocation(referer)
 
             MultiSequenceProjection projection = null
             if(BookmarkService.isProjectionString(refererLoc)){
-                Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
+                Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
                 projection = projectionService.getProjection(refererLoc, currentOrganism)
             }
 
@@ -295,7 +298,10 @@ class JbrowseController {
      * Handles data directory serving for jbrowse
      */
     def data() {
-        String dataDirectory = getJBrowseDirectoryForSession(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+        JSONObject inputObject = permissionService.handleInput(request,params)
+        String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+        Organism currentOrganism = preferenceService.getCurrentOrganism(permissionService.getCurrentUser(inputObject),clientToken)
+        String dataDirectory = getJBrowseDirectoryForSession(clientToken)
         println "data directory: ${dataDirectory}"
         String dataFileName = dataDirectory + "/" + params.path
         String fileName = FilenameUtils.getName(params.path)
@@ -407,10 +413,10 @@ class JbrowseController {
                         long start = sublong(part, 0, part.indexOf("-"));
                         long end = sublong(part, part.indexOf("-") + 1, part.length());
 
-                        if (start == -1) {
+                        if (start == -1l) {
                             start = length - end;
                             end = length - 1;
-                        } else if (end == -1 || end > length - 1) {
+                        } else if (end == -1l || end > length - 1) {
                             end = length - 1;
                         }
 
@@ -455,6 +461,8 @@ class JbrowseController {
                     if(BookmarkService.isProjectionReferer(refererLoc)){
                         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
+                        // NOTE: not sure if this is the correct object
+                        refererObject = new JSONObject(refererLoc)
                         sequenceArray.add(refererObject)
                         results = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
                     }

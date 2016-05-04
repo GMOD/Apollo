@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -16,12 +17,14 @@ class BookmarkController {
     def bookmarkService
 
     def list() {
-        
+        JSONObject inputObject = permissionService.handleInput(request,params)
         JSONObject bookmarkJson = (request.JSON ?: JSON.parse(params.data.toString())) as JSONObject
         User user = permissionService.getCurrentUser(bookmarkJson)
         if(Organism.count>0){
-            Organism currentOrganism = preferenceService.getCurrentOrganism(user)
-            render Bookmark.findAllByUserAndOrganism(user,currentOrganism).sort(){ a,b -> a.sequenceList <=> b.sequenceList} as JSON
+            Organism currentOrganism = preferenceService.getCurrentOrganism(user,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+
+//            render Bookmark.findAllByUserAndOrganism(user,currentOrganism).sort(){ a,b -> a.sequenceList <=> b.sequenceList} as JSON
+            render bookmarkService.getBookmarksForUserAndOrganism(user,currentOrganism).sort(){ a,b -> a.sequenceList <=> b.sequenceList} as JSON
         }
         else{
             render new JSONObject() as JSON
