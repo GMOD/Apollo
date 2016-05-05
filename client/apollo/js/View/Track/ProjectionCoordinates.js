@@ -76,7 +76,8 @@ return declare(
                 return seqValue.color;
             }
         }
-        return '';
+        //return 'green';
+        return seqList[0].color;
     },
 
     calculateBpForSequence: function(bp){
@@ -143,7 +144,8 @@ return declare(
         }
         svgCoord.setAttribute('x', x + xlength);
         svgCoord.setAttribute('y', 13);
-        svgCoord.setAttribute('fill', 'black');
+        svgCoord.setAttribute('fill', 'white');
+        svgCoord.setAttribute('stroke', 'white');
         svgCoord.setAttribute('weight', 'bolder');
         //svgCoord.setAttribute('fill-opacity', '0.5');
         svgCoord.setAttribute('display', 'block');
@@ -192,10 +194,12 @@ return declare(
         topTick.setAttribute('y', 12);
         topTick.setAttribute('stroke-width', 0.5);
         //topTick.setAttribute('stroke', 'white');
-        var color = this.getColorForBp(bpCoord);
+        //var color = this.getColorForBp(bpCoord);
         //if(type){
-            topTick.setAttribute('stroke', 'black');
-            topTick.setAttribute('fill', 'black');
+        //    topTick.setAttribute('stroke', 'black');
+        //    topTick.setAttribute('fill', 'black');
+        topTick.setAttribute('stroke', 'black');
+        topTick.setAttribute('fill', 'black');
         //}
         //else{
         //    topTick.setAttribute('stroke', color);
@@ -246,16 +250,17 @@ return declare(
         //tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 0 L'+(x+50)+' 0 Z');
         if(type && type=='start'){
             tick.setAttribute('d', 'M'+x+' 30 L'+(x)+' 20 L'+(x)+' 0 L'+(x+50)+ ' 0 L'+(x+50)+' 20 Z');
+            //tick.setAttribute('fill-opacity', 0.6);
         }
         else
         if(type && type=='end'){
             tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 20 L'+(x-50)+' 0 L'+(x)+ ' 0 L'+(x)+' 20 Z');
+            //tick.setAttribute('fill-opacity', 0.6);
         }
         else{
             tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 20 L'+(x-50)+' 0 L'+(x+50)+ ' 0 L'+(x+50)+' 20 Z');
         }
         tick.setAttribute('fill', this.getColorForBp(bpCoord));
-        //tick.setAttribute('fill-opacity', 0.1);
         tick.setAttribute('display', 'block');
         this.coordGroup.appendChild(tick);
     },
@@ -343,20 +348,20 @@ return declare(
             //this.addBlockTick(bpCoord,endCoord);
             //if(startCoord>0){
                 this.addSequenceTick(startCoord);
-                this.addSequenceLabel(startCoord);
                 this.addTrackLabel(startCoord);
+                this.addSequenceLabel(startCoord);
             //}
 
             for(var startBorderIndex  in startBorders){
                 this.addSequenceTick(startBorders[startBorderIndex],'start');
-                this.addSequenceLabel(startBorders[startBorderIndex],'start');
                 this.addTrackLabel(startBorders[startBorderIndex],'start');
+                this.addSequenceLabel(startBorders[startBorderIndex],'start');
             }
             for(var endBorderIndex in endBorders){
                 console.log('adding end borders: '+endBorderIndex);
                 this.addSequenceTick(endBorders[endBorderIndex],'end');
-                this.addSequenceLabel(endBorders[endBorderIndex],'end');
                 this.addTrackLabel(endBorders[endBorderIndex],'end');
+                this.addSequenceLabel(endBorders[endBorderIndex],'end');
             }
 
         }

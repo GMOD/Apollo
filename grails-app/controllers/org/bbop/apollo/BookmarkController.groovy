@@ -47,9 +47,11 @@ class BookmarkController {
 
     @Transactional
     def addBookmark() {
+        JSONObject inputObject = permissionService.handleInput(request,params)
         JSONArray bookmarkArray = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
 //        User user = permissionService.currentUser
         JSONObject bookmarkJsonObject = bookmarkArray.getJSONObject(0)
+        permissionService.copyRequestValues(inputObject,bookmarkJsonObject)
         bookmarkService.convertJsonToBookmark(bookmarkJsonObject) // this will save a new bookmark
         render list() as JSON
     }
