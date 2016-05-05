@@ -1,3 +1,4 @@
+
 # Quick-start Developer's guide
 
 Here we will introduce how to setup Apollo on your server. In general, there are two modes of deploying Apollo.
@@ -29,6 +30,7 @@ It is not required but you can also install the groovy command line
 To setup Apollo, you can download the code from github:
 
 - git clone https://github.com/GMOD/Apollo.git Apollo
+- git checkout |version|
 - cd Apollo
 
 Alternatively, download a .tar.gz file or .zip file from the releases page:
@@ -103,3 +105,5 @@ Figure 3. Open up the new organism from the drop down tab on the annotator panel
 If you completed this setup, you can then begin adding new users and performing annotations. Please continue to the
 [setup guide](Setup.md) for deploying the webapp to production or visit the [troubleshooting guide](Troubleshooting.md)
 if you encounter problems during setup.
+
+
