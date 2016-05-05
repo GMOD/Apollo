@@ -328,24 +328,53 @@ return declare(
 
         // if there is a track for that label in view
         //
+        for(i=first;i < last;i++) {
+            var startCoord = this.svgParent.blocks[i].startBase;
+            var label = this.getSequenceForBp(startCoord);
+            //var endCoord = this.svgParent.blocks[i].endBase;
+            var startBorders = this.annotateStartBorders(this.svgParent.blocks[i]);
+            var endBorders = this.annotateEndBorders(this.svgParent.blocks[i]);
+
+            if(label){
+                if(!trackLabelCount[label]){
+                   trackLabelCount[label] = {
+                       start: startBorders.length
+                       ,end: endBorders.length
+                   }
+                }
+                else{
+                    trackLabelCount[label].start += startBorders.length;
+                    trackLabelCount[label].end += endBorders.length;
+                }
+            }
+        }
+
+        //console.log(startLabelCount);
+        //console.log(endLabelCount);
+        console.log(trackLabelCount);
 
         // TODO: refactor for a single loop
         // draw test coordinates
         for(i=first;i < last;i++) {
             var startCoord = this.svgParent.blocks[i].startBase;
+            var label = this.getSequenceForBp(startCoord);
             //var endCoord = this.svgParent.blocks[i].endBase;
-            var startBorders = this.annotateStartBorders(this.svgParent.blocks[i]);
-            var endBorders = this.annotateEndBorders(this.svgParent.blocks[i]);
-
-            console.log('start borders!!!'+startCoord + " "+i);
-            console.log(startBorders + " len: "+startBorders.length);
-            console.log('end borders!!!');
-            console.log(endBorders + " len: "+endBorders.length);
+            //var startBorders = this.annotateStartBorders(this.svgParent.blocks[i]);
+            //var endBorders = this.annotateEndBorders(this.svgParent.blocks[i]);
+            //
+            //console.log('start borders!!!'+startCoord + " "+i);
+            //console.log(startBorders + " len: "+startBorders.length);
+            //console.log('end borders!!!');
+            //console.log(endBorders + " len: "+endBorders.length);
 
             //this.addBlockTick(bpCoord,endCoord);
             if(startCoord>0){
                 this.addSequenceTick(startCoord);
-                this.addTrackLabel(startCoord);
+                if(trackLabelCount[label] && (trackLabelCount[label].start + trackLabelCount[label].end) == 0 ){
+                    this.addTrackLabel(startCoord);
+                    //trackLabelCount[label].start += 1;
+                    //trackLabelCount[label].end += 1;
+                }
                 this.addSequenceLabel(startCoord);
             }
 
