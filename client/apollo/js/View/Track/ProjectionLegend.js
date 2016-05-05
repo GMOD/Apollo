@@ -176,6 +176,7 @@ define([
                         svgItem.setAttribute('d', 'M0 0 L0 50 L160 50 L160 25 L5 25 L5 0');
                         svgItem.setAttribute('fill', color);
                         //svgItem.setAttribute('fill-opacity', 0.1);
+                        svgItem.setAttribute('stroke', 'black');
                         svgItem.setAttribute('fill-opacity', 1);
                         return svgItem;
                     });
@@ -191,6 +192,8 @@ define([
                         leftLabelSvg.setAttribute('fill','white');
                         //leftLabelSvg.setAttribute('stroke', color);
                         leftLabelSvg.setAttribute('stroke', 'white');
+                        //leftLabelSvg.setAttribute('style', 'stroke-width:0.2;');
+                        leftLabelSvg.setAttribute('stroke-width', 0);
                         leftLabelSvg.setAttribute('display', 'block');
                         //leftLabelSvg.innerHTML =  label+" ("+numberWithCommas(start)+")" ;
                         leftLabelSvg.innerHTML = label;
@@ -212,6 +215,7 @@ define([
                         //rightEdgeText.setAttribute('transform','rotate(90 0 20)');
                         rightEdgeText.setAttribute('fill','white');
                         //rightEdgeText.setAttribute('stroke', color);
+                        rightEdgeText.setAttribute('stroke-width', 0);
                         rightEdgeText.setAttribute('stroke', 'white');
                         rightEdgeText.setAttribute('display', 'block');
                         rightEdgeText.innerHTML = formattedLabel;
@@ -250,6 +254,7 @@ define([
                         svgItem.setAttribute('d', 'M0 0 L0 50 L-160 50 L-160 26 L-5 26 L-5 0 Z');
                         //svgItem.setAttribute('d', 'M-160 0 L-160 50 L-80 50 L0 0');
                         svgItem.setAttribute('fill', color);
+                        svgItem.setAttribute('stroke', 'black');
                         //svgItem.setAttribute('fill-opacity', 0.1);
                         return svgItem;
                     });
@@ -267,6 +272,7 @@ define([
                         //rightLabelRegion.setAttribute('stroke', color);
                         rightLabelRegion.setAttribute('fill', 'white');
                         rightLabelRegion.setAttribute('stroke', 'white');
+                        rightLabelRegion.setAttribute('stroke-width', 0);
                         rightLabelRegion.setAttribute('display', 'block');
                         rightLabelRegion.innerHTML = formattedLabel;
                         return rightLabelRegion;
@@ -283,6 +289,7 @@ define([
                         rightEdgeText.setAttribute('font-size', 'x-small');
                         //rightEdgeText.setAttribute('stroke', color);
                         rightEdgeText.setAttribute('fill', 'white');
+                        rightEdgeText.setAttribute('stroke-width', 0);
                         rightEdgeText.setAttribute('stroke', 'white');
                         rightEdgeText.setAttribute('display', 'block');
                         rightEdgeText.innerHTML = formattedLabel;

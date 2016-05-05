@@ -137,6 +137,7 @@ return declare(
         svgCoord.setAttribute('y', 15);
         svgCoord.setAttribute('fill', 'white');
         svgCoord.setAttribute('stroke', 'white');
+        svgCoord.setAttribute('stroke-width', 0);
         svgCoord.setAttribute('weight', 'bolder');
         svgCoord.setAttribute('display', 'block');
         svgCoord.innerHTML = formattedLabel ;
@@ -325,6 +326,9 @@ return declare(
 
         var trackLabelCount = {};
 
+        // if there is a track for that label in view
+        //
+
         // TODO: refactor for a single loop
         // draw test coordinates
         for(i=first;i < last;i++) {
@@ -334,9 +338,9 @@ return declare(
             var endBorders = this.annotateEndBorders(this.svgParent.blocks[i]);
 
             console.log('start borders!!!'+startCoord + " "+i);
-            console.log(startBorders);
+            console.log(startBorders + " len: "+startBorders.length);
             console.log('end borders!!!');
-            console.log(endBorders);
+            console.log(endBorders + " len: "+endBorders.length);
 
             //this.addBlockTick(bpCoord,endCoord);
             if(startCoord>0){
