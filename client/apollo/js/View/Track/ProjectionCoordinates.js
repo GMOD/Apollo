@@ -346,23 +346,23 @@ return declare(
             console.log(endBorders);
 
             //this.addBlockTick(bpCoord,endCoord);
-            //if(startCoord>0){
+            if(startCoord>0){
                 this.addSequenceTick(startCoord);
                 this.addTrackLabel(startCoord);
                 this.addSequenceLabel(startCoord);
-            //}
+            }
 
-            for(var startBorderIndex  in startBorders){
-                this.addSequenceTick(startBorders[startBorderIndex],'start');
-                this.addTrackLabel(startBorders[startBorderIndex],'start');
-                this.addSequenceLabel(startBorders[startBorderIndex],'start');
-            }
-            for(var endBorderIndex in endBorders){
-                console.log('adding end borders: '+endBorderIndex);
-                this.addSequenceTick(endBorders[endBorderIndex],'end');
-                this.addTrackLabel(endBorders[endBorderIndex],'end');
-                this.addSequenceLabel(endBorders[endBorderIndex],'end');
-            }
+            //for(var startBorderIndex  in startBorders){
+            //    this.addSequenceTick(startBorders[startBorderIndex],'start');
+            //    this.addTrackLabel(startBorders[startBorderIndex],'start');
+            //    this.addSequenceLabel(startBorders[startBorderIndex],'start');
+            //}
+            //for(var endBorderIndex in endBorders){
+            //    console.log('adding end borders: '+endBorderIndex);
+            //    this.addSequenceTick(endBorders[endBorderIndex],'end');
+            //    this.addTrackLabel(endBorders[endBorderIndex],'end');
+            //    this.addSequenceLabel(endBorders[endBorderIndex],'end');
+            //}
 
         }
     },
