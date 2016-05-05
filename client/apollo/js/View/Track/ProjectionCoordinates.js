@@ -91,20 +91,31 @@ return declare(
         return bp ;
     },
 
+    setAllDisplayNone: function(coords){
+        for (var bpCoord in coords) {
+            coords[bpCoord].setAttribute("display","none");
+        }
+    },
+
     // TODO: this is being called multiple times
     removeLabels: function(){
-        for (var bpCoord in this.svgCoords.middleCoord) {
-            this.svgCoords.middleCoord[bpCoord].setAttribute("display","none");
-            if(this.svgCoords.topCoord[bpCoord]){
-                this.svgCoords.topCoord[bpCoord].setAttribute("display","none");
-            }
-            //this.svgCoords.bottomCoord[bpCoord].setAttribute("display","none");
-            this.svgCoords.shadedCoord[bpCoord].setAttribute("display","none");
-        }
+        this.setAllDisplayNone(this.svgCoords.middleCoord);
+        this.setAllDisplayNone(this.svgCoords.topCoord);
+        this.setAllDisplayNone(this.svgCoords.bottomCoord);
+        this.setAllDisplayNone(this.svgCoords.shadedCoord);
+
+        //for (var bpCoord in this.svgCoords.middleCoord) {
+        //    this.svgCoords.middleCoord[bpCoord].setAttribute("display","none");
+        //    if(this.svgCoords.topCoord[bpCoord]){
+        //        this.svgCoords.topCoord[bpCoord].setAttribute("display","none");
+        //    }
+        //    //this.svgCoords.bottomCoord[bpCoord].setAttribute("display","none");
+        //    this.svgCoords.shadedCoord[bpCoord].setAttribute("display","none");
+        //}
         console.log('removed labels');
     },
 
-    addSequenceLabel: function(bpCoord){
+    addSequenceLabel: function(bpCoord,type){
         var coordinateLabel = this.calculateBpForSequence(bpCoord+1);
         if(!this.showSequenceLabel(coordinateLabel)){
             return ;
@@ -124,9 +135,15 @@ return declare(
         if (bpCoord +1 != 0) {
             xlength = -(formattedLabel.length - 1) * offsetMultiplier;
         }
+        if(type && type=='start'){
+            xlength += 5 ;
+        }
+        if(type && type=='end'){
+            xlength -= 5 ;
+        }
         svgCoord.setAttribute('x', x + xlength);
         svgCoord.setAttribute('y', 13);
-        svgCoord.setAttribute('fill', 'white');
+        svgCoord.setAttribute('fill', 'black');
         svgCoord.setAttribute('weight', 'bolder');
         //svgCoord.setAttribute('fill-opacity', '0.5');
         svgCoord.setAttribute('display', 'block');
@@ -148,12 +165,18 @@ return declare(
         return true ;
     },
 
-    addTrackLabel: function(bpCoord){
+    addTrackLabel: function(bpCoord,type){
         x = this.bp2Native(bpCoord);
         var label = this.getSequenceForBp(bpCoord);
-        if(!this.showTrackLabel(label)){
-            return ;
+        if(type && type=='start'){
+            label = label + '->';
         }
+        if(type && type=='end'){
+            label = '<-' + label ;
+        }
+        //if(!this.showTrackLabel(label)){
+        //    return ;
+        //}
         var topTick;
         if (bpCoord in this.svgCoords.topCoord) {
             topTick= this.svgCoords.topCoord[bpCoord];
@@ -170,10 +193,17 @@ return declare(
         topTick.setAttribute('stroke-width', 0.5);
         //topTick.setAttribute('stroke', 'white');
         var color = this.getColorForBp(bpCoord);
-        topTick.setAttribute('stroke', color);
-        topTick.setAttribute('fill', color);
+        //if(type){
+            topTick.setAttribute('stroke', 'black');
+            topTick.setAttribute('fill', 'black');
+        //}
+        //else{
+        //    topTick.setAttribute('stroke', color);
+        //    topTick.setAttribute('fill', color);
+        //}
+
         topTick.setAttribute('display', 'block');
-        topTick.innerHTML = label ;
+        topTick.innerHTML = label  ;
         this.coordGroup.appendChild(topTick);
     },
 
@@ -190,7 +220,8 @@ return declare(
         }
         var color = this.getColorForBp(startCoord);
         if(!color){
-            color = 'green';
+            color = 'black';
+            //color = 'green';
         }
 
         bottomTick.setAttribute('x', start);
@@ -202,7 +233,7 @@ return declare(
         this.coordGroup.appendChild(bottomTick);
     },
 
-    addSequenceTick: function (bpCoord) {
+    addSequenceTick: function (bpCoord,type) {
         var x = this.bp2Native(bpCoord);
         var tick;
         if (bpCoord in this.svgCoords.shadedCoord) {
@@ -213,7 +244,16 @@ return declare(
             this.svgCoords.shadedCoord[bpCoord] = tick;
         }
         //tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 0 L'+(x+50)+' 0 Z');
-        tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 20 L'+(x-50)+' 0 L'+(x+50)+ ' 0 L'+(x+50)+' 20 Z');
+        if(type && type=='start'){
+            tick.setAttribute('d', 'M'+x+' 30 L'+(x)+' 20 L'+(x)+' 0 L'+(x+50)+ ' 0 L'+(x+50)+' 20 Z');
+        }
+        else
+        if(type && type=='end'){
+            tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 20 L'+(x-50)+' 0 L'+(x)+ ' 0 L'+(x)+' 20 Z');
+        }
+        else{
+            tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 20 L'+(x-50)+' 0 L'+(x+50)+ ' 0 L'+(x+50)+' 20 Z');
+        }
         tick.setAttribute('fill', this.getColorForBp(bpCoord));
         //tick.setAttribute('fill-opacity', 0.1);
         tick.setAttribute('display', 'block');
@@ -227,60 +267,45 @@ return declare(
      * @param block
      * @returns {*}
      */
-    getStartBorder: function(block){
-        var start = block.startBase ;
-        var end = block.endBase ;
+    annotateStartBorders: function(block){
+        var annotations = [] ;
+        var startBlockBase = block.startBase ;
+        var endBlockBase = block.endBase ;
         var seqList =  this.svgParent.refSeq.sequenceList;
         for(var seq in seqList){
             var seqValue = seqList[seq];
             var offset = seqValue.offset ? seqValue.offset : 0 ;
-            if(start > seqValue.end + offset){
+            var startValue = seqValue.start + offset ;
+            if(startBlockBase <= startValue && endBlockBase >= startValue ){
                 // continue ;
+                annotations.push(startValue);
             }
-            else{
-                //if(start==seqValue.start + offset){
-                //    return start ;
-                //}
-                //if(start < seqValue.start + offset && end > seqValue.start + offset ){
-                //    return seqValue.start;
-                //}
-                if(start <= seqValue.start + offset ){
-                    return seqValue.start;
-                }
+
+            if(endBlockBase < startValue ){
+                return annotations;
             }
-            //if(start < offset && )
-            //if(bp >= offset && bp <= offset + seqValue.length){
-            //    return bp - offset + seqValue.start  ;
-            //}
         }
-        return -1 ;
+        return annotations;
     },
 
-    getEndBorder: function(block){
-        var start = block.startBase ;
-        var end = block.endBase ;
+    annotateEndBorders: function(block){
+        var annotations = [] ;
+        var startBlockBase = block.startBase ;
+        var endBlockBase = block.endBase ;
         var seqList =  this.svgParent.refSeq.sequenceList;
         for(var seq in seqList){
             var seqValue = seqList[seq];
             var offset = seqValue.offset ? seqValue.offset : 0 ;
-            if(end > seqValue.end + seqValue.offset){
-                //continue ;
+            var endValue = seqValue.end + offset ;
+            if(endBlockBase >= endValue && startBlockBase <= endValue ){
+                // continue ;
+                annotations.push(endValue);
             }
-            else{
-                if(end >= seqValue.end + offset ){
-                    return seqValue.end + offset ;
-                }
-                //if(end < seqValue.end + seqValue.offset ){
-                //    return -1 ;
-                //}
+            if(endBlockBase < endValue ){
+                return annotations;
             }
-            //if(start < offset && )
-            //if(bp >= offset && bp <= offset + seqValue.length){
-            //    return bp - offset + seqValue.start  ;
-            //}
         }
-        return -1 ;
-
+        return annotations;
     },
 
     showRange: function(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
@@ -300,20 +325,40 @@ return declare(
         // erase test coordinates
         this.removeLabels();
 
+        var trackLabelCount = {};
+
         // TODO: refactor for a single loop
         // draw test coordinates
         for(i=first;i < last;i++) {
             var startCoord = this.svgParent.blocks[i].startBase;
-            var endCoord = this.svgParent.blocks[i].endBase;
-            var startBorder = this.getStartBorder(this.svgParent.blocks[i]);
-            var endBorder = this.getEndBorder(this.svgParent.blocks[i]);
+            //var endCoord = this.svgParent.blocks[i].endBase;
+            var startBorders = this.annotateStartBorders(this.svgParent.blocks[i]);
+            var endBorders = this.annotateEndBorders(this.svgParent.blocks[i]);
+
+            console.log('start borders!!!'+startCoord + " "+i);
+            console.log(startBorders);
+            console.log('end borders!!!');
+            console.log(endBorders);
 
             //this.addBlockTick(bpCoord,endCoord);
-            if(startCoord>0){
+            //if(startCoord>0){
                 this.addSequenceTick(startCoord);
                 this.addSequenceLabel(startCoord);
                 this.addTrackLabel(startCoord);
+            //}
+
+            for(var startBorderIndex  in startBorders){
+                this.addSequenceTick(startBorders[startBorderIndex],'start');
+                this.addSequenceLabel(startBorders[startBorderIndex],'start');
+                this.addTrackLabel(startBorders[startBorderIndex],'start');
             }
+            for(var endBorderIndex in endBorders){
+                console.log('adding end borders: '+endBorderIndex);
+                this.addSequenceTick(endBorders[endBorderIndex],'end');
+                this.addSequenceLabel(endBorders[endBorderIndex],'end');
+                this.addTrackLabel(endBorders[endBorderIndex],'end');
+            }
+
         }
     },
     bp2Native: function(val) {
