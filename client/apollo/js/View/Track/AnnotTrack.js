@@ -4624,13 +4624,13 @@ define([
                         }
                     }));
                     contextMenuItems["merge"] = index++;
-                    annot_context_menu.addChild(new dijit.MenuItem({
-                        label: "Fold",
-                        onClick: function () {
-                            thisB.foldSelectedFeatures();
-                        }
-                    }));
-                    contextMenuItems["fold"] = index++;
+                    //annot_context_menu.addChild(new dijit.MenuItem({
+                    //    label: "Fold",
+                    //    onClick: function () {
+                    //        thisB.foldSelectedFeatures();
+                    //    }
+                    //}));
+                    //contextMenuItems["fold"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Split",
                         onClick: function (event) {

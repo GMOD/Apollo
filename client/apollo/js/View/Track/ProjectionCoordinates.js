@@ -104,15 +104,6 @@ return declare(
         this.setAllDisplayNone(this.svgCoords.topCoord);
         this.setAllDisplayNone(this.svgCoords.bottomCoord);
         this.setAllDisplayNone(this.svgCoords.shadedCoord);
-
-        //for (var bpCoord in this.svgCoords.middleCoord) {
-        //    this.svgCoords.middleCoord[bpCoord].setAttribute("display","none");
-        //    if(this.svgCoords.topCoord[bpCoord]){
-        //        this.svgCoords.topCoord[bpCoord].setAttribute("display","none");
-        //    }
-        //    //this.svgCoords.bottomCoord[bpCoord].setAttribute("display","none");
-        //    this.svgCoords.shadedCoord[bpCoord].setAttribute("display","none");
-        //}
         console.log('removed labels');
     },
 
@@ -143,11 +134,10 @@ return declare(
             xlength -= 5 ;
         }
         svgCoord.setAttribute('x', x + xlength);
-        svgCoord.setAttribute('y', 13);
+        svgCoord.setAttribute('y', 15);
         svgCoord.setAttribute('fill', 'white');
         svgCoord.setAttribute('stroke', 'white');
         svgCoord.setAttribute('weight', 'bolder');
-        //svgCoord.setAttribute('fill-opacity', '0.5');
         svgCoord.setAttribute('display', 'block');
         svgCoord.innerHTML = formattedLabel ;
         this.coordGroup.appendChild(svgCoord);
@@ -170,12 +160,12 @@ return declare(
     addTrackLabel: function(bpCoord,type){
         x = this.bp2Native(bpCoord);
         var label = this.getSequenceForBp(bpCoord);
-        if(type && type=='start'){
-            label = label + '->';
-        }
-        if(type && type=='end'){
-            label = '<-' + label ;
-        }
+        //if(type && type=='start'){
+        //    label = label + '->';
+        //}
+        //if(type && type=='end'){
+        //    label = '<-' + label ;
+        //}
         //if(!this.showTrackLabel(label)){
         //    return ;
         //}
@@ -191,8 +181,8 @@ return declare(
         // draw stems
         var xlength = -((label.length - 1) * 3);
         topTick.setAttribute('x', x+xlength+100);
-        topTick.setAttribute('y', 12);
-        topTick.setAttribute('stroke-width', 0.5);
+        topTick.setAttribute('y', 15);
+        topTick.setAttribute('stroke-width', 0.3);
         //topTick.setAttribute('stroke', 'white');
         //var color = this.getColorForBp(bpCoord);
         //if(type){
@@ -258,9 +248,12 @@ return declare(
             //tick.setAttribute('fill-opacity', 0.6);
         }
         else{
-            tick.setAttribute('d', 'M'+x+' 30 L'+(x-50)+' 20 L'+(x-50)+' 0 L'+(x+50)+ ' 0 L'+(x+50)+' 20 Z');
+            //tick.setAttribute('d', 'M'+x+' 25 L'+(x-50)+' 20 L'+(x-50)+' 0 L'+(x+50)+ ' 0 L'+(x+50)+' 20 Z');
+            tick.setAttribute('d', 'M'+x+' 25 L'+(x-50)+' 20 L'+(x-50)+' 5 L'+(x)+ ' 0  L'+(x+50)+ ' 5 L'+(x+50)+' 20 Z');
         }
         tick.setAttribute('fill', this.getColorForBp(bpCoord));
+        tick.setAttribute('fill-opacity', 0.8);
+        tick.setAttribute('stroke', 'black');
         tick.setAttribute('display', 'block');
         this.coordGroup.appendChild(tick);
     },

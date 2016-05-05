@@ -172,9 +172,11 @@ define([
 
                     this.addSVGObject(id, start, 100, 100, function () {
                         var svgItem = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        svgItem.setAttribute('d', 'M0 0 L0 50 L160 50 L160 0');
+                        //svgItem.setAttribute('d', 'M0 25 L0 50 L160 50 L160 25');
+                        svgItem.setAttribute('d', 'M0 0 L0 50 L160 50 L160 25 L5 25 L5 0');
                         svgItem.setAttribute('fill', color);
-                        svgItem.setAttribute('fill-opacity', 0.1);
+                        //svgItem.setAttribute('fill-opacity', 0.1);
+                        svgItem.setAttribute('fill-opacity', 1);
                         return svgItem;
                     });
 
@@ -186,8 +188,9 @@ define([
                         //var xLoc = svgSpace.bp2Native(xlength);
                         leftLabelSvg.setAttribute('x', 30);
                         leftLabelSvg.setAttribute('y', 42);
-                        //apple.setAttribute('fill','white');
-                        leftLabelSvg.setAttribute('stroke', color);
+                        leftLabelSvg.setAttribute('fill','white');
+                        //leftLabelSvg.setAttribute('stroke', color);
+                        leftLabelSvg.setAttribute('stroke', 'white');
                         leftLabelSvg.setAttribute('display', 'block');
                         //leftLabelSvg.innerHTML =  label+" ("+numberWithCommas(start)+")" ;
                         leftLabelSvg.innerHTML = label;
@@ -207,8 +210,9 @@ define([
                         rightEdgeText.setAttribute('y', 42);
                         rightEdgeText.setAttribute('font-size', 'x-small');
                         //rightEdgeText.setAttribute('transform','rotate(90 0 20)');
-                        //rightEdgeText.setAttribute('fill','white');
-                        rightEdgeText.setAttribute('stroke', color);
+                        rightEdgeText.setAttribute('fill','white');
+                        //rightEdgeText.setAttribute('stroke', color);
+                        rightEdgeText.setAttribute('stroke', 'white');
                         rightEdgeText.setAttribute('display', 'block');
                         rightEdgeText.innerHTML = formattedLabel;
                         return rightEdgeText;
@@ -238,6 +242,18 @@ define([
                     //console.log("bpCoord=" + start + " cx=" + cx + " len=" + len + " scale=" + this.svgScale);
                     //console.log("rendering region " + label + " from " + start + " to " + end);
 
+                    var id5 = "RRD-" + this.fixId(fRect.f.id());
+
+                    this.addSVGObject(id5, start, 100, 100, function () {
+                        var svgItem = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        //svgItem.setAttribute('d', 'M0 25 L0 50 L-160 50 L-160 25 Z');
+                        svgItem.setAttribute('d', 'M0 0 L0 50 L-160 50 L-160 26 L-5 26 L-5 0 Z');
+                        //svgItem.setAttribute('d', 'M-160 0 L-160 50 L-80 50 L0 0');
+                        svgItem.setAttribute('fill', color);
+                        //svgItem.setAttribute('fill-opacity', 0.1);
+                        return svgItem;
+                    });
+
                     var id3 = "RR-" + this.fixId(fRect.f.id());
 
                     //console.log("cx=" + cx + " color=" + color);
@@ -248,7 +264,9 @@ define([
                         rightLabelRegion.setAttribute('x', xlength);
                         //rightLabelRegion.setAttribute('x',-30);
                         rightLabelRegion.setAttribute('y', 42);
-                        rightLabelRegion.setAttribute('stroke', color);
+                        //rightLabelRegion.setAttribute('stroke', color);
+                        rightLabelRegion.setAttribute('fill', 'white');
+                        rightLabelRegion.setAttribute('stroke', 'white');
                         rightLabelRegion.setAttribute('display', 'block');
                         rightLabelRegion.innerHTML = formattedLabel;
                         return rightLabelRegion;
@@ -263,22 +281,14 @@ define([
                         rightEdgeText.setAttribute('x', xlength);
                         rightEdgeText.setAttribute('y', 42);
                         rightEdgeText.setAttribute('font-size', 'x-small');
-                        rightEdgeText.setAttribute('stroke', color);
+                        //rightEdgeText.setAttribute('stroke', color);
+                        rightEdgeText.setAttribute('fill', 'white');
+                        rightEdgeText.setAttribute('stroke', 'white');
                         rightEdgeText.setAttribute('display', 'block');
                         rightEdgeText.innerHTML = formattedLabel;
                         return rightEdgeText;
                     });
 
-                    var id5 = "RRD-" + this.fixId(fRect.f.id());
-
-                    this.addSVGObject(id5, start, 100, 100, function () {
-                        var svgItem = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        svgItem.setAttribute('d', 'M0 0 L0 50 L-160 50 L-160 0 Z');
-                        //svgItem.setAttribute('d', 'M-160 0 L-160 50 L-80 50 L0 0');
-                        svgItem.setAttribute('fill', color);
-                        svgItem.setAttribute('fill-opacity', 0.1);
-                        return svgItem;
-                    });
                 },
 
                 // draw each feature
