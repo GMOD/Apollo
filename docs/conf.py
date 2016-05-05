@@ -41,9 +41,9 @@ ini_str = '[root]\n' + open('../application.properties', 'r').read()
 
 ini_fp = StringIO.StringIO(ini_str)
 config.readfp(ini_fp)
-app_version = config.get('root', 'app.version')
+app_version2 = config.get('root', 'app.version')
 
-rst_epilog = '.. |app_version| replace:: %d' % app_version
+rst_epilog = '.. |app_version| replace:: %d' % app_version2
 
 
 # The encoding of source files.
