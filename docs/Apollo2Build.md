@@ -12,10 +12,10 @@ This guide will cover the "development mode" scenario which should be easy to st
 ### Grails
 
 Installing grails is made easier by using [SDKMAN](http://sdkman.io/) (formerly GVM) which can automatically setup
-grails for you. We will use grails 2.4.5 for Apollo.
+grails for you. We will use grails 2.5.4 for Apollo.
 
 1. `curl -s http://get.sdkman.io | bash`
-2. `sdk install grails 2.4.5`
+2. `sdk install grails 2.5.4`
 
 ### Groovy
 
@@ -26,13 +26,13 @@ It is not required but you can also install the groovy command line
 
 ### Get the code
 
-To setup Apollo, you can download the code from github:
+To setup Apollo, you can download our [latest release](https://github.com/GMOD/Apollo/releases/latest) from our [official releases](https://github.com/GMOD/Apollo/releases/).   Version 2.0.2 is available as a [.tar.gz](https://github.com/GMOD/Apollo/archive/2.0.2.tar.gz) or a [.zip](https://github.com/GMOD/Apollo/archive/2.0.2.zip) file. 
 
-- git clone https://github.com/GMOD/Apollo.git Apollo
-- git checkout 2.0.2
-- cd Apollo
+Alternatively you can check it out from git as directly as follows:
 
-Alternatively, download a .tar.gz file or .zip file source package of the latest release [https://github.com/GMOD/Apollo/releases/tag/2.0.2](version 2.0.2).
+1. git clone https://github.com/GMOD/Apollo.git Apollo
+1. cd Apollo
+1. git checkout 2.0.2  # otherwise you will be getting the more active / less tested master branch
 
 
 ### Verify install requirements
