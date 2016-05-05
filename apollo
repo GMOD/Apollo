@@ -128,14 +128,14 @@ function copy_configs(){
 
 if [[ $1 == "devmode" ]];then
     check_configs
-    $gradle_executable handleJBrowse copy-resources-dev devmode &
+    $gradle_executable handleJBrowse copyResourcesDev devmode &
     $grails_executable -reloading run-app
 elif [[ $1 == "run-local" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable handleJBrowse copy-resources-dev gwtc && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable handleJBrowse copyResourcesDev gwtc && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable handleJBrowse copy-resources-dev gwtc && $grails_executable run-app
+        $gradle_executable handleJBrowse copyResourcesDev gwtc && $grails_executable run-app
     fi
 elif [[ $1 == "watchman" ]]; then
     watchman_executable=$(which watchman)
@@ -146,9 +146,9 @@ elif [[ $1 == "watchman" ]]; then
 elif [[ $1 == "run-app" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable handleJBrowse copy-resources-dev && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable handleJBrowse copyResourcesDev && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable handleJBrowse copy-resources-dev && $grails_executable run-app
+        $gradle_executable handleJBrowse copyResourcesDev && $grails_executable run-app
     fi
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
