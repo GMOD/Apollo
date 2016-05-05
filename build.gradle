@@ -167,6 +167,11 @@ task copyResourcesDev(dependsOn: installJBrowse) << {
     tasks["copy-resources-dev"].execute()
 }
 
+task installJBrowseLocal(dependsOn: installJBrowse,type: Exec) {
+	workingDir = '.'
+    commandLine './install_jbrowse.sh'
+}
+
 task copyApolloPlugin(dependsOn:installJBrowse,type:Copy){
     println "Copying apollo plugin"
     from("client/apollo")
@@ -251,6 +256,7 @@ task buildJBrowse(dependsOn: 'build.jbrowse'){}
 //    }
 //}
 
+
 // TODO: should inherent handleJBrowse
 task handleJBrowseRelease(dependsOn: [copyApolloPlugin]) {
     println "handling jbrowse release ${jbrowseConfig}"
@@ -259,7 +265,8 @@ task handleJBrowseRelease(dependsOn: [copyApolloPlugin]) {
         installJBrowsePlugins
         setupJBrowse
         copyResourcesDev
-        buildJBrowse
+		buildJBrowse
+		installJBrowseLocal
     }
 
 }
@@ -271,6 +278,7 @@ task handleJBrowse(dependsOn: [installJBrowsePlugins]) {
     doLast {
         setupJBrowse
         copyResourcesDev
+		installJBrowseLocal
     }
 
 }
