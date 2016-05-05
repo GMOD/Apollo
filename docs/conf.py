@@ -38,19 +38,12 @@ extensions = ['markdowntransform']
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
-
-
 ini_str = '[root]\n' + open('../application.properties', 'r').read()
-
 config = ConfigParser.ConfigParser()
 ini_fp = StringIO.StringIO(ini_str)
 config.readfp(ini_fp)
 app_version = config.get('root', 'app.version')
 
-#rst_epilog = '.. |app_version| replace:: %s' % app_version
-rst_epilog = """
-.. |psf| replace:: Python Software Foundation
-"""
 
 
 # The encoding of source files.
