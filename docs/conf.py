@@ -47,7 +47,10 @@ ini_fp = StringIO.StringIO(ini_str)
 config.readfp(ini_fp)
 app_version = config.get('root', 'app.version')
 
-rst_epilog = '.. |app_version| replace:: %s' % app_version
+#rst_epilog = '.. |app_version| replace:: %s' % app_version
+rst_epilog = """
+.. |psf| replace:: Python Software Foundation
+"""
 
 
 # The encoding of source files.
