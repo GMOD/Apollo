@@ -286,16 +286,16 @@ define([
 
                     this.inherited(arguments);      // call the superclass
 
-                    //var feature = fRect.f;
-                    //var type = feature.get("type");
-                    //if (type == 'region') {
-                    //    console.log('render region');
-                    //    this.renderRegion(context, fRect);
-                    //}
-                    //else if (type == 'region-right') {
-                    //    console.log('render region right');
-                    //    this.renderRegionRight(context, fRect, 3);
-                    //}
+                    var feature = fRect.f;
+                    var type = feature.get("type");
+                    if (type == 'region') {
+                        console.log('render region');
+                        this.renderRegion(context, fRect);
+                    }
+                    else if (type == 'region-right') {
+                        console.log('render region right');
+                        this.renderRegionRight(context, fRect, 3);
+                    }
                 }
 
             });
