@@ -15,6 +15,7 @@
 import sys
 import os
 import StringIO
+import ConfigParser
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -41,6 +42,7 @@ templates_path = ['_templates']
 
 ini_str = '[root]\n' + open('../application.properties', 'r').read()
 
+config = ConfigParser.ConfigParser()
 ini_fp = StringIO.StringIO(ini_str)
 config.readfp(ini_fp)
 app_version2 = config.get('root', 'app.version')
