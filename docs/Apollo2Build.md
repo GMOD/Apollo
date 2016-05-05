@@ -29,6 +29,7 @@ It is not required but you can also install the groovy command line
 To setup Apollo, you can download the code from github:
 
 - git clone https://github.com/GMOD/Apollo.git Apollo
+- git checkout |app_version|
 - cd Apollo
 
 Alternatively, download a .tar.gz file or .zip file from the releases page:
