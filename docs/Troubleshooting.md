@@ -80,9 +80,15 @@ http://tomcat.apache.org/tomcat-7.0-doc/security-howto.html#Non-Tomcat_settings
 
 ### Errors with JBrowse
 
-#### JBrowse tools don't show up in ```bin``` directory
+#### JBrowse tools don't show up in ```bin``` directory (or install at all) after install or typing ```install_jbrowse.sh```
 
-If the ```bin``` directory with JBrowse tools doesn't show up after calling ```install_jbrowse.sh``` JBrowse is having trouble installing itself for a few possible reasons.   If these do not work, please observe the [troubleshooting](http://jbrowse.org/code/JBrowse-1.12.1/docs/tutorial/#Troubleshooting) version of JBrowse a well.   
+If the ```bin``` directory with JBrowse tools doesn't show up after calling ```install_jbrowse.sh``` JBrowse is having trouble installing itself for a few possible reasons.   If these do not work, please observe the [JBrowse troubleshooting](http://jbrowse.org/code/JBrowse-1.12.1/docs/tutorial/#Troubleshooting) and [JBrowse install](https://jbrowse.org/install/) pages, as well and the ```setup.log``` file created during the installation process. 
+
+##### cpanm or other components are not installed
+
+Make sure the [appropriate JBrowse libraries](http://gmod.org/wiki/JBrowse_Configuration_Guide#Making_a_New_JBrowse) are installed on your system.
+
+If you see ```chmod: cannot access `web-app/jbrowse/bin/cpanm': No such file or directory ``` make sure to install [cpanm](http://search.cpan.org/~miyagawa/App-cpanminus-1.7040/lib/App/cpanminus.pm).
 
 ##### Git tool is too old
 
