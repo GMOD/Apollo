@@ -80,6 +80,52 @@ http://tomcat.apache.org/tomcat-7.0-doc/security-howto.html#Non-Tomcat_settings
 
 ### Errors with JBrowse
 
+#### JBrowse tools don't show up in ```bin``` directory
+
+If the ```bin``` directory with JBrowse tools doesn't show up after calling ```install_jbrowse.sh``` JBrowse is having trouble installing itself for a few possible reasons.   If these do not work, please observe the [troubleshooting](http://jbrowse.org/code/JBrowse-1.12.1/docs/tutorial/#Troubleshooting) version of JBrowse a well.   
+
+##### Git tool is too old
+
+Git expects to clone a single branch which is supported in git 1.7.10 and greater.  The output when that fails looks something like this:
+
+```
+Buildfile: build.xml
+
+copy.apollo.plugin.webapp:
+
+setup-jbrowse:
+
+git.clone:
+[exec] Result: 129
+```
+
+The solution is to upgrade git to 1.7.10 or greater or remove the line with the ```--single-branch``` option in ```build.xml```. 
+
+##### Accessing git behind a firewall. 
+
+If you are behind a firewall, checking out code using the ```git://``` protocol may not be allowed, but that is the default.    The output will look something like this:
+
+```
+setup-jbrowse:
+
+git.clone:
+     [exec] Submodule 'src/FileSaver' (git://github.com/dkasenberg/FileSaver.js.git) registered for path 'src/FileSaver'
+     [exec] Submodule 'src/dbind' (git://github.com/rbuels/dbind.git) registered for path 'src/dbind'
+    . . . .
+     [exec] Submodule 'src/xstyle' (git://github.com/kriszyp/xstyle.git) registered for path 'src/xstyle'
+     [exec] Result: 1
+```
+
+with possibly more output below. 
+
+Type:
+
+```git config --global url."https://".insteadOf git://``` 
+
+in the command-line and then re-install using ```./apollo clean-all``` ```./apollo run-local``` (or deploy or release).
+
+
+
 #### e.g. "Can't locate Hash/Merge.pm in @INC" or "Can't locate JBlibs.pm in @INC"
 
 If you are trying to run the jbrowse binaries but get these sorts of errors, try running `install_jbrowse.sh` which will
