@@ -82,11 +82,11 @@ http://tomcat.apache.org/tomcat-7.0-doc/security-howto.html#Non-Tomcat_settings
 
 #### JBrowse tools don't show up in ```bin``` directory
 
-If the ```bin``` directory with jbrowse tools doesn't show up after calling ```install_jbrowse.sh``` and during the build phase you see something like this:
+If the ```bin``` directory with JBrowse tools doesn't show up after calling ```install_jbrowse.sh``` JBrowse is having trouble installing itself for a few possible reasons.   If these do not work, please observe the [troubleshooting](http://jbrowse.org/code/JBrowse-1.12.1/docs/tutorial/#Troubleshooting) version of JBrowse a well.   
 
 ##### Git tool is too old
 
-Git expects to clone a single branch which is supported in git 1.7.10 and greater.  The output when that fails looks like this.
+Git expects to clone a single branch which is supported in git 1.7.10 and greater.  The output when that fails looks something like this:
 
 ```
 Buildfile: build.xml
@@ -99,7 +99,7 @@ git.clone:
 [exec] Result: 129
 ```
 
-The solution is to upgrade git to 1.7.10 or greater or remove the ```--single-branch``` option in build.xml. 
+The solution is to upgrade git to 1.7.10 or greater or remove the line with the ```--single-branch``` option in ```build.xml```. 
 
 ##### Accessing git behind a firewall. 
 
