@@ -79,6 +79,14 @@ This procedure starts tomcat in a standard virtualized environment with a Postgr
 [//]: # "TODO: . . . expand on volumes"
 [//]: # "TODO: . . . add galaxy integration notes "
 
+===  Quicker start 
+
+[//]: # "TODO: . . . review and test and remove cpt code"
+
+- ```docker run GMOD/webapollo202:cpt``` Start Apollo server remotely 
+- Copy JBrowse files to individual folders here: ```/opt/apollo/```   e.g., ```/opt/apollo/cow/```
+- To login to the system (optional) : ```docker run -it erasche/webapollo2:cpt bash``` 
+
 
 ### Database schema
 
