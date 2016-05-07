@@ -60,6 +60,26 @@ server `apollo run-local` or `apollo debug` use the development environment (i.e
 - Create a new database in your chosen database backend and copy the sample-docker-apollo-config.groovy to
   apollo-config.groovy.
 
+##### Docker quickstart with PostgreSQL:
+
+This procedure starts tomcat in a standard virtualized environment with a PostgreSQL database.
+
+- Install [docker](https://docs.docker.com/engine/installation/) for your system if not previously done. 
+- Start the docker-engine service using for your system (quickstart terminal for mac typically or start the docker-engine as a service for linux). 
+
+- Clone docker: ```git clone https://github.com/GMOD/docker-webapollo2.git```
+- ```cd docker-webapollo2.git```
+- ```docker-machine ls``` to get your IP
+- ```eval "$(docker-machine env default)”```  # this connects the shell to the machine!
+- ```docker-compose up```  # starts the service
+- Connect to http://<docker-ip>:8080/apollo/ and confirm its working.  e.g., http://192.168.92.100:8080/apollo
+- Copy JBrowse directories into appropriate mounted docker volumes (see ```docker-compose.yml``` for mounted volumes).  
+- Begin [working with Apollo](docs/Apollo2Build.md) as usual.
+
+[//]: # "TODO: . . . expand on volumes"
+[//]: # "TODO: . . . add galaxy integration notes "
+
+
 ### Database schema
 
 After you startup the application, the database schema (tables, etc.) is automatically setup. You don't have to
