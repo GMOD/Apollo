@@ -12,7 +12,7 @@ https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-
 An instantaneous, collaborative, genome annotation editor.  The stack is a Java web application / database backend and a
 Javascript client that runs in a web browser as a JBrowse plugin.  
 
-For general information on Apollo, go to: [http://genomearchitect.org/](http://genomearchitect.org/)
+For general information on Apollo, go to [http://genomearchitect.org/](http://genomearchitect.org/).
 
 Complete Apollo installation and configuration instructions are available at:
 [http://webapollo.readthedocs.io/en/latest/](http://webapollo.readthedocs.io/)
