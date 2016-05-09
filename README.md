@@ -14,7 +14,7 @@ Javascript client that runs in a web browser as a JBrowse plugin.
 For general information on Apollo, go to [http://genomearchitect.org/](http://genomearchitect.org/).
 
 Complete Apollo installation and configuration instructions are available at:
-[http://genomearchitect.readthedocs.io/en/latest/](Apollo: Read The Docs)
+[Apollo "Read The Docs" documentation pages](http://genomearchitect.readthedocs.io/en/latest/)
 
 The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).
 
