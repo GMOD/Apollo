@@ -3,6 +3,9 @@
 [![Join the chat at
 https://gitter.im/GMOD/Apollo](https://badges.gitter.im/Join%20Chat.svg)](
 https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+![Build status](https://travis-ci.org/GMOD/Apollo.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/GMOD/Apollo/badge.svg?branch=master)](https://coveralls.io/github/GMOD/Apollo?branch=master)
+
 
 ## Apollo 2.0.2 is now released. [Download the latest release here](https://github.com/GMOD/Apollo/releases/tag/2.0.2). 
 
@@ -14,11 +17,8 @@ For general information on Apollo, go to: [http://genomearchitect.org/](http://g
 Complete Apollo installation and configuration instructions are available at:
 [http://webapollo.readthedocs.io/en/latest/](http://webapollo.readthedocs.io/)
 
-The Apollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
-[http://jbrowse.org](http://jbrowse.org)
+The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).
 
-![Build status](https://travis-ci.org/GMOD/Apollo.svg?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/GMOD/Apollo/badge.svg?branch=master)](https://coveralls.io/github/GMOD/Apollo?branch=master)
 
 ## Quick-start guide
 
