@@ -79,6 +79,7 @@ This procedure starts tomcat in a standard virtualized environment with a Postgr
 [//]: # "TODO: . . . expand on volumes"
 [//]: # "TODO: . . . add galaxy integration notes "
 
+
 ===  Quicker start 
 
 [//]: # "TODO: . . . review and test and remove cpt code"
@@ -87,6 +88,13 @@ This procedure starts tomcat in a standard virtualized environment with a Postgr
 - Copy JBrowse files to individual folders here: ```/opt/apollo/```   e.g., ```/opt/apollo/cow/```
 - To login to the system (optional) : ```docker run -it erasche/webapollo2:cpt bash``` 
 
+##### Docker for production 
+
+To add additional parameters to represent your production environment (e.g. ```restart: always```, additional volumes), you can add a production.yml file and include it:
+
+```docker-compose -f docker-compose.yml -f production.yml up -d```
+
+Please see [additional information about using docker in production](https://docs.docker.com/compose/production/).
 
 ### Database schema
 
