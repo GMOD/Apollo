@@ -7,7 +7,7 @@ https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-
 [![Coverage Status](https://coveralls.io/repos/github/GMOD/Apollo/badge.svg?branch=master)](https://coveralls.io/github/GMOD/Apollo?branch=master)
 
 
-## Apollo 2.0.2 is now released. [Download the latest release here](https://github.com/GMOD/Apollo/releases/tag/2.0.2). 
+## Apollo 2.0.2 is now released. [Download the latest release](https://github.com/GMOD/Apollo/releases/tag/2.0.2). 
 
 An instantaneous, collaborative, genome annotation editor.  The stack is a Java web application / database backend and a
 Javascript client that runs in a web browser as a JBrowse plugin.  
