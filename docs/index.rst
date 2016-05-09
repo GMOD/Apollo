@@ -17,13 +17,8 @@ For more information on JBrowse, please visit:
 
 .. image:: https://travis-ci.org/GMOD/Apollo.png?branch=master
 
-Note: This documentation covers release versions 2.x of Apollo. For the 1.x installation please refer to
-`http://webapollo.readthedocs.io/en/1.0/ <http://webapollo.readthedocs.io/en/1.0/>`__
-
-
-A PDF version of this documentation is also available for download.
-
-Link `https://media.readthedocs.org/pdf/webapollo/latest/webapollo.pdf <https://media.readthedocs.org/pdf/webapollo/latest/webapollo.pdf>`__
+Note: This documentation covers release versions 2.x of Apollo. For the 1.0.4 installation please refer to
+the installation guide found at `http://genomearchitect.readthedocs.io/en/1.0.4/ <http://genomearchitect.readthedocs.io/en/1.0.4/>`__
 
 
 
