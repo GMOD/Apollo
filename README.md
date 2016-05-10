@@ -1,25 +1,23 @@
 # Apollo
 
-[![Join the chat at
-https://gitter.im/GMOD/Apollo](https://badges.gitter.im/Join%20Chat.svg)](
-https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+![Build](https://travis-ci.org/GMOD/Apollo.svg?branch=master)
+[![Coverage](https://coveralls.io/repos/github/GMOD/Apollo/badge.svg?branch=master)](https://coveralls.io/github/GMOD/Apollo?branch=master)
+[![Documentation](https://readthedocs.org/projects/genomearchitect/badge/?version=latest)](https://genomearchitect.readthedocs.org/en/latest/)
+[![Chat at Gitter](https://badges.gitter.im/GMOD/Apollo.svg)](https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
+
+## Apollo 2.0.2 is now released. [Download the latest release](https://github.com/GMOD/Apollo/releases/tag/2.0.2). 
 
 An instantaneous, collaborative, genome annotation editor.  The stack is a Java web application / database backend and a
 Javascript client that runs in a web browser as a JBrowse plugin.  
 
-For general information on Apollo, go to: [http://genomearchitect.org/](http://genomearchitect.org/)
+For general information on Apollo, go to [http://genomearchitect.org/](http://genomearchitect.org/).
 
-Complete Apollo installation and configuration instructions are available at:
-[http://webapollo.readthedocs.io/en/latest/](http://webapollo.readthedocs.io/)
+Complete Apollo installation and configuration instructions are available from the [Apollo documentation pages](http://genomearchitect.readthedocs.io/en/latest/)
 
-The Apollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
-[http://jbrowse.org](http://jbrowse.org)
+The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).
 
-![Build status](https://travis-ci.org/GMOD/Apollo.svg?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/GMOD/Apollo/badge.svg?branch=master)](https://coveralls.io/github/GMOD/Apollo?branch=master)
-
-
-Apollo 2.0.2 [is now released](https://github.com/GMOD/Apollo/releases/tag/2.0.2).  
 
 ## Quick-start guide
 
