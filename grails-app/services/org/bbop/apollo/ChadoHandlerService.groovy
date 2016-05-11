@@ -38,7 +38,7 @@ class ChadoHandlerService {
     private static final String FEATURE_PROPERTY = "feature_property"
     private static final def topLevelFeatureTypes = [Gene.alternateCvTerm, Pseudogene.alternateCvTerm, TransposableElement.alternateCvTerm, RepeatRegion.alternateCvTerm,
                                                      Insertion.alternateCvTerm, Deletion.alternateCvTerm, Substitution.alternateCvTerm]
-
+    private static final ontologyDb = ["SO", "GO", "RO"]
     Map<String, org.gmod.chado.Organism> chadoOrganismsMap = new HashMap<String, org.gmod.chado.Organism>()
     Map<String, Integer> exportStatisticsMap = new HashMap<String, Integer>();
     ArrayList<org.bbop.apollo.Feature> processedFeatures = new ArrayList<org.bbop.apollo.Feature>()
@@ -148,7 +148,6 @@ class ChadoHandlerService {
             // if a top level annotation already exists we delete it
             long startTime = System.currentTimeMillis()
             deleteChadoFeature(topLevelChadoFeature)
-            topLevelChadoFeature.delete(flush: true)
             long endTime = System.currentTimeMillis()
             log.debug "Time taken to delete existing annotation ${endTime - startTime} ms"
         }
@@ -215,21 +214,94 @@ class ChadoHandlerService {
      * @return
      */
     def deleteChadoFeature(org.gmod.chado.Feature chadoFeature) {
-        chadoFeature.featurelocsForFeatureId.clear()
-        def dbList = ["SO", "GO"]
-        chadoFeature.featureDbxrefs.each {
-            if (! dbList.contains(it.dbxref.db.name)) {
-                it.dbxref.delete()
+        def chadoFeatureLocs = getChadoFeatureloc(chadoFeature)
+        chadoFeatureLocs.each { fl ->
+            fl.delete()
+        }
+
+        def chadoFeatureDbxrefs = getChadoFeatureDbxrefs(chadoFeature)
+        chadoFeatureDbxrefs.each { fd ->
+            if (! ontologyDb.contains(fd.dbxref.db.name)) {
+                fd.dbxref.delete()
             }
         }
-        chadoFeature.featureDbxrefs.clear()
-        chadoFeature.featureprops.clear()
-        chadoFeature.featureRelationshipsForObjectId.each { it ->
-            deleteChadoFeature(it.subject)
+
+        def chadoFeatureProperties = getChadoFeatureProps(chadoFeature)
+        chadoFeatureProperties.each { fp ->
+            fp.delete()
+        }
+
+        def chadoChildFeatureRelationships = getChildFeatureRelationships(chadoFeature)
+        chadoChildFeatureRelationships.each { child ->
+            deleteChadoFeature(child.subject)
         }
 
         // TODO: featureSynonyms, featurePubs, featureGenotypes, featurePhenotypes
-        chadoFeature.delete()
+        chadoFeature.delete(flush: true)
+    }
+
+    /**
+     * Queries the Chado database and returns all featurelocs for a given Chado Feature
+     * @param chadoFeature
+     * @return
+     */
+    def getChadoFeatureloc(org.gmod.chado.Feature chadoFeature) {
+        long startTime = System.currentTimeMillis()
+        def results = org.gmod.chado.Featureloc.executeQuery(
+                        "SELECT DISTINCT fl FROM org.gmod.chado.Featureloc fl WHERE fl.feature.uniquename = :queryUniqueName",
+                        [queryUniqueName: chadoFeature.uniquename]
+        )
+        long endTime = System.currentTimeMillis()
+        log.debug "Time taken to query featurelocs for ChadoFeature: ${chadoFeature.uniquename} - ${endTime - startTime} ms"
+        return results
+    }
+
+    /**
+     * Queries the Chado database and returns all FeatureDbxrefs for a given Chado Feature
+     * @param chadoFeature
+     * @return
+     */
+    def getChadoFeatureDbxrefs(org.gmod.chado.Feature chadoFeature) {
+        long startTime = System.currentTimeMillis()
+        def results = org.gmod.chado.FeatureDbxref.executeQuery(
+                        "SELECT DISTINCT fd FROM org.gmod.chado.FeatureDbxref fd JOIN fd.dbxref dbxref JOIN dbxref.db db WHERE fd.feature.uniquename = :queryUniqueName",
+                        [queryUniqueName: chadoFeature.uniquename]
+        )
+        long endTime = System.currentTimeMillis()
+        log.debug "Time taken to query featureDbxrefs for ChadoFeature: ${chadoFeature.uniquename} - ${endTime - startTime} ms"
+        return results
+    }
+
+    /**
+     * Queries the Chado database and returns all FeatureProps for a given Chado Feature
+     * @param chadoFeature
+     * @return
+     */
+    def getChadoFeatureProps(org.gmod.chado.Feature chadoFeature) {
+        long startTime = System.currentTimeMillis()
+        def results = org.gmod.chado.Featureprop.executeQuery(
+                        "SELECT DISTINCT fp FROM org.gmod.chado.Featureprop fp JOIN fp.feature f WHERE f.uniquename = :queryUniqueName",
+                        [queryUniqueName: chadoFeature.uniquename]
+        )
+        long endTime = System.currentTimeMillis()
+        log.debug "Time taken to query featureprops for ChadoFeature: ${chadoFeature.uniquename} - ${endTime - startTime} ms"
+        return results
+    }
+
+    /**
+     * Queries the Chado database and retuns all child feature relationships for a given Chado Feature
+     * @param chadoFeature
+     * @return
+     */
+    def getChildFeatureRelationships(org.gmod.chado.Feature chadoFeature) {
+        long startTime = System.currentTimeMillis()
+        def results = org.gmod.chado.FeatureRelationship.executeQuery(
+                        "SELECT DISTINCT fr FROM org.gmod.chado.FeatureRelationship fr JOIN fr.subject s JOIN fr.object o WHERE o.uniquename = :queryUniqueName",
+                        [queryUniqueName: chadoFeature.uniquename]
+        )
+        long endTime = System.currentTimeMillis()
+        log.debug "Time taken to query feature_relationships for ChadoFeature: ${chadoFeature.uniquename} - ${endTime - startTime} ms"
+        return results
     }
 
     /**
