@@ -1,6 +1,6 @@
 # Apollo Testing Script
 
-2015-02-20
+2016-05-09
 
 M. Munoz-Torres
 
@@ -20,7 +20,7 @@ http://www.slideshare.net/MonicaMunozTorres/
 - Apollo at GMOD page: 
 http://www.gmod.org/wiki/WebApollo 
 - Apollo installation and configuration guide
-http://webapollo.readthedocs.org/en/latest/
+http://genomearchitect.readthedocs.io/en/latest/
 
 If testing the Apollo demo, go to: http://genomearchitect.org/WebApolloDemo/ 
 

@@ -150,7 +150,7 @@ Bugfixes
 
 Features
 
-+ Added a PDF version of documentation to [readthedocs](http://webapollo.readthedocs.org).
++ Added a PDF version of documentation to [readthedocs](http://webapollo.readthedocs.io).
 + Added a button to generate a public link to the genome browser for a particular organism.
 + Added ability to manage statuses, custom comments, and feature types using the "Admin panel".
 + Added a feature to logout all instances of webapollo from different windows if one window is logged out (#409).

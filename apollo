@@ -16,6 +16,7 @@ function usage(){
     echo "run-app   <port>: Runs from current directory, but does not compile annotator panel (you have to run run-local once first).";
     echo "test:             Runs test-suite.";
     echo "debug:            Runs from current directory in debug mode (non-minimized javascript).";
+    echo "watchman:         Creates watchman daemon to autocopy plugin files (non-minimized javascript).";
     echo "compile:          Compiled the build.";
     echo "clean:            Removes class files.";
     echo "clean-all:        Removes class files and jbrowse files.";
@@ -33,7 +34,7 @@ fi
 
 function deploy_message(){
    echo "***************************************"
-   echo "NOTE: Please set the memory for your servlet container (tomcat, jetty, etc.) or Apollo may not start correctly: http://webapollo.readthedocs.org/en/latest/Troubleshooting.html#tomcat-memory"
+   echo "NOTE: Please set the memory for your servlet container (tomcat, jetty, etc.) or Apollo may not start correctly: http://genomearchitect.readthedocs.io/en/latest/Troubleshooting/#tomcat-memory"
    echo "***************************************"
 }
 
@@ -93,10 +94,6 @@ function check_configs(){
     grails_executable=$(which grails)
     gradle_executable=$(which gradle)
     git_executable=$(which git)
-    watchman_executable=$(which watchman)
-    if ! [ -x "$watchman_executable" ] ; then
-        echo "Watchman not found. Install watchman to automatically update the client side plugins for apollo development modes"
-    fi
     if ! [ -x "$grails_executable" ] ; then
         if [ -f 'grailsw' ]; then
             echo "Grails not found using grailsw";
@@ -131,25 +128,28 @@ function copy_configs(){
 
 if [[ $1 == "devmode" ]];then
     check_configs
-    $gradle_executable handleJBrowse copy-resources-dev devmode &
+    $gradle_executable handleJBrowse copyResourcesDev devmode &
     $grails_executable -reloading run-app
-    if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "run-local" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable handleJBrowse copy-resources-dev gwtc && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable handleJBrowse copyResourcesDev gwtc && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable handleJBrowse copy-resources-dev gwtc && $grails_executable run-app
+        $gradle_executable handleJBrowse copyResourcesDev gwtc && $grails_executable run-app
+    fi
+elif [[ $1 == "watchman" ]]; then
+    watchman_executable=$(which watchman)
+    if ! [ -x "$watchman_executable" ] ; then
+        echo "Watchman not found. Install watchman to automatically update the client side plugins for apollo development modes"
     fi
     if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "run-app" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable handleJBrowse copy-resources-dev && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable handleJBrowse copyResourcesDev && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable handleJBrowse copy-resources-dev && $grails_executable run-app
+        $gradle_executable handleJBrowse copyResourcesDev && $grails_executable run-app
     fi
-    if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
     OLD_MAVEN_OPTS=$MAVEN_OPTS
@@ -160,7 +160,6 @@ elif [[ $1 == "debug" ]];then
     $grails_executable -reloading debug
     export MAVEN_OPTS=$OLD_MAVEN_OPTS
     unset OLD_MAVEN_OPTS
-    if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
 elif [[ $1 == "test" ]];then
     check_configs
     copy_configs
