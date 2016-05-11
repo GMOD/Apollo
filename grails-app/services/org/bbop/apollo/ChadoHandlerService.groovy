@@ -95,10 +95,11 @@ class ChadoHandlerService {
         }
         else {
             if (exportAllSequences) {
-                sequenceList = Sequence.executeQuery(
-                        "SELECT DISTINCT s FROM org.bbop.apollo.Sequence s JOIN s.organism o WHERE o.genus = :queryGenus AND o.species = :querySpecies",
-                        [queryGenus: organism.genus, querySpecies: organism.species])
-                createChadoFeatureForSequences(organism, sequenceList, configWrapperService.getChadoExportFastaForSequence())
+                sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.organism o join s.featureLocations where o=:organism ", [organism:organism])
+                log.info "Exporting ${sequenceList.size()} Chado sequences for ${organism}"
+                if(sequenceList.size()>0){
+                    createChadoFeatureForSequences(organism, sequenceList, configWrapperService.getChadoExportFastaForSequence())
+                }
             }
         }
 
