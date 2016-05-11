@@ -45,7 +45,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Apollo'
-copyright = u'2015, Apollo'
+copyright = u'2016, Apollo'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -177,7 +177,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'WebApollodoc'
+htmlhelp_basename = 'Apollodoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -227,8 +227,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'webapollo', u'Apollo Documentation',
-     [u'webapoollo'], 1)
+    ('index', 'apollo', u'Apollo Documentation',
+     [u'apollo'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -241,8 +241,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'WebApollo', u'Apollo Documentation',
-   u'webapollo', 'WebApollo', 'One line description of project.',
+  ('index', 'Apollo', u'Apollo Documentation',
+   u'apollo', 'Apollo', 'One line description of project.',
    'Miscellaneous'),
 ]
 
