@@ -40,14 +40,19 @@ class UrlMappings {
 
         "/${clientToken}/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params)
         "/Login"(controller:"login",action: "handleOperation",params:params)
-//        "/ProxyService"(controller:"ncbiProxyService",action: "index",params:params)
-        "/${clientToken}/proxy/request/${url}"(controller:"proxy", action: "request")
+
         "/proxy/request/${url}"(controller:"proxy", action: "request")
+        "/${clientToken}/proxy/request/${url}"(controller:"proxy", action: "request")
+
+        "/ProxyService"(controller:"ncbiProxyService",action: "index",params:params)
         "/${clientToken}/ProxyService"(controller:"ncbiProxyService",action: "index",params:params)
-//        "/IOService"(controller:"IOService",action: "handleOperation",params:params)
-//        "/IOService/download"(controller:"IOService",action: "download", params:params)
+
+        "/IOService"(controller:"IOService",action: "handleOperation",params:params)
         "/${clientToken}/IOService"(controller:"IOService",action: "handleOperation",params:params)
+
+        "/IOService/download"(controller:"IOService",action: "download", params:params)
         "/${clientToken}/IOService/download"(controller:"IOService",action: "download", params:params)
+
         "/jbrowse/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
         "/jbrowse/web_services/api"(controller:"webServices",action: "index", params:params)
     }

@@ -93,14 +93,10 @@ class ChadoHandlerService {
         if (sequenceList.size() > 0) {
             createChadoFeatureForSequences(organism, sequenceList, configWrapperService.getChadoExportFastaForSequence())
         }
-        else {
-            if (exportAllSequences) {
-                sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.organism o join s.featureLocations where o=:organism ", [organism:organism])
-                log.info "Exporting ${sequenceList.size()} Chado sequences for ${organism}"
-                if(sequenceList.size()>0){
-                    createChadoFeatureForSequences(organism, sequenceList, configWrapperService.getChadoExportFastaForSequence())
-                }
-            }
+        else
+        if (exportAllSequences) {
+            sequenceList = Sequence.findAllByOrganism(organism)
+            createChadoFeatureForSequences(organism, sequenceList, configWrapperService.getChadoExportFastaForSequence())
         }
 
         def existingChadoAnnotations = org.gmod.chado.Feature.executeQuery(
