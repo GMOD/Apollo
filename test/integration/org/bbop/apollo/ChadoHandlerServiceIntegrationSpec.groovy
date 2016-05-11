@@ -242,6 +242,11 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
 
     void "test CHADO export and re-export"() {
 
+        if (! configWrapperService.isPostgresChadoDataSource()) {
+            log.debug "Skipping test as the currently specified Chado data source is not PostgreSQL."
+            return
+        }
+
         given: "a set of annotations"
         String addTranscriptString1 = '{"operation":"add_transcript","features":[{"location":{"fmin":787022,"strand":-1,"fmax":836988},"name":"GB40740-RA","children":[{"location":{"fmin":787022,"strand":-1,"fmax":787740},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":787022,"strand":-1,"fmax":788349},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":789768,"strand":-1,"fmax":790242},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":791007,"strand":-1,"fmax":791466},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":791853,"strand":-1,"fmax":792220},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":793652,"strand":-1,"fmax":793876},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":806935,"strand":-1,"fmax":807266},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":828378,"strand":-1,"fmax":829272},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":836953,"strand":-1,"fmax":836988},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":787740,"strand":-1,"fmax":836988},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
         String addTranscriptString2 = '{"operation":"add_transcript","features":[{"location":{"fmin":845782,"strand":-1,"fmax":847278},"name":"GB40739-RA","children":[{"location":{"fmin":845782,"strand":-1,"fmax":845798},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":847144,"strand":-1,"fmax":847278},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":845782,"strand":-1,"fmax":847278},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
