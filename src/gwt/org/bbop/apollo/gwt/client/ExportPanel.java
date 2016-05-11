@@ -44,7 +44,7 @@ public class ExportPanel extends Modal {
     RadioButton cdnaRadioButton = new RadioButton("cDNA", "cDNA", true);
     RadioButton cdsRadioButton = new RadioButton("CDS", "CDS", true);
     RadioButton peptideRadioButton = new RadioButton("Peptide", "Peptide", true);
-    RadioButton chadoCleanButton = new RadioButton("Chado", "Export to a new clean Chado data source", true);
+    RadioButton chadoCleanButton = new RadioButton("Chado", "Verify export to Chado database", true);
     //RadioButton chadoExistingButton = new RadioButton("Chado", "Chado (update)", true);
 
     ModalBody modalBody = new ModalBody();

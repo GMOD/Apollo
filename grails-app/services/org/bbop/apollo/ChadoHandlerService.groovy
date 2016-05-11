@@ -33,10 +33,12 @@ class ChadoHandlerService {
     def transcriptService
     def cdsService
 
-    private static final SEQUENCE_ONTOLOGY = "sequence"
-    private static final RELATIONSHIP_ONTOLOGY = "relationship"
-    private static final FEATURE_PROPERTY = "feature_property"
-
+    private static final String SEQUENCE_ONTOLOGY = "sequence"
+    private static final String RELATIONSHIP_ONTOLOGY = "relationship"
+    private static final String FEATURE_PROPERTY = "feature_property"
+    private static final def topLevelFeatureTypes = [Gene.alternateCvTerm, Pseudogene.alternateCvTerm, TransposableElement.alternateCvTerm, RepeatRegion.alternateCvTerm,
+                                                     Insertion.alternateCvTerm, Deletion.alternateCvTerm, Substitution.alternateCvTerm]
+    private static final ontologyDb = ["SO", "GO", "RO"]
     Map<String, org.gmod.chado.Organism> chadoOrganismsMap = new HashMap<String, org.gmod.chado.Organism>()
     Map<String, Integer> exportStatisticsMap = new HashMap<String, Integer>();
     ArrayList<org.bbop.apollo.Feature> processedFeatures = new ArrayList<org.bbop.apollo.Feature>()
@@ -49,14 +51,7 @@ class ChadoHandlerService {
             returnObject.error = "Cannot export annotations to Chado as Chado data source has not been configured."
         }
         else {
-            if (checkForExistingFeatures()) {
-                // The Chado datasource has existing features in the Feature table
-                // How to identify what is already existing? - [uniquename, organism_id, type_id] triplet
-                log.error "The provided Chado data source has existing features in the feature table. " +
-                        "Initial efforts for Chado export is aimed at exporting all Apollo features to a clean Chado database"
-                returnObject.error = "The provided Chado data source already has existing features in the feature table."
-            }
-            else if (!checkForOntologies()) {
+            if (!checkForOntologies()) {
                 log.error "No ontologies loaded into the Chado database"
                 returnObject.error = "No ontologies loaded into the Chado database. Refer to "
             }
@@ -100,19 +95,32 @@ class ChadoHandlerService {
         }
         else {
             if (exportAllSequences) {
-                sequenceList = Sequence.executeQuery(
-                        "SELECT DISTINCT s FROM org.bbop.apollo.Sequence s JOIN s.organism o WHERE o.genus = :queryGenus AND o.species = :querySpecies",
-                        [queryGenus: organism.genus, querySpecies: organism.species])
-                createChadoFeatureForSequences(organism, sequenceList, configWrapperService.getChadoExportFastaForSequence())
+                sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.organism o join s.featureLocations where o=:organism ", [organism:organism])
+                log.info "Exporting ${sequenceList.size()} Chado sequences for ${organism}"
+                if(sequenceList.size()>0){
+                    createChadoFeatureForSequences(organism, sequenceList, configWrapperService.getChadoExportFastaForSequence())
+                }
             }
         }
+
+        def existingChadoAnnotations = org.gmod.chado.Feature.executeQuery(
+                "SELECT DISTINCT f.uniquename FROM org.gmod.chado.Feature f WHERE f.type.name IN :topLevelFeatureTypes",
+                [topLevelFeatureTypes: topLevelFeatureTypes])
 
         // creating Chado feature for each Apollo feature
         features.each { apolloFeature ->
             startTime = System.currentTimeMillis()
             createChadoFeaturesForAnnotation(organism, apolloFeature)
+            existingChadoAnnotations.remove(apolloFeature.uniqueName)
             endTime = System.currentTimeMillis()
             log.debug "Time taken to process annotation ${apolloFeature.name} of type ${apolloFeature.class.canonicalName}: ${endTime - startTime} ms"
+        }
+
+        // delete features that are in Chado but not in Apollo
+        existingChadoAnnotations.each { uniquename ->
+            org.gmod.chado.Feature chadoFeature = getChadoFeature(uniquename)
+            log.debug "Deleting ${uniquename}"
+            deleteChadoFeature(chadoFeature)
         }
 
         JSONObject exportStatistics = new JSONObject()
@@ -136,6 +144,15 @@ class ChadoHandlerService {
         Top-level features are gene, pseudogene, transposable_element, repeat_region, insertion, deletion, substitution.
         A top-level feature that is not an instance of type Gene is likely to be a singleton feature.
          */
+        org.gmod.chado.Feature topLevelChadoFeature = getChadoFeature(topLevelFeature.uniqueName)
+        if (topLevelChadoFeature) {
+            // if a top level annotation already exists we delete it
+            long startTime = System.currentTimeMillis()
+            deleteChadoFeature(topLevelChadoFeature)
+            long endTime = System.currentTimeMillis()
+            log.debug "Time taken to delete existing annotation ${endTime - startTime} ms"
+        }
+
         createChadoFeature(organism, topLevelFeature)
         if (topLevelFeature instanceof Gene) {
             // annotation is a Gene / Pseudogene
@@ -193,6 +210,102 @@ class ChadoHandlerService {
     }
 
     /**
+     * Deletes a given feature from the Chado database.
+     * @param chadoFeature
+     * @return
+     */
+    def deleteChadoFeature(org.gmod.chado.Feature chadoFeature) {
+        def chadoFeatureLocs = getChadoFeatureloc(chadoFeature)
+        chadoFeatureLocs.each { fl ->
+            fl.delete()
+        }
+
+        def chadoFeatureDbxrefs = getChadoFeatureDbxrefs(chadoFeature)
+        chadoFeatureDbxrefs.each { fd ->
+            if (! ontologyDb.contains(fd.dbxref.db.name)) {
+                fd.dbxref.delete()
+            }
+        }
+
+        def chadoFeatureProperties = getChadoFeatureProps(chadoFeature)
+        chadoFeatureProperties.each { fp ->
+            fp.delete()
+        }
+
+        def chadoChildFeatureRelationships = getChildFeatureRelationships(chadoFeature)
+        chadoChildFeatureRelationships.each { child ->
+            deleteChadoFeature(child.subject)
+        }
+
+        // TODO: featureSynonyms, featurePubs, featureGenotypes, featurePhenotypes
+        chadoFeature.delete(flush: true)
+    }
+
+    /**
+     * Queries the Chado database and returns all featurelocs for a given Chado Feature
+     * @param chadoFeature
+     * @return
+     */
+    def getChadoFeatureloc(org.gmod.chado.Feature chadoFeature) {
+        long startTime = System.currentTimeMillis()
+        def results = org.gmod.chado.Featureloc.executeQuery(
+                        "SELECT DISTINCT fl FROM org.gmod.chado.Featureloc fl WHERE fl.feature.uniquename = :queryUniqueName",
+                        [queryUniqueName: chadoFeature.uniquename]
+        )
+        long endTime = System.currentTimeMillis()
+        log.debug "Time taken to query featurelocs for ChadoFeature: ${chadoFeature.uniquename} - ${endTime - startTime} ms"
+        return results
+    }
+
+    /**
+     * Queries the Chado database and returns all FeatureDbxrefs for a given Chado Feature
+     * @param chadoFeature
+     * @return
+     */
+    def getChadoFeatureDbxrefs(org.gmod.chado.Feature chadoFeature) {
+        long startTime = System.currentTimeMillis()
+        def results = org.gmod.chado.FeatureDbxref.executeQuery(
+                        "SELECT DISTINCT fd FROM org.gmod.chado.FeatureDbxref fd JOIN fd.dbxref dbxref JOIN dbxref.db db WHERE fd.feature.uniquename = :queryUniqueName",
+                        [queryUniqueName: chadoFeature.uniquename]
+        )
+        long endTime = System.currentTimeMillis()
+        log.debug "Time taken to query featureDbxrefs for ChadoFeature: ${chadoFeature.uniquename} - ${endTime - startTime} ms"
+        return results
+    }
+
+    /**
+     * Queries the Chado database and returns all FeatureProps for a given Chado Feature
+     * @param chadoFeature
+     * @return
+     */
+    def getChadoFeatureProps(org.gmod.chado.Feature chadoFeature) {
+        long startTime = System.currentTimeMillis()
+        def results = org.gmod.chado.Featureprop.executeQuery(
+                        "SELECT DISTINCT fp FROM org.gmod.chado.Featureprop fp JOIN fp.feature f WHERE f.uniquename = :queryUniqueName",
+                        [queryUniqueName: chadoFeature.uniquename]
+        )
+        long endTime = System.currentTimeMillis()
+        log.debug "Time taken to query featureprops for ChadoFeature: ${chadoFeature.uniquename} - ${endTime - startTime} ms"
+        return results
+    }
+
+    /**
+     * Queries the Chado database and retuns all child feature relationships for a given Chado Feature
+     * @param chadoFeature
+     * @return
+     */
+    def getChildFeatureRelationships(org.gmod.chado.Feature chadoFeature) {
+        long startTime = System.currentTimeMillis()
+        def results = org.gmod.chado.FeatureRelationship.executeQuery(
+                        "SELECT DISTINCT fr FROM org.gmod.chado.FeatureRelationship fr JOIN fr.subject s JOIN fr.object o WHERE o.uniquename = :queryUniqueName",
+                        [queryUniqueName: chadoFeature.uniquename]
+        )
+        long endTime = System.currentTimeMillis()
+        log.debug "Time taken to query feature_relationships for ChadoFeature: ${chadoFeature.uniquename} - ${endTime - startTime} ms"
+        return results
+    }
+
+    /**
      * Create a Chado feature for a given Apollo feature.
      * @param Organism
      * @param feature
@@ -201,6 +314,7 @@ class ChadoHandlerService {
     def createChadoFeature(org.bbop.apollo.Organism organism, org.bbop.apollo.Feature feature) {
         long startTime, endTime
         String type = feature.hasProperty('alternateCvTerm') ? feature.alternateCvTerm : feature.cvTerm
+
         // feature
         startTime = System.currentTimeMillis()
         org.gmod.chado.Feature chadoFeature = new org.gmod.chado.Feature(
@@ -218,25 +332,26 @@ class ChadoHandlerService {
         exportStatisticsMap['feature_count'] += 1
         endTime = System.currentTimeMillis()
         log.debug "Time taken to create Chado feature of type ${feature.class.simpleName}: ${endTime - startTime} ms"
+
         // featureloc
         createChadoFeatureloc(organism, chadoFeature, feature)
 
         /*
-        // feature.symbol treated as Chado synonym
-        // TODO: Cannot treat feature.symbol as a Chado synonym because feature -> synonym link requires a Publication, according to Chado specification
-        if (feature.symbol) {
-            org.gmod.chado.Synonym chadoSynonym = getChadoSynonym(feature.symbol, "symbol")
-
-            // Creating a linking relationship between Chado feature and Chado synonym
-            org.gmod.chado.FeatureSynonym chadoFeatureSynonym = new org.gmod.chado.FeatureSynonym(
-                    feature: chadoFeature,
-                    synonym: chadoSynonym,
-                    pub: null,
-                    isCurrent: true,
-                    isInternal: false
-            ).save()
-        }
+         TODO: Cannot treat feature.symbol as a Chado synonym
+         because feature -> synonym link requires a Publication, according to Chado specification
         */
+        //if (feature.symbol) {
+        //    org.gmod.chado.Synonym chadoSynonym = getChadoSynonym(feature.symbol, "symbol")
+        //
+        //    // Creating a linking relationship between Chado feature and Chado synonym
+        //    org.gmod.chado.FeatureSynonym chadoFeatureSynonym = new org.gmod.chado.FeatureSynonym(
+        //            feature: chadoFeature,
+        //            synonym: chadoSynonym,
+        //            pub: null,
+        //            isCurrent: true,
+        //            isInternal: false
+        //    ).save()
+        //}
 
         // As an alternative, feature.symbol is treated as Chado featureprop
         if (feature.symbol) {
@@ -258,13 +373,14 @@ class ChadoHandlerService {
             ).save()
         }
 
-        // dbxref
-        // TODO: How to determine the primary dbxref?
-        /* Currently the feature.dbxref_id will remain empty as we do not know which of
+        /* TODO: How to determine the primary dbxref?
+         Currently the feature.dbxref_id will remain empty as we do not know which of
          the dbxref will serve as the primary identifier.
          Chado specification suggests using feature.dbxref_id to link to primary
          identifier and to use feature_dbxref table for all additional identifiers.
         */
+
+        // dbxref
         if (feature.featureDBXrefs) {
             createChadoDbxref(chadoFeature, feature.featureDBXrefs)
         }
@@ -272,11 +388,6 @@ class ChadoHandlerService {
         // properties
         if (feature.featureProperties) {
             createChadoProperty(chadoFeature, feature.featureProperties)
-        }
-
-        // publications
-        if (feature.featurePublications) {
-            createChadoFeaturePub(chadoFeature, feature.featurePublications)
         }
 
         // Feature owner treated as featureprop
@@ -293,10 +404,15 @@ class ChadoHandlerService {
             }
         }
 
+        // publications
+        //if (feature.featurePublications) {
+        //    createChadoFeaturePub(chadoFeature, feature.featurePublications)
+        //}
+
         // synonyms
-        if (feature.featureProperties) {
-            createChadoSynonym(chadoFeature, feature.featureSynonyms)
-        }
+        //if (feature.featureSynonyms) {
+        //    createChadoSynonym(chadoFeature, feature.featureSynonyms)
+        //}
 
         // genotypes - TODO: When Apollo has Genotype associated with annotations
         //if (feature.featureGenotypes) {
@@ -476,7 +592,6 @@ class ChadoHandlerService {
     def createChadoFeatureRelationship(org.bbop.apollo.Organism organism, org.gmod.chado.Feature feature, org.bbop.apollo.FeatureRelationship featureRelationship, String relationshipType = "part_of") {
         long startTime, endTime
         startTime = System.currentTimeMillis()
-        println "trying to create feature relationship from ${featureRelationship.parentFeature.uniqueName}"
         org.gmod.chado.FeatureRelationship chadoFeatureRelationship = new org.gmod.chado.FeatureRelationship(
                 subject: feature,
                 object: getChadoFeature(featureRelationship.parentFeature.uniqueName),
@@ -567,8 +682,8 @@ class ChadoHandlerService {
     def getChadoSynonym(org.bbop.apollo.Synonym synonym) {
         org.gmod.chado.Synonym chadoSynonym
         def synonymResult = org.gmod.chado.Synonym.executeQuery(
-                "SELECT DISTINCT s FROM org.gmod.chado.Synonym s JOIN s.type c WHERE s.name = :querySynonymString AND c.name = :queryCvtermString",
-                [querySynonymString: synonym.name, queryCvString: synonym.type.name])
+                "SELECT DISTINCT s FROM org.gmod.chado.Synonym s JOIN s.type c WHERE s.name = :querySynonym AND c.name = :queryCvterm",
+                [querySynonym: synonym.name, queryCvterm: synonym.type.name])
         if (synonymResult.size() == 0) {
             chadoSynonym = createChadoSynonym(synonym.name)
         }
@@ -591,8 +706,8 @@ class ChadoHandlerService {
     def getChadoSynonym(String synonymName, String synonymType) {
         org.gmod.chado.Synonym chadoSynonym
         def synonymResult = org.gmod.chado.Synonym.executeQuery(
-                "SELECT DISTINCT s FROM org.gmod.chado.Synonym s JOIN s.type c WHERE s.name = :querySynonymString AND c.name = :queryCvtermString",
-                [querySynonymString: synonymName, queryCvString: synonymType])
+                "SELECT DISTINCT s FROM org.gmod.chado.Synonym s JOIN s.type c WHERE s.name = :querySynonym AND c.name = :queryCvterm",
+                [querySynonym: synonymName, queryCvterm: synonymType])
         if (synonymResult.size() == 0) {
             chadoSynonym = createChadoSynonym(synonymName)
         }
@@ -1078,19 +1193,23 @@ class ChadoHandlerService {
         long startTime, endTime
         Timestamp timeStamp = generateTimeStamp()
         startTime = System.currentTimeMillis()
-        org.gmod.chado.Feature chadoFeature = new org.gmod.chado.Feature(
-                uniquename: generateUniqueName(),
-                name: sequence.name,
-                seqlen: sequence.end - sequence.start,
-                isAnalysis: false,
-                isObsolete: false,
-                timelastmodified: timeStamp,
-                timeaccessioned: timeStamp,
-                organism: chadoOrganismsMap.get(organism.commonName),
-                type: getChadoCvterm("chromosome", SEQUENCE_ONTOLOGY)
-        )
+        org.gmod.chado.Feature chadoFeature = getChadoFeatureForSequence(organism, sequence)
 
-        if (storeSequence) {
+        if (chadoFeature == null) {
+            chadoFeature = new org.gmod.chado.Feature(
+                    uniquename: generateUniqueName(),
+                    name: sequence.name,
+                    seqlen: sequence.end - sequence.start,
+                    isAnalysis: false,
+                    isObsolete: false,
+                    timelastmodified: timeStamp,
+                    timeaccessioned: timeStamp,
+                    organism: chadoOrganismsMap.get(organism.commonName),
+                    type: getChadoCvterm("chromosome", SEQUENCE_ONTOLOGY)
+            )
+        }
+
+        if (storeSequence && chadoFeature.residues == null) {
             String residues = sequenceService.getRawResiduesFromSequence(sequence, sequence.start, sequence.end)
             chadoFeature.residues = residues
             chadoFeature.md5checksum = generateMD5checksum(residues)
@@ -1100,6 +1219,24 @@ class ChadoHandlerService {
         exportStatisticsMap['sequence_feature_count'] += 1
         endTime = System.currentTimeMillis()
         log.debug "Time taken to create Chado Feature for sequence ${sequence.name}: ${endTime - startTime} ms"
+        return chadoFeature
+    }
+
+    def getChadoFeatureForSequence(Organism organism, org.bbop.apollo.Sequence sequence) {
+        org.gmod.chado.Feature chadoFeature
+        def sequenceResults = org.gmod.chado.Feature.executeQuery(
+                "SELECT DISTINCT s FROM org.gmod.chado.Feature s WHERE s.name = :querySequenceName AND s.organism.genus = :queryGenus AND s.organism.species = :querySpecies",
+                [querySequenceName: sequence.name, queryGenus: organism.genus, querySpecies: organism.species])
+        if (sequenceResults.size() == 0) {
+            chadoFeature = null
+        }
+        else if (sequenceResults.size() == 1) {
+            chadoFeature = sequenceResults.get(0)
+        }
+        else {
+            log.error "${sequenceResults} - More than one result found for sequence name ${sequence.name}. Returning null."
+            chadoFeature = null
+        }
         return chadoFeature
     }
 
@@ -1193,25 +1330,53 @@ class ChadoHandlerService {
      * @return
      */
     def createChadoOrganism(org.bbop.apollo.Organism organism) {
-        org.gmod.chado.Organism chadoOrganism = new org.gmod.chado.Organism(
-                abbreviation: organism.abbreviation,
-                genus: organism.genus,
-                species: organism.species,
-                commonName: organism.commonName,
-                comment: organism.comment
-        ).save()
+        org.gmod.chado.Organism chadoOrganism = getChadoOrganism(organism)
+        if (chadoOrganism == null) {
+            chadoOrganism = new org.gmod.chado.Organism(
+                    abbreviation: organism.abbreviation,
+                    genus: organism.genus,
+                    species: organism.species,
+                    commonName: organism.commonName,
+                    comment: organism.comment
+            ).save()
 
-        organism.organismDBXrefs.each { organismDbxref ->
-            createChadoOrganismDbxref(chadoOrganism, organismDbxref)
+            organism.organismDBXrefs.each { organismDbxref ->
+                createChadoOrganismDbxref(chadoOrganism, organismDbxref)
+            }
+
+            organism.organismProperties.each { organismProperty ->
+                createChadoOrganismProperty(chadoOrganism, organismProperty)
+            }
+
+            chadoOrganism.save(flush: true)
         }
-
-        organism.organismProperties.each { organismProperty ->
-            createChadoOrganismProperty(chadoOrganism, organismProperty)
-        }
-
         chadoOrganismsMap.put(organism.commonName, chadoOrganism)
+        return chadoOrganism
+    }
 
-        chadoOrganism.save(flush: true)
+    /**
+     * Queries the Chado database for an Organism that has the same genus and species name as that of given Apollo Organism.
+     * @param organism
+     * @return
+     */
+    def getChadoOrganism(org.bbop.apollo.Organism organism) {
+        org.gmod.chado.Organism chadoOrganism
+        def organismResults = org.gmod.chado.Organism.executeQuery(
+                "SELECT DISTINCT o FROM org.gmod.chado.Organism o WHERE o.genus = :queryGenus AND o.species = :querySpecies",
+                [queryGenus: organism.genus, querySpecies: organism.species])
+
+        if (organismResults.size() == 0) {
+            chadoOrganism = null
+        }
+        else if (organismResults.size() == 1) {
+            chadoOrganism = organismResults.get(0)
+        }
+        else {
+            log.error "${organismResults} - more than one result found for organism '${organism.genus} ${organism.species}'. Returning null."
+            chadoOrganism = null
+        }
+
+        return chadoOrganism
     }
 
     /**
