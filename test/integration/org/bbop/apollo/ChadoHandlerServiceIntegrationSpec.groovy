@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.test.spock.IntegrationSpec
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Ignore
 
@@ -43,7 +44,6 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
     def cleanup() {
     }
 
-    //@Ignore("This test will successfully run only on a prepared data source")
     void "test CHADO export for standard annotations"() {
         /*
         Standard annotations signifies no modifications/attributes added to the annotations
@@ -238,5 +238,146 @@ class ChadoHandlerServiceIntegrationSpec extends IntegrationSpec {
         assert org.gmod.chado.Featureprop.count > 0
         assert org.gmod.chado.FeatureRelationship.count > 0
 
+    }
+
+    void "test CHADO export and re-export"() {
+
+        given: "a set of annotations"
+        String addTranscriptString1 = '{"operation":"add_transcript","features":[{"location":{"fmin":787022,"strand":-1,"fmax":836988},"name":"GB40740-RA","children":[{"location":{"fmin":787022,"strand":-1,"fmax":787740},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":787022,"strand":-1,"fmax":788349},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":789768,"strand":-1,"fmax":790242},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":791007,"strand":-1,"fmax":791466},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":791853,"strand":-1,"fmax":792220},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":793652,"strand":-1,"fmax":793876},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":806935,"strand":-1,"fmax":807266},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":828378,"strand":-1,"fmax":829272},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":836953,"strand":-1,"fmax":836988},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":787740,"strand":-1,"fmax":836988},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+        String addTranscriptString2 = '{"operation":"add_transcript","features":[{"location":{"fmin":845782,"strand":-1,"fmax":847278},"name":"GB40739-RA","children":[{"location":{"fmin":845782,"strand":-1,"fmax":845798},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":847144,"strand":-1,"fmax":847278},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":845782,"strand":-1,"fmax":847278},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+        String addFeatureString1 = '{"operation":"add_feature","features":[{"location":{"fmin":772054,"strand":1,"fmax":776061},"children":[{"location":{"fmin":772054,"strand":1,"fmax":776061},"children":[{"location":{"fmin":775816,"strand":1,"fmax":776061},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":772054,"strand":1,"fmax":772102},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":772808,"strand":1,"fmax":772942},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":773319,"strand":1,"fmax":773539},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":773682,"strand":1,"fmax":773848},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":774138,"strand":1,"fmax":774504},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":774865,"strand":1,"fmax":775227},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":775543,"strand":1,"fmax":776061},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":772054,"strand":1,"fmax":775816},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"transcript","cv":{"name":"sequence"}}}],"type":{"name":"pseudogene","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+        String addFeatureString2 = '{"operation":"add_feature","features":[{"location":{"fmin":761542,"strand":-1,"fmax":768063},"children":[{"location":{"fmin":761542,"strand":-1,"fmax":768063},"children":[{"location":{"fmin":767945,"strand":-1,"fmax":768063},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":761542,"strand":-1,"fmax":763070},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":761542,"strand":-1,"fmax":763513},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":765327,"strand":-1,"fmax":765472},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":765551,"strand":-1,"fmax":766176},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":766255,"strand":-1,"fmax":767133},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":767207,"strand":-1,"fmax":767389},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":767485,"strand":-1,"fmax":768063},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":763070,"strand":-1,"fmax":767945},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"ncRNA","cv":{"name":"sequence"}}}],"type":{"name":"gene","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+        String addFeatureString3 = '{"operation":"add_feature","features":[{"location":{"fmin":747699,"strand":0,"fmax":747966},"type":{"name":"repeat_region","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+        String addFeatureString4 = '{"operation":"add_feature","features":[{"location":{"fmin":734606,"strand":0,"fmax":735570},"type":{"name":"transposable_element","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+        String addTranscriptString3 = '{"operation":"add_transcript","features":[{"location":{"fmin":891279,"strand":-1,"fmax":933037},"name":"GB40737-RA","children":[{"location":{"fmin":891279,"strand":-1,"fmax":891532},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":893536,"strand":-1,"fmax":893577},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":931384,"strand":-1,"fmax":931630},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":932998,"strand":-1,"fmax":933037},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":891279,"strand":-1,"fmax":933037},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+
+        String addNonReservedPropertyString = '{"operation":"add_non_reserved_properties","features":[{"non_reserved_properties":[{"tag":"@TAG@","value":"@VALUE@"}],"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String addNonPrimaryDbxrefString = '{"operation":"add_non_primary_dbxrefs","features":[{"dbxrefs":[{"db":"@DB@","accession":"@ACCESSION@"}],"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String addPublicationString = '{"operation":"add_non_primary_dbxrefs","features":[{"dbxrefs":[{"db":"PMID","accession":"@ACCESSION@"}],"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String addGeneOntologyString = '{"operation":"add_non_primary_dbxrefs","features":[{"dbxrefs":[{"db":"GO","accession":"@ACCESSION@"}],"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String addCommentString = '{"operation":"add_comments","features":[{"uniquename":"@UNIQUENAME@","comments":["@COMMENT@"]}],"track":"Group1.10"}'
+        String addSymbolString = '{"operation":"set_symbol","features":[{"symbol":"@SYMBOL@","uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+        String addDescriptionString = '{"operation":"set_description","features":[{"description":"@DESCRIPTION@","uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
+
+        when: "we add all the annotations"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString1) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString2) as JSONObject)
+
+        requestHandlingService.addFeature(JSON.parse(addFeatureString1) as JSONObject)
+        requestHandlingService.addFeature(JSON.parse(addFeatureString2) as JSONObject)
+        requestHandlingService.addFeature(JSON.parse(addFeatureString3) as JSONObject)
+        requestHandlingService.addFeature(JSON.parse(addFeatureString4) as JSONObject)
+
+        then: "we should see 4 genes, 1 repeat region and 1 transposable element"
+        assert Gene.count == 4
+        assert RepeatRegion.count == 1
+        assert TransposableElement.count == 1
+        Gene gene1 = Gene.findByName("GB40740-RA")
+        MRNA mrna1 = MRNA.findByName("GB40740-RA-00001")
+        String gene1UniqueName = gene1.uniqueName
+        String mrna1UniqueName = mrna1.uniqueName
+        Gene gene2 = Gene.findByName("GB40739-RA")
+        MRNA mrna2 = MRNA.findByName("GB40739-RA-00001")
+
+        when: "we add metadata"
+        requestHandlingService.setSymbol(JSON.parse(addSymbolString.replace("@UNIQUENAME@", gene1.uniqueName).replace("@SYMBOL@", "GN1A")) as JSONObject)
+        requestHandlingService.setSymbol(JSON.parse(addSymbolString.replace("@UNIQUENAME@", gene2.uniqueName).replace("@SYMBOL@", "GN1B")) as JSONObject)
+        requestHandlingService.setSymbol(JSON.parse(addSymbolString.replace("@UNIQUENAME@", mrna1.uniqueName).replace("@SYMBOL@", "GN1A isoform 1")) as JSONObject)
+        requestHandlingService.setSymbol(JSON.parse(addSymbolString.replace("@UNIQUENAME@", mrna2.uniqueName).replace("@SYMBOL@", "GN1B isoform 1")) as JSONObject)
+
+        requestHandlingService.setDescription(JSON.parse(addDescriptionString.replace("@UNIQUENAME@", gene1.uniqueName).replace("@DESCRIPTION@", "Test gene GN1A")) as JSONObject)
+        requestHandlingService.setDescription(JSON.parse(addDescriptionString.replace("@UNIQUENAME@", gene2.uniqueName).replace("@DESCRIPTION@", "Test gene GN1B")) as JSONObject)
+        requestHandlingService.setDescription(JSON.parse(addDescriptionString.replace("@UNIQUENAME@", mrna1.uniqueName).replace("@DESCRIPTION@", "Test transcript isoform GN1A")) as JSONObject)
+        requestHandlingService.setDescription(JSON.parse(addDescriptionString.replace("@UNIQUENAME@", mrna2.uniqueName).replace("@DESCRIPTION@", "Test transcript isoform GN1B")) as JSONObject)
+
+        requestHandlingService.addComments(JSON.parse(addCommentString.replace("@UNIQUENAME@", gene1.uniqueName).replace("@COMMENT@", "Gene GN1A is created for test purposes")) as JSONObject)
+        requestHandlingService.addComments(JSON.parse(addCommentString.replace("@UNIQUENAME@", gene2.uniqueName).replace("@COMMENT@", "Gene GN1B is created for test purposes")) as JSONObject)
+        requestHandlingService.addComments(JSON.parse(addCommentString.replace("@UNIQUENAME@", mrna1.uniqueName).replace("@COMMENT@", "Transcript GN1A isoform 1 is created for test purposes")) as JSONObject)
+        requestHandlingService.addComments(JSON.parse(addCommentString.replace("@UNIQUENAME@", mrna2.uniqueName).replace("@COMMENT@", "Transcript GN1B isoform 1 is created for test purposes")) as JSONObject)
+
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefString.replace("@UNIQUENAME@", gene1.uniqueName).replace("@DB@", "NCBI").replace("@ACCESSION@", "1312415")) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefString.replace("@UNIQUENAME@", gene2.uniqueName).replace("@DB@", "NCBI").replace("@ACCESSION@", "3235223")) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefString.replace("@UNIQUENAME@", gene1.uniqueName).replace("@DB@", "Ensembl").replace("@ACCESSION@", "ENSG00000000012")) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefString.replace("@UNIQUENAME@", gene2.uniqueName).replace("@DB@", "Ensembl").replace("@ACCESSION@", "ENSG00000000014")) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefString.replace("@UNIQUENAME@", mrna1.uniqueName).replace("@DB@", "Ensembl").replace("@ACCESSION@", "ENST0000000032521")) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefString.replace("@UNIQUENAME@", mrna2.uniqueName).replace("@DB@", "Ensembl").replace("@ACCESSION@", "ENST00000000325")) as JSONObject)
+
+        requestHandlingService.addNonReservedProperties(JSON.parse(addNonReservedPropertyString.replace("@UNIQUENAME@", gene1.uniqueName).replace("@TAG@", "validated").replace("@VALUE@", "false")) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addNonReservedPropertyString.replace("@UNIQUENAME@", mrna1.uniqueName).replace("@TAG@", "validated").replace("@VALUE@", "false")) as JSONObject)
+
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addPublicationString.replace("@UNIQUENAME@", gene1.uniqueName).replace("@ACCESSION@", "8324934")) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addPublicationString.replace("@UNIQUENAME@", mrna1.uniqueName).replace("@ACCESSION@", "798424")) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addGeneOntologyString.replace("@UNIQUENAME@", gene1.uniqueName).replace("@ACCESSION@", "0015755")) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addGeneOntologyString.replace("@UNIQUENAME@", mrna1.uniqueName).replace("@ACCESSION@", "0030393")) as JSONObject)
+
+        then: "we should see these metadata"
+        gene1.refresh()
+        gene2.refresh()
+        assert gene1.symbol != null
+        assert gene1.description != null
+        assert gene2.symbol != null
+        assert gene2.description != null
+        assert gene1.featureProperties.size() != 0
+        assert gene2.featureProperties.size() != 0
+        assert gene1.featureDBXrefs.size() != 0
+        assert gene2.featureDBXrefs.size() != 0
+
+        when: "we do a Chado export"
+        def features = []
+        Feature.all.each {
+            if (!it.childFeatureRelationships) {
+                features.add(it)
+            }
+        }
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), Sequence.all, features)
+
+        then: "we should see the annotations in Chado data source"
+        assert org.gmod.chado.Feature.count > 0
+        assert org.gmod.chado.Featureloc.count > 0
+        assert org.gmod.chado.Featureprop.count > 0
+        assert org.gmod.chado.FeatureDbxref.count > 0
+        assert org.gmod.chado.FeatureRelationship.count > 0
+        assert org.gmod.chado.Feature.findByUniquename(gene1.uniqueName) != null
+        assert org.gmod.chado.Feature.findByUniquename(gene2.uniqueName) != null
+
+
+        when: "we add GB40737-RA and re-export to Chado"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString3) as JSONObject)
+        Gene gene3 = Gene.findByName("GB40737-RA")
+
+        features = []
+        Feature.all.each {
+            if (!it.childFeatureRelationships) {
+                features.add(it)
+            }
+        }
+
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), Sequence.all, features)
+
+        then: "we should find GB40737-RA in the Chado data source"
+        assert org.gmod.chado.Feature.findByUniquename(gene3.uniqueName) != null
+
+        when: "we delete an annotation and do another Chado export"
+        gene1.refresh()
+        featureRelationshipService.deleteFeatureAndChildren(gene1)
+        features = []
+        Feature.all.each {
+            if (!it.childFeatureRelationships) {
+                features.add(it)
+            }
+        }
+
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), Sequence.all, features)
+
+        then: "GB40740-RA, its dbxrefs and feature properties should not exist in Chado"
+        assert org.gmod.chado.Feature.findByUniquename(gene1UniqueName) == null
+        assert org.gmod.chado.Feature.findByUniquename(mrna1UniqueName) == null
+        assert org.gmod.chado.Dbxref.findByAccession("1312415") == null
+        assert org.gmod.chado.Dbxref.findByAccession("ENSG00000000012") == null
+        assert org.gmod.chado.Featureprop.findByValue("Gene GN1A is created for test purposes") == null
+
+        // and that GO terms are not deleted as a result
+        assert org.gmod.chado.Dbxref.findByAccession("0015755") != null
+        assert org.gmod.chado.Dbxref.findByAccession("0030393") != null
     }
 }
