@@ -27,7 +27,7 @@ shown how to deploy on a production server with customized settings in the [setu
 
 ## Migrating data from older versions
 
-You can follow steps in our [migration guide](docs/Migration.md) to move annotations and data from older versions.
+You can follow steps in our [migration guide](https://github.com/GMOD/Apollo/blob/master/docs/Migration.md) to move annotations and data from older versions.
 
 ### Note about data directories
 
