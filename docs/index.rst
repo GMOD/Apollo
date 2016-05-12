@@ -6,7 +6,7 @@ Apollo - An instantaneous, collaborative, genome annotation editor.
 The application's technology stack includes a Grails-based Java web application with flexible database backends and a
 Javascript client that runs in a web browser as a JBrowse plugin.  
 
-You can find the latest release here: https://github.com/GMOD/Apollo/releases/latest and our setup guide: http://genomearchitect.readthedocs.io/en/latest/Setup/
+You can find the latest release here: https://github.com/GMOD/Apollo/releases/latest and our setup guide: http://genomearchitect.readthedocs.io/en/latest/Setup.html
 
 For general information on Apollo, go to: 
 `https://genomearchitect.github.io/ <https://genomearchitect.github.io>`__
@@ -19,6 +19,11 @@ For more information on JBrowse, please visit:
 
 Note: This documentation covers release versions 2.x of Apollo. For the 1.0.4 installation please refer to
 the installation guide found at `http://genomearchitect.readthedocs.io/en/1.0.4/ <http://genomearchitect.readthedocs.io/en/1.0.4/>`__
+
+
+.. A PDF version of this documentation is also available for download.
+
+.. Link `https://media.readthedocs.org/pdf/webapollo/latest/webapollo.pdf <https://media.readthedocs.org/pdf/webapollo/latest/webapollo.pdf>`__
 
 
 
