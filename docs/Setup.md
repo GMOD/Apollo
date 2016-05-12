@@ -59,44 +59,7 @@ server `apollo run-local` or `apollo debug` use the development environment (i.e
 `WEBAPOLLO_DB_URI`
 - Create a new database in your chosen database backend and copy the sample-docker-apollo-config.groovy to
   apollo-config.groovy.
-
-##### Docker quickstart with PostgreSQL:
-
-This procedure starts tomcat in a standard virtualized environment with a PostgreSQL database.
-
-- Install [docker](https://docs.docker.com/engine/installation/) for your system if not previously done. 
-- Start the docker-engine service using for your system (quickstart terminal for mac typically or start the docker-engine as a service for linux). 
-
-- Clone docker: ```git clone https://github.com/GMOD/docker-webapollo2.git```
-- ```cd docker-webapollo2```
-- copy JBrowse data into ```docker-webapollo2/data``` OR copy all files into a root level folder and above jbrowse tracks and link the name data or change the filename in the ```docker-compose.yml``` file.
-- ```docker-machine ls``` to get your IP
-- ```eval "$(docker-machine env default)”```  # this connects the shell to the machine!
-- ```docker-compose up -d```  # starts the service as a daemon
-- Connect to http://<docker-ip>:8080/apollo/ and confirm its working.  e.g., http://192.168.92.100:8080/apollo
-- Copy JBrowse directories into appropriate mounted docker volumes (see ```docker-compose.yml``` for mounted volumes).  
-- Begin working with Apollo as usual.  All directories in ```data``` are accessible in the docker file-system at ```/data/``` when you add directories. 
-
-To connect to the running machine:
-- ```docker ps```
-- ```docker exec -it <container id, first column for the apollo container>```
-
-To bring down a machine:
-- ```docker-compose down```
-
-===  Quicker start 
-
-- ```docker run GMOD/apollo:2.0.2``` Start Apollo server remotely 
-- Copy JBrowse files to individual local folder: ```data```.  This will be mapped to the file-system at ```/data/```. 
-- To login to the system (optional) : ```docker run -it erasche/webapollo2:cpt bash``` 
-
-##### Docker for production 
-
-To add additional parameters to represent your production environment (e.g. ```restart: always```, additional volumes), you can add a production.yml file and include it:
-
-```docker-compose -f docker-compose.yml -f production.yml up -d```
-
-Please see [additional information about using docker in production](https://docs.docker.com/compose/production/).
+- [Instructions and a script for launching docker with apollo and PostgreSQL](https://github.com/GMOD/docker-apollo).
 
 ### Database schema
 
