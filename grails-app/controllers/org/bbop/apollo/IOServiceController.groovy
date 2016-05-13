@@ -68,8 +68,6 @@ class IOServiceController extends AbstractApolloController {
         try {
             long current = System.currentTimeMillis()
             JSONObject dataObject = permissionService.handleInput(request,params)
-//            JSONObject dataObject = (request.JSON ?: params) as JSONObject
-//            if(params.data) dataObject=JSON.parse(params.data)
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.READ)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
