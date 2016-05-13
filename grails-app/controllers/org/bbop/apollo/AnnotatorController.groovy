@@ -87,9 +87,6 @@ class AnnotatorController {
     def index() {
         log.debug "loading the index"
         String uuid = UUID.randomUUID().toString()
-        Organism.all.each {
-            log.info it.commonName
-        }
         String clientToken = params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value) ? params.get(FeatureStringEnum.CLIENT_TOKEN.value) : null
         [userKey: uuid,clientToken:clientToken]
     }
@@ -121,7 +118,7 @@ class AnnotatorController {
     @Transactional
     def updateFeature() {
         log.debug "updateFeature ${params.data}"
-        def data = JSON.parse(params.data.toString()) as JSONObject
+        JSONObject data = permissionService.handleInput(request,params)
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -172,7 +169,7 @@ class AnnotatorController {
     )
     def updateFeatureLocation() {
         log.info "updateFeatureLocation ${params.data}"
-        def data = JSON.parse(params.data.toString()) as JSONObject
+        JSONObject data = permissionService.handleInput(request,params)
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
             return

@@ -59,6 +59,7 @@ server `apollo run-local` or `apollo debug` use the development environment (i.e
 `WEBAPOLLO_DB_URI`
 - Create a new database in your chosen database backend and copy the sample-docker-apollo-config.groovy to
   apollo-config.groovy.
+- [Instructions and a script for launching docker with apollo and PostgreSQL](https://github.com/GMOD/docker-apollo).
 
 ### Database schema
 
@@ -72,18 +73,17 @@ deploy to production, we build a new WAR file with the `apollo deploy` command. 
 `apollo-config.groovy` file, and it has the appropriate username, password, and JDBC URL in it, then we can run the
 command:
 
-
-
 ``` 
 ./apollo deploy
 ```
 
 
 This command will package the application and it will download any missing pre-requisites (jbrowse) into a WAR file in
-the "target/" subfolder. After it completes, you can then copy the WAR file (e.g. ```apollo-2.0.1.war```) from the target folder 
-to the ```webapps``` folder of your [web container](https://en.wikipedia.org/wiki/Web_container#open_source_Web_containers) installation.  If you name the file ```apollo.war``` in your webapps folder, then you can access your app at "http://localhost:8080/apollo"
+the "target/" subfolder. After it completes, you can then copy the WAR file (e.g. ```apollo-2.0.2.war```) from the target folder 
+to the ```web-app``` folder of your [web container](https://en.wikipedia.org/wiki/Web_container#open_source_Web_containers) installation.
+If you name the file ```apollo.war``` in your webapps folder, then you can access your app at "http://localhost:8080/apollo"
 
-We test primarly on [Apache Tomcat (7.0.62+ and 8)](http://tomcat.apache.org/).  **Make sure to [set your Tomcat memory](https://github.com/GMOD/Apollo/blob/master/docs/Troubleshooting.md#tomcat-memory) to an appropriate size or Apollo will run slow / crash.**
+We test primarily on [Apache Tomcat (7.0.62+ and 8)](http://tomcat.apache.org/).  **Make sure to [set your Tomcat memory](https://github.com/GMOD/Apollo/blob/master/docs/Troubleshooting.md#tomcat-memory) to an appropriate size or Apollo will run slow / crash.**
 
 
 
