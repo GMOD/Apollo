@@ -543,8 +543,8 @@ class ChadoHandlerService {
         org.gmod.chado.Feature srcFeature
         long startTime = System.currentTimeMillis()
         def sequenceFeatureResult = org.gmod.chado.Feature.executeQuery(
-                "SELECT DISTINCT sf FROM org.gmod.chado.Feature sf WHERE sf.name = :querySequenceName AND sf.organism.genus = :queryGenus and sf.organism.species = :querySpecies",
-                [querySequenceName: sequence.name, queryGenus: organism.genus, querySpecies: organism.species])
+                "SELECT DISTINCT sf FROM org.gmod.chado.Feature sf WHERE sf.name = :querySequenceName AND sf.organism.genus = :queryGenus AND sf.organism.species = :querySpecies AND sf.type.name = :querySequenceType",
+                [querySequenceName: sequence.name, queryGenus: organism.genus, querySpecies: organism.species, querySequenceType: "chromosome"])
         long endTime = System.currentTimeMillis()
         log.debug "Time taken for querying for sequence ${sequence.name} of organism ${organism.genus} ${organism.species}: ${endTime - startTime} ms"
 
@@ -1172,9 +1172,11 @@ class ChadoHandlerService {
      * @return
      */
     def createChadoFeatureForSequences(Organism organism, Collection<Sequence> sequences, boolean storeSequence = false) {
+        org.gmod.chado.Feature chadoFeature
         sequences.each { sequence ->
-            createChadoFeatureForSequence(organism, sequence, storeSequence)
+            chadoFeature = createChadoFeatureForSequence(organism, sequence, storeSequence)
         }
+        chadoFeature.save(flush: true)
     }
 
     /**
@@ -1211,7 +1213,7 @@ class ChadoHandlerService {
             chadoFeature.md5checksum = generateMD5checksum(residues)
         }
 
-        chadoFeature.save(flush: true)
+        chadoFeature.save()
         exportStatisticsMap['sequence_feature_count'] += 1
         endTime = System.currentTimeMillis()
         log.debug "Time taken to create Chado Feature for sequence ${sequence.name}: ${endTime - startTime} ms"
@@ -1221,8 +1223,8 @@ class ChadoHandlerService {
     def getChadoFeatureForSequence(Organism organism, org.bbop.apollo.Sequence sequence) {
         org.gmod.chado.Feature chadoFeature
         def sequenceResults = org.gmod.chado.Feature.executeQuery(
-                "SELECT DISTINCT s FROM org.gmod.chado.Feature s WHERE s.name = :querySequenceName AND s.organism.genus = :queryGenus AND s.organism.species = :querySpecies",
-                [querySequenceName: sequence.name, queryGenus: organism.genus, querySpecies: organism.species])
+                "SELECT DISTINCT s FROM org.gmod.chado.Feature s WHERE s.name = :querySequenceName AND s.organism.genus = :queryGenus AND s.organism.species = :querySpecies AND s.type.name = :querySequenceType",
+                [querySequenceName: sequence.name, queryGenus: organism.genus, querySpecies: organism.species, querySequenceType: "chromosome"])
         if (sequenceResults.size() == 0) {
             chadoFeature = null
         }
