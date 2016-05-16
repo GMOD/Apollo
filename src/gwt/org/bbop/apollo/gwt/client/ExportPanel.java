@@ -32,7 +32,7 @@ public class ExportPanel extends Modal {
     private List<SequenceInfo> sequenceList;
     private Boolean exportAll = false;
     private OrganismInfo currentOrganismInfo;
-
+    private Boolean exportAllSequencesToChado = false;
     HTML sequenceInfoLabel = new HTML();
     HTML typeLabel = new HTML();
     HTML sequenceTypeLabel = new HTML();
@@ -44,8 +44,8 @@ public class ExportPanel extends Modal {
     RadioButton cdnaRadioButton = new RadioButton("cDNA", "cDNA", true);
     RadioButton cdsRadioButton = new RadioButton("CDS", "CDS", true);
     RadioButton peptideRadioButton = new RadioButton("Peptide", "Peptide", true);
-    RadioButton chadoCleanButton = new RadioButton("Chado", "Verify export to Chado database", true);
-    //RadioButton chadoExistingButton = new RadioButton("Chado", "Chado (update)", true);
+    RadioButton chadoExportButton1 = new RadioButton("chadoExportOption1", "Export all sequences (that have annotations) to Chado", true);
+    RadioButton chadoExportButton2 = new RadioButton("chadoExportOption2", "Export all sequences to Chado", true);
 
     ModalBody modalBody = new ModalBody();
     ModalHeader modalHeader = new ModalHeader();
@@ -82,8 +82,8 @@ public class ExportPanel extends Modal {
         }
         else
         if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
-            buttonGroup.add(chadoCleanButton);
-            //buttonGroup.add(chadoExistingButton);
+            buttonGroup.add(chadoExportButton1);
+            buttonGroup.add(chadoExportButton2);
         }
         modalBody.add(buttonGroup);
 
@@ -138,8 +138,21 @@ public class ExportPanel extends Modal {
         gff3WithFastaButton.addClickHandler(exportClickHandler);
         gff3Button.addClickHandler(exportClickHandler);
 
-        chadoCleanButton.addClickHandler(exportClickHandler);
-        //chadoExistingButton.addClickHandler(exportClickHandler);
+        chadoExportButton1.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                setExportAllSequencesToChado(false);
+                exportButton.setEnabled(true);
+            }
+        });
+
+        chadoExportButton2.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                setExportAllSequencesToChado(true);
+                exportButton.setEnabled(true);
+            }
+        });
     }
 
 
@@ -172,8 +185,8 @@ public class ExportPanel extends Modal {
     }
 
     public void showExportStatus(String exportStatus) {
-        //this.chadoExistingButton.setVisible(false);
-        this.chadoCleanButton.setVisible(false);
+        this.chadoExportButton1.setVisible(false);
+        this.chadoExportButton2.setVisible(false);
         this.exportButton.setVisible(false);
         this.closeButton.setText("OK");
         this.closeButton.setWidth("45px");
@@ -226,13 +239,13 @@ public class ExportPanel extends Modal {
             return FeatureStringEnum.TYPE_PEPTIDE.getValue();
         }
         else
-        if(chadoCleanButton.isActive()){
+        if(chadoExportButton1.isActive()){
             return FeatureStringEnum.TYPE_CHADO.getValue();
         }
-//        else
-//        if (chadoExistingButton.isActive()) {
-//            return  FeatureStringEnum.TYPE_CHADO.getValue();
-//        }
+        else
+        if(chadoExportButton2.isActive()) {
+            return FeatureStringEnum.TYPE_CHADO.getValue();
+        }
         // this is the default . . . may handle to GFF3 with FASTA
         else{
             return FeatureStringEnum.TYPE_GENOMIC.getValue();
@@ -242,12 +255,12 @@ public class ExportPanel extends Modal {
     public String getChadoExportType() {
         String exportType = null;
         if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
-            if (chadoCleanButton.isActive()) {
+            if (chadoExportButton1.isActive()) {
                 exportType = FeatureStringEnum.EXPORT_CHADO_CLEAN.getValue();
             }
-//            else if (chadoExistingButton.isActive()) {
-//                exportType = FeatureStringEnum.EXPORT_CHADO_UPDATE.getValue();
-//            }
+            else if (chadoExportButton2.isActive()) {
+                exportType = FeatureStringEnum.EXPORT_CHADO_UPDATE.getValue();
+            }
         }
         return exportType;
     }
@@ -273,5 +286,13 @@ public class ExportPanel extends Modal {
 
     public List<SequenceInfo> getSequenceList() {
         return sequenceList;
+    }
+
+    public Boolean getExportAllSequencesToChado() {
+        return this.exportAllSequencesToChado;
+    }
+
+    public void setExportAllSequencesToChado(Boolean value) {
+        this.exportAllSequencesToChado = value;
     }
 }

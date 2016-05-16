@@ -8,7 +8,6 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ExportPanel;
 import org.bbop.apollo.gwt.client.SequencePanel;
@@ -33,6 +32,7 @@ public class SequenceRestService {
         jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
 
         if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
+            jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAllSequencesToChado().toString()));
             jsonObject.put("chadoExportType", new JSONString(exportPanel.getChadoExportType()));
             jsonObject.put("seqType", new JSONString(""));
             jsonObject.put("exportGff3Fasta", new JSONString(""));
