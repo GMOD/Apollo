@@ -41,7 +41,7 @@ class FeatureService {
     public static final def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
     @Timed
     @Transactional
-    public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence) throws JSONException {
+    public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence, int defaultStrand = Strand.POSITIVE.value) throws JSONException {
         FeatureLocation gsolLocation = new FeatureLocation();
         if (jsonLocation.has(FeatureStringEnum.ID.value)) {
             gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
@@ -52,7 +52,7 @@ class FeatureService {
             gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
         }
         else {
-            gsolLocation.setStrand(Strand.POSITIVE.value);
+            gsolLocation.setStrand(defaultStrand)
         }
         gsolLocation.setSequence(sequence)
         return gsolLocation;
@@ -1102,7 +1102,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             if (jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
                 JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
-                FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, sequence)
+                FeatureLocation featureLocation
+                if (singletonFeatureTypes.contains(type.getString(FeatureStringEnum.NAME.value))) {
+                    featureLocation = convertJSONToFeatureLocation(jsonLocation, sequence, Strand.NONE.value)
+                }
+                else {
+                    featureLocation = convertJSONToFeatureLocation(jsonLocation, sequence)
+                }
                 featureLocation.sequence = sequence
                 featureLocation.feature = gsolFeature
                 featureLocation.save()
