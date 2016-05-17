@@ -52,7 +52,7 @@ class FeatureService {
             gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
         }
         else {
-            gsolLocation.setStrand(1);
+            gsolLocation.setStrand(Strand.POSITIVE.value);
         }
         gsolLocation.setSequence(sequence)
         return gsolLocation;
