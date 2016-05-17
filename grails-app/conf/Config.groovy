@@ -355,7 +355,7 @@ auditLog {
 // Default JBrowse configuration 
 jbrowse {
     git {
-        url= "https://github.com/GMOD/jbrowse"
+        url= "https://github.com/gmod/jbrowse"
 //        tag = "1.12.2-release"
         branch = "master"
         alwaysPull = false

@@ -1,8 +1,3 @@
-//import java.util.zip.ZipEntry
-//import java.util.zip.ZipInputStream
-//import groovy.io.FileType
-//import com.google.javascript.jscomp.*
-import org.gradle.api.tasks.Exec
 import org.apache.tools.ant.taskdefs.condition.Os
 
 //defaultTasks 'bower'
@@ -144,7 +139,7 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
             File tempFile = File.createTempDir()
             ant.unzip(src: f.absolutePath, dest: tempFile, overwrite: false)
             org.gradle.util.GFileUtils.moveDirectory(new File(tempFile.absolutePath + "/" + jbrowseConfig.url.fileName), jbrowseFile)
-            org.gradle.util.GFileUtils.deleteDirector(new File(jbrowseFile.absolutePath + "/sample_data"))
+            org.gradle.util.GFileUtils.deleteDirectory(new File(jbrowseFile.absolutePath + "/sample_data"))
             tempFile.deleteDir()
             f.delete()
         } else {
@@ -153,14 +148,6 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
             throw new GradleException("Unable to specify jbrowse download type")
         }
     }
-//    tasks["setup-jbrowse"]
-
-    // TODO: checkout proper version and remove from other
-
-    // TODO: pull if "always pull" is selected
-
-//    tasks["copy-resources-dev"]
-//    copyResourcesDev.execute()
 }
 
 
@@ -170,7 +157,14 @@ task installJBrowseLocal(dependsOn: installJBrowse,type: Exec) {
 }
 
 task copyResourcesDev(dependsOn: installJBrowse) << {
-    tasks["copy-resources-dev"].execute()
+    File jbrowse = new File("web-app/jbrowse")
+    println "found jbrowse directory ${jbrowse.file}"
+    if(jbrowse.exists()){
+        tasks["copy-resources-dev"].execute()
+    }
+    else{
+        tasks["copy-resources"].execute()
+    }
     installJBrowseLocal.execute()
 }
 
@@ -180,6 +174,7 @@ task copyApolloPlugin(dependsOn:installJBrowse,type:Copy){
     into("jbrowse-download/plugins/WebApollo")
 }
 
+// wrapper for ant script
 task setupJBrowse(dependsOn: "setup-jbrowse") << {}
 
 task installJBrowsePlugins(dependsOn: copyApolloPlugin) << {
@@ -232,31 +227,8 @@ task installJBrowsePlugins(dependsOn: copyApolloPlugin) << {
     }
 }
 
+// wrapper for ant script
 task buildJBrowse(dependsOn: 'build.jbrowse'){}
-
-//task buildJBrowse(type: com.eriwen.gradle.js.tasks.CombineJsTask) {
-//    println "MinifyJs JBROWSE"
-//    def jbrowseWebappDirectory = new File("web-app/jbrowse")
-//    List list = new ArrayList<>()
-//    jbrowseWebappDirectory.eachFileRecurse(FileType.FILES) { file ->
-//        if (file.absolutePath.endsWith(".js") && !file.absolutePath.contains("test") ) {
-//            list.add(file)
-//        }
-//    }
-//    source = list
-//    dest = file("web-app/jbrowse.js")
-//    println "MinifiedJs JBROWSE"
-//}
-//
-//task compileJBrowse(type: com.eriwen.gradle.js.tasks.MinifyJsTask) {
-//    source = file("web-app/jbrowse.js")
-//    dest = file("web-app/jbrowse-min.js")
-//    closure {
-//       warningLevel = 'QUIET'
-//        compilerOptions.languageIn = "ECMASCRIPT5"
-//        compilerOptions.languageOut = "ECMASCRIPT5"
-//    }
-//}
 
 
 // TODO: should inherent handleJBrowse
@@ -347,10 +319,6 @@ def cloneRepoBower(String url,String directory,String branch){
     exec{
         println "using bower to install: ${finalUrl}"
         commandLine "bower","install",finalUrl
-//        if(finalUrl.split("#")[0].endsWith("jbrowse")){
-            // mv bower_components/jbrowse -> jbrowse-download
-//        }
-        // installs it in bower_components
     }
 
     File bowerDirectory = new File('bower_components')
