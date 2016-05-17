@@ -5,8 +5,9 @@ package org.bbop.apollo.sequence
  */
 enum Strand {
 
-    POSITIVE(1,"+")
-    , NEGATIVE(-1,"-")
+    POSITIVE(1,"+"),
+    NEGATIVE(-1,"-"),
+    NONE(0,".")
 
     Integer value
     String display
