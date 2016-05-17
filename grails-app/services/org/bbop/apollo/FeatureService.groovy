@@ -48,7 +48,12 @@ class FeatureService {
         }
         gsolLocation.setFmin(jsonLocation.getInt(FeatureStringEnum.FMIN.value));
         gsolLocation.setFmax(jsonLocation.getInt(FeatureStringEnum.FMAX.value));
-        gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
+        if (jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.POSITIVE.value || jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.NEGATIVE.value) {
+            gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
+        }
+        else {
+            gsolLocation.setStrand(1);
+        }
         gsolLocation.setSequence(sequence)
         return gsolLocation;
     }
