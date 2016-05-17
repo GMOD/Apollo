@@ -765,7 +765,18 @@ class PermissionService {
 
     @NotTransactional
     JSONObject handleInput(HttpServletRequest request, GrailsParameterMap params) {
-        JSONObject payloadJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
+        JSONObject payloadJson = new JSONObject()
+        if(request.JSON){
+          payloadJson = request.JSON as JSONObject
+        }
+        if(!payloadJson || payloadJson.size()==0){
+            if(params.data){
+                payloadJson = JSON.parse(params.data.toString()) as JSONObject
+            }
+            else{
+                payloadJson = params as JSONObject
+            }
+        }
         handleToken(params,payloadJson)
         return payloadJson
     }

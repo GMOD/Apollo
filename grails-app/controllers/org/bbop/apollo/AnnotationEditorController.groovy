@@ -72,8 +72,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @Timed
     def getUserPermission() {
         log.debug "getUserPermission ${params.data}"
-        JSONObject returnObject = permissionService.handleInput(request,params)
-//        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+        JSONObject returnObject = permissionService.handleInput(request, params)
 
         String username = SecurityUtils.subject.principal
         if (username) {
@@ -112,7 +111,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     //TODO: parse permissions
     def getDataAdapters() {
         log.debug "getDataAdapters"
-        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+        JSONObject returnObject = permissionService.handleInput(request, params)
         def set=configWrapperService.getDataAdapterTools()
 
         def obj=new JsonBuilder( set )
@@ -139,7 +138,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @RestApiParams(params=[] )
     def getTranslationTable() {
         log.debug "getTranslationTable"
-        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+        JSONObject returnObject = permissionService.handleInput(request, params)
         TranslationTable translationTable = configWrapperService.getTranslationTable()
         JSONObject ttable = new JSONObject();
         for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
@@ -161,7 +160,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of JSON feature objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy")
     ] )
     def addFeature() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addFeature(inputObject)
         } else {
@@ -181,7 +180,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ]
     )
     def setExonBoundaries() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setExonBoundaries(inputObject)
         } else {
@@ -203,7 +202,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ]
     )
     def addExon() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addExon(inputObject)
         } else {
@@ -223,7 +222,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ]
     )
     def addComments() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addComments(inputObject)
         } else {
@@ -242,7 +241,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ]
     )
     def deleteComments() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteComments(inputObject)
         } else {
@@ -262,7 +261,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ]
     )
     def updateComments() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.updateComments(inputObject)
         } else {
@@ -282,7 +281,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ]
     )
     def getComments() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
             render requestHandlingService.getComments(inputObject)
         } else {
@@ -303,7 +302,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def addTranscript() {
         try {
             log.debug "addTranscript ${params}"
-            JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            JSONObject inputObject = permissionService.handleInput(request, params)
             if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
                 render requestHandlingService.addTranscript(inputObject)
             } else {
@@ -328,7 +327,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ] )
     def duplicateTranscript() {
         log.debug "duplicateTranscript ${params}"
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.duplicateTranscript(inputObject)
         } else {
@@ -346,7 +345,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ] )
     def setTranslationStart() {
         log.debug "setTranslationStart ${params}"
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setTranslationStart(inputObject)
         } else {
@@ -364,7 +363,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ] )
     def setTranslationEnd() {
         log.debug "setTranslationEnd ${params}"
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setTranslationEnd(inputObject)
         } else {
@@ -382,7 +381,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ] )
     def setLongestOrf() {
         log.debug "setLongestORF ${params}"
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setLongestOrf(inputObject)
         } else {
@@ -400,7 +399,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ] )
     def setBoundaries() {
         log.debug "setBoundaries ${params}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setBoundaries(inputObject)
         } else {
@@ -416,7 +415,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="organism", type="string", paramType = RestApiParamType.QUERY,description = "(optional) Organism ID or common name")
     ] )
     def getFeatures() {
-        JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject returnObject = permissionService.handleInput(request, params)
         try {
             permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             render requestHandlingService.getFeatures(returnObject)
@@ -430,7 +429,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @Timed
     def getInformation() {
         JSONObject featureContainer = createJSONFeatureContainer();
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.checkPermissions(PermissionEnum.WRITE)) {
             render new JSONObject() as JSON
             return
@@ -475,8 +474,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ] )
     @Timed
     def getSequenceAlterations() {
-        JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-
+        JSONObject returnObject = permissionService.handleInput(request, params)
         Bookmark bookmark = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
 
         JSONArray jsonFeatures = new JSONArray()
@@ -537,7 +535,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','name':'gene01'}")
     ] )
     def setName() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setName(inputObject)
         } else {
@@ -554,7 +552,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','description':'some descriptive test'}")
     ] )
     def setDescription() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setDescription(inputObject)
         } else {
@@ -571,7 +569,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','symbol':'Pax6a'}")
     ] )
     def setSymbol() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setSymbol(inputObject)
         } else {
@@ -588,7 +586,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','status':'existing-status-string'}.  Available status found here: /availableStatus/ ")
     ] )
     def setStatus() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setStatus(inputObject)
         } else {
@@ -605,7 +603,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','non_reserved_properties':[{'tag':'clockwork','value':'orange'},{'tag':'color','value':'purple'}]}.  Available status found here: /availableStatus/ ")
     ] )
     def addAttribute() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addNonReservedProperties(inputObject)
         } else {
@@ -622,7 +620,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','non_reserved_properties':[{'tag':'clockwork','value':'orange'},{'tag':'color','value':'purple'}]}.  Available status found here: /availableStatus/ ")
     ] )
     def deleteAttribute() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteNonReservedProperties(inputObject)
         } else {
@@ -639,7 +637,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','old_non_reserved_properties':[{'color': 'red'}], 'new_non_reserved_properties': [{'color': 'green'}]}.")
     ] )
     def updateAttribute() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.updateNonReservedProperties(inputObject)
         } else {
@@ -656,7 +654,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','dbxrefs': [{'db': 'PMID', 'accession': '19448641'}]}.")
     ] )
     def addDbxref() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addNonPrimaryDbxrefs(inputObject)
         } else {
@@ -673,7 +671,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','old_dbxrefs': [{'db': 'PMID', 'accession': '19448641'}], 'new_dbxrefs': [{'db': 'PMID', 'accession': '19448642'}]}.")
     ] )
     def updateDbxref() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.updateNonPrimaryDbxrefs(inputObject)
         } else {
@@ -690,7 +688,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing JSON objects with {'uniquename':'ABCD-1234','dbxrefs': [{'db': 'PMID', 'accession': '19448641'}]}.")
     ] )
     def deleteDbxref() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteNonPrimaryDbxrefs(inputObject)
         } else {
@@ -707,7 +705,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with one feature object {'uniquename':'ABCD-1234'}")
     ] )
     def setReadthroughStopCodon() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setReadthroughStopCodon(inputObject)
         } else {
@@ -724,7 +722,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with Sequence Alteration (Insertion, Deletion, Substituion) objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/")
     ] )
     def addSequenceAlteration() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addSequenceAlteration(inputObject)
         } else {
@@ -741,7 +739,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with Sequence Alteration identified by unique names {'uniquename':'ABC123'}")
     ] )
     def deleteSequenceAlteration() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteSequenceAlteration(inputObject)
         } else {
@@ -758,7 +756,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with with objects of features defined as {'uniquename':'ABC123'}")
     ] )
     def flipStrand() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.flipStrand(inputObject)
         } else {
@@ -775,7 +773,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with with two objects of referred to as defined as {'uniquename':'ABC123'}")
     ] )
     def mergeExons() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.mergeExons(inputObject)
         } else {
@@ -792,7 +790,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing feature objects with the location object defined {'uniquename':'ABCD-1234','location':{'fmin':2,'fmax':12}}")
     ] )
     def splitExon() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.splitExon(inputObject)
         } else {
@@ -810,7 +808,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of features objects to delete defined by unique name {'uniquename':'ABC123'}")
     ] )
     def deleteFeature() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteFeature(inputObject)
         } else {
@@ -827,7 +825,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray of features objects, where the first is the parent transcript and the remaining are exons all defined by a unique name {'uniquename':'ABC123'}")
     ] )
     def deleteExon() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteExon(inputObject)
         } else {
@@ -844,7 +842,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray containing a single JSONObject feature that contains {'uniquename':'ABCD-1234','location':{'fmin':12}}")
     ] )
     def makeIntron() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.makeIntron(inputObject)
         } else {
@@ -861,7 +859,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with with two exon objects referred to their unique names {'uniquename':'ABC123'}")
     ] )
     def splitTranscript() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.splitTranscript(inputObject)
         } else {
@@ -878,7 +876,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             ,@RestApiParam(name="features", type="JSONArray", paramType = RestApiParamType.QUERY,description = "JSONArray with with two transcript objects referred to their unique names {'uniquename':'ABC123'}")
     ] )
     def mergeTranscripts() {
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.mergeTranscripts(inputObject)
         } else {
@@ -896,7 +894,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ] )
     def getSequence() {
         log.debug "getSequence ${params.data}"
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -923,7 +921,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ] )
     def getCannedComments() {
         log.debug "sequenceSearch ${params.data}"
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -939,7 +937,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ] )
     def searchSequence() {
         log.debug "sequenceSearch ${params.data}"
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -958,7 +956,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     ] )
     def getGff3() {
         log.debug "getGff3 ${params.data}"
-        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -980,7 +978,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @Timed
     def getAnnotationInfoEditorData() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         try {
             permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         } catch (e) {
