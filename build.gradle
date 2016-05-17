@@ -139,7 +139,7 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
             File tempFile = File.createTempDir()
             ant.unzip(src: f.absolutePath, dest: tempFile, overwrite: false)
             org.gradle.util.GFileUtils.moveDirectory(new File(tempFile.absolutePath + "/" + jbrowseConfig.url.fileName), jbrowseFile)
-            org.gradle.util.GFileUtils.deleteDirector(new File(jbrowseFile.absolutePath + "/sample_data"))
+            org.gradle.util.GFileUtils.deleteDirectory(new File(jbrowseFile.absolutePath + "/sample_data"))
             tempFile.deleteDir()
             f.delete()
         } else {
@@ -158,7 +158,7 @@ task installJBrowseLocal(dependsOn: installJBrowse,type: Exec) {
 
 task copyResourcesDev(dependsOn: installJBrowse) << {
     File jbrowse = new File("web-app/jbrowse")
-    println "found jbrowse director ${jbrowse.file}"
+    println "found jbrowse directory ${jbrowse.file}"
     if(jbrowse.exists()){
         tasks["copy-resources-dev"].execute()
     }
