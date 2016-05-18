@@ -3,12 +3,14 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.test.spock.IntegrationSpec
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 class FeatureServiceIntegrationSpec extends IntegrationSpec {
 
     def featureService
+    def transcriptService
     def requestHandlingService
     def featureRelationshipService
 
@@ -188,5 +190,26 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
         }
 
         assert expectedDbxrefForTranscript.size() == 0
+    }
+
+    void "If an annotation doesn't have strand information then it should, by default, be set to the sense strand"() {
+
+        given: "a transcript with no strand information"
+        String featureString = '{"operation":"add_feature","features":[{"location":{"fmin":761542,"strand":0,"fmax":768063},"children":[{"location":{"fmin":761542,"strand":0,"fmax":768063},"children":[{"location":{"fmin":767945,"strand":0,"fmax":768063},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":761542,"strand":0,"fmax":763070},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":761542,"strand":0,"fmax":763513},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":765327,"strand":0,"fmax":765472},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":765551,"strand":0,"fmax":766176},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":766255,"strand":0,"fmax":767133},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":767207,"strand":0,"fmax":767389},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":767485,"strand":0,"fmax":768063},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":763070,"strand":0,"fmax":767945},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"transcript","cv":{"name":"sequence"}}}],"type":{"name":"pseudogene","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+
+        when: "we add a feature that has its strand as 0"
+        requestHandlingService.addFeature(JSON.parse(featureString) as JSONObject)
+
+        then: "we should see the feature, and all of its sub-features, placed on the sense strand"
+        Gene gene = Gene.all.get(0)
+        Transcript transcript = transcriptService.getTranscripts(gene).iterator().next()
+        def exonList = transcriptService.getExons(transcript)
+
+        assert gene.featureLocation.strand == Strand.POSITIVE.value
+        assert transcript.featureLocation.strand == Strand.POSITIVE.value
+
+        exonList.each {
+            it.featureLocation.strand == Strand.POSITIVE.value
+        }
     }
 }
