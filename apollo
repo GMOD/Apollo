@@ -124,6 +124,15 @@ function copy_configs(){
     cp apollo-config.groovy src/java/apollo-config.groovy
 }
 
+function clean_all(){
+    check_configs
+    rm -rf bin
+    rm -rf jbrowse-download
+    rm -rf JBrowse-dev
+    rm -rf src/main/webapp/jbrowse
+    rm -f *.zip
+    $gradle_executable clean-all 
+}
 
 
 if [[ $1 == "devmode" ]];then
@@ -179,7 +188,8 @@ elif [[ $1 == "release" ]];then
     check_configs
     check_configs_for_release
     copy_configs
-    $gradle_executable clean-all handleJBrowse release gwtc && $grails_executable war
+    clean_all
+    $gradle_executable handleJBrowse release gwtc && $grails_executable war
     deploy_message
 elif [[ $1 == "compile" ]];then
     check_configs
@@ -188,14 +198,7 @@ elif [[ $1 == "create-rest-doc" ]];then
     check_configs
     $grails_executable compile && $grails_executable rest-api-doc && cp restapidoc.json web-app/js/restapidoc/
 elif [[ $1 == "clean-all" ]];then
-    check_configs
-    rm -rf bin
-    rm -rf jbrowse-download
-    rm -rf JBrowse-dev
-    rm -rf src/main/webapp/jbrowse
-    rm -f *.zip
-    $gradle_executable clean-all
-    $grails_executable clean
+    clean_all
 elif [[ $1 == "clean" ]];then
     check_configs
     $gradle_executable clean-ant &&  $grails_executable clean
