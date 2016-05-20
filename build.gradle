@@ -307,7 +307,7 @@ def refreshBowerRepo(String directory){
     exec{
         println "using bower to update: ${directory}"
         workingDir directory
-        commandLine "bower","update","-F"
+        commandLine "bower","update","-F","--allow-root"
     }
 }
 
@@ -318,7 +318,7 @@ def cloneRepoBower(String url,String directory,String branch){
     }
     exec{
         println "using bower to install: ${finalUrl}"
-        commandLine "bower","install",finalUrl
+        commandLine "bower","install","--allow-root",finalUrl
     }
 
     File bowerDirectory = new File('bower_components')
@@ -361,9 +361,7 @@ task npm(type: Exec) {
     commandLine = [npmCommand, "install"]
     inputs.file "package.json"
     outputs.dir "node_modules"
-
     tasks.npmBin.execute()
-
 }
 
 
