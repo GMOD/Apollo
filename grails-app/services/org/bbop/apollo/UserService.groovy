@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.apache.shiro.crypto.hash.Sha256Hash
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -88,5 +89,25 @@ class UserService {
         log.debug "final permission string ${finalPermissionsString}"
 
         return finalPermissionsString
+    }
+
+    def registerAdmin(JSONObject jsonObj) {
+        registerAdmin(jsonObj.username,jsonObj.password,jsonObj.firstName,jsonObj.lastName)
+    }
+    def registerAdmin(String username,String password,String firstName,String lastName) {
+        if(User.countByUsername(username)>0){
+            log.warn("User exists ${username} and can not be added again.")
+            return ;
+        }
+
+        def adminRole = Role.findByName(ADMIN)
+
+        User user = new User(
+                username: username
+                ,passwordHash: new Sha256Hash(password).toHex()
+                ,firstName: firstName
+                ,lastName: lastName
+        ).save(failOnError: true,flush:true)
+        user.addToRoles(adminRole)
     }
 }
