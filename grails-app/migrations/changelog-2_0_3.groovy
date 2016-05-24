@@ -1,10 +1,10 @@
 databaseChangeLog = {
 
-    changeSet(author: "deepak.unni3", id: "1459788030174-8") {
+    changeSet(author: "deepak.unni3", id: "1459788030174-1") {
         modifyDataType(columnName: "value", newDataType: "text", tableName: "feature_property")
     }
 
-    changeSet(author: "nathandunn", id: "1445460972540-27") {
+    changeSet(author: "nathandunn", id: "1459788030174-2") {
         preConditions(onFail: 'MARK_RAN', onError: "HALT") {
             not {
                 columnExists(columnName: "client_token", tableName: "preference")
@@ -19,6 +19,6 @@ databaseChangeLog = {
         addColumn(tableName: "preference"){
            column(name:"last_updated",type:"timestamp")
         }
-        addNotNullConstraint(tableName: "preference",columnName:"client_token")
+        addNotNullConstraint(tableName: "preference",columnName:"client_token", columnDataType: "varchar(255)")
     }
 }
