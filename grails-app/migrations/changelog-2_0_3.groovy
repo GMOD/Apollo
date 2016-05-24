@@ -8,7 +8,7 @@ databaseChangeLog = {
         preConditions(onFail: 'MARK_RAN', onError: "HALT") {
             not {
                 columnExists(columnName: "client_token", tableName: "preference")
-	    }
+			}
         } 
         addColumn(tableName: "preference"){
            column(name:"client_token",type:"varchar(255)",value:"GENERATED DEFAULT TOKEN")
