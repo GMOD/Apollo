@@ -371,6 +371,14 @@ task npm(type: Exec) {
     tasks.npmBin.execute()
 }
 
+//<target name="clean-all" description="Cleans this project">
+//<delete dir="web-app/WEB-INF/deploy" failonerror="false"/>
+//<delete dir="web-app/annotator" failonerror="false"/>
+//<delete dir="target" failonerror="false"/>
+//</target>
+task cleanAll(type:Delete){
+    delete 'web-app/WEB-INF/deploy', 'web-app/annotator','target'
+}
 
 // Install the bower components for front-end library management
 task bower(dependsOn: 'npm', type: Exec){
