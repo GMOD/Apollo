@@ -380,13 +380,16 @@ define([
                     });
                     console.log('connection established');
                 }
-                else {
+                else
+                // TODO: note this code will likely be removed with an error that it has to be wrapped
+                {
                     console.log('No embedded server is present.');
                     client.connect({}, function () {
 
                         var request = {
                             "name": track.refSeq.name,
-                            "organism": track.webapollo.organism
+                            "organism": track.webapollo.organism,
+                            "clientToken": track.getClientToken()
                         };
 
                         xhr.post(context_path + "/sequence/lookupSequenceByNameAndOrganism/", {
