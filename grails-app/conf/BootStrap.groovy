@@ -13,6 +13,7 @@ class BootStrap {
     def featureTypeService
     def domainMarshallerService
     def proxyService
+    def userService
 
 
     def init = { servletContext ->
@@ -22,6 +23,11 @@ class BootStrap {
         log.info "Url: ${dataSource.url}"
         log.info "Driver: ${dataSource.driverClassName}"
         log.info "Dialect: ${dataSource.dialect}"
+
+        def admin = grailsApplication.config.apollo.admin
+        if(admin){
+            userService.registerAdmin(admin.username,admin.password,admin.firstName,admin.lastName)
+        }
 
         domainMarshallerService.registerObjects()
         proxyService.initProxies()

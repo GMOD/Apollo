@@ -6,7 +6,6 @@ import org.apache.shiro.authc.AuthenticationException
 import org.apache.shiro.authc.IncorrectCredentialsException
 import org.apache.shiro.authc.UnknownAccountException
 import org.apache.shiro.authc.UsernamePasswordToken
-import org.apache.shiro.crypto.hash.Sha256Hash
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
 import org.apache.shiro.web.util.SavedRequest
@@ -20,6 +19,7 @@ import javax.servlet.http.HttpServletResponse
 class LoginController extends AbstractApolloController {
 
     def permissionService
+    def userService
     def brokerMessagingTemplate
 
     def index() {}
@@ -67,19 +67,10 @@ class LoginController extends AbstractApolloController {
             jsonObj = JSON.parse(params.data)
             log.debug "jsonObj ${jsonObj}"
         }
+
         log.debug "register -> the jsonObj ${jsonObj}"
-        String username = jsonObj.username
-        String password = jsonObj.password
+        userService.registerAdmin(jsonObj)
 
-        def adminRole = Role.findByName(UserService.ADMIN)
-
-        User user = new User(
-                username: username
-                ,passwordHash: new Sha256Hash(password).toHex()
-                ,firstName: jsonObj.firstName
-                ,lastName: jsonObj.lastName
-        ).save(failOnError: true,flush:true)
-        user.addToRoles(adminRole)
 
         return login()
     }

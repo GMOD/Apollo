@@ -467,5 +467,20 @@ If you choose to use another proxy service, you can go to the "Proxy" page (as a
 Internally used proxies are provided by default. 
 The order the final URL is chosen in is 'active' and then 'fallbackOrder'.  
 
+### Register admin in configuration
 
+If you want to register your admin user in the configuration, you can add a section to your ```apollo-config.groovy``` like:
 
+    apollo{
+    // other stuff
+        admin{
+            username = "super@duperadmin.com"
+            password = System.getenv("APOLLO_ADMIN_PASSWORD")?:"demo"
+            firstName = "Super"
+            lastName = "Admin"
+        }
+    }
+    
+It should only add the user a single time.    User details can be retrieved from passed in text or from the environment depending on user preference.  
+
+Admin users will be added on system startup.  Duplicate additions will be ignored.
