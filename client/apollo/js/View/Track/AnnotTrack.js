@@ -4327,7 +4327,7 @@ define([
                                         else window.location.reload();
                                     },
                                     error: function (response, ioArgs) { //
-                                        alert('Failed to log out cleanly.  Please refresh your browser.');
+                                        alert('Failed to log out cleanly!  Please refresh your browser.');
                                     }
                                 });
                             }

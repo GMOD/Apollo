@@ -153,7 +153,7 @@ class SequenceController {
      * @deprecated TODO: will be removed as standalone will likely not be supported in the future.
      * @return
      */
-    def lookupSequenceByNameAndOrganism() {
+    def lookupSequenceByNameAndOrganism(String clientToken) {
         JSONObject j;
         for(k in params) {
             j=JSON.parse(k.key)
@@ -161,7 +161,6 @@ class SequenceController {
         }
         def organism
         if(!j.name||!j.organism) {
-            String clientToken = j.getString(FeatureStringEnum.CLIENT_TOKEN.value)
             organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         }
         else {
