@@ -65,6 +65,13 @@ apollo {
     gff3.source = System.getenv("WEBAPOLLO_GFF3_SOURCE") ?: "."
 
     google_analytics = System.getenv("WEBAPOLLO_GOOGLE_ANALYTICS_ID")
+
+    admin{
+        username = System.getenv("APOLLO_ADMIN_EMAIL") ?: "admin@local.host"
+        password = System.getenv("APOLLO_ADMIN_PASSWORD") ?: "password"
+        firstName = System.getenv("APOLLO_ADMIN_FIRST_NAME") ?: "Ad"
+        lastName = System.getenv("APOLLO_ADMIN_LAST_NAME") ?: "min"
+    }
 }
 
 jbrowse {
