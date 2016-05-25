@@ -24,7 +24,7 @@ class BootStrap {
         log.info "Driver: ${dataSource.driverClassName}"
         log.info "Dialect: ${dataSource.dialect}"
 
-        def admin = grailsApplication.config.apollo.admin
+        def admin = grailsApplication.config?.apollo?.admin
         if(admin){
             userService.registerAdmin(admin.username,admin.password,admin.firstName,admin.lastName)
         }
