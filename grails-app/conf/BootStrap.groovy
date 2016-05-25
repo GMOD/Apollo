@@ -24,11 +24,6 @@ class BootStrap {
         log.info "Driver: ${dataSource.driverClassName}"
         log.info "Dialect: ${dataSource.dialect}"
 
-        def admin = grailsApplication.config?.apollo?.admin
-        if(admin){
-            userService.registerAdmin(admin.username,admin.password,admin.firstName,admin.lastName)
-        }
-
         domainMarshallerService.registerObjects()
         proxyService.initProxies()
 
@@ -49,7 +44,10 @@ class BootStrap {
             adminRole.addToPermissions("*:*")
         }
 
-
+        def admin = grailsApplication.config?.apollo?.admin
+        if(admin){
+            userService.registerAdmin(admin.username,admin.password,admin.firstName,admin.lastName)
+        }
 
         if (grailsApplication.config.apollo.bootstrap || Environment.current == Environment.TEST) {
             log.debug "attempting to bootstrap the data "
