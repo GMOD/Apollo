@@ -12,6 +12,7 @@ class UrlMappings {
         "500"(view: '/error')
         "/menu"(view: '/menu')
         "/version.jsp"(controller: 'annotator', view: "version")
+        "/${clientToken}/version.jsp"(controller: 'annotator', view: "version")
 
         // set this routing here
         "/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
@@ -55,5 +56,6 @@ class UrlMappings {
 
         "/jbrowse/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
         "/jbrowse/web_services/api"(controller:"webServices",action: "index", params:params)
+
     }
 }
