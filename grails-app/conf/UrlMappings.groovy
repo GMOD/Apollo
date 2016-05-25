@@ -41,6 +41,8 @@ class UrlMappings {
 
         "/${clientToken}/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params)
         "/Login"(controller:"login",action: "handleOperation",params:params)
+        "/${clientToken}/Login"(controller:"login",action: "handleOperation",params:params)
+        "/${clientToken}/sequence/lookupSequenceByNameAndOrganism"(controller:"sequence",action: "lookupSequenceByNameAndOrganism", params:params)
 
         "/proxy/request/${url}"(controller:"proxy", action: "request")
         "/${clientToken}/proxy/request/${url}"(controller:"proxy", action: "request")
