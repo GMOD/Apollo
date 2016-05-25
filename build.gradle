@@ -65,7 +65,6 @@ def jbrowseConfig
 def jbrowsePlugins
 def jbrowseDirectory = "jbrowse-download"
 def pluginsDirectory = "${jbrowseDirectory}/plugins"
-def currentPlugin
 
 
 
@@ -181,23 +180,16 @@ task installJBrowsePlugins(dependsOn: copyApolloPlugin) << {
     println "installing jbrowse plugins  ${jbrowsePlugins}"
 
     for (plugin in jbrowsePlugins) {
-        currentPlugin = plugin
         def path = pluginsDirectory + "/" + plugin.key
-        println "Evaluating plugin ${currentPlugin}"
+        println "Evaluating plugin ${plugin}"
         def pluginExists = confirmPlugin(path)
-        if (plugin.value.included != null) {
-            if(plugin.value.included){
+        if (plugin.value?.included==true) {
                 if (pluginExists) {
                     println "Plugin ${path} exists and appears valid."
                 } else {
                     println "ERROR: There is a problem with the plugin at ${path}!"
                     throw new GradleException("Included plugin ${path} not found in build")
                 }
-            }
-            else{
-                    println "Plugin ${path} exists but is not included."
-            }
-
         } else if (plugin.value.git) {
             println "Plugin is supplied by git"
             if (pluginExists) {
