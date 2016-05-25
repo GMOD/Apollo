@@ -123,6 +123,11 @@ function copy_configs(){
     cp apollo-config.groovy src/java/apollo-config.groovy
 }
 
+function clean_code(){
+    $grails_executable clean
+    $gradle_executable cleanAll
+}
+
 function clean_all(){
     check_configs
     rm -rf bin
@@ -130,7 +135,7 @@ function clean_all(){
     rm -rf JBrowse-dev
     rm -rf src/main/webapp/jbrowse
     rm -f *.zip
-    $gradle_executable clean-all 
+    clean_code
 }
 
 
@@ -163,6 +168,7 @@ elif [[ $1 == "debug" ]];then
     OLD_MAVEN_OPTS=$MAVEN_OPTS
     check_configs
     copy_configs
+    clean_all
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
     $gradle_executable handleJBrowse devmode &
     $grails_executable -reloading debug
