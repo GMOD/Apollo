@@ -26,6 +26,11 @@
             vertical-align: middle;
         }
 
+        .dockLayoutPanel > div {
+            /* this was added to allow dropdown to be displayed instead of being hidden */
+            overflow: visible !important;
+        }
+
         /*.trackTable tr:hover{*/
         /*background-color: #d3d3d3;*/
         /*}*/
@@ -63,8 +68,8 @@
             margin-left: auto;
             margin-right: auto;
         }</ui:style>
-    <gwt:DockLayoutPanel>
-        <gwt:north size="180">
+    <gwt:DockLayoutPanel styleName="{style.dockLayoutPanel}">
+        <gwt:north size="210">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
                     <b:Column size="MD_6" styleName="{style.widgetPanel}">
@@ -102,11 +107,14 @@
                         </b:ButtonGroup>
                     </b:Column>
                     <b:Column size="MD_7" marginTop="8">
+                        <select:Select ui:field="selectedSequenceDisplay" liveSearch="true" enabled="false"/>
                         <b:ButtonGroup>
                             <b:Button ui:field="exportAllButton" size="EXTRA_SMALL" text="All"/>
-                            <b:Button ui:field="exportSelectedButton" size="EXTRA_SMALL" text="Selected"
-                                      enabled="false"/>
-                            <b:Button ui:field="exportSingleButton" size="EXTRA_SMALL" text="Single"/>
+                            <b:Button ui:field="exportSingleButton" size="EXTRA_SMALL" text="Single" enabled="false"/>
+                            <b:Button ui:field="exportSelectedButton" size="EXTRA_SMALL" text="Selected" enabled="false"/>
+                        </b:ButtonGroup>
+                        <b:ButtonGroup pull="RIGHT">
+                            <b:Button ui:field="clearSelectionButton" icon="BAN" title="Clear Selection"/>
                         </b:ButtonGroup>
                     </b:Column>
                 </b:Row>
