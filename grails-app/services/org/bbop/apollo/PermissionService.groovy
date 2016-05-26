@@ -438,6 +438,7 @@ class PermissionService {
     Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
         if(!hasGlobalPermissions(jsonObject,permissionEnum)){
             log.info("User for ${jsonObject} lacks permissions ${permissionEnum.display}" )
+            return false
         }
         String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
 
