@@ -121,8 +121,7 @@ public class FastaHandlerService {
     }
     
     public void writeFeature(Feature feature, String seqType, Set<String> metaDataToExport) {
-        String seq = null
-        seq = sequenceService.getSequenceForFeature(feature, seqType, 0)
+        String seq = sequenceService.getSequenceForFeature(feature, seqType, 0)
         int featureLength = seq.length()
         if (featureLength == 0) {
             // no sequence returned by getSequenceForFeature()
