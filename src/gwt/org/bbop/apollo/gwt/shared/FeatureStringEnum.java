@@ -35,6 +35,7 @@ public enum FeatureStringEnum {
         DATE_CREATION,
         DATE,
         CURRENT,
+        CURRENT_TAB,
         COMMENT("Comment"),
         OLD_COMMENTS,
         NEW_COMMENTS,

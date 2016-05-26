@@ -214,6 +214,13 @@ public class MainPanel extends Composite {
 
         setUserNameForCurrentUser();
 
+        String tabPreferenceString = Annotator.getPreference(FeatureStringEnum.CURRENT_TAB.getValue());
+        try {
+            detailTabs.selectTab(Integer.parseInt(tabPreferenceString));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         loginUser();
     }
 
@@ -598,6 +605,7 @@ public class MainPanel extends Composite {
 
     @UiHandler("detailTabs")
     public void onSelection(SelectionEvent<Integer> event) {
+        Annotator.setPreference(FeatureStringEnum.CURRENT_TAB.getValue(), event.getSelectedItem());
         reloadTabPerIndex(event.getSelectedItem());
     }
 
