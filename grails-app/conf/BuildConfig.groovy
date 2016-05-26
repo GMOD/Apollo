@@ -105,7 +105,7 @@ grails.project.dependency.resolution = {
         compile ":rest-api-doc:0.6"
         compile ":scaffolding:2.1.2"
         compile ':cache:1.1.8'
-//        compile ':cache-ehcache:1.0.5'
+        compile ':cache-ehcache:1.0.5'
 
 
         compile ':asset-pipeline:2.1.5'

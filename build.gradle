@@ -65,7 +65,6 @@ def jbrowseConfig
 def jbrowsePlugins
 def jbrowseDirectory = "jbrowse-download"
 def pluginsDirectory = "${jbrowseDirectory}/plugins"
-def currentPlugin
 
 
 
@@ -181,18 +180,25 @@ task installJBrowsePlugins(dependsOn: copyApolloPlugin) << {
     println "installing jbrowse plugins  ${jbrowsePlugins}"
 
     for (plugin in jbrowsePlugins) {
-        currentPlugin = plugin
         def path = pluginsDirectory + "/" + plugin.key
-        println "Evaluating plugin ${currentPlugin}"
+        println "Evaluating plugin ${plugin}"
         def pluginExists = confirmPlugin(path)
-        if (plugin.value.included == true) {
+        if (plugin.value.included==true) {
+                if (pluginExists) {
+                    println "Plugin ${path} exists and appears valid."
+                } else {
+                    println "ERROR: There is a problem with the plugin at ${path}!"
+                    throw new GradleException("Included plugin ${path} not found in build")
+                }
+        }
+        else if (plugin.value.included==false) {
             if (pluginExists) {
-                println "Plugin ${path} exists and appears valid."
+                println "Plugin ${path} exists but is not included."
             } else {
-                println "ERROR: There is a problem with the plugin at ${path}!"
-                throw new GradleException("Included plugin ${path} not found in build")
+                println "Plugin ${path} does not exist but is also not included."
             }
-        } else if (plugin.value.git) {
+        }
+        else if (plugin.value.git) {
             println "Plugin is supplied by git"
             if (pluginExists) {
                 println "Plugin ${path} exists and appears valid."
@@ -222,7 +228,7 @@ task installJBrowsePlugins(dependsOn: copyApolloPlugin) << {
                 new URL(plugin.value.url).withInputStream { i -> f.withOutputStream { it << i } }
             }
         } else {
-            throw new GradleException("Invalid plugin settings for ${path}")
+            throw new GradleException("Invalid plugin settings for path [${path}] and setting [${plugin.value}]")
         }
     }
 }
@@ -307,18 +313,19 @@ def refreshBowerRepo(String directory){
     exec{
         println "using bower to update: ${directory}"
         workingDir directory
-        commandLine "bower","update","-F"
+        commandLine "bower","update","-F","--allow-root"
     }
 }
 
 def cloneRepoBower(String url,String directory,String branch){
     String finalUrl = url + "#${branch}"
+    finalUrl = finalUrl.replaceAll("tags/","")
     if(finalUrl.startsWith(githubURL)){
         finalUrl = finalUrl.substring(githubURL.length())
     }
     exec{
         println "using bower to install: ${finalUrl}"
-        commandLine "bower","install",finalUrl
+        commandLine "bower","install","--allow-root",finalUrl
     }
 
     File bowerDirectory = new File('bower_components')
@@ -361,11 +368,17 @@ task npm(type: Exec) {
     commandLine = [npmCommand, "install"]
     inputs.file "package.json"
     outputs.dir "node_modules"
-
     tasks.npmBin.execute()
-
 }
 
+//<target name="clean-all" description="Cleans this project">
+//<delete dir="web-app/WEB-INF/deploy" failonerror="false"/>
+//<delete dir="web-app/annotator" failonerror="false"/>
+//<delete dir="target" failonerror="false"/>
+//</target>
+task cleanAll(type:Delete){
+    delete 'web-app/WEB-INF/deploy', 'web-app/annotator','target'
+}
 
 // Install the bower components for front-end library management
 task bower(dependsOn: 'npm', type: Exec){

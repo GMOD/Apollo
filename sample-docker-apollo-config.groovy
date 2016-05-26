@@ -65,12 +65,19 @@ apollo {
     gff3.source = System.getenv("WEBAPOLLO_GFF3_SOURCE") ?: "."
 
     google_analytics = System.getenv("WEBAPOLLO_GOOGLE_ANALYTICS_ID")
+
+    admin{
+        username = System.getenv("APOLLO_ADMIN_EMAIL") ?: "admin@local.host"
+        password = System.getenv("APOLLO_ADMIN_PASSWORD") ?: "password"
+        firstName = System.getenv("APOLLO_ADMIN_FIRST_NAME") ?: "Ad"
+        lastName = System.getenv("APOLLO_ADMIN_LAST_NAME") ?: "min"
+    }
 }
 
 jbrowse {
     git {
         url = System.getenv("WEBAPOLLO_JBROWSE_GIT_URL") ? System.getenv("WEBAPOLLO_JBROWSE_GIT_URL") : "https://github.com/GMOD/jbrowse"
-        tag = System.getenv("WEBAPOLLO_JBROWSE_GIT_TAG") ? System.getenv("WEBAPOLLO_JBROWSE_GIT_TAG") : "1.12.1-release"
+        tag = System.getenv("WEBAPOLLO_JBROWSE_GIT_TAG") ? System.getenv("WEBAPOLLO_JBROWSE_GIT_TAG") : "master"
         alwaysPull = System.getenv("WEBAPOLLO_JBROWSE_GIT_ALWAYS_PULL").equals("true")
         alwaysRecheck = System.getenv("WEBAPOLLO_JBROWSE_GIT_ALWAYS_RECHECK").equals("true")
     }
