@@ -406,10 +406,9 @@ class PermissionService {
         return highestValue
     }
 
-    Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
+    Boolean hasGlobalPermissions(JSONObject jsonObject,PermissionEnum permissionEnum){
         // not sure if permissions with translate through or not
         Session session = SecurityUtils.subject.getSession(false)
-        String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
@@ -434,6 +433,13 @@ class PermissionService {
             jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
         }
 
+    }
+
+    Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
+        if(!hasGlobalPermissions(jsonObject,permissionEnum)){
+            log.info("User for ${jsonObject} lacks permissions ${permissionEnum.display}" )
+        }
+        String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
 
         Organism organism = getCurrentOrganismPreference(clientToken)?.organism
         log.debug "passing in an organism ${jsonObject.organism}"
