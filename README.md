@@ -71,6 +71,4 @@ http://www.jetbrains.com/idea/index.html)
 
 [![YourKit](https://www.yourkit.com/images/yklogo.png)](https://www.yourkit.com/) 
 
-
 Thanks to YourKit for providing us the use of their YourKit Java Profiler.  YourKit supports Open Source.
-
