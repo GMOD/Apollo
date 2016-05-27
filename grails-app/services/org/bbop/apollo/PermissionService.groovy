@@ -406,10 +406,9 @@ class PermissionService {
         return highestValue
     }
 
-    Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
+    JSONObject validateSessionForJsonObject(JSONObject jsonObject){
         // not sure if permissions with translate through or not
         Session session = SecurityUtils.subject.getSession(false)
-        String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
@@ -433,7 +432,34 @@ class PermissionService {
         else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
             jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
         }
+        return jsonObject
+    }
 
+    /**
+     * If a user exists and is a admin (not just for organism), then check, otherwise a regular user is still a valid user.
+     * @param jsonObject
+     * @param permissionEnum
+     * @return
+     */
+    Boolean hasGlobalPermissions(JSONObject jsonObject,PermissionEnum permissionEnum){
+        jsonObject = validateSessionForJsonObject(jsonObject)
+        User user = User.findByUsername(jsonObject.username)
+        if(!user){
+            log.error("User ${jsonObject.username} for ${jsonObject as JSON} does not exist in the database.")
+            return false
+        }
+        if(permissionEnum.rank > PermissionEnum.ADMINISTRATE.rank){
+            return isUserAdmin(user)
+        }
+        return true
+    }
+
+    Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
+        if(!hasGlobalPermissions(jsonObject,permissionEnum)){
+            log.info("User for ${jsonObject} lacks permissions ${permissionEnum.display}" )
+            return false
+        }
+        String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
 
         Organism organism = getCurrentOrganismPreference(clientToken)?.organism
         log.debug "passing in an organism ${jsonObject.organism}"
