@@ -1,12 +1,9 @@
 package org.bbop.apollo
 
-import org.apache.shiro.authc.UsernamePasswordToken
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.session.Session
-import org.apache.shiro.subject.Subject
-import org.springframework.http.HttpStatus
 import grails.converters.JSON
-
+import org.apache.shiro.SecurityUtils
+import org.apache.shiro.authc.UsernamePasswordToken
+import org.apache.shiro.subject.Subject
 
 class SecurityFilters {
     def filters = {
@@ -26,13 +23,14 @@ class SecurityFilters {
             before = {
                 try {
                     log.debug "apollo filter ${controllerName}::${actionName}"
-                    if (!controllerName) return true
                     Subject subject = SecurityUtils.getSubject();
                     if (!subject.isAuthenticated()) {
                         def req = request.JSON
                         if (req.username && req.password) {
                             def authToken = new UsernamePasswordToken(req.username, req.password)
                             subject.login(authToken)
+                            redirect(uri: params.targetUri)
+                            return true
                         } else {
                             log.warn "username/password not submitted"
                             redirect(uri: "/auth/login")

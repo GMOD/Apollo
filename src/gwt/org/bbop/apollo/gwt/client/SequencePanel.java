@@ -71,8 +71,6 @@ public class SequencePanel extends Composite {
     @UiField
     Select selectedSequenceDisplay;
     @UiField
-    Button exportSingleButton;
-    @UiField
     Button clearSelectionButton;
     @UiField
     TextBox nameSearchBox;
@@ -268,8 +266,6 @@ public class SequencePanel extends Composite {
                                     // default is false
                                 }
                                 exportAllButton.setEnabled(allowExport);
-                                // commenting out for more intuitive behavior
-                                //exportSingleButton.setEnabled(allowExport);
                                 exportSelectedButton.setEnabled(allowExport);
                                 selectedSequenceDisplay.setEnabled(allowExport);
                                 break;
@@ -295,13 +291,9 @@ public class SequencePanel extends Composite {
         if (selectedSequenceInfo == null) {
             sequenceName.setText("");
             sequenceLength.setText("");
-            exportSingleButton.setEnabled(false);
-            exportSingleButton.setText("None");
         } else {
             sequenceName.setHTML(selectedSequenceInfo.getName());
             sequenceLength.setText(selectedSequenceInfo.getLength().toString());
-            exportSingleButton.setEnabled(true);
-            exportSingleButton.setText(selectedSequenceInfo.getName());
         }
     }
 
@@ -390,17 +382,6 @@ public class SequencePanel extends Composite {
 
         GWT.log("adding selected: " + sequenceInfoList1.size());
         exportValues(sequenceInfoList1);
-    }
-
-    @UiHandler("exportSingleButton")
-    public void exportSingleHandler(ClickEvent clickEvent) {
-        exportAll = false;
-        SequenceInfo sequenceInfo = multiSelectionModel.getSelectedSet().iterator().next();
-        List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
-        sequenceInfoList1.add(sequenceInfo);
-        GWT.log("single export of " + sequenceInfoList1.size());
-        exportValues(sequenceInfoList1);
-
     }
 
     @UiHandler("exportAllButton")
