@@ -406,7 +406,7 @@ class PermissionService {
         return highestValue
     }
 
-    Boolean hasGlobalPermissions(JSONObject jsonObject,PermissionEnum permissionEnum){
+    JSONObject validateSessionForJsonObject(JSONObject jsonObject){
         // not sure if permissions with translate through or not
         Session session = SecurityUtils.subject.getSession(false)
         if (!session) {
@@ -432,7 +432,26 @@ class PermissionService {
         else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
             jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
         }
+        return jsonObject
+    }
 
+    /**
+     * If a user exists and is a admin (not just for organism), then check, otherwise a regular user is still a valid user.
+     * @param jsonObject
+     * @param permissionEnum
+     * @return
+     */
+    Boolean hasGlobalPermissions(JSONObject jsonObject,PermissionEnum permissionEnum){
+        jsonObject = validateSessionForJsonObject(jsonObject)
+        User user = User.findByUsername(jsonObject.username)
+        if(!user){
+            log.error("User ${jsonObject.username} for ${jsonObject as JSON} does not exist in the database.")
+            return false
+        }
+        if(permissionEnum.rank > PermissionEnum.ADMINISTRATE.rank){
+            return isUserAdmin(user)
+        }
+        return true
     }
 
     Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {

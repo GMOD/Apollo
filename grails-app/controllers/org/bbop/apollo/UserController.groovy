@@ -23,7 +23,7 @@ class UserController {
     def userService
 
 
-    @RestApiMethod(description = "Load all users", path = "/user/loadUsers", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Load all users and their permissions", path = "/user/loadUsers", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
