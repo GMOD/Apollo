@@ -3426,6 +3426,7 @@ define([
                     dojo.attr(historyRows.childNodes.item(current), "class", "history_row");
                     current = selectedIndex;
                     cleanUpHistoryTable();
+                    displayHistory();
                 };
 
                 var cleanUpHistoryTable = function() {
