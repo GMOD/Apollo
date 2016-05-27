@@ -4,7 +4,7 @@
              xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
              xmlns:wa="urn:import:org.bbop.apollo.gwt.client"
              xmlns:select="urn:import:org.gwtbootstrap3.extras.select.client.ui"
-        >
+>
     <ui:style>
 
         .trackTable {

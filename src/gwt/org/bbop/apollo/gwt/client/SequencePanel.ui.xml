@@ -68,7 +68,7 @@
             margin-left: auto;
             margin-right: auto;
         }</ui:style>
-    <gwt:DockLayoutPanel styleName="{style.dockLayoutPanel}">
+    <gwt:DockLayoutPanel addStyleNames="{style.dockLayoutPanel}">
         <gwt:north size="210">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
