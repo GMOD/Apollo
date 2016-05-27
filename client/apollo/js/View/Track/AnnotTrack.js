@@ -3425,6 +3425,14 @@ define([
                     dojo.attr(historyRows.childNodes.item(selectedIndex), "class", history[selectedIndex].current ? "history_row history_row_current" : "history_row");
                     dojo.attr(historyRows.childNodes.item(current), "class", "history_row");
                     current = selectedIndex;
+                    cleanUpHistoryTable();
+                    displayHistory();
+                };
+
+                var cleanUpHistoryTable = function() {
+                    while (historyRows.hasChildNodes()) {
+                        historyRows.removeChild(historyRows.lastChild);
+                    }
                 };
 
                 function initMenu() {
