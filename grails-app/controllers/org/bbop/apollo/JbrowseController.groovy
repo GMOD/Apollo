@@ -32,7 +32,7 @@ class JbrowseController {
     def indexRouter() {
         log.debug "indexRouter ${params}"
         log.debug "path ${params.path}"
-        println "request path: ${request.requestURL}"
+        log.debug "request path: ${request.requestURL}"
 
         def paramList = []
         String clientToken = params[FeatureStringEnum.CLIENT_TOKEN.value]
@@ -97,9 +97,9 @@ class JbrowseController {
 
 
     private String getJBrowseDirectoryForSession(String clientToken) {
-        println "current user? ${permissionService.currentUser}"
+        log.debug "current user? ${permissionService.currentUser}"
         if (!permissionService.currentUser) {
-            println "returning something not set clearly"
+            log.warning "returning something not set clearly"
             String directory = request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
             if (!directory) {
                 Organism organism = Organism.findByCommonNameIlike(clientToken)
@@ -120,9 +120,9 @@ class JbrowseController {
                 }
             }
         }
-        println "getting organism for client token ${clientToken}"
+        log.debug "getting organism for client token ${clientToken}"
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-        println "got organism ${currentOrganism} for client token ${clientToken}"
+        log.debug "got organism ${currentOrganism} for client token ${clientToken}"
         String organismJBrowseDirectory = currentOrganism.directory
         if (!organismJBrowseDirectory) {
             for (Organism organism in Organism.all) {
@@ -165,7 +165,7 @@ class JbrowseController {
      */
     def data() {
         String dataDirectory = getJBrowseDirectoryForSession(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-        println "data directory: ${dataDirectory}"
+        log.debug "data directory: ${dataDirectory}"
         String dataFileName = dataDirectory + "/" + params.path
         String fileName = FilenameUtils.getName(params.path)
         File file = new File(dataFileName);
@@ -317,9 +317,9 @@ class JbrowseController {
 
     def trackList() {
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
-        println "track list client token: ${clientToken}"
+        log.debug "track list client token: ${clientToken}"
         String dataDirectory = getJBrowseDirectoryForSession(clientToken)
-        println "got data directory of . . . ? ${dataDirectory}"
+        log.debug "got data directory of . . . ? ${dataDirectory}"
         String absoluteFilePath = dataDirectory + "/trackList.json"
         File file = new File(absoluteFilePath);
         def mimeType = "application/json";

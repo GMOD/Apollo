@@ -481,8 +481,6 @@ class FeatureEventService {
             uniqueNames.remove(uniqueName)
             for (int i = 0; total == 0 && i < uniqueNames.size(); i++) {
                 String name = uniqueNames[i]
-                println "unique names ${uniqueNames}"
-                println "name ${name}"
                 total = getHistory(name)?.size()
                 uniqueName = total > 0 ? name : uniqueNames
             }

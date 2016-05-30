@@ -59,7 +59,7 @@ class ProxyController {
         String targetUrl = proxy ? proxy.targetUrl : referenceUrl
 
         targetUrl += "?"+request.queryString
-        println "target url: ${targetUrl}"
+        log.dbug "target url: ${targetUrl}"
         URL returnUrl = new URL(targetUrl)
 
         log.debug "input URI ${request.requestURI}"
