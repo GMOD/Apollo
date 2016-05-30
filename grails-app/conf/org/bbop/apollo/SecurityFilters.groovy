@@ -43,13 +43,15 @@ class SecurityFilters {
                                 // TODO: works for most
                                 def targetUri = "/${controllerName}/${actionName}"
                                 int paramCount = 0
+                                def paramString = ""
                                 for(p in params){
                                     if(p.key!="controller" || p.key!="action"){
-                                        targetUri += paramCount==0 ? "?" : "&"
-                                        targetUri += p.key +"="+ p.value
+                                        paramString += paramCount==0 ? "?" : "&"
+                                        paramString += p.key +"="+ p.value
                                         ++paramCount
                                     }
                                 }
+                                targetUri = targetUri + (paramString ? URLEncoder.encode(paramString,"UTF-8") :"")
                                 redirect(uri: "/auth/login?targetUri=${targetUri}")
                                 return false
                             }
