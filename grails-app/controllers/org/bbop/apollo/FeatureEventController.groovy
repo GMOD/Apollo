@@ -13,15 +13,12 @@ class FeatureEventController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-
-
+    /**
+     * Permissions handled upstream
+     * @param max
+     * @return
+     */
     def report(Integer max) {
-        // should be cofered by the default
-//        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-//            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
-//            redirect(uri: "/auth/login")
-//            return
-//        }
 
         log.debug "${params}"
 

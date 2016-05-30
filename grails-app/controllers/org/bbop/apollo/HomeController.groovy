@@ -11,15 +11,12 @@ class HomeController {
 
     def permissionService
 
+    /**
+     * Permissions handled upstream
+     * @return
+     */
     @Timed(name = "SystemInfo")
     def systemInfo() {
-        // handled by default
-//        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-//            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
-//            redirect(uri: "/auth/login")
-//            return
-//        }
-
         Map<String, String> runtimeMapInstance = new HashMap<>()
         Map<String, String> servletMapInstance = new HashMap<>()
         Map<String, String> javaMapInstance = new HashMap<>()
@@ -47,13 +44,11 @@ class HomeController {
         return timerName.substring("org.bbop.apollo.".length(), timerName.lastIndexOf("."))
     }
 
+    /**
+     * Permissions handled upstream
+     * @return
+     */
     def metrics() {
-        // handled by default method
-//        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-//            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
-//            redirect(uri: "/auth/login")
-//            return
-//        }
         def link = createLink(absolute: true, action: "metrics", controller: "metrics")
         RestBuilder rest = new RestBuilder()
         RestResponse response = rest.get(link)
