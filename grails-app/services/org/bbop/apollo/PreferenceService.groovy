@@ -8,7 +8,7 @@ class PreferenceService {
     def permissionService
 
     Organism getCurrentOrganismForCurrentUser(String clientToken) {
-        println "PS: getCurrentOrganismForCurrentUser ${clientToken}"
+        log.debug "PS: getCurrentOrganismForCurrentUser ${clientToken}"
         if (permissionService.currentUser == null) {
             return getOrganismForToken(clientToken)
         } else {
@@ -18,12 +18,12 @@ class PreferenceService {
     }
 
     Organism getOrganismForToken(String s) {
-        println "token for org ${s}"
+        log.debug "token for org ${s}"
         if (s.isLong()) {
-            println "is long "
+            log.debug "is long "
             return Organism.findById(Long.parseLong(s))
         } else {
-            println "is NOT long "
+            log.debug "is NOT long "
             return Organism.findByCommonNameIlike(s)
         }
 
@@ -35,7 +35,7 @@ class PreferenceService {
  * @return
  */
     Organism getCurrentOrganism(User user, String clientToken) {
-        println "getting current organism for token: ${clientToken}"
+        log.debug "getting current organism for token: ${clientToken}"
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByCurrentOrganismAndUserAndClientToken(true, user, clientToken)
 
         // if there is not a current one, we see if there is another one for the same token

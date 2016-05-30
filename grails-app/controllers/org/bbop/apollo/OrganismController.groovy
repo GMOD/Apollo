@@ -197,7 +197,7 @@ class OrganismController {
             sequenceList = c.list {
                 eq('organism',organism)
             }
-            println "Sequence list fetched at getSequencesForOrganism: ${sequenceList}"
+            log.debug "Sequence list fetched at getSequencesForOrganism: ${sequenceList}"
         } else {
             def error = ['error': 'Username ' + organismJson.username + ' does not have export permissions for organism ' + organismJson.organism]
             render error as JSON

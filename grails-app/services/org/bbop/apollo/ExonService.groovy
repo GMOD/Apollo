@@ -354,7 +354,7 @@ class ExonService {
 
     @Transactional
     def setToDownstreamAcceptor(Exon exon) {
-        println "setting downstream acceptor: ${exon}"
+        log.debug "setting downstream acceptor: ${exon}"
         Transcript transcript = getTranscript(exon);
         Gene gene = transcriptService.getGene(transcript);
         int coordinate = exon.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin());
