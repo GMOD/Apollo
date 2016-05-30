@@ -1,11 +1,5 @@
 package org.bbop.apollo
 
-import grails.converters.JSON
-import org.bbop.apollo.gwt.shared.PermissionEnum
-import org.bbop.apollo.history.FeatureEventView
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
-
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 
@@ -21,13 +15,13 @@ class FeatureEventController {
 
 
 
-    def changes(Integer max) {
-        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
-            redirect(uri: "/auth/login")
-            return
-        }
-
+    def report(Integer max) {
+        // should be cofered by the default
+//        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+//            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+//            redirect(uri: "/auth/login")
+//            return
+//        }
 
         log.debug "${params}"
 
@@ -91,7 +85,7 @@ class FeatureEventController {
 
         def filters = [organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName]
 
-        render view: "changes", model: [features: list, featureCount: list.totalCount, organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
+        render view: "report", model: [features: list, featureCount: list.totalCount, organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
     }
 
     def index(Integer max) {

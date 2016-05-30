@@ -224,11 +224,11 @@ class SequenceController {
         log.debug "props: ${request.properties}"
         log.debug "request URI: ${request.requestURI}"
         log.debug "request URL: ${request.requestURL}"
-        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
-            redirect(uri: "/auth/login")
-            return
-        }
+//        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+//            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+//            redirect(uri: "/auth/login?targetUri=/sequence/report/${organism ? organism.id : ''}")
+//            return
+//        }
         organism = organism ?: Organism.first()
         params.max = Math.min(max ?: 20, 100)
 

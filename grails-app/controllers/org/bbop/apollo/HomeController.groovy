@@ -13,11 +13,12 @@ class HomeController {
 
     @Timed(name = "SystemInfo")
     def systemInfo() {
-        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
-            redirect(uri: "/auth/login")
-            return
-        }
+        // handled by default
+//        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+//            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+//            redirect(uri: "/auth/login")
+//            return
+//        }
 
         Map<String, String> runtimeMapInstance = new HashMap<>()
         Map<String, String> servletMapInstance = new HashMap<>()
@@ -47,11 +48,12 @@ class HomeController {
     }
 
     def metrics() {
-        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
-            redirect(uri: "/auth/login")
-            return
-        }
+        // handled by default method
+//        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+//            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
+//            redirect(uri: "/auth/login")
+//            return
+//        }
         def link = createLink(absolute: true, action: "metrics", controller: "metrics")
         RestBuilder rest = new RestBuilder()
         RestResponse response = rest.get(link)
