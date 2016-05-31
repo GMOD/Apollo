@@ -35,8 +35,7 @@ browsers).
 
 The main components of the Apollo 2.x application are:
 
-- Grails Server (formally a simple servlet 3 container) [Grails 2.4.5
-  doc](https://grails.github.io/grails-doc/2.4.5/guide/)
+- [Grails 2 Server](http://grails.org) with the current version set in the [application.properties](https://github.com/GMOD/Apollo/blob/master/application.properties)
 - Datastore: configured via Hibernate / Grails whcih can use most anything supported by JDBC / hibernate (primarily,
   Postgres, MySQL, H2)
 - JBrowse / Apollo Plugin: JS / HTML5 [JBrowse doc](http://jbrowse.org/code/JBrowse-1.11.6/docs/) and [main
