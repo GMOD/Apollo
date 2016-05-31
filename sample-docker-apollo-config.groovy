@@ -77,7 +77,7 @@ apollo {
 jbrowse {
     git {
         url = System.getenv("WEBAPOLLO_JBROWSE_GIT_URL") ? System.getenv("WEBAPOLLO_JBROWSE_GIT_URL") : "https://github.com/GMOD/jbrowse"
-        tag = System.getenv("WEBAPOLLO_JBROWSE_GIT_TAG") ? System.getenv("WEBAPOLLO_JBROWSE_GIT_TAG") : "master"
+        tag = System.getenv("WEBAPOLLO_JBROWSE_GIT_TAG") ? System.getenv("WEBAPOLLO_JBROWSE_GIT_TAG") : "1.12.2-apollo"
         alwaysPull = System.getenv("WEBAPOLLO_JBROWSE_GIT_ALWAYS_PULL").equals("true")
         alwaysRecheck = System.getenv("WEBAPOLLO_JBROWSE_GIT_ALWAYS_RECHECK").equals("true")
     }
