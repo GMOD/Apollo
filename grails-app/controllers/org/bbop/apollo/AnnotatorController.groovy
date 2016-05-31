@@ -408,12 +408,12 @@ class AnnotatorController {
         log.error "not authorized"
     }
 
+    /**
+     * Permissions handled upstream
+     * @param max
+     * @return
+     */
     def report(Integer max) {
-        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
-            redirect(uri: "/auth/login")
-            return
-        }
         List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
         params.max = Math.min(max ?: 20, 100)
 
