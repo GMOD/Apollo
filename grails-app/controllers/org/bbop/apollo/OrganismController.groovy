@@ -358,16 +358,10 @@ class OrganismController {
     }
 
     /**
-     * TODO: perOrganism summary
-     * @param featureInstance
+     * Permissions handled upstream
      * @return
      */
     def report() {
-        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
-            redirect(uri: "/auth/login")
-            return
-        }
         Map<Organism, OrganismSummary> organismSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
             @Override
             int compare(Organism o1, Organism o2) {

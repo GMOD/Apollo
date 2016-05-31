@@ -4,6 +4,8 @@ import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.subject.Subject
+import org.apache.shiro.web.util.SavedRequest
+import org.apache.shiro.web.util.WebUtils
 
 class SecurityFilters {
     def filters = {
@@ -19,29 +21,46 @@ class SecurityFilters {
 //            }
 //        }
 
-        all(controller: 'organism', action: '*') {
+        all(controller: '*', action: '*') {
             before = {
-                try {
-                    log.debug "apollo filter ${controllerName}::${actionName}"
-                    Subject subject = SecurityUtils.getSubject();
-                    if (!subject.isAuthenticated()) {
-                        def req = request.JSON
-                        if (req.username && req.password) {
-                            def authToken = new UsernamePasswordToken(req.username, req.password)
-                            subject.login(authToken)
-                            redirect(uri: params.targetUri)
-                            return true
-                        } else {
-                            log.warn "username/password not submitted"
-                            redirect(uri: "/auth/login")
-//                            render text: ([error: "Not authorized"] as JSON), status: HttpStatus.UNAUTHORIZED
-                            return false
+                if (controllerName == "organism"
+                        || controllerName == "home"
+                        || actionName == "report"
+                        || actionName == "loadLink"
+                ) {
+                    try {
+                        log.debug "apollo filter ${controllerName}::${actionName}"
+                        Subject subject = SecurityUtils.getSubject();
+                        if (!subject.isAuthenticated()) {
+                            def req = request.JSON
+                            if (req.username && req.password) {
+                                def authToken = new UsernamePasswordToken(req.username, req.password)
+                                subject.login(authToken)
+                                redirect(uri: params.targetUri)
+                                return true
+                            } else {
+                                log.warn "username/password not submitted"
+                                // TODO: works for most
+                                def targetUri = "/${controllerName}/${actionName}"
+                                int paramCount = 0
+                                def paramString = ""
+                                for(p in params){
+                                    if(p.key!="controller" || p.key!="action"){
+                                        paramString += paramCount==0 ? "?" : "&"
+                                        paramString += p.key +"="+ p.value
+                                        ++paramCount
+                                    }
+                                }
+                                targetUri = targetUri + (paramString ? URLEncoder.encode(paramString,"UTF-8") :"")
+                                redirect(uri: "/auth/login?targetUri=${targetUri}")
+                                return false
+                            }
                         }
                     }
-                }
-                catch(Exception e) {
-                    render ([error: e.message] as JSON)
-                    render false
+                    catch (Exception e) {
+                        render([error: e.message] as JSON)
+                        render false
+                    }
                 }
             }
         }

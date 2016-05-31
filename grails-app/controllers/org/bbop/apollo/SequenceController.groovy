@@ -219,16 +219,13 @@ class SequenceController {
         }
     }
 
+    /**
+     * Permissions handled upstream
+     * @param organism
+     * @param max
+     * @return
+     */
     def report(Organism organism,Integer max) {
-        log.debug "params: ${params}"
-        log.debug "props: ${request.properties}"
-        log.debug "request URI: ${request.requestURI}"
-        log.debug "request URL: ${request.requestURL}"
-        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
-            redirect(uri: "/auth/login")
-            return
-        }
         organism = organism ?: Organism.first()
         params.max = Math.min(max ?: 20, 100)
 
