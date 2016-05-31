@@ -19,6 +19,6 @@ databaseChangeLog = {
         addColumn(tableName: "preference"){
            column(name:"last_updated",type:"timestamp")
         }
-        addNotNullConstraint(tableName: "preference",columnName:"client_token", columnDataType: "varchar(255)")
+        addNotNullConstraint(tableName: "preference",columnName:"client_token", columnDataType:"varchar(255)")
     }
 }
