@@ -1,3 +1,39 @@
+## 2.0.3
+
+Features
+
++ Added Ability to export Apollo annotations to a Chado database (#145).
++ Added ability to update an existing Chado database for Chado export (#967).
++ Updated application to use Grails 2.5.4 (#444).
++ Allow apollo-config.groovy configuration to create admin user on startup (#1040).
++ Added ability to change feature type in User created annotations track (#220).
++ Added ability to use multiple organisms at the same time (#441).
++ Added ability to search selected sequences (for export) and clear selection in Sequence Panel (#730).
++ Added ability to allow username to be a non-email based name (#939).
++ Sync with JBrowse 1.12.2-release for stability (#971).
+
+Bugfixes
+
++ Fixed a bug were set translation start, in an intron, produces an uncaught out of bounds exception (#532).
++ Remove alternate hover CSS on tables in Annotator Panel for better visibility of entries (#632).
++ Fixed clientToken not found error for operation `get_gff3` and `get_sequence` (#1027).
++ Fixed a bug where PubMed and Gene Ontology lookup, in Information Editor, fails (#1028).
++ Fixed issues with export sequence API (#1045).
++ Fixed a bug where changing the number of transcripts of a gene did not update the drop-down in Information Editor (#587).
++ Fixed a bug where the bookmark icon did not show up for the current feature in History window upon revert (#769).
++ Fixed a bug where CDS FASTA export was attempting to export sequences of ncRNAs. (#833).
++ Fixed a bug where using `?organism=organismName` does not work if logged in (#845).
++ Fixed a bug where if a mRNA, without a strand, is added to the annotations track then it cannot be assigned a strand (#873).
++ Fixed a bug where import generates unique 'gene' name based on the existing gene (#879).
++ Fixed a bug where Comments field was restricted to 256 characters (#963).
++ Fixed a bug where an undo operation on a pseudogene causes an error (#1001).
++ Fixed inconsistencies when converting a feature to a JSONObject and vice-versa (#1003).
++ Fixed clientToken error originating from `getCurrentOrganismForCurrentUser` (#1054).
++ Fixed UI problems with 'Full-screen view' mode (#1055).
++ Fixed a bug where `targetURL` was not preserved properly through login in loadLink and Reports page (#1058).
++ Fixed a bug where user/group selection drop-down goes the wrong direction (#1066).
++ Fixed a bug where creating a pseudogene, repeat region or transposable element from a Canvas feature track led to an error (#1077).
+
 ## 2.0.2
 
 Features
