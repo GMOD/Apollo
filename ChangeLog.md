@@ -10,7 +10,7 @@ Features
 + Added ability to use multiple organisms at the same time (#441).
 + Added ability to search selected sequences (for export) and clear selection in Sequence Panel (#730).
 + Added ability to allow username to be a non-email based name (#939).
-+ Sync with JBrowse 1.12.2-release for stability (#971).
++ Sync with JBrowse 1.12.2-apollo for stability (#971).
 
 Bugfixes
 
