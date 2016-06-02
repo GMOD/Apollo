@@ -373,9 +373,9 @@ jbrowse {
             included = true
             linearGradient = 0
         }
-        NeatCanvasFeatures{
-            included = true
-        }
+//        NeatCanvasFeatures{
+//            included = true
+//        }
         RegexSequenceSearch{
             included = true
         }
