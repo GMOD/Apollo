@@ -2043,7 +2043,7 @@ define([
                     'class': "annotation_info_editor_label"
                 }, nameDiv);
                 var nameField = new dijitTextBox({'class': "annotation_editor_field"});
-                var nameLabelss = "Follow GenBank or UniProt-SwissProt guidelines for gene, protein, and CDS nomenclature. E.g. http://www.ncbi.nlm.nih.gov/genbank/genomesubmit_annotation and http://www.ncbi.nlm.nih.gov/genbank/eukaryotic_genome_submission_annotation/.";
+                var nameLabelss = "Follow GenBank or UniProt-SwissProt guidelines for gene, protein, and CDS nomenclature.";
                 dojo.place(nameField.domNode, nameDiv);
                 // var nameField = new dojo.create("input", { type: "text" }, nameDiv);
 
