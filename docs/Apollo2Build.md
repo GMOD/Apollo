@@ -11,11 +11,14 @@ This guide will cover the "development mode" scenario which should be easy to st
 
 ### Grails
 
-Installing grails is made easier by using [SDKMAN](http://sdkman.io/) (formerly GVM) which can automatically setup
-grails for you. We will use grails 2.5.4 for Apollo.
+Installing Grails is made easier by using [SDKMAN](http://sdkman.io/) (formerly GVM) which can automatically setup
+grails for you. 
 
 1. `curl -s http://get.sdkman.io | bash`
 2. `sdk install grails 2.5.4`
+3. `sdk install gradle 2.11`
+ 
+If you don't install Grails or Gradle using SDKMAN, these will automatically be downloaded in the current directory.
 
 ### Groovy
 
