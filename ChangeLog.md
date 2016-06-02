@@ -33,6 +33,7 @@ Bugfixes
 + Fixed a bug where `targetURL` was not preserved properly through login in loadLink and Reports page (#1058).
 + Fixed a bug where user/group selection drop-down goes the wrong direction (#1066).
 + Fixed a bug where creating a pseudogene, repeat region or transposable element from a Canvas feature track led to an error (#1077).
++ Fixed a bug when creating a non-coding Transcript owner was not set and the username was not being displayed when hovering (#1085). 
 
 ## 2.0.2
 
