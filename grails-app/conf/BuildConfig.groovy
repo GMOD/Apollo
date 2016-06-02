@@ -73,10 +73,6 @@ grails.project.dependency.resolution = {
 
         compile 'org.json:json:20140107'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
-        //compile 'com.sleepycat:je:5.0.73'
-        //compile 'org.spiffyui:spiffyuitasks:1.5'
-        //compile 'org.spiffyui:spiffyui:1.5'
-        //compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.0-RC2'
         //compile 'asm:asm:3.1'
         //compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
         //compile 'org.biojava:biojava3-core:3.1.0'
@@ -121,7 +117,6 @@ grails.project.dependency.resolution = {
         //compile ":handlebars-asset-pipeline:1.3.0.3"
 
         // plugins needed at runtime but not for compilation
-//        runtime ":hibernate4:4.3.5.5" // or ":hibernate:3.6.10.17"
         runtime ':hibernate4:4.3.8.1' // or ':hibernate:3.6.10.19'
         runtime ":database-migration:1.4.1"
         runtime ":jquery-ui:1.10.4"
@@ -130,13 +125,11 @@ grails.project.dependency.resolution = {
 
 
         // https://github.com/groovydev/twitter-bootstrap-grails-plugin/blob/master/README.md
-        runtime ':twitter-bootstrap:3.3.4'
+        runtime ':twitter-bootstrap:3.3.5'
         //compile ":angularjs:1.0.0"
         //compile ":dojo:1.7.2.0"
         //compile ":platform-core:1.0.0"
-        //compile ":vaadin:7.3.5"
 
-        //runtime ":resources:1.2.1"
         //runtime ":resources:1.2.13"
         //build ":extended-dependency-manager:0.5.5"
 
@@ -146,10 +139,6 @@ grails.project.dependency.resolution = {
         compile ":yammer-metrics:3.0.1-2"
 
 
-        //compile ":crypto:2.0"
-        //compile ":kickstart-with-bootstrap:1.1.0"
-        //compile ":twitter-bootstrap:3.1.1.3"
-        //compile ":jasypt-encryption:1.1.0"
         //compile ":joda-time:1.4"
         // TODO: re-add when ready to install functional tests
 //        test    ":geb:$gebVersion"
