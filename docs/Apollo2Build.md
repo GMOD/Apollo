@@ -16,6 +16,7 @@ grails for you. We will use grails 2.5.4 for Apollo.
 
 1. `curl -s http://get.sdkman.io | bash`
 2. `sdk install grails 2.5.4`
+3. `sdk install gradle`
 
 ### Groovy
 
