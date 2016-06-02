@@ -99,7 +99,7 @@ class JbrowseController {
     private String getJBrowseDirectoryForSession(String clientToken) {
         log.debug "current user? ${permissionService.currentUser}"
         if (!permissionService.currentUser) {
-            log.warning "returning something not set clearly"
+            log.warn "returning something not set clearly"
             String directory = request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
             if (!directory) {
                 Organism organism = Organism.findByCommonNameIlike(clientToken)
