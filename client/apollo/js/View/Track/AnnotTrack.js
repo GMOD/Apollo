@@ -4487,7 +4487,7 @@ define([
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
                             if (selectedFeatureType != "transposable_element") {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
-                                thisB.confirmChangeAnnotations(thisB, [selected], "repeat_region", message);
+                                thisB.confirmChangeAnnotationType(thisB, [selected], "repeat_region", message);
                             }
                             else {
                                 thisB.changeAnnotationType("repeat_region");
@@ -4502,7 +4502,7 @@ define([
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
                             if (selectedFeatureType != "repeat_region") {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
-                                thisB.confirmChangeAnnotations(thisB, [selected], "transposable_element", message);
+                                thisB.confirmChangeAnnotationType(thisB, [selected], "transposable_element", message);
                             }
                             else {
                                 thisB.changeAnnotationType("transposable_element");
@@ -5546,7 +5546,7 @@ define([
                 });
             },
 
-            confirmChangechangeAnnotationTypeAnnotations: function (track, selectedFeatures, destinationType, message) {
+            confirmChangeAnnotationType: function (track, selectedFeatures, destinationType, message) {
                 var confirm = new ConfirmDialog({
                     title: 'Change annotation type',
                     message: message,
