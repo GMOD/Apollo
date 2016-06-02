@@ -2043,7 +2043,7 @@ define([
                     'class': "annotation_info_editor_label"
                 }, nameDiv);
                 var nameField = new dijitTextBox({'class': "annotation_editor_field"});
-                var nameLabelss = "We recommend that you adhere to GenBank guidelines on protein and CDS nomenclature: http://www.ncbi.nlm.nih.gov/genbank/genomesubmit_annotation#CDS).";
+                var nameLabelss = "Follow GenBank or UniProt-SwissProt guidelines for gene, protein, and CDS nomenclature. E.g. http://www.ncbi.nlm.nih.gov/genbank/genomesubmit_annotation and http://www.ncbi.nlm.nih.gov/genbank/eukaryotic_genome_submission_annotation/.";
                 dojo.place(nameField.domNode, nameDiv);
                 // var nameField = new dojo.create("input", { type: "text" }, nameDiv);
 
@@ -2113,7 +2113,7 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, dbxrefButtons);
-                var dbxrefss = "Use this field if this model has Cross-references in other databases (e.g. the GenBank Accession number of a cDNA from this gene from the same species). Do NOT use this field to list IDs of models from other species that you used as annotation evidence.";
+                var dbxrefss = "Use this field to identify cross-references of this genomic element in other databases (e.g. GenBank ID for a cDNA from this gene in the same species or a miRNA ID from miRBase). Do not use this field to list IDs from similar genomic elements from other species, even if you used them as evidence for this as annotation.";
                 new Tooltip({
                     connectId: dbxrefsDiv,
                     label: dbxrefss,
@@ -2144,7 +2144,7 @@ define([
                 var pubmedIdsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var pubmedIdsLabel = dojo.create("div", {
                     'class': "annotation_info_editor_section_header",
-                    innerHTML: "Pubmed IDs"
+                    innerHTML: "PubMed IDs"
                 }, pubmedIdsDiv);
                 var pubmedIdsTable = dojo.create("div", {
                     'class': "pubmed_ids",
@@ -2160,10 +2160,10 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, pubmedIdButtons);
-                var pubmedss = "Use this field if this model has been mentioned in a publication. Do NOT use this field to list publications on models from other species that you used as annotation evidence.";
+                var pubmedss = "Use this field to indicate that this genomic element has been mentioned in a publication, or that a publication supports your functional annotations using GO IDs. Do not use this field to list publications containing related or similar genomic elements from other species that you may have used as evidence for this annotation.";
                 new Tooltip({
                     connectId: pubmedIdsDiv,
-                    label: dbxrefss,
+                    label: pubmedss,
                     position: ["above"],
                     showDelay: 600
                 });
@@ -2717,7 +2717,7 @@ define([
                         var pubmedIdTableLayout = [{
                             cells: [
                                 {
-                                    name: 'Pubmed ID',
+                                    name: 'PubMed ID',
                                     field: 'pubmed_id',
                                     width: '100%',
                                     formatter: function (pubmedId) {
