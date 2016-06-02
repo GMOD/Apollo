@@ -2587,7 +2587,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
                 addTranscriptToGene(gene, transcript)
                 if (!suppressHistory) {
-                    transcript.name = nameService.generateUniqueName(transcript)
+                    String name = nameService.generateUniqueName(transcript)
+                    transcript.name = name + "-" + transcript.alternateCvTerm
                 }
             } else {
                 // gene is null
@@ -2616,7 +2617,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         setOwner(tmpTranscript, user)
 
                         if (suppressHistory) {
-                            tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
+                            String name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
+                            tmpTranscript.name = name + "-" + tmpTranscript.alternateCvTerm
                         }
 
                         if (overlapperService.overlaps(tmpTranscript, tmpGene)) {
@@ -2640,7 +2642,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             if (gene == null) {
-                log.debug "gene is NULL"
+                log.debug "gene is still NULL"
                 JSONObject jsonGene = new JSONObject()
                 jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonFeature))
                 jsonGene.put(FeatureStringEnum.LOCATION.value, jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value))
@@ -2673,7 +2675,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 transcript = transcriptService.getTranscripts(gene).iterator().next();
                 removeExonOverlapsAndAdjacenciesForFeature(gene)
                 if (!suppressHistory) {
-                    transcript.name = nameService.generateUniqueName(transcript)
+                    String name = nameService.generateUniqueName(transcript)
+                    transcript.name = name + "-" + transcript.alternateCvTerm
                 }
 
                 gene.save(insert: true)
@@ -2700,7 +2703,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
             Feature feature = convertJSONToFeature(jsonFeature, sequence)
             if (!suppressHistory) {
-                feature.name = nameService.generateUniqueName(feature, feature.name)
+                String name = nameService.generateUniqueName(feature, feature.name)
+                feature.name = name + "-" + feature.alternateCvTerm
             }
             updateNewGsolFeatureAttributes(feature, sequence)
 
