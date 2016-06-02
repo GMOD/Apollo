@@ -369,10 +369,10 @@ jbrowse {
         WebApollo{
             included = true
         }
-        NeatHTMLFeatures{
-            included = true
-            linearGradient = 0
-        }
+//        NeatHTMLFeatures{
+//            included = true
+//            linearGradient = 0
+//        }
 //        NeatCanvasFeatures{
 //            included = true
 //        }
