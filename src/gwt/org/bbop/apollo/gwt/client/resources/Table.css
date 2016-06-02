@@ -1,6 +1,6 @@
 @def selectionBorderWidth 2px;
 .dataGridWidget {
-
+   background-color: snow;
 }
 
 .dataGridFirstColumn {
