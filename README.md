@@ -1,5 +1,5 @@
 # Apollo
-
+[![DOI](https://zenodo.org/badge/22312/GMOD/Apollo.svg)](https://zenodo.org/badge/latestdoi/22312/GMOD/Apollo)
 
 ![Build](https://travis-ci.org/GMOD/Apollo.svg?branch=master)
 [![Coverage](https://coveralls.io/repos/github/GMOD/Apollo/badge.svg?branch=master)](https://coveralls.io/github/GMOD/Apollo?branch=master)
