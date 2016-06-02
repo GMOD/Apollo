@@ -3398,7 +3398,7 @@ define([
                 var historyTable = dojo.create("div", {className: "history_table"}, historyDiv);
                 var historyHeader = dojo.create("div", {
                     className: "history_header",
-                    innerHTML: "<span class='history_header_column history_column_operation history_column'>Operation</span><span class='history_header_column history_column'>Editor</span><span class='history_header_column history_column history_column_date'>Date</span><span class='history_header_column history_set'>Set</span> "
+                    innerHTML: "<span class='history_header_column history_column_operation history_column'>Operation</span><span class='history_header_column history_column'>Editor</span><span class='history_header_column history_column history_column_date'>Date</span><span class='history_header_column history_set'>Revert</span> "
                 }, historyTable);
                 var historyRows = dojo.create("div", {className: "history_rows"}, historyTable);
                 var historyPreviewDiv = dojo.create("div", {className: "history_preview"}, historyDiv);
