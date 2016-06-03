@@ -100,22 +100,6 @@ class SequenceController {
             sequenceService.loadRefSeqs(organism)
         }
 
-        User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser, organism)
-        if (userOrganismPreference?.sequence?.name) {
-            userOrganismPreference.currentOrganism = true
-            request.session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, userOrganismPreference.sequence.name)
-            userOrganismPreference.save(flush: true)
-        } else {
-            userOrganismPreference = new UserOrganismPreference(
-                    user: currentUser
-                    , organism: organism
-                    , currentOrganism: true
-                    , sequence: Sequence.findByOrganism(organism)
-            ).save(insert: true, flush: true)
-        }
-        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ", [prefId: userOrganismPreference.id])
-
         JSONArray sequenceArray = new JSONArray()
         for (Sequence sequence in organism.sequences) {
             JSONObject jsonObject = new JSONObject()
@@ -129,6 +113,7 @@ class SequenceController {
 
         render sequenceArray as JSON
     }
+
 
     protected void notFound() {
         request.withFormat {
