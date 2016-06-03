@@ -5,7 +5,8 @@ import net.sf.json.JSONObject
 import groovyx.net.http.RESTClient
 
 @Grab(group = 'org.json', module = 'json', version = '20140107')
-@Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7.2')
+//@Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7.1')
+@Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.5.2')
 @Grab(group = 'org.apache.commons', module = 'commons-lang3', version = '3.0')
 
 String usageString = "\nUSAGE: delete_annotations_from_organism.groovy <options>\n" +
