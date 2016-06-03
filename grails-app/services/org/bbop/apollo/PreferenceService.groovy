@@ -177,4 +177,38 @@ class PreferenceService {
         return null
 
     }
+
+    UserOrganismPreference getCurrentOrganismPreference(String token){
+        User currentUser = permissionService.getCurrentUser()
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, true,token)
+        if (userOrganismPreference) {
+            return userOrganismPreference
+        }
+
+        // find another one
+        userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, false,token)
+        if (userOrganismPreference) {
+            userOrganismPreference.currentOrganism = true
+            userOrganismPreference.save(flush: true)
+            return userOrganismPreference
+        }
+
+        def organisms = permissionService.getOrganisms(currentUser)
+        if(!organisms){
+            if(permissionService.isAdmin()){
+                return null
+            }
+            else{
+                throw new PermissionException("User does not have permission for any organisms.")
+            }
+        }
+        Organism organism = organisms?.iterator()?.next()
+        userOrganismPreference = new UserOrganismPreference(
+                user: currentUser
+                , currentOrganism: true
+                , organism: organism
+                , clientToken: token
+        ).save(insert: true, flush: true)
+        return userOrganismPreference
+    }
 }
