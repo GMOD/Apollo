@@ -49,7 +49,7 @@ class JbrowseController {
             }
             // if there is no organism
             if(!organism){
-                organism = preferenceService.getCurrentOrganism(permissionService.currentUser,clientToken)
+                organism = preferenceService.getOrganismForToken(clientToken)
             }
             else{
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
