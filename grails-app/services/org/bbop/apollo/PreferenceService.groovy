@@ -30,45 +30,6 @@ class PreferenceService {
         }
 
     }
-/**
- * Get the current user preference.
- * If no preference, then set one
- * @param user
- * @return
- */
-//    Organism getCurrentOrganism(User user, String clientToken) {
-//        log.debug "getting current organism for token: ${clientToken}"
-//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByCurrentOrganismAndUserAndClientToken(true, user, clientToken)
-//
-//        // if there is not a current one, we see if there is another one for the same token
-//        if (!userOrganismPreference) {
-//            userOrganismPreference = UserOrganismPreference.findByCurrentOrganismAndUserAndClientToken(false, user, clientToken)
-//        }
-//
-//        UserOrganismPermission getOrganismFromPreferences(user,null,clientToken)
-//
-//        // if there are none, then we have to create a new one
-//        if (!userOrganismPreference) {
-//            Iterator i = permissionService.getOrganisms(user).iterator();
-//            if (i.hasNext()) {
-//                Organism organism = i.next()
-//                userOrganismPreference = new UserOrganismPreference(
-//                        user: user
-//                        , organism: organism
-//                        , sequence: Sequence.findByOrganism(organism)
-//                        , currentOrganism: true
-//                        , clientToken: clientToken
-//                ).save()
-//            } else {
-//                throw new PermissionException("User has no access to any organisms!")
-//            }
-//        }
-//
-//        userOrganismPreference.currentOrganism = true
-//        userOrganismPreference.save(flush: true)
-//
-//        return userOrganismPreference.organism
-//    }
 
 
     def setCurrentOrganism(User user, Organism organism, String clientToken) {
@@ -119,7 +80,6 @@ class PreferenceService {
 
     UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
         User currentUser = permissionService.currentUser
-//        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(currentUser,sequenceName,clientToken)
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, true, clientToken)
         if (!userOrganismPreference) {
             userOrganismPreference = UserOrganismPreference.findByUser(currentUser)

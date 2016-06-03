@@ -322,7 +322,6 @@ class PermissionService {
         User user = getCurrentUser(inputObject)
         organism = getOrganismFromInput(inputObject)
 
-        // TODO: is this necessary?
         if(!organism) {
             organism = preferenceService.getOrganismFromPreferences(user,trackName,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         }
