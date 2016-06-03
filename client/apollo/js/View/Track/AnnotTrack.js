@@ -1908,7 +1908,6 @@ define([
                     this.alertAnnotationType(selected[0], type);
                 }
                 else {
-                    console.log("changing ", selected[0].feature.afeature.name, " to type: ", type);
                     this.changeAnnotations(selected[0], type);
                     this.selectionManager.clearSelection();
                 }
@@ -4483,13 +4482,31 @@ define([
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "repeat_region",
                         onClick: function(event) {
-                            thisB.changeAnnotationType("repeat_region");
+                            var selected = thisB.selectionManager.getSelection();
+                            var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
+                                selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
+                            if (selectedFeatureType != "transposable_element") {
+                                var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
+                                thisB.confirmChangeAnnotationType(thisB, [selected], "repeat_region", message);
+                            }
+                            else {
+                                thisB.changeAnnotationType("repeat_region");
+                            }
                         }
                     }));
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "transposable_element",
                         onClick: function(event) {
-                            thisB.changeAnnotationType("transposable_element");
+                            var selected = thisB.selectionManager.getSelection();
+                            var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
+                                selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
+                            if (selectedFeatureType != "repeat_region") {
+                                var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
+                                thisB.confirmChangeAnnotationType(thisB, [selected], "transposable_element", message);
+                            }
+                            else {
+                                thisB.changeAnnotationType("transposable_element");
+                            }
                         }
                     }));
                     contextMenuItems["annotation_info_editor"] = index++;
@@ -4497,61 +4514,12 @@ define([
                     index++;
                     var changeAnnotationMenuItem = new dijitPopupMenuItem( {
                         label: "Change annotation type",
-                        popup: changeAnnotationMenu,
-                        onFocus: function(event) {
-                            var selected = thisB.selectionManager.getSelection();
-                            var selectedType = selected[0].feature.afeature.type.name === "exon" ?
-                                selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            var menuItems = changeAnnotationMenu.getChildren();
-                            for (var i in menuItems) {
-                                if (selectedType === "mRNA") {
-                                    if (menuItems[i].label === "gene") {
-                                        menuItems[i].setDisabled(true);
-                                    }
-                                    else {
-                                        menuItems[i].setDisabled(false);
-                                    }
-                                }
-                                else if (selectedType === "transcript") {
-                                    if (menuItems[i].label === "pseudogene") {
-                                        menuItems[i].setDisabled(true);
-                                    }
-                                    else {
-                                        menuItems[i].setDisabled(false);
-                                    }
-                                }
-                                else if (selectedType === "miRNA" || selectedType == "snRNA" || selectedType === "snoRNA" ||
-                                    selectedType === "rRNA" || selectedType === "tRNA" || selectedType === "ncRNA") {
-                                    if (menuItems[i].label === selectedType) {
-                                        menuItems[i].setDisabled(true);
-                                    }
-                                    else {
-                                        menuItems[i].setDisabled(false);
-                                    }
-                                }
-                                else if (selectedType === "repeat_region") {
-                                    if (menuItems[i].label === "transposable_element") {
-                                        menuItems[i].setDisabled(false);
-                                    }
-                                    else {
-                                        menuItems[i].setDisabled(true);
-                                    }
-                                }
-                                else if (selectedType === "transposable_element") {
-                                    if (menuItems[i].label === "repeat_region") {
-                                        menuItems[i].setDisabled(false);
-                                    }
-                                    else {
-                                        menuItems[i].setDisabled(true);
-                                    }
-                                }
-                                else {
-                                    menuItems[i].setDisabled(false);
-                                }
-                            }
-                        }
+                        popup: changeAnnotationMenu
                     });
                     annot_context_menu.addChild(changeAnnotationMenuItem);
+                    dojo.connect(changeAnnotationMenu, "onOpen", dojo.hitch(this, function() {
+                        this.updateChangeAnnotationTypeMenu(changeAnnotationMenu);
+                    }));
                     contextMenuItems["annotation_info_editor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
@@ -4950,6 +4918,59 @@ define([
                 this.updateSetPreviousDonorMenuItem();
                 this.updateSetNextAcceptorMenuItem();
                 this.updateSetPreviousAcceptorMenuItem();
+            },
+
+            updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {
+                var selected = this.selectionManager.getSelection();
+                var selectedType = selected[0].feature.afeature.type.name === "exon" ?
+                    selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
+                var menuItems = changeAnnotationMenu.getChildren();
+                for (var i in menuItems) {
+                    if (selectedType === "mRNA") {
+                        if (menuItems[i].label === "gene") {
+                            menuItems[i].setDisabled(true);
+                        }
+                        else {
+                            menuItems[i].setDisabled(false);
+                        }
+                    }
+                    else if (selectedType === "transcript") {
+                        if (menuItems[i].label === "pseudogene") {
+                            menuItems[i].setDisabled(true);
+                        }
+                        else {
+                            menuItems[i].setDisabled(false);
+                        }
+                    }
+                    else if (selectedType === "miRNA" || selectedType == "snRNA" || selectedType === "snoRNA" ||
+                        selectedType === "rRNA" || selectedType === "tRNA" || selectedType === "ncRNA") {
+                        if (menuItems[i].label === selectedType) {
+                            menuItems[i].setDisabled(true);
+                        }
+                        else {
+                            menuItems[i].setDisabled(false);
+                        }
+                    }
+                    else if (selectedType === "repeat_region") {
+                        if (menuItems[i].label === "transposable_element") {
+                            menuItems[i].setDisabled(false);
+                        }
+                        else {
+                            menuItems[i].setDisabled(true);
+                        }
+                    }
+                    else if (selectedType === "transposable_element") {
+                        if (menuItems[i].label === "repeat_region") {
+                            menuItems[i].setDisabled(false);
+                        }
+                        else {
+                            menuItems[i].setDisabled(true);
+                        }
+                    }
+                    else {
+                        menuItems[i].setDisabled(false);
+                    }
+                }
             },
 
             updateDeleteMenuItem: function () {
@@ -5525,6 +5546,18 @@ define([
                 });
             },
 
+            confirmChangeAnnotationType: function (track, selectedFeatures, destinationType, message) {
+                var confirm = new ConfirmDialog({
+                    title: 'Change annotation type',
+                    message: message,
+                    confirmLabel: 'Yes',
+                    denyLabel: 'Cancel'
+                }).show(function (confirmed) {
+                    if (confirmed) {
+                        track.changeAnnotationType(destinationType);
+                    }
+                });
+            },
 
             /**
              * handles adding overlay of sequence residues to "row" of selected feature
