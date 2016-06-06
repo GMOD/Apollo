@@ -319,28 +319,6 @@ class PermissionService {
     }
 
 
-    Organism getOrganismFromInput(JSONObject inputObject) {
-
-        if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
-            String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
-            Organism organism = Organism.findByCommonNameIlike(organismString)
-            if(organism){
-                log.debug "return organism ${organism} by name ${organismString}"
-                return organism
-            }
-            if(!organism){
-                organism = Organism.findById(organismString as Long);
-            }
-            if(organism){
-                log.debug "return organism ${organism} by ID ${organismString}"
-                return organism
-            }
-            else{
-                log.info "organism not found ${organismString}"
-            }
-        }
-        return null
-    }
 
     /**
      * This method finds the proper username with their proper organism for the current organism when including the track name.
@@ -369,7 +347,7 @@ class PermissionService {
 //        }
 
         User user = getCurrentUser(inputObject)
-        organism = getOrganismFromInput(inputObject)
+        organism = preferenceService.getOrganismFromInput(inputObject)
 
         if(!organism) {
             organism = preferenceService.getOrganismFromPreferences(user,trackName,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
@@ -409,7 +387,6 @@ class PermissionService {
         }
 
         if (foundSequences) {
-//            Bookmark bookmark = bookmarkService.generateBookmarkForSequence(user, foundSequences as Sequence[])
             Bookmark bookmark = null
             if (inputObject.track instanceof String) {
                 if (inputObject.track.startsWith("{")) {
@@ -437,6 +414,9 @@ class PermissionService {
             else
             if (inputObject.track instanceof JSONObject) {
                 println "NO Track bookmark ${bookmark} and ${inputObject.track as JSON}"
+                if(!inputObject.containsValue(FeatureStringEnum.ORGANISM.value)){
+                    inputObject.put(FeatureStringEnum.ORGANISM.value,organism.id)
+                }
                 copyRequestValues(inputObject,inputObject.track)
                 bookmark = bookmarkService.convertJsonToBookmark(inputObject.getJSONObject(FeatureStringEnum.TRACK.value))
             }

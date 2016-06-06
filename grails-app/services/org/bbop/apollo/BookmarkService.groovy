@@ -77,8 +77,12 @@ class BookmarkService {
 
     JSONObject standardizeSequenceList(JSONObject inputObject) {
         JSONArray sequenceArray = JSON.parse(inputObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
-        UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-        Map<String,Sequence> sequenceMap = getSequencesFromBookmark(userOrganismPreference.organism,sequenceArray.toString()).collectEntries(){
+        Organism organism = preferenceService.getOrganismForToken(inputObject.getString(FeatureStringEnum.ORGANISM.value))
+        if(!organism){
+            UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            organism = userOrganismPreference?.organism
+        }
+        Map<String,Sequence> sequenceMap = getSequencesFromBookmark(organism,sequenceArray.toString()).collectEntries(){
             [it.name,it]
         }
 
@@ -116,9 +120,12 @@ class BookmarkService {
             bookmark.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size()-1).getInt(FeatureStringEnum.END.value)
 
             User user = permissionService.getCurrentUser(jsonObject)
-            UserOrganismPreference userOrganismPreference = permissionService.getCurrentOrganismPreference(jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value),user)
+
 //            bookmark.user = userOrganismPreference.user
-            bookmark.organism = userOrganismPreference.organism
+            bookmark.organism = preferenceService.getOrganismFromInput(jsonObject)
+            if(!bookmark.organism){
+                bookmark.organism = preferenceService.getCurrentOrganismForCurrentUser(jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            }
             bookmark.save(insert: true,flush:true)
         }
         else{

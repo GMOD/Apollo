@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -20,6 +21,22 @@ class PreferenceService {
             return getOrganismFromPreferences(clientToken)
         }
 //        return permissionService.currentUser == null ? null : getCurrentOrganism(permissionService.currentUser,clientToken);
+    }
+
+    Organism getOrganismFromInput(JSONObject inputObject) {
+
+        if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
+            String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
+            Organism organism = getOrganismForToken(organismString)
+            if(organism){
+                log.debug "return organism ${organism} by ID ${organismString}"
+                return organism
+            }
+            else{
+                log.info "organism not found ${organismString}"
+            }
+        }
+        return null
     }
 
     Organism getOrganismForToken(String s) {
@@ -111,14 +128,14 @@ class PreferenceService {
                     , bookmark: bookmark
                     , clientToken: clientToken
             ).save(flush: true)
-            setOtherCurrentOrganismsFalse(userOrganismPreference, user)
+            setOtherCurrentOrganismsFalse(userOrganismPreference, user,clientToken)
         }
         else
         if(!userOrganismPreference.currentOrganism) {
             userOrganismPreference.currentOrganism = true;
             userOrganismPreference.bookmark = bookmark
             userOrganismPreference.save()
-            setOtherCurrentOrganismsFalse(userOrganismPreference, user)
+            setOtherCurrentOrganismsFalse(userOrganismPreference, user,clientToken)
         }
         else{
             userOrganismPreference.bookmark = bookmark
@@ -228,7 +245,11 @@ class PreferenceService {
         if (!userOrganismPreference) {
             // find a random organism based on sequence
             Sequence sequence = Sequence.findByName(trackName)
-            Organism organism = sequence ? sequence.organism : permissionService.getOrganisms(user).first()
+            Organism organism = sequence?.organism
+            if(!organism){
+                def organisms = permissionService.getOrganisms(user)
+                organism = organisms ? organisms.first() : null
+            }
             if (!organism && permissionService.isAdmin()) {
                 organism = Organism.first()
             }
@@ -236,14 +257,20 @@ class PreferenceService {
                 throw new PermissionException("User does not have permission for any organisms.")
             }
 
-            UserOrganismPreference newUserOrganismPreference = new UserOrganismPreference(
-                    user: user
-                    , organism: organism
-                    , currentOrganism: true
-                    , sequence: sequence
-                    , clientToken: clientToken
-            ).save(insert: true, flush: true)
-            return newUserOrganismPreference
+
+            if(user){
+                UserOrganismPreference newUserOrganismPreference = new UserOrganismPreference(
+                        user: user
+                        , organism: organism
+                        , currentOrganism: true
+                        , sequence: sequence
+                        , clientToken: clientToken
+                ).save(insert: true, flush: true)
+                return newUserOrganismPreference
+            }
+            else{
+                return null
+            }
         }
 
         return userOrganismPreference
@@ -258,6 +285,6 @@ class PreferenceService {
     }
 
     UserOrganismPreference getCurrentOrganismPreference(String token) {
-        getCurrentOrganismPreference(permissionService.getCurrentUser(), null, token)
+        getCurrentOrganismPreference(permissionService.currentUser, null, token)
     }
 }
