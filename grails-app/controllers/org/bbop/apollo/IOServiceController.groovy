@@ -52,15 +52,15 @@ class IOServiceController extends AbstractApolloController {
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
 
-            , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = "Type of export 'FASTA','GFF3','CHADO'")
+            , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = "Type of annotated genomic features to export 'FASTA','GFF3','CHADO'.")
 
-            , @RestApiParam(name = "seqType", type = "string", paramType = RestApiParamType.QUERY, description = "Type of output sequence 'peptide','cds','cdna','genomic'")
+            , @RestApiParam(name = "seqType", type = "string", paramType = RestApiParamType.QUERY, description = "Type of output sequence 'peptide','cds','cdna','genomic'.")
             , @RestApiParam(name = "format", type = "string", paramType = RestApiParamType.QUERY, description = "'gzip' or 'text'")
-            , @RestApiParam(name = "sequences", type = "string", paramType = RestApiParamType.QUERY, description = "Names of references sequences to add.")
-            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Name of organism that sequences belong to.")
+            , @RestApiParam(name = "sequences", type = "string", paramType = RestApiParamType.QUERY, description = "Names of references sequences to add (default is all).")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Name of organism that sequences belong to (will default to last organism).")
             , @RestApiParam(name = "output", type = "string", paramType = RestApiParamType.QUERY, description = "Output method 'file','text'")
-            , @RestApiParam(name = "exportAllSequences", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export all sequences for an organism (over-rides 'sequences')")
-            , @RestApiParam(name = "exportGff3Fasta", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export sequences when exporting gff3")
+            , @RestApiParam(name = "exportAllSequences", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export all reference sequences for an organism (over-rides 'sequences')")
+            , @RestApiParam(name = "exportGff3Fasta", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export reference sequence when exporting GFF3 annotations.")
     ]
     )
     @Timed
@@ -74,9 +74,9 @@ class IOServiceController extends AbstractApolloController {
             }
             String typeOfExport = dataObject.type
             String sequenceType = dataObject.seqType
-            String exportAllSequences = dataObject.exportAllSequences
-            String exportGff3Fasta = dataObject.exportGff3Fasta
-            String chadoExportType = dataObject.chadoExportType
+            Boolean exportAllSequences = dataObject.exportAllSequences ? Boolean.valueOf(dataObject.exportAllSequences) : false
+            Boolean exportGff3Fasta = dataObject.exportGff3Fasta ? Boolean.valueOf(dataObject.exportGff3Fasta) : false
+//            String chadoExportType = dataObject.chadoExportType
             String output = dataObject.output
             String format = dataObject.format
             def sequences = dataObject.sequences // can be array or string
@@ -85,7 +85,12 @@ class IOServiceController extends AbstractApolloController {
 
             def st = System.currentTimeMillis()
             def queryParams = [viewableAnnotationList: requestHandlingService.viewableAnnotationList, organism: organism]
-            if (sequences) queryParams.sequences = sequences
+            if(exportAllSequences){
+                sequences = []
+            }
+            if (sequences) {
+                queryParams.sequences = sequences
+            }
             // caputures 3 level indirection, joins feature locations only. joining other things slows it down
             def genes = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations join fetch child.childFeatureRelationships join fetch child.parentFeatureRelationships cpr join fetch cpr.childFeature subchild join fetch subchild.featureLocations join fetch subchild.childFeatureRelationships left join fetch subchild.parentFeatureRelationships where fl.sequence.organism = :organism and f.class in (:viewableAnnotationList)" + (sequences ? " and fl.sequence.name in (:sequences)" : ""), queryParams)
             // captures rest of feats
@@ -116,19 +121,19 @@ class IOServiceController extends AbstractApolloController {
 
             if (typeOfExport == FeatureStringEnum.TYPE_GFF3.getValue()) {
                 // adding sequence alterations to list of features to export
-                if (exportAllSequences != "true" && sequences != null && !(sequences.class == JSONArray.class)) {
+                if (!exportAllSequences  && sequences != null && !(sequences.class == JSONArray.class)) {
                     fileName = "Annotations-" + sequences + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 } else {
                     fileName = "Annotations" + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 }
                 // call gff3HandlerService
-                if (exportGff3Fasta == "true") {
+                if (exportGff3Fasta) {
                     gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String, true, sequenceList)
                 } else {
                     gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
                 }
             } else if (typeOfExport == FeatureStringEnum.TYPE_FASTA.getValue()) {
-                if (exportAllSequences != "true" && sequences != null && !(sequences.class == JSONArray.class)) {
+                if (!exportAllSequences  && sequences != null && !(sequences.class == JSONArray.class)) {
                     fileName = "Annotations-" + sequences + "." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 } else {
                     fileName = "Annotations" + "." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
@@ -137,14 +142,12 @@ class IOServiceController extends AbstractApolloController {
                 // call fastaHandlerService
                 fastaHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
             } else if (typeOfExport == FeatureStringEnum.TYPE_CHADO.getValue()) {
-                JSONObject returnObject = new JSONObject()
                 if (sequences) {
-                    returnObject = chadoHandlerService.writeFeatures(organism, sequenceList, features)
+                    render chadoHandlerService.writeFeatures(organism, sequenceList, features)
                 } else {
-                    returnObject = chadoHandlerService.writeFeatures(organism, [], features, exportAllSequences.equals("true"))
+                    render chadoHandlerService.writeFeatures(organism, [], features, exportAllSequences)
                 }
-
-                render returnObject
+                 return // ??
             }
 
             //generating a html fragment with the link for download that can be rendered on client side

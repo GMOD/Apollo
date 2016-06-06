@@ -79,8 +79,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             int permission = PermissionEnum.NONE.value
 
             User user = User.findByUsername(username)
-            println "getting user permission for ${user}, returnOBject"
-            Organism organism = preferenceService.getCurrentOrganism(user,returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            log.debug "getting user permission for ${user}, returnObject"
+            Organism organism = preferenceService.getOrganismFromPreferences(user,null,returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             if (!organism) {
                 log.error "somehow no organism shown, getting for all"
             }
@@ -490,15 +490,19 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render returnObject
     }
 
-
-    def getOrganism() {
-        Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
-        if (organism) {
-            render organism as JSON
-        } else {
-            render new JSONObject()
-        }
-    }
+    /**
+     * @deprecated  This will likely be removed
+     * @return
+     */
+//    def getOrganism() {
+//        JSONObject inputObject = permissionService.handleInput(request, params)
+//        Organism organism = preferenceService.getCurrentOrganismForCurrentUser(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+//        if (organism) {
+//            render organism as JSON
+//        } else {
+//            render new JSONObject()
+//        }
+//    }
 
     def getAnnotationInfoEditorConfiguration() {
         JSONObject annotationInfoEditorConfigContainer = new JSONObject();
@@ -933,6 +937,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @RestApiParams(params=[
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="client_token", type="string", paramType = RestApiParamType.QUERY,description = "Organism ID/Name or Client-generated ")
             ,@RestApiParam(name="search", type="JSONObject", paramType = RestApiParamType.QUERY,description = "{'key':'blat','residues':'ATACTAGAGATAC':'database_id':'abc123'}")
     ] )
     def searchSequence() {
@@ -942,7 +947,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+        Organism organism = preferenceService.getCurrentOrganismForCurrentUser(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         log.debug "Organism to string:  ${organism as JSON}"
         render sequenceSearchService.searchSequence(inputObject, organism.getBlatdb())
     }

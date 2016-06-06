@@ -11,7 +11,7 @@
 <g:render template="../layouts/reportHeader"/>
 
 
-<g:form id="customform" name="myForm" url="[action: 'changes', controller: 'featureEvent']">
+<g:form id="customform" name="myForm" url="[action: 'report', controller: 'featureEvent']">
     <div class="container-fluid" style="margin: 10px 0px 0px 20px; padding-bottom: 20px;">
         <g:if test="${flash.message}">
             <div class="message row col-sm-12" role="status">${flash.message}</div>

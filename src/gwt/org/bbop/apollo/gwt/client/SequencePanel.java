@@ -43,6 +43,8 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.select.client.ui.Option;
+import org.gwtbootstrap3.extras.select.client.ui.Select;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +78,9 @@ public class SequencePanel extends Composite {
     @UiField
     Button exportSelectedButton;
     @UiField
-    Button exportSingleButton;
+    Select selectedSequenceDisplay;
+    @UiField
+    Button clearSelectionButton;
     @UiField
     TextBox nameSearchBox;
     @UiField
@@ -159,8 +163,9 @@ public class SequencePanel extends Composite {
                     enableBookmarks(false);
                 }
                 exportSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
-
                 selectSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
+
+                updateSelectedSequenceDisplay(multiSelectionModel.getSelectedSet());
             }
         });
 
@@ -232,6 +237,7 @@ public class SequencePanel extends Composite {
                             selectedCount = 0;
                             multiSelectionModel.clear();
                             updatedExportSelectedButton();
+                            updateSelectedSequenceDisplay(multiSelectionModel.getSelectedSet());
                             reload();
                         }
                     });
@@ -261,8 +267,8 @@ public class SequencePanel extends Composite {
                                     // default is false
                                 }
                                 exportAllButton.setEnabled(allowExport);
-                                exportSingleButton.setEnabled(allowExport);
                                 exportSelectedButton.setEnabled(allowExport);
+                                selectedSequenceDisplay.setEnabled(allowExport);
                                 break;
                         }
                     }
@@ -381,13 +387,9 @@ public class SequencePanel extends Composite {
         if (selectedSequenceInfo == null) {
             sequenceName.setText("");
             sequenceLength.setText("");
-            exportSingleButton.setEnabled(false);
-            exportSingleButton.setText("None");
         } else {
             sequenceName.setHTML(selectedSequenceInfo.getName());
             sequenceLength.setText(selectedSequenceInfo.getLength().toString());
-            exportSingleButton.setEnabled(true);
-            exportSingleButton.setText(selectedSequenceInfo.getName());
         }
     }
 
@@ -476,17 +478,6 @@ public class SequencePanel extends Composite {
         exportValues(sequenceInfoList1);
     }
 
-    @UiHandler("exportSingleButton")
-    public void exportSingleHandler(ClickEvent clickEvent) {
-        exportAll = false;
-        SequenceInfo sequenceInfo = multiSelectionModel.getSelectedSet().iterator().next();
-        List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
-        sequenceInfoList1.add(sequenceInfo);
-        GWT.log("single export of " + sequenceInfoList1.size());
-        exportValues(sequenceInfoList1);
-
-    }
-
     @UiHandler("exportAllButton")
     public void exportAllHandler(ClickEvent clickEvent) {
         exportAll = true;
@@ -495,6 +486,27 @@ public class SequencePanel extends Composite {
         exportValues(new ArrayList<SequenceInfo>());
     }
 
+    public void updateSelectedSequenceDisplay(Set<SequenceInfo> selectedSequenceInfoList) {
+        selectedSequenceDisplay.clear();
+        if (selectedSequenceInfoList.size() == 0) {
+            selectedSequenceDisplay.setEnabled(false);
+        }
+        else {
+            selectedSequenceDisplay.setEnabled(true);
+            for (SequenceInfo s : selectedSequenceInfoList) {
+                Option option = new Option();
+                option.setValue(s.getName());
+                option.setText(s.getName());
+                selectedSequenceDisplay.add(option);
+            }
+        }
+        selectedSequenceDisplay.refresh();
+    }
+
+    @UiHandler("clearSelectionButton")
+    public void clearSelection(ClickEvent clickEvent) {
+        multiSelectionModel.clear();
+    }
 
     public void reload() {
         pager.setPageStart(0);

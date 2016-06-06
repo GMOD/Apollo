@@ -60,7 +60,7 @@ return declare( CanvasFeaturesTrack,
                   "label" : "pseudogene",
                   "action" : function() {
                      var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "pseudogene", null, "gene");
+                     atrack.createGenericAnnotations([this.feature], "transcript", null, "pseudogene");
                   }
                 },
                 {
@@ -109,14 +109,14 @@ return declare( CanvasFeaturesTrack,
                   "label" : "repeat_region",
                   "action" : function() {
                      var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "repeat_region", null, "gene");
+                     atrack.createGenericOneLevelAnnotations([this.feature], "repeat_region", true);
                    }
                 },
                 {
                   "label" : "transposable element",
                   "action" : function() {
                      var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createGenericAnnotations([this.feature], "transposable_element", null, "gene");
+                     atrack.createGenericOneLevelAnnotations([this.feature], "transposable_element", true);
                    }
                 }
               ]

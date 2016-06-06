@@ -11,16 +11,16 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class AnnotatorService {
 
     def permissionService
+    def preferenceService
     def requestHandlingService
     def bookmarkService
 
     def getAppState(String token) {
         JSONObject appStateObject = new JSONObject()
         try {
-//            def organismList = permissionService.getCurrentOrganismPreference(token).organism
-            List<Organism> organismList = permissionService.getOrganismsForCurrentUser()
-            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(permissionService.currentUser, true,token)
-            println "found organism preference: ${userOrganismPreference} for token ${token}"
+            def organismList = permissionService.getOrganismsForCurrentUser()
+            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(permissionService.currentUser, true,token,[max: 1, sort: "lastUpdated", order: "desc"])
+            log.debug "found organism preference: ${userOrganismPreference} for token ${token}"
             Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
 
 
@@ -46,7 +46,7 @@ class AnnotatorService {
                 organismArray.add(jsonObject)
             }
             appStateObject.put("organismList", organismArray)
-            UserOrganismPreference currentUserOrganismPreference = permissionService.getCurrentOrganismPreference(token)
+            UserOrganismPreference currentUserOrganismPreference = preferenceService.getCurrentOrganismPreference(token)
             if(currentUserOrganismPreference){
                 Organism currentOrganism = currentUserOrganismPreference?.organism
                 appStateObject.put("currentOrganism", currentOrganism )

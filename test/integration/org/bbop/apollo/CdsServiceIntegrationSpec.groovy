@@ -14,19 +14,6 @@ class CdsServiceIntegrationSpec extends AbstractIntegrationSpec{
 
 
     def setup() {
-//        Organism organism = new Organism(
-//                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-//                ,commonName: "sampleAnimal"
-//        ).save(flush: true)
-//
-//        Sequence sequence = new Sequence(
-//                length: 1405242
-//                ,seqChunkSize: 20000
-//                ,start: 0
-//                ,end: 1405242
-//                ,organism: organism
-//                ,name: "Group1.10"
-//        ).save()
         setupDefaultUserOrg()
         projectionService.clearProjections()
     }
@@ -37,7 +24,7 @@ class CdsServiceIntegrationSpec extends AbstractIntegrationSpec{
     void "adding a gene model, a stop codon readthrough and getting its modified sequence"() {
 
         given: "a gene model with 1 mRNA, 3 exons, and UTRs"
-        String jsonString = "{\"clientToken\":\"1231232\",\"username\":\"test@test.com\",\"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":734606,\"strand\":1,\"fmax\":735570},\"name\":\"GB40828-RA\",\"children\":[{\"location\":{\"fmin\":734606,\"strand\":1,\"fmax\":734733},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":735446,\"strand\":1,\"fmax\":735570},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":734606,\"strand\":1,\"fmax\":734766},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":734930,\"strand\":1,\"fmax\":735014},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":735245,\"strand\":1,\"fmax\":735570},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":734733,\"strand\":1,\"fmax\":735446},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String jsonString = "{ ${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":734606,\"strand\":1,\"fmax\":735570},\"name\":\"GB40828-RA\",\"children\":[{\"location\":{\"fmin\":734606,\"strand\":1,\"fmax\":734733},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":735446,\"strand\":1,\"fmax\":735570},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":734606,\"strand\":1,\"fmax\":734766},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":734930,\"strand\":1,\"fmax\":735014},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":735245,\"strand\":1,\"fmax\":735570},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":734733,\"strand\":1,\"fmax\":735446},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
         "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40722-RA\",\"children\":[{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
 
@@ -56,7 +43,7 @@ class CdsServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "a stopCodonReadThrough is created"
         Transcript transcript = Transcript.findByName("GB40828-RA-00001")
         CDS cds = transcriptService.getCDS(transcript)
-        String setReadThroughStopCodonString = "{\"operation\":\"set_readthrough_stop_codon\",\"username\":\"deepak.unni3@gmail.com\",\"features\":[{\"readthrough_stop_codon\":true,\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"clientToken\":\"1231232\"}"
+        String setReadThroughStopCodonString = "{ ${testCredentials} \"operation\":\"set_readthrough_stop_codon\",\"features\":[{\"readthrough_stop_codon\":true,\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"clientToken\":\"1231232\"}"
         setReadThroughStopCodonString = setReadThroughStopCodonString.replace("@UNIQUENAME@", transcript.uniqueName)
         JSONObject setReadThroughRequestObject = JSON.parse(setReadThroughStopCodonString) as JSONObject
         JSONObject setReadThroughReturnObject = requestHandlingService.setReadthroughStopCodon(setReadThroughRequestObject)
@@ -76,7 +63,7 @@ class CdsServiceIntegrationSpec extends AbstractIntegrationSpec{
         }
         
         when: "a request is sent for the CDS sequence with the read through stop codon"
-        String getSequenceString = "{\"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
+        String getSequenceString = "{ ${testCredentials} \"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
         String getCdsSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", transcript.uniqueName)
         getCdsSequenceString = getCdsSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_CDS.value)
         JSONObject commandObject = JSON.parse(getCdsSequenceString) as JSONObject

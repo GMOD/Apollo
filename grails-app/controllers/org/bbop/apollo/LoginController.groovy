@@ -6,7 +6,6 @@ import org.apache.shiro.authc.AuthenticationException
 import org.apache.shiro.authc.IncorrectCredentialsException
 import org.apache.shiro.authc.UnknownAccountException
 import org.apache.shiro.authc.UsernamePasswordToken
-import org.apache.shiro.crypto.hash.Sha256Hash
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
 import org.apache.shiro.web.util.SavedRequest
@@ -20,6 +19,7 @@ import javax.servlet.http.HttpServletResponse
 class LoginController extends AbstractApolloController {
 
     def permissionService
+    def userService
     def brokerMessagingTemplate
 
     def index() {}
@@ -67,19 +67,10 @@ class LoginController extends AbstractApolloController {
             jsonObj = JSON.parse(params.data)
             log.debug "jsonObj ${jsonObj}"
         }
+
         log.debug "register -> the jsonObj ${jsonObj}"
-        String username = jsonObj.username
-        String password = jsonObj.password
+        userService.registerAdmin(jsonObj)
 
-        def adminRole = Role.findByName(UserService.ADMIN)
-
-        User user = new User(
-                username: username
-                ,passwordHash: new Sha256Hash(password).toHex()
-                ,firstName: jsonObj.firstName
-                ,lastName: jsonObj.lastName
-        ).save(failOnError: true,flush:true)
-        user.addToRoles(adminRole)
 
         return login()
     }
@@ -141,8 +132,13 @@ class LoginController extends AbstractApolloController {
             if(permissions){
                 session.setAttribute("permissions", permissions);
             }
-            JSONObject responseJSON = new JSONObject();
-            render responseJSON as JSON
+
+            if(targetUri.length()>2){
+                redirect(uri: targetUri)
+            }
+            else{
+                render new JSONObject() as JSON
+            }
         } catch(IncorrectCredentialsException ex) {
             // Keep the username and "remember me" setting so that the
             // user doesn't have to enter them again.
@@ -199,13 +195,22 @@ class LoginController extends AbstractApolloController {
         log.debug "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
         sendLogout(SecurityUtils.subject.principal)
         SecurityUtils.subject.logout()
-        render new JSONObject() as JSON
+        if(params.targetUri){
+            redirect(uri:"/auth/login?targetUri=${params.targetUri}")
+        }
+        else{
+            render new JSONObject() as JSON
+        }
     }
 
     def sendLogout(String username ) {
         User user = User.findByUsername(username)
         log.debug "sending logout for ${user} via ${username}"
         JSONObject jsonObject = new JSONObject()
+        if(!user){
+            log.error("Already logged out or user not found: ${username}")
+            return jsonObject.toString()
+        }
         jsonObject.put(FeatureStringEnum.USERNAME.value,username)
         jsonObject.put(REST_OPERATION,"logout")
         log.debug "sending to: '/topic/AnnotationNotification/user/' + ${user.username}"

@@ -318,73 +318,6 @@ class PermissionService {
 
     }
 
-//    /**
-//     * This method finds the proper username with their proper organism for the current organism.
-//     *
-//     * @param inputObject
-//     * @param requiredPermissionEnum
-//     * @return
-//     */
-//    Organism checkPermissionsForOrganism(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
-//        Organism organism
-//
-//        // this is for testing only
-//        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-//            return null
-//        }
-//
-//        //def session = RequestContextHolder.currentRequestAttributes().getSession()
-//        User user = getCurrentUser(inputObject)
-//
-//
-//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
-//
-//        if (!userOrganismPreference) {
-//            userOrganismPreference = UserOrganismPreference.findByUser(user)
-//        }
-//
-//        if (!userOrganismPreference) {
-//            // see if this user has any permissions or an organism . . just grab the first one
-//            UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByUser(user)
-//            if (userOrganismPermission) {
-//                organism = userOrganismPermission.organism
-//            } else
-//            // if not, but we are admin, then just grab the first organism
-//            if (!userOrganismPermission && isAdmin() && Organism.count > 0) {
-//                organism = Organism.list().iterator().next()
-//            }
-//
-//
-//            if (organism) {
-//                userOrganismPreference = new UserOrganismPreference(
-//                        user: user
-//                        , organism: organism
-//                        , currentOrganism: true
-//                        , bookmark: Bookmark.findByOrganism(organism)
-//                ).save(insert: true)
-//            } else {
-//                if (Organism.count > 0) {
-//                    throw new PermissionException("User has no access to an organism and/or is not admin")
-//                } else {
-//                    return null
-//                }
-//            }
-//
-//        }
-//
-//        organism = userOrganismPreference.organism
-//
-//        List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
-//        PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
-//
-//        if (highestValue.rank < requiredPermissionEnum.rank) {
-//            //return false
-//            throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
-//        }
-//
-//        return organism
-//    }
-
 
     Organism getOrganismFromInput(JSONObject inputObject) {
 
@@ -437,6 +370,7 @@ class PermissionService {
 
         User user = getCurrentUser(inputObject)
         organism = getOrganismFromInput(inputObject)
+
         if(!organism) {
             organism = preferenceService.getOrganismFromPreferences(user,trackName,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         }
@@ -453,7 +387,7 @@ class PermissionService {
         }
         Sequence sequence
         if(!trackName){
-            sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName,organism)?.sequence
+            sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName,organism,[max: 1, sort: "lastUpdated", order: "desc"])?.sequence
         }
         else{
             sequence = Sequence.findByNameAndOrganism(trackName,organism)
@@ -579,10 +513,9 @@ class PermissionService {
         return highestValue
     }
 
-    Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
+    JSONObject validateSessionForJsonObject(JSONObject jsonObject){
         // not sure if permissions with translate through or not
         Session session = SecurityUtils.subject.getSession(false)
-        String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
@@ -606,9 +539,36 @@ class PermissionService {
         else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
             jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
         }
+        return jsonObject
+    }
 
+    /**
+     * If a user exists and is a admin (not just for organism), then check, otherwise a regular user is still a valid user.
+     * @param jsonObject
+     * @param permissionEnum
+     * @return
+     */
+    Boolean hasGlobalPermissions(JSONObject jsonObject,PermissionEnum permissionEnum){
+        jsonObject = validateSessionForJsonObject(jsonObject)
+        User user = User.findByUsername(jsonObject.username)
+        if(!user){
+            log.error("User ${jsonObject.username} for ${jsonObject as JSON} does not exist in the database.")
+            return false
+        }
+        if(permissionEnum.rank > PermissionEnum.ADMINISTRATE.rank){
+            return isUserAdmin(user)
+        }
+        return true
+    }
 
-        Organism organism = getCurrentOrganismPreference(clientToken)?.organism
+    Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
+        if(!hasGlobalPermissions(jsonObject,permissionEnum)){
+            log.info("User for ${jsonObject} lacks permissions ${permissionEnum.display}" )
+            return false
+        }
+        String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+
+        Organism organism = preferenceService.getCurrentOrganismPreference(clientToken)?.organism
         log.debug "passing in an organism ${jsonObject.organism}"
         if (jsonObject.organism) {
             Organism thisOrganism = null
@@ -635,39 +595,6 @@ class PermissionService {
 
     }
 
-    UserOrganismPreference getCurrentOrganismPreference(String token,User user = null ){
-        User currentUser = user ?: getCurrentUser()
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, true,token)
-        if (userOrganismPreference) {
-            return userOrganismPreference
-        }
-
-        // find another one
-        userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, false,token)
-        if (userOrganismPreference) {
-            userOrganismPreference.currentOrganism = true
-            userOrganismPreference.save(flush: true)
-            return userOrganismPreference
-        }
-
-        def organisms = getOrganisms(currentUser)
-        if(!organisms){
-            if(isAdmin()){
-                return null
-            }
-            else{
-                throw new PermissionException("User does not have permission for any organisms.")
-            }
-        }
-        Organism organism = organisms?.iterator()?.next()
-        userOrganismPreference = new UserOrganismPreference(
-                user: currentUser
-                , currentOrganism: true
-                , organism: organism
-                , clientToken: token
-        ).save(insert: true, flush: true)
-        return userOrganismPreference
-    }
 
     Boolean hasAnyPermissions(User user) {
 

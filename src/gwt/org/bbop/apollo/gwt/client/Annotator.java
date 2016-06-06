@@ -8,10 +8,14 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.storage.client.Storage;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.core.java.util.HashMap_CustomFieldSerializer;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -20,6 +24,7 @@ public class Annotator implements EntryPoint {
 
     public static EventBus eventBus = GWT.create(SimpleEventBus.class);
     private static Storage preferenceStore = Storage.getSessionStorageIfSupported();
+    private static Map<String,String> backupPreferenceStore = new HashMap<>();
 
 
     /**
@@ -74,20 +79,23 @@ public class Annotator implements EntryPoint {
         if (preferenceStore != null) {
             preferenceStore.setItem(key, value.toString());
         }
+        else{
+            backupPreferenceStore.put(key,value.toString());
+        }
     }
 
     public static String getPreference(String key) {
         if (preferenceStore != null) {
-            String returnValue = preferenceStore.getItem(key);
-            return returnValue;
+            return preferenceStore.getItem(key);
         }
-        return null;
+        else{
+            return backupPreferenceStore.get(key);
+        }
     }
 
 
     public static String getRootUrl(){
-        String rootUrl = GWT.getModuleBaseURL().replace("annotator/","");
-        return rootUrl ;
+        return GWT.getModuleBaseURL().replace("annotator/","");
     }
 
 

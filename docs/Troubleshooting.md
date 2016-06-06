@@ -210,6 +210,11 @@ defined in the [Config.groovy](https://github.com/GMOD/Apollo/blob/master/grails
     }
 ```
 
+This can also be done by removing the plugin.  In [```grails-app/conf/BuildConfig```](https://github.com/GMOD/Apollo/blob/master/grails-app/conf/BuildConfig.groovy) remove / comment out the line and re-building:
+
+     compile ':cache-ehcache:1.0.5'
+
+
 #### Disallow writing overflow to disk
 
 Can be used for small instances

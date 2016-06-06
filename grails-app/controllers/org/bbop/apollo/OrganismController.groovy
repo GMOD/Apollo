@@ -197,7 +197,7 @@ class OrganismController {
             sequenceList = c.list {
                 eq('organism',organism)
             }
-            println "Sequence list fetched at getSequencesForOrganism: ${sequenceList}"
+            log.debug "Sequence list fetched at getSequencesForOrganism: ${sequenceList}"
         } else {
             def error = ['error': 'Username ' + organismJson.username + ' does not have export permissions for organism ' + organismJson.organism]
             render error as JSON
@@ -313,7 +313,7 @@ class OrganismController {
                 return
             }
 
-            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(organismJson), true)
+            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(organismJson), true,[max: 1, sort: "lastUpdated", order: "desc"])
             Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
 
             JSONArray jsonArray = new JSONArray()
@@ -358,16 +358,10 @@ class OrganismController {
     }
 
     /**
-     * TODO: perOrganism summary
-     * @param featureInstance
+     * Permissions handled upstream
      * @return
      */
     def report() {
-        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
-            redirect(uri: "/auth/login")
-            return
-        }
         Map<Organism, OrganismSummary> organismSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
             @Override
             int compare(Organism o1, Organism o2) {

@@ -17,6 +17,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
     def projectionService
 
 
+
     def setup() {
         setupDefaultUserOrg()
         projectionService.clearProjections()

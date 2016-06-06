@@ -44,33 +44,21 @@
                     </perms:isUserAdmin>
                     <perms:isUserNotAdmin user="${annotatorInstance.annotator}">
                         <g:if test="${annotatorInstance.userOrganismPermissionList}">
-                            %{--<ul>--}%
-                                <g:each in="${annotatorInstance.userOrganismPermissionList}" var="permission">
-                                    <span >
-                                    %{--<li>--}%
+                            <g:each in="${annotatorInstance.userOrganismPermissionList}" var="permission">
+                                <g:if test="${permission.userOrganismPermission.permissionValues}">
+                                    <span>
                                         ${permission.userOrganismPermission.organism.commonName}
-                                        %{--${permission.userOrganismPermission.permissions}--}%
-                                    <g:if test="${permission.userOrganismPermission.permissionValues}">
                                         <g:each in="${permission.userOrganismPermission.permissionValues}" var="pValue">
                                             <span class="badge">
-                                            ${pValue}
+                                                ${pValue}
                                             </span>
                                         </g:each>
-                                    </g:if>
-                                    <g:else>
-                                        <span class="badge">None</span>
-                                    </g:else>
-                                        %{--${permission.userOrganismPermission.permissionValues.each {--}%
-                                            %{--it--}%
-                                        %{--}}--}%
-                                    %{--</li>--}%
                                     </span>
                                     <br/>
-                                </g:each>
-                            %{--</ul>--}%
+                                </g:if>
+                            </g:each>
                         </g:if>
                     </perms:isUserNotAdmin>
-                %{--${annotatorInstance.userOrganismPermissionList.}--}%
                 </td>
                 <td style="text-align: left;">
                     ${annotatorInstance.firstName}

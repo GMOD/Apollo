@@ -324,7 +324,7 @@ apollo {
             ,['label': "Report::Organisms", 'link': "/organism/report/",'type':"report"]
             ,['label': "Report::Sequences", 'link': "/sequence/report/",'type':"report"]
             ,['label': "Report::Annotator", 'link': "/annotator/report/",'type':"report"]
-            ,['label': "Report::Changes", 'link': "/featureEvent/changes/",'type':"report"]
+            ,['label': "Report::Changes", 'link': "/featureEvent/report/",'type':"report"]
             ,['label': "System Info", 'link': "/home/systemInfo/",'type':"report"]
             ,['label': "Performance Metrics", 'link': "/home/metrics/",'type':"report"]
             ,['label': "WebServices", 'link': "/WebServices/",'type':"report"]
@@ -341,8 +341,6 @@ apollo {
 }
 
 grails.plugin.databasemigration.updateOnStart = true
-//grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.0.groovy','changelog-2.0.1.groovy']
-//grails.plugin.databasemigration.updateOnStartFileNames = ['changelog-2.0.1.groovy']
 grails.plugin.databasemigration.updateOnStartFileNames = ['changelog.groovy']
 
 // from: http://grails.org/plugin/audit-logging
@@ -362,6 +360,11 @@ jbrowse {
         branch = "projection_v2_server"
         alwaysPull = true
         alwaysRecheck = true
+        url= "https://github.com/gmod/jbrowse"
+		tag = "1.12.2-apollo"
+//        branch = "master"
+        alwaysPull = false
+        alwaysRecheck = false
     }
 //    url {
 //        // always use dev for apollo
@@ -373,13 +376,13 @@ jbrowse {
         WebApollo{
             included = true
         }
-        NeatHTMLFeatures{
-            included = true
-            linearGradient = 0
-        }
-        NeatCanvasFeatures{
-            included = true
-        }
+//        NeatHTMLFeatures{
+//            included = true
+//            linearGradient = 0
+//        }
+//        NeatCanvasFeatures{
+//            included = true
+//        }
         RegexSequenceSearch{
             included = true
         }

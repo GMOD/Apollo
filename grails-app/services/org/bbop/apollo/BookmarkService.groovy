@@ -11,6 +11,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class BookmarkService {
 
     def permissionService
+    def preferenceService
 
 
     Bookmark generateBookmarkForSequence(Sequence... sequences) {
@@ -76,8 +77,7 @@ class BookmarkService {
 
     JSONObject standardizeSequenceList(JSONObject inputObject) {
         JSONArray sequenceArray = JSON.parse(inputObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
-        User user = permissionService.getCurrentUser(inputObject)
-        UserOrganismPreference userOrganismPreference = permissionService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value),user)
+        UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         Map<String,Sequence> sequenceMap = getSequencesFromBookmark(userOrganismPreference.organism,sequenceArray.toString()).collectEntries(){
             [it.name,it]
         }

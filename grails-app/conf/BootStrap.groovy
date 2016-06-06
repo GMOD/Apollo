@@ -13,6 +13,7 @@ class BootStrap {
     def featureTypeService
     def domainMarshallerService
     def proxyService
+    def userService
 
 
     def init = { servletContext ->
@@ -44,7 +45,10 @@ class BootStrap {
             adminRole.addToPermissions("*:*")
         }
 
-
+        def admin = grailsApplication.config?.apollo?.admin
+        if(admin){
+            userService.registerAdmin(admin.username,admin.password,admin.firstName,admin.lastName)
+        }
 
         if (grailsApplication.config.apollo.bootstrap || Environment.current == Environment.TEST) {
             log.debug "attempting to bootstrap the data "

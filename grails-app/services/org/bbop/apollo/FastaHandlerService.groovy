@@ -121,11 +121,16 @@ public class FastaHandlerService {
     }
     
     public void writeFeature(Feature feature, String seqType, Set<String> metaDataToExport) {
-        String seq = null
-        seq = sequenceService.getSequenceForFeature(feature, seqType, 0)
+        String seq = sequenceService.getSequenceForFeature(feature, seqType, 0)
         int featureLength = seq.length()
+        if (featureLength == 0) {
+            // no sequence returned by getSequenceForFeature()
+            log.debug " export for ${seqType.toUpperCase()} resulted in a sequence length 0 for ${feature.uniqueName} of type ${feature.class.canonicalName}"
+            return
+        }
+
         String strand
-        
+
         if (feature.getStrand() == Strand.POSITIVE.getValue()) {
             strand = Strand.POSITIVE.getDisplay()
         } else if (feature.getStrand() == Strand.NEGATIVE.getValue()) {

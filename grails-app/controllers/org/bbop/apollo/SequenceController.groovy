@@ -69,7 +69,7 @@ class SequenceController {
         Organism organism = sequenceInstance.organism
 
         User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token,[max: 1, sort: "lastUpdated", order: "desc"])
 
 //        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(currentUser,sequenceInstance)
         Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequenceInstance)
@@ -136,6 +136,7 @@ class SequenceController {
         render sequenceArray as JSON
     }
 
+
     protected void notFound() {
         request.withFormat {
             form multipartForm {
@@ -154,7 +155,12 @@ class SequenceController {
         }
         render sequences as JSON
     }
-    def lookupSequenceByNameAndOrganism() {
+
+    /**
+     * @deprecated TODO: will be removed as standalone will likely not be supported in the future.
+     * @return
+     */
+    def lookupSequenceByNameAndOrganism(String clientToken) {
         JSONObject j;
         for(k in params) {
             j=JSON.parse(k.key)
@@ -162,7 +168,7 @@ class SequenceController {
         }
         def organism
         if(!j.name||!j.organism) {
-            organism = preferenceService.getCurrentOrganismForCurrentUser()
+            organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         }
         else {
             organism=Organism.findById(j.organism)
@@ -220,16 +226,13 @@ class SequenceController {
         }
     }
 
+    /**
+     * Permissions handled upstream
+     * @param organism
+     * @param max
+     * @return
+     */
     def report(Organism organism,Integer max) {
-        println "params: ${params}"
-        println "props: ${request.properties}"
-        println "request URI: ${request.requestURI}"
-        println "request URL: ${request.requestURL}"
-        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
-            redirect(uri: "/auth/login")
-            return
-        }
         organism = organism ?: Organism.first()
         params.max = Math.min(max ?: 20, 100)
 

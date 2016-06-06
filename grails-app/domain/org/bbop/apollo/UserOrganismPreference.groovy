@@ -18,4 +18,25 @@ class UserOrganismPreference extends UserPreference{
 //    Sequence sequence
     Integer startbp
     Integer endbp
+
+    boolean equals(o) {
+        if (this.is(o)) return true
+        if (!(o instanceof UserOrganismPreference)) return false
+
+        UserOrganismPreference that = (UserOrganismPreference) o
+
+        if (id != that.id) return false
+        if (organism != that.organism) return false
+        if (sequence != that.sequence) return false
+
+        return true
+    }
+
+    int hashCode() {
+        int result
+        result = organism.hashCode()
+        result = 31 * result + sequence.hashCode()
+        result = 31 * result + id.hashCode()
+        return result
+    }
 }

@@ -1,6 +1,5 @@
 package org.bbop.apollo
 
-import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -13,77 +12,26 @@ class PreferenceService {
     def bookmarkService
 
     Organism getCurrentOrganismForCurrentUser(String clientToken) {
-        println "PS: getCurrentOrganismForCurrentUser ${clientToken}"
+        log.debug "PS: getCurrentOrganismForCurrentUser ${clientToken}"
         if (permissionService.currentUser == null) {
             return getOrganismForToken(clientToken)
         } else {
-            return getCurrentOrganism(permissionService.currentUser, clientToken)
+//            return getCurrentOrganism(permissionService.currentUser, clientToken)
+            return getOrganismFromPreferences(clientToken)
         }
 //        return permissionService.currentUser == null ? null : getCurrentOrganism(permissionService.currentUser,clientToken);
     }
 
     Organism getOrganismForToken(String s) {
-        println "token for org ${s}"
+        log.debug "token for org ${s}"
         if (s.isLong()) {
-            println "is long "
+            log.debug "is long "
             return Organism.findById(Long.parseLong(s))
         } else {
-            println "is NOT long "
+            log.debug "is NOT long "
             return Organism.findByCommonNameIlike(s)
         }
 
-    }
-/**
- * Get the current user preference.
- * If no preference, then set one
- * @param user
- * @return
- */
-    Organism getCurrentOrganism(User user, String clientToken) {
-        println "getting current organism for token: ${clientToken}"
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByCurrentOrganismAndUserAndClientToken(true, user, clientToken)
-
-        // if there is not a current one, we see if there is another one for the same token
-        if (!userOrganismPreference) {
-            userOrganismPreference = UserOrganismPreference.findByCurrentOrganismAndUserAndClientToken(false, user, clientToken)
-        }
-
-//            if (!userOrganismPreference) {
-//                Iterator i = permissionService.getOrganisms(user).iterator();
-//                if (i.hasNext()) {
-//                    Organism organism = i.next()
-//                    userOrganismPreference = new UserOrganismPreference(
-//                            user: user
-//                            , organism: organism
-//                            , bookmark: Bookmark.findByOrganism(organism)
-//                            , currentOrganism: true
-//                    ).save()
-//                } else {
-//                    throw new PermissionException("User has no access to any organisms!")
-//                }
-//            }
-        // if there are none, then we have to create a new one
-        if (!userOrganismPreference) {
-            Iterator i = permissionService.getOrganisms(user).iterator();
-            if (i.hasNext()) {
-                Organism organism = i.next()
-                userOrganismPreference = new UserOrganismPreference(
-                        user: user
-                        , organism: organism
-//                        , sequence: Sequence.findByOrganism(organism)
-                        , bookmark: Bookmark.findByOrganism(organism)
-                        , currentOrganism: true
-                        , clientToken: clientToken
-                ).save()
-            } else {
-                throw new PermissionException("User has no access to any organisms!")
-            }
-        }
-
-        userOrganismPreference.currentOrganism = true
-        userOrganismPreference.save(flush: true)
-
-        return userOrganismPreference.organism
     }
 
 
@@ -125,7 +73,7 @@ class PreferenceService {
 //    def setCurrentOrganism(User user, Organism organism) {
 //        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
     def setCurrentOrganism(User user, Organism organism, String clientToken) {
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(user, organism, clientToken)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(user, organism, clientToken,[max: 1, sort: "lastUpdated", order: "desc"])
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user
@@ -134,13 +82,12 @@ class PreferenceService {
                     , bookmark: Bookmark.findByOrganism(organism)
 //                    , sequence: Sequence.findByOrganism(organism)
                     , clientToken: clientToken
-            ).save(flush: true)
-            setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
+            ).save(flush: true,insert:true)
         } else if (!userOrganismPreference.currentOrganism) {
             userOrganismPreference.currentOrganism = true;
-            userOrganismPreference.save(flush: true)
-            setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
+            userOrganismPreference.save(flush: true,insert:false)
         }
+        setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
     }
 
     protected static
@@ -187,7 +134,7 @@ class PreferenceService {
         if(user && bookmark){
             user.addToBookmarks(bookmark)
         }
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientTokenAndBookmark(user, organism, clientToken, bookmark)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientTokenAndSequence(user, organism, clientToken, sequence,[max: 1, sort: "lastUpdated", order: "desc"])
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user
@@ -196,21 +143,21 @@ class PreferenceService {
                     , bookmark: bookmark
 //                    , sequence: sequence
                     , clientToken: clientToken
-            ).save(flush: true)
-            setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
+            ).save(flush: true,insert: true )
         } else if (!userOrganismPreference.currentOrganism) {
             userOrganismPreference.currentOrganism = true;
             userOrganismPreference.bookmark = bookmark
             userOrganismPreference.save()
             setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
         }
+        setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
     }
 
     UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
         User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, true, clientToken)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, true, clientToken,[max: 1, sort: "lastUpdated", order: "desc"])
         if (!userOrganismPreference) {
-            userOrganismPreference = UserOrganismPreference.findByUser(currentUser)
+            userOrganismPreference = UserOrganismPreference.findByUser(currentUser,[max: 1, sort: "lastUpdated", order: "desc"])
         }
         if (!userOrganismPreference) {
             throw new AnnotationException("Organism preference is not set for user")
@@ -234,43 +181,83 @@ class PreferenceService {
         userOrganismPreference.bookmark = bookmark
         userOrganismPreference.setStartbp(startBp ?: 0)
         userOrganismPreference.setEndbp(endBp ?: bookmark.end)
-        userOrganismPreference.save()
+        userOrganismPreference.save(flush: true)
     }
 
-    Organism getOrganismFromPreferences(User user, String trackName,String clientToken) {
-        if(user!=null) {
-            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(user, true,clientToken)
-            if(userOrganismPreference){
-                return userOrganismPreference.organism
-            }
 
-            if (!userOrganismPreference) {
-                userOrganismPreference = UserOrganismPreference.findByUserAndClientTokenAndCurrentOrganism(user,clientToken,false)
-                if(userOrganismPreference){
-                    setOtherCurrentOrganismsFalse(userOrganismPreference, user,clientToken)
-                    userOrganismPreference.currentOrganism = true
-                    userOrganismPreference.save(flush: true)
-                    return userOrganismPreference.organism
-                }
-            }
-
-            if (!userOrganismPreference) {
-                // find a random organism based on sequence
-                Sequence sequence = Sequence.findByName(trackName)
-                Organism organism  = sequence.organism
-
-                userOrganismPreference = new UserOrganismPreference(
-                        user: user
-                        , organism: organism
-                        , currentOrganism: true
-                        , sequence: sequence
-                        , clientToken: clientToken
-                ).save(insert: true)
-                return userOrganismPreference.organism
-            }
+    UserOrganismPreference getCurrentOrganismPreference(User user, String trackName, String clientToken) {
+        if (!user && !clientToken){
+            log.warn("No organism preference if no user ${user} or client token ${clientToken}")
+            return null
         }
-        log.warn("No organism preference if no user")
-        return null
+        // 1 - if a user exists, look up their client token and if they have a current organism.
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(user, true, clientToken,[max: 1, sort: "lastUpdated", order: "desc"])
+        if (userOrganismPreference) {
+            return userOrganismPreference
+        }
 
+        // 2 - if there is not a current organism for that token, then grab the first non-current one (unlikely) and make it current
+        userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(user, false, clientToken,[max: 1, sort: "lastUpdated", order: "desc"])
+        if (userOrganismPreference) {
+            setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
+            userOrganismPreference.currentOrganism = true
+            userOrganismPreference.save(flush: true, insert: false)
+            return userOrganismPreference
+        }
+
+        //3 - if none at all exist, we should ignore the client token and look it up by the user (missing), saving it for the current client token
+        // we create a new one off of that, but for this client token
+        userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true,[max: 1, sort: "lastUpdated", order: "desc"])
+        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndCurrentOrganism(user, false,[max: 1, sort: "lastUpdated", order: "desc"])
+        if (userOrganismPreference) {
+            Organism organism = userOrganismPreference.organism
+            Sequence sequence = trackName ? Sequence.findByNameAndOrganism(trackName, organism) : userOrganismPreference.sequence
+            UserOrganismPreference newPreference = new UserOrganismPreference(
+                    user: user
+                    , organism: organism
+                    , currentOrganism: true
+                    , sequence: sequence
+                    , startbp: userOrganismPreference.startbp
+                    , endbp: userOrganismPreference.endbp
+                    , clientToken: clientToken
+            ).save(insert: true, flush: true)
+            return newPreference
+        }
+
+        // 4 - if none at all exist, then we create one
+        if (!userOrganismPreference) {
+            // find a random organism based on sequence
+            Sequence sequence = Sequence.findByName(trackName)
+            Organism organism = sequence ? sequence.organism : permissionService.getOrganisms(user).first()
+            if (!organism && permissionService.isAdmin()) {
+                organism = Organism.first()
+            }
+            if (!organism) {
+                throw new PermissionException("User does not have permission for any organisms.")
+            }
+
+            UserOrganismPreference newUserOrganismPreference = new UserOrganismPreference(
+                    user: user
+                    , organism: organism
+                    , currentOrganism: true
+                    , sequence: sequence
+                    , clientToken: clientToken
+            ).save(insert: true, flush: true)
+            return newUserOrganismPreference
+        }
+
+        return userOrganismPreference
+    }
+
+    Organism getOrganismFromPreferences(String clientToken) {
+        getCurrentOrganismPreference(permissionService.currentUser, null, clientToken)?.organism
+    }
+
+    Organism getOrganismFromPreferences(User user, String trackName, String clientToken) {
+        getCurrentOrganismPreference(user, trackName, clientToken)?.organism
+    }
+
+    UserOrganismPreference getCurrentOrganismPreference(String token) {
+        getCurrentOrganismPreference(permissionService.getCurrentUser(), null, token)
     }
 }

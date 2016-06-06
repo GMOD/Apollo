@@ -84,13 +84,11 @@ function check_perldependencies(){
 }
 
 function check_configs_for_release(){
-    check_node
     check_perldependencies
 }
 
 
 function check_configs(){
-
     grails_executable=$(which grails)
     gradle_executable=$(which gradle)
     git_executable=$(which git)
@@ -117,6 +115,7 @@ function check_configs(){
        exit 1 ;
     fi
 
+    check_node
 }
 
 function copy_configs(){
@@ -124,6 +123,20 @@ function copy_configs(){
     cp apollo-config.groovy src/java/apollo-config.groovy
 }
 
+function clean_code(){
+    $grails_executable clean
+    $gradle_executable cleanAll
+}
+
+function clean_all(){
+    check_configs
+    rm -rf bin
+    rm -rf jbrowse-download
+    rm -rf JBrowse-dev
+    rm -rf src/main/webapp/jbrowse
+    rm -f *.zip
+    clean_code
+}
 
 
 if [[ $1 == "devmode" ]];then
@@ -133,9 +146,9 @@ if [[ $1 == "devmode" ]];then
 elif [[ $1 == "run-local" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable handleJBrowse copyResourcesDev gwtc && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable handleJBrowse copy-resources copyResourcesDev gwtc && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable handleJBrowse copyResourcesDev gwtc && $grails_executable run-app
+        $gradle_executable handleJBrowse copy-resources copyResourcesDev gwtc && $grails_executable run-app
     fi
 elif [[ $1 == "watchman" ]]; then
     watchman_executable=$(which watchman)
@@ -155,6 +168,7 @@ elif [[ $1 == "debug" ]];then
     OLD_MAVEN_OPTS=$MAVEN_OPTS
     check_configs
     copy_configs
+    clean_all
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
     $gradle_executable handleJBrowse devmode &
     $grails_executable -reloading debug
@@ -179,7 +193,8 @@ elif [[ $1 == "release" ]];then
     check_configs
     check_configs_for_release
     copy_configs
-    $gradle_executable clean-all handleJBrowse release gwtc && $grails_executable war
+    clean_all
+    $gradle_executable handleJBrowse release gwtc && $grails_executable war
     deploy_message
 elif [[ $1 == "compile" ]];then
     check_configs
@@ -188,17 +203,10 @@ elif [[ $1 == "create-rest-doc" ]];then
     check_configs
     $grails_executable compile && $grails_executable rest-api-doc && cp restapidoc.json web-app/js/restapidoc/
 elif [[ $1 == "clean-all" ]];then
-    check_configs
-    rm -rf bin
-    rm -rf jbrowse-download
-    rm -rf JBrowse-dev
-    rm -rf src/main/webapp/jbrowse
-    rm -f *.zip
-    $gradle_executable clean-all
-    $grails_executable clean
+    clean_all
 elif [[ $1 == "clean" ]];then
     check_configs
-    $gradle_executable clean-ant &&  $grails_executable clean
+    $gradle_executable clean &&  $grails_executable clean
 elif [[ $1 == "jbrowse" ]];then
     check_configs
     $gradle_executable handleJBrowse

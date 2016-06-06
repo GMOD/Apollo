@@ -384,13 +384,16 @@ define([
                     });
                     console.log('connection established');
                 }
-                else {
+                else
+                // TODO: note this code will likely be removed with an error that it has to be wrapped
+                {
                     console.log('No embedded server is present.');
                     client.connect({}, function () {
 
                         var request = {
                             "name": track.refSeq.name,
-                            "organism": track.webapollo.organism
+                            "organism": track.webapollo.organism,
+                            "clientToken": track.getClientToken()
                         };
 
                         xhr.post(context_path + "/sequence/lookupSequenceByNameAndOrganism/", {
@@ -600,7 +603,7 @@ define([
                 }
 
                 if (!history) {
-                    var label = "Type: " + type.name + "<br/>Owner: " + feature.get("owner") + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified) + " " + FormatUtils.formatTime(feature.afeature.date_last_modified);
+                    var label = "Type: " + type.name + "<br/>Owner: " + feature.afeature.owner + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified) + " " + FormatUtils.formatTime(feature.afeature.date_last_modified);
                     new Tooltip({
                         connectId: featDiv,
                         label: label,
@@ -1956,7 +1959,6 @@ define([
                     this.alertAnnotationType(selected[0], type);
                 }
                 else {
-                    console.log("changing ", selected[0].feature.afeature.name, " to type: ", type);
                     this.changeAnnotations(selected[0], type);
                     this.selectionManager.clearSelection();
                 }
@@ -2091,7 +2093,7 @@ define([
                     'class': "annotation_info_editor_label"
                 }, nameDiv);
                 var nameField = new dijitTextBox({'class': "annotation_editor_field"});
-                var nameLabelss = "We recommend that you adhere to GenBank guidelines on protein and CDS nomenclature: http://www.ncbi.nlm.nih.gov/genbank/genomesubmit_annotation#CDS).";
+                var nameLabelss = "Follow GenBank or UniProt-SwissProt guidelines for gene, protein, and CDS nomenclature.";
                 dojo.place(nameField.domNode, nameDiv);
                 // var nameField = new dojo.create("input", { type: "text" }, nameDiv);
 
@@ -2161,7 +2163,7 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, dbxrefButtons);
-                var dbxrefss = "Use this field if this model has Cross-references in other databases (e.g. the GenBank Accession number of a cDNA from this gene from the same species). Do NOT use this field to list IDs of models from other species that you used as annotation evidence.";
+                var dbxrefss = "Use this field to identify cross-references of this genomic element in other databases (e.g. GenBank ID for a cDNA from this gene in the same species or a miRNA ID from miRBase). Do not use this field to list IDs from similar genomic elements from other species, even if you used them as evidence for this as annotation.";
                 new Tooltip({
                     connectId: dbxrefsDiv,
                     label: dbxrefss,
@@ -2192,7 +2194,7 @@ define([
                 var pubmedIdsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var pubmedIdsLabel = dojo.create("div", {
                     'class': "annotation_info_editor_section_header",
-                    innerHTML: "Pubmed IDs"
+                    innerHTML: "PubMed IDs"
                 }, pubmedIdsDiv);
                 var pubmedIdsTable = dojo.create("div", {
                     'class': "pubmed_ids",
@@ -2208,10 +2210,10 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, pubmedIdButtons);
-                var pubmedss = "Use this field if this model has been mentioned in a publication. Do NOT use this field to list publications on models from other species that you used as annotation evidence.";
+                var pubmedss = "Use this field to indicate that this genomic element has been mentioned in a publication, or that a publication supports your functional annotations using GO IDs. Do not use this field to list publications containing related or similar genomic elements from other species that you may have used as evidence for this annotation.";
                 new Tooltip({
                     connectId: pubmedIdsDiv,
-                    label: dbxrefss,
+                    label: pubmedss,
                     position: ["above"],
                     showDelay: 600
                 });
@@ -2765,7 +2767,7 @@ define([
                         var pubmedIdTableLayout = [{
                             cells: [
                                 {
-                                    name: 'Pubmed ID',
+                                    name: 'PubMed ID',
                                     field: 'pubmed_id',
                                     width: '100%',
                                     formatter: function (pubmedId) {
@@ -3446,7 +3448,7 @@ define([
                 var historyTable = dojo.create("div", {className: "history_table"}, historyDiv);
                 var historyHeader = dojo.create("div", {
                     className: "history_header",
-                    innerHTML: "<span class='history_header_column history_column_operation history_column'>Operation</span><span class='history_header_column history_column'>Editor</span><span class='history_header_column history_column'>Date</span>"
+                    innerHTML: "<span class='history_header_column history_column_operation history_column'>Operation</span><span class='history_header_column history_column'>Editor</span><span class='history_header_column history_column history_column_date'>Date</span><span class='history_header_column history_set'>Revert</span> "
                 }, historyTable);
                 var historyRows = dojo.create("div", {className: "history_rows"}, historyTable);
                 var historyPreviewDiv = dojo.create("div", {className: "history_preview"}, historyDiv);
@@ -3473,6 +3475,14 @@ define([
                     dojo.attr(historyRows.childNodes.item(selectedIndex), "class", history[selectedIndex].current ? "history_row history_row_current" : "history_row");
                     dojo.attr(historyRows.childNodes.item(current), "class", "history_row");
                     current = selectedIndex;
+                    cleanUpHistoryTable();
+                    displayHistory();
+                };
+
+                var cleanUpHistoryTable = function() {
+                    while (historyRows.hasChildNodes()) {
+                        historyRows.removeChild(historyRows.lastChild);
+                    }
                 };
 
                 function initMenu() {
@@ -4382,7 +4392,7 @@ define([
                                         else window.location.reload();
                                     },
                                     error: function (response, ioArgs) { //
-                                        alert('Failed to log out cleanly.  Please refresh your browser.');
+                                        alert('Failed to log out cleanly!  Please refresh your browser.');
                                     }
                                 });
                             }
@@ -4538,13 +4548,31 @@ define([
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "repeat_region",
                         onClick: function(event) {
-                            thisB.changeAnnotationType("repeat_region");
+                            var selected = thisB.selectionManager.getSelection();
+                            var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
+                                selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
+                            if (selectedFeatureType != "transposable_element") {
+                                var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
+                                thisB.confirmChangeAnnotationType(thisB, [selected], "repeat_region", message);
+                            }
+                            else {
+                                thisB.changeAnnotationType("repeat_region");
+                            }
                         }
                     }));
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "transposable_element",
                         onClick: function(event) {
-                            thisB.changeAnnotationType("transposable_element");
+                            var selected = thisB.selectionManager.getSelection();
+                            var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
+                                selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
+                            if (selectedFeatureType != "repeat_region") {
+                                var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
+                                thisB.confirmChangeAnnotationType(thisB, [selected], "transposable_element", message);
+                            }
+                            else {
+                                thisB.changeAnnotationType("transposable_element");
+                            }
                         }
                     }));
                     contextMenuItems["annotation_info_editor"] = index++;
@@ -4552,61 +4580,12 @@ define([
                     index++;
                     var changeAnnotationMenuItem = new dijitPopupMenuItem( {
                         label: "Change annotation type",
-                        popup: changeAnnotationMenu,
-                        onFocus: function(event) {
-                            var selected = thisB.selectionManager.getSelection();
-                            var selectedType = selected[0].feature.afeature.type.name === "exon" ?
-                                selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            var menuItems = changeAnnotationMenu.getChildren();
-                            for (var i in menuItems) {
-                                if (selectedType === "mRNA") {
-                                    if (menuItems[i].label === "gene") {
-                                        menuItems[i].setDisabled(true);
-                                    }
-                                    else {
-                                        menuItems[i].setDisabled(false);
-                                    }
-                                }
-                                else if (selectedType === "transcript") {
-                                    if (menuItems[i].label === "pseudogene") {
-                                        menuItems[i].setDisabled(true);
-                                    }
-                                    else {
-                                        menuItems[i].setDisabled(false);
-                                    }
-                                }
-                                else if (selectedType === "miRNA" || selectedType == "snRNA" || selectedType === "snoRNA" ||
-                                    selectedType === "rRNA" || selectedType === "tRNA" || selectedType === "ncRNA") {
-                                    if (menuItems[i].label === selectedType) {
-                                        menuItems[i].setDisabled(true);
-                                    }
-                                    else {
-                                        menuItems[i].setDisabled(false);
-                                    }
-                                }
-                                else if (selectedType === "repeat_region") {
-                                    if (menuItems[i].label === "transposable_element") {
-                                        menuItems[i].setDisabled(false);
-                                    }
-                                    else {
-                                        menuItems[i].setDisabled(true);
-                                    }
-                                }
-                                else if (selectedType === "transposable_element") {
-                                    if (menuItems[i].label === "repeat_region") {
-                                        menuItems[i].setDisabled(false);
-                                    }
-                                    else {
-                                        menuItems[i].setDisabled(true);
-                                    }
-                                }
-                                else {
-                                    menuItems[i].setDisabled(false);
-                                }
-                            }
-                        }
+                        popup: changeAnnotationMenu
                     });
                     annot_context_menu.addChild(changeAnnotationMenuItem);
+                    dojo.connect(changeAnnotationMenu, "onOpen", dojo.hitch(this, function() {
+                        this.updateChangeAnnotationTypeMenu(changeAnnotationMenu);
+                    }));
                     contextMenuItems["annotation_info_editor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
@@ -5012,6 +4991,59 @@ define([
                 this.updateSetPreviousDonorMenuItem();
                 this.updateSetNextAcceptorMenuItem();
                 this.updateSetPreviousAcceptorMenuItem();
+            },
+
+            updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {
+                var selected = this.selectionManager.getSelection();
+                var selectedType = selected[0].feature.afeature.type.name === "exon" ?
+                    selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
+                var menuItems = changeAnnotationMenu.getChildren();
+                for (var i in menuItems) {
+                    if (selectedType === "mRNA") {
+                        if (menuItems[i].label === "gene") {
+                            menuItems[i].setDisabled(true);
+                        }
+                        else {
+                            menuItems[i].setDisabled(false);
+                        }
+                    }
+                    else if (selectedType === "transcript") {
+                        if (menuItems[i].label === "pseudogene") {
+                            menuItems[i].setDisabled(true);
+                        }
+                        else {
+                            menuItems[i].setDisabled(false);
+                        }
+                    }
+                    else if (selectedType === "miRNA" || selectedType == "snRNA" || selectedType === "snoRNA" ||
+                        selectedType === "rRNA" || selectedType === "tRNA" || selectedType === "ncRNA") {
+                        if (menuItems[i].label === selectedType) {
+                            menuItems[i].setDisabled(true);
+                        }
+                        else {
+                            menuItems[i].setDisabled(false);
+                        }
+                    }
+                    else if (selectedType === "repeat_region") {
+                        if (menuItems[i].label === "transposable_element") {
+                            menuItems[i].setDisabled(false);
+                        }
+                        else {
+                            menuItems[i].setDisabled(true);
+                        }
+                    }
+                    else if (selectedType === "transposable_element") {
+                        if (menuItems[i].label === "repeat_region") {
+                            menuItems[i].setDisabled(false);
+                        }
+                        else {
+                            menuItems[i].setDisabled(true);
+                        }
+                    }
+                    else {
+                        menuItems[i].setDisabled(false);
+                    }
+                }
             },
 
             updateDeleteMenuItem: function () {
@@ -5587,6 +5619,18 @@ define([
                 });
             },
 
+            confirmChangeAnnotationType: function (track, selectedFeatures, destinationType, message) {
+                var confirm = new ConfirmDialog({
+                    title: 'Change annotation type',
+                    message: message,
+                    confirmLabel: 'Yes',
+                    denyLabel: 'Cancel'
+                }).show(function (confirmed) {
+                    if (confirmed) {
+                        track.changeAnnotationType(destinationType);
+                    }
+                });
+            },
 
             /**
              * handles adding overlay of sequence residues to "row" of selected feature

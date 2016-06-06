@@ -1662,17 +1662,38 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            Feature newFeature = featureService.addFeature(jsonFeature, bookmark, user, suppressHistory)
-//            Feature newFeature = featureService.addFeature(jsonFeature, sequence, user, suppressHistory)
-            JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
-            log.debug "newFeatureJsonObject: ${newFeatureJsonObject.toString()}"
-            JSONObject jsonObject = newFeatureJsonObject
+            if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.alternateCvTerm ||
+                    jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.alternateCvTerm) {
+                // if jsonFeature is of type gene or pseudogene
+                for (JSONObject transcriptJsonFeature in jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)) {
+                    // look at its children JSON Array to get the features at the *RNA level
+                    Feature newFeature = featureService.addFeature(transcriptJsonFeature, bookmark, user, suppressHistory)
+                    JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
+                    JSONObject jsonObject = newFeatureJsonObject
 
-            if (!suppressHistory) {
-                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, newFeatureJsonObject, user)
+                    if (!suppressHistory) {
+                        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, newFeatureJsonObject, user)
+                    }
+                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
+                }
             }
+            else {
+                // jsonFeature is of type *RNA, transposable_element or repeat_region
+                Feature newFeature = featureService.addFeature(jsonFeature, bookmark, user, suppressHistory)
+                JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
+                log.debug "newFeatureJsonObject: ${newFeatureJsonObject.toString()}"
+                JSONObject jsonObject = newFeatureJsonObject
+//            Feature newFeature = featureService.addFeature(jsonFeature, bookmark, user, suppressHistory)
+////            Feature newFeature = featureService.addFeature(jsonFeature, sequence, user, suppressHistory)
+//            JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
+//            log.debug "newFeatureJsonObject: ${newFeatureJsonObject.toString()}"
+//            JSONObject jsonObject = newFeatureJsonObject
 
-            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
+                if (!suppressHistory) {
+                    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, newFeatureJsonObject, user)
+                }
+                returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
+            }
         }
 
 

@@ -82,7 +82,7 @@ class FeaturePropertyService {
     @Transactional
     def addProperty(Feature feature, FeatureProperty property) {
         int rank = 0;
-        println "value of FP to add: ${property.value} ${property.tag}"
+        log.debug "value of FP to add: ${property.value} ${property.tag}"
         for (FeatureProperty fp : feature.getFeatureProperties()) {
             if (fp.getType().equals(property.getType())) {
                 if (fp.getRank() > rank) {

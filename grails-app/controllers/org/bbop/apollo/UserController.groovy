@@ -20,10 +20,11 @@ import org.springframework.http.HttpStatus
 class UserController {
 
     def permissionService
+    def preferenceService
     def userService
 
 
-    @RestApiMethod(description = "Load all users", path = "/user/loadUsers", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Load all users and their permissions", path = "/user/loadUsers", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -34,7 +35,7 @@ class UserController {
             JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data ?: "{}"))) as JSONObject
             permissionService.handleToken(params,dataObject)
             JSONArray returnArray = new JSONArray()
-            if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
@@ -52,9 +53,6 @@ class UserController {
                 userOrganismPermissionListTemp.add(userOrganismPermission)
                 userOrganismPermissionMap.put(userOrganismPermission.user.username, userOrganismPermissionListTemp)
             }
-            for (v in userOrganismPermissionMap) {
-                log.debug "${v.key} ${v.value}"
-            }
 
             def c = User.createCriteria()
             def users = c.list() {
@@ -64,6 +62,8 @@ class UserController {
                 if (dataObject.userId && dataObject.userId in String) {
                     eq('username', dataObject.userId)
                 }
+            }.unique{ a, b ->
+                a.id <=> b.id
             }
             users.each {
                 def userObject = new JSONObject()
@@ -150,7 +150,7 @@ class UserController {
             UserOrganismPreference userOrganismPreference
             try {
                 // sets it by default
-                userOrganismPreference = permissionService.getCurrentOrganismPreference(params[FeatureStringEnum.CLIENT_TOKEN.value])
+                userOrganismPreference = preferenceService.getCurrentOrganismPreference(params[FeatureStringEnum.CLIENT_TOKEN.value])
             } catch (e) {
                 log.error(e)
             }
@@ -183,7 +183,7 @@ class UserController {
             }
             log.info "updateTrackListPreference"
 
-            UserOrganismPreference uop = permissionService.getCurrentOrganismPreference(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            UserOrganismPreference uop = preferenceService.getCurrentOrganismPreference(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
             uop.nativeTrackList = dataObject.get("tracklist")
             uop.save(flush: true)
@@ -208,7 +208,7 @@ class UserController {
     @Transactional
     def addUserToGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -232,7 +232,7 @@ class UserController {
     @Transactional
     def removeUserFromGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -312,7 +312,7 @@ class UserController {
         try {
             log.info "Removing user"
             JSONObject dataObject = permissionService.handleInput(request, params)
-            if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
@@ -440,7 +440,6 @@ class UserController {
         }
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findById(dataObject.id)
 
-
         User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
 
         Organism organism = Organism.findByCommonName(dataObject.organism)
@@ -460,7 +459,6 @@ class UserController {
         }
 
 
-
         JSONArray permissionsArray = new JSONArray()
         if (dataObject.getBoolean(PermissionEnum.ADMINISTRATE.name())) {
             permissionsArray.add(PermissionEnum.ADMINISTRATE.name())
@@ -475,13 +473,18 @@ class UserController {
             permissionsArray.add(PermissionEnum.READ.name())
         }
 
+        if(permissionsArray.size()==0){
+            userOrganismPermission.delete(flush: true)
+            render userOrganismPermission as JSON
+            return
+        }
 
         userOrganismPermission.permissions = permissionsArray.toString()
         userOrganismPermission.save(flush: true)
-
         log.info "Updated organism permissions for user ${user.username} and organism ${organism.commonName} and permissions ${permissionsArray.toString()}"
-
         render userOrganismPermission as JSON
+
+
     }
 
 }
