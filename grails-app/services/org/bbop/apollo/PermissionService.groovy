@@ -328,7 +328,7 @@ class PermissionService {
 
         Sequence sequence
         if(!trackName){
-            sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName,organism)?.sequence
+            sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName,organism,[max: 1, sort: "lastUpdated", order: "desc"])?.sequence
         }
         else{
             sequence = Sequence.findByNameAndOrganism(trackName,organism)

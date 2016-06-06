@@ -313,7 +313,7 @@ class OrganismController {
                 return
             }
 
-            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(organismJson), true)
+            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(organismJson), true,[max: 1, sort: "lastUpdated", order: "desc"])
             Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
 
             JSONArray jsonArray = new JSONArray()
