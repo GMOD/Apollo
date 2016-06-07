@@ -211,7 +211,7 @@ return declare( [JBPlugin, HelpMixin],
                     }
                 });
                 browser.fileDialog.addFileTypeDriver(new customGff3Driver());
-                thisB.postCreateMenus();
+                //thisB.postCreateMenus();
             }
 
 
