@@ -167,6 +167,7 @@ class JbrowseController {
         String dataDirectory = getJBrowseDirectoryForSession(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
         log.debug "data directory: ${dataDirectory}"
         String dataFileName = dataDirectory + "/" + params.path
+        dataFileName += params.fileType ? ".${params.fileType}" :""
         String fileName = FilenameUtils.getName(params.path)
         File file = new File(dataFileName);
 
