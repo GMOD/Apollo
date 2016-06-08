@@ -39,6 +39,7 @@ class UrlMappings {
         "/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
 
 
+
         "/${clientToken}/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params)
         "/Login"(controller:"login",action: "handleOperation",params:params)
         "/${clientToken}/Login"(controller:"login",action: "handleOperation",params:params)
@@ -59,5 +60,52 @@ class UrlMappings {
         "/jbrowse/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
         "/jbrowse/web_services/api"(controller:"webServices",action: "index", params:params)
 
+        // if all else fails
+        // TODO: pass all of these into the same function and remap from there
+        "/${clientToken}/${path}**.bw" {
+            controller= "jbrowse"
+            action= "data"
+            fileType = "bw"
+        }
+        "/${clientToken}/${path}**.bai" {
+            controller= "jbrowse"
+            action= "data"
+            fileType = "bai"
+        }
+        "/${clientToken}/${path}**.bam" {
+            controller= "jbrowse"
+            action= "data"
+            fileType = "bam"
+        }
+//        "/${clientToken}/${path}**.conf" {
+//            controller= "jbrowse"
+//            action= "data"
+//            fileType = "conf"
+//        }
+        "/${clientToken}/${path}**.gtf" {
+            controller= "jbrowse"
+            action= "data"
+            fileType = "gtf"
+        }
+        "/${clientToken}/${path}**.vcf.gz.tbi" {
+            controller= "jbrowse"
+            action= "data"
+            fileType = "vcf.gz.tbi"
+        }
+        "/${clientToken}/${path}**.vcf.gz" {
+            controller= "jbrowse"
+            action= "data"
+            fileType = "vcf.gz"
+        }
+        "/${clientToken}/${path}**.gff3" {
+            controller= "jbrowse"
+            action= "data"
+            fileType = "gff3"
+        }
+        "/${clientToken}/${path}**.gff" {
+            controller= "jbrowse"
+            action= "data"
+            fileType = "gff"
+        }
     }
 }
