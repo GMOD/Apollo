@@ -228,12 +228,12 @@ class PreferenceService {
         userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndCurrentOrganism(user, false,[max: 1, sort: "lastUpdated", order: "desc"])
         if (userOrganismPreference) {
             Organism organism = userOrganismPreference.organism
-            Sequence sequence = trackName ? Sequence.findByNameAndOrganism(trackName, organism) : userOrganismPreference.sequence
+            Bookmark bookmark = trackName ? Bookmark.findByNameAndOrganism(trackName, organism) : userOrganismPreference.bookmark
             UserOrganismPreference newPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
                     , currentOrganism: true
-                    , sequence: sequence
+                    , bookmark: bookmark
                     , startbp: userOrganismPreference.startbp
                     , endbp: userOrganismPreference.endbp
                     , clientToken: clientToken
@@ -244,8 +244,8 @@ class PreferenceService {
         // 4 - if none at all exist, then we create one
         if (!userOrganismPreference) {
             // find a random organism based on sequence
-            Sequence sequence = Sequence.findByName(trackName)
-            Organism organism = sequence?.organism
+            Bookmark bookmark = Bookmark.findByName(trackName)
+            Organism organism = bookmark?.organism
             if(!organism){
                 def organisms = permissionService.getOrganisms(user)
                 organism = organisms ? organisms.first() : null
@@ -263,7 +263,7 @@ class PreferenceService {
                         user: user
                         , organism: organism
                         , currentOrganism: true
-                        , sequence: sequence
+                        , bookmark: bookmark
                         , clientToken: clientToken
                 ).save(insert: true, flush: true)
                 return newUserOrganismPreference

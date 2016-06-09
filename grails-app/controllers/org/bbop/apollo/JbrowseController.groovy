@@ -297,13 +297,15 @@ class JbrowseController {
      * Handles data directory serving for jbrowse
      */
     def data() {
-        String dataDirectory = getJBrowseDirectoryForSession(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+        String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
+        String dataDirectory = getJBrowseDirectoryForSession(params.get(clientToken).toString())
         log.debug "data directory: ${dataDirectory}"
         String dataFileName = dataDirectory + "/" + params.path
         dataFileName += params.fileType ? ".${params.fileType}" :""
         String fileName = FilenameUtils.getName(params.path)
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
+        Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         if (refererLoc.contains("sequenceList")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
                 String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
