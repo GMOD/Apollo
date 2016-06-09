@@ -159,7 +159,7 @@ return declare(
     },
 
     addTrackLabel: function(bpCoord,type){
-        x = this.bp2Native(bpCoord);
+        var x = this.bp2Native(bpCoord);
         var label = this.getSequenceForBp(bpCoord);
         //if(type && type=='start'){
         //    label = label + '->';
@@ -328,7 +328,7 @@ return declare(
 
         // if there is a track for that label in view
         //
-        for(i=first;i < last;i++) {
+        for(var i=first;i < last;i++) {
             var startCoord = this.svgParent.blocks[i].startBase;
             var label = this.getSequenceForBp(startCoord);
             //var endCoord = this.svgParent.blocks[i].endBase;

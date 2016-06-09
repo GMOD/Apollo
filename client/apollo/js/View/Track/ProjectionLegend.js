@@ -241,7 +241,7 @@ define([
                     var label = feature.get("label");
                     var color = feature.get("color");
                     //var cx = svgSpace.bp2Native(start);
-                    var len = (end - start ) * .18;
+                    var len = (end - start ) * 0.18;
                     //len = svgSpace.getHeight() - len;
                     //console.log("bpCoord=" + start + " cx=" + cx + " len=" + len + " scale=" + this.svgScale);
                     //console.log("rendering region " + label + " from " + start + " to " + end);

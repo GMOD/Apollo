@@ -140,7 +140,7 @@ return declare(
             this.svgCoords.topCoord[bpCoord] = topTick;
         }
 
-        x = this.bp2Native(bpCoord);
+        var x = this.bp2Native(bpCoord);
         // draw stems
         var xlength = -((label.length - 1) * 3);
         topTick.setAttribute('x', x+xlength);
@@ -210,7 +210,7 @@ return declare(
 
         // TODO: refactor for a single loop
         // draw test coordinates
-        for(i=first;i < last;i++) {
+        for(var i=first;i < last;i++) {
             var bpCoord = this.svgParent.blocks[i].startBase;
             this.addSequenceLabel(bpCoord);
             this.addTrackLabel(bpCoord);

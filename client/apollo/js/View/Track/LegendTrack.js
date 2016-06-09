@@ -177,7 +177,7 @@ define([
                     var label = feature.get("label");
                     var color = feature.get("color");
                     var cx = svgSpace.bp2Native(bpCoord);
-                    var len = (feature.get("end") - feature.get("start") ) * .18 ;
+                    var len = (feature.get("end") - feature.get("start") ) * 0.18 ;
                     len = svgSpace.getHeight() - len;
                     console.log("bpCoord="+bpCoord+" cx="+cx+" len="+len+" scale="+this.svgScale);
 
@@ -249,7 +249,7 @@ define([
                     var cx = svgSpace.bp2Native(bpCoord);
                     var start = feature.get("start");
                     var end = feature.get("end");
-                    var len = (end - start ) * .18 ;
+                    var len = (end - start ) * 0.18 ;
                     len = svgSpace.getHeight() - len;
                     console.log("bpCoord="+bpCoord+" cx="+cx+" len="+len+" scale="+this.svgScale);
                     console.log("rendering region "+label + " from "+ start + " to "+end) ;
@@ -345,7 +345,7 @@ define([
                     var cx = svgSpace.bp2Native(bpCoord);
                     var start = feature.get("start");
                     var end = feature.get("end");
-                    var len = (end - start ) * .18 ;
+                    var len = (end - start ) * 0.18 ;
                     len = svgSpace.getHeight() - len;
                     console.log("bpCoord="+bpCoord+" cx="+cx+" len="+len+" scale="+this.svgScale);
                     console.log("rendering region "+label + " from "+ start + " to "+end) ;

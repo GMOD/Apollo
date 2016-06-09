@@ -104,7 +104,7 @@ return declare(
         // compute the x coord given the bpCoord
         var bpCoord = feature.get("start");
         var cx = svgSpace.bp2Native(bpCoord);
-        var len = (feature.get("end") - feature.get("start") ) * .18 ;
+        var len = (feature.get("end") - feature.get("start") ) * 0.18 ;
         len = svgSpace.getHeight() - len;
         console.log("cx="+cx+" len="+len+" scale="+this.svgScale); 
 
