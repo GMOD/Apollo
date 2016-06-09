@@ -211,43 +211,39 @@ return declare( [JBPlugin, HelpMixin],
                     }
                 });
                 browser.fileDialog.addFileTypeDriver(new customGff3Driver());
-                //thisB.postCreateMenus();
+                thisB.postCreateMenus();
             }
 
-
-
             // Initialize information editor with similar style to track selector
-            var view = browser.view;
-            view.oldOnResize = view.onResize;
+                        var view = browser.view;
+                        view.oldOnResize = view.onResize;
 
-             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
-              *    bug appears in Chrome, not Firefox, unsure of other browsers
-              */
-            view.onResize = function() {
-                var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
-                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
-                var oldCharSize = thisB.getSequenceCharacterSize();
-                var newCharSize = thisB.getSequenceCharacterSize(true);
-                // detect if something happened to change pixel size of residues font (likely a web browser zoom)
-                var charWidthChanged = (newCharSize.width != oldCharSize.width);
-                var charWidth = newCharSize.width;
-                if (charWidthChanged) {
-                    if (! browser.config.view) { browser.config.view = {}; }
-                    browser.config.view.maxPxPerBp = charWidth;
-                    view.maxPxPerBp = charWidth;
-                }
-                if (charWidthChanged && fullZoom) {
-                    view.pxPerBp = view.maxPxPerBp;
-                    view.oldOnResize();
-                    thisB.browserZoomFix(centerBp);
-                }
-                else  {
-                    view.oldOnResize();
-                }
-            };
-
-
-
+                             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
+                               *    bug appears in Chrome, not Firefox, unsure of other browsers
+                               */
+                                view.onResize = function() {
+                                var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
+                                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
+                                var oldCharSize = thisB.getSequenceCharacterSize();
+                                var newCharSize = thisB.getSequenceCharacterSize(true);
+                                // detect if something happened to change pixel size of residues font (likely a web browser zoom)
+                                    var charWidthChanged = (newCharSize.width != oldCharSize.width);
+                                var charWidth = newCharSize.width;
+                                if (charWidthChanged) {
+                                        if (! browser.config.view) { browser.config.view = {}; }
+                                        browser.config.view.maxPxPerBp = charWidth;
+                                        view.maxPxPerBp = charWidth;
+                                    }
+                                if (charWidthChanged && fullZoom) {
+                                        view.pxPerBp = view.maxPxPerBp;
+                                        view.oldOnResize();
+                                        thisB.browserZoomFix(centerBp);
+                                    }
+                                else  {
+                                        view.oldOnResize();
+                                    }
+                            };
+            
 
         });
         this.monkeyPatchRegexPlugin();
@@ -654,6 +650,7 @@ return declare( [JBPlugin, HelpMixin],
         help.set("label", "Apollo Help");
         help.set("iconClass", null);
         var jbrowseUrl = "http://jbrowse.org";
+
         browser.addGlobalMenuItem( 'help',
                                 new dijitMenuItem(
                                     {

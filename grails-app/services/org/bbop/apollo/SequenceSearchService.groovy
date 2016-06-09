@@ -10,11 +10,6 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class SequenceSearchService {
 
     def configWrapperService
-    def serviceMethod() {
-
-    }
-
-
 
     def searchSequence(JSONObject input, String database) {
 
