@@ -133,7 +133,7 @@ function clean_all(){
     rm -rf bin
     rm -rf jbrowse-download
     rm -rf JBrowse-dev
-    rm -rf src/main/webapp/jbrowse
+    rm -rf web-app/jbrowse
     rm -f *.zip
     clean_code
 }

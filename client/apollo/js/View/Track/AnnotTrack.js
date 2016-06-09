@@ -334,8 +334,10 @@ define([
                             filteredTrackList.push(filteredTrack);
                         }
 
-                        //console.log('AnnotTrack::returning filtered track list: ' + filteredTrackList.length);
-                        window.parent.loadTracks(JSON.stringify(filteredTrackList));
+                        // if for some reason this method is called in the wrong place, we catch the error
+                        if(window.parent){
+                            window.parent.loadTracks(JSON.stringify(filteredTrackList));
+                        }
                     };
 
                     var handleTrackVisibility = function (trackInfo) {

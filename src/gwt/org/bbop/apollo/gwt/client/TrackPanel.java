@@ -40,6 +40,7 @@ import java.util.ArrayList;
  * Created by Nathan Dunn on 12/16/14.
  */
 public class TrackPanel extends Composite {
+
     interface TrackUiBinder extends UiBinder<Widget, TrackPanel> {
     }
 
@@ -193,21 +194,32 @@ public class TrackPanel extends Composite {
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE,new OrganismChangeEventHandler(){
             @Override
             public void onOrganismChanged(OrganismChangeEvent authenticationEvent) {
-                dataGrid.setLoadingIndicator(new Label("Loading..."));
-                dataGrid.setEmptyTableWidget(new Label("Loading..."));
-                filteredTrackInfoList.clear();
-                Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
-                    @Override
-                    public boolean execute() {
-                        reload();
-                        dataGrid.setEmptyTableWidget(new Label("No tracks found!"));
-                        return false;
-                    }
-                }, 2000);
+                loadTracks(2000);
             }
         });
 
     }
+
+    public void loadTracks(int delay){
+        dataGrid.setLoadingIndicator(new Label("Loading..."));
+        dataGrid.setEmptyTableWidget(new Label("Loading..."));
+        filteredTrackInfoList.clear();
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                reload();
+                dataGrid.setEmptyTableWidget(new Label("No tracks found!"));
+                return false;
+            }
+        }, delay);
+    }
+
+    public void reloadIfEmpty() {
+        if(dataProvider.getList().size()==0){
+            loadTracks(7000);
+        }
+    }
+
 
     private void setTrackInfo(TrackInfo selectedObject) {
         if (selectedObject == null) {

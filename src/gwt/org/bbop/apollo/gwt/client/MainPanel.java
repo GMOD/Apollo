@@ -221,7 +221,11 @@ public class MainPanel extends Composite {
 
         String tabPreferenceString = Annotator.getPreference(FeatureStringEnum.CURRENT_TAB.getValue());
         try {
-            detailTabs.selectTab(Integer.parseInt(tabPreferenceString));
+            int selectedTab = Integer.parseInt(tabPreferenceString);
+            detailTabs.selectTab(selectedTab);
+            if(selectedTab==TabPanelIndex.TRACKS.index){
+                trackPanel.reloadIfEmpty();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
