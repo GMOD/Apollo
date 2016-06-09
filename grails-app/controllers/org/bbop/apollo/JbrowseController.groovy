@@ -373,16 +373,27 @@ class JbrowseController {
         def plugins = grailsApplication.config.jbrowse?.plugins
         // not sure if I do it this way or via the include
         if (plugins) {
+            def pluginKeys = []
             if (!jsonObject.plugins) {
                 jsonObject.plugins = new JSONArray()
             }
+            else{
+                for(int i = 0 ; i < jsonObject.plugins.size() ; i++){
+                    pluginKeys.add(jsonObject.plugins[i].name)
+                }
+            }
+            // add core plugin: https://github.com/GMOD/jbrowse/blob/master/src/JBrowse/Browser.js#L244
+            pluginKeys.add("RegexSequenceSearch")
             for (plugin in plugins) {
-                JSONObject pluginObject = new JSONObject()
-                pluginObject.name = plugin.key
-                pluginObject.location = "./plugins/${plugin.key}"
-                pluginObject.putAll(plugin.value)
-                jsonObject.plugins.add(pluginObject)
-                log.info "Loading plugin: ${pluginObject.name} details: ${pluginObject as JSON}"
+                if(!pluginKeys.contains(plugin.key) ){
+                    pluginKeys.add(plugin.key)
+                    JSONObject pluginObject = new JSONObject()
+                    pluginObject.name = plugin.key
+                    pluginObject.location = "./plugins/${plugin.key}"
+                    pluginObject.putAll(plugin.value)
+                    jsonObject.plugins.add(pluginObject)
+                    log.info "Loading plugin: ${pluginObject.name} details: ${pluginObject as JSON}"
+                }
             }
         }
 
