@@ -211,7 +211,7 @@ return declare( [JBPlugin, HelpMixin],
                     }
                 });
                 browser.fileDialog.addFileTypeDriver(new customGff3Driver());
-                //thisB.postCreateMenus();
+                thisB.postCreateMenus();
             }
 
 
@@ -654,6 +654,14 @@ return declare( [JBPlugin, HelpMixin],
         help.set("label", "Apollo Help");
         help.set("iconClass", null);
         var jbrowseUrl = "http://jbrowse.org";
+
+        var menuBarNode = dijitRegistry.byId("menubar_powered_by_jbrowse");
+        if(menuBarNode){
+            // we've already added these so returning
+            console.log('Already added');
+            return ;
+        }
+
         browser.addGlobalMenuItem( 'help',
                                 new dijitMenuItem(
                                     {
