@@ -356,8 +356,8 @@ auditLog {
 jbrowse {
     git {
         url= "https://github.com/nathandunn/jbrowse"
-		tag = "1.12.2-apollo"
-//        branch = "projection_v2_server"
+//        tag = "1.12.2-apollo"
+		branch = "projection_v2_server"
         alwaysPull = true
         alwaysRecheck = true
         url= "https://github.com/gmod/jbrowse"
