@@ -1,7 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
-            'JBrowse/View/Track/SVGFeatures',
+            'WebApollo/SVGFeatures',
             'WebApollo/FeatureSelectionManager',
             'dijit/Menu',
             'dijit/MenuItem',

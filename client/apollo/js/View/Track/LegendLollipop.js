@@ -134,7 +134,7 @@ return declare(
         });
         return;     // skip the rest
        
-    },
+    }
     
 });
 });

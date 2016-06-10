@@ -391,7 +391,7 @@ define([
                         console.log('render region right');
                         this.renderGrid(context,fRect,7);
                     }
-                },
+                }
 
             });
     });
