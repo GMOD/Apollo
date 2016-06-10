@@ -1116,7 +1116,7 @@ var draggableTrack = declare( SVGFeatureTrack,
         else  {
             var tracks = this.gview.tracks;
             for (var i = 0; i < tracks.length; i++)  {
-                if (tracks[i] instanceof SequenceTrack)  {
+                if (tracks[i].isWebApolloSequenceTrack)  {
                     this.seqTrack = tracks[i];
                     tracks[i].setAnnotTrack(this);
                     break;

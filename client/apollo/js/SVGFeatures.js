@@ -257,11 +257,11 @@ return declare(
         var vbMinY = 0; 
         var vbHeight = this.svgHeight;
         var vbWidth = width;
-        var vbValues = bMinX + ' ' + vbMinY + ' ' + vbWidth + ' ' + vbHeight;
+        var vbValues = vbMinX + ' ' + vbMinY + ' ' + vbWidth + ' ' + vbHeight;
 
         this.svgCanvas.setAttribute('style', 'left:'+left+'%;width:'+width+'%;height:100%;cursor:default;position:absolute;z-index:15');
         this.coordGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
-        this.corodGroup.setAttribute('viewBox', vbValues);
+        this.coordGroup.setAttribute('viewBox', vbValues);
         this.svgCanvas.featureGroup.setAttribute('style', 'width:100%;height:100%;position:absolute;');
         
         var maxLen = this.svgHeight;
@@ -286,7 +286,7 @@ return declare(
                 if (id.charAt(0) === "C")
                     this.svgCanvas.featureGroup.fItem[id].setAttribute('style', 'cx:'+cx+';cy:'+len+';r:10;fill:rgba(0,0,255,.5)');
                 else {
-                    svgItem = this.svgCanvas.featureGroup.fItem[id];
+                    var svgItem = this.svgCanvas.featureGroup.fItem[id];
                     svgItem.feature = feature;
                     svgItem.setAttribute('x1',cx);
                     svgItem.setAttribute('y1',len);
@@ -859,8 +859,11 @@ return declare(
     },
 
     renderClickMap: function( args, fRects ) {
-        return;// disable - eyao
-        
+        if(true){
+            // if for jshint
+            return;// disable - eyao
+        }
+
         var block = args.block;
 
         // make an index of the fRects by ID, and by coordinate, and

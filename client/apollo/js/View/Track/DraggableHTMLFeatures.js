@@ -12,7 +12,7 @@ define( [
             'jquery',
             'jqueryui/draggable',
             'JBrowse/Util', 
-            'JBrowse/Model/SimpleFeature', 
+            'JBrowse/Model/SimpleFeature',
             'WebApollo/SequenceOntologyUtils'
         ],
     function( declare,
