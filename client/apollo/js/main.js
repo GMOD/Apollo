@@ -765,7 +765,7 @@ return declare( [JBPlugin, HelpMixin],
                 }
             }
         });
-    },
+    }
 
 });
 
