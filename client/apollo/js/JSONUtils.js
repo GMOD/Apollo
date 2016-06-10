@@ -134,6 +134,10 @@ JSONUtils.createJBrowseFeature = function( afeature )  {
     return new JAFeature( afeature );
 };
 
+JSONUtils.numberWithCommas = function( x)  {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 JSONUtils.flattenFeature = function(feature, descendants) {
     descendants.push(feature);
     if (feature.children) {

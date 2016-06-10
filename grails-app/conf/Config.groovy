@@ -360,7 +360,7 @@ jbrowse {
 		branch = "projection_v2_server"
         alwaysPull = true
         alwaysRecheck = true
-        url= "https://github.com/gmod/jbrowse"
+//        url= "https://github.com/gmod/jbrowse"
 		tag = "1.12.2-apollo"
 //        branch = "master"
         alwaysPull = false

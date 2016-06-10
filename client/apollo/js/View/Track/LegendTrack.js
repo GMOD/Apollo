@@ -8,7 +8,8 @@ define([
         'JBrowse/View/Track/SVGTrackSimpleBase',
         'JBrowse/View/Track/SVG/SVGLayerCoords',
         'JBrowse/View/Track/SVG/SVGLayerBpSpace',
-        'JBrowse/View/Track/SVG/SVGLayerPxSpace'
+        'JBrowse/View/Track/SVG/SVGLayerPxSpace',
+        'WebApollo/JSONUtils'
 ],
     function (
         declare,
@@ -20,12 +21,9 @@ define([
         SVGTrackBase,
         SVGLayerCoords,
         SVGLayerBpSpace,
-        SVGLayerPxSpace
+        SVGLayerPxSpace,
+        JSONUtils
     ) {
-
-        function numberWithCommas(x) {
-            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        };
 
         return declare(
             [ SVGTrackBase ]
@@ -41,14 +39,13 @@ define([
                  * @constructs
                  */
 
-                constructor: function (args) {//name, labelClass, posHeight) {
+                // name, labelClass, posHeight
+                constructor: function (args) {
                     console.log(args);
                     this.loaded = true;
                     this.labelClass = args.labelClass;
                     this.pinned = true;
-                    //this.posHeight = args.posHeight;
                     this.posHeight = 30 ;
-                    //this.height = Math.round(args.posHeight * 1.2);
                     this.height = 30 ;
                     this.noCache = true ;
                 },
@@ -221,7 +218,7 @@ define([
                     this.addSVGObject(id2,bpCoord,100,100,function () {
                         var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
                         var xlength = 3 ; // for 0 case only
-                        var formattedLabel = numberWithCommas(label);
+                        var formattedLabel = JSONUtils.numberWithCommas(label);
                         if(label!='0'){
                             xlength = - (formattedLabel.length-1) * offsetMultiplier ;
                         }
@@ -355,7 +352,7 @@ define([
                     console.log("cx="+cx+" color="+color);
                     this.addSVGObject(id3,bpCoord,100,100,function () {
                         var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
-                        var formattedLabel = numberWithCommas(label);
+                        var formattedLabel = JSONUtils.numberWithCommas(label);
                         var xlength = -((formattedLabel.length-1) * 8) ;
                         apple.setAttribute('x',xlength);
                         //var xLoc = svgSpace.bp2Native(xlength);
