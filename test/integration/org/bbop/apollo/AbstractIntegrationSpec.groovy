@@ -46,6 +46,8 @@ class AbstractIntegrationSpec extends IntegrationSpec{
         Organism organism = new Organism(
                 directory: "test/integration/resources/sequences/honeybee-Group1.10/"
                 ,commonName: "sampleAnimal"
+                ,genus: "Sample"
+                ,species: "animal"
         ).save(failOnError: true)
 
         Sequence sequence = new Sequence(

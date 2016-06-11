@@ -41,10 +41,8 @@ class ChadoHandlerService {
     private static final ontologyDb = ["SO", "GO", "RO"]
     Map<String, org.gmod.chado.Organism> chadoOrganismsMap = new HashMap<String, org.gmod.chado.Organism>()
     Map<String, Integer> exportStatisticsMap = new HashMap<String, Integer>();
-    ArrayList<org.bbop.apollo.Feature> processedFeatures = new ArrayList<org.bbop.apollo.Feature>()
-    ArrayList<org.bbop.apollo.Feature> failedFeatures = new ArrayList<org.bbop.apollo.Feature>()
 
-    def writeFeatures(Organism organism, ArrayList<Sequence> sequenceList, ArrayList<Feature> features, boolean exportAllSequences = false) {
+    def writeFeatures(Organism organism, List<Sequence> sequenceList, List<Feature> features, boolean exportAllSequences = false) {
         JSONObject returnObject = new JSONObject()
         if (!configWrapperService.hasChadoDataSource()) {
             log.error("Cannot export annotations to Chado as Chado data source has not been configured")
