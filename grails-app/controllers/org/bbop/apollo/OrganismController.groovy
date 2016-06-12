@@ -291,19 +291,17 @@ class OrganismController {
                 if(!organism) organism=Organism.findById(organismJson.organism)
                 if(!organism) render ([error:"Organism not found"] as JSON)
                 List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism,permissionService.getCurrentUser(organismJson))
-                if(permissionEnumList.contains(PermissionEnum.ADMINISTRATE)){
+                if(permissionService.findHighestEnum(permissionEnumList)?.rank > PermissionEnum.NONE.rank){
                     organismList.add(organism)
                 }
             }
             else {
                 log.debug "finding all info"
-                List<Organism> putativeOrganismList = permissionService.getOrganismsForCurrentUser(organismJson)
-
-                putativeOrganismList.each {
-                    List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(it,permissionService.getCurrentUser(organismJson))
-                    if(permissionEnumList.contains(PermissionEnum.ADMINISTRATE)){
-                        organismList.add(it)
-                    }
+                if(permissionService.isAdmin()){
+                    organismList = Organism.all
+                }
+                else{
+                    organismList = permissionService.getOrganismsForCurrentUser(organismJson)
                 }
             }
 
