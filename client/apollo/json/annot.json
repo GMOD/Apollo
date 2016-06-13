@@ -76,5 +76,6 @@
     ],
    "favicon" : "./plugins/WebApollo/img/webapollo_favicon.ico",
    "alwaysOnTracks" : "DNA,Annotations",
+   "classicMenu" : 1,
    "formatVersion" : 1
 }
