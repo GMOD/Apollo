@@ -462,7 +462,6 @@ class JbrowseController {
         
         response.setContentType(mimeType);
         // Set content size
-        response.setContentLength((int) file.length());
         response << file.text
         response.flushBuffer()
     }
