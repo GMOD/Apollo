@@ -349,7 +349,7 @@ class JbrowseController {
         for (organism in list) {
             JSONObject organismObject = new JSONObject()
             organismObject.put("name", organism.commonName)
-            String url = "javascript:window.top.location.href = '../annotator/loadLink?"
+            String url = "javascript:window.top.location.href = '../../annotator/loadLink?"
             url += "organism=" + organism.getId();
             url += "&highlight=0";
             url += "&tracks='";

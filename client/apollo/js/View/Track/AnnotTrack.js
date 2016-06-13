@@ -4286,6 +4286,7 @@ define([
                             preventCache: true,
                             refreshOnShow: true,
                             executeScripts: true
+
                         });
                         if (track.browser.config.disableJBrowseMode) {
                             dialog.hide = function () {
