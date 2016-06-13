@@ -34,3 +34,4 @@ createdb -O $PGUSER apollo-production
 
 - In ```apollo-config.groovy``` your username will be postgres and you should comment out the password line.
 
+Note: Using a tool like [pgtune](http://pgtune.leopard.in.ua/) might help to tune PostgreSQL settings.  
