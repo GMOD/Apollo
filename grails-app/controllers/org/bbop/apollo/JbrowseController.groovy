@@ -95,31 +95,35 @@ class JbrowseController {
         forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString])
     }
 
+    private String getDirectoryFromSession(String clientToken){
+        String directory = request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
+        if(!directory){
+            Organism organism = preferenceService.getOrganismForToken(clientToken)
+            if (organism) {
+                def session = request.getSession(true)
+                session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
+                session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
+                session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
+                session.setAttribute(FeatureStringEnum.CLIENT_TOKEN.value,clientToken)
+                return organism.directory
+            }
+        }
+        return directory
+    }
 
+    /**
+     * @param clientToken
+     * @return
+     */
     private String getJBrowseDirectoryForSession(String clientToken) {
         log.debug "current user? ${permissionService.currentUser}"
         if (!permissionService.currentUser) {
-            log.warn "returning something not set clearly"
-            String directory = request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
-            if (!directory) {
-                Organism organism = Organism.findByCommonNameIlike(clientToken)
-                if (organism) {
-                    def session = request.getSession(true)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
-                    return organism.directory
-                }
-                organism = Organism.findById(clientToken as Long)
-                if (organism) {
-                    def session = request.getSession(true)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
-                    return organism.directory
-                }
-            }
+            return getDirectoryFromSession(clientToken)
         }
+
+        String thisToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
+        request.session.setAttribute(FeatureStringEnum.CLIENT_TOKEN.value,clientToken)
+
         log.debug "getting organism for client token ${clientToken}"
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         log.debug "got organism ${currentOrganism} for client token ${clientToken}"
