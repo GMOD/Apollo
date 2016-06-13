@@ -457,12 +457,29 @@ class JbrowseController {
         String eTag = createHashFromFile(file);
         String dateString = formatLastModifiedDate(file);
 
-        response.setHeader("ETag", eTag);
-        response.setHeader("Last-Modified", dateString);
+//        if (isCacheableFile(fileName)) {
+            response.setHeader("ETag", eTag);
+            response.setHeader("Last-Modified", dateString);
+//        }
         
         response.setContentType(mimeType);
+//        // Set content size
+//        response << file.text
+//        response.flushBuffer()
         // Set content size
-        response << file.text
-        response.flushBuffer()
+        response.setContentLength((int) file.length());
+
+        // Open the file and output streams
+        FileInputStream inputStream = new FileInputStream(file);
+        OutputStream out = response.getOutputStream();
+
+        // Copy the contents of the file to the output stream
+        byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+        int count = 0;
+        while ((count = inputStream.read(buf)) >= 0) {
+            out.write(buf, 0, count);
+        }
+        inputStream.close();
+        out.close();
     }
 }
