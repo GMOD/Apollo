@@ -148,7 +148,7 @@ class PreferenceService {
         if (!userOrganismPreference) {
             // find a random organism based on sequence
             Sequence sequence = Sequence.findByName(trackName)
-            Organism organism = sequence ? sequence.organism : permissionService.getOrganisms(user).first()
+            Organism organism = sequence ? sequence.organism : permissionService.getOrganisms(user)?.first()
             if (!organism && permissionService.isAdmin()) {
                 organism = Organism.first()
             }

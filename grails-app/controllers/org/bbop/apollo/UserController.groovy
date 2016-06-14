@@ -260,7 +260,7 @@ class UserController {
         try {
             log.info "Creating user"
             JSONObject dataObject = permissionService.handleInput(request, params)
-            if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
