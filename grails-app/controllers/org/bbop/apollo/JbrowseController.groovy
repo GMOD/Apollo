@@ -354,6 +354,7 @@ class JbrowseController {
             String url = "javascript:window.top.location.href = '../../annotator/loadLink?"
             url += "organism=" + organism.getId();
             url += "&highlight=0";
+            url += "&clientToken="+clientToken;
             url += "&tracks='";
             organismObject.put("url", url)
             organismObjectContainer.put(organism.id, organismObject)
