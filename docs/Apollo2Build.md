@@ -18,7 +18,7 @@ grails for you.
 2. `sdk install grails 2.5.4`
 3. `sdk install gradle 2.11`
  
-If you don't install Grails or Gradle using SDKMAN, these will automatically be downloaded in the current directory.
+If you don't install Grails or Gradle using SDKMAN, these will automatically be downloaded in the current directory by executing grailsw or gradlew locally.
 
 ### Groovy
 
