@@ -35,7 +35,7 @@ Alternatively you can check it out from git as directly as follows:
 
 1. git clone https://github.com/GMOD/Apollo.git Apollo
 1. cd Apollo
-1. git checkout 2.0.2  # otherwise you will be getting the more active / less tested master branch
+1. git checkout 2.0.3  # otherwise you will be getting the more active / less tested master branch
 
 
 ### Verify install requirements
