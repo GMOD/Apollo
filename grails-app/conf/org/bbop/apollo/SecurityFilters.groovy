@@ -59,7 +59,7 @@ class SecurityFilters {
                     }
                     catch (Exception e) {
                         render([error: e.message] as JSON)
-                        render false
+                        return false
                     }
                 }
             }

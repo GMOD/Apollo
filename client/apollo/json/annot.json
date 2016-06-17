@@ -167,5 +167,6 @@
   "locationBox": "searchBox",
   "alwaysOnTracks": "DNA,Legend,Annotations",
   "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
-  "formatVersion": 1
+  "classicMenu" : 1,
+  "formatVersion" : 1
 }

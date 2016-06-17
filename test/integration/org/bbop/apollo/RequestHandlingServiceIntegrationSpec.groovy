@@ -45,7 +45,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert 7 == getCodingArray(jsonObject).size()
 
 
-
         when: "you parse add a transcript"
         JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
 

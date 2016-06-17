@@ -18,7 +18,7 @@ grails for you.
 2. `sdk install grails 2.5.4`
 3. `sdk install gradle 2.11`
  
-If you don't install Grails or Gradle using SDKMAN, these will automatically be downloaded in the current directory.
+If you don't install Grails or Gradle using SDKMAN, these will automatically be downloaded in the current directory by executing grailsw or gradlew locally.
 
 ### Groovy
 
@@ -35,7 +35,7 @@ Alternatively you can check it out from git as directly as follows:
 
 1. git clone https://github.com/GMOD/Apollo.git Apollo
 1. cd Apollo
-1. git checkout 2.0.2  # otherwise you will be getting the more active / less tested master branch
+1. git checkout 2.0.3  # otherwise you will be getting the more active / less tested master branch
 
 
 ### Verify install requirements

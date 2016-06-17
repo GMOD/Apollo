@@ -6,14 +6,14 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionChunk
 import org.bbop.apollo.sequence.Range
-import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 import javax.servlet.http.HttpServletResponse
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import static org.springframework.http.HttpStatus.*
+
+import static org.springframework.http.HttpStatus.NOT_FOUND
 
 //@CompileStatic
 class JbrowseController {
@@ -53,10 +53,9 @@ class JbrowseController {
                 organism = Organism.findById(clientToken.toInteger())
             }
             // if there is no organism
-            if(!organism){
+            if (!organism) {
                 organism = preferenceService.getOrganismForToken(clientToken)
-            }
-            else{
+            } else {
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
             }
         }
@@ -70,7 +69,7 @@ class JbrowseController {
         else {
             log.debug "organism ID specified: ${clientToken}"
 
-            if(clientToken){
+            if (clientToken) {
                 Organism organism = Organism.findByCommonNameIlike(clientToken)
                 if (!organism && clientToken?.isLong()) {
                     organism = Organism.findById(clientToken.toLong())
@@ -91,7 +90,6 @@ class JbrowseController {
             }
 
 
-
         }
 
         // case 2 - anonymous login with-OUT organism ID, show organism list
@@ -100,31 +98,35 @@ class JbrowseController {
         forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString])
     }
 
+    private String getDirectoryFromSession(String clientToken) {
+        String directory = request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
+        if (!directory) {
+            Organism organism = preferenceService.getOrganismForToken(clientToken)
+            if (organism) {
+                def session = request.getSession(true)
+                session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
+                session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
+                session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
+                session.setAttribute(FeatureStringEnum.CLIENT_TOKEN.value, clientToken)
+                return organism.directory
+            }
+        }
+        return directory
+    }
 
+    /**
+     * @param clientToken
+     * @return
+     */
     private String getJBrowseDirectoryForSession(String clientToken) {
         log.debug "current user? ${permissionService.currentUser}"
         if (!permissionService.currentUser) {
-            log.warn "returning something not set clearly"
-            String directory = request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
-            if (!directory) {
-                Organism organism = Organism.findByCommonNameIlike(clientToken)
-                if (organism) {
-                    def session = request.getSession(true)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
-                    return organism.directory
-                }
-                organism = Organism.findById(clientToken as Long)
-                if (organism) {
-                    def session = request.getSession(true)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
-                    return organism.directory
-                }
-            }
+            return getDirectoryFromSession(clientToken)
         }
+
+        String thisToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
+        request.session.setAttribute(FeatureStringEnum.CLIENT_TOKEN.value, clientToken)
+
         log.debug "getting organism for client token ${clientToken}"
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         log.debug "got organism ${currentOrganism} for client token ${clientToken}"
@@ -138,7 +140,7 @@ class JbrowseController {
 
                 if (organism.sequences) {
                     User user = permissionService.currentUser
-                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism,[max: 1, sort: "lastUpdated", order: "desc"])
+                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
                     Sequence sequence = organism?.sequences?.first()
                     if (userOrganismPreference == null) {
 //                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
@@ -301,7 +303,7 @@ class JbrowseController {
         String dataDirectory = getJBrowseDirectoryForSession(params.get(clientToken).toString())
         log.debug "data directory: ${dataDirectory}"
         String dataFileName = dataDirectory + "/" + params.path
-        dataFileName += params.fileType ? ".${params.fileType}" :""
+        dataFileName += params.fileType ? ".${params.fileType}" : ""
         String fileName = FilenameUtils.getName(params.path)
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
@@ -656,19 +658,19 @@ class JbrowseController {
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         if (currentOrganism != null) {
             jsonObject.put("dataset_id", currentOrganism.id)
-        }
-        else {
-            id=request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
-            jsonObject.put("dataset_id",id);
+        } else {
+            id = request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
+            jsonObject.put("dataset_id", id);
         }
         List<Organism> list = permissionService.getOrganismsForCurrentUser()
         JSONObject organismObjectContainer = new JSONObject()
         for (organism in list) {
             JSONObject organismObject = new JSONObject()
             organismObject.put("name", organism.commonName)
-            String url = "javascript:window.top.location.href = '../annotator/loadLink?"
+            String url = "javascript:window.top.location.href = '../../annotator/loadLink?"
             url += "organism=" + organism.getId();
             url += "&highlight=0";
+            url += "&clientToken="+clientToken;
             url += "&tracks='";
             organismObject.put("url", url)
             organismObjectContainer.put(organism.id, organismObject)
@@ -693,16 +695,15 @@ class JbrowseController {
             def pluginKeys = []
             if (!jsonObject.plugins) {
                 jsonObject.plugins = new JSONArray()
-            }
-            else{
-                for(int i = 0 ; i < jsonObject.plugins.size() ; i++){
+            } else {
+                for (int i = 0; i < jsonObject.plugins.size(); i++) {
                     pluginKeys.add(jsonObject.plugins[i].name)
                 }
             }
             // add core plugin: https://github.com/GMOD/jbrowse/blob/master/src/JBrowse/Browser.js#L244
             pluginKeys.add("RegexSequenceSearch")
             for (plugin in plugins) {
-                if(!pluginKeys.contains(plugin.key) ){
+                if (!pluginKeys.contains(plugin.key)) {
                     pluginKeys.add(plugin.key)
                     JSONObject pluginObject = new JSONObject()
                     pluginObject.name = plugin.key
@@ -719,7 +720,9 @@ class JbrowseController {
     }
 
     private static boolean isCacheableFile(String fileName) {
-        if (fileName.endsWith(".txt") || fileName.endsWith("txtz")) return true;
+        if (fileName.endsWith(".txt") || fileName.endsWith("txtz")) {
+            return true;
+        }
         if (fileName.endsWith(".json") || fileName.endsWith("jsonz")) {
             String[] names = fileName.split("\\/");
             String requestName = names[names.length - 1];
@@ -781,6 +784,44 @@ class JbrowseController {
     }
 
     def passthrough() {
-        redirect(url: "/${params.prefix}/${params.path}", permanent: false, params: params)
+        String dataFileName = params.prefix + "/" + params.path
+        String fileName = FilenameUtils.getName(params.path)
+        File file = new File(servletContext.getRealPath(dataFileName))
+
+        if (!file.exists()) {
+            log.warn("File not found: " + dataFileName);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        String mimeType = getServletContext().getMimeType(fileName);
+
+        String eTag = createHashFromFile(file);
+        String dateString = formatLastModifiedDate(file);
+
+//        if (isCacheableFile(fileName)) {
+            response.setHeader("ETag", eTag);
+            response.setHeader("Last-Modified", dateString);
+//        }
+        
+        response.setContentType(mimeType);
+//        // Set content size
+//        response << file.text
+//        response.flushBuffer()
+        // Set content size
+        response.setContentLength((int) file.length());
+
+        // Open the file and output streams
+        FileInputStream inputStream = new FileInputStream(file);
+        OutputStream out = response.getOutputStream();
+
+        // Copy the contents of the file to the output stream
+        byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+        int count = 0;
+        while ((count = inputStream.read(buf)) >= 0) {
+            out.write(buf, 0, count);
+        }
+        inputStream.close();
+        out.close();
     }
 }

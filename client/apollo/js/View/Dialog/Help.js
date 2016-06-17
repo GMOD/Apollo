@@ -46,7 +46,7 @@ return declare( null, {
                 + '</dd>'
                 + '<div style="float: left; width: 49%;"><dt>Apollo links</dt>'
                 + '<dd><ul>'
-                + '<li><a href="http://genomearchitect.org/web_apollo_user_guide" target="_blank">Apollo User Guide</a></li>'
+                + '<li><a href="http://genomearchitect.org/users-guide/" target="_blank">Apollo User Guide</a></li>'
                 + '<li><a href="http://genomearchitect.readthedocs.io/en/latest/" target="_blank">Apollo Configuration and Installation Guide</a></li>'
                 + '</ul></dd>'
                 + '</div>'
