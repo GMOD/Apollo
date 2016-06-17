@@ -660,8 +660,8 @@ class RequestHandlingService {
             }
         }
 
-
-        returnObject.put(FeatureStringEnum.FEATURES.value, transcriptJSONList as JSONArray)
+        def returnTranscriptList = featureProjectionService.projectTrack(transcriptJSONList as JSONArray,bookmark,false)
+        returnObject.put(FeatureStringEnum.FEATURES.value, returnTranscriptList)
 
         if (!suppressEvents) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
