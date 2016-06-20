@@ -12,9 +12,13 @@ This guide will cover the "development mode" scenario which should be easy to st
 
 You have to install Java and the Java Development Kit (JDK) 7 or higher to run Apollo.  Both the Oracle and OpenJDK versions have been tested.
 
-### Node.js / NPM
+### Node.js / NPM / Bower
 
 You will need to [install node.js](https://nodejs.org/en/download/), which includes NPM (the node package manager) to build Apollo.
+
+Once node.js / npm is installed, install bower using (you may need sudo):
+
+    npm install -g bower 
 
 ### Grails / Groovy / Gradle  (optional)
 
