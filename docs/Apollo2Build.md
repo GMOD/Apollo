@@ -10,16 +10,16 @@ This guide will cover the "development mode" scenario which should be easy to st
 
 ### Java / JDK
 
-You have to install the Java JDK 7 or higher for development and production.  Both Oracle and OpenJDK versions have been tested.
+You have to install Java and the Java Development Kit (JDK) 7 or higher to run Apollo.  Both the Oracle and OpenJDK versions have been tested.
 
 ### Node.js / NPM
 
-You will need to [install node.js](https://nodejs.org/en/download/), which includes NPM (the node package manager). 
+You will need to [install node.js](https://nodejs.org/en/download/), which includes NPM (the node package manager) to build Apollo.
 
 ### Grails / Groovy / Gradle  (optional)
 
 Installing Grails (application framework), Groovy (development language), or Gradle (build environment) is 
-not required, but it is suggested for doing development.
+not required (they will install themselves), but it is suggested for doing development.  
 
 This is most easily done by using [SDKMAN](http://sdkman.io/) (formerly GVM) which can automatically setup
 grails for you. 
@@ -28,7 +28,6 @@ grails for you.
 2. `sdk install grails 2.5.4`
 3. `sdk install gradle 2.11`
 4. `sdk install groovy`
- 
 
 
 ### Get the code
