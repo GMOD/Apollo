@@ -8,23 +8,26 @@ generated `war` file.
 
 This guide will cover the "development mode" scenario which should be easy to start.  **To setup in a production environment, please see the [setup](Setup.md) guide.**
 
+### Java / JDK
 
-### Grails
+You have to install Java and the Java Development Kit (JDK) 7 or higher to run Apollo.  Both the Oracle and OpenJDK versions have been tested.
 
-Installing Grails is made easier by using [SDKMAN](http://sdkman.io/) (formerly GVM) which can automatically setup
+### Node.js / NPM
+
+You will need to [install node.js](https://nodejs.org/en/download/), which includes NPM (the node package manager) to build Apollo.
+
+### Grails / Groovy / Gradle  (optional)
+
+Installing Grails (application framework), Groovy (development language), or Gradle (build environment) is 
+not required (they will install themselves), but it is suggested for doing development.  
+
+This is most easily done by using [SDKMAN](http://sdkman.io/) (formerly GVM) which can automatically setup
 grails for you. 
 
 1. `curl -s http://get.sdkman.io | bash`
 2. `sdk install grails 2.5.4`
 3. `sdk install gradle 2.11`
- 
-If you don't install Grails or Gradle using SDKMAN, these will automatically be downloaded in the current directory by executing grailsw or gradlew locally.
-
-### Groovy
-
-It is not required but you can also install the groovy command line
-
-`sdk install groovy`
+4. `sdk install groovy`
 
 
 ### Get the code
