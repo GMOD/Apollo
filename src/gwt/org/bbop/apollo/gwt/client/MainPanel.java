@@ -448,7 +448,7 @@ public class MainPanel extends Composite {
 
         trackListString += getCurrentQueryParamsAsString();
 
-        Window.alert(trackListString);
+        GWT.log(trackListString);
 
         frame.setUrl(trackListString);
     }
