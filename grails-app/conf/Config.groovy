@@ -316,6 +316,8 @@ apollo {
     // customize admin tab on annotator panel with these links
     administrativePanel = [
             ['label': "Canned Comments", 'link': "/cannedComment/"]
+            ,['label': "Canned Key", 'link': "/cannedKey/"]
+            ,['label': "Canned Values", 'link': "/cannedValue/"]
             ,['label': "Feature Types", 'link': "/featureType/"]
             ,['label': "Statuses", 'link': "/availableStatus/"]
             ,['label': "Proxies", 'link': "/proxy/"]
