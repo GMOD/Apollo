@@ -57,7 +57,7 @@
 					<span id="values-label" class="property-label"><g:message code="cannedKey.values.label" default="Values" /></span>
 					
 						<g:each in="${cannedKeyInstance.values}" var="v">
-						<span class="property-value" aria-labelledby="values-label"><g:link controller="cannedValue" action="show" id="${v.id}">${v?.encodeAsHTML()}</g:link></span>
+						<span class="property-value" aria-labelledby="values-label"><g:link controller="cannedValue" action="show" id="${v.id}">${v?.label}</g:link></span>
 						</g:each>
 					
 				</li>
