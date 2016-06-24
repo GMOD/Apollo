@@ -108,7 +108,9 @@ class LoginController extends AbstractApolloController {
             SavedRequest savedRequest = WebUtils.getSavedRequest(request)
             if (savedRequest) {
                 targetUri = savedRequest.requestURI - request.contextPath
-                if (savedRequest.queryString) targetUri = targetUri + '?' + savedRequest.queryString
+                if (savedRequest.queryString){
+                  targetUri = targetUri + '?' + savedRequest.queryString
+                }
             }
 
 
