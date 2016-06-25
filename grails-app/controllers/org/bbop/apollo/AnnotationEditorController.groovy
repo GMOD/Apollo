@@ -1029,7 +1029,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 if (featureTypeList) {
                     cannedKeyStrings.addAll(CannedKey.executeQuery("select cc from CannedKey cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]).label)
                 }
-                cannedKeyStrings.addAll(CannedKey.executeQuery("select cc from CannedComment cc where cc.featureTypes is empty").label)
+                cannedKeyStrings.addAll(CannedKey.executeQuery("select cc from CannedKey cc where cc.featureTypes is empty").label)
                 if (cannedKeyStrings != null) {
                     for (String comment : cannedKeyStrings) {
                         cannedKeys.put(comment);
@@ -1041,9 +1041,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 JSONArray cannedValues = new JSONArray();
                 newFeature.put(FeatureStringEnum.CANNED_VALUES.value, cannedValues);
                 if (featureTypeList) {
-                    cannedValueStrings.addAll(CannedKey.executeQuery("select cc from CannedKey cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]).label)
+                    cannedValueStrings.addAll(CannedValue.executeQuery("select cc from CannedValue cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]).label)
                 }
-                cannedValueStrings.addAll(CannedKey.executeQuery("select cc from CannedComment cc where cc.featureTypes is empty").label)
+                cannedValueStrings.addAll(CannedValue.executeQuery("select cc from CannedValue cc where cc.featureTypes is empty").label)
                 if (cannedValueStrings != null) {
                     for (String comment : cannedValueStrings) {
                         cannedValues.put(comment);
