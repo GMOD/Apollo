@@ -29,6 +29,9 @@ class CannedKeyController {
     }
 
     def create() {
+        CannedKey cannedKey = new CannedKey(params)
+        println "validated ${cannedKey.validate()} and errors: ${cannedKey.errors}"
+
         respond new CannedKey(params)
     }
 
@@ -40,6 +43,7 @@ class CannedKeyController {
         }
 
         if (cannedKeyInstance.hasErrors()) {
+            println "has errors: ${cannedKeyInstance.errors}"
             respond cannedKeyInstance.errors, view:'create'
             return
         }

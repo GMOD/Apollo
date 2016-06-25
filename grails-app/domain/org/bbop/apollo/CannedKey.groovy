@@ -11,7 +11,6 @@ class CannedKey {
     String metadata
 
     static hasMany = [
-            featureTypes: FeatureType
-            ,values: CannedValue
+        featureTypes: FeatureType
     ]
 }

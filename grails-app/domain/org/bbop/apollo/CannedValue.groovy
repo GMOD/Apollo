@@ -10,10 +10,6 @@ class CannedValue {
     String label
     String metadata
 
-    static belongsTo = [
-       CannedKey
-    ]
-
     static hasMany = [
         featureTypes: FeatureType
     ]
