@@ -786,6 +786,10 @@ class JbrowseController {
     def passthrough() {
         String dataFileName = params.prefix + "/" + params.path
         String fileName = FilenameUtils.getName(params.path)
+        // have to prefix with a "/"
+        if(!dataFileName.startsWith("/")){
+            dataFileName = "/" + dataFileName
+        }
         File file = new File(servletContext.getRealPath(dataFileName))
 
         if (!file.exists()) {

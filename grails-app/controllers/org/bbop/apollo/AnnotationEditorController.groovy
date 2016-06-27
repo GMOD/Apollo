@@ -1021,6 +1021,37 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
                     properties.put(jsonProperty);
                 }
+
+                List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(feature.ontologyId)
+
+
+                List<String> cannedKeyStrings = new ArrayList<>()
+                JSONArray cannedKeys = new JSONArray();
+                newFeature.put(FeatureStringEnum.CANNED_KEYS.value, cannedKeys);
+                if (featureTypeList) {
+                    cannedKeyStrings.addAll(CannedKey.executeQuery("select cc from CannedKey cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]).label)
+                }
+                cannedKeyStrings.addAll(CannedKey.executeQuery("select cc from CannedKey cc where cc.featureTypes is empty").label)
+                if (cannedKeyStrings != null) {
+                    for (String comment : cannedKeyStrings) {
+                        cannedKeys.put(comment);
+                    }
+                }
+
+                // handle canned Values
+                List<String> cannedValueStrings = new ArrayList<>()
+                JSONArray cannedValues = new JSONArray();
+                newFeature.put(FeatureStringEnum.CANNED_VALUES.value, cannedValues);
+                if (featureTypeList) {
+                    cannedValueStrings.addAll(CannedValue.executeQuery("select cc from CannedValue cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]).label)
+                }
+                cannedValueStrings.addAll(CannedValue.executeQuery("select cc from CannedValue cc where cc.featureTypes is empty").label)
+                if (cannedValueStrings != null) {
+                    for (String comment : cannedValueStrings) {
+                        cannedValues.put(comment);
+                    }
+                }
+
             }
             if (configWrapperService.hasDbxrefs() || configWrapperService.hasPubmedIds() || configWrapperService.hasGoIds()) {
                 JSONArray dbxrefs = new JSONArray();
@@ -1054,6 +1085,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     }
                 }
             }
+
+
+
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeature);
         }
 

@@ -5,8 +5,9 @@ import net.sf.json.JSONObject
 import groovy.sql.Sql
 
 @Grab(group = 'org.json', module = 'json', version = '20140107')
-@Grab(group='postgresql', module='postgresql', version='8.3-603.jdbc4')
+//@Grab(group='postgresql', module='postgresql', version='8.3-603.jdbc4')
 //@Grab('org.postgresql:postgresql:9.3-1101-jdbc41')
+@Grab(group='org.postgresql', module='postgresql', version='9.4-1201-jdbc41')
 @GrabConfig(systemClassLoader = true)
 
 

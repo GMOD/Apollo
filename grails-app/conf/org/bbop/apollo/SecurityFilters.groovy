@@ -25,6 +25,9 @@ class SecurityFilters {
             before = {
                 if (controllerName == "organism"
                         || controllerName == "home"
+                        || controllerName == "cannedKey"
+                        || controllerName == "cannedValue"
+                        || controllerName == "cannedComment"
                         || actionName == "report"
                         || actionName == "loadLink"
                 ) {

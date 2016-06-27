@@ -2348,6 +2348,8 @@ define([
                 var pubmedIdDb = "PMID";
                 var goIdDb = "GO";
                 var cannedComments;
+                var cannedKeys;
+                var cannedValues;
 
                 var timeout = 100;
 
@@ -2641,6 +2643,8 @@ define([
 
                 var initAttributes = function (feature, config) {
                     if (config.hasAttributes) {
+                        cannedKeys = feature.canned_keys;
+                        cannedValues = feature.canned_values;
                         var oldTag;
                         var oldValue;
                         var attributes = new dojoItemFileWriteStore({
@@ -2658,6 +2662,8 @@ define([
                                     name: 'Tag',
                                     field: 'tag',
                                     width: '40%',
+                                    type: dojox.grid.cells.ComboBox,
+                                    options: cannedKeys,
                                     formatter: function (tag) {
                                         if (!tag) {
                                             return "Enter new tag";
@@ -2670,6 +2676,8 @@ define([
                                     name: 'Value',
                                     field: 'value',
                                     width: '60%',
+                                    type: dojox.grid.cells.ComboBox,
+                                    options: cannedValues,
                                     formatter: function (value) {
                                         if (!value) {
                                             return "Enter new value";
@@ -3067,7 +3075,7 @@ define([
                 function updateTimeLastUpdated() {
                     var date = new Date();
                     dateLastModifiedField.set("value", FormatUtils.formatDate(date.getTime()));
-                };
+                }
 
                 var updateName = function (name) {
                     name = escapeString(name);
