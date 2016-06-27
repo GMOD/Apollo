@@ -29,7 +29,7 @@ This is most easily done by using [SDKMAN](http://sdkman.io/) (formerly GVM) whi
 grails for you. 
 
 1. `curl -s http://get.sdkman.io | bash`
-2. `sdk install grails 2.5.4`
+2. `sdk install grails 2.5.5`
 3. `sdk install gradle 2.11`
 4. `sdk install groovy`
 
@@ -42,7 +42,7 @@ Alternatively you can check it out from git as directly as follows:
 
 1. git clone https://github.com/GMOD/Apollo.git Apollo
 1. cd Apollo
-1. git checkout 2.0.3  # otherwise you will be getting the more active / less tested master branch
+1. git checkout 2.X.Y  # where X.Y is the tagged version you want from here: https://github.com/GMOD/Apollo/tags
 
 
 ### Verify install requirements
