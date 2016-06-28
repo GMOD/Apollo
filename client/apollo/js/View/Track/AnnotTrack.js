@@ -2606,8 +2606,6 @@ define([
                             attributes.newItem({tag: attribute.tag, value: attribute.value});
                         }
 
-                        var cellType =  dojox.grid.cells.ComboBox;
-                        //var cellType =  dojox.grid.cells.Select;
 
                         var attributeTableLayout = [{
                             cells: [
@@ -2615,7 +2613,8 @@ define([
                                     name: 'Tag',
                                     field: 'tag',
                                     width: '40%',
-                                    type: cellType,
+                                    type: dojox.grid.cells.ComboBox,
+                                    //type: dojox.grid.cells.Select,
                                     options: cannedKeys,
                                     formatter: function (tag) {
                                         if (!tag) {
@@ -2629,7 +2628,8 @@ define([
                                     name: 'Value',
                                     field: 'value',
                                     width: '60%',
-                                    type: cellType,
+                                    type: dojox.grid.cells.ComboBox,
+                                    //type: dojox.grid.cells.Select,
                                     options: cannedValues,
                                     formatter: function (value) {
                                         if (!value) {
