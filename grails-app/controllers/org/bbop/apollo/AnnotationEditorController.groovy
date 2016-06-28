@@ -515,11 +515,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 statusArray.add(status.value)
             }
         }
-        annotationInfoEditorConfig.put(FeatureStringEnum.HASDBXREFS.value, true);
-        annotationInfoEditorConfig.put(FeatureStringEnum.HASATTRIBUTES.value, true);
-        annotationInfoEditorConfig.put(FeatureStringEnum.HASPUBMEDIDS.value, true);
-        annotationInfoEditorConfig.put(FeatureStringEnum.HASGOIDS.value, true);
-        annotationInfoEditorConfig.put(FeatureStringEnum.HASCOMMENTS.value, true);
+        annotationInfoEditorConfig.put(FeatureStringEnum.HASDBXREFS.value, configWrapperService.hasDbxrefs());
+        annotationInfoEditorConfig.put(FeatureStringEnum.HASATTRIBUTES.value, configWrapperService.hasAttributes());
+        annotationInfoEditorConfig.put(FeatureStringEnum.HASPUBMEDIDS.value, configWrapperService.hasPubmedIds());
+        annotationInfoEditorConfig.put(FeatureStringEnum.HASGOIDS.value, configWrapperService.hasGoIds());
+        annotationInfoEditorConfig.put(FeatureStringEnum.HASCOMMENTS.value, configWrapperService.hasComments());
         JSONArray supportedTypes = new JSONArray();
         supportedTypes.add(FeatureStringEnum.DEFAULT.value)
         annotationInfoEditorConfig.put(FeatureStringEnum.SUPPORTED_TYPES.value, supportedTypes);
