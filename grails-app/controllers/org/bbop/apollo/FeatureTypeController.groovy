@@ -20,7 +20,7 @@ class FeatureTypeController {
     }
 
     def index(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
+        params.max = Math.min(max ?: 30, 200)
         respond FeatureType.list(params), model:[featureTypeInstanceCount: FeatureType.count()]
     }
 
