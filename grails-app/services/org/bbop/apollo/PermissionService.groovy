@@ -9,11 +9,13 @@ import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
+import org.bbop.apollo.authenticator.AuthenticatorService
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
+import org.omg.CORBA.Request
 
 import javax.servlet.http.HttpServletRequest
 
@@ -21,6 +23,8 @@ import javax.servlet.http.HttpServletRequest
 class PermissionService {
 
     def preferenceService
+    def usernamePasswordAuthenticatorService
+    def grailsApplication
 
     boolean isUserAdmin(User user) {
         if(user!=null) {
@@ -525,30 +529,36 @@ class PermissionService {
         return findHighestOrganismPermissionForCurrentUser(organism).rank >= permissionEnum.rank
     }
 
+    def authenticateWithToken(UsernamePasswordToken usernamePasswordToken,HttpServletRequest request){
+
+        def authentications = grailsApplication.config.apolloAuthentication
+        for (auth in authentications){
+            if(auth.active){
+                def authenticationService = (AuthenticatorService) grailsApplication.classLoader.loadClass(auth.className).newInstance()
+                if(authenticationService.authenticate(usernamePasswordToken,request)){
+                    log.info "Authenticated user ${usernamePasswordToken.username} using ${auth.name}"
+                    return true
+                }
+            }
+        }
+        log.warn "Failed to authenticate user ${usernamePasswordToken.username}"
+        return false
+    }
+
+
     /**
      * Verifies that "userId" matches userName for the secured session user
      * @param jsonObject
      * @return
      */
-    Boolean sameUser(JSONObject jsonObject) {
+    Boolean sameUser(JSONObject jsonObject,HttpServletRequest request) {
         // not sure if permissions with translate through or not
         Session session = SecurityUtils.subject.getSession(false)
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
-            def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
-            try {
-                Subject subject = SecurityUtils.getSubject();
-                session = subject.getSession(true);
-                subject.login(authToken)
-                if (!subject.authenticated) {
-                    log.error "Failed to authenticate user ${jsonObject.username}"
-                    return false
-                }
-            } catch (Exception ae) {
-                log.error("Problem authenticating: " + ae.fillInStackTrace())
-                return false
-            }
+            UsernamePasswordToken authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
+            authenticateWithToken(authToken,request)
         }
         else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
             jsonObject.username = SecurityUtils?.subject?.principal

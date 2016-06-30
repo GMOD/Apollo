@@ -340,6 +340,19 @@ apollo {
 
 }
 
+apolloAuthentication {
+    ["name":"Username Password Authenticator",
+     "className":"org.bbop.apollo.authenticator.UsernamePasswordAuthenticatorService",
+     "active":true,
+     "params":[]
+    ]
+    ["name":"Remote User Authenticator",
+     "className":"org.bbop.apollo.authenticator.RemoteUserAuthenticationService",
+     "active":false,
+     "params":[]
+    ]
+}
+
 grails.plugin.databasemigration.updateOnStart = true
 grails.plugin.databasemigration.updateOnStartFileNames = ['changelog.groovy']
 
@@ -351,6 +364,8 @@ auditLog {
     logIds = true  // log db-ids of associated objects.
 
 }
+
+
 
 // Default JBrowse configuration 
 jbrowse {

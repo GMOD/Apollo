@@ -9,7 +9,8 @@ import org.apache.shiro.web.util.WebUtils
 class AuthController {
 
 
-    def shiroSecurityManager
+//    def shiroSecurityManager
+    def permissionService
 
     def index = { redirect(action: "login", params: params) }
 

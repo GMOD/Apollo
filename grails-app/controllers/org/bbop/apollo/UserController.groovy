@@ -360,7 +360,7 @@ class UserController {
         try {
             log.info "Updating user"
             JSONObject dataObject = permissionService.handleInput(request, params)
-            if (!permissionService.sameUser(dataObject) && !permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.sameUser(dataObject,request) && !permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
