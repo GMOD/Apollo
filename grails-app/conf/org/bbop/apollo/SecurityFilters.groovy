@@ -39,7 +39,9 @@ class SecurityFilters {
                             if (req.username && req.password) {
                                 def authToken = new UsernamePasswordToken(req.username, req.password)
                                 subject.login(authToken)
-                                redirect(uri: params.targetUri)
+                                if(params.targetUri){
+                                    redirect(uri: params.targetUri)
+                                }
                                 return true
                             } else {
                                 log.warn "username/password not submitted"
