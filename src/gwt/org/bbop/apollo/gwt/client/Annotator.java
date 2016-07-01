@@ -18,6 +18,7 @@ import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +31,8 @@ public class Annotator implements EntryPoint {
     public static EventBus eventBus = GWT.create(SimpleEventBus.class);
     private static Storage preferenceStore = Storage.getSessionStorageIfSupported();
     private static Map<String,String> backupPreferenceStore = new HashMap<>();
+
+    // check the session once a minute
     private static Integer DEFAULT_PING_TIME = 60000;
 
     /**
@@ -75,6 +78,10 @@ public class Annotator implements EntryPoint {
 
     static void startSessionTimer(int i) {
         Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
+
+            private Boolean keepGoing = true ;
+            private Boolean confirmOpen = false ;
+
             @Override
             public boolean execute() {
                 if(MainPanel.hasCurrentUser()){
@@ -86,18 +93,30 @@ public class Annotator implements EntryPoint {
                                 GWT.log("Still connected");
                             }
                             else{
-                                Bootbox.alert("Server connection lost or logged out.");
-                                Window.Location.reload();
+                                if(!confirmOpen){
+                                    confirmOpen = true ;
+                                    Bootbox.confirm("Logged out or server failure.  Attempt to reconnect", new ConfirmCallback() {
+                                        @Override
+                                        public void callback(boolean result) {
+                                            if(result){
+                                                Window.Location.reload();
+                                            }
+
+                                            confirmOpen = false ;
+                                        }
+                                    });
+                                }
                             }
                         }
 
                         @Override
                         public void onError(Request request, Throwable exception) {
+                            Window.alert("failed to connect: "+exception.toString());
                             Bootbox.alert("Error: "+exception);
                         }
                     },"annotator/ping");
 
-                    return true ;
+                    return keepGoing ;
                 }
                 else{
                     return false;

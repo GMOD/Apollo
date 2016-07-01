@@ -436,7 +436,7 @@ class AnnotatorController {
     }
 
     def ping(){
-        if (!permissionService.checkPermissions(PermissionEnum.READ)) {
+        if (permissionService.checkPermissions(PermissionEnum.READ)) {
             log.debug("permissions checked and alive")
             render new JSONObject() as JSON
         }
