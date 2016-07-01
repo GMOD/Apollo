@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurper
 
-@Grab(group='org.codehaus.groovy', module='groovy-json', version='2.4.6')
+@Grab(group='org.codehaus.groovy', module='groovy-json', version='2.4.7')
 
 
 
@@ -22,7 +22,8 @@ static Object getSampleFeatures(){
 //    String jsonArrayString = "[{\"location\":{\"fmin\":1077584,\"fmax\":1077828,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40842-RA\",\"children\":[{\"location\":{\"fmin\":1077584,\"fmax\":1077828,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}]"
 //    String jsonArrayString = "[{\"location\":{\"fmin\":524298,\"fmax\":572691,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40818-RA\",\"children\":[{\"location\":{\"fmin\":524298,\"fmax\":524303,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":572204,\"fmax\":572691,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":524298,\"fmax\":525125,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":526023,\"fmax\":526249,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":532689,\"fmax\":532805,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":536610,\"fmax\":536847,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":539048,\"fmax\":539200,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":553190,\"fmax\":553407,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":556835,\"fmax\":556997,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":557487,\"fmax\":557685,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":558584,\"fmax\":558694,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":561618,\"fmax\":561953,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":566512,\"fmax\":566761,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":568097,\"fmax\":568401,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":572026,\"fmax\":572691,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":524303,\"fmax\":572204,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}]"
 
-	def jsonArray = new JsonSlurper().parseText(jsonArrayString)
+    def jsonArray = new JsonSlurper().parseText(jsonArrayString)
+//	def jsonArray = new JsonSlurper().parseText("[{\"name\":\"asdf\"}]")
 
     return jsonArray
 }
