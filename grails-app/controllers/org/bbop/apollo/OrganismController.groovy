@@ -42,7 +42,7 @@ class OrganismController {
     @Transactional
     def deleteOrganism() {
         try {
-            JSONObject organismJson = (request.JSON ?: JSON.parse(params.data.toString())) as JSONObject
+            JSONObject organismJson = permissionService.handleInput(request, params)
             log.debug "deleteOrganism ${organismJson}"
             if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
 
@@ -78,7 +78,7 @@ class OrganismController {
     ])
     @Transactional
     def deleteOrganismFeatures() {
-        JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
+        JSONObject organismJson = permissionService.handleInput(request, params)
         if (organismJson.username == "" || organismJson.organism == "" || organismJson.password == "") {
             def error = ['error': 'Empty fields in request JSON']
             render error as JSON
@@ -172,7 +172,7 @@ class OrganismController {
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Common name or ID for the organism")
     ])
     def getSequencesForOrganism() {
-        JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
+        JSONObject organismJson = permissionService.handleInput(request, params)
         if (organismJson.username == "" || organismJson.organism == "" || organismJson.password == "") {
             render (['error': 'Empty fields in request JSON'] as JSON)
             return
@@ -282,7 +282,8 @@ class OrganismController {
     ])
     def findAllOrganisms() {
         try {
-            JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
+//            JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
+            JSONObject organismJson = permissionService.handleInput(request,params)
             List<Organism> organismList = []
 
             if(organismJson.organism) {
