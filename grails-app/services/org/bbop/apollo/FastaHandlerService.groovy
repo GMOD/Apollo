@@ -74,7 +74,7 @@ public class FastaHandlerService {
         }
     }
     
-    public void writeFeatures(Collection<Feature> features, String seqType, Set<String> metaDataToExport, String path, Mode mode, Format format,String region) throws IOException {
+    public void writeFeatures(Collection<Feature> features, String seqType, Set<String> metaDataToExport, String path, Mode mode, Format format,String region = null ) throws IOException {
         this.mode = mode
         file = new File(path)
         file.createNewFile()
