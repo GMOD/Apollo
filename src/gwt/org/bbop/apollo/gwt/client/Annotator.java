@@ -69,11 +69,11 @@ public class Annotator implements EntryPoint {
         exportStaticMethod();
     }
 
-    protected static void startSessionTimer() {
+    static void startSessionTimer() {
         startSessionTimer(DEFAULT_PING_TIME);
     }
 
-    protected static void startSessionTimer(int i) {
+    static void startSessionTimer(int i) {
         Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
             @Override
             public boolean execute() {
@@ -81,7 +81,14 @@ public class Annotator implements EntryPoint {
                     RestService.sendRequest(new RequestCallback() {
                         @Override
                         public void onResponseReceived(Request request, Response response) {
-                            GWT.log("Still connected");
+                            int statusCode = response.getStatusCode();
+                            if(statusCode==200){
+                                GWT.log("Still connected");
+                            }
+                            else{
+                                Bootbox.alert("Server connection lost or logged out.");
+                                Window.Location.reload();
+                            }
                         }
 
                         @Override
