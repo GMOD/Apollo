@@ -998,13 +998,29 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             log.debug "input json feature ${jsonFeature}"
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            JSONObject newFeature = featureService.convertFeatureToJSON(feature, false)
+//            JSONObject newFeature = featureService.convertFeatureToJSON(feature, false)
+            JSONObject newFeature = new JSONObject()
 
-            if (feature.symbol) newFeature.put(FeatureStringEnum.SYMBOL.value, feature.symbol)
-            if (feature.description) newFeature.put(FeatureStringEnum.DESCRIPTION.value, feature.description)
+            if (feature.symbol) {
+                newFeature.put(FeatureStringEnum.SYMBOL.value, feature.symbol)
+            }
+            if (feature.description){
+                newFeature.put(FeatureStringEnum.DESCRIPTION.value, feature.description)
+            }
 
-            jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, feature.dateCreated.time);
-            jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
+            jsonFeature.put(FeatureStringEnum.ID.value, feature.id);
+            if (feature.getName() != null) {
+                newFeature.put(FeatureStringEnum.NAME.value, feature.getName());
+            }
+            newFeature.put(FeatureStringEnum.ID.value, feature.id)
+            newFeature.put(FeatureStringEnum.OWNER.value, featureService.generateOwnerString(feature));
+            newFeature.put(FeatureStringEnum.DATE_CREATION.value, feature.dateCreated.time);
+            newFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
+            newFeature.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(feature.ontologyId));
+
+            if (feature.featureLocation) {
+                newFeature.put(FeatureStringEnum.SEQUENCE.value, feature.featureLocation.sequence.name);
+            }
 
             if (AvailableStatus.count > 0 && feature.status) {
                 newFeature.put(FeatureStringEnum.STATUS.value, feature.status.value)
