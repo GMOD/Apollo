@@ -424,7 +424,19 @@ return declare( [JBPlugin, HelpMixin],
                 {
                     innerHTML: "Show Annotator Panel",
                     onClick: function () {
-                        window.location.href = '../../';
+                        // http://asdfasfasdf/asfsdf/asdfasdf/apollo/1315746673267340807380563276/jbrowse/index.html?loc=Group9.10%3A501752..501878&highlight=&tracklist=1&tracks=DNA%2CAnnotations&nav=1&overview=1
+                        // to
+                        // /apollo/annotator/loadLink?loc=Group9.10:501765..501858&organism=16&tracks=&clientToken=1315746673267340807380563276
+                        var hrefString = window.location.href;
+                        var jbrowseString = "/jbrowse/index.html?";
+                        var jbrowseIndex = hrefString.indexOf(jbrowseString);
+                        var params = hrefString.substring(jbrowseIndex + jbrowseString.length);
+                        var clientToken = webapollo.getAnnotTrack().getClientToken();
+                        var finalString =  "../../annotator/loadLink?"+params + "&clientToken=" + clientToken ;
+                        var v = confirm(finalString);
+                        if(v){
+                            window.location.href = finalString;
+                        }
                     }
                 });
             this.browser.menuBar.appendChild( annotatorButton.domNode );
