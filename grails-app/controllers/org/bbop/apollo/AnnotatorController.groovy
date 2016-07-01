@@ -434,4 +434,15 @@ class AnnotatorController {
         }
         render view:"detail", model:[annotatorInstance:reportService.generateAnnotatorSummary(user)]
     }
+
+    def ping(){
+        if (!permissionService.checkPermissions(PermissionEnum.READ)) {
+            log.debug("permissions checked and alive")
+            render new JSONObject() as JSON
+        }
+        else{
+            log.error("User does not have permissions for the site")
+            redirect(uri: "/auth/login")
+        }
+    }
 }
