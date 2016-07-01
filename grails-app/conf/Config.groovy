@@ -289,12 +289,21 @@ apollo {
             permission : 1,
             key : "cDNA",
             options : "output=file&format=gzip&type=FASTA&seqType=cdna"
-        ],
+        ]
+        ,
         [
             permission : 1,
             key : "CDS",
             options : "output=file&format=gzip&type=FASTA&seqType=cds"
-        ]]
+        ]
+        ,
+        [
+                permission : 1,
+                key : "Highlighted Genome",
+                options : "output=file&format=gzip&type=FASTA&seqType=genomic"
+        ]
+        ]
+
     ]]
     
 

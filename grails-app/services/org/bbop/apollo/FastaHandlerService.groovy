@@ -74,7 +74,7 @@ public class FastaHandlerService {
         }
     }
     
-    public void writeFeatures(Collection<Feature> features, String seqType, Set<String> metaDataToExport, String path, Mode mode, Format format) throws IOException {
+    public void writeFeatures(Collection<Feature> features, String seqType, Set<String> metaDataToExport, String path, Mode mode, Format format,String region) throws IOException {
         this.mode = mode
         file = new File(path)
         file.createNewFile()
@@ -97,12 +97,12 @@ public class FastaHandlerService {
             }
             
         }
-        writeFeatures(features.iterator(), seqType, metaDataToExport);
+        writeFeatures(features.iterator(), seqType, metaDataToExport,region);
         out.flush()
         out.close()
     }
     
-    public void writeFeatures(Iterator<? extends Feature> iterator, String seqType, Set<String> metaDataToExport) throws IOException {
+    public void writeFeatures(Iterator<? extends Feature> iterator, String seqType, Set<String> metaDataToExport,String region) throws IOException {
         if (mode != Mode.WRITE) {
             throw new IOException("Cannot write to file in READ mode");
         }
