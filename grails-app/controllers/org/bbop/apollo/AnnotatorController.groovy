@@ -48,7 +48,7 @@ class AnnotatorController {
                 clientToken = ClientTokenGenerator.generateRandomString()
                 println 'generating client token on the backend: '+clientToken
             }
-            Organism organism = Organism.findById(params.organism as Long)
+            Organism organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
             log.debug "loading organism: ${organism}"
             preferenceService.setCurrentOrganism(permissionService.currentUser, organism,clientToken)
             if (params.loc) {
