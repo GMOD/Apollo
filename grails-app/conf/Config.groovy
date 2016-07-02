@@ -343,12 +343,12 @@ apollo {
 apolloAuthentication {
     ["name":"Username Password Authenticator",
      "className":"org.bbop.apollo.authenticator.UsernamePasswordAuthenticatorService",
-     "active":true,
+     "active":false,
      "params":[]
     ]
     ["name":"Remote User Authenticator",
      "className":"org.bbop.apollo.authenticator.RemoteUserAuthenticationService",
-     "active":false,
+     "active":true,
      "params":[]
     ]
 }

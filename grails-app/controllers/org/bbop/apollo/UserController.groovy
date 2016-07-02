@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.crypto.hash.Sha256Hash
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -145,8 +146,26 @@ class UserController {
     @Transactional
     def checkLogin() {
         def currentUser = permissionService.currentUser
-        if (currentUser) {
 
+
+        // grab from session
+        if(!currentUser){
+            def authToken  = null
+            if(request.getParameter("username")){
+                String username = request.getParameter("username")
+                String password = request.getParameter("password")
+                authToken = new UsernamePasswordToken(username, password)
+            }
+
+            if(permissionService.authenticateWithToken(authToken,request)){
+                currentUser = permissionService.currentUser
+            }
+            else{
+                log.error("Failed to authenticate")
+            }
+        }
+
+        if (currentUser) {
             UserOrganismPreference userOrganismPreference
             try {
                 // sets it by default
@@ -154,7 +173,6 @@ class UserController {
             } catch (e) {
                 log.error(e)
             }
-
 
             def userObject = userService.convertUserToJson(currentUser)
 

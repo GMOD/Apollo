@@ -18,6 +18,7 @@ class RemoteUserAuthenticatorService implements AuthenticatorService{
     //    @Override
     def authenticate(UsernamePasswordToken authToken,HttpServletRequest request) {
         try {
+            request.putAt("REMOTE_USER","abcd@123.com")
             String remoteUser = request.getHeader("REMOTE_USER")
             authToken.username = remoteUser
             User user = User.findByUsername(authToken.username)
