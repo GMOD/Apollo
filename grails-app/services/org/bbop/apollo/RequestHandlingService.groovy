@@ -183,7 +183,6 @@ class RequestHandlingService {
                     DBXref dbXref = DBXref.findByAccessionAndDb(accessionString, db)
                     if (dbXref) {
                         feature.removeFromFeatureDBXrefs(dbXref)
-                        DBXref.deleteAll(dbXref)
                         feature.save(failOnError: true)
                     }
                 }
