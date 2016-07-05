@@ -95,7 +95,7 @@ public class Annotator implements EntryPoint {
                             else{
                                 if(!confirmOpen){
                                     confirmOpen = true ;
-                                    Bootbox.confirm("Logged out or server failure.  Attempt to reconnect", new ConfirmCallback() {
+                                    Bootbox.confirm("Logged out or server failure.  Attempt to reconnect?", new ConfirmCallback() {
                                         @Override
                                         public void callback(boolean result) {
                                             if(result){
