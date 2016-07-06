@@ -9,28 +9,6 @@ class FastaHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     def requestHandlingService 
     def fastaHandlerService
-    def projectionService
-
-    def setup() {
-//        Organism organism = new Organism(
-//                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-//                , commonName: "honeybee"
-//        ).save(flush: true)
-//        Sequence sequence = new Sequence(
-//                length: 1405242
-//                , seqChunkSize: 20000
-//                , start: 0
-//                , organism: organism
-//                , end: 1405242
-//                , name: "Group1.10"
-//        ).save()
-        setupDefaultUserOrg()
-        projectionService.clearProjections()
-    }
-
-    def cleanup() {
-    }
-
 
     void "write a fasta of a simple gene model"() {
         given: "we create a new gene"

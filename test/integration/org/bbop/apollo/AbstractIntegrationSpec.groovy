@@ -17,6 +17,12 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class AbstractIntegrationSpec extends IntegrationSpec{
 
     def shiroSecurityManager
+    def projectionService
+
+    def setup(){
+       setupDefaultUserOrg()
+       projectionService.clearProjections()
+    }
 
     String password = "testPass"
     String passwordHash = new Sha256Hash(password).toHex()
@@ -26,6 +32,9 @@ class AbstractIntegrationSpec extends IntegrationSpec{
     }
 
     def setupDefaultUserOrg(){
+        if(User.findByUsername('test@test.com')){
+            return
+        }
 
         User testUser = new User(
                 username: 'test@test.com'

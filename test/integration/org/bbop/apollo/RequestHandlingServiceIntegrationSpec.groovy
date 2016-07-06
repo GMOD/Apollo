@@ -15,15 +15,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     def exonService
     def cdsService
     def sequenceService
-    def projectionService
-
-    def setup() {
-        setupDefaultUserOrg()
-        projectionService.clearProjections()
-    }
-
-    def cleanup() {
-    }
 
     void "add transcript with UTR"() {
 

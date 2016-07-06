@@ -14,30 +14,6 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
     def requestHandlingService
     def sequenceService
     def exonService
-    def projectionService
-
-
-
-    def setup() {
-        setupDefaultUserOrg()
-        projectionService.clearProjections()
-//        Organism organism = new Organism(
-//                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-//                ,commonName: "sampleAnimal"
-//        ).save(flush: true)
-//
-//        Sequence sequence = new Sequence(
-//                length: 1405242
-//                ,seqChunkSize: 20000
-//                ,start: 0
-//                ,end: 1405242
-//                ,organism: organism
-//                ,name: "Group1.10"
-//        ).save(flush: true)
-    }
-
-    def cleanup() {
-    }
 
     void "add a simple gene model to get its sequence and a valid GFF3"() {
         

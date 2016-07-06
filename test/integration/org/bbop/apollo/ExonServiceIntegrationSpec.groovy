@@ -3,7 +3,7 @@ package org.bbop.apollo
 import grails.test.spock.IntegrationSpec
 import org.bbop.apollo.sequence.Strand
 
-class ExonServiceIntegrationSpec extends IntegrationSpec {
+class ExonServiceIntegrationSpec extends AbstractIntegrationSpec{
     
     def exonService
 
@@ -15,9 +15,6 @@ class ExonServiceIntegrationSpec extends IntegrationSpec {
                 ,end: 8
                 ,name: "Group1.10"
         ).save()
-    }
-
-    def cleanup() {
     }
 
     void "merge to exons for a transcript"() {

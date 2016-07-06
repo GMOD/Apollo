@@ -9,10 +9,9 @@ import spock.lang.Ignore
 class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     def trackService
-    def projectionService
 
     def setup() {
-        setupDefaultUserOrg()
+
         Organism organism = Organism.first()
         organism.directory = "test/integration/resources/sequences/honeybee-tracks/"
         organism.save(failOnError: true, flush: true)
@@ -34,10 +33,6 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
                 , organism: organism
                 , name: "GroupUn87"
         ).save(failOnError: true)
-        projectionService.clearProjections()
-    }
-
-    def cleanup() {
     }
 
     /**

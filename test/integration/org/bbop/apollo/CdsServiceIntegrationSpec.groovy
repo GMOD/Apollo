@@ -10,17 +10,8 @@ class CdsServiceIntegrationSpec extends AbstractIntegrationSpec{
     def sequenceService
     def requestHandlingService
     def transcriptService
-    def projectionService
 
 
-    def setup() {
-        setupDefaultUserOrg()
-        projectionService.clearProjections()
-    }
-
-    def cleanup() {
-    }
-    
     void "adding a gene model, a stop codon readthrough and getting its modified sequence"() {
 
         given: "a gene model with 1 mRNA, 3 exons, and UTRs"

@@ -10,9 +10,19 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     def requestHandlingService
-    def projectionService
     def exonService
     def featureEventService
+
+    def setup() {
+        FeatureEvent.deleteAll(FeatureEvent.all)
+        Feature.deleteAll(Feature.all)
+    }
+
+    def cleanup() {
+        FeatureEvent.deleteAll(FeatureEvent.all)
+        Feature.deleteAll(Feature.all)
+    }
+
 
     protected JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
         JSONObject jsonFeatureContainer = new JSONObject();
@@ -22,18 +32,6 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
             jsonFeatures.put(feature);
         }
         return jsonFeatureContainer;
-    }
-
-    def setup() {
-        FeatureEvent.deleteAll(FeatureEvent.all)
-        Feature.deleteAll(Feature.all)
-        setupDefaultUserOrg()
-        projectionService.clearProjections()
-    }
-
-    def cleanup() {
-        FeatureEvent.deleteAll(FeatureEvent.all)
-        Feature.deleteAll(Feature.all)
     }
 
     void "we can undo and redo a transcript split"() {

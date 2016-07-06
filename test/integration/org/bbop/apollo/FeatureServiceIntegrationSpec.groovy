@@ -10,18 +10,10 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     def featureService
     def bookmarkService
-    def projectionService
     def transcriptService
     def requestHandlingService
     def featureRelationshipService
 
-    def setup() {
-        setupDefaultUserOrg()
-        projectionService.clearProjections()
-    }
-
-    def cleanup() {
-    }
 
     void "convert JSON to Features"() {
 

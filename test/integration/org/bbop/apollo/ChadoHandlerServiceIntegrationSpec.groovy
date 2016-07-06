@@ -16,15 +16,6 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec {
     def requestHandlingService
     def featureRelationshipService
     def configWrapperService
-    def projectionService
-
-    def setup() {
-        setupDefaultUserOrg()
-        projectionService.clearProjections()
-    }
-
-    def cleanup() {
-    }
 
     void "test CHADO export for standard annotations"() {
         /*

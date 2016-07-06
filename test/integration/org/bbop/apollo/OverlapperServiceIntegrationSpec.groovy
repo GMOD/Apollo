@@ -8,27 +8,6 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class OverlapperServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     def requestHandlingService
-    def projectionService
-
-    def setup() {
-        setupDefaultUserOrg()
-        projectionService.clearProjections()
-//        Organism organism = new Organism(
-//                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-//                , commonName: "sampleAnimal"
-//        ).save(flush: true)
-//        Sequence sequence = new Sequence(
-//                length: 1405242
-//                , seqChunkSize: 20000
-//                , start: 0
-//                , organism: organism
-//                , end: 1405242
-//                , name: "Group1.10"
-//        ).save()
-    }
-    
-    def cleanup() {
-    }
 
     void "isoform overlap test for GB40772-RA loci"() {
 

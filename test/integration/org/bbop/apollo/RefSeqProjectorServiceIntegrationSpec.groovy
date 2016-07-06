@@ -8,7 +8,6 @@ import spock.lang.Ignore
 class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     def refSeqProjectorService
-    def projectionService
 
     String un87StartSequence = "ATGCACTGTCAACGTACACGGG" // starts at 0
     String un87EndSequence = "AAAACATAA" // starts at 0
@@ -18,7 +17,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
     Integer elevenFourLength = 15734
 
     def setup() {
-        setupDefaultUserOrg()
+
         Organism organism = Organism.first()
         organism.directory = "test/integration/resources/sequences/honeybee-tracks/"
         organism.save(failOnError: true, flush: true)
@@ -40,7 +39,6 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
                 , organism: organism
                 , name: "GroupUn87"
         ).save(failOnError: true)
-        projectionService.clearProjections()
     }
 
     def cleanup() {

@@ -9,12 +9,6 @@ class Gff3HandlerServiceIntegrationSpec extends AbstractIntegrationSpec {
     def gff3HandlerService
     def requestHandlingService
 
-    def setup() {
-        setupDefaultUserOrg()
-    }
-
-    def cleanup() {
-    }
 
     void "write a GFF3 of a simple gene model"() {
 

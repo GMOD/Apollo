@@ -11,7 +11,6 @@ import java.nio.file.Path
 class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     def bigwigService
-    def projectionService
 
     String bigwigFile = "test/integration/resources/sequences/honeybee-bigwig/forager-small.bw"
 
