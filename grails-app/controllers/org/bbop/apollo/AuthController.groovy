@@ -41,10 +41,12 @@ class AuthController {
             // Perform the actual login. An AuthenticationException
             // will be thrown if the username is unrecognised or the
             // password is incorrect.
-            SecurityUtils.subject.login(authToken)
-
-            log.info "Redirecting to '${targetUri}'."
-            redirect(uri: targetUri)
+            permissionService.authenticateWithToken(authToken,request)
+//            SecurityUtils.subject.login(authToken)
+            if(targetUri){
+                log.info "Redirecting to '${targetUri}'."
+                redirect(uri: targetUri)
+            }
         }
         catch (AuthenticationException ex){
             // Authentication failed, so display the appropriate message

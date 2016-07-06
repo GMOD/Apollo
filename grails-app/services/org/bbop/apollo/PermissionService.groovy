@@ -406,6 +406,11 @@ class PermissionService {
         return highestValue
     }
 
+    /**
+     * This method validates after logged in, so it *should* not need a special authenticator.
+     * @param jsonObject
+     * @return
+     */
     JSONObject validateSessionForJsonObject(JSONObject jsonObject) {
         // not sure if permissions with translate through or not
         Session session = SecurityUtils.subject.getSession(false)
@@ -416,6 +421,7 @@ class PermissionService {
             try {
                 Subject subject = SecurityUtils.getSubject();
                 session = subject.getSession(true);
+
                 subject.login(authToken)
                 if (!subject.authenticated) {
                     log.error "Failed to authenticate user ${jsonObject.username}"
@@ -537,6 +543,12 @@ class PermissionService {
                 if(usernamePasswordAuthenticatorService == auth.className ){
                     authenticationService = usernamePasswordAuthenticatorService
                 }
+                else{
+                    log.error("No authentication service for ${auth.className}")
+                    // better to return false if mis-configured
+                    return false
+                }
+
                 if(usernamePasswordToken){
                     if (authenticationService.authenticate(usernamePasswordToken, request)) {
                         log.info "Authenticated user ${usernamePasswordToken.username} using ${auth.name}"
