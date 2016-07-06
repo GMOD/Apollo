@@ -19,11 +19,12 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
 
             // TODO: remove .. . . testing only
             String remoteUser
-            if (!request.getHeader(FeatureStringEnum.REMOTE_USER.value)) {
-                remoteUser = "abcd@123.com"
-            } else {
-                remoteUser = request.getHeader(FeatureStringEnum.REMOTE_USER.value)
-            }
+//            if (!request.getHeader(FeatureStringEnum.REMOTE_USER.value)) {
+//                remoteUser = "abcd@123.com"
+//            } else {
+    //            remoteUser = request.getHeader(FeatureStringEnum.REMOTE_USER.value)
+//            }
+            remoteUser = request.getHeader(FeatureStringEnum.REMOTE_USER.value)
             if (!remoteUser) {
                 log.warn("No remote user passed in header!")
                 return false
