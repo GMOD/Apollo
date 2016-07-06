@@ -1,8 +1,6 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.test.spock.IntegrationSpec
-import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 class OverlapperServiceIntegrationSpec extends AbstractIntegrationSpec{

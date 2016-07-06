@@ -1,8 +1,6 @@
 package org.bbop.apollo
 
-import grails.test.spock.IntegrationSpec
 import grails.converters.JSON
-import org.bbop.apollo.gwt.shared.PermissionEnum
 
 class Gff3HandlerServiceIntegrationSpec extends AbstractIntegrationSpec {
    

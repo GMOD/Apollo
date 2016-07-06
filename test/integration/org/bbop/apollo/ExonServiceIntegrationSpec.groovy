@@ -1,6 +1,5 @@
 package org.bbop.apollo
 
-import grails.test.spock.IntegrationSpec
 import org.bbop.apollo.sequence.Strand
 
 class ExonServiceIntegrationSpec extends AbstractIntegrationSpec{
