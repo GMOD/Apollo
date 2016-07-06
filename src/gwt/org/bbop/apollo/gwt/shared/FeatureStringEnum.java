@@ -61,6 +61,7 @@ public enum FeatureStringEnum {
         NAME,
         GENE_NAME,
         VALUE,
+        REMOTE_USER("REMOTE_USER"),
         CV,
         SEQUENCE,
         TRACK,

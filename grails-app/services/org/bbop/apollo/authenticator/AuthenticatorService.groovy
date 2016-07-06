@@ -10,5 +10,6 @@ import javax.servlet.http.HttpServletRequest
  */
 interface AuthenticatorService {
 
+    def authenticate(HttpServletRequest request)
     def authenticate(UsernamePasswordToken usernamePasswordToken,HttpServletRequest request)
 }

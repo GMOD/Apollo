@@ -11,6 +11,12 @@ import javax.servlet.http.HttpServletRequest
 @Transactional
 class UsernamePasswordAuthenticatorService implements AuthenticatorService{
 
+    @Override
+    def authenticate(HttpServletRequest request) {
+        log.error("Not implemented without a token")
+        return false
+    }
+
     def authenticate(UsernamePasswordToken authToken, HttpServletRequest request) {
         try {
             Subject subject = SecurityUtils.getSubject();

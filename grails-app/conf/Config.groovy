@@ -338,20 +338,21 @@ apollo {
     // comment out if you don't want this to be reported
     google_analytics = "UA-62921593-1"
 
+    authentications = [
+        ["name":"Remote User Authenticator",
+         "className":"remoteUserAuthenticatorService",
+         "active":true,
+         "params":[]
+        ]
+        ,
+        ["name":"Username Password Authenticator",
+         "className":"usernamePasswordAuthenticatorService",
+         "active":false,
+         "params":[]
+        ]
+    ]
 }
 
-apolloAuthentication {
-    ["name":"Username Password Authenticator",
-     "className":"org.bbop.apollo.authenticator.UsernamePasswordAuthenticatorService",
-     "active":false,
-     "params":[]
-    ]
-    ["name":"Remote User Authenticator",
-     "className":"org.bbop.apollo.authenticator.RemoteUserAuthenticationService",
-     "active":true,
-     "params":[]
-    ]
-}
 
 grails.plugin.databasemigration.updateOnStart = true
 grails.plugin.databasemigration.updateOnStartFileNames = ['changelog.groovy']
