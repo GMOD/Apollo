@@ -536,11 +536,11 @@ class PermissionService {
             if (auth.active) {
                 println "class name ${auth.className}"
                 def authenticationService
-                if(remoteUserAuthenticatorService == auth.className ){
+                if("remoteUserAuthenticatorService" == auth.className ){
                     authenticationService = remoteUserAuthenticatorService
                 }
                 else
-                if(usernamePasswordAuthenticatorService == auth.className ){
+                if("usernamePasswordAuthenticatorService" == auth.className ){
                     authenticationService = usernamePasswordAuthenticatorService
                 }
                 else{

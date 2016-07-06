@@ -341,13 +341,13 @@ apollo {
     authentications = [
         ["name":"Remote User Authenticator",
          "className":"remoteUserAuthenticatorService",
-         "active":true,
+         "active":false,
          "params":[]
         ]
         ,
         ["name":"Username Password Authenticator",
          "className":"usernamePasswordAuthenticatorService",
-         "active":false,
+         "active":true,
          "params":[]
         ]
     ]
