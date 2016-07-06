@@ -24,11 +24,13 @@
 			<thead>
 					<tr>
 					
-						<g:sortableColumn property="name" title="${message(code: 'featureType.name.label', default: 'Display')}" />
-					
+						<g:sortableColumn property="name" title="${message(code: 'featureType.name.label', default: 'Name')}" />
+
+						<g:sortableColumn property="display" title="${message(code: 'featureType.display.label', default: 'Display')}" />
+
 						<g:sortableColumn property="ontologyId" title="${message(code: 'featureType.ontologyId.label', default: 'Ontology Id')}" />
-					
-						%{--<g:sortableColumn property="type" title="${message(code: 'featureType.type.label', default: 'Type')}" />--}%
+
+						<g:sortableColumn property="type" title="${message(code: 'featureType.type.label', default: 'Type')}" />
 						<th>Filter</th>
 					
 					</tr>
@@ -38,9 +40,11 @@
 					<tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
 					
 						<td><g:link action="show" id="${featureTypeInstance.id}">${fieldValue(bean: featureTypeInstance, field: "display")}</g:link></td>
-					
+
+						<td>${fieldValue(bean: featureTypeInstance, field: "display")}</td>
 						<td>${fieldValue(bean: featureTypeInstance, field: "ontologyId")}</td>
-					
+						<td>${fieldValue(bean: featureTypeInstance, field: "type")}</td>
+
 						<td>${fieldValue(bean: featureTypeInstance, field: "type")}:${featureTypeInstance.name}</td>
 					
 					</tr>

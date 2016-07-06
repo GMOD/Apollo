@@ -1587,8 +1587,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
         long start = System.currentTimeMillis();
-        String finalOwnerString = ""
         if (depth <= 1) {
+            String finalOwnerString
             if (gsolFeature.owners) {
                 String ownerString = ""
                 for (owner in gsolFeature.owners) {
@@ -1627,6 +1627,22 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time);
         return jsonFeature;
     }
+
+    String generateOwnerString(Feature feature){
+        String finalOwnerString
+        if (feature.owners) {
+            String ownerString = ""
+            for (owner in feature.owners) {
+                ownerString += feature.owner.username + " "
+            }
+            finalOwnerString = ownerString?.trim()
+        } else if (feature.owner) {
+            finalOwnerString = feature?.owner?.username
+        } else {
+            finalOwnerString = "None"
+        }
+    }
+
     /**
      * @param gsolFeature
      * @param includeSequence
@@ -1650,18 +1666,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
         long start = System.currentTimeMillis();
-        String finalOwnerString = ""
-        if (gsolFeature.owners) {
-            String ownerString = ""
-            for (owner in gsolFeature.owners) {
-                ownerString += gsolFeature.owner.username + " "
-            }
-            finalOwnerString = ownerString?.trim()
-        } else if (gsolFeature.owner) {
-            finalOwnerString = gsolFeature?.owner?.username
-        } else {
-            finalOwnerString = "None"
-        }
+        String finalOwnerString = generateOwnerString(gsolFeature)
         jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
 
         long durationInMilliseconds = System.currentTimeMillis() - start;

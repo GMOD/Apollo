@@ -387,6 +387,7 @@ public class MainPanel extends Composite {
                         getAppState();
                         logoutButton.setVisible(true);
                         currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
+                        Annotator.startSessionTimer();
                         if (returnValue.containsKey("tracklist")) {
                             MainPanel.useNativeTracklist = returnValue.get("tracklist").isBoolean().booleanValue();
                         } else {
@@ -828,8 +829,8 @@ public class MainPanel extends Composite {
     @UiHandler("generateLink")
     public void toggleLink(ClickEvent clickEvent) {
         String text = "";
-        String publicUrl = generatePublicUrl();
-        String apolloUrl = generateApolloUrl();
+        String publicUrl = URL.encode(generatePublicUrl());
+        String apolloUrl = URL.encode(generateApolloUrl());
         text += "<div style='margin-left: 10px;'>";
         text += "<ul>";
         text += "<li>";
@@ -1013,6 +1014,10 @@ public class MainPanel extends Composite {
             return "{}";
         }
         return BookmarkInfoConverter.convertBookmarkInfoToJSONObject(currentBookmark).toString();
+    }
+
+    public static boolean hasCurrentUser() {
+        return currentUser!=null ;
     }
 
     public static String getCurrentUserAsJson() {

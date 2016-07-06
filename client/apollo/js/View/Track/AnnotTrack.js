@@ -2656,6 +2656,8 @@ define([
                             var attribute = feature.non_reserved_properties[i];
                             attributes.newItem({tag: attribute.tag, value: attribute.value});
                         }
+
+
                         var attributeTableLayout = [{
                             cells: [
                                 {
@@ -2663,6 +2665,7 @@ define([
                                     field: 'tag',
                                     width: '40%',
                                     type: dojox.grid.cells.ComboBox,
+                                    //type: dojox.grid.cells.Select,
                                     options: cannedKeys,
                                     formatter: function (tag) {
                                         if (!tag) {
@@ -2677,6 +2680,7 @@ define([
                                     field: 'value',
                                     width: '60%',
                                     type: dojox.grid.cells.ComboBox,
+                                    //type: dojox.grid.cells.Select,
                                     options: cannedValues,
                                     formatter: function (value) {
                                         if (!value) {

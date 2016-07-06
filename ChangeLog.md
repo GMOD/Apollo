@@ -1,3 +1,11 @@
+## 2.0.4
+
+Features
+
++ Upgraded to 2.5.5
+
+
+
 ## 2.0.3
 
 Features

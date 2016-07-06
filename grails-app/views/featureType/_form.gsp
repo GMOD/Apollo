@@ -11,6 +11,15 @@
 
 </div>
 
+<div class="fieldcontain ${hasErrors(bean: featureTypeInstance, field: 'display', 'error')} required">
+	<label for="display">
+		<g:message code="featureType.display.label" default="Display" />
+		<span class="required-indicator">*</span>
+	</label>
+	<g:textField name="display" required="" value="${featureTypeInstance?.display}"/>
+
+</div>
+
 <div class="fieldcontain ${hasErrors(bean: featureTypeInstance, field: 'ontologyId', 'error')} required">
 	<label for="ontologyId">
 		<g:message code="featureType.ontologyId.label" default="Ontology Id" />

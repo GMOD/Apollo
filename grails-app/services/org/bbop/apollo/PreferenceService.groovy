@@ -245,9 +245,9 @@ class PreferenceService {
         if (!userOrganismPreference) {
             // find a random organism based on sequence
             Bookmark bookmark = Bookmark.findByName(trackName)
+            Set<Organism> organisms = permissionService.getOrganisms(user)
             Organism organism = bookmark?.organism
-            if(!organism){
-                def organisms = permissionService.getOrganisms(user)
+            if(!organism && organisms){
                 organism = organisms ? organisms.first() : null
             }
             if (!organism && permissionService.isAdmin()) {
