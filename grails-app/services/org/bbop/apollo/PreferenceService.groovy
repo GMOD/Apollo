@@ -51,7 +51,6 @@ class PreferenceService {
 
     protected static
     def setOtherCurrentOrganismsFalse(UserOrganismPreference userOrganismPreference, User user, String clientToken) {
-        log.debug "setting other current organisms false for ${clientToken}"
         UserOrganismPreference.executeUpdate(
                 "update UserOrganismPreference  pref set pref.currentOrganism = false " +
                         "where pref.id != :prefId and pref.user = :user and pref.clientToken = :clientToken",
