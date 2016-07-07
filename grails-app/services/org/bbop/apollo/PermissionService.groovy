@@ -258,10 +258,6 @@ class PermissionService {
 
     // get current user from session or input object
     User getCurrentUser(JSONObject inputObject = new JSONObject()) {
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            return null
-        }
-
         String username
         if (inputObject?.has(FeatureStringEnum.USERNAME.value)) {
             username = inputObject.getString(FeatureStringEnum.USERNAME.value)
@@ -312,12 +308,6 @@ class PermissionService {
     Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
         String trackName = getSequenceNameFromInput(inputObject)
-
-        // this is for testing only
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            Sequence sequence = trackName ? Sequence.findByName(trackName) : null
-            return sequence
-        }
 
         User user = getCurrentUser(inputObject)
         organism = getOrganismFromInput(inputObject)
