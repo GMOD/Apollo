@@ -1691,8 +1691,12 @@ class RequestHandlingService {
             if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.alternateCvTerm ||
                     jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.alternateCvTerm) {
                 // if jsonFeature is of type gene or pseudogene
+                JSONObject jsonGene = JSON.parse(jsonFeature.toString())
+                jsonGene.remove(FeatureStringEnum.CHILDREN.value)
                 for (JSONObject transcriptJsonFeature in jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)) {
                     // look at its children JSON Array to get the features at the *RNA level
+                    // adding jsonGene to each individual transcript
+                    transcriptJsonFeature.put("parent", jsonGene)
                     Feature newFeature = featureService.addFeature(transcriptJsonFeature, sequence, user, suppressHistory)
                     JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
                     JSONObject jsonObject = newFeatureJsonObject
