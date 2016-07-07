@@ -36,7 +36,7 @@ public enum FeatureStringEnum {
         DATE,
         CURRENT,
         CURRENT_TAB,
-        COMMENT("Comment"),
+        COMMENT("comment"),
         OLD_COMMENTS,
         NEW_COMMENTS,
         TAG_VALUE_DELIMITER("="),
