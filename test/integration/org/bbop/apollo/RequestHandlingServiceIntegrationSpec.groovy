@@ -3032,4 +3032,57 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert newTranscript.featureProperties.size() == 3
 
     }
+
+    void "when we add a coding transcript, its parent information (including metadata) should be used for creating a parent gene"() {
+        given: "GB40856-RA"
+        String addTranscriptString = '{"operation":"add_transcript","features":[{"location":{"fmin":1216824,"strand":1,"fmax":1235616},"name":"GB40856-RA","children":[{"location":{"fmin":1235534,"strand":1,"fmax":1235616},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":1216824,"strand":1,"fmax":1216850},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":1224676,"strand":1,"fmax":1224823},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":1228682,"strand":1,"fmax":1228825},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":1235237,"strand":1,"fmax":1235396},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":1235487,"strand":1,"fmax":1235616},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":1216824,"strand":1,"fmax":1235534},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}},"parent":{"location":{"fmin":1216824,"strand":1,"fmax":1235616},"name":"GB40856-RA","symbol":"TGN1","description":"TGN1 gene","properties":[{"value":"this is a test gene","type":{"name":"comment","cv":{"name":"feature_property"}}}],"type":{"name":"gene","cv":{"name":"sequence"}}}}],"track":"Group1.10"}'
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see the transcript, its gene and gene metadata, as provided by the JSON"
+        MRNA mrna = MRNA.findByName("GB40856-RA-00001")
+        Gene gene = transcriptService.getGene(mrna)
+
+        assert gene.name == "GB40856-RA"
+        assert gene != null
+        assert gene.symbol == "TGN1"
+        assert gene.description == "TGN1 gene"
+
+        String comment = ""
+        gene.featureProperties.each {
+            if (it instanceof Comment) {
+                comment = it.value
+            }
+        }
+
+        assert comment == "this is a test gene"
+    }
+
+    void "when we add a non-coding transcript, its parent information (including metadata) should be used for creating a parent gene"() {
+        given: "a pseudogene"
+        String addFeatureString = '{"operation":"addFeature","track":"Group1.10","features":[{"location":{"fmin":1282112,"strand":1,"fmax":1286907},"name":"GB40861-RA","symbol":"PSGN1","description":"PSGN1 gene","children":[{"location":{"fmin":1282112,"strand":1,"fmax":1286907},"name":"GB40861-RA-00001","children":[{"location":{"fmin":1283249,"strand":1,"fmax":1283301},"name":"47d2eb21-2893-467c-b49b-7e8b22e177e1-exon","type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":1286542,"strand":1,"fmax":1286907},"name":"58c0885c-8154-4383-b2a6-307068e4f0ff-exon","type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":1286248,"strand":1,"fmax":1286401},"name":"f578ab7e-e1d3-4722-bea7-f92ad02e31dc-exon","type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":1285676,"strand":1,"fmax":1285867},"name":"8cc97b4e-8ff3-44c9-9f40-f5a4c5a9cc8a-exon","type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":1282112,"strand":1,"fmax":1282545},"name":"c76aa8b3-7179-4d4b-8e23-b80d407d2d3b-exon","type":{"name":"exon","cv":{"name":"sequence"}}}],"properties":[{"value":"this is a test transcript of a pseudogene","type":{"name":"comment","cv":{"name":"feature_property"}}},{"value":"PSGN1-1A transcript","type":{"name":"description","cv":{"name":"feature_property"}}},{"value":"PSGN1-1A","type":{"name":"symbol","cv":{"name":"feature_property"}}}],"type":{"name":"transcript","cv":{"name":"sequence"}}}],"properties":[{"value":"this is a test pseudogene","type":{"name":"comment","cv":{"name":"feature_property"}}}],"type":{"name":"pseudogene","cv":{"name":"sequence"}},"symbol":"PSGN1","description":"PSGN1 gene"}]}'
+
+        when: "we add the pseudogene"
+        requestHandlingService.addFeature(JSON.parse(addFeatureString) as JSONObject)
+
+        then: "we should see the transcript, its gene and gene metadata, as provided by the JSON"
+        Transcript transcript = Transcript.all.get(0)
+        println "Transcript: ${transcript}"
+        Gene gene = transcriptService.getGene(transcript)
+        println "Gene: ${gene}"
+
+        assert gene.name == "GB40861-RA"
+        assert gene.symbol == "PSGN1"
+        assert gene.description == "PSGN1 gene"
+
+        String comment = ""
+        gene.featureProperties.each {
+            if (it instanceof Comment) {
+                comment = it.value
+            }
+        }
+
+        assert comment == "this is a test pseudogene"
+    }
 }
