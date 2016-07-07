@@ -327,7 +327,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
             }
         }
 
-        chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), Sequence.all, features)
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("sampleAnimal"), Sequence.all, features)
 
         then: "we should find GB40737-RA in the Chado data source"
         assert org.gmod.chado.Feature.findByUniquename(gene3.uniqueName) != null
@@ -342,7 +342,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
             }
         }
 
-        chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), Sequence.all, features)
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("sampleAnimal"), Sequence.all, features)
 
         then: "GB40740-RA, its dbxrefs and feature properties should not exist in Chado"
         assert org.gmod.chado.Feature.findByUniquename(gene1UniqueName) == null
