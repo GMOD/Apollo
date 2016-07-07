@@ -206,9 +206,9 @@ class FeatureService {
             log.debug "gene is null"
             // Scenario III - create a de-novo gene
             JSONObject jsonGene = new JSONObject();
-            if (jsonTranscript.has("parent")) {
+            if (jsonTranscript.has(FeatureStringEnum.PARENT.value)) {
                 // Scenario IIIa - use the 'parent' attribute, if provided, from transcript JSON
-                jsonGene = JSON.parse(jsonTranscript.getString("parent")) as JSONObject
+                jsonGene = JSON.parse(jsonTranscript.getString(FeatureStringEnum.PARENT.value)) as JSONObject
                 jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript))
             }
             else {
@@ -2668,9 +2668,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 log.debug "gene is still NULL"
                 // Scenario III - create a de-novo gene
                 JSONObject jsonGene = new JSONObject()
-                if (jsonFeature.has("parent")) {
+                if (jsonFeature.has(FeatureStringEnum.PARENT.value)) {
                     // Scenario IIIa - use the 'parent' attribute, if provided, from feature JSON
-                    jsonGene = JSON.parse(jsonFeature.getString("parent")) as JSONObject
+                    jsonGene = JSON.parse(jsonFeature.getString(FeatureStringEnum.PARENT.value)) as JSONObject
                     jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonFeature))
                 }
                 else {

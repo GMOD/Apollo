@@ -10,6 +10,7 @@ public enum FeatureStringEnum {
         SUPPRESS_EVENTS,
         FEATURE_PROPERTY,
         ANNOTATION_COUNT,
+        PARENT,
         PARENT_ID,
         USERNAME,
         EDITOR,

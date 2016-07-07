@@ -1696,7 +1696,7 @@ class RequestHandlingService {
                 for (JSONObject transcriptJsonFeature in jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)) {
                     // look at its children JSON Array to get the features at the *RNA level
                     // adding jsonGene to each individual transcript
-                    transcriptJsonFeature.put("parent", jsonGene)
+                    transcriptJsonFeature.put(FeatureStringEnum.PARENT.value, jsonGene)
                     Feature newFeature = featureService.addFeature(transcriptJsonFeature, sequence, user, suppressHistory)
                     JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
                     JSONObject jsonObject = newFeatureJsonObject
