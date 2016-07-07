@@ -133,6 +133,7 @@ class FeatureService {
         User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
+            // Scenario I - if 'parent_id' attribute is given then find the gene
             transcript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
@@ -150,6 +151,7 @@ class FeatureService {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
         } else {
+            // Scenario II - find an overlapping isoform and if present, add current transcript to its gene
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll() {
                 it = Feature.get(it.id)
@@ -202,17 +204,29 @@ class FeatureService {
         }
         if (gene == null) {
             log.debug "gene is null"
+            // Scenario III - create a de-novo gene
             JSONObject jsonGene = new JSONObject();
-            jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript));
-            jsonGene.put(FeatureStringEnum.LOCATION.value, jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value));
-            // TODO: review
-//            String cvTermString = isPseudogene ? FeatureStringEnum.PSEUDOGENE.value : FeatureStringEnum.GENE.value
-            String cvTermString = FeatureStringEnum.GENE.value
-            jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
-            String geneName
-            if (jsonTranscript.has(FeatureStringEnum.NAME.value)) {
+            if (jsonTranscript.has("parent")) {
+                // Scenario IIIa - use the 'parent' attribute, if provided, from transcript JSON
+                jsonGene = JSON.parse(jsonTranscript.getString("parent")) as JSONObject
+                jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript))
+            }
+            else {
+                // Scenario IIIb - use the current mRNA's featurelocation for gene
+                jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript));
+                jsonGene.put(FeatureStringEnum.LOCATION.value, jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value));
+                String cvTermString = FeatureStringEnum.GENE.value
+                jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
+            }
+
+            String geneName = null
+            if (jsonGene.has(FeatureStringEnum.NAME.value)) {
+                geneName = jsonGene.get(FeatureStringEnum.NAME.value)
+            }
+            else if (jsonTranscript.has(FeatureStringEnum.NAME.value)) {
                 geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
-            } else {
+            }
+            else {
 //                geneName = nameService.makeUniqueFeatureName(sequence.organism, sequence.name, new LetterPaddingStrategy(), false)
                 geneName = nameService.makeUniqueGeneName(sequence.organism, sequence.name, false)
             }
@@ -227,8 +241,8 @@ class FeatureService {
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
             gene = (Gene) convertJSONToFeature(jsonGene, sequence);
-
             updateNewGsolFeatureAttributes(gene, sequence);
+
             if (gene.getFmin() < 0 || gene.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
@@ -249,7 +263,6 @@ class FeatureService {
             setOwner(transcript, owner);
         }
         return transcript;
-
     }
 
 // TODO: this is kind of a hack for now
@@ -2503,7 +2516,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             log.debug "Converting ${originalType} to ${type}"
-
             Transcript transcript = null
             if (type == MRNA.alternateCvTerm) {
                 // *RNA to mRNA
@@ -2583,6 +2595,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             Transcript transcript = null
 
             if (gene) {
+                // Scenario I - if 'parent_id' attribute is given then find the gene
                 transcript = (Transcript) convertJSONToFeature(jsonFeature, sequence)
                 if (transcript.fmin < 0 || transcript.fmax < 0) {
                     throw new AnnotationException("Feature cannot have negative coordinates")
@@ -2596,8 +2609,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     transcript.name = name + "-" + transcript.alternateCvTerm
                 }
             } else {
-                // gene is null
-                // so we first try to find any Gene feature that overlaps the given feature location
+                // Scenario II - find and overlapping isoform and if present, add current transcript to its gene
                 FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
                 Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll() {
                     it = Feature.get(it.id)
@@ -2648,16 +2660,29 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             if (gene == null) {
                 log.debug "gene is still NULL"
+                // Scenario III - create a de-novo gene
                 JSONObject jsonGene = new JSONObject()
-                jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonFeature))
-                jsonGene.put(FeatureStringEnum.LOCATION.value, jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value))
-                String cvTermString = jsonFeature.get(FeatureStringEnum.TYPE.value).name == Transcript.alternateCvTerm ? Pseudogene.alternateCvTerm : Gene.alternateCvTerm
-                jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString))
+                if (jsonFeature.has("parent")) {
+                    // Scenario IIIa - use the 'parent' attribute, if provided, from feature JSON
+                    jsonGene = JSON.parse(jsonFeature.getString("parent")) as JSONObject
+                    jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonFeature))
+                }
+                else {
+                    // Scenario IIIb - use the current mRNA's featurelocation for gene
+                    jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonFeature))
+                    jsonGene.put(FeatureStringEnum.LOCATION.value, jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value))
+                    String cvTermString = jsonFeature.get(FeatureStringEnum.TYPE.value).name == Transcript.alternateCvTerm ? Pseudogene.alternateCvTerm : Gene.alternateCvTerm
+                    jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString))
+                }
 
                 String geneName = null
-                if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
+                if (jsonGene.has(FeatureStringEnum.NAME.value)) {
+                    geneName = jsonGene.getString(FeatureStringEnum.NAME.value)
+                }
+                else if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                     geneName = jsonFeature.getString(FeatureStringEnum.NAME.value)
-                } else {
+                }
+                else {
                     geneName = nameService.makeUniqueGeneName(sequence.organism, sequence.name, false)
                 }
 
@@ -2676,7 +2701,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 if (gene.fmin < 0 || gene.fmax < 0) {
                     throw new AnnotationException("Feature cannot have negative coordinates")
                 }
-
                 transcript = transcriptService.getTranscripts(gene).iterator().next();
                 removeExonOverlapsAndAdjacenciesForFeature(gene)
                 if (!suppressHistory) {
