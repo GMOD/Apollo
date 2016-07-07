@@ -675,7 +675,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String gb40788String = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":65107,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40788-RA\",\"children\":[{\"location\":{\"fmin\":65107,\"fmax\":65286,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":71477,\"fmax\":71651,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":75270,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":65107,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
         JSONObject jsonAddTranscriptObject1 = JSON.parse(gb40787String) as JSONObject
         JSONObject jsonAddTranscriptObject2 = JSON.parse(gb40788String) as JSONObject
-        String mergeTranscriptString = "{ \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" }, { \"uniquename\": \"@TRANSCRIPT2_UNIQUENAME@\" } ], \"operation\": \"merge_transcripts\" }"
+        String mergeTranscriptString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" }, { \"uniquename\": \"@TRANSCRIPT2_UNIQUENAME@\" } ], \"operation\": \"merge_transcripts\" }"
 
 
         when: "we add both transcripts"
@@ -2410,11 +2410,11 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         //String setSymbolOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"symbol\":\"@SYMBOL_VALUE@\"}],\"track\":\"Group1.10\",\"operation\":\"set_symbol\",\"username\":\"demo@demo.com\"}"
         //String setDescriptionOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"description\":\"@DESCRIPTION_VALUE@\"}],\"track\":\"Group1.10\",\"operation\":\"set_description\"}"
-        String addDbxrefOperation = "{\"features\":[{\"dbxrefs\":[{\"accession\":\"@XREF_ACCESSION@\",\"db\":\"@XREF_DB@\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"add_non_primary_dbxrefs\"}"
-        String addAttributeOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"non_reserved_properties\":[{\"tag\":\"@ATTRIBUTE_TAG@\",\"value\":\"@ATTRIBUTE_VALUE@\"}]}],\"track\":\"Group1.10\",\"operation\":\"add_non_reserved_properties\"}"
-        String addPublicationOperation = "{\"features\":[{\"dbxrefs\":[{\"accession\":\"@PUBMED_ACCESSION@\",\"db\":\"PMID\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"add_non_primary_dbxrefs\"}"
-        String addGeneOntologyOperation = "{\"features\":[{\"dbxrefs\":[{\"accession\":\"@GO_ACCESSION@\",\"db\":\"GO\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"add_non_primary_dbxrefs\"}"
-        String addCommentOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"comments\":[\"@COMMENT@\"]}],\"track\":\"Group1.10\",\"operation\":\"add_comments\"}"
+        String addDbxrefOperation = "{${testCredentials} \"features\":[{\"dbxrefs\":[{\"accession\":\"@XREF_ACCESSION@\",\"db\":\"@XREF_DB@\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"add_non_primary_dbxrefs\"}"
+        String addAttributeOperation = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"non_reserved_properties\":[{\"tag\":\"@ATTRIBUTE_TAG@\",\"value\":\"@ATTRIBUTE_VALUE@\"}]}],\"track\":\"Group1.10\",\"operation\":\"add_non_reserved_properties\"}"
+        String addPublicationOperation = "{${testCredentials} \"features\":[{\"dbxrefs\":[{\"accession\":\"@PUBMED_ACCESSION@\",\"db\":\"PMID\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"add_non_primary_dbxrefs\"}"
+        String addGeneOntologyOperation = "{${testCredentials} \"features\":[{\"dbxrefs\":[{\"accession\":\"@GO_ACCESSION@\",\"db\":\"GO\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"add_non_primary_dbxrefs\"}"
+        String addCommentOperation = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"comments\":[\"@COMMENT@\"]}],\"track\":\"Group1.10\",\"operation\":\"add_comments\"}"
 
         when: "we add transcript1 and transcript2"
         JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript1) as JSONObject).get("features")

@@ -79,7 +79,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
             }
         }
         log.debug "${features}"
-        chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), Sequence.all, features)
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("sampleAnimal"), Sequence.all, features)
 
 
         then: "we should see the exported annotations in Chado data source"
@@ -200,7 +200,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
                 features.add(it)
             }
         }
-        chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), Sequence.all, features)
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("sampleAnimal"), Sequence.all, features)
 
         then: "we should see features in Chado data source"
         assert org.gmod.chado.Feature.count > 0
@@ -304,7 +304,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
                 features.add(it)
             }
         }
-        chadoHandlerService.writeFeatures(Organism.findByCommonName("honey bee"), Sequence.all, features)
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("sampleAnimal"), Sequence.all, features)
 
         then: "we should see the annotations in Chado data source"
         assert org.gmod.chado.Feature.count > 0
