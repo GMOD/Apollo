@@ -1144,7 +1144,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 for (int i = 0; i < properties.length(); ++i) {
                     JSONObject property = properties.getJSONObject(i);
                     JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);
-                    String propertyName = property.get(FeatureStringEnum.NAME.value)
+                    String propertyName = ""
+                    if (property.has(FeatureStringEnum.NAME.value)) {
+                        propertyName = property.get(FeatureStringEnum.NAME.value)
+                    }
+                    else {
+                        propertyName = propertyType.get(FeatureStringEnum.NAME.value)
+                    }
                     String propertyValue = property.get(FeatureStringEnum.VALUE.value)
 
                     FeatureProperty gsolProperty = null;
