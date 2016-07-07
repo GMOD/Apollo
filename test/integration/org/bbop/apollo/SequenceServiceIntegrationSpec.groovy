@@ -30,7 +30,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert CDS.count == 1
         assert FeatureRelationship.count == 3
 
-        String getSequenceString = "{\"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
+        String getSequenceString = "{${testCredentials} \"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
         String uniqueName = MRNA.findByName("GB40722-RA-00001").uniqueName
         JSONObject commandObject = new JSONObject()
         
@@ -91,7 +91,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert getGenomicFlankSequenceReturnObject.residues == expectedGenomicSequenceWithFlank
         
         when: "A request is sent for the GFF3 of a simple gene model"
-        String getGff3String = "{\"operation\":\"get_gff3\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
+        String getGff3String = "{${testCredentials} \"operation\":\"get_gff3\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
         getGff3String = getGff3String.replaceAll("@UNIQUENAME@", uniqueName)
         JSONObject inputObject = JSON.parse(getGff3String) as JSONObject
         Sequence refSequence = Sequence.first()
@@ -125,7 +125,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
 //        assert FeatureLocation.count == 6 + FlankingRegion.count
         assert FeatureRelationship.count == 5
 
-        String getSequenceString = "{\"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
+        String getSequenceString = "{${testCredentials} \"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
         String uniqueName = MRNA.findByName("GB40749-RA-00001").uniqueName
         JSONObject commandObject = new JSONObject()
         
