@@ -22,7 +22,9 @@ my $exon_types_in = "exon";
 my $cds_types_in = "CDS";
 my $ontology = "sequence";
 my $gene_type_out = "gene";
-my $transcript_type_out = "mRNA";
+my $pseudogene_type_out = "pseudogene";
+my $mrna_type_out = "mRNA";
+my $transcript_type_out = "transcript";
 my $exon_type_out = "exon";
 my $cds_type_out = "CDS";
 my $annotation_track_prefix = "";
@@ -80,7 +82,9 @@ sub parse_options {
            "cds_types_in|d=s"       => \$cds_types_in,
            "ontology|O=s"       => \$ontology,
            "gene_type_out|G=s"      => \$gene_type_out,
-           "transcript_type_out|T=s"    => \$transcript_type_out,
+           "pseudogene_type_out|PG=s" => \$pseudogene_type_out,
+           "mrna_type_out|M=s"    => \$mrna_type_out,
+           "transcript_type_out|T=s" => \$transcript_type_out,
            "exon_type_out|E=s"      => \$exon_type_out,
            "cds_type_out|D=s"       => \$cds_type_out,
            "property_ontolgy|R=s"   => \$property_ontology,
@@ -124,6 +128,8 @@ usage: $progname
     [--cds_types_in|-d <CDS types for input>]
     [--ontology|-O <ontology name used in server>]
     [--gene_type_out|-G <gene type used in server>]
+    [--pseudogene_type_out|-G <gene type used in server>]
+    [--mrna_type_out|-T <mRNA type used in server>]
     [--transcript_type_out|-T <transcript type used in server>]
     [--exon_type_out|-E <exon type used in server>]
     [--cds_type_out|-D <CDS type used in server>]
@@ -142,7 +148,7 @@ usage: $progname
     U: URL to Apollo instance
     u: username to access Apollo
     p: password to access Apollo
-    g: string/regex to define the GFF3 types to treat as genes 
+    g: string/regex to define the GFF3 types to treat as genes
        [default: "$gene_types_in"]
     t: string/regex to define the GFF3 types to treat as transcripts
        [default: "$transcript_types_in"]
@@ -152,6 +158,10 @@ usage: $progname
        [default: "$ontology"]
     G: gene type used in Apollo instance
        [default: "$gene_type_out"]
+    D: pseudogene type used in Apollo instance
+       [default: "$pseudogene_type_out"]
+    M: mRNA type used in Apollo instance
+       [default: "$mrna_type_out"]
     T: transcript type used in Apollo instance
        [default: "$transcript_type_out"]
     E: exon type used in Apollo instance
@@ -236,19 +246,6 @@ sub write_features {
             }
         }
     }
-}
-
-sub process_feature {
-    my $features = shift;
-    my $type = get_type($features);
-
-    if ($type =~ /$gene_types_in/) {
-        return process_gene($features);
-    }
-    elsif ($type =~ /$transcript_types_in/) {
-        return process_transcript($features);
-    }
-    return undef;
 }
 
 sub convert_feature {
@@ -487,7 +484,14 @@ sub get_type {
 
 sub process_gene {
     my $features = shift;
-    my $gene = convert_feature($features, $gene_type_out, $name_attributes);
+    my $gene_type = get_type($features);
+    my $gene;
+    if ($gene_type =~ /pseudogene/) {
+        $gene = convert_feature($features, $pseudogene_type_out, $name_attributes);
+    }
+    else {
+        $gene = convert_feature($features, $gene_type_out, $name_attributes);
+    }
     my $subfeatures = get_subfeatures($features);
     foreach my $subfeature (@{$subfeatures}) {
         my $type = get_type($subfeature);
@@ -501,7 +505,14 @@ sub process_gene {
 
 sub process_transcript {
     my $features = shift;
-    my $transcript = convert_feature($features, $transcript_type_out, $name_attributes);
+    my $original_type = get_type($features);
+    my $transcript;
+    if ($original_type =~ /transcript/) {
+        $transcript = convert_feature($features, $transcript_type_out, $name_attributes);
+    }
+    else {
+        $transcript = convert_feature($features, $mrna_type_out, $name_attributes);
+    }
     my $cds_feature = undef;
     my $subfeatures = get_subfeatures($features);
     foreach my $subfeature (@{$subfeatures}) {
@@ -555,20 +566,108 @@ sub process_gff_entry {
         }
     }
     else {
-        my $json_feature = process_feature($features);
-        if ($json_feature) {
-            my $id = get_id($features);
-            if ($skip_ids{$id}) {
-                print "Skipping $id\n";
-                next;
-            }
-            my $seq_id = get_seq_id($features);
-            if ($json_feature->{type}->{name} =~ /$gene_types_in/) {
-                push(@{$seq_ids_to_genes->{$seq_id}}, [$json_feature, $id]);
-            }
-            else {
-                push(@{$seq_ids_to_transcripts->{$seq_id}}, [$json_feature, $id]);
+        my @json_features = @{process_feature($features)};
+        if (scalar(@json_features) != 0) {
+            foreach my $json_feature (@json_features) {
+                my $id = get_id($features);
+                if ($skip_ids{$id}) {
+                    print "Skipping $id\n";
+                    next;
+                }
+                my $seq_id = get_seq_id($features);
+                if ($json_feature->{type}->{name} =~ /$gene_types_in/) {
+                    push(@{$seq_ids_to_genes->{$seq_id}}, [$json_feature, $id]);
+                }
+                else {
+                    push(@{$seq_ids_to_transcripts->{$seq_id}}, [$json_feature, $id]);
+                }
             }
         }
     }
+}
+
+sub process_feature {
+    my $features = shift;
+    my $type = get_type($features);
+    my $transcript_type = get_subfeature_type($features);
+
+    if ($type =~ /$gene_types_in/) {
+        if ($transcript_type =~ /mRNA/) {
+            # process with mRNA at top-level and gene information as 'parent'
+            return process_mrna($features);
+        }
+        else {
+            # process gene
+            return [process_gene($features)];
+        }
+    }
+    elsif ($type =~ /$transcript_types_in/) {
+        return [process_transcript($features)];
+    }
+    return undef;
+}
+
+sub get_subfeature_type {
+    my $features = shift;
+    return ${features}->[0]->{child_features}->[0]->[0]->{type};
+}
+
+sub process_mrna {
+    my $features = shift;
+    my $gene = convert_feature($features, $gene_type_out, $name_attributes);
+    my $subfeatures = get_subfeatures($features);
+    my @processed_mrnas;
+
+    foreach my $subfeature (@{$subfeatures}) {
+        my $type = get_type($subfeature);
+        if ($type =~ /mRNA/) {
+            my $mrna_json_feature = convert_mrna_feature($subfeature, $gene);
+            push(@processed_mrnas, $mrna_json_feature);
+        }
+    }
+    return \@processed_mrnas;
+}
+
+sub convert_mrna_feature {
+    my $features = shift;
+    my $gene_json_feature = shift;
+    my $cds_feature = undef;
+    my $mrna_json_feature = convert_feature($features, $mrna_type_out, $name_attributes);
+    $mrna_json_feature->{parent} = $gene_json_feature;
+    my $subfeatures = get_subfeatures($features);
+
+    foreach my $subfeature (@{$subfeatures}) {
+        my $type = get_type($subfeature);
+        if ($type =~ /$exon_types_in/) {
+            my $exon = convert_feature($subfeature, $exon_type_out, $name_attributes);
+            push(@{$mrna_json_feature->{children}}, $exon);
+        }
+        elsif ($type =~ /$cds_types_in/) {
+            my $start = get_start($subfeature);
+            my $end = get_end($subfeature);
+            if (!defined $cds_feature) {
+                $cds_feature = $subfeature;
+            }
+            else {
+                my $cds_start = get_start($cds_feature);
+                my $cds_end = get_end($cds_feature);
+                if ($start < $cds_start) {
+                    $cds_feature->[0]->{start} = $start;
+                }
+                if ($end > $cds_end) {
+                    $cds_feature->[0]->{end} = $end;
+                }
+            }
+        }
+        else {
+            print "Ignoring unsupported sub-feature type: $type\n";
+        }
+    }
+
+    if ($cds_feature) {
+        my $cds = convert_feature($cds_feature, $cds_type_out, $name_attributes);
+        push(@{$mrna_json_feature->{children}}, $cds);
+    }
+
+    return $mrna_json_feature;
 }
