@@ -291,10 +291,19 @@ sub convert_feature {
     foreach my $feature (@{$features}) {
         while (my ($tag, $values) = each(%{$feature->{attributes}})) {
             next if $tag =~ /^[A-Z]/;
-            next if $ignored_properties{$tag};  
-            my $type = $reserved_properties{$tag} ? $tag : $property_type_out;
+            next if $ignored_properties{$tag};
+            if ($tag =~ /symbol/) {
+                $json_feature->{symbol} = $values->[0];
+                next;
+            }
+            if ($tag =~ /description/) {
+                $json_feature->{description} = $values->[0];
+                next;
+            }
+            #my $type = $reserved_properties{$tag} ? $tag : $property_type_out;
+            my $type = $tag;
             foreach my $value (@{$values}) {
-                $value = $reserved_properties{$tag} ? $value : "$tag=$value";
+                #$value = $reserved_properties{$tag} ? $value : "$tag=$value";
                 my $json_property = {
                     value => $value,
                     type => {
