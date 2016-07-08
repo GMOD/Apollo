@@ -190,7 +190,54 @@ class FeatureService {
                         addTranscriptToGene(gene, transcript)
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
                         transcript.save()
-                        // was existing
+
+                        if (jsonTranscript.has(FeatureStringEnum.PARENT.value)) {
+                            // use metadata of incoming transcript's gene
+                            JSONObject jsonGene = jsonTranscript.getJSONObject(FeatureStringEnum.PARENT.value)
+                            if (jsonGene.has(FeatureStringEnum.DBXREFS.value)) {
+                                // parse dbxrefs
+                                JSONArray dbxrefs = jsonGene.getJSONArray(FeatureStringEnum.DBXREFS.value)
+                                for (JSONObject dbxref : dbxrefs) {
+                                    String dbString = dbxref.get(FeatureStringEnum.DB.value).name
+                                    String accessionString = dbxref.get(FeatureStringEnum.ACCESSION.value)
+                                    // TODO: needs improvement
+                                    boolean exists = false
+                                    tmpGene.featureDBXrefs.each {
+                                        if (it.db.name == dbString && it.accession == accessionString) {
+                                            exists = true
+                                        }
+                                    }
+                                    if (!exists) {
+                                        addNonPrimaryDbxrefs(tmpGene, dbString, accessionString)
+                                    }
+                                }
+                            }
+                            tmpGene.save()
+
+
+                            if (jsonGene.has(FeatureStringEnum.PROPERTIES.value)) {
+                                // parse properties
+                                JSONArray featureProperties = jsonGene.getJSONArray(FeatureStringEnum.PROPERTIES.value)
+                                for (JSONObject featureProperty : featureProperties) {
+                                    String tagString = featureProperty.get(FeatureStringEnum.TYPE.value).name
+                                    String valueString = featureProperty.get(FeatureStringEnum.VALUE.value)
+                                    if (tagString == FeatureStringEnum.COMMENT.value) {
+                                        continue
+                                    }
+                                    // TODO: needs improvement
+                                    boolean exists = false
+                                    tmpGene.featureProperties.each {
+                                        if (it.tag == tagString && it.value == valueString) {
+                                            exists = true
+                                        }
+                                    }
+                                    if (!exists) {
+                                        addNonReservedProperties(tmpGene, tagString, valueString)
+                                    }
+                                }
+                            }
+                            tmpGene.save()
+                        }
                         gene.save(insert: false, flush: true)
                         break;
                     } else {
@@ -2616,52 +2663,99 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             } else {
                 // Scenario II - find and overlapping isoform and if present, add current transcript to its gene
-                FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
-                Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll() {
-                    it = Feature.get(it.id)
-                    it instanceof Gene
-                }
-
-                log.debug "overlapping features: ${overlappingFeatures.size()}"
-                for (Feature eachFeature : overlappingFeatures) {
-                    // get the proper object instead of its proxy, due to hibernate lazy loading
-                    Feature feature = Feature.get(eachFeature.id)
-                    log.debug "Evaluating overlap of feature ${feature.name} of class ${feature.class.name}"
-
-                    if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
-                        Gene tmpGene = (Gene) feature
-                        log.debug "Found an overlapping gene: ${tmpGene}"
-                        Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonFeature, sequence)
-                        updateNewGsolFeatureAttributes(tmpTranscript, sequence)
-                        if (tmpTranscript.fmin < 0 || tmpTranscript.fmax < 0) {
-                            throw new AnnotationException("Feature cannot have negative coordinates")
-                        }
-
-                        setOwner(tmpTranscript, user)
-
-                        if (suppressHistory) {
-                            String name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
-                            tmpTranscript.name = name + "-" + tmpTranscript.alternateCvTerm
-                        }
-
-                        if (overlapperService.overlaps(tmpTranscript, tmpGene)) {
-                            log.debug "There is an overlap, adding to an existing gene"
-                            transcript = tmpTranscript;
-                            gene = tmpGene
-                            addTranscriptToGene(gene, transcript)
-                            transcript.save()
-                            // insert is false because this gene is already an existing gene
-                            gene.save(insert: false, flush: true)
-                            break
-                        } else {
-                            // deleting the temporarily generated transcript
-                            featureRelationshipService.deleteFeatureAndChildren(tmpTranscript)
-                            log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript"
-                        }
-                    } else {
-                        log.info "Feature is not an instance of a gene or is a pseudogene"
-                    }
-                }
+                // Disabling Scenario II since there is no appropriate overlapper to determine overlaps between non coding transcripts
+//                FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
+//                Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll() {
+//                    it = Feature.get(it.id)
+//                    it instanceof Gene
+//                }
+//
+//                log.debug "overlapping features: ${overlappingFeatures.size()}"
+//                for (Feature eachFeature : overlappingFeatures) {
+//                    // get the proper object instead of its proxy, due to hibernate lazy loading
+//                    Feature feature = Feature.get(eachFeature.id)
+//                    log.debug "Evaluating overlap of feature ${feature.name} of class ${feature.class.name}"
+//
+//                    if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
+//                        Gene tmpGene = (Gene) feature
+//                        log.debug "Found an overlapping gene: ${tmpGene}"
+//                        Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonFeature, sequence)
+//                        updateNewGsolFeatureAttributes(tmpTranscript, sequence)
+//                        if (tmpTranscript.fmin < 0 || tmpTranscript.fmax < 0) {
+//                            throw new AnnotationException("Feature cannot have negative coordinates")
+//                        }
+//
+//                        setOwner(tmpTranscript, user)
+//
+//                        if (suppressHistory) {
+//                            String name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
+//                            tmpTranscript.name = name + "-" + tmpTranscript.alternateCvTerm
+//                        }
+//
+//                        if (overlapperService.overlaps(tmpTranscript, tmpGene)) {
+//                            log.debug "There is an overlap, adding to an existing gene"
+//                            transcript = tmpTranscript;
+//                            gene = tmpGene
+//                            addTranscriptToGene(gene, transcript)
+//                            transcript.save()
+//
+//                            if (jsonFeature.has(FeatureStringEnum.PARENT.value)) {
+//                                // use metadata of incoming transcript's gene
+//                                JSONObject jsonGene = jsonFeature.getJSONObject(FeatureStringEnum.PARENT.value)
+//                                if (jsonGene.has(FeatureStringEnum.DBXREFS.value)) {
+//                                    // parse dbxrefs
+//                                    JSONArray dbxrefs = jsonGene.getJSONArray(FeatureStringEnum.DBXREFS.value)
+//                                    for (JSONObject dbxref : dbxrefs) {
+//                                        String dbString = dbxref.get(FeatureStringEnum.DB.value).name
+//                                        String accessionString = dbxref.get(FeatureStringEnum.ACCESSION.value)
+//                                        // TODO: needs improvement
+//                                        boolean exists = false
+//                                        gene.featureDBXrefs.each {
+//                                            if (it.db.name == dbString && it.accession == accessionString) {
+//                                                exists = true
+//                                            }
+//                                        }
+//                                        if (!exists) {
+//                                            addNonPrimaryDbxrefs(gene, dbString, accessionString)
+//                                        }
+//                                    }
+//                                }
+//                                gene.save()
+//
+//                                if (jsonGene.has(FeatureStringEnum.PROPERTIES.value)) {
+//                                    // parse properties
+//                                    JSONArray featureProperties = jsonGene.getJSONArray(FeatureStringEnum.PROPERTIES.value)
+//                                    for (JSONObject featureProperty : featureProperties) {
+//                                        String tagString = featureProperty.get(FeatureStringEnum.TYPE.value).name
+//                                        String valueString = featureProperty.get(FeatureStringEnum.VALUE.value)
+//                                        if (tagString == FeatureStringEnum.COMMENT.value) {
+//                                            continue
+//                                        }
+//                                        // TODO: needs improvement
+//                                        boolean exists = false
+//                                        gene.featureProperties.each {
+//                                            if (it.tag == tagString && it.value == valueString) {
+//                                                exists = true
+//                                            }
+//                                        }
+//                                        if (!exists) {
+//                                            addNonReservedProperties(gene, tagString, valueString)
+//                                        }
+//                                    }
+//                                }
+//                                gene.save()
+//                            }
+//                            gene.save(insert: false, flush: true)
+//                            break
+//                        } else {
+//                            // deleting the temporarily generated transcript
+//                            featureRelationshipService.deleteFeatureAndChildren(tmpTranscript)
+//                            log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript"
+//                        }
+//                    } else {
+//                        log.info "Feature is not an instance of a gene or is a pseudogene"
+//                    }
+//                }
             }
 
             if (gene == null) {
