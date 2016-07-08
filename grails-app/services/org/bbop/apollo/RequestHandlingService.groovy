@@ -464,18 +464,8 @@ class RequestHandlingService {
                 log.debug "dbString: ${dbString}"
                 String accessionString = dbXfrefJsonObject.getString(FeatureStringEnum.ACCESSION.value)
                 log.debug "accessionString : ${accessionString}"
-                DB db = DB.findByName(dbString)
-                if (!db) {
-                    db = new DB(name: dbString).save()
-                }
-                DBXref dbXref = DBXref.findOrSaveByAccessionAndDb(accessionString, db)
-                dbXref.save(flush: true)
-
-                feature.addToFeatureDBXrefs(dbXref)
-                feature.save()
+                featureService.addNonPrimaryDbxrefs(feature, dbString, accessionString)
             }
-
-
             feature.save(flush: true, failOnError: true)
 
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
@@ -1321,17 +1311,9 @@ class RequestHandlingService {
             JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.NON_RESERVED_PROPERTIES.value);
             for (int j = 0; j < properties.length(); ++j) {
                 JSONObject property = properties.getJSONObject(j);
-
                 String tag = property.getString(FeatureStringEnum.TAG.value)
                 String value = property.getString(FeatureStringEnum.VALUE.value)
-
-                FeatureProperty featureProperty = new FeatureProperty(
-                        feature: feature
-                        , value: value
-                        , tag: tag
-                ).save()
-                featurePropertyService.addProperty(feature, featureProperty)
-                feature.save()
+                featureService.addNonReservedProperties(feature, tag, value)
             }
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }

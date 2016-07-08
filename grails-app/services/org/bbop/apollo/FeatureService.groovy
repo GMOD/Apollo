@@ -2766,4 +2766,24 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return returnFeature
     }
 
+    def addNonPrimaryDbxrefs(Feature feature, String dbString, String accessionString) {
+        DB db = DB.findByName(dbString)
+        if (!db) {
+            db = new DB(name: dbString).save()
+        }
+        DBXref dbxref = DBXref.findOrSaveByAccessionAndDb(accessionString, db)
+        dbxref.save(flush: true)
+        feature.addToFeatureDBXrefs(dbxref)
+        feature.save()
+    }
+
+    def addNonReservedProperties(Feature feature, String tagString, String valueString) {
+        FeatureProperty featureProperty = new FeatureProperty(
+                feature: feature,
+                value: valueString,
+                tag: tagString
+        ).save()
+        featurePropertyService.addProperty(feature, featureProperty)
+        feature.save()
+    }
 }
