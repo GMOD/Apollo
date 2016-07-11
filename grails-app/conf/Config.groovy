@@ -341,7 +341,7 @@ apollo {
     authentications = [
         ["name":"Remote User Authenticator",
          "className":"remoteUserAuthenticatorService",
-         "active":false,
+         "active":true,
          "params":[] // TODO: inject parameters
 //         "active":true,
 //         "params":['user':'demo@demo.com']
@@ -349,7 +349,7 @@ apollo {
         ,
         ["name":"Username Password Authenticator",
          "className":"usernamePasswordAuthenticatorService",
-         "active":true,
+         "active":false,
          "params":[]
         ]
     ]
