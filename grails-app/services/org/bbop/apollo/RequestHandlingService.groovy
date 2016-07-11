@@ -91,11 +91,8 @@ class RequestHandlingService {
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
-            if (!sequence) sequence = feature.getFeatureLocation().getSequence()
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
-            }
-
+            sequence =  sequence ?: feature.getFeatureLocation().getSequence()
+            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
             feature.symbol = symbolString
             feature.save(flush: true, failOnError: true)
@@ -126,10 +123,8 @@ class RequestHandlingService {
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
-            if (!sequence) sequence = feature.getFeatureLocation().getSequence()
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
-            }
+            sequence =  sequence ?: feature.getFeatureLocation().getSequence()
+            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
 
             feature.description = descriptionString
@@ -137,14 +132,6 @@ class RequestHandlingService {
 
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
-//        if (sequence) {
-//            AnnotationEvent annotationEvent = new AnnotationEvent(
-//                    features: updateFeatureContainer
-//                    , sequence: sequence
-//                    , operation: AnnotationEvent.Operation.UPDATE
-//            )
-//            fireAnnotationEvent(annotationEvent)
-//        }
 
         return updateFeatureContainer
     }
@@ -1243,12 +1230,10 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                if (activeUser) {
-                    featureService.setOwner(sequenceAlteration, activeUser)
-                } else {
-                    log.error("Unable to find valid user to set on transcript!" + inputObject)
-                }
+            if (activeUser) {
+                featureService.setOwner(sequenceAlteration, activeUser)
+            } else {
+                log.error("Unable to find valid user to set on transcript!" + inputObject)
             }
             sequenceAlteration.save()
 

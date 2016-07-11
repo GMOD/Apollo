@@ -108,13 +108,11 @@ class FeatureService {
 
     @Transactional
     def setOwner(Feature feature, User owner) {
-        if (grails.util.Environment.current != grails.util.Environment.TEST) {
-            if (owner && feature) {
-                log.debug "setting owner for feature ${feature} to ${owner}"
-                feature.addToOwners(owner)
-            } else {
-                log.warn "user ${owner} or feature ${feature} is null so not setting"
-            }
+        if (owner && feature) {
+            log.debug "setting owner for feature ${feature} to ${owner}"
+            feature.addToOwners(owner)
+        } else {
+            log.warn "user ${owner} or feature ${feature} is null so not setting"
         }
     }
 
