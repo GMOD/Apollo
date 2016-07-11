@@ -45,7 +45,9 @@ class JbrowseController {
         // case 3 - validated login (just read from preferences, then
         if (permissionService.currentUser && clientToken) {
             Organism organism = preferenceService.getOrganismForToken(clientToken)
-            preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
+            if(organism && clientToken){
+                preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
+            }
         }
 
         if (permissionService.currentUser) {

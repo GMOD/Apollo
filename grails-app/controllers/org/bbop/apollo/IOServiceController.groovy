@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import org.apache.commons.lang.RandomStringUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.DownloadFile

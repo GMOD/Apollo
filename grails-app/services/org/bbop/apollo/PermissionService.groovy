@@ -4,11 +4,11 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import grails.util.Environment
-import org.apache.commons.lang.RandomStringUtils
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
+import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -569,7 +569,7 @@ class PermissionService {
             dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,params.get(FeatureStringEnum.CLIENT_TOKEN.value))
         }
         else{
-            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,RandomStringUtils.random(20))
+            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,ClientTokenGenerator.generateRandomString())
         }
         return dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
     }
