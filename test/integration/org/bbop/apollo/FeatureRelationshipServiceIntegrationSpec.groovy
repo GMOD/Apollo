@@ -1,16 +1,8 @@
 package org.bbop.apollo
 
-import grails.test.spock.IntegrationSpec
-
-class FeatureRelationshipServiceIntegrationSpec extends IntegrationSpec {
+class FeatureRelationshipServiceIntegrationSpec extends AbstractIntegrationSpec{
     
     def featureRelationshipService
-
-    def setup() {
-    }
-
-    def cleanup() {
-    }
 
     void "delete all parents and features"(){
 

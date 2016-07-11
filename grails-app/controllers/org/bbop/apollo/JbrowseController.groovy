@@ -44,16 +44,8 @@ class JbrowseController {
         }
         // case 3 - validated login (just read from preferences, then
         if (permissionService.currentUser && clientToken) {
-            Organism organism = Organism.findByCommonNameIlike(clientToken)
-            if (!organism && clientToken.isInteger()) {
-                organism = Organism.findById(clientToken.toInteger())
-            }
-            // if there is no organism
-            if (!organism) {
-                organism = preferenceService.getOrganismForToken(clientToken)
-            } else {
-                preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
-            }
+            Organism organism = preferenceService.getOrganismForToken(clientToken)
+            preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
         }
 
         if (permissionService.currentUser) {
@@ -66,10 +58,7 @@ class JbrowseController {
             log.debug "organism ID specified: ${clientToken}"
 
             if (clientToken) {
-                Organism organism = Organism.findByCommonNameIlike(clientToken)
-                if (!organism && clientToken?.isLong()) {
-                    organism = Organism.findById(clientToken.toLong())
-                }
+                Organism organism = preferenceService.getOrganismForToken(clientToken)
                 if (!organism) {
                     String urlString = "/jbrowse/index.html?${paramList.join("&")}"
                     forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "Unable to find organism for '${clientToken}'"])

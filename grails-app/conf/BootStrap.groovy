@@ -1,4 +1,3 @@
-import grails.util.Environment
 import org.bbop.apollo.FeatureType
 import org.bbop.apollo.Role
 import org.bbop.apollo.UserService
@@ -6,7 +5,6 @@ import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 class BootStrap {
 
-    def mockupService
     def sequenceService
     def configWrapperService
     def grailsApplication
@@ -47,19 +45,6 @@ class BootStrap {
         def admin = grailsApplication.config?.apollo?.admin
         if(admin){
             userService.registerAdmin(admin.username,admin.password,admin.firstName,admin.lastName)
-        }
-
-        if (grailsApplication.config.apollo.bootstrap || Environment.current == Environment.TEST) {
-            log.debug "attempting to bootstrap the data "
-            mockupService.bootstrapData()
-//            if(grailsApplication.config.apollo.bootstrapClass && grailsApplication.config.apollo.bootstrapMethod){
-//                Class.forName(grailsApplication.config.apollo.bootstrapClass).newInstance().invoke(grailsApplication.config.apollo.bootstrapMethod);
-//
-//            }
-        }
-        else{
-            log.debug "NOT attempting to bootstrap the data "
-
         }
 
     }

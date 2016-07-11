@@ -48,7 +48,15 @@ class AnnotatorController {
                 clientToken = ClientTokenGenerator.generateRandomString()
                 println 'generating client token on the backend: '+clientToken
             }
-            Organism organism = Organism.findById(params.organism as Long)
+            Organism organism
+            // check organism first
+            if(params.containsKey(FeatureStringEnum.ORGANISM.value)){
+                String organismString =  params[FeatureStringEnum.ORGANISM.value]
+                organism = preferenceService.getOrganismForToken(organismString)
+            }
+            if(!organism){
+                organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+            }
             log.debug "loading organism: ${organism}"
             preferenceService.setCurrentOrganism(permissionService.currentUser, organism,clientToken)
             if (params.loc) {
@@ -433,5 +441,16 @@ class AnnotatorController {
             return
         }
         render view:"detail", model:[annotatorInstance:reportService.generateAnnotatorSummary(user)]
+    }
+
+    def ping(){
+        if (permissionService.checkPermissions(PermissionEnum.READ)) {
+            log.debug("permissions checked and alive")
+            render new JSONObject() as JSON
+        }
+        else{
+            log.error("User does not have permissions for the site")
+            redirect(uri: "/auth/login")
+        }
     }
 }
