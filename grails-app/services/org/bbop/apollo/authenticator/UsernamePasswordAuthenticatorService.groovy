@@ -26,6 +26,7 @@ class UsernamePasswordAuthenticatorService implements AuthenticatorService{
                 log.error "Failed to authenticate user ${authToken.username}"
                 return false
             }
+            return true
         } catch (Exception ae) {
             log.error("Problem authenticating: " + ae.fillInStackTrace())
             return false
