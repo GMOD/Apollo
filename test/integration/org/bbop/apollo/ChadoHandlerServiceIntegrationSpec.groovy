@@ -3,7 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec {
+class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     // NOTE: This is set to prevent rollback at the end of the integration test
     // for the sake of visual inspection of the database at the end of the test.
@@ -79,7 +79,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec {
             }
         }
         log.debug "${features}"
-        chadoHandlerService.writeFeatures(Organism.first(), Sequence.all, features)
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("sampleAnimal"), Sequence.all, features)
 
 
         then: "we should see the exported annotations in Chado data source"
@@ -200,7 +200,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec {
                 features.add(it)
             }
         }
-        chadoHandlerService.writeFeatures(Organism.first(), Sequence.all, features)
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("sampleAnimal"), Sequence.all, features)
 
         then: "we should see features in Chado data source"
         assert org.gmod.chado.Feature.count > 0
@@ -304,7 +304,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec {
                 features.add(it)
             }
         }
-        chadoHandlerService.writeFeatures(Organism.first(), Sequence.all, features)
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("sampleAnimal"), Sequence.all, features)
 
         then: "we should see the annotations in Chado data source"
         assert org.gmod.chado.Feature.count > 0
@@ -327,7 +327,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec {
             }
         }
 
-        chadoHandlerService.writeFeatures(Organism.first(), Sequence.all, features)
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("sampleAnimal"), Sequence.all, features)
 
         then: "we should find GB40737-RA in the Chado data source"
         assert org.gmod.chado.Feature.findByUniquename(gene3.uniqueName) != null
@@ -342,7 +342,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec {
             }
         }
 
-        chadoHandlerService.writeFeatures(Organism.first(), Sequence.all, features)
+        chadoHandlerService.writeFeatures(Organism.findByCommonName("sampleAnimal"), Sequence.all, features)
 
         then: "GB40740-RA, its dbxrefs and feature properties should not exist in Chado"
         assert org.gmod.chado.Feature.findByUniquename(gene1UniqueName) == null

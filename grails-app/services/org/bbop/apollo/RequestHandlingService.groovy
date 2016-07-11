@@ -94,11 +94,8 @@ class RequestHandlingService {
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
-            if (!sequence) sequence = feature.getFeatureLocation().getSequence()
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
-            }
-
+            sequence =  sequence ?: feature.getFeatureLocation().getSequence()
+            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
             feature.symbol = symbolString
             feature.save(flush: true, failOnError: true)
@@ -127,10 +124,8 @@ class RequestHandlingService {
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
-            if (!sequence) sequence = feature.getFeatureLocation().getSequence()
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
-            }
+            sequence =  sequence ?: feature.getFeatureLocation().getSequence()
+            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
 
             feature.description = descriptionString
@@ -1231,12 +1226,10 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, bookmark)
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                if (activeUser) {
-                    featureService.setOwner(sequenceAlteration, activeUser)
-                } else {
-                    log.error("Unable to find valid user to set on transcript!" + inputObject)
-                }
+            if (activeUser) {
+                featureService.setOwner(sequenceAlteration, activeUser)
+            } else {
+                log.error("Unable to find valid user to set on transcript!" + inputObject)
             }
             sequenceAlteration.save()
 

@@ -17,7 +17,6 @@ class OrganismServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "You add a transcript via JSON"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
-//        JSONObject correctJsonReturnObject = JSON.parse(validJSONString) as JSONObject
         JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
 
         then: "there should be no features"

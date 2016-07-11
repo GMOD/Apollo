@@ -13,17 +13,6 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
     def exonService
     def featureEventService
 
-    def setup() {
-        FeatureEvent.deleteAll(FeatureEvent.all)
-        Feature.deleteAll(Feature.all)
-    }
-
-    def cleanup() {
-        FeatureEvent.deleteAll(FeatureEvent.all)
-        Feature.deleteAll(Feature.all)
-    }
-
-
     protected JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
         JSONObject jsonFeatureContainer = new JSONObject();
         JSONArray jsonFeatures = new JSONArray();
@@ -32,6 +21,17 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
             jsonFeatures.put(feature);
         }
         return jsonFeatureContainer;
+    }
+
+    def setup() {
+        FeatureEvent.deleteAll(FeatureEvent.all)
+        Feature.deleteAll(Feature.all)
+        setupDefaultUserOrg()
+    }
+
+    def cleanup() {
+        FeatureEvent.deleteAll(FeatureEvent.all)
+        Feature.deleteAll(Feature.all)
     }
 
     void "we can undo and redo a transcript split"() {

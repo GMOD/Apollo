@@ -7,6 +7,7 @@ class ExonServiceIntegrationSpec extends AbstractIntegrationSpec{
     def exonService
 
     def setup() {
+        setupDefaultUserOrg()
         Sequence sequence = new Sequence(
                 length: 300000
                 ,seqChunkSize: 3

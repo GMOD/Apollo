@@ -15,7 +15,7 @@ class FastaHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
         
         when: "we parse the json"
         requestHandlingService.addTranscript(JSON.parse(json))
-        
+
 
         then: "We should have at least one new gene"
         assert Gene.count == 1

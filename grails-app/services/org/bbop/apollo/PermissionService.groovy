@@ -4,11 +4,11 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import grails.util.Environment
-import org.apache.commons.lang.RandomStringUtils
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
+import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -261,15 +261,6 @@ class PermissionService {
                 sequences << it.name
             }
         }
-//        else if (inputObject.has(FeatureStringEnum.SEQUENCE.value)) {
-//            if (BookmarkService.isProjectionString(inputObject.sequence)) {
-//                inputObject.sequences.each { it ->
-//                    sequences << it.name
-//                }
-//            } else {
-//                sequences << inputObject.getString(FeatureStringEnum.SEQUENCE.value)
-//            }
-//        }
         else if (inputObject.has(FeatureStringEnum.TRACK.value)) {
             if (BookmarkService.isProjectionString(inputObject.track.toString())) {
 //                JSONObject sequenceObject = inputObject.track
@@ -298,10 +289,6 @@ class PermissionService {
 
     // get current user from session or input object
     User getCurrentUser(JSONObject inputObject = new JSONObject()) {
-        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-            return null
-        }
-
         String username
         if (inputObject?.has(FeatureStringEnum.USERNAME.value)) {
             username = inputObject.getString(FeatureStringEnum.USERNAME.value)
@@ -336,15 +323,6 @@ class PermissionService {
 
         String trackName = sequenceStrings.first()
 //        String trackName = getSequenceNameFromInput(inputObject)
-
-        // this is for testing only
-//        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-//        if (Environment.current == Environment.TEST) {
-//            List<Sequence> sequenceList = Sequence.findAllByNameInList(sequenceStrings)
-////            Sequence sequence = trackName ? Sequence.findByName(trackName) : null
-////            sequenceList.add(sequence)
-//            return bookmarkService.generateBookmarkForSequence(sequenceList as Sequence[])
-//        }
 
         User user = getCurrentUser(inputObject)
         organism = preferenceService.getOrganismFromInput(inputObject)
@@ -665,7 +643,7 @@ class PermissionService {
             dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,params.get(FeatureStringEnum.CLIENT_TOKEN.value))
         }
         else{
-            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,RandomStringUtils.random(20))
+            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,ClientTokenGenerator.generateRandomString())
         }
         return dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
     }
