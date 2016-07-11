@@ -366,7 +366,6 @@ class PermissionService {
                 }
             } else {
                 log.debug "No session found"
-                return false
             }
 
         } catch (e) {
@@ -374,6 +373,7 @@ class PermissionService {
             e.printStackTrace()
             return false
         }
+        return false
 
     }
 
