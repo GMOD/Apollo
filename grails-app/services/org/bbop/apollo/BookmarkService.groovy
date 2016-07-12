@@ -77,7 +77,10 @@ class BookmarkService {
 
     JSONObject standardizeSequenceList(JSONObject inputObject) {
         JSONArray sequenceArray = JSON.parse(inputObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
-        Organism organism = preferenceService.getOrganismForToken(inputObject.getString(FeatureStringEnum.ORGANISM.value))
+        Organism organism = null
+        if(inputObject.containsKey(FeatureStringEnum.ORGANISM)){
+            organism = preferenceService.getOrganismForToken(inputObject.getString(FeatureStringEnum.ORGANISM.value))
+        }
         if(!organism){
             UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             organism = userOrganismPreference?.organism
@@ -100,9 +103,11 @@ class BookmarkService {
     }
 
     def getBookmarksForUserAndOrganism(User user,Organism organism){
-        return user.bookmarks.findAll(){
+        def bookmarks = user.bookmarks.findAll(){
             it.organism==organism
         }
+        println "# of bookmarks = ${bookmarks.size()}"
+        return bookmarks
     }
 
     Bookmark convertJsonToBookmark(JSONObject jsonObject) {
@@ -119,8 +124,7 @@ class BookmarkService {
             bookmark.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value): sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
             bookmark.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size()-1).getInt(FeatureStringEnum.END.value)
 
-            User user = permissionService.getCurrentUser(jsonObject)
-
+//            User user = permissionService.getCurrentUser(jsonObject)
 //            bookmark.user = userOrganismPreference.user
             bookmark.organism = preferenceService.getOrganismFromInput(jsonObject)
             if(!bookmark.organism){
@@ -128,10 +132,10 @@ class BookmarkService {
             }
             bookmark.save(insert: true,flush:true)
         }
-        else{
-            bookmark.padding = jsonObject.padding
-            bookmark.save(insert:false,flush:true)
-        }
+//        else{
+//            bookmark.padding = jsonObject.padding
+//            bookmark.save(insert:false,flush:true)
+//        }
 
 //        return generateBookmarkForSequence(sequences as Sequence[])
         return bookmark

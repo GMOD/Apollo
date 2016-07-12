@@ -18,11 +18,9 @@ class BookmarkController {
 
     def list() {
         JSONObject inputObject = permissionService.handleInput(request,params)
-        JSONObject bookmarkObject = (request.JSON ?: JSON.parse(params.data.toString())) as JSONObject
-        User user = permissionService.getCurrentUser(bookmarkObject)
+        User user = permissionService.getCurrentUser(inputObject)
         if(Organism.count>0){
             Organism currentOrganism = preferenceService.getOrganismFromPreferences(user,null,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-//            render Bookmark.findAllByUserAndOrganism(user,currentOrganism).sort(){ a,b -> a.sequenceList <=> b.sequenceList} as JSON
             render bookmarkService.getBookmarksForUserAndOrganism(user,currentOrganism).sort(){ a,b -> a.sequenceList <=> b.sequenceList} as JSON
         }
         else{
@@ -47,22 +45,17 @@ class BookmarkController {
     @Transactional
     def addBookmark() {
         JSONObject inputObject = permissionService.handleInput(request,params)
-        JSONArray bookmarkArray = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
-//        User user = permissionService.currentUser
-        JSONObject bookmarkJsonObject = bookmarkArray.getJSONObject(0)
-        permissionService.copyRequestValues(inputObject,bookmarkJsonObject)
-        bookmarkService.convertJsonToBookmark(bookmarkJsonObject) // this will save a new bookmark
+        Bookmark bookmark = bookmarkService.convertJsonToBookmark(inputObject) // this will save a new bookmark
+        User user = permissionService.currentUser
+        user.addToBookmarks(bookmark)
+        user.save(flush: true )
         render list() as JSON
     }
 
     @Transactional
     def addBookmarkAndReturn() {
         JSONObject inputObject = permissionService.handleInput(request,params)
-        JSONArray bookmarkArray = (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
-//        User user = permissionService.currentUser
-        JSONObject bookmarkJsonObject = bookmarkArray.getJSONObject(0)
-        permissionService.copyRequestValues(inputObject,bookmarkJsonObject)
-        Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkJsonObject)
+        Bookmark bookmark = bookmarkService.convertJsonToBookmark(inputObject)
         render bookmarkService.convertBookmarkToJson(bookmark) as JSON
     }
 

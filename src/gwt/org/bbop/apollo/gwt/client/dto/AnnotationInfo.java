@@ -4,6 +4,8 @@ import java.util.*;
 
 /**
  * Created by Nathan Dunn on 1/27/15.
+ *
+ * TODO: add a SequenceInfo object instead of string
  */
 public class AnnotationInfo {
     private String uniqueName;

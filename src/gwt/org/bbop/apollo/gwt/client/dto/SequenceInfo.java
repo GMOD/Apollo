@@ -7,6 +7,7 @@ import org.bbop.apollo.gwt.client.comparators.AlphanumericSorter;
 
 /**
  * Created by Nathan Dunn on 12/18/14.
+ * TODO: add OrganismInfo
  */
 public class SequenceInfo implements Comparable<SequenceInfo>,HasJSON{
 
