@@ -441,7 +441,6 @@ class PermissionService {
             }
             else {
                 log.debug "No session found"
-                return false
             }
 
         } catch (e) {

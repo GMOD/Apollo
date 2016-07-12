@@ -260,4 +260,15 @@ web-server user can write to that directory:
 Information on the [grails ehcache plugin](http://grails-plugins.github.io/grails-cache-ehcache/guide/usage.html) (see
 "Overriding values") and [ehcache itself](http://ehcache.org/documentation/2.8/integrations/grails).
 
+### Mysql invalid TimeStamp error
 
+For certain version of MySQL we might get errors of this nature:
+
+> SQLException occurred when processing request: [GET] /apollo/annotator/getAppState
+Value '0000-00-00 00:00:00' can not be represented as java.sql.Timestamp. Stacktrace follows:
+java.sql.SQLException: Value '0000-00-00 00:00:00' can not be represented as java.sql.Timestamp
+
+The fix is to set the ```zeroDateTimeBehavior=convertToNull``` to the url connect screen.  Originally [identified here](https://github.com/GMOD/Apollo/issues/1170).  Here is an example URL:
+
+
+    jdbc:mysql://localhost/apollo_production?zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8
