@@ -265,7 +265,7 @@ class AnnotatorController {
             if (returnObject.has("track")) {
                 bookmark = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             } else {
-                organism = permissionService.checkPermissions(inputObject, PermissionEnum.READ)?.organism
+                permissionService.checkPermissions(inputObject, PermissionEnum.READ)
             }
             Integer index = Integer.parseInt(request)
 

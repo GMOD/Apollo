@@ -340,12 +340,12 @@ class PermissionService {
         Organism organism
 
         List<String> sequenceStrings = getSequenceNameFromInput(inputObject)
-        if (!sequenceStrings) {
-            log.error("No sequence strings!")
-//            throw new RuntimeException("Unable to process sequences: " + (inputObject as JSON))
+        String trackName = null
+        if (sequenceStrings) {
+            trackName = sequenceStrings.first()
         }
 
-        String trackName = sequenceStrings.first()
+
         User user = getCurrentUser(inputObject)
         organism = preferenceService.getOrganismFromInput(inputObject)
 
