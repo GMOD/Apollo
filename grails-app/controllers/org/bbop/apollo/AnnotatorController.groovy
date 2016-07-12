@@ -259,7 +259,7 @@ class AnnotatorController {
 //            Organism organism = sequenceObj.organism
             Bookmark bookmark
 //            Organism organism = permissionService.currentOrganismPreference.organism
-            Organism organism = permissionService.getCurrentOrganismPreference(clientToken)?.organism
+            Organism organism = preferenceService.getCurrentOrganismPreference(clientToken)?.organism
 
             returnObject.organism = organism?.id
             if (returnObject.has("track")) {

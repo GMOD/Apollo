@@ -255,6 +255,7 @@ class PermissionService {
      */
     @NotTransactional
     public List<String> getSequenceNameFromInput(JSONObject inputObject) {
+        println "getting sequence names from input ${inputObject as JSON}"
         def sequences = []
         if (inputObject.has(FeatureStringEnum.SEQUENCE_LIST.value)) {
             inputObject.sequenceList.each { it ->
@@ -306,6 +307,28 @@ class PermissionService {
     }
 
 
+    Organism getOrganismFromInput(JSONObject inputObject) {
+
+        if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
+            String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
+            Organism organism = Organism.findByCommonNameIlike(organismString)
+            if(organism){
+                log.debug "return organism ${organism} by name ${organismString}"
+                return organism
+            }
+            if(!organism){
+                organism = Organism.findById(organismString as Long);
+            }
+            if(organism){
+                log.debug "return organism ${organism} by ID ${organismString}"
+                return organism
+            }
+            else{
+                log.info "organism not found ${organismString}"
+            }
+        }
+        return null
+    }
 
     /**
      * This method finds the proper username with their proper organism for the current organism when including the track name.
@@ -316,14 +339,14 @@ class PermissionService {
      */
     Bookmark checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
+
         List<String> sequenceStrings = getSequenceNameFromInput(inputObject)
         if (!sequenceStrings) {
-            throw new RuntimeException("Unable to process sequences: " + (inputObject as JSON))
+            log.error("No sequence strings!")
+//            throw new RuntimeException("Unable to process sequences: " + (inputObject as JSON))
         }
 
-        String trackName = sequenceStrings.first()
-//        String trackName = getSequenceNameFromInput(inputObject)
-
+        String trackName = getSequenceNameFromInput(inputObject)
         User user = getCurrentUser(inputObject)
         organism = preferenceService.getOrganismFromInput(inputObject)
 
