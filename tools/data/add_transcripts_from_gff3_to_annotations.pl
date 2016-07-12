@@ -38,6 +38,7 @@ my $password;
 my $url;
 my $session_id;
 my $name_attributes="Name";
+my $test = 0;
 
 my $success_log;
 my $error_log;
@@ -94,6 +95,7 @@ sub parse_options {
            "success_log|l=s"        => \$success_log_file,
            "error_log|L=s"      => \$error_log_file,
            "skip|s=s"           => \$skip_file,
+           "test|x"           => \$test,
            "help|h"         => \$help,
            "name_attributes=s"   => \$name_attributes);
            
@@ -142,6 +144,7 @@ usage: $progname
     [--success_log|-l <success log file>]
     [--error_log|-L <error log file>]
     [--skip|-s <skip id file>]
+    [--test|-x]
     [--help|-h]
     [--name_attributes <feature attribute to be used as name, first found used>]
 
@@ -179,6 +182,7 @@ usage: $progname
     l: log file for ids that were successfully processed
     L: log file for ids that were erroneously processed
     s: file with ids to skip
+    x: test mode
     h: this help screen
 END
 }
@@ -191,11 +195,18 @@ sub process_gff {
         next if ref $features ne "ARRAY";
         process_gff_entry($features, $seq_ids_to_genes, $seq_ids_to_transcripts);
     }
-    write_features("addFeature", $seq_ids_to_genes);
-    write_features("addTranscript", $seq_ids_to_transcripts);
-    if (!scalar(keys(%{$seq_ids_to_genes})) && !scalar(keys(%{$seq_ids_to_transcripts}))) {
-        print "No genes of type \"$gene_types_in\" or transcripts of type \"$transcript_types_in\" found\n";
+    if ($test) {
+        print_features($seq_ids_to_genes);
+        print_features($seq_ids_to_transcripts);
     }
+    else {
+        write_features("addFeature", $seq_ids_to_genes);
+        write_features("addTranscript", $seq_ids_to_transcripts);
+        if (!scalar(keys(%{$seq_ids_to_genes})) && !scalar(keys(%{$seq_ids_to_transcripts}))) {
+            print "No genes of type \"$gene_types_in\" or transcripts of type \"$transcript_types_in\" found\n";
+        }
+    }
+
 }
 
 sub write_features {
@@ -678,4 +689,17 @@ sub convert_mrna_feature {
     }
 
     return $mrna_json_feature;
+}
+
+sub print_features {
+    my $data = shift;
+    while (my ($seq_id, $features) = each(%{$data})) {
+        my @to_be_written = ();
+        my @ids = ();
+        for (my $i = 0; $i < scalar(@${features}); ++$i) {
+            my $feature = $features->[$i];
+            print to_json(@$feature[0]);
+            print "\n";
+        }
+    }
 }
