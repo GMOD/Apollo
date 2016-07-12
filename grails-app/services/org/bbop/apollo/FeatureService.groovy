@@ -212,25 +212,30 @@ class FeatureService {
                             }
                             tmpGene.save()
 
-
                             if (jsonGene.has(FeatureStringEnum.PROPERTIES.value)) {
                                 // parse properties
                                 JSONArray featureProperties = jsonGene.getJSONArray(FeatureStringEnum.PROPERTIES.value)
                                 for (JSONObject featureProperty : featureProperties) {
                                     String tagString = featureProperty.get(FeatureStringEnum.TYPE.value).name
                                     String valueString = featureProperty.get(FeatureStringEnum.VALUE.value)
-                                    if (tagString == FeatureStringEnum.COMMENT.value) {
-                                        continue
-                                    }
                                     // TODO: needs improvement
                                     boolean exists = false
                                     tmpGene.featureProperties.each {
-                                        if (it.tag == tagString && it.value == valueString) {
+                                        if (it instanceof Comment) {
+                                            exists = true
+                                        }
+                                        else if (it.tag == tagString && it.value == valueString) {
                                             exists = true
                                         }
                                     }
                                     if (!exists) {
-                                        addNonReservedProperties(tmpGene, tagString, valueString)
+                                        if (tagString == FeatureStringEnum.COMMENT.value) {
+                                            // if FeatureProperty is a comment
+                                            featurePropertyService.addComment(tmpGene, valueString)
+                                        }
+                                        else {
+                                            addNonReservedProperties(tmpGene, tagString, valueString)
+                                        }
                                     }
                                 }
                             }
@@ -1199,35 +1204,52 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     String propertyValue = property.get(FeatureStringEnum.VALUE.value)
 
                     FeatureProperty gsolProperty = null;
-                    if (propertyName == FeatureStringEnum.COMMENT.value) {
-                        // property of type 'Comment'
-                        gsolProperty = new Comment();
-                    } else {
-                        gsolProperty = new FeatureProperty();
-                    }
-
-                    if (propertyType.has(FeatureStringEnum.NAME.value)) {
-                        CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
-                        CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
-                        gsolProperty.setType(cvTerm);
-                    } else {
-                        log.warn "No proper type for the CV is set ${propertyType as JSON}"
-                    }
-                    gsolProperty.setTag(propertyName)
-                    gsolProperty.setValue(propertyValue)
-                    gsolProperty.setFeature(gsolFeature);
-
-                    int rank = 0;
-                    for (FeatureProperty fp : gsolFeature.getFeatureProperties()) {
-                        if (fp.getType().equals(gsolProperty.getType())) {
-                            if (fp.getRank() > rank) {
-                                rank = fp.getRank();
-                            }
+                    if (propertyName == FeatureStringEnum.STATUS.value) {
+                        // property of type 'Status'
+                        AvailableStatus availableStatus = AvailableStatus.findByValue(propertyValue)
+                        if (availableStatus) {
+                            Status status = new Status(
+                                    value: availableStatus.value,
+                                    feature: gsolFeature
+                            ).save(failOnError: true)
+                            gsolFeature.status = status
+                            gsolFeature.save()
+                        }
+                        else {
+                            log.warn "Ignoring status ${propertyValue} as its not defined."
                         }
                     }
-                    gsolProperty.setRank(rank + 1);
-                    gsolProperty.save()
-                    gsolFeature.addToFeatureProperties(gsolProperty);
+                    else {
+                        if (propertyName == FeatureStringEnum.COMMENT.value) {
+                            // property of type 'Comment'
+                            gsolProperty = new Comment();
+                        } else {
+                            gsolProperty = new FeatureProperty();
+                        }
+
+                        if (propertyType.has(FeatureStringEnum.NAME.value)) {
+                            CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
+                            CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
+                            gsolProperty.setType(cvTerm);
+                        } else {
+                            log.warn "No proper type for the CV is set ${propertyType as JSON}"
+                        }
+                        gsolProperty.setTag(propertyName)
+                        gsolProperty.setValue(propertyValue)
+                        gsolProperty.setFeature(gsolFeature);
+
+                        int rank = 0;
+                        for (FeatureProperty fp : gsolFeature.getFeatureProperties()) {
+                            if (fp.getType().equals(gsolProperty.getType())) {
+                                if (fp.getRank() > rank) {
+                                    rank = fp.getRank();
+                                }
+                            }
+                        }
+                        gsolProperty.setRank(rank + 1);
+                        gsolProperty.save()
+                        gsolFeature.addToFeatureProperties(gsolProperty);
+                    }
                 }
             }
             if (jsonFeature.has(FeatureStringEnum.DBXREFS.value)) {
