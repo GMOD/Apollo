@@ -300,10 +300,9 @@ sub convert_feature {
                 $json_feature->{description} = $values->[0];
                 next;
             }
-            #my $type = $reserved_properties{$tag} ? $tag : $property_type_out;
+
             my $type = $tag;
             foreach my $value (@{$values}) {
-                #$value = $reserved_properties{$tag} ? $value : "$tag=$value";
                 my $json_property = {
                     value => $value,
                     type => {
