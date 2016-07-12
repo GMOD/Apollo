@@ -165,6 +165,8 @@ class FeatureService {
                 if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
                     Gene tmpGene = (Gene) feature;
                     log.debug "found an overlapping gene ${tmpGene}"
+                    // removing name from transcript JSON since its naming will be based off of the overlapping gene
+                    jsonTranscript.remove(FeatureStringEnum.NAME.value)
                     Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
                     updateNewGsolFeatureAttributes(tmpTranscript, sequence);
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
