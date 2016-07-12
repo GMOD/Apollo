@@ -17,70 +17,85 @@ class BookmarkController {
     def bookmarkService
 
     def list() {
-        JSONObject inputObject = permissionService.handleInput(request,params)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         User user = permissionService.getCurrentUser(inputObject)
-        if(Organism.count>0){
-            Organism currentOrganism = preferenceService.getOrganismFromPreferences(user,null,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-            render bookmarkService.getBookmarksForUserAndOrganism(user,currentOrganism).sort(){ a,b -> a.sequenceList <=> b.sequenceList} as JSON
-        }
-        else{
+        if (Organism.count > 0) {
+            Organism currentOrganism = preferenceService.getOrganismFromPreferences(user, null, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            render bookmarkService.getBookmarksForUserAndOrganism(user, currentOrganism).sort() { a, b -> a.sequenceList <=> b.sequenceList } as JSON
+        } else {
             render new JSONObject() as JSON
         }
 
     }
 
-    def getBookmark(){
-        JSONObject inputObject = permissionService.handleInput(request,params)
-        JSONObject bookmarkObject = (request.JSON ?: JSON.parse(params.data.toString())) as JSONObject
+    def getBookmark() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
         User user = permissionService.currentUser
-        Organism organism = preferenceService.getOrganismFromPreferences(user,bookmarkObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value).toString(),inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+        Organism organism = preferenceService.getOrganismFromPreferences(user, inputObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value).toString(), inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
         // creates a projection based on the Bookmarks and caches them
-        bookmarkObject.organism = organism.commonName
-        projectionService.getProjection(bookmarkObject)
+        inputObject.organism = organism.commonName
+        // this generates the projection
+        projectionService.getProjection(inputObject)
 
-        render bookmarkObject as JSON
+        render inputObject as JSON
     }
 
     @Transactional
     def addBookmark() {
-        JSONObject inputObject = permissionService.handleInput(request,params)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         Bookmark bookmark = bookmarkService.convertJsonToBookmark(inputObject) // this will save a new bookmark
         User user = permissionService.currentUser
         user.addToBookmarks(bookmark)
-        user.save(flush: true )
+        user.save(flush: true)
         render list() as JSON
     }
 
     @Transactional
     def addBookmarkAndReturn() {
-        JSONObject inputObject = permissionService.handleInput(request,params)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         Bookmark bookmark = bookmarkService.convertJsonToBookmark(inputObject)
         render bookmarkService.convertBookmarkToJson(bookmark) as JSON
     }
 
     @Transactional
     def deleteBookmark() {
-        JSONObject inputObject = permissionService.handleInput(request,params)
-        JSONArray bookmarkObject= (request.JSON ?: JSON.parse(params.data.toString())) as JSONArray
+        JSONObject inputObject = permissionService.handleInput(request, params)
         User user = permissionService.getCurrentUser(inputObject)
-        Organism organism = preferenceService.getOrganismFromPreferences(user,null,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-        
+        Organism organism = preferenceService.getOrganismFromPreferences(user, null, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+
 
         def idList = []
-        for(int i = 0 ; i < bookmarkObject.size() ; i++){
-            idList.add(bookmarkObject.getJSONObject(i).id)
+//        for(int i = 0 ; i < inputObject.size() ; i++){
+//            def obj = inputObject.getJSONObject(i)
+        idList.add(inputObject.id)
+//        }
+
+        def bookmark = Bookmark.findById(inputObject.id)
+        if(bookmark){
+            user.removeFromBookmarks(bookmark)
+            UserOrganismPreference uop = UserOrganismPreference.findByBookmark(bookmark)
+            if(uop){
+                if(uop.currentOrganism){
+                    log.error("Preference is still current, ignoring")
+                    render list() as JSON
+                    return
+                }
+                else{
+                    uop.delete()
+                }
+            }
+            bookmark.delete(flush: true)
+        }
+        else{
+            log.error("No bookmark found to delete for ${inputObject as JSON}")
         }
 
-        Bookmark.deleteAll(Bookmark.findAllByIdInList(idList))
-
-
-        def bookmarks = Bookmark.findAllByOrganism(organism)
-        render bookmarks as JSON
+        render list() as JSON
     }
 
     def searchBookmarks(String searchQuery) {
-        JSONObject inputObject = permissionService.handleInput(request,params)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         User user = permissionService.currentUser;
         Organism organism = preferenceService.getOrganismForToken(clientToken);
@@ -99,7 +114,7 @@ class BookmarkController {
         }
     }
 
-    def clearBookmarkCache(){
+    def clearBookmarkCache() {
         projectionService.clearProjections()
         render new JSONObject() as JSON
     }
