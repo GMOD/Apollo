@@ -346,7 +346,7 @@ class PermissionService {
 //            throw new RuntimeException("Unable to process sequences: " + (inputObject as JSON))
         }
 
-        String trackName = getSequenceNameFromInput(inputObject)
+        String trackName = sequenceStrings.first()
         User user = getCurrentUser(inputObject)
         organism = preferenceService.getOrganismFromInput(inputObject)
 

@@ -151,7 +151,7 @@ class PreferenceService {
         if(user && bookmark){
             user.addToBookmarks(bookmark)
         }
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientTokenAndSequence(user, organism, clientToken, sequence,[max: 1, sort: "lastUpdated", order: "desc"])
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientTokenAndBookmark(user, organism, clientToken, bookmark,[max: 1, sort: "lastUpdated", order: "desc"])
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user
