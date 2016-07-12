@@ -6,14 +6,12 @@ import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
-
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
 import org.hibernate.FetchMode
-
 /**
  * This class is responsible for handling JSON requests from the AnnotationEditorController and routing
  * to the proper service classes.
@@ -71,8 +69,7 @@ class RequestHandlingService {
             Substitution.class.name
     ]
 
-    public static
-    final List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
+    public static final List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
 
     private String underscoreToCamelCase(String underscore) {
         if (!underscore || underscore.isAllWhitespace()) {
@@ -423,18 +420,8 @@ class RequestHandlingService {
                 log.debug "dbString: ${dbString}"
                 String accessionString = dbXfrefJsonObject.getString(FeatureStringEnum.ACCESSION.value)
                 log.debug "accessionString : ${accessionString}"
-                DB db = DB.findByName(dbString)
-                if (!db) {
-                    db = new DB(name: dbString).save()
-                }
-                DBXref dbXref = DBXref.findOrSaveByAccessionAndDb(accessionString, db)
-                dbXref.save(flush: true)
-
-                feature.addToFeatureDBXrefs(dbXref)
-                feature.save()
+                featureService.addNonPrimaryDbxrefs(feature, dbString, accessionString)
             }
-
-
             feature.save(flush: true, failOnError: true)
 
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
@@ -1301,17 +1288,9 @@ class RequestHandlingService {
             JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.NON_RESERVED_PROPERTIES.value);
             for (int j = 0; j < properties.length(); ++j) {
                 JSONObject property = properties.getJSONObject(j);
-
                 String tag = property.getString(FeatureStringEnum.TAG.value)
                 String value = property.getString(FeatureStringEnum.VALUE.value)
-
-                FeatureProperty featureProperty = new FeatureProperty(
-                        feature: feature
-                        , value: value
-                        , tag: tag
-                ).save()
-                featurePropertyService.addProperty(feature, featureProperty)
-                feature.save()
+                featureService.addNonReservedProperties(feature, tag, value)
             }
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
@@ -1657,8 +1636,12 @@ class RequestHandlingService {
             if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.alternateCvTerm ||
                     jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.alternateCvTerm) {
                 // if jsonFeature is of type gene or pseudogene
+                JSONObject jsonGene = JSON.parse(jsonFeature.toString())
+                jsonGene.remove(FeatureStringEnum.CHILDREN.value)
                 for (JSONObject transcriptJsonFeature in jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)) {
                     // look at its children JSON Array to get the features at the *RNA level
+                    // adding jsonGene to each individual transcript
+                    transcriptJsonFeature.put(FeatureStringEnum.PARENT.value, jsonGene)
                     Feature newFeature = featureService.addFeature(transcriptJsonFeature, bookmark, user, suppressHistory)
                     JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
                     JSONObject jsonObject = newFeatureJsonObject

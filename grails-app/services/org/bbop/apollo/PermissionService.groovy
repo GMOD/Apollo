@@ -255,7 +255,6 @@ class PermissionService {
      */
     @NotTransactional
     public List<String> getSequenceNameFromInput(JSONObject inputObject) {
-        println "getting sequence names from input ${inputObject as JSON}"
         def sequences = []
         if (inputObject.has(FeatureStringEnum.SEQUENCE_LIST.value)) {
             inputObject.sequenceList.each { it ->

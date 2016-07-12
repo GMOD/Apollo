@@ -240,7 +240,7 @@ class FeatureService {
         User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
-            log.debug "has gene: ${gene}"
+            // Scenario I - if 'parent_id' attribute is given then find the gene
             transcript = (Transcript) convertJSONToFeature(jsonTranscript, bookmark);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
@@ -258,9 +258,9 @@ class FeatureService {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
         } else {
-            log.debug "no gene given"
+            // Scenario II - find an overlapping isoform and if present, add current transcript to its gene
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), bookmark,false)
-            Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll(){
+            Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll() {
                 it = Feature.get(it.id)
                 it instanceof Gene
             }
@@ -274,6 +274,8 @@ class FeatureService {
                 if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
                     Gene tmpGene = (Gene) feature;
                     log.debug "found an overlapping gene ${tmpGene}"
+                    // removing name from transcript JSON since its naming will be based off of the overlapping gene
+                    jsonTranscript.remove(FeatureStringEnum.NAME.value)
                     Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, bookmark);
                     updateNewGsolFeatureAttributes(tmpTranscript, bookmark);
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
@@ -297,7 +299,59 @@ class FeatureService {
                         addTranscriptToGene(gene, transcript)
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
                         transcript.save()
-                        // was existing
+
+                        if (jsonTranscript.has(FeatureStringEnum.PARENT.value)) {
+                            // use metadata of incoming transcript's gene
+                            JSONObject jsonGene = jsonTranscript.getJSONObject(FeatureStringEnum.PARENT.value)
+                            if (jsonGene.has(FeatureStringEnum.DBXREFS.value)) {
+                                // parse dbxrefs
+                                JSONArray dbxrefs = jsonGene.getJSONArray(FeatureStringEnum.DBXREFS.value)
+                                for (JSONObject dbxref : dbxrefs) {
+                                    String dbString = dbxref.get(FeatureStringEnum.DB.value).name
+                                    String accessionString = dbxref.get(FeatureStringEnum.ACCESSION.value)
+                                    // TODO: needs improvement
+                                    boolean exists = false
+                                    tmpGene.featureDBXrefs.each {
+                                        if (it.db.name == dbString && it.accession == accessionString) {
+                                            exists = true
+                                        }
+                                    }
+                                    if (!exists) {
+                                        addNonPrimaryDbxrefs(tmpGene, dbString, accessionString)
+                                    }
+                                }
+                            }
+                            tmpGene.save()
+
+                            if (jsonGene.has(FeatureStringEnum.PROPERTIES.value)) {
+                                // parse properties
+                                JSONArray featureProperties = jsonGene.getJSONArray(FeatureStringEnum.PROPERTIES.value)
+                                for (JSONObject featureProperty : featureProperties) {
+                                    String tagString = featureProperty.get(FeatureStringEnum.TYPE.value).name
+                                    String valueString = featureProperty.get(FeatureStringEnum.VALUE.value)
+                                    // TODO: needs improvement
+                                    boolean exists = false
+                                    tmpGene.featureProperties.each {
+                                        if (it instanceof Comment) {
+                                            exists = true
+                                        }
+                                        else if (it.tag == tagString && it.value == valueString) {
+                                            exists = true
+                                        }
+                                    }
+                                    if (!exists) {
+                                        if (tagString == FeatureStringEnum.COMMENT.value) {
+                                            // if FeatureProperty is a comment
+                                            featurePropertyService.addComment(tmpGene, valueString)
+                                        }
+                                        else {
+                                            addNonReservedProperties(tmpGene, tagString, valueString)
+                                        }
+                                    }
+                                }
+                            }
+                            tmpGene.save()
+                        }
                         gene.save(insert: false, flush: true)
                         break;
                     } else {
@@ -311,18 +365,29 @@ class FeatureService {
         }
         if (gene == null) {
             log.debug "gene is null"
+            // Scenario III - create a de-novo gene
             JSONObject jsonGene = new JSONObject();
-            jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript));
-            jsonGene.put(FeatureStringEnum.LOCATION.value, jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value));
-            // TODO: review
-//            String cvTermString = isPseudogene ? FeatureStringEnum.PSEUDOGENE.value : FeatureStringEnum.GENE.value
-            String cvTermString = FeatureStringEnum.GENE.value
-            jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
-            String geneName
-            if (jsonTranscript.has(FeatureStringEnum.NAME.value)) {
+            if (jsonTranscript.has(FeatureStringEnum.PARENT.value)) {
+                // Scenario IIIa - use the 'parent' attribute, if provided, from transcript JSON
+                jsonGene = JSON.parse(jsonTranscript.getString(FeatureStringEnum.PARENT.value)) as JSONObject
+                jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript))
+            }
+            else {
+                // Scenario IIIb - use the current mRNA's featurelocation for gene
+                jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript));
+                jsonGene.put(FeatureStringEnum.LOCATION.value, jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value));
+                String cvTermString = FeatureStringEnum.GENE.value
+                jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
+            }
+
+            String geneName = null
+            if (jsonGene.has(FeatureStringEnum.NAME.value)) {
+                geneName = jsonGene.get(FeatureStringEnum.NAME.value)
+            }
+            else if (jsonTranscript.has(FeatureStringEnum.NAME.value)) {
                 geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
             }
-            else{
+            else {
                 geneName = nameService.makeUniqueGeneName(bookmark.organism, bookmark.sequenceList, false)
             }
             if (!suppressHistory) {
@@ -358,7 +423,6 @@ class FeatureService {
             setOwner(transcript, owner);
         }
         return transcript;
-
     }
 
 // TODO: this is kind of a hack for now
@@ -1264,39 +1328,62 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 for (int i = 0; i < properties.length(); ++i) {
                     JSONObject property = properties.getJSONObject(i);
                     JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);
-                    String propertyName = property.get(FeatureStringEnum.NAME.value)
+                    String propertyName = ""
+                    if (property.has(FeatureStringEnum.NAME.value)) {
+                        propertyName = property.get(FeatureStringEnum.NAME.value)
+                    }
+                    else {
+                        propertyName = propertyType.get(FeatureStringEnum.NAME.value)
+                    }
                     String propertyValue = property.get(FeatureStringEnum.VALUE.value)
 
                     FeatureProperty gsolProperty = null;
-                    if (propertyName == FeatureStringEnum.COMMENT.value) {
-                        // property of type 'Comment'
-                        gsolProperty = new Comment();
-                    } else {
-                        gsolProperty = new FeatureProperty();
-                    }
-
-                    if (propertyType.has(FeatureStringEnum.NAME.value)) {
-                        CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
-                        CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
-                        gsolProperty.setType(cvTerm);
-                    } else {
-                        log.warn "No proper type for the CV is set ${propertyType as JSON}"
-                    }
-                    gsolProperty.setTag(propertyName)
-                    gsolProperty.setValue(propertyValue)
-                    gsolProperty.setFeature(gsolFeature);
-
-                    int rank = 0;
-                    for (FeatureProperty fp : gsolFeature.getFeatureProperties()) {
-                        if (fp.getType().equals(gsolProperty.getType())) {
-                            if (fp.getRank() > rank) {
-                                rank = fp.getRank();
-                            }
+                    if (propertyName == FeatureStringEnum.STATUS.value) {
+                        // property of type 'Status'
+                        AvailableStatus availableStatus = AvailableStatus.findByValue(propertyValue)
+                        if (availableStatus) {
+                            Status status = new Status(
+                                    value: availableStatus.value,
+                                    feature: gsolFeature
+                            ).save(failOnError: true)
+                            gsolFeature.status = status
+                            gsolFeature.save()
+                        }
+                        else {
+                            log.warn "Ignoring status ${propertyValue} as its not defined."
                         }
                     }
-                    gsolProperty.setRank(rank + 1);
-                    gsolProperty.save()
-                    gsolFeature.addToFeatureProperties(gsolProperty);
+                    else {
+                        if (propertyName == FeatureStringEnum.COMMENT.value) {
+                            // property of type 'Comment'
+                            gsolProperty = new Comment();
+                        } else {
+                            gsolProperty = new FeatureProperty();
+                        }
+
+                        if (propertyType.has(FeatureStringEnum.NAME.value)) {
+                            CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
+                            CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
+                            gsolProperty.setType(cvTerm);
+                        } else {
+                            log.warn "No proper type for the CV is set ${propertyType as JSON}"
+                        }
+                        gsolProperty.setTag(propertyName)
+                        gsolProperty.setValue(propertyValue)
+                        gsolProperty.setFeature(gsolFeature);
+
+                        int rank = 0;
+                        for (FeatureProperty fp : gsolFeature.getFeatureProperties()) {
+                            if (fp.getType().equals(gsolProperty.getType())) {
+                                if (fp.getRank() > rank) {
+                                    rank = fp.getRank();
+                                }
+                            }
+                        }
+                        gsolProperty.setRank(rank + 1);
+                        gsolProperty.save()
+                        gsolFeature.addToFeatureProperties(gsolProperty);
+                    }
                 }
             }
             if (jsonFeature.has(FeatureStringEnum.DBXREFS.value)) {
@@ -2640,7 +2727,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             log.debug "Converting ${originalType} to ${type}"
-
             Transcript transcript = null
             if (type == MRNA.alternateCvTerm) {
                 // *RNA to mRNA
@@ -2720,6 +2806,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             Transcript transcript = null
 
             if (gene) {
+                // Scenario I - if 'parent_id' attribute is given then find the gene
                 transcript = (Transcript) convertJSONToFeature(jsonFeature, bookmark)
                 if (transcript.fmin < 0 || transcript.fmax < 0) {
                     throw new AnnotationException("Feature cannot have negative coordinates")
@@ -2733,66 +2820,32 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     transcript.name = name + "-" + transcript.alternateCvTerm
                 }
             } else {
-                // gene is null
-                // so we first try to find any Gene feature that overlaps the given feature location
-                FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value), bookmark,false)
-                Collection <Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll() {
-                    it = Feature.get(it.id)
-                    it instanceof Gene
-                }
-
-                log.debug "overlapping features: ${overlappingFeatures.size()}"
-                for (Feature eachFeature : overlappingFeatures) {
-                    // get the proper object instead of its proxy, due to hibernate lazy loading
-                    Feature feature = Feature.get(eachFeature.id)
-                    log.debug "Evaluating overlap of feature ${feature.name} of class ${feature.class.name}"
-
-                    if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
-                        Gene tmpGene = (Gene) feature
-                        log.debug "Found an overlapping gene: ${tmpGene}"
-                        Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonFeature,bookmark)
-                        updateNewGsolFeatureAttributes(tmpTranscript, bookmark)
-                        if (tmpTranscript.fmin < 0 || tmpTranscript.fmax < 0) {
-                            throw new AnnotationException("Feature cannot have negative coordinates")
-                        }
-
-                        setOwner(tmpTranscript, user)
-
-                        if (suppressHistory) {
-                            String name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
-                            tmpTranscript.name = name + "-" + tmpTranscript.alternateCvTerm
-                        }
-
-                        if (overlapperService.overlaps(tmpTranscript, tmpGene)) {
-                            log.debug "There is an overlap, adding to an existing gene"
-                            transcript = tmpTranscript;
-                            gene = tmpGene
-                            addTranscriptToGene(gene, transcript)
-                            transcript.save()
-                            // insert is false because this gene is already an existing gene
-                            gene.save(insert: false, flush: true)
-                            break
-                        } else {
-                            // deleting the temporarily generated transcript
-                            featureRelationshipService.deleteFeatureAndChildren(tmpTranscript)
-                            log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript"
-                        }
-                    } else {
-                        log.info "Feature is not an instance of a gene or is a pseudogene"
-                    }
-                }
+                // Scenario II - find and overlapping isoform and if present, add current transcript to its gene.
+                // Disabling Scenario II since there is no appropriate overlapper to determine overlaps between non-coding transcripts.
             }
 
             if (gene == null) {
                 log.debug "gene is still NULL"
+                // Scenario III - create a de-novo gene
                 JSONObject jsonGene = new JSONObject()
-                jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonFeature))
-                jsonGene.put(FeatureStringEnum.LOCATION.value, jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value))
-                String cvTermString = jsonFeature.get(FeatureStringEnum.TYPE.value).name == Transcript.alternateCvTerm ? Pseudogene.alternateCvTerm : Gene.alternateCvTerm
-                jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString))
+                if (jsonFeature.has(FeatureStringEnum.PARENT.value)) {
+                    // Scenario IIIa - use the 'parent' attribute, if provided, from feature JSON
+                    jsonGene = JSON.parse(jsonFeature.getString(FeatureStringEnum.PARENT.value)) as JSONObject
+                    jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonFeature))
+                }
+                else {
+                    // Scenario IIIb - use the current mRNA's featurelocation for gene
+                    jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonFeature))
+                    jsonGene.put(FeatureStringEnum.LOCATION.value, jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value))
+                    String cvTermString = jsonFeature.get(FeatureStringEnum.TYPE.value).name == Transcript.alternateCvTerm ? Pseudogene.alternateCvTerm : Gene.alternateCvTerm
+                    jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString))
+                }
 
                 String geneName = null
-                if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
+                if (jsonGene.has(FeatureStringEnum.NAME.value)) {
+                    geneName = jsonGene.getString(FeatureStringEnum.NAME.value)
+                }
+                else if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                     geneName = jsonFeature.getString(FeatureStringEnum.NAME.value)
                 }
                 else {
@@ -2814,7 +2867,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 if (gene.fmin < 0 || gene.fmax < 0) {
                     throw new AnnotationException("Feature cannot have negative coordinates")
                 }
-
                 transcript = transcriptService.getTranscripts(gene).iterator().next();
                 removeExonOverlapsAndAdjacenciesForFeature(gene)
                 if (!suppressHistory) {
@@ -2874,4 +2926,24 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return returnFeature
     }
 
+    def addNonPrimaryDbxrefs(Feature feature, String dbString, String accessionString) {
+        DB db = DB.findByName(dbString)
+        if (!db) {
+            db = new DB(name: dbString).save()
+        }
+        DBXref dbxref = DBXref.findOrSaveByAccessionAndDb(accessionString, db)
+        dbxref.save(flush: true)
+        feature.addToFeatureDBXrefs(dbxref)
+        feature.save()
+    }
+
+    def addNonReservedProperties(Feature feature, String tagString, String valueString) {
+        FeatureProperty featureProperty = new FeatureProperty(
+                feature: feature,
+                value: valueString,
+                tag: tagString
+        ).save()
+        featurePropertyService.addProperty(feature, featureProperty)
+        feature.save()
+    }
 }
