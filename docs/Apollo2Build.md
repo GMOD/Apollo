@@ -36,7 +36,7 @@ grails for you.
 
 ### Get the code
 
-To setup Apollo, you can download our [latest release](https://github.com/GMOD/Apollo/releases/latest) from our [official releases](https://github.com/GMOD/Apollo/releases/).   Version 2.0.2 is available as a [.tar.gz](https://github.com/GMOD/Apollo/archive/2.0.2.tar.gz) or a [.zip](https://github.com/GMOD/Apollo/archive/2.0.2.zip) file. 
+To setup Apollo, you can download our [latest release](https://github.com/GMOD/Apollo/releases/latest) from our [official releases](https://github.com/GMOD/Apollo/releases/) as compressed zip or tar.gz file (link at the bottom).  
 
 Alternatively you can check it out from git as directly as follows:
 
