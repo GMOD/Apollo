@@ -4601,6 +4601,8 @@ define([
                     dojo.connect(changeAnnotationMenu, "onOpen", dojo.hitch(this, function() {
                         this.updateChangeAnnotationTypeMenu(changeAnnotationMenu);
                     }));
+                    index++; // manually connecting this, so not here
+
                     contextMenuItems["annotation_info_editor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
