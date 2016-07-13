@@ -78,8 +78,7 @@ class BookmarkController {
             if(uop){
                 if(uop.currentOrganism){
                     log.error("Preference is still current, ignoring")
-                    render list() as JSON
-                    return
+                    throw new AnnotationException("Can not delete the current bookmark!")
                 }
                 else{
                     uop.delete()
