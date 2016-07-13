@@ -351,6 +351,10 @@ public class Gff3HandlerService {
                     Map<String, StringBuilder> properties = new HashMap<String, StringBuilder>();
                     while (propertyIter.hasNext()) {
                         FeatureProperty prop = propertyIter.next();
+                        if (prop instanceof Comment) {
+                            // ignoring 'comment' as they are already processed earlier
+                            continue
+                        }
                         StringBuilder props = properties.get(prop.getTag());
                         if (props == null) {
                             if (prop.getTag() == null) {

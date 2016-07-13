@@ -54,7 +54,7 @@ def sampleFeaturesArray = new JSONArray()
 for(int i = 0 ; i < load ; i++){
     sampleFeaturesArray.add(inputArray[i])
 }
-//int sampleFeaturesSize = sampleFeaturesArray.size()
+int sampleFeaturesSize = sampleFeaturesArray.size()
 
 List<Long> timingsArray = new ArrayList<>()
 

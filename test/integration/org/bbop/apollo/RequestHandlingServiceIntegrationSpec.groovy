@@ -9,11 +9,13 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     def requestHandlingService
+    def featureService
     def featureRelationshipService
     def transcriptService
     def exonService
     def cdsService
     def sequenceService
+    def gff3HandlerService
     def projectionService
 
 
@@ -3012,5 +3014,315 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert newTranscript.featureDBXrefs.size() == 4
         assert newTranscript.featureProperties.size() == 3
 
+    }
+
+    void "when we add a coding transcript, its parent information (including metadata) should be used for creating a parent gene"() {
+        given: "GB40856-RA"
+        String addTranscriptString = "{ ${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":1216824,\"strand\":1,\"fmax\":1235616},\"name\":\"GB40856-RA\",\"children\":[{\"location\":{\"fmin\":1235534,\"strand\":1,\"fmax\":1235616},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1216824,\"strand\":1,\"fmax\":1216850},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1224676,\"strand\":1,\"fmax\":1224823},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1228682,\"strand\":1,\"fmax\":1228825},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1235237,\"strand\":1,\"fmax\":1235396},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1235487,\"strand\":1,\"fmax\":1235616},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1216824,\"strand\":1,\"fmax\":1235534},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"parent\":{\"location\":{\"fmin\":1216824,\"strand\":1,\"fmax\":1235616},\"name\":\"GB40856-RA\",\"symbol\":\"TGN1\",\"description\":\"TGN1 gene\",\"properties\":[{\"value\":\"this is a test gene\",\"type\":{\"name\":\"comment\",\"cv\":{\"name\":\"feature_property\"}}}],\"type\":{\"name\":\"gene\",\"cv\":{\"name\":\"sequence\"}}}}],\"track\":\"Group1.10\"}"
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see the transcript, its gene and gene metadata, as provided by the JSON"
+        MRNA mrna = MRNA.findByName("GB40856-RA-00001")
+        Gene gene = transcriptService.getGene(mrna)
+
+        assert gene.name == "GB40856-RA"
+        assert gene != null
+        assert gene.symbol == "TGN1"
+        assert gene.description == "TGN1 gene"
+
+        String comment = ""
+        gene.featureProperties.each {
+            if (it instanceof Comment) {
+                comment = it.value
+            }
+        }
+
+        assert comment == "this is a test gene"
+    }
+
+    void "when we add a non-coding transcript, its parent information (including metadata) should be used for creating a parent gene"() {
+        given: "a pseudogene"
+        String addFeatureString = "{ ${testCredentials} \"operation\":\"add_feature\",\"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":1282112,\"strand\":1,\"fmax\":1286907},\"name\":\"GB40861-RA\",\"symbol\":\"PSGN1\",\"description\":\"PSGN1 gene\",\"children\":[{\"location\":{\"fmin\":1282112,\"strand\":1,\"fmax\":1286907},\"name\":\"GB40861-RA-00001\",\"children\":[{\"location\":{\"fmin\":1283249,\"strand\":1,\"fmax\":1283301},\"name\":\"47d2eb21-2893-467c-b49b-7e8b22e177e1-exon\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1286542,\"strand\":1,\"fmax\":1286907},\"name\":\"58c0885c-8154-4383-b2a6-307068e4f0ff-exon\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1286248,\"strand\":1,\"fmax\":1286401},\"name\":\"f578ab7e-e1d3-4722-bea7-f92ad02e31dc-exon\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1285676,\"strand\":1,\"fmax\":1285867},\"name\":\"8cc97b4e-8ff3-44c9-9f40-f5a4c5a9cc8a-exon\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1282112,\"strand\":1,\"fmax\":1282545},\"name\":\"c76aa8b3-7179-4d4b-8e23-b80d407d2d3b-exon\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}}],\"properties\":[{\"value\":\"this is a test transcript of a pseudogene\",\"type\":{\"name\":\"comment\",\"cv\":{\"name\":\"feature_property\"}}},{\"value\":\"PSGN1-1A transcript\",\"type\":{\"name\":\"description\",\"cv\":{\"name\":\"feature_property\"}}},{\"value\":\"PSGN1-1A\",\"type\":{\"name\":\"symbol\",\"cv\":{\"name\":\"feature_property\"}}}],\"type\":{\"name\":\"transcript\",\"cv\":{\"name\":\"sequence\"}}}],\"properties\":[{\"value\":\"this is a test pseudogene\",\"type\":{\"name\":\"comment\",\"cv\":{\"name\":\"feature_property\"}}}],\"type\":{\"name\":\"pseudogene\",\"cv\":{\"name\":\"sequence\"}},\"symbol\":\"PSGN1\",\"description\":\"PSGN1 gene\"}]}"
+
+        when: "we add the pseudogene"
+        requestHandlingService.addFeature(JSON.parse(addFeatureString) as JSONObject)
+
+        then: "we should see the transcript, its gene and gene metadata, as provided by the JSON"
+        Transcript transcript = Transcript.all.get(0)
+        println "Transcript: ${transcript}"
+        Gene gene = transcriptService.getGene(transcript)
+        println "Gene: ${gene}"
+
+        assert gene.name == "GB40861-RA"
+        assert gene.symbol == "PSGN1"
+        assert gene.description == "PSGN1 gene"
+
+        String comment = ""
+        gene.featureProperties.each {
+            if (it instanceof Comment) {
+                comment = it.value
+            }
+        }
+
+        assert comment == "this is a test pseudogene"
+    }
+
+    void "a round-trip of GFF3 export and import"() {
+        given: "a fully annotated feature"
+        String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1303382},\"name\":\"GB40864-RA\",\"children\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296570},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1296818,\"strand\":1,\"fmax\":1296928},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1297013,\"strand\":1,\"fmax\":1297225},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1297301,\"strand\":1,\"fmax\":1297490},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1297612,\"strand\":1,\"fmax\":1297756},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1298681,\"strand\":1,\"fmax\":1298778},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1302749,\"strand\":1,\"fmax\":1302914},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1303302,\"strand\":1,\"fmax\":1303382},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1303382},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String setSymbolString = "{${testCredentials} \"operation\":\"set_symbol\",\"features\":[{\"symbol\":\"@SYMBOL@\",\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
+        String setDescriptionString = "{${testCredentials} \"operation\":\"set_description\",\"features\":[{\"description\":\"@DESCRIPTION@\",\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
+        String addNonPrimaryDbxrefString = "{${testCredentials} \"operation\":\"add_non_primary_dbxrefs\",\"features\":[{\"dbxrefs\":[{\"db\":\"@DB@\",\"accession\":\"@ACCESSION@\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
+        String addNonReservedPropertyString = "{${testCredentials} \"operation\":\"add_non_reserved_properties\",\"features\":[{\"non_reserved_properties\":[{\"tag\":\"@TAG@\",\"value\":\"@VALUE@\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
+        String addCommentString = "{${testCredentials} \"operation\":\"add_comments\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"comments\":[\"@COMMENT@\"]}],\"track\":\"Group1.10\"}"
+
+        when: "we add the annotation"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see the gene and its mRNA"
+        Gene gene = Gene.all.get(0)
+        Transcript transcript = Transcript.all.get(0)
+        assert transcript != null
+
+        when: "we add functional information to the gene"
+        String setSymbolForGene = setSymbolString.replace("@UNIQUENAME@", gene.uniqueName).replace("@SYMBOL@", "PCG1")
+        requestHandlingService.setSymbol(JSON.parse(setSymbolForGene) as JSONObject)
+
+        String setDescriptionForGene = setDescriptionString.replace("@UNIQUENAME@", gene.uniqueName).replace("@DESCRIPTION@", "PCG1 gene")
+        requestHandlingService.setDescription(JSON.parse(setDescriptionForGene) as JSONObject)
+
+        String addNonPrimaryDbxrefForGene1 = addNonPrimaryDbxrefString.replace("@UNIQUENAME@", gene.uniqueName).replace("@DB@", "NCBI").replace("@ACCESSION@", "98127312")
+        String addNonPrimaryDbxrefForGene2 = addNonPrimaryDbxrefString.replace("@UNIQUENAME@", gene.uniqueName).replace("@DB@", "PMID").replace("@ACCESSION@", "7304214")
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefForGene1) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefForGene2) as JSONObject)
+
+        String addNonReservedPropertyForGene1 = addNonReservedPropertyString.replace("@UNIQUENAME@", gene.uniqueName).replace("@TAG@", "score").replace("@VALUE@", "2362.3466")
+        String addNonReservedPropertyForGene2 = addNonReservedPropertyString.replace("@UNIQUENAME@", gene.uniqueName).replace("@TAG@", "type").replace("@VALUE@", "protein coding gene")
+        requestHandlingService.addNonReservedProperties(JSON.parse(addNonReservedPropertyForGene1) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addNonReservedPropertyForGene2) as JSONObject)
+
+        String addCommentForGene1 = addCommentString.replace("@UNIQUENAME@", gene.uniqueName).replace("@COMMENT@", "PCG1 is a protein coding gene")
+        String addCommentForGene2 = addCommentString.replace("@UNIQUENAME@", gene.uniqueName).replace("@COMMENT@", "PCG1 is a gene for test purposes")
+        requestHandlingService.addComments(JSON.parse(addCommentForGene1) as JSONObject)
+        requestHandlingService.addComments(JSON.parse(addCommentForGene2) as JSONObject)
+
+        then: "we should see the gene's properties"
+        assert gene.symbol != null
+        assert gene.description != null
+
+        when: "we add functional information to the mRNA"
+        String setSymbolForTranscript = setSymbolString.replace("@UNIQUENAME@", transcript.uniqueName).replace("@SYMBOL@", "PCG1-2A")
+        requestHandlingService.setSymbol(JSON.parse(setSymbolForTranscript) as JSONObject)
+
+        String setDescriptionForTranscript = setDescriptionString.replace("@UNIQUENAME@", transcript.uniqueName).replace("@DESCRIPTION@", "PCG1 isoform 2A")
+        requestHandlingService.setDescription(JSON.parse(setDescriptionForTranscript) as JSONObject)
+
+        String addNonPrimaryDbxrefForTranscript1 = addNonPrimaryDbxrefString.replace("@UNIQUENAME@", transcript.uniqueName).replace("@DB@", "NCBI").replace("@ACCESSION@", "XM_1239124.2")
+        String addNonPrimaryDbxrefForTranscript2 = addNonPrimaryDbxrefString.replace("@UNIQUENAME@", transcript.uniqueName).replace("@DB@", "PMID").replace("@ACCESSION@", "8723042")
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefForTranscript1) as JSONObject)
+        requestHandlingService.addNonPrimaryDbxrefs(JSON.parse(addNonPrimaryDbxrefForTranscript2) as JSONObject)
+
+        String addNonReservedPropertyForTranscript1 = addNonReservedPropertyString.replace("@UNIQUENAME@", transcript.uniqueName).replace("@TAG@", "score").replace("@VALUE@", "1234.8532")
+        String addNonReservedPropertyForTranscript2 = addNonReservedPropertyString.replace("@UNIQUENAME@", transcript.uniqueName).replace("@TAG@", "type").replace("@VALUE@", "protein coding isoform")
+        requestHandlingService.addNonReservedProperties(JSON.parse(addNonReservedPropertyForTranscript1) as JSONObject)
+        requestHandlingService.addNonReservedProperties(JSON.parse(addNonReservedPropertyForTranscript2) as JSONObject)
+
+        String addCommentForTranscript1 = addCommentString.replace("@UNIQUENAME@", transcript.uniqueName).replace("@COMMENT@", "PCG1-2A is a protein coding isoform")
+        String addCommentForTranscript2 = addCommentString.replace("@UNIQUENAME@", transcript.uniqueName).replace("@COMMENT@", "PCG1-2A is an isoform for test purposes")
+        requestHandlingService.addComments(JSON.parse(addCommentForTranscript1) as JSONObject)
+        requestHandlingService.addComments(JSON.parse(addCommentForTranscript2) as JSONObject)
+
+        then: "we should see the transcript's properties"
+        assert transcript.symbol != null
+        assert transcript.description != null
+
+        when: "we convert the gene to JSON"
+        JSONObject geneJsonObject = featureService.convertFeatureToJSON(gene)
+
+        then: "we should be able to validate the JSON representation of the gene"
+        assert geneJsonObject != null
+        assert gene.symbol == "PCG1"
+        assert gene.description == "PCG1 gene"
+        JSONArray geneDbxrefs = geneJsonObject.getJSONArray(FeatureStringEnum.DBXREFS.value)
+        JSONArray properties = geneJsonObject.getJSONArray(FeatureStringEnum.PROPERTIES.value)
+        JSONArray children = geneJsonObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
+
+        def seenDbxrefs = []
+        def seenProps = []
+
+        for (JSONObject dbxref : geneDbxrefs) {
+            if (dbxref.getJSONObject(FeatureStringEnum.DB.value).name == "PMID") {
+                assert dbxref.accession == "7304214"
+                seenDbxrefs.add("PMID:" + dbxref.accession)
+            }
+            else if (dbxref.getJSONObject(FeatureStringEnum.DB.value).name == "NCBI") {
+                assert dbxref.accession == "98127312"
+                seenDbxrefs.add("NCBI:" + dbxref.accession)
+            }
+        }
+        assert seenDbxrefs.size() == 2
+
+        for (JSONObject prop : properties) {
+            if (prop.name == "score") {
+                assert prop.value == "2362.3466"
+                seenProps.add("score:" + prop.value)
+            }
+            else if (prop.name == "type") {
+                assert prop.value == "protein coding gene"
+                seenProps.add("type:" + prop.value)
+            }
+            else if (prop.name == "comment") {
+                if (prop.value.contains('test')) {
+                    assert prop.value == "PCG1 is a gene for test purposes"
+                    seenProps.add("comment:" + prop.value)
+                }
+                else {
+                    assert prop.value == "PCG1 is a protein coding gene"
+                    seenProps.add("comment:" + prop.value)
+                }
+            }
+        }
+        assert seenProps.size() == 4
+
+        seenDbxrefs.clear()
+        seenProps.clear()
+
+        for (JSONObject child : children) {
+            JSONArray transcriptDbxrefs = child.getJSONArray(FeatureStringEnum.DBXREFS.value)
+            JSONArray transcriptProperties = child.getJSONArray(FeatureStringEnum.PROPERTIES.value)
+
+            for (JSONObject dbxref : transcriptDbxrefs) {
+                if (dbxref.getJSONObject(FeatureStringEnum.DB.value).name == "PMID") {
+                    assert dbxref.accession == "8723042"
+                    seenDbxrefs.add("PMID:" + dbxref.accession)
+                }
+                else if (dbxref.getJSONObject(FeatureStringEnum.DB.value).name == "NCBI") {
+                    assert dbxref.accession == "XM_1239124.2"
+                    seenDbxrefs.add("NCBI:" + dbxref.accession)
+                }
+            }
+            assert seenDbxrefs.size() == 2
+
+            for (JSONObject prop : transcriptProperties) {
+                if (prop.name == "score") {
+                    assert prop.value == "1234.8532"
+                    seenProps.add("score:" + prop.value)
+                }
+                else if (prop.name == "type") {
+                    assert prop.value == "protein coding isoform"
+                    seenProps.add("type:" + prop.value)
+                }
+                else if (prop.name == "comment") {
+                    if (prop.value.contains('test')) {
+                        assert prop.value == "PCG1-2A is an isoform for test purposes"
+                        seenProps.add("comment:" + prop.value)
+                    }
+                    else {
+                        assert prop.value == "PCG1-2A is a protein coding isoform"
+                        seenProps.add("comment:" + prop.value)
+                    }
+                }
+            }
+            assert seenProps.size() == 4
+        }
+
+        when: "we do a GFF3 export"
+        File tempFile = File.createTempFile("output", ".gff3")
+        String filePath = "${tempFile.absolutePath}"
+        tempFile.deleteOnExit()
+        def expectedDbxrefForGene = ["PMID:7304214", "NCBI:98127312"]
+        def expectedPropertiesForGene = ["score=2362.3466", "type=protein coding gene"]
+        def expectedNoteForGene = ["PCG1 is a protein coding gene", "PCG1 is a gene for test purposes"]
+
+        def expectedDbxrefForTranscript = ["PMID:8723042", "NCBI:XM_1239124.2"]
+        def expectedPropertiesForTranscript = ["score=1234.8532", "type=protein coding isoform"]
+        def expectedNoteForTranscript = ["PCG1-2A is a protein coding isoform", "PCG1-2A is an isoform for test purposes"]
+
+        def featuresToWrite = [gene]
+        gff3HandlerService.writeFeaturesToText(tempFile.absolutePath, featuresToWrite, ".")
+        String tempFileText = tempFile.text
+
+        then: "we should be able to validate the GFF3"
+        tempFileText.split("\n").each { line ->
+            if (!line.startsWith("#")) {
+                def gff3Record = line.split("\t")
+                String type = gff3Record[2]
+                def gffAttributes = gff3Record[8].split(";")
+                if (type == "gene") {
+                    gffAttributes.each { attribute ->
+                        def (attributeKey, attributeValue) = attribute.split("=")
+                        def valueList = attributeValue.split(",")
+                        if (attributeKey == "Dbxref") {
+                            valueList.each {
+                                expectedDbxrefForGene.remove(it)
+                            }
+                            assert expectedDbxrefForGene.size() == 0
+                        }
+                        else if (attributeKey == "Note") {
+                            valueList.each {
+                                expectedNoteForGene.remove(it)
+                            }
+                            assert expectedNoteForGene.size() == 0
+                        }
+                        else {
+                            assert attributeKey != "comment"
+                            if (expectedPropertiesForGene.contains(attributeKey + "=" + attributeValue)) {
+                                expectedPropertiesForGene.remove(attributeKey + "=" + attributeValue)
+                            }
+                        }
+                    }
+                    assert expectedPropertiesForGene.size() == 0
+                }
+                else if (type == "mRNA") {
+                    gffAttributes.each { attribute ->
+                        def (attributeKey, attributeValue) = attribute.split("=")
+                        def valueList = attributeValue.split(",")
+                        if (attributeKey == "Dbxref") {
+                            valueList.each {
+                                expectedDbxrefForTranscript.remove(it)
+                            }
+                            assert expectedDbxrefForTranscript.size() == 0
+                        }
+                        else if (attributeKey == "Note") {
+                            valueList.each {
+                                expectedNoteForTranscript.remove(it)
+                            }
+                            assert expectedNoteForTranscript.size() == 0
+                        }
+                        else {
+                            assert attributeKey != "comment"
+                            if (expectedPropertiesForTranscript.contains(attributeKey + "=" + attributeValue)) {
+                                expectedPropertiesForTranscript.remove(attributeKey + "=" + attributeValue)
+                            }
+                        }
+                    }
+                    assert expectedPropertiesForTranscript.size() == 0
+                }
+            }
+        }
+
+        when: "we import the same annotation via GFF3"
+        def process = "tools/data/add_transcripts_from_gff3_to_annotations.pl --url http://localhost:8080/apollo --username test@test.com --password testPass --input ${filePath} --organism Amel --test".execute()
+
+        then: "we should get a JSON representation of the feature from GFF3"
+        String jsonString = process.text
+        String preparedJsonString = "{${testCredentials} \"operation\":\"add_transcript\", \"features\":[${jsonString}], \"track\":\"Group1.10\" }"
+
+        when: "we add this feature via addTranscript"
+        JSONObject addTranscriptJsonObject = JSON.parse(preparedJsonString) as JSONObject
+        requestHandlingService.addTranscript(addTranscriptJsonObject)
+
+        then: "we should see a new mRNA and it should have its metadata preserved"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+
+        Gene updatedGene = Gene.all.get(0)
+        MRNA mrna = MRNA.findByName("GB40864-RA-00002")
+        assert mrna.symbol == "PCG1-2A"
+        assert mrna.description == "PCG1 isoform 2A"
+        assert mrna.featureDBXrefs.size() == 2
+        assert mrna.featureProperties.size() == 4
     }
 }

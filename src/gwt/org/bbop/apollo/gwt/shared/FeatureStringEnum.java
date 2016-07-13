@@ -4,12 +4,13 @@ package org.bbop.apollo.gwt.shared;
  * Created by ndunn on 4/2/15.
  */
 public enum FeatureStringEnum {
-        ID("id"),
+        ID,
         FEATURES,
         SUPPRESS_HISTORY,
         SUPPRESS_EVENTS,
         FEATURE_PROPERTY,
         ANNOTATION_COUNT,
+        PARENT,
         PARENT_ID,
         USERNAME,
         EDITOR,
@@ -36,7 +37,7 @@ public enum FeatureStringEnum {
         DATE,
         CURRENT,
         CURRENT_TAB,
-        COMMENT("Comment"),
+        COMMENT,
         OLD_COMMENTS,
         NEW_COMMENTS,
         TAG_VALUE_DELIMITER("="),

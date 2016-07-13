@@ -213,7 +213,7 @@ to the user annotation track. Let's say we want to load our `maker.gff` transcri
 ```
 
 
-The default options should be handle GFF3 most files that contain genes, transcripts, and exons.
+The default options should be able to handle most GFF3 files that contain genes, transcripts, and exons.
 
 You can still use this script even if the GFF3 file that you are loading does not contain transcripts and exon types.
 Let's say we want to load `match` and `match_part` features as transcripts and exons respectively. We'll use the
@@ -222,12 +222,17 @@ Let's say we want to load `match` and `match_part` features as transcripts and e
 ``` 
     tools/data/add_transcripts_from_gff3_to_annotations.pl \
        -U localhost:8080/Apollo -u web_apollo_admin -p web_apollo_admin \
-       -i cf1117875582023gff -t match -e match_part -o "name of organism"
+       -i cf1117875582023.gff -t match -e match_part -o "name of organism"
 ```
 
 
 You can view the add_transcripts_from_gff3_to_annotations.pl help (`-h`) option for all available options.
 
+**Note:** Apollo makes a clear distinction between a transcript and an mRNA. Genes that have mRNA as its child feature
+are treated as protein coding annotations and Genes that have transcript as its child feature are treated as non-coding
+annotations, specifically a pseudogene.
+
+If you would like to look at a compatible representative GFF3, export annotations from Apollo via GFF3 export.
 
 ### Disable draggable
 
