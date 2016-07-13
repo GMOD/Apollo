@@ -3324,4 +3324,68 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert mrna.featureDBXrefs.size() == 2
         assert mrna.featureProperties.size() == 4
     }
+
+    void "We can merge transcripts across two scaffolds"() {
+
+        given: "if we create transcripts from two genes and merge them"
+        String transcriptUn87Gb53499 = "${testCredentials} "
+        String transcript11_4GB52238 = "${testCredentials} "
+        String mergeCommand = "${testCredentials} "
+
+        when: "we add two transcripts"
+        requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499)as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(transcript11_4GB52238)as JSONObject)
+        Sequence sequenceGroupUn87 = Sequence.findByName("GroupUn87")
+        Sequence sequenceGroup11_4 = Sequence.findByName("Group11.4")
+        MRNA mrnaGb53499 = MRNA.findByName("GB53499-RA-00001")
+        MRNA mrnaGb52238 = MRNA.findByName("GB52238-RA-00001")
+
+        then: "we verify that we have two transcripts, one on each scaffold"
+        assert MRNA.count==2
+        assert Gene.count==2
+        assert CDS.count==2
+        assert Exon.count==2
+        assert FeatureLocation.count==8
+        assert mrnaGb53499.featureLocation.sequence==sequenceGroupUn87
+        assert mrnaGb52238.featureLocation.sequence==sequenceGroup11_4
+
+        when: "we merge the two transcripts"
+        requestHandlingService.mergeTranscripts(JSON.parse(mergeCommand) as JSONObject)
+
+        then: "we should have one transcript across two sequences"
+        assert MRNA.count==1
+        assert Gene.count==1
+        assert CDS.count==1
+        assert Exon.count==2
+        assert FeatureLocation.count==8 // 2 for each, except for Exon
+
+    }
+
+    void "We can stretch an exon across two scaffolds"() {
+
+        given: "if we create transcripts from two genes and merge them"
+        String transcriptUn87Gb53499 = "${testCredentials} "
+        String setExonBoundaryCommand = "${testCredentials} "
+
+        when: "we add two transcripts"
+        requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499)as JSONObject)
+
+        then: "we verify that we have two transcripts, one on each scaffold"
+        assert MRNA.count==1
+        assert Gene.count==1
+        assert CDS.count==1
+        assert Exon.count==1
+        assert FeatureLocation.count==4
+
+        when: "we merge the two transcripts"
+        requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand) as JSONObject)
+
+        then: "we should have one transcript across two sequences"
+        assert MRNA.count==1
+        assert Gene.count==1
+        assert CDS.count==1
+        assert Exon.count==1
+        assert FeatureLocation.count==8 // two for each
+
+    }
 }

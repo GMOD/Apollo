@@ -78,7 +78,7 @@ class BookmarkService {
     JSONObject standardizeSequenceList(JSONObject inputObject) {
         JSONArray sequenceArray = JSON.parse(inputObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
         Organism organism = null
-        if(inputObject.containsKey(FeatureStringEnum.ORGANISM)){
+        if(inputObject.containsKey(FeatureStringEnum.ORGANISM.value)){
             organism = preferenceService.getOrganismForToken(inputObject.getString(FeatureStringEnum.ORGANISM.value))
         }
         if(!organism){
