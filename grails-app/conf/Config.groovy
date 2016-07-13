@@ -339,18 +339,14 @@ apollo {
     google_analytics = "UA-62921593-1"
 
     authentications = [
-        ["name":"Remote User Authenticator",
-         "className":"remoteUserAuthenticatorService",
-         "active":false,
-         "params":[] // TODO: inject parameters
-//         "active":true,
-//         "params":['user':'demo@demo.com']
-        ]
-        ,
         ["name":"Username Password Authenticator",
          "className":"usernamePasswordAuthenticatorService",
          "active":true,
-         "params":[]
+        ]
+        ,
+        ["name":"Remote User Authenticator",
+         "className":"remoteUserAuthenticatorService",
+         "active":false,
         ]
     ]
 }

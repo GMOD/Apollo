@@ -484,3 +484,28 @@ If you want to register your admin user in the configuration, you can add a sect
 It should only add the user a single time.    User details can be retrieved from passed in text or from the environment depending on user preference.  
 
 Admin users will be added on system startup.  Duplicate additions will be ignored.
+
+### Other authentication strategies
+
+By default Apollo uses a username / password to authenticate users.   However, additional strategies may be used.   
+
+To configure them, add them to the ```apollo-config.groovy``` and set active to true for the ones you want to use to
+ authenticate.
+
+    apollo{
+        // other stuff
+        authentications = [
+            ["name":"Username Password Authenticator",
+             "className":"usernamePasswordAuthenticatorService",
+             "active":true,
+            ]
+            ,
+            ["name":"Remote User Authenticator",
+             "className":"remoteUserAuthenticatorService",
+             "active":false,
+            ]
+        ]
+    }
+
+
+
