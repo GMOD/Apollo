@@ -769,7 +769,8 @@ define([
                                             }
                                         }
                                     ],
-                                    "operation": operation
+                                    "operation": operation,
+                                    "clientToken": track.getClientToken()
                                 };
                                 track.executeUpdateOperation(JSON.stringify(postData));
                                 track.changed();
@@ -876,7 +877,7 @@ define([
                 // var parent = JSONUtils.createApolloFeature(annot, target_track.fields,
                 // target_track.subfields);
                 // parent.uniquename = annot[target_track.fields["name"]];
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon" }';
+                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon","clientToken":"'+target_track.getClientToken()+'" }';
                 target_track.executeUpdateOperation(postData);
             },
 
@@ -1068,7 +1069,8 @@ define([
                     var postData = {
                         "track": target_track.getUniqueTrackName(),
                         "features": featuresToAdd,
-                        "operation": "add_transcript"
+                        "operation": "add_transcript",
+                        "clientToken": target_track.getClientToken()
                     };
                     target_track.executeUpdateOperation(JSON.stringify(postData));
                 };
@@ -1193,7 +1195,7 @@ define([
                         }
                     }
                 }
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" }';
+                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature", "clientToken":"'+target_track.getClientToken()+'"}';
                 target_track.executeUpdateOperation(postData);
             },
 
@@ -1280,7 +1282,7 @@ define([
                         }
                     }
                 }
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" }';
+                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" , "clientToken":"'+target_track.getClientToken()+'"}';
                 target_track.executeUpdateOperation(postData);
             },
 
@@ -1343,7 +1345,7 @@ define([
                     var feature = featuresToAdd[i];
                     if (this.isProteinCoding(feature)) {
                         var feats = [JSONUtils.createApolloFeature(feature, "mRNA")];
-                        var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": ' + JSON.stringify(feats) + ', "operation": "add_transcript" }';
+                        var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": ' + JSON.stringify(feats) + ', "operation": "add_transcript" , "clientToken":"'+track.getClientToken()+'"}';
                         track.executeUpdateOperation(postData);
                     }
                     else if (feature.afeature.parent_id) {
@@ -1435,7 +1437,7 @@ define([
                     console.log("annotations to delete:");
                     console.log(features);
                 }
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" , "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1549,7 +1551,7 @@ define([
                     features = '"features": [ { "uniquename": "' + leftTranscriptId + '" }, { "uniquename": "' + rightTranscriptId + '" } ]';
                     operation = "merge_transcripts";
                 }
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1597,7 +1599,7 @@ define([
                 else {
                     return;
                 }
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1617,7 +1619,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + annot.id() + '", "location": { "fmin": ' + coordinate + ' } } ]';
                 var operation = "make_intron";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1644,7 +1646,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uid + '"' + (setStart ? ', "location": { "fmin": ' + coordinate + ' }' : '') + ' } ]';
                 var operation = "set_translation_start";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1671,7 +1673,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uid + '"' + (setEnd ? ', "location": { "fmax": ' + coordinate + ' }' : '') + ' } ]';
                 var operation = "set_translation_end";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1710,7 +1712,7 @@ define([
                 features += ']';
                 var operation = "flip_strand";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1742,7 +1744,7 @@ define([
                 features += ']';
                 var operation = "set_longest_orf";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1774,7 +1776,7 @@ define([
                 features += ']';
                 var operation = "set_readthrough_stop_codon";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1803,7 +1805,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '", "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ]';
                 var operation = "set_exon_boundaries";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1832,7 +1834,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '", "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ]';
                 var operation = "set_exon_boundaries";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1861,7 +1863,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '", "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ]';
                 var operation = "set_exon_boundaries";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1878,7 +1880,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                 var operation = "set_to_downstream_donor";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1895,7 +1897,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                 var operation = "set_to_upstream_donor";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1912,7 +1914,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                 var operation = "set_to_downstream_acceptor";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1929,7 +1931,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                 var operation = "set_to_upstream_acceptor";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1946,7 +1948,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                 var operation = annot.get("locked") ? "unlock_feature" : "lock_feature";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -2062,7 +2064,7 @@ define([
                     return;
                 }
                 var operation = "get_annotation_info_editor_configuration";
-                var postData = {"track": trackName, "operation": operation};
+                var postData = {"track": trackName, "operation": operation,"clientToken":track.getClientToken()};
                 xhr.post(context_path + "/AnnotationEditorService", {
                     sync: true,
                     data: JSON.stringify(postData),
@@ -3085,7 +3087,7 @@ define([
                     name = escapeString(name);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "name": "' + name + '" } ]';
                     var operation = "set_name";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3094,7 +3096,7 @@ define([
                     symbol = escapeString(symbol);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "symbol": "' + symbol + '" } ]';
                     var operation = "set_symbol";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3103,7 +3105,7 @@ define([
                     description = escapeString(description);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "description": "' + description + '" } ]';
                     var operation = "set_description";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3111,7 +3113,7 @@ define([
                 var deleteStatus = function () {
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "status": "' + status + '" } ]';
                     var operation = "delete_status";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3119,7 +3121,7 @@ define([
                 var updateStatus = function (status) {
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "status": "' + status + '" } ]';
                     var operation = "set_status";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3129,7 +3131,7 @@ define([
                     accession = escapeString(accession);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + db + '", "accession": "' + accession + '" } ] } ]';
                     var operation = "add_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3141,7 +3143,7 @@ define([
                     }
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(dbxrefs) + ' } ]';
                     var operation = "delete_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3153,7 +3155,7 @@ define([
                     newAccession = escapeString(newAccession);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + oldDb + '", "accession": "' + oldAccession + '" } ], "new_dbxrefs": [ { "db": "' + newDb + '", "accession": "' + newAccession + '" } ] } ]';
                     var operation = "update_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3163,7 +3165,7 @@ define([
                     value = escapeString(value);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": [ { "tag": "' + tag + '", "value": "' + value + '" } ] } ]';
                     var operation = "add_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3175,7 +3177,7 @@ define([
                     }
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": ' + JSON.stringify(attributes) + ' } ]';
                     var operation = "delete_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3187,7 +3189,7 @@ define([
                     newValue = escapeString(newValue);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_non_reserved_properties": [ { "tag": "' + oldTag + '", "value": "' + oldValue + '" } ], "new_non_reserved_properties": [ { "tag": "' + newTag + '", "value": "' + newValue + '" } ] } ]';
                     var operation = "update_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3204,7 +3206,7 @@ define([
                         if (confirmPubmedEntry(record)) {
                             var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + pubmedId + '" } ] } ]';
                             var operation = "add_non_primary_dbxrefs";
-                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                             track.executeUpdateOperation(postData);
                             updateTimeLastUpdated();
                         }
@@ -3221,7 +3223,7 @@ define([
                 var deletePubmedIds = function (pubmedIds) {
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(pubmedIds) + ' } ]';
                     var operation = "delete_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3234,7 +3236,7 @@ define([
                         if (confirmPubmedEntry(record)) {
                             var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + oldPubmedId + '" } ], "new_dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + newPubmedId + '" } ] } ]';
                             var operation = "update_non_primary_dbxrefs";
-                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                             track.executeUpdateOperation(postData);
                             updateTimeLastUpdated();
                         }
@@ -3259,7 +3261,7 @@ define([
                         var goAccession = goId.substr(goIdDb.length + 1);
                         var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + goAccession + '" } ] } ]';
                         var operation = "add_non_primary_dbxrefs";
-                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                         track.executeUpdateOperation(postData);
                         updateTimeLastUpdated();
                     }
@@ -3273,7 +3275,7 @@ define([
                 var deleteGoIds = function (goIds) {
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(goIds) + ' } ]';
                     var operation = "delete_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3286,7 +3288,7 @@ define([
                         var newGoAccession = newGoId.substr(goIdDb.length + 1);
                         var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + oldGoAccession + '" } ], "new_dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + newGoAccession + '" } ] } ]';
                         var operation = "update_non_primary_dbxrefs";
-                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                         track.executeUpdateOperation(postData);
                         updateTimeLastUpdated();
                     }
@@ -3302,7 +3304,7 @@ define([
                     comment = escapeString(comment);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
                     var operation = "add_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3313,7 +3315,7 @@ define([
                     }
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": ' + JSON.stringify(comments) + ' } ]';
                     var operation = "delete_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3326,7 +3328,7 @@ define([
                     newComment = escapeString(newComment);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_comments": [ "' + oldComment + '" ], "new_comments": [ "' + newComment + '"] } ]';
                     var operation = "update_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3334,7 +3336,7 @@ define([
                 var getCannedComments = function () {
                     var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                     var operation = "get_canned_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     dojo.xhrPost({
                         postData: postData,
                         url: context_path + "/AnnotationEditorService",
@@ -3397,11 +3399,11 @@ define([
                 features += ']';
                 var operation = "undo";
                 var trackName = this.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"' + (count ? ', "count": ' + count : '') + '}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"' + (count ? ', "count": ' + count : '') + '}';
                 this.executeUpdateOperation(postData, function (response) {
                     if (response && response.confirm) {
                         if (track.handleConfirm(response.confirm)) {
-                            postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "confirm": true }';
+                            postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'", "confirm": true }';
                             track.executeUpdateOperation(postData);
                         }
                     }
@@ -3445,7 +3447,7 @@ define([
                 features += ']';
                 var operation = "redo";
                 var trackName = this.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"' + (count ? ', "count": ' + count : '') + '}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"' + (count ? ', "count": ' + count : '') + ' , "clientToken":"'+this.getClientToken()+'"}';
                 this.executeUpdateOperation(postData);
             },
 
@@ -3685,7 +3687,7 @@ define([
                     var operation = "get_history_for_features";
                     var trackName = track.getUniqueTrackName();
                     dojo.xhrPost({
-                        postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
+                        postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }',
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         timeout: 5000 * 1000, // Time in milliseconds
@@ -3748,7 +3750,7 @@ define([
                 var trackName = track.getUniqueTrackName();
                 var information = "";
                 dojo.xhrPost({
-                    postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
+                    postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }',
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5000 * 1000, // Time in milliseconds
@@ -3823,7 +3825,7 @@ define([
                     features += ']';
                     var operation = "get_gff3";
                     var trackName = track.getUniqueTrackName();
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"';
                     postData += ' }';
                     dojo.xhrPost({
                         postData: postData,
@@ -3934,7 +3936,7 @@ define([
                     features += ']';
                     var operation = "get_sequence";
                     var trackName = track.getUniqueTrackName();
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"';
                     var flank = 0;
                     if (type == "genomic_with_flank") {
                         flank = dojo.attr(genomicWithFlankField, "value");
