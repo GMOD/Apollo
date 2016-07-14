@@ -285,7 +285,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcriptUn87Gb53499 = "{${testCredentials} \"track\":{\"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
         String transcript11_4GB52238 = "{${testCredentials} \"track\":{\"sequenceList\":[{\"name\":\"GroupUn87\",\"start\":0,\"end\":78258},{\"name\":\"Group11.4\",\"start\":0,\"end\":75085}],\"start\":0,\"end\":153343,\"label\":\"GroupUn87::Group11.4\"},\"features\":[{\"location\":{\"fmin\":88515,\"fmax\":96854,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52238-RA\",\"children\":[{\"location\":{\"fmin\":88515,\"fmax\":88560,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":90979,\"fmax\":91311,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":91491,\"fmax\":91619,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":91963,\"fmax\":92630,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":93674,\"fmax\":94485,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":94657,\"fmax\":94735,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":95538,\"fmax\":95744,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":96476,\"fmax\":96712,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":96819,\"fmax\":96854,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":88515,\"fmax\":96854,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
         // TODO: create the merge command
-        String mergeCommand = "{ ${testCredentials}  \"track\": \"{\"id\":6688, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]}\", \"features\": [ { \"uniquename\": \"078a7d03-5007-40e5-8591-6cf5f8a90aae\" }, { \"uniquename\": \"b7a9742a-9ca6-4a98-b524-3c80b7ec03fe\" } ], \"operation\": \"merge_transcripts\"  }"
+        String mergeCommand = "{ ${testCredentials}  \"track\": {\"id\":6688, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]}, \"features\": [ { \"uniquename\": \"@EXON1_UNIQUENAME@\" }, { \"uniquename\": \"@EXON2_UNIQUENAME@\" } ], \"operation\": \"merge_transcripts\"  }"
 
         when: "we add two transcripts"
         requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499)as JSONObject)
@@ -294,6 +294,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         Sequence sequenceGroup11_4 = Sequence.findByName("Group11.4")
         MRNA mrnaGb53499 = MRNA.findByName("GB53499-RA-00001")
         MRNA mrnaGb52238 = MRNA.findByName("GB52238-RA-00001")
+
 
         then: "we verify that we have two transcripts, one on each scaffold"
         assert MRNA.count==2
@@ -307,6 +308,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert mrnaGb52238.featureLocation.sequence==sequenceGroup11_4
 
         when: "we merge the two transcripts"
+        mergeCommand = mergeCommand.replaceAll("@EXON1_UNIQUENAME@",mrnaGb52238.uniqueName)
+        mergeCommand = mergeCommand.replaceAll("@EXON2_UNIQUENAME@",mrnaGb53499.uniqueName)
         requestHandlingService.mergeTranscripts(JSON.parse(mergeCommand) as JSONObject)
 
         then: "we should have one transcript across two sequences"
@@ -314,10 +317,13 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Gene.count==1
         assert CDS.count==1
         assert Exon.count==1+9
+        assert MRNA.first().featureLocations.size()==2
+        assert Gene.first().featureLocations.size()==2
+//        assert CDS.first().featureLocations.size()==2
         // TODO: maybe this is incorrect, might be one after the merge
+        assert FeatureLocation.count==(1+1+1)*2 + (1+9) // 2 for each, except for Exon
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert NonCanonicalThreePrimeSpliceSite.count==0
-        assert FeatureLocation.count==(1+1+1)*2 + (1+9) // 2 for each, except for Exon
 
     }
 
