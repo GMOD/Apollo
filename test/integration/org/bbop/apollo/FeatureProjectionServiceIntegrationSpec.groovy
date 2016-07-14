@@ -1,6 +1,9 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import org.apache.shiro.authc.UsernamePasswordToken
+import org.apache.shiro.subject.Subject
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -10,6 +13,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
     def requestHandlingService
 
     def setup() {
+
+        setupDefaultUserOrg()
 
         Organism organism = Organism.first()
         organism.directory = "test/integration/resources/sequences/honeybee-tracks/"
@@ -145,6 +150,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert MRNA.count == 1
         assert CDS.count == 1
         assert Exon.count == 1
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert NonCanonicalThreePrimeSpliceSite.count==0
         MRNA.countByName("GB53496-RA-00001")==1
         assert locationObject.sequence == "GroupUn87"
         assert MRNA.first().featureLocations.first().fmin == 85051 - Sequence.findByName("Group11.4").length - 1
@@ -229,4 +236,87 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
 //
 //
 //    }
+
+    void "Add a transcript to the three prime side side and correctly calculate splice sites"(){
+
+        given: "if we create a transcript in the latter half of a combined scaffold it should not have any non-canonical splice sites"
+        // with a front-facing GroupUn87
+//        String transcript11_4GB52238 = "{${testCredentials}  \"track\":{\"sequenceList\":[{\"name\":\"GroupUn87\",\"start\":0,\"end\":78258},{\"name\":\"Group11.4\",\"start\":0,\"end\":75085}],\"start\":0,\"end\":153343,\"label\":\"GroupUn87::Group11.4\"},\"features\":[{\"location\":{\"fmin\":88515,\"fmax\":96854,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52238-RA\",\"children\":[{\"location\":{\"fmin\":88515,\"fmax\":88560,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":90979,\"fmax\":91311,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":91491,\"fmax\":91619,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":91963,\"fmax\":92630,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":93674,\"fmax\":94485,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":94657,\"fmax\":94735,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":95538,\"fmax\":95744,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":96476,\"fmax\":96712,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":96819,\"fmax\":96854,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":88515,\"fmax\":96854,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        String transcriptUn87Gb53499 = "{${testCredentials} \"track\":{\"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        // TODO: create proper exon command
+        String setExonBoundaryCommand = "${testCredentials} "
+
+        when: "we add a transcript"
+        requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499 ) as JSONObject)
+        Sequence sequenceGroupUn87 = Sequence.findByName("GroupUn87")
+//        Sequence sequenceGroup11_4 = Sequence.findByName("Group11.4")
+        MRNA mrnaGb53499 = MRNA.findByName("GB53499-RA-00001")
+
+        then: "we should have a gene  with NO NonCanonical splice sites"
+        assert MRNA.count==1
+        assert Gene.count==1
+        assert CDS.count==1
+        assert Exon.count==1
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert FeatureLocation.count==1+1+1+1
+        assert mrnaGb53499.featureLocation.sequence==sequenceGroupUn87
+
+        when: "we set the exon boundary across a scaffold"
+        requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand) as JSONObject)
+
+        then: "we should have one transcript across two sequences"
+        assert MRNA.count==1
+        assert Gene.count==1
+        assert CDS.count==1
+        assert Exon.count==1
+        // TODO: not sure if this is exactly correct, but one of them should be 0
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert FeatureLocation.count==(1+1+1+1)*2  // same as above , but they are all split into two
+
+    }
+
+    void "We can merge transcripts across two scaffolds"() {
+
+        given: "if we create transcripts from two genes and merge them"
+        String transcriptUn87Gb53499 = "{${testCredentials} \"track\":{\"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        String transcript11_4GB52238 = "{${testCredentials} \"track\":{\"sequenceList\":[{\"name\":\"GroupUn87\",\"start\":0,\"end\":78258},{\"name\":\"Group11.4\",\"start\":0,\"end\":75085}],\"start\":0,\"end\":153343,\"label\":\"GroupUn87::Group11.4\"},\"features\":[{\"location\":{\"fmin\":88515,\"fmax\":96854,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52238-RA\",\"children\":[{\"location\":{\"fmin\":88515,\"fmax\":88560,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":90979,\"fmax\":91311,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":91491,\"fmax\":91619,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":91963,\"fmax\":92630,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":93674,\"fmax\":94485,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":94657,\"fmax\":94735,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":95538,\"fmax\":95744,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":96476,\"fmax\":96712,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":96819,\"fmax\":96854,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":88515,\"fmax\":96854,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        // TODO: create the merge command
+        String mergeCommand = "${testCredentials} "
+
+        when: "we add two transcripts"
+        requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499)as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(transcript11_4GB52238)as JSONObject)
+        Sequence sequenceGroupUn87 = Sequence.findByName("GroupUn87")
+        Sequence sequenceGroup11_4 = Sequence.findByName("Group11.4")
+        MRNA mrnaGb53499 = MRNA.findByName("GB53499-RA-00001")
+        MRNA mrnaGb52238 = MRNA.findByName("GB52238-RA-00001")
+
+        then: "we verify that we have two transcripts, one on each scaffold"
+        assert MRNA.count==2
+        assert Gene.count==2
+        assert CDS.count==2
+        assert Exon.count==1+9
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert FeatureLocation.count==2+2+1+9 // one for each
+        assert mrnaGb53499.featureLocation.sequence==sequenceGroupUn87
+        assert mrnaGb52238.featureLocation.sequence==sequenceGroup11_4
+
+        when: "we merge the two transcripts"
+        requestHandlingService.mergeTranscripts(JSON.parse(mergeCommand) as JSONObject)
+
+        then: "we should have one transcript across two sequences"
+        assert MRNA.count==1
+        assert Gene.count==1
+        assert CDS.count==1
+        assert Exon.count==1+9
+        // TODO: maybe this is incorrect, might be one after the merge
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert FeatureLocation.count==(1+1+1)*2 + (1+9) // 2 for each, except for Exon
+
+    }
+
 }
