@@ -106,29 +106,29 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         // 29397 + 64197 ??
         // 29397 + 75085 ??
 //        assert (29397 + 64197) ==firstLocation.getInt(FeatureStringEnum.FMIN.value)
-        assert 29396 + 75085 + 1==firstLocation.getInt(FeatureStringEnum.FMIN.value)
+        assert 29396 + 75085 ==firstLocation.getInt(FeatureStringEnum.FMIN.value)
 //         29403 + ??
         // 29403 + 75085 ??
 //        assert 93600==firstLocation.getInt(FeatureStringEnum.FMAX.value)
-        assert 29403 + 75085 + 1 ==firstLocation.getInt(FeatureStringEnum.FMAX.value)
+        assert 29403 + 75085  ==firstLocation.getInt(FeatureStringEnum.FMAX.value)
 
         assert 1==secondLocation.getInt(FeatureStringEnum.STRAND.value)
         // 29928 + 64197
         // 29928 + 75085
-        assert 29396 + 75085 + 1==secondLocation.getInt(FeatureStringEnum.FMIN.value)
+        assert 29396 + 75085 ==secondLocation.getInt(FeatureStringEnum.FMIN.value)
         // 30329 + 64197
         // 30329 + 75085
 //        assert 94526==secondLocation.getInt(FeatureStringEnum.FMAX.value)
-        assert 30271 + 75085 + 1 ==secondLocation.getInt(FeatureStringEnum.FMAX.value)
+        assert 30271 + 75085  ==secondLocation.getInt(FeatureStringEnum.FMAX.value)
 
         assert 1==thirdLocation.getInt(FeatureStringEnum.STRAND.value)
         // 29928 + 64197
         // 29928 + 75085
-        assert 29928 + 75085==thirdLocation.getInt(FeatureStringEnum.FMIN.value)
+        assert 29928 + 75085-1==thirdLocation.getInt(FeatureStringEnum.FMIN.value)
         // 30329 + 64197
         // 30329 + 75085
 //        assert 94526==thirdLocation.getInt(FeatureStringEnum.FMAX.value)
-        assert 30329 + 75085 + 1 ==thirdLocation.getInt(FeatureStringEnum.FMAX.value)
+        assert 30329 + 75085  ==thirdLocation.getInt(FeatureStringEnum.FMAX.value)
     }
 
 
@@ -154,8 +154,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalThreePrimeSpliceSite.count==0
         MRNA.countByName("GB53496-RA-00001")==1
         assert locationObject.sequence == "GroupUn87"
-        assert MRNA.first().featureLocations.first().fmin == 85051 - Sequence.findByName("Group11.4").length - 1
-        assert MRNA.first().featureLocations.first().fmax == 85264 - Sequence.findByName("Group11.4").length - 1
+        assert MRNA.first().featureLocations.first().fmin == 85051 - Sequence.findByName("Group11.4").length
+        assert MRNA.first().featureLocations.first().fmax == 85264 - Sequence.findByName("Group11.4").length
 
         // the features array should be relative to the contiguous sequences
         assert locationObject.fmin == 85051
@@ -244,7 +244,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
 //        String transcript11_4GB52238 = "{${testCredentials}  \"track\":{\"sequenceList\":[{\"name\":\"GroupUn87\",\"start\":0,\"end\":78258},{\"name\":\"Group11.4\",\"start\":0,\"end\":75085}],\"start\":0,\"end\":153343,\"label\":\"GroupUn87::Group11.4\"},\"features\":[{\"location\":{\"fmin\":88515,\"fmax\":96854,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52238-RA\",\"children\":[{\"location\":{\"fmin\":88515,\"fmax\":88560,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":90979,\"fmax\":91311,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":91491,\"fmax\":91619,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":91963,\"fmax\":92630,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":93674,\"fmax\":94485,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":94657,\"fmax\":94735,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":95538,\"fmax\":95744,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":96476,\"fmax\":96712,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":96819,\"fmax\":96854,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":88515,\"fmax\":96854,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
         String transcriptUn87Gb53499 = "{${testCredentials} \"track\":{\"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
         // TODO: create proper exon command
-        String setExonBoundaryCommand = "{ ${testCredentials} \"track\":{\"id\":6688, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]}\",\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":45455,\"fmax\":79565}}],\"operation\":\"set_exon_boundaries\"}"
+        String setExonBoundaryCommand = "{ ${testCredentials} \"track\":{\"id\":6688, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":45455,\"fmax\":79565}}],\"operation\":\"set_exon_boundaries\"}"
 
         when: "we add a transcript"
         requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499 ) as JSONObject)
@@ -302,7 +302,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.count==1+9
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert NonCanonicalThreePrimeSpliceSite.count==0
-        assert FeatureLocation.count==2+2+1+9 // one for each
+        assert FeatureLocation.count==2+2+2+1+9 // one for each
         assert mrnaGb53499.featureLocation.sequence==sequenceGroupUn87
         assert mrnaGb52238.featureLocation.sequence==sequenceGroup11_4
 

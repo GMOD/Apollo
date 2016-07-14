@@ -247,7 +247,7 @@ class MultiSequenceProjection extends AbstractProjection {
         sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }.each {
             DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(it)
             if (currentOrder > 0) {
-                it.offset = lastLength + 1
+                it.offset = lastLength
                 it.originalOffset = originalLength
             }
 

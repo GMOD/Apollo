@@ -913,20 +913,20 @@ class MultiSequenceProjectionSpec extends Specification {
         coordinateCollection.get(3).max==63
         assert 0==projectionSequenceList.get(0).offset
         assert 6==multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(0)).bufferedLength
-        assert 7==projectionSequenceList.get(1).offset
+        assert 6==projectionSequenceList.get(1).offset
         assert 8==multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(1)).bufferedLength
         assert "Sequence1"==multiSequenceProjection.getProjectionSequence(10).name
         assert "Sequence2"==multiSequenceProjection.getProjectionSequence(60+25).name
-        assert 7==multiSequenceProjection.getProjectionSequence(60+25).offset
+        assert 6==multiSequenceProjection.getProjectionSequence(60+25).offset
 
         assert 0==multiSequenceProjection.projectValue(10)
         assert 2==multiSequenceProjection.projectValue(12)
         assert 3==multiSequenceProjection.projectValue(22)
         assert 6==multiSequenceProjection.projectValue(25)
-        assert 7==multiSequenceProjection.projectValue(25+23)
-        assert 11==multiSequenceProjection.projectValue(25+27)
-        assert 12==multiSequenceProjection.projectValue(25+60)
-        assert 15==multiSequenceProjection.projectValue(25+63)
+        assert 6==multiSequenceProjection.projectValue(25+23)
+        assert 10==multiSequenceProjection.projectValue(25+27)
+        assert 11==multiSequenceProjection.projectValue(25+60)
+        assert 14==multiSequenceProjection.projectValue(25+63)
 
 
         assert 10==multiSequenceProjection.projectReverseValue(0)
@@ -937,10 +937,10 @@ class MultiSequenceProjectionSpec extends Specification {
 //        assert 25+27==multiSequenceProjection.projectReverseValue(11)
 //        assert 25+60==multiSequenceProjection.projectReverseValue(12)
 //        assert 25+63==multiSequenceProjection.projectReverseValue(15)
-        assert 23==multiSequenceProjection.projectReverseValue(7)
-        assert 27==multiSequenceProjection.projectReverseValue(11)
-        assert 60==multiSequenceProjection.projectReverseValue(12)
-        assert 63==multiSequenceProjection.projectReverseValue(15)
+        assert 24==multiSequenceProjection.projectReverseValue(7)
+        assert 27==multiSequenceProjection.projectReverseValue(10)
+        assert 60==multiSequenceProjection.projectReverseValue(11)
+        assert 63==multiSequenceProjection.projectReverseValue(14)
 
         when: "we project a sequence through these coordinates"
         // length should be 200
