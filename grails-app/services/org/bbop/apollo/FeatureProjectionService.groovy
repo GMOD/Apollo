@@ -15,6 +15,8 @@ class FeatureProjectionService {
     def projectionService
     def bookmarkService
 
+
+
     JSONArray projectTrack(JSONArray inputFeaturesArray, Bookmark bookmark, Boolean reverseProjection = false) {
         MultiSequenceProjection projection = projectionService.getProjection(bookmark)
         return projectTrack(inputFeaturesArray, projection, reverseProjection)
@@ -22,13 +24,13 @@ class FeatureProjectionService {
 
     JSONArray projectTrack(JSONArray inputFeaturesArray, MultiSequenceProjection projection,Boolean reverseProjection = false) {
 
-        
+
         if (projection) {
             // process location . . .
             projectFeaturesArray(inputFeaturesArray, projection, reverseProjection,0)
-            
+
         } else {
-            
+
         }
         return inputFeaturesArray
     }
@@ -78,7 +80,7 @@ class FeatureProjectionService {
             // we are projecting an exclusive value
             fmax = fmax ? projection.projectValue(fmax + offset) : null
         }
-        
+
         if (fmin!=null) {
             locationObject.put(FeatureStringEnum.FMIN.value, fmin)
         }
@@ -113,5 +115,56 @@ class FeatureProjectionService {
             }
         }
         return inputFeaturesArray
+    }
+
+    /**
+     * This method calculates a new set of feature locations based on projection, removes the old one and adds the new one
+     *
+     * @param multiSequenceProjection
+     * @param exon
+     * @return
+     */
+    def setFeatureLocationsForProjection(MultiSequenceProjection multiSequenceProjection, Feature feature,Integer min,Integer max) {
+        // TODO: optimize for feature locations belonging to the same sequence (the most common case)
+        def featureLocationList = FeatureLocation.findAllByFeature(feature)
+        Integer oldStrand = featureLocationList.first().strand
+        feature.featureLocations.clear()
+
+        // this will only return valid projection sequences
+        List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getReverseProjectionSequences(min,max)
+
+
+        // they should be ordered, right?
+        for(projectionSequence in projectionSequenceList){
+            int calculatedMin = projectionSequence.start + projectionSequence.offset
+            int calculatedMax = projectionSequence.end + projectionSequence.offset
+            boolean calculatedMinPartial = true
+            boolean calculatedMaxPartial = true
+            if(min > calculatedMin){
+                calculatedMin = min
+                calculatedMinPartial = false
+            }
+            if(max < calculatedMax){
+                calculatedMax = max
+                calculatedMaxPartial = false
+            }
+
+            Organism organism = Organism.findByCommonName(projectionSequence.organism)
+            Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
+
+            FeatureLocation featureLocation = new FeatureLocation(
+                    fmin: calculatedMin- projectionSequence.offset,
+                    fmax: calculatedMax- projectionSequence.offset,
+                    isFmaxPartial: calculatedMaxPartial,
+                    isFminPartial: calculatedMinPartial,
+                    sequence: sequence,
+                    feature: feature,
+                    strand: oldStrand
+            ).save(insert:true,failOnError: true,flush:true)
+            feature.addToFeatureLocations(featureLocation)
+            feature.save(flush:true)
+        }
+        feature.save(flush: true,insert:false)
+        return feature
     }
 }

@@ -1030,8 +1030,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @return
      */
     List<SequenceAlteration> getAllSequenceAlterationsForFeature(Feature feature) {
-        List<Sequence> sequence = Sequence.executeQuery("select s from Feature  f join f.featureLocations fl join fl.sequence s where f = :feature ", [feature: feature])
-        SequenceAlteration.executeQuery("select sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence s where s = :sequence order by fl.fmin asc ", [sequence: sequence])
+        List<Sequence> listOfSequences = Sequence.executeQuery("select s from Feature  f join f.featureLocations fl join fl.sequence s where f = :feature ", [feature: feature])
+        List<SequenceAlteration> sequenceAlterationList = new ArrayList<>()
+        // TODO: optimize by order somehow to reduce fetches . . . typically the max sequence size is two (and more typically one), so probalby not too big a deal
+        for(Sequence sequence in listOfSequences){
+            sequenceAlterationList.addAll(SequenceAlteration.executeQuery("select sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence s where s = :sequence order by fl.fmin asc ", [sequence: sequence]))
+        }
+        return sequenceAlterationList
     }
 
     List<SequenceAlteration> getFrameshiftsAsAlterations(Transcript transcript) {

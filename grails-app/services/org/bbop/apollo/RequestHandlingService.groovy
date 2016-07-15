@@ -35,7 +35,6 @@ class RequestHandlingService {
     def nonCanonicalSplitSiteService
     def configWrapperService
     def nameService
-    def overlapperService
     def permissionService
     def preferenceService
     def featurePropertyService
@@ -973,7 +972,9 @@ class RequestHandlingService {
     JSONObject setExonBoundaries(JSONObject inputObject) {
         Bookmark bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        features = featureProjectionService.projectTrack(features, bookmark, true)
+
+        // don't think we actually need to project anything right here
+//        features = featureProjectionService.projectTrack(features, bookmark, true)
 
         JSONObject returnObject = createJSONFeatureContainer()
 
@@ -985,34 +986,34 @@ class RequestHandlingService {
             JSONObject jsonLocation = locationCommand.getJSONObject(FeatureStringEnum.LOCATION.value);
             int fmin = jsonLocation.getInt(FeatureStringEnum.FMIN.value);
             int fmax = jsonLocation.getInt(FeatureStringEnum.FMAX.value);
+
+
             if (fmin < 0 || fmax < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
 
             // next, we have to get the set of sequences and fmin/fmax for this location
             MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
-            List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getReverseProjectionSequences(fmin,fmax)
-
-            // for each projectionSequenceList, generate featureLocations for each exon
-
 
             Exon exon = Exon.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
+
             Transcript transcript = exonService.getTranscript(exon)
             JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript)
 
+            featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,exon,fmin,fmax)
+            featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,transcript,fmin,fmax)
 
-            FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
-            FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
-            if (transcriptFeatureLocation.fmin == exonFeatureLocation.fmin) {
-                transcriptFeatureLocation.fmin = fmin
-            }
-            if (transcriptFeatureLocation.fmax == exonFeatureLocation.fmax) {
-                transcriptFeatureLocation.fmax = fmax
-            }
+//            FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
+//            FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
+//            if (transcriptFeatureLocation.fmin == exonFeatureLocation.fmin) {
+//                transcriptFeatureLocation.fmin = fmin
+//            }
+//            if (transcriptFeatureLocation.fmax == exonFeatureLocation.fmax) {
+//                transcriptFeatureLocation.fmax = fmax
+//            }
 
-
-            exonFeatureLocation.fmin = fmin
-            exonFeatureLocation.fmax = fmax
+//            exonFeatureLocation.fmin = fmin
+//            exonFeatureLocation.fmax = fmax
             featureService.removeExonOverlapsAndAdjacencies(transcript)
             transcriptService.updateGeneBoundaries(transcript)
 
