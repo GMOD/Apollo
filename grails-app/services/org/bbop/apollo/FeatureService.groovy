@@ -1001,10 +1001,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
 
-    public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension) {
-        log.debug "setLongestORF(transcript,translationTable,allowPartialExtension)"
-        setLongestORF(transcript, translationTable, allowPartialExtension, false);
-    }
+//    public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension) {
+//        log.debug "setLongestORF(transcript,translationTable,allowPartialExtension)"
+//        setLongestORF(transcript, translationTable, allowPartialExtension, false);
+//    }
 
     /** Get the residues for a feature with any alterations and frameshifts.
      *

@@ -87,16 +87,20 @@ class TranscriptService {
                 , name: uniqueName
         ).save(failOnError: true)
 
-        FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
+        List<FeatureLocation> transcriptFeatureLocationList = FeatureLocation.findAllByFeature(transcript)
 
-        FeatureLocation featureLocation = new FeatureLocation(
-                strand: transcriptFeatureLocation.strand
-                , sequence: transcriptFeatureLocation.sequence
-                , fmin: transcriptFeatureLocation.fmin
-                , fmax: transcriptFeatureLocation.fmax
-                , feature: cds
-        ).save(insert: true, failOnError: true)
-        cds.addToFeatureLocations(featureLocation);
+
+        for(transcriptFeatureLocation in transcriptFeatureLocationList){
+            FeatureLocation featureLocation = new FeatureLocation(
+                    strand: transcriptFeatureLocation.strand
+                    , sequence: transcriptFeatureLocation.sequence
+                    , fmin: transcriptFeatureLocation.fmin
+                    , fmax: transcriptFeatureLocation.fmax
+                    , rank: transcriptFeatureLocation.rank
+                    , feature: cds
+            ).save(insert: true, failOnError: true)
+            cds.addToFeatureLocations(featureLocation);
+        }
         cds.save(flush: true, insert: true)
         return cds;
     }
