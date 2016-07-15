@@ -39,7 +39,7 @@ class SequenceService {
      */
     String getResiduesFromFeature(Feature feature) {
         String returnResidues = ""
-        def orderedFeatureLocations = feature.featureLocations.sort { it.fmin }
+        def orderedFeatureLocations = feature.featureLocations.sort { it.rank }
         for(FeatureLocation featureLocation in orderedFeatureLocations) {
             String residues = getResidueFromFeatureLocation(featureLocation)
             if(featureLocation.strand == Strand.NEGATIVE.value) {

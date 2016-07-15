@@ -59,6 +59,10 @@ class FeatureLocation {
         return result;
     }
 
+    public int getRank(){
+        rank ?: 0
+    }
+
     /**
      * We use this as an artificial accessor in case the property has not been calculatd
      * @return
