@@ -92,11 +92,11 @@ class TranscriptService {
 
         for(transcriptFeatureLocation in transcriptFeatureLocationList){
             FeatureLocation featureLocation = new FeatureLocation(
-                    strand: transcriptFeatureLocation.strand
-                    , sequence: transcriptFeatureLocation.sequence
-                    , fmin: transcriptFeatureLocation.fmin
-                    , fmax: transcriptFeatureLocation.fmax
-                    , rank: transcriptFeatureLocation.rank
+                    strand: transcriptFeatureLocationList.strand
+                    , sequence: transcriptFeatureLocationList.sequence
+                    , fmin: transcriptFeatureLocationList.fmin
+                    , fmax: transcriptFeatureLocationList.fmax
+                    , rank: transcriptFeatureLocationList.rank
                     , feature: cds
             ).save(insert: true, failOnError: true)
             cds.addToFeatureLocations(featureLocation);
@@ -446,7 +446,7 @@ class TranscriptService {
             addExon(transcript1, exon)
         }
         // we have to do this here to calculate overlaps later
-        featureService.calculateCDS(transcript1)
+        featureService.calculateCDS(transcript1,false,projectionService.getProjection(bookmark))
         featureService.handleDynamicIsoformOverlap(transcript1)
         transcript1.save(flush: true)
 

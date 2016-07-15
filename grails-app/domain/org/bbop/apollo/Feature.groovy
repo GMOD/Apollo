@@ -117,7 +117,10 @@ class Feature implements Ontological{
 
 
 
-    /** Convenience method for retrieving the location.  Assumes that it only contains a single
+    /**
+     * @deprecated  Always use a MultisequenceProjection to determine the correct FeatureLocation.
+     *
+     * Convenience method for retrieving the location.  Assumes that it only contains a single
      *  location so it returns the first (and hopefully only) location from the collection of
      *  locations.  Returns <code>null</code> if none are found.
      *

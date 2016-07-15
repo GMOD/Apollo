@@ -35,7 +35,6 @@ class FeatureService {
     def sequenceService
     def permissionService
     def overlapperService
-    def sessionFactory
     def bookmarkService
     def projectionService
 
@@ -249,7 +248,7 @@ class FeatureService {
             setOwner(transcript, owner);
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
-                calculateCDS(transcript);
+                calculateCDS(transcript,false,projectionService.getProjection(bookmark));
             }
 
             addTranscriptToGene(gene, transcript);
@@ -286,7 +285,7 @@ class FeatureService {
                     setOwner(tmpTranscript, owner);
 
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
-                        calculateCDS(tmpTranscript);
+                        calculateCDS(tmpTranscript,false,projectionService.getProjection(bookmark));
                     }
                     if (!suppressHistory) {
                         tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
@@ -408,7 +407,7 @@ class FeatureService {
             }
             transcript = transcriptService.getTranscripts(gene).iterator().next();
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
-                calculateCDS(transcript);
+                calculateCDS(transcript,false,projectionService.getProjection(bookmark));
             }
             removeExonOverlapsAndAdjacenciesForFeature(gene)
             if (!suppressHistory) {
@@ -567,24 +566,13 @@ class FeatureService {
     }
 
 
-    @Transactional
-    def calculateCDS(Transcript transcript) {
-        // NOTE: isPseudogene call seemed redundant with isProtenCoding
-        calculateCDS(transcript, false)
-//        if (transcriptService.isProteinCoding(transcript) && (transcriptService.getGene(transcript) == null)) {
-////            calculateCDS(editor, transcript, transcript.getCDS() != null ? transcript.getCDS().getStopCodonReadThrough() != null : false);
-////            calculateCDS(transcript, transcript.getCDS() != null ? transcript.getCDS().getStopCodonReadThrough() != null : false);
-//            calculateCDS(transcript, transcriptService.getCDS(transcript) != null ? transcriptService.getStopCodonReadThrough(transcript) != null : false);
-//        }
-    }
-
     @Timed
     @Transactional
-    def calculateCDS(Transcript transcript, boolean readThroughStopCodon) {
+    def calculateCDS(Transcript transcript, boolean readThroughStopCodon,MultiSequenceProjection multiSequenceProjection) {
         CDS cds = transcriptService.getCDS(transcript);
         log.info "calculateCDS"
         if (cds == null) {
-            setLongestORF(transcript, readThroughStopCodon);
+            setLongestORF(transcript, readThroughStopCodon,multiSequenceProjection);
             return;
         }
         boolean manuallySetStart = cdsService.isManuallySetTranslationStart(cds);
@@ -593,11 +581,11 @@ class FeatureService {
             return;
         }
         if (!manuallySetStart && !manuallySetEnd) {
-            setLongestORF(transcript, readThroughStopCodon);
+            setLongestORF(transcript, readThroughStopCodon,multiSequenceProjection);
         } else if (manuallySetStart) {
-            setTranslationStart(transcript, cds.getFeatureLocation().getStrand().equals(-1) ? cds.getFmax() - 1 : cds.getFmin(), true, readThroughStopCodon);
+            setTranslationStart(transcript, cds.getFeatureLocation().getStrand().equals(-1) ? cds.getFmax() - 1 : cds.getFmin(), true,configWrapperService.getTranslationTable(), readThroughStopCodon,multiSequenceProjection);
         } else {
-            setTranslationEnd(transcript, cds.getFeatureLocation().getStrand().equals(-1) ? cds.getFmin() : cds.getFmax() - 1, true);
+            setTranslationEnd(transcript, cds.getFeatureLocation().getStrand().equals(-1) ? cds.getFmin() : cds.getFmax() - 1, true,configWrapperService.getTranslationTable(),multiSequenceProjection);
         }
     }
 
@@ -609,29 +597,23 @@ class FeatureService {
  * @param transcript - Transcript to set the longest ORF to
  */
     @Transactional
-    public void setLongestORF(Transcript transcript, boolean readThroughStopCodon) {
+    public void setLongestORF(Transcript transcript, boolean readThroughStopCodon,MultiSequenceProjection multiSequenceProjection) {
         log.debug "setLongestORF(transcript,readThroughStopCodon) ${transcript} ${readThroughStopCodon}"
-        setLongestORF(transcript, configWrapperService.getTranslationTable(), false, readThroughStopCodon);
+        setLongestORF(transcript, configWrapperService.getTranslationTable(), false, readThroughStopCodon,multiSequenceProjection);
     }
 
-    @Transactional
-    public void setLongestORF(Transcript transcript) {
-        log.debug "setLongestORF(transcript) ${transcript}"
-        setLongestORF(transcript, false);
-    }
-
-/**
- * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
- * Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation start in
- * @param translationStart - Coordinate of the start of translation
- */
-    @Transactional
-    public void setTranslationStart(Transcript transcript, int translationStart) {
-        log.debug "setTranslationStart"
-        setTranslationStart(transcript, translationStart, false);
-    }
+///**
+// * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+// * Instantiates the CDS object for the transcript if it doesn't already exist.
+// *
+// * @param transcript - Transcript to set the translation start in
+// * @param translationStart - Coordinate of the start of translation
+// */
+//    @Transactional
+//    public void setTranslationStart(Transcript transcript, int translationStart) {
+//        log.debug "setTranslationStart"
+//        setTranslationStart(transcript, translationStart, false);
+//    }
 
 /**
  * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
@@ -641,11 +623,11 @@ class FeatureService {
  * @param translationStart - Coordinate of the start of translation
  * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
  */
-    @Transactional
-    public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd) {
-        log.debug "setTranslationStart(transcript,translationStart,translationEnd)"
-        setTranslationStart(transcript, translationStart, setTranslationEnd, false);
-    }
+//    @Transactional
+//    public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd) {
+//        log.debug "setTranslationStart(transcript,translationStart,translationEnd)"
+//        setTranslationStart(transcript, translationStart, setTranslationEnd, false);
+//    }
 
 /**
  * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
@@ -656,11 +638,11 @@ class FeatureService {
  * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
  * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
  */
-    @Transactional
-    public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, boolean readThroughStopCodon) {
-        log.debug "setTranslationStart(transcript,translationStart,translationEnd,readThroughStopCodon)"
-        setTranslationStart(transcript, translationStart, setTranslationEnd, setTranslationEnd ? configWrapperService.getTranslationTable() : null, readThroughStopCodon);
-    }
+//    @Transactional
+//    public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, boolean readThroughStopCodon) {
+//        log.debug "setTranslationStart(transcript,translationStart,translationEnd,readThroughStopCodon)"
+//        setTranslationStart(transcript, translationStart, setTranslationEnd, setTranslationEnd ? configWrapperService.getTranslationTable() : null, readThroughStopCodon);
+//    }
 
     /** Convert local coordinate to source feature coordinate.
      *
@@ -759,7 +741,7 @@ class FeatureService {
  * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
  */
     @Transactional
-    public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, TranslationTable translationTable, boolean readThroughStopCodon) {
+    public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, TranslationTable translationTable, boolean readThroughStopCodon,MultiSequenceProjection multiSequenceProjection) {
         CDS cds = transcriptService.getCDS(transcript);
         if (cds == null) {
             cds = transcriptService.createCDS(transcript);
@@ -768,9 +750,9 @@ class FeatureService {
         }
         FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
         if (transcriptFeatureLocation.strand == Strand.NEGATIVE.value) {
-            setFmax(cds, translationStart + 1);
+            setFmax(cds, translationStart + 1,multiSequenceProjection);
         } else {
-            setFmin(cds, translationStart);
+            setFmin(cds, translationStart,multiSequenceProjection);
         }
         cdsService.setManuallySetTranslationStart(cds, true);
 //        cds.deleteStopCodonReadThrough();
@@ -868,10 +850,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * @param transcript - Transcript to set the translation end in
  * @param translationEnd - Coordinate of the end of translation
  */
-    @Transactional
-    public void setTranslationEnd(Transcript transcript, int translationEnd) {
-        setTranslationEnd(transcript, translationEnd, false);
-    }
+//    @Transactional
+//    public void setTranslationEnd(Transcript transcript, int translationEnd) {
+//        setTranslationEnd(transcript, translationEnd, false);
+//    }
 
 /**
  * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
@@ -881,12 +863,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * @param translationEnd - Coordinate of the end of translation
  * @param setTranslationStart - if set to true, will search for the nearest in frame start
  */
-    @Transactional
-    public void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart) {
-        setTranslationEnd(transcript, translationEnd, setTranslationStart,
-                setTranslationStart ? configWrapperService.getTranslationTable() : null
-        );
-    }
+//    @Transactional
+//    public void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart) {
+//        setTranslationEnd(transcript, translationEnd, setTranslationStart,
+//                setTranslationStart ? configWrapperService.getTranslationTable() : null
+//        );
+//    }
 
 /**
  * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
@@ -898,7 +880,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * @param translationTable - Translation table that defines the codon translation
  */
     @Transactional
-    public void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart, TranslationTable translationTable) {
+    public void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart, TranslationTable translationTable,MultiSequenceProjection multiSequenceProjection) {
         CDS cds = transcriptService.getCDS(transcript);
         if (cds == null) {
             cds = transcriptService.createCDS(transcript);
@@ -948,31 +930,31 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     }
 
-    @Transactional
-    void setTranslationFmin(Transcript transcript, int translationFmin) {
-        CDS cds = transcriptService.getCDS(transcript);
-        if (cds == null) {
-            cds = transcriptService.createCDS(transcript);
-            transcriptService.setCDS(transcript, cds);
-        }
-        setFmin(cds, translationFmin);
-        // event fire
-//        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-    }
+//    @Transactional
+//    void setTranslationFmin(Transcript transcript, int translationFmin) {
+//        CDS cds = transcriptService.getCDS(transcript);
+//        if (cds == null) {
+//            cds = transcriptService.createCDS(transcript);
+//            transcriptService.setCDS(transcript, cds);
+//        }
+//        setFmin(cds, translationFmin);
+//        // event fire
+////        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
+//    }
 
-    @Transactional
-    void setTranslationFmax(Transcript transcript, int translationFmax) {
-        CDS cds = transcriptService.getCDS(transcript);
-        if (cds == null) {
-            cds = transcriptService.createCDS(transcript);
-            transcriptService.setCDS(transcript, cds);
-        }
-        setFmax(cds, translationFmax);
-
-        // event fire
-//        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-
-    }
+//    @Transactional
+//    void setTranslationFmax(Transcript transcript, int translationFmax) {
+//        CDS cds = transcriptService.getCDS(transcript);
+//        if (cds == null) {
+//            cds = transcriptService.createCDS(transcript);
+//            transcriptService.setCDS(transcript, cds);
+//        }
+//        setFmax(cds, translationFmax);
+//
+//        // event fire
+////        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
+//
+//    }
 
 /**
  * Set the translation start and end in the transcript.  Sets the translation start and end in the underlying CDS
@@ -984,21 +966,21 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * @param manuallySetStart - whether the start was manually set
  * @param manuallySetEnd - whether the end was manually set
  */
-    @Transactional
-    public void setTranslationEnds(Transcript transcript, int translationStart, int translationEnd, boolean manuallySetStart, boolean manuallySetEnd) {
-        setTranslationFmin(transcript, translationStart);
-        setTranslationFmax(transcript, translationEnd);
-        cdsService.setManuallySetTranslationStart(transcriptService.getCDS(transcript), manuallySetStart);
-        cdsService.setManuallySetTranslationEnd(transcriptService.getCDS(transcript), manuallySetEnd);
-
-        Date date = new Date();
-        transcriptService.getCDS(transcript).setLastUpdated(date);
-        transcript.setLastUpdated(date);
-
-        // event fire
-//        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-
-    }
+//    @Transactional
+//    public void setTranslationEnds(Transcript transcript, int translationStart, int translationEnd, boolean manuallySetStart, boolean manuallySetEnd) {
+//        setTranslationFmin(transcript, translationStart);
+//        setTranslationFmax(transcript, translationEnd);
+//        cdsService.setManuallySetTranslationStart(transcriptService.getCDS(transcript), manuallySetStart);
+//        cdsService.setManuallySetTranslationEnd(transcriptService.getCDS(transcript), manuallySetEnd);
+//
+//        Date date = new Date();
+//        transcriptService.getCDS(transcript).setLastUpdated(date);
+//        transcript.setLastUpdated(date);
+//
+//        // event fire
+////        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
+//
+//    }
 
 
 //    public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension) {
@@ -1131,7 +1113,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  */
     @Timed
     @Transactional
-    public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon) {
+    public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon,MultiSequenceProjection multiSequenceProjection) {
         log.debug "setLongestORF(transcript,translationTable,allowPartialExtension,readThroughStopCodon)"
         String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
         if (mrna == null || mrna.equals("null")) {
@@ -1164,7 +1146,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         if (transcript instanceof MRNA) {
             CDS cds = transcriptService.getCDS(transcript)
-//        boolean needCdsIndex = cds == null;
             if (cds == null) {
                 cds = transcriptService.createCDS(transcript);
                 transcriptService.setCDS(transcript, cds);
@@ -1177,19 +1158,19 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     fmin = fmax + 1;
                     fmax = tmp + 1;
                 }
-                setFmin(cds, fmin);
+                setFmin(cds, fmin,multiSequenceProjection);
                 cds.featureLocation.setIsFminPartial(false);
-                setFmax(cds, fmax);
+                setFmax(cds, fmax,multiSequenceProjection);
                 cds.featureLocation.setIsFmaxPartial(partialStop);
             } else {
-                setFmin(cds, transcript.getFmin());
+                setFmin(cds, transcript.getFmin(),multiSequenceProjection);
                 cds.featureLocation.setIsFminPartial(true);
                 String aa = SequenceTranslationHandler.translateSequence(mrna, translationTable, true, readThroughStopCodon);
                 if (aa.substring(aa.length() - 1).equals(TranslationTable.STOP)) {
-                    setFmax(cds, convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3));
+                    setFmax(cds, convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3),multiSequenceProjection);
                     cds.featureLocation.setIsFmaxPartial(false);
                 } else {
-                    setFmax(cds, transcript.getFmax());
+                    setFmax(cds, transcript.getFmax(),multiSequenceProjection);
                     cds.featureLocation.setIsFmaxPartial(true);
                 }
             }
@@ -1200,8 +1181,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     StopCodonReadThrough stopCodonReadThrough = cdsService.createStopCodonReadThrough(cds);
                     cdsService.setStopCodonReadThrough(cds, stopCodonReadThrough);
                     int offset = transcript.getStrand() == -1 ? -2 : 0;
-                    setFmin(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + offset);
-                    setFmax(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + 3 + offset);
+                    setFmin(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + offset,multiSequenceProjection);
+                    setFmax(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + 3 + offset,multiSequenceProjection);
                 }
             } else {
                 cdsService.deleteStopCodonReadThrough(cds);
@@ -1513,14 +1494,72 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         gene.setLastUpdated(new Date());
     }
 
+    /**
+     * To set Fmin properly, you have to get the proper feature location
+     * associated with the proper sequence.
+     * Going from less to most, you have to delete anything else
+     * @param feature
+     * @param fmin
+     * @param multiSequenceProjection
+     * @return
+     */
     @Transactional
-    def setFmin(Feature feature, int fmin) {
-        feature.getFeatureLocation().setFmin(fmin);
+    def setFmin(Feature feature, int fmin,MultiSequenceProjection multiSequenceProjection) {
+        ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(fmin)
+        Organism organism = Organism.findByCommonName(projectionSequence.organism)
+        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
+
+        List<FeatureLocation> toDelete = new ArrayList<>()
+        Boolean fminSet = false
+        for(FeatureLocation featureLocation in feature.getFeatureLocations().sort(){ it.rank }){
+            // if we've already set the fmin, we have to delete it (i.e., our fmin has increased)
+            if(featureLocation.sequence==sequence){
+                featureLocation.setFmin(fmin)
+                featureLocation.setIsFminPartial(false)
+                featureLocation.save()
+                fminSet = true
+            }
+            if(featureLocation.sequence != sequence && fminSet){
+                toDelete.add(featureLocation)
+            }
+        }
+
+        // remove to delete
+        toDelete.each {
+            feature.removeFromFeatureLocations(it)
+        }
+//        FeatureLocation.delete(it)
+//        FeatureLocation.deleteAll(toDelete)
     }
 
     @Transactional
-    def setFmax(Feature feature, int fmax) {
-        feature.getFeatureLocation().setFmax(fmax);
+    def setFmax(Feature feature, int fmax,MultiSequenceProjection multiSequenceProjection) {
+        ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(fmax)
+        Organism organism = Organism.findByCommonName(projectionSequence.organism)
+        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
+
+        List<FeatureLocation> toDelete = new ArrayList<>()
+        Boolean fmaxSet = false
+        for(FeatureLocation featureLocation in feature.getFeatureLocations().sort(){ it.rank }.reverse()){
+            // if we've already set the fmin, we have to delete it (i.e., our fmin has increased)
+            if(featureLocation.sequence==sequence){
+                featureLocation.setFmax(fmax)
+                featureLocation.setIsFmaxPartial(false)
+                featureLocation.save()
+                fmaxSet = true
+            }
+            if(featureLocation.sequence != sequence && fmaxSet){
+                toDelete.add(featureLocation)
+            }
+        }
+
+        // remove to delete
+        toDelete.each {
+            feature.removeFromFeatureLocations(it)
+//            FeatureLocation.delete(it)
+        }
+//        FeatureLocation.deleteAll(toDelete)
+//        feature.getFeatureLocation().setFmax(fmax);
     }
 
     /** Convert source feature coordinate to local coordinate.
@@ -2723,11 +2762,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (type == MRNA.alternateCvTerm) {
                 // *RNA to mRNA
                 transcript = generateTranscript(currentFeatureJsonObject, bookmark, true)
-                setLongestORF(transcript)
+                setLongestORF(transcript,false,projectionService.getProjection(bookmark))
             } else {
                 // *RNA to *RNA
                 transcript = addFeature(currentFeatureJsonObject, bookmark, user, true)
-                setLongestORF(transcript)
+                setLongestORF(transcript,false,projectionService.getProjection(bookmark))
             }
 
             Gene newGene = transcriptService.getGene(transcript)
