@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import grails.util.CollectionUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -23,7 +24,7 @@ class TranscriptService {
     def nameService
     def nonCanonicalSplitSiteService
     def sequenceService
-    def featureEventService
+    def featureProjectionService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
      *  which child is a CDS.  The CDS object is generated on the fly.  Returns <code>null</code>
@@ -161,6 +162,37 @@ class TranscriptService {
     }
 
     @Transactional
+    def updateGeneBoundaries(Transcript transcript,MultiSequenceProjection multiSequenceProjection) {
+        Gene gene = getGene(transcript)
+        if (gene == null) {
+            return;
+        }
+        int geneFmax = Integer.MIN_VALUE;
+        int geneFmin = Integer.MAX_VALUE;
+        for (Transcript t : getTranscripts(gene)) {
+            if (t.getFmin() < geneFmin) {
+                geneFmin = t.getFmin();
+            }
+            if (t.getFmax() > geneFmax) {
+                geneFmax = t.getFmax();
+            }
+        }
+
+        featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,gene,geneFmin,geneFmax)
+//        featureService.setFmin(gene, geneFmin)
+//        featureService.setFmax(gene, geneFmax)
+
+
+        // not sure if we want this if not actually saved
+//        gene.setLastUpdated(new Date());
+    }
+
+    /**
+     * @deprecated Should require a projection
+     * @param transcript
+     * @return
+     */
+    @Transactional
     def updateGeneBoundaries(Transcript transcript) {
         Gene gene = getGene(transcript)
         if (gene == null) {
@@ -178,9 +210,6 @@ class TranscriptService {
         }
         featureService.setFmin(gene, geneFmin)
         featureService.setFmax(gene, geneFmax)
-
-        // not sure if we want this if not actually saved
-//        gene.setLastUpdated(new Date());
     }
 
     List<String> getFrameShiftOntologyIds() {

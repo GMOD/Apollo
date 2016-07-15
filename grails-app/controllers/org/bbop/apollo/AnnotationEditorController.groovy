@@ -1020,8 +1020,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             newFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
             newFeature.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(feature.ontologyId));
 
-            if (feature.featureLocation) {
-                newFeature.put(FeatureStringEnum.SEQUENCE.value, feature.featureLocation.sequence.name);
+            // TODO: not sure if this matters?, remove?
+            if (feature.featureLocations) {
+                newFeature.put(FeatureStringEnum.SEQUENCE.value, feature.featureLocations.first().sequence.name);
             }
 
             if (AvailableStatus.count > 0 && feature.status) {

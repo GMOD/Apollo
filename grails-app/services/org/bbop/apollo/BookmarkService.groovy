@@ -13,8 +13,34 @@ class BookmarkService {
     def permissionService
     def preferenceService
 
+    /**
+     * Gets the unique feature locations from the feature in order and the corresponding sequences.
+     * Order from 5' to 3'
+     * Order by fmin partial = true, fmax partial = true, fmin
+     * @param feature
+     * @return
+     */
+    Bookmark generateBookmarkForFeature(Feature feature) {
+        List<Sequence> sequenceList = new ArrayList<>()
+        feature.featureLocations.sort(){ a,b ->
+            a.isFmaxPartial <=> b.isFmaxPartial ?: b.isFminPartial <=> a.isFminPartial ?: a.fmin <=> b.fmin
+        }.each {
+            if(!sequenceList.contains(it.sequence)){
+                sequenceList.add(it.sequence)
+            }
+        }
+        return generateBookmarkForSequence(sequenceList)
+    }
 
     Bookmark generateBookmarkForSequence(Sequence... sequences) {
+        List<Sequence> sequenceList = new ArrayList<>()
+        for(s in sequences){
+            sequenceList.add(s)
+        }
+        return generateBookmarkForSequence(sequenceList)
+    }
+
+    Bookmark generateBookmarkForSequence(List<Sequence> sequences) {
         Organism organism = null
         JSONArray sequenceArray = new JSONArray()
         int end = 0;

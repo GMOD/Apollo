@@ -1015,7 +1015,7 @@ class RequestHandlingService {
 //            exonFeatureLocation.fmin = fmin
 //            exonFeatureLocation.fmax = fmax
             featureService.removeExonOverlapsAndAdjacencies(transcript)
-            transcriptService.updateGeneBoundaries(transcript)
+            transcriptService.updateGeneBoundaries(transcript,multiSequenceProjection)
 
             exon.save()
 

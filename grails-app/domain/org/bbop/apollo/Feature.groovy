@@ -137,12 +137,25 @@ class Feature implements Ontological{
         return getFeatureLocation().calculateLength()
     }
 
+    /**
+     * Returns the calculated fmin in the given sequence?!? so first rank
+     * @return
+     */
     public Integer getFmin(){
-        featureLocation.fmin
+        featureLocations.sort(){ it.rank }.first().fmin
     }
 
+    /**
+     * Returns the calculated fmax if part of multiple scaffolds
+     * @return
+     */
     public Integer getFmax(){
-        featureLocation.fmax
+//        featureLocation.fmax
+        Integer calculatedMax = 0
+        featureLocations.sort(){ it.rank }.each {
+            calculatedMax += it.fmax
+        }
+        return calculatedMax
     }
 
     public Integer getStrand(){

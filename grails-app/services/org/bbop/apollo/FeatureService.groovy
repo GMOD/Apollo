@@ -1223,19 +1223,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //        return convertJSONToFeature(jsonFeature,sequenceList.first())
 //    }
 
-    /**
-     * @deprecated
-     * @param jsonFeature
-     * @param bookmark
-     * @return
-     */
-    @Timed
-    @Transactional
-    public Feature convertJSONToFeature(JSONObject jsonFeature, Sequence sequence) {
-        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
-        return convertJSONToFeature(jsonFeature,bookmark)
-    }
-
     @Timed
     @Transactional
     public Feature convertJSONToFeature(JSONObject jsonFeature, Bookmark bookmark) {

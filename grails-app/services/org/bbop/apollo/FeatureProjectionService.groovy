@@ -135,6 +135,7 @@ class FeatureProjectionService {
 
 
         // they should be ordered, right?
+        int rank = 0
         for(projectionSequence in projectionSequenceList){
             int calculatedMin = projectionSequence.start + projectionSequence.offset
             int calculatedMax = projectionSequence.end + projectionSequence.offset
@@ -159,10 +160,12 @@ class FeatureProjectionService {
                     isFminPartial: calculatedMinPartial,
                     sequence: sequence,
                     feature: feature,
+                    rank: rank,
                     strand: oldStrand
             ).save(insert:true,failOnError: true,flush:true)
             feature.addToFeatureLocations(featureLocation)
-            feature.save(flush:true)
+//            feature.save(flush:true)
+            ++rank
         }
         feature.save(flush: true,insert:false)
         return feature

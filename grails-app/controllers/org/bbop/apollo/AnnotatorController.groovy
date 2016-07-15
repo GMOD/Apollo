@@ -154,11 +154,9 @@ class AnnotatorController {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
         }
 
-        Sequence sequence = feature?.featureLocation?.sequence
-
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
-                , bookmark: bookmarkService.generateBookmarkForSequence(sequence)
+                , bookmark: bookmarkService.generateBookmarkForFeature(feature)
                 , operation: AnnotationEvent.Operation.UPDATE
                 , sequenceAlterationEvent: false
         )
@@ -185,10 +183,13 @@ class AnnotatorController {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
+        // TODO: this comes from the little interface.
+        // Not sure how to handle this there, other than you need to figure out if the feature
+        // location corresponds to the feature being used
         Feature feature = Feature.findByUniqueName(data.uniquename)
-        feature.featureLocation.fmin = data.fmin
-        feature.featureLocation.fmax = data.fmax
-        feature.featureLocation.strand = data.strand
+        feature.featureLocations.first().fmin = data.fmin
+        feature.featureLocations.first().fmax = data.fmax
+        feature.featureLocations.first().strand = data.strand
         feature.save(flush: true, failOnError: true)
 
         // need to grant the parent feature to force a redraw
@@ -198,10 +199,9 @@ class AnnotatorController {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
 
-        Sequence sequence = feature?.featureLocation?.sequence
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
-                , bookmark: bookmarkService.generateBookmarkForSequence(sequence)
+                , bookmark: bookmarkService.generateBookmarkForFeature(feature)
                 , operation: AnnotationEvent.Operation.UPDATE
                 , sequenceAlterationEvent: false
         )
