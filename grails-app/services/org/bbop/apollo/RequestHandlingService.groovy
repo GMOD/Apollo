@@ -6,6 +6,8 @@ import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
+import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
@@ -986,6 +988,14 @@ class RequestHandlingService {
             if (fmin < 0 || fmax < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
+
+            // next, we have to get the set of sequences and fmin/fmax for this location
+            MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+            List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getReverseProjectionSequences(fmin,fmax)
+
+            // for each projectionSequenceList, generate featureLocations for each exon
+
+
             Exon exon = Exon.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
             Transcript transcript = exonService.getTranscript(exon)
             JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript)
