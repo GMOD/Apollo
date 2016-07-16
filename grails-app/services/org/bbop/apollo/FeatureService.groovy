@@ -566,6 +566,13 @@ class FeatureService {
         return false;
     }
 
+    @Timed
+    @Transactional
+    def calculateCDS(Transcript transcript, boolean readThroughStopCodon) {
+        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(transcript)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        calculateCDS(transcript,readThroughStopCodon,multiSequenceProjection)
+    }
 
     @Timed
     @Transactional
@@ -1493,6 +1500,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         gene.featureLocation.setFmin(geneFmin);
         gene.featureLocation.setFmax(geneFmax);
         gene.setLastUpdated(new Date());
+    }
+
+    @Transactional
+    def setFmax(Feature feature, int fmax) {
+        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(feature)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        setFmax(feature,fmax,multiSequenceProjection)
+    }
+
+    @Transactional
+    def setFmin(Feature feature, int fmin) {
+        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(feature)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        setFmin(feature,fmin,multiSequenceProjection)
     }
 
     /**

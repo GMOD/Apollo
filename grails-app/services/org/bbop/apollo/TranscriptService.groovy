@@ -19,6 +19,7 @@ class TranscriptService {
 
     // services
     def featureService
+    def projectionService
     def featureRelationshipService
     def exonService
     def nameService
@@ -143,9 +144,9 @@ class TranscriptService {
         return (Collection<Transcript>) featureRelationshipService.getChildrenForFeatureAndTypes(gene, ontologyIds as String[])
     }
 
-    List<Transcript> getTranscriptsSortedByFeatureLocation(Gene gene, boolean sortByStrand) {
-        return getTranscripts(gene).sort(true, new FeaturePositionComparator<Transcript>(sortByStrand))
-    }
+//    List<Transcript> getTranscriptsSortedByFeatureLocation(Gene gene, boolean sortByStrand) {
+//        return getTranscripts(gene).sort(true, new FeaturePositionComparator<Transcript>(sortByStrand))
+//    }
 
     @Transactional
     public void setFmin(Transcript transcript, Integer fmin) {
@@ -446,7 +447,7 @@ class TranscriptService {
             addExon(transcript1, exon)
         }
         // we have to do this here to calculate overlaps later
-        featureService.calculateCDS(transcript1,false,projectionService.getProjection(bookmark))
+        featureService.calculateCDS(transcript1,false)
         featureService.handleDynamicIsoformOverlap(transcript1)
         transcript1.save(flush: true)
 
