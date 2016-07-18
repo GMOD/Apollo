@@ -1067,7 +1067,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     fmax = gcoord + parseInt(input);
                 }
                 else if (type == "substitution") {
-                    fmax = gcoord + input.length;;
+                    fmax = gcoord + input.length;
                 }
                 if (track.storedFeatureCount(fmin, fmax == fmin ? fmin + 1 : fmax) > 0) {
                     alert("Cannot create overlapping sequence alterations");
@@ -1078,7 +1078,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                         feature += ', "residues": "' + input + '"';
                     }
                     if (commentFieldValue.length != 0) {
-                        feature += ', "non_reserved_properties": [{"tag": "justification", "value": ' + commentFieldValue + ' }]';
+                        feature += ', "non_reserved_properties": [{"tag": "justification", "value": "' + commentFieldValue + '" }]';
                     }
                     var features = '[ { ' + feature + ' } ]';
                     var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }';

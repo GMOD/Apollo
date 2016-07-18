@@ -52,7 +52,6 @@ load = load > 10 ? 10 : load
 def inputArray = SampleFeatures.getSampleFeatures()
 def sampleFeaturesArray = new JSONArray()
 for(int i = 0 ; i < load ; i++){
-//   sampleFeaturesArray.add(inputArray.getJSONObject(i))
     sampleFeaturesArray.add(inputArray[i])
 }
 int sampleFeaturesSize = sampleFeaturesArray.size()

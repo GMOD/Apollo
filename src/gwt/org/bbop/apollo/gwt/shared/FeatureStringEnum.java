@@ -4,8 +4,8 @@ package org.bbop.apollo.gwt.shared;
  * Created by Nathan Dunn on 4/2/15.
  */
 public enum FeatureStringEnum {
-        ID("id"),
-        user,FEATURES,
+        ID,
+        FEATURES,
         FOLDING,
         SUPPRESS_HISTORY,
         SUPPRESS_EVENTS,
@@ -67,6 +67,7 @@ public enum FeatureStringEnum {
         NCLIST,
         GENE_NAME,
         VALUE,
+        REMOTE_USER("REMOTE_USER"),
         CV,
         SEQUENCE,
         SEQUENCE_LIST("sequenceList"),
