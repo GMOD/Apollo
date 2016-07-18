@@ -37,6 +37,7 @@ class FeatureService {
     def overlapperService
     def bookmarkService
     def projectionService
+    def preferenceService
     def sessionFactory
 
     public static final def rnaFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
@@ -178,7 +179,7 @@ class FeatureService {
                 if(!it.sequence){
                     ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(it.fmin)
                     String sequenceName = projectionSequence.name
-                    organism = organism ?: Organism.findByCommonName(projectionSequence.organism)
+                    organism = organism ?: preferenceService.getOrganismForToken(projectionSequence.organism)
                     it.sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
                 }
             }
@@ -1528,7 +1529,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Transactional
     def setFmin(Feature feature, int fmin,MultiSequenceProjection multiSequenceProjection) {
         ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(fmin)
-        Organism organism = Organism.findByCommonName(projectionSequence.organism)
+        Organism organism = preferenceService.getOrganismForToken(projectionSequence.organism)
         Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
 
         List<FeatureLocation> toDelete = new ArrayList<>()
@@ -1557,7 +1558,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Transactional
     def setFmax(Feature feature, int fmax,MultiSequenceProjection multiSequenceProjection) {
         ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(fmax)
-        Organism organism = Organism.findByCommonName(projectionSequence.organism)
+        Organism organism = preferenceService.getOrganismForToken(projectionSequence.organism)
         Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
 
         List<FeatureLocation> toDelete = new ArrayList<>()
