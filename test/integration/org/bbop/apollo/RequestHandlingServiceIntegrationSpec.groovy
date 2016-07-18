@@ -2082,7 +2082,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert SequenceAlteration.count == 1
         assert Insertion.count == 1
 
-        when: "we add an overalapping negative sequence alteration"
+        when: "we add an overlapping negative sequence alteration"
         requestHandlingService.addSequenceAlteration(JSON.parse(negativeStrandedSequenceInsertion) as JSONObject)
 
         then: "we should only have the insertion exist"
@@ -2113,7 +2113,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert MRNA.count == 1
         String transcript1UniqueName = addTranscript1ReturnObject.uniquename
         CDS initialCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
-        int initialCDSLength = initialCDS.featureLocation.fmax - initialCDS.featureLocation.fmin
+        int initialCDSLength = initialCDS.getLength()
         
         when: "we set translation start for transcript1"
         setTranslationStartForTranscript1 = setTranslationStartForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)

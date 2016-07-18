@@ -137,7 +137,8 @@ class Feature implements Ontological{
      * @return Length of feature
      */
     public int getLength() {
-        return getFeatureLocation().calculateLength()
+        getFmax()-getFmin()
+//        return getFeatureLocation().calculateLength()
     }
 
     /**
@@ -154,15 +155,16 @@ class Feature implements Ontological{
      */
     public Integer getFmax(){
 //        featureLocation.fmax
-        Integer calculatedMax = 0
-        featureLocations.sort(){ it.rank }.each {
-            calculatedMax += it.fmax
-        }
-        return calculatedMax
+//        Integer calculatedMax = 0
+//        featureLocations.sort(){ it.rank }.each {
+//            calculatedMax += it.fmax
+//        }
+//        return calculatedMax
+        featureLocations.sort(){ it.rank }.last().fmax
     }
 
     public Integer getStrand(){
-        featureLocation.strand
+        featureLocations.first().strand
     }
 
 
