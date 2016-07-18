@@ -108,6 +108,8 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we delete the gene and transcript and try to add the feature via the JSONObject"
         featureRelationshipService.deleteFeatureAndChildren(gene)
         Sequence sequence = Sequence.all.get(0)
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+        featureService.convertJSONToFeature(geneFeatureJsonObject, bookmark)
 
         then: "convertJSONToFeature() should interpret the JSONObject properly and we should see all the properties that we added above"
         assert Gene.count == 1
