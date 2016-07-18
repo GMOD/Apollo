@@ -999,8 +999,22 @@ class RequestHandlingService {
             Transcript transcript = exonService.getTranscript(exon)
             JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript)
 
+
+            Integer transcriptFmin = transcript.fmin
+            Integer transcriptFmax = transcript.fmax
+            boolean updateTransriptBoundaries = false
+            if(exon.fmin==transcriptFmin){
+                transcriptFmin=fmin
+                updateTransriptBoundaries = true
+            }
+            if(exon.fmax==transcriptFmax){
+                transcriptFmax=fmax
+                updateTransriptBoundaries = true
+            }
             featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,exon,fmin,fmax)
-            featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,transcript,fmin,fmax)
+            if(updateTransriptBoundaries){
+                featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,transcript,transcriptFmin,transcriptFmax)
+            }
 
             featureService.removeExonOverlapsAndAdjacencies(transcript)
             transcriptService.updateGeneBoundaries(transcript,multiSequenceProjection)

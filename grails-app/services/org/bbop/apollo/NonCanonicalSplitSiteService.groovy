@@ -89,7 +89,9 @@ class NonCanonicalSplitSiteService {
         Strand strand=transcript.getFeatureLocation().strand==-1?Strand.NEGATIVE:Strand.POSITIVE
 
         String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,fmin,fmax,strand);
-        if(transcript.getStrand()==-1)residues=residues.reverse()
+        if(transcript.getStrand()==-1){
+            residues=residues.reverse()
+        }
 
         List<SequenceAlteration> sequenceAlterationList = new ArrayList<>()
         sequenceAlterationList.addAll(featureService.getAllSequenceAlterationsForFeature(transcript))
