@@ -246,6 +246,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         // TODO: create proper exon command
         String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"id\":6688, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":45455,\"fmax\":79565}}],\"operation\":\"set_exon_boundaries\"}"
         String setExonBoundaryCommand2 = "{ ${testCredentials} \"track\":{\"id\":6688, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":45455,\"fmax\":45575}}],\"operation\":\"set_exon_boundaries\"}"
+        String getFeaturesString = "{ ${testCredentials} \"track\":{\"id\":17715, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"operation\":\"get_features\"}"
 
         when: "we add a transcript"
         requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499 ) as JSONObject)
@@ -267,7 +268,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we set the exon boundary across a scaffold"
         setExonBoundaryCommand1 = setExonBoundaryCommand1.replaceAll("@EXON_UNIQUE_NAME@",exonUniqueName)
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand1) as JSONObject)
-        def allFeatures = CDS.all
+        JSONArray retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesString) as JSONObject).features
+        JSONObject locationJsonObject = retrievedFeatures.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
 
         then: "we should have one transcript across two sequences"
         assert MRNA.count==1
@@ -288,6 +290,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         // should be the same for all
         assert Gene.first().featureLocations.sort(){ it.rank }[0].sequence.name =="GroupUn87"
         assert Gene.first().featureLocations.sort(){ it.rank }[1].sequence.name =="Group11.4"
+        assert locationJsonObject.fmin==45455
+        assert locationJsonObject.fmax==79565
 
         when: "we move the exon boundary BACK across a scaffold"
         setExonBoundaryCommand2 = setExonBoundaryCommand2.replaceAll("@EXON_UNIQUE_NAME@",exonUniqueName)

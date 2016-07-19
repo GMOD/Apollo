@@ -1811,8 +1811,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         long durationInMilliseconds = System.currentTimeMillis() - start;
 
         start = System.currentTimeMillis();
-        if (gsolFeature.featureLocation) {
-            Sequence sequence = gsolFeature.featureLocation.sequence
+        if (gsolFeature.featureLocations.size()==1) {
+            Sequence sequence = gsolFeature.featureLocations.first().sequence
             jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
         }
 
@@ -1849,9 +1849,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
 
-
-
-
         start = System.currentTimeMillis()
         // get parents
         List<Feature> parentFeatures = featureRelationshipService.getParentsForFeature(gsolFeature)
@@ -1869,9 +1866,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         Collection<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations();
         if (featureLocations) {
-            FeatureLocation gsolFeatureLocation = featureLocations.iterator().next();
-            if (gsolFeatureLocation != null) {
-                jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(gsolFeatureLocation));
+            if(featureLocations.size()==1){
+                jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(featureLocations.first()));
+            }
+            else{
+                // multiple
+                jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(featureLocations.first(),gsolFeature.fmin,gsolFeature.fmax));
             }
         }
 
@@ -1969,17 +1969,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     @Timed
-    JSONObject convertFeatureLocationToJSON(FeatureLocation gsolFeatureLocation) throws JSONException {
+    JSONObject convertFeatureLocationToJSON(FeatureLocation gsolFeatureLocation,Integer fmin = null,Integer fmax = null) throws JSONException {
         JSONObject jsonFeatureLocation = new JSONObject();
         if (gsolFeatureLocation.id) {
             jsonFeatureLocation.put(FeatureStringEnum.ID.value, gsolFeatureLocation.id);
         }
-        jsonFeatureLocation.put(FeatureStringEnum.FMIN.value, gsolFeatureLocation.getFmin());
-        jsonFeatureLocation.put(FeatureStringEnum.FMAX.value, gsolFeatureLocation.getFmax());
-        if (gsolFeatureLocation.isIsFminPartial()) {
+        jsonFeatureLocation.put(FeatureStringEnum.FMIN.value, fmin ?: gsolFeatureLocation.getFmin());
+        jsonFeatureLocation.put(FeatureStringEnum.FMAX.value, fmax ?: gsolFeatureLocation.getFmax());
+        if (fmin==null && gsolFeatureLocation.isIsFminPartial()) {
             jsonFeatureLocation.put(FeatureStringEnum.IS_FMIN_PARTIAL.value, true);
         }
-        if (gsolFeatureLocation.isIsFmaxPartial()) {
+        if (fmax==null && gsolFeatureLocation.isIsFmaxPartial()) {
             jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, true);
         }
         jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, gsolFeatureLocation.getStrand());
