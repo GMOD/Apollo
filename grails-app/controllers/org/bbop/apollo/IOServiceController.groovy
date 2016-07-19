@@ -148,6 +148,8 @@ class IOServiceController extends AbstractApolloController {
                     String locationString = region.split(":")[1]
                     Integer min = locationString.split("\\.\\.")[0] as Integer
                     Integer max = locationString.split("\\.\\.")[1] as Integer
+                    // its an exclusive fmin, so must subtract one
+                    --min
                     Sequence sequence = Sequence.findByOrganismAndName(organism,track)
                     String genomicSequence = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,min,max, Strand.POSITIVE)
                     outputFile.text = genomicSequence
