@@ -7,6 +7,7 @@ Features
 + Added the comments of Canned Keys and Attribute Pairs similar to Canned Comments (#86)
 + Sequence download is available from highlighted regions in the User-created annotations export menu (#1163)
 + Added ability to pass in parent information when loading transcripts using the add_transcript_from_gff3_to_annotations.pl loading script (#1171)
++ Added [documentation for using Docker with Apollo](https://github.com/GMOD/Apollo/blob/master/docs/Setup.md#configure-for-docker) (#1016)
 
 Bugfixes
 
