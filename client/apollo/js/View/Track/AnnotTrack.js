@@ -4006,14 +4006,11 @@ define([
                 var track = this;
                 var adapter = key;
                 var highlight = track.gview.browser.getHighlight();
-                alert(highlight);
-                alert(key);
-                alert(options);
                 var content = dojo.create("div");
                 var waitingDiv = dojo.create("div", {innerHTML: "<img class='waiting_image' src='plugins/WebApollo/img/loading.gif' />"}, content);
                 var responseDiv = dojo.create("div", {className: "export_response"}, content);
 
-                if(key=="Highlighted Genome" && highlight==null){
+                if(key=="highlighted region" && highlight==null){
                     // TODO: dojo alert
                     alert('You must highlight a region of the genome to export it.')
                     return ;

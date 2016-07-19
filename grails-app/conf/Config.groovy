@@ -299,7 +299,7 @@ apollo {
         ,
         [
                 permission : 1,
-                key : "Highlighted Genome",
+                key : "highlighted region",
                 options : "output=file&format=gzip&type=FASTA&seqType=genomic"
         ]
         ]
