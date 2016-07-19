@@ -1,5 +1,7 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.sequence.Strand
+
 class Feature implements Ontological{
 
     static auditable = true
@@ -151,22 +153,53 @@ class Feature implements Ontological{
 
     /**
      * Returns the calculated fmax if part of multiple scaffolds
+     *
+     * This is the fmax of the last featureLength, plus the some of all previous featureLoctaion sequences
      * @return
      */
     public Integer getFmax(){
 //        featureLocation.fmax
-//        Integer calculatedMax = 0
-//        featureLocations.sort(){ it.rank }.each {
-//            calculatedMax += it.fmax
-//        }
-//        return calculatedMax
-        featureLocations.sort(){ it.rank }.last().fmax
+        Integer calculatedMax = 0
+        int maxRank = getMaxRank()
+        featureLocations.sort(){ it.rank }.each {
+            if(it.rank<maxRank){
+                calculatedMax += it.sequence.length
+            }
+            else{
+                calculatedMax += it.fmax
+            }
+        }
+        return calculatedMax
+//        featureLocations.sort(){ it.rank }.last().fmax
+    }
+
+    /**
+     * Rteturn the rank of the last feature location
+     * @return
+     */
+    public Integer getMaxRank(){
+        featureLocations.sort(){ it.rank }.last().rank
+    }
+
+    /**
+     * This will always be 0, but good to include it
+     * @return
+     */
+    public Integer getMinRank(){
+        featureLocations.sort(){ it.rank }.first().rank
     }
 
     public Integer getStrand(){
         featureLocations.first().strand
     }
 
+    public Boolean isNegativeStrand(){
+        featureLocations.first().strand== Strand.NEGATIVE.value
+    }
+
+    public Boolean isPositiveStrand(){
+        featureLocations.first().strand== Strand.POSITIVE.value
+    }
 
     @Override
     public String toString() {

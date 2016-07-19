@@ -262,11 +262,12 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert NonCanonicalThreePrimeSpliceSite.count==0
         assert FeatureLocation.count==1+1+1+1
-        assert mrnaGb53499.featureLocation.sequence==sequenceGroupUn87
+        assert mrnaGb53499.featureLocations[0].sequence==sequenceGroupUn87
 
         when: "we set the exon boundary across a scaffold"
         setExonBoundaryCommand1 = setExonBoundaryCommand1.replaceAll("@EXON_UNIQUE_NAME@",exonUniqueName)
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand1) as JSONObject)
+        def allFeatures = CDS.all
 
         then: "we should have one transcript across two sequences"
         assert MRNA.count==1
@@ -279,13 +280,14 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.first().featureLocations.size()==2
         assert MRNA.first().featureLocations.size()==2
         assert Gene.first().featureLocations.size()==2
-        assert CDS.first().featureLocations.size()==2 // not sure about this
-        assert FeatureLocation.count==(1+1+1+1)*2  // same as above , but they are all split into two
-        assert Exon.first().featureLocations[0].sequence.name =="GroupUn87"
-        assert Exon.first().featureLocations[1].sequence.name =="Group11.4"
+        assert CDS.first().featureLocations.size()==1  // is just in the first sequence
+        assert FeatureLocation.count==(1+1+1)*2 + 1   // same as above , but they are all split into two
+        assert Exon.first().featureLocations.sort(){ it.rank }[0].sequence.name =="GroupUn87"
+        assert Exon.first().featureLocations.sort(){ it.rank }[1].sequence.name =="Group11.4"
+        assert CDS.first().featureLocations[0].sequence.name =="GroupUn87"
         // should be the same for all
-        assert Gene.first().featureLocations[0].sequence.name =="GroupUn87"
-        assert Gene.first().featureLocations[1].sequence.name =="Group11.4"
+        assert Gene.first().featureLocations.sort(){ it.rank }[0].sequence.name =="GroupUn87"
+        assert Gene.first().featureLocations.sort(){ it.rank }[1].sequence.name =="Group11.4"
 
         when: "we move the exon boundary BACK across a scaffold"
         setExonBoundaryCommand2 = setExonBoundaryCommand2.replaceAll("@EXON_UNIQUE_NAME@",exonUniqueName)
@@ -345,13 +347,13 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.first().featureLocations.size()==2
         assert MRNA.first().featureLocations.size()==2
         assert Gene.first().featureLocations.size()==2
-        assert CDS.first().featureLocations.size()==2 // not sure about this
-        assert FeatureLocation.count==(1+1+1+1)*2  // same as above , but they are all split into two
-        assert Exon.first().featureLocations[0].sequence.name =="GroupUn87"
-        assert Exon.first().featureLocations[1].sequence.name =="Group11.4"
+        assert CDS.first().featureLocations.size()==1 // not sure about this
+        assert FeatureLocation.count==(1+1+1)*2 + 1  // same as above , but they are all split into two
+        assert Exon.first().featureLocations.sort(){ it.rank }[0].sequence.name =="GroupUn87"
+        assert Exon.first().featureLocations.sort(){ it.rank }[1].sequence.name =="Group11.4"
         // should be the same for all
-        assert Gene.first().featureLocations[0].sequence.name =="GroupUn87"
-        assert Gene.first().featureLocations[1].sequence.name =="Group11.4"
+        assert Gene.first().featureLocations.sort(){ it.rank }[0].sequence.name =="GroupUn87"
+        assert Gene.first().featureLocations.sort(){ it.rank }[1].sequence.name =="Group11.4"
 
         when: "we move the LHS exon to the other scaffold"
         setExonBoundaryCommand2 = setExonBoundaryCommand2.replaceAll("@EXON_UNIQUE_NAME@",exonUniqueName)
@@ -366,7 +368,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert NonCanonicalThreePrimeSpliceSite.count==0
         assert FeatureLocation.count==1+1+1+1
-        assert mrnaGb53499.featureLocation.sequence==sequenceGroup11_4
+        assert mrnaGb53499.featureLocations[0].sequence==sequenceGroup11_4
     }
 
     void "We can merge transcripts across two scaffolds"() {

@@ -683,10 +683,10 @@ class FeatureService {
         for (Exon exon : exons) {
             int exonLength = exon.getLength();
             if (currentLength + exonLength >= localCoordinate) {
-                if (transcript.getFeatureLocation().getStrand() == Strand.NEGATIVE.value) {
-                    sourceCoordinate = exon.getFeatureLocation().getFmax() - currentCoordinate - 1;
+                if (transcript.isNegativeStrand()) {
+                    sourceCoordinate = exon.getFmax() - currentCoordinate - 1;
                 } else {
-                    sourceCoordinate = exon.getFeatureLocation().getFmin() + currentCoordinate;
+                    sourceCoordinate = exon.getFmin() + currentCoordinate;
                 }
                 break;
             }
@@ -2584,7 +2584,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
         Collections.sort(alterations, new SequenceAlterationInContextPositionComparator<SequenceAlterationInContext>());
-        if (feature.getFeatureLocation().getStrand() == -1) {
+        if (feature.getStrand() == -1) {
             Collections.reverse(alterations);
         }
 
