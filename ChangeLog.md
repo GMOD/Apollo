@@ -5,7 +5,7 @@ Features
 + Upgraded to Grails 2.5.5
 + Allow REMOTE_USER authentication (apache / nginx) and added pluggable user authentication (#1042)
 + Added the comments of Canned Keys and Attribute Pairs similar to Canned Comments (#86)
-+ Sequence download is available from a highlight region from the Annotator Panel (#1163)
++ Sequence download is available from highlighted regions in the User-created annotations export menu (#1163)
 + Added ability to pass in parent information when loading transcripts using the add_transcript_from_gff3_to_annotations.pl loading script (#1171)
 
 Bugfixes
