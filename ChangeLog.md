@@ -2,8 +2,25 @@
 
 Features
 
-+ Upgraded to 2.5.5
++ Upgraded to Grails 2.5.5
++ Allow REMOTE_USER authentication (apache / nginx) and added pluggable user authentication (#1042)
++ Added the comments of Canned Keys and Attribute Pairs similar to Canned Comments (#86)
++ Sequence download is available from highlighted regions in the User-created annotations export menu (#1163)
++ Added ability to pass in parent information when loading transcripts using the add_transcript_from_gff3_to_annotations.pl loading script (#1171)
++ Added [documentation for using Docker with Apollo](https://github.com/GMOD/Apollo/blob/master/docs/Setup.md#configure-for-docker) (#1016)
 
+Bugfixes
+
++ Fixed multiple errors in the add_transcript_from_gff3_to_annotations.pl loading script (#1146)
++ Expired sessions or server disconnection triggers reconnection instead of a silent failure (#493)
++ Fixed bugs in certain web service scripts (#1155)
++ Fixed bug where garbage client token is created (#1172)
++ Fixed several deployment and installation issues (#1135, #1137, #1150)
++ Fixed adding comments to a sequence alteration fails to create the sequence alteration (#1179)
++ Parameters passed into loadLink are no longer dropped (#1140)
++ Fixed bug not allowing addition of FeatureType in admin menu (#1144)
++ Improved performance of loading the information editor for large genes (#1152)
++ Fixes error when deleting a DBXref or GO ID error (#1163)
 
 
 ## 2.0.3

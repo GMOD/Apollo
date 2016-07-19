@@ -2068,9 +2068,10 @@ class RequestHandlingService {
             throw new AnnotationException("You cannot merge transcripts on opposite strands");
         }
 
-        List<Transcript> sortedTranscripts = [transcript1, transcript2].sort { a, b ->
-            a.fmin <=> b.fmin
-        }
+        List<Transcript> sortedTranscripts = Collections.sort([transcript1,transcript2],new FeaturePositionComparator<Transcript>(false))
+//        List<Transcript> sortedTranscripts = [transcript1, transcript2].sort { a, b ->
+//            a.fmin <=> b.fmin
+//        }
         if (transcript1.strand == Strand.NEGATIVE.value) {
             sortedTranscripts.reverse(true)
         }
