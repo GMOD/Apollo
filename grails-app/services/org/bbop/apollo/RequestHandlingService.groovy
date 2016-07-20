@@ -2273,4 +2273,38 @@ class RequestHandlingService {
 
         return featureContainer
     }
+
+    def addSingleNucleotideVariant(JSONObject inputObject) {
+        println "@addSingleNucleotideVariant: ${inputObject.toString()}"
+        JSONObject addFeatureContainer = createJSONFeatureContainer();
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        User activeUser = permissionService.getCurrentUser(inputObject)
+
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i)
+            SNV singleNucleotideVariant = (SNV) featureService.convertJSONToFeature(jsonFeature, sequence)
+            if (activeUser) {
+                featureService.setOwner(singleNucleotideVariant, activeUser)
+            } else {
+                log.error "Unable to find valid user to set on SNV: " + inputObject.toString()
+            }
+            singleNucleotideVariant.save()
+            featureService.updateNewGsolFeatureAttributes(singleNucleotideVariant, sequence)
+            if (singleNucleotideVariant.getFmin() < 0 || singleNucleotideVariant.getFmax() < 0) {
+                throw new AnnotationException("Feature cannot have negative coordinates");
+            }
+            singleNucleotideVariant.save(flush: true)
+            addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(singleNucleotideVariant, true))
+        }
+
+        AnnotationEvent addAnnotationEvent = new AnnotationEvent(
+                features: addFeatureContainer,
+                sequence: sequence,
+                operation: AnnotationEvent.Operation.ADD,
+                sequenceAlterationEvent: false
+        )
+        fireAnnotationEvent(addAnnotationEvent)
+        return addFeatureContainer
+    }
 }

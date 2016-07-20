@@ -978,6 +978,23 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description = "Add Single Nucleotide Variant (SNV)", path = "/annotationEditor/addSingleNucleotideVariant", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY),
+            @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY),
+            @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name"),
+            @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism ID or common name"),
+            @RestApiParam(name = "features", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "JSONArray with Single Nucleotide Variant (SNV) objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/")
+    ])
+    def addSingleNucleotideVariant() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.addSingleNucleotideVariant(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
     @Timed
     def getAnnotationInfoEditorData() {
         Sequence sequence

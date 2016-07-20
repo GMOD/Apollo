@@ -1318,6 +1318,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case NonCanonicalFivePrimeSpliceSite.ontologyId: return new NonCanonicalFivePrimeSpliceSite()
             case NonCanonicalThreePrimeSpliceSite.ontologyId: return new NonCanonicalThreePrimeSpliceSite()
             case StopCodonReadThrough.ontologyId: return new StopCodonReadThrough()
+            case SNV.ontologyId: return new SNV()
             default:
                 log.error("No feature type exists for ${ontologyId}")
                 return null
@@ -1356,6 +1357,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 case NonCanonicalThreePrimeSpliceSite.cvTerm.toUpperCase(): return NonCanonicalThreePrimeSpliceSite.ontologyId
                 case NonCanonicalFivePrimeSpliceSite.alternateCvTerm.toUpperCase(): return NonCanonicalFivePrimeSpliceSite.ontologyId
                 case NonCanonicalThreePrimeSpliceSite.alternateCvTerm.toUpperCase(): return NonCanonicalThreePrimeSpliceSite.ontologyId
+                case SNV.cvTerm.toUpperCase(): return SNV.ontologyId
                 default:
                     log.error("CV Term not known ${cvTermString} for CV ${FeatureStringEnum.SEQUENCE}")
                     return null
