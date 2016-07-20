@@ -511,12 +511,12 @@ class FeatureService {
      * @return
      */
     @Transactional
-    def removeExonOverlapsAndAdjacencies(Transcript transcript) throws AnnotationException {
-        List<Exon> sortedExons = transcriptService.getSortedExons(transcript)
+    def removeExonOverlapsAndAdjacencies(Transcript transcript,Bookmark bookmark = null ) throws AnnotationException {
+        List<Exon> sortedExons = transcriptService.getSortedExons(transcript,bookmark)
         if (!sortedExons || sortedExons?.size() <= 1) {
             return;
         }
-        Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(false))
+        // sort exon if the bookmark is not there
         int inc = 1;
         for (int i = 0; i < sortedExons.size() - 1; i += inc) {
             inc = 1;

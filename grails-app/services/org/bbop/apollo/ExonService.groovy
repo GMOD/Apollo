@@ -414,7 +414,7 @@ class ExonService {
         rightFeatureLocation.save()
 
         Transcript transcript = getTranscript(leftExon)
-        transcriptService.addExon(transcript,rightExon)
+        transcriptService.addExon(transcript,rightExon,true)
 
         transcript.save()
         rightExon.save()

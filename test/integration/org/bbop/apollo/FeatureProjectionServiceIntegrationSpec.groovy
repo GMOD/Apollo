@@ -400,8 +400,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert NonCanonicalThreePrimeSpliceSite.count==0
         assert FeatureLocation.count==2+2+2+1+9 // one for each
-        assert mrnaGb53499.featureLocation.sequence==sequenceGroupUn87
-        assert mrnaGb52238.featureLocation.sequence==sequenceGroup11_4
+        assert mrnaGb53499.featureLocations[0].sequence==sequenceGroupUn87
+        assert mrnaGb52238.featureLocations[0].sequence==sequenceGroup11_4
 
         when: "we merge the two transcripts"
         mergeCommand = mergeCommand.replaceAll("@EXON1_UNIQUENAME@",mrnaGb52238.uniqueName)

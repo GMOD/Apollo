@@ -42,6 +42,7 @@ class RequestHandlingService {
     def projectionService
     def bookmarkService
     def featureProjectionService
+    def sequenceService
 
     public static final List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
@@ -2068,10 +2069,12 @@ class RequestHandlingService {
             throw new AnnotationException("You cannot merge transcripts on opposite strands");
         }
 
-        List<Transcript> sortedTranscripts = Collections.sort([transcript1,transcript2],new FeaturePositionComparator<Transcript>(false))
-//        List<Transcript> sortedTranscripts = [transcript1, transcript2].sort { a, b ->
-//            a.fmin <=> b.fmin
-//        }
+//        List<Transcript> sortedTranscripts = transcriptService.sortFeatures(transcript1,transcript2,bookmark)
+//        List<Transcript> sortedTranscripts = Collections.sort([transcript1,transcript2],new FeaturePositionComparator<Transcript>(false,sequenceList))
+
+        List<Transcript> sortedTranscripts = [transcript1, transcript2].sort { a, b ->
+            a.fmin <=> b.fmin
+        }
         if (transcript1.strand == Strand.NEGATIVE.value) {
             sortedTranscripts.reverse(true)
         }
@@ -2090,7 +2093,7 @@ class RequestHandlingService {
         featureService.setLongestORF(transcript1,false,projectionService.getProjection(bookmark));
         featureService.setLongestORF(transcript2,false,projectionService.getProjection(bookmark));
         // merging transcripts
-        transcriptService.mergeTranscripts(transcript1, transcript2)
+        transcriptService.mergeTranscripts(transcript1, transcript2,bookmark)
         featureService.calculateCDS(transcript1,false,projectionService.getProjection(bookmark))
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1)
 
