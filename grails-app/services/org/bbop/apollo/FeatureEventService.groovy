@@ -564,7 +564,7 @@ class FeatureEventService {
             JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
             transcriptsToUpdate.each {
                 Transcript transcript = Transcript.findByUniqueName(it)
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false))
             }
             if (bookmark) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(

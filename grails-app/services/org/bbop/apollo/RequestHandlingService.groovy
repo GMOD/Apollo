@@ -520,7 +520,7 @@ class RequestHandlingService {
 
         JSONArray jsonFeatures = new JSONArray()
         features.each { Feature feature ->
-            JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
+            JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false,bookmark)
             jsonFeatures.put(jsonObject)
         }
 

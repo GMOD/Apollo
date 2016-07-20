@@ -1794,7 +1794,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @return
      */
     @Timed
-    JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
+    JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false,Bookmark bookmark = null ) {
         JSONObject jsonFeature = new JSONObject();
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
@@ -1817,9 +1817,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         long durationInMilliseconds = System.currentTimeMillis() - start;
 
         start = System.currentTimeMillis();
-        if (gsolFeature.featureLocations.size()==1) {
-            Sequence sequence = gsolFeature.featureLocations.first().sequence
-            jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
+        String sequenceString = ""
+        gsolFeature.featureLocations.each {
+            sequenceString += "::"
+            sequenceString += it.sequence.name
+        }
+        sequenceString = sequenceString == "" ? null : sequenceString.substring(2)
+        if(sequenceString){
+            jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequenceString);
         }
 
         durationInMilliseconds = System.currentTimeMillis() - start;
@@ -1870,14 +1875,36 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         start = System.currentTimeMillis()
 
-        Collection<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations();
+        List<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations()?.sort(){ it.rank};
         if (featureLocations) {
             if(featureLocations.size()==1){
                 jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(featureLocations.first()));
             }
             else{
+                // TODO: should probably move somewhere else, but the important part here is that it calculates a SINGLE location
+                // for the relevant bookmark
+                bookmark = bookmark ?: bookmarkService.generateBookmarkForFeature(gsolFeature)
+                List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+
+                int calculatedFmin = -1
+                int calculatedFmax = -1
+                Boolean fminPartial = false
+                Boolean fmaxPartial = false
+
+                featureLocations.each {
+                    if(sequenceList.contains(it.sequence)){
+                        if(calculatedFmin<0){
+                            calculatedFmin = it.fmin
+                            fminPartial = it.isFminPartial
+                        }
+//                        if(it.fmax > calculatedFmax){
+                        calculatedFmax = calculatedFmax < 0 ? it.fmax : it.fmax + calculatedFmax
+                        fmaxPartial = it.isFmaxPartial
+//                        }
+                    }
+                }
                 // multiple
-                jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(featureLocations.first(),gsolFeature.fmin,gsolFeature.fmax));
+                jsonFeature.put(FeatureStringEnum.LOCATION.value, generateFeatureLocationToJSON(sequenceString,gsolFeature.strand,calculatedFmin,calculatedFmax,fminPartial,fmaxPartial))
             }
         }
 
@@ -1972,6 +1999,23 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         jsonObject.put(FeatureStringEnum.CV.value, cvObject)
 
         return jsonObject
+    }
+
+
+    @Timed
+    JSONObject generateFeatureLocationToJSON(String sequenceString,Integer strand,Integer fmin ,Integer fmax ,Boolean fminPartial = false,Boolean fmaxPartial = false) throws JSONException {
+        JSONObject jsonFeatureLocation = new JSONObject();
+        jsonFeatureLocation.put(FeatureStringEnum.FMIN.value, fmin )
+        jsonFeatureLocation.put(FeatureStringEnum.FMAX.value, fmax )
+        if (fmin==null || fminPartial) {
+            jsonFeatureLocation.put(FeatureStringEnum.IS_FMIN_PARTIAL.value, true);
+        }
+        if (fmax==null || fmaxPartial) {
+            jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, true);
+        }
+        jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, strand);
+        jsonFeatureLocation.put(FeatureStringEnum.SEQUENCE.value, sequenceString);
+        return jsonFeatureLocation
     }
 
     @Timed

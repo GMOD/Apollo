@@ -245,7 +245,10 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         // TODO: create proper exon command
         String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"id\":6688, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":45455,\"fmax\":79565}}],\"operation\":\"set_exon_boundaries\"}"
         String setExonBoundaryCommand2 = "{ ${testCredentials} \"track\":{\"id\":6688, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":45455,\"fmax\":45575}}],\"operation\":\"set_exon_boundaries\"}"
-        String getFeaturesString = "{ ${testCredentials} \"track\":{\"id\":17715, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"operation\":\"get_features\"}"
+        String getFeaturesString = "{ ${testCredentials} \"track\":{\"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"operation\":\"get_features\"}"
+        String getFeaturesStringUn87 = "{ ${testCredentials} \"track\":{\"name\":\"GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
+        String getFeaturesString11_4 = "{ ${testCredentials} \"track\":{\"name\":\"Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"operation\":\"get_features\"}"
+        String getFeaturesStringReverse = "{ ${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
 
         when: "we add a transcript"
         requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499 ) as JSONObject)
@@ -292,6 +295,33 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert locationJsonObject.fmin==45455
         assert locationJsonObject.fmax==79565
 
+        when: "we retrieve features on one Un87"
+        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesStringUn87) as JSONObject).features
+        locationJsonObject = retrievedFeatures.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
+
+
+        then: "we should only see locations on Un87"
+        assert locationJsonObject.fmin==45455
+        assert locationJsonObject.fmax==78258
+
+        when: "we retrieve features on one Group11.4"
+        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesString11_4) as JSONObject).features
+        locationJsonObject = retrievedFeatures.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
+
+        then: "we should only see locations on Group11.4"
+        assert locationJsonObject.fmin==0
+        assert locationJsonObject.fmax==79565-78258
+
+//        when: "we retrieve features on the reverse group"
+//        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesStringReverse) as JSONObject).features
+//        JSONObject locationJsonObject1 = retrievedFeatures.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
+//        JSONObject locationJsonObject2 = retrievedFeatures.getJSONObject(1).getJSONObject(FeatureStringEnum.LOCATION.value)
+//
+//        then: "we should see features on the reverse group"
+//        assert retrievedFeatures.size()==2
+//        assert locationJsonObject.fmin==0
+//        assert locationJsonObject.fmax==79565-78258
+
         when: "we move the exon boundary BACK across a scaffold"
         setExonBoundaryCommand2 = setExonBoundaryCommand2.replaceAll("@EXON_UNIQUE_NAME@",exonUniqueName)
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand2) as JSONObject)
@@ -305,7 +335,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert NonCanonicalThreePrimeSpliceSite.count==0
         assert FeatureLocation.count==1+1+1+1
-        assert mrnaGb53499.featureLocation.sequence==sequenceGroupUn87
+        assert mrnaGb53499.featureLocations[0].sequence==sequenceGroupUn87
     }
 
     void "Add a transcript to the three prime side side and correctly calculate splice sites and then move the exons onto the entire other side"(){
@@ -333,7 +363,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert NonCanonicalThreePrimeSpliceSite.count==0
         assert FeatureLocation.count==1+1+1+1
-        assert mrnaGb53499.featureLocation.sequence==sequenceGroupUn87
+        assert mrnaGb53499.featureLocations[0].sequence==sequenceGroupUn87
 
         when: "we set the exon boundary across a scaffold"
         setExonBoundaryCommand1 = setExonBoundaryCommand1.replaceAll("@EXON_UNIQUE_NAME@",exonUniqueName)
@@ -413,13 +443,13 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Gene.count==1
         assert CDS.count==1
         assert Exon.count==1+9
-        assert NonCanonicalFivePrimeSpliceSite.count==0
-        assert NonCanonicalThreePrimeSpliceSite.count==0
         assert MRNA.first().featureLocations.size()==2
         assert Gene.first().featureLocations.size()==2
         assert CDS.first().featureLocations.size()==1
         // TODO: maybe this is incorrect, might be one after the merge
         assert FeatureLocation.count==(1+1)*2 + 1  + (1+9) // 2 for each, except for Exon and CDS
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert NonCanonicalThreePrimeSpliceSite.count==0
 
     }
 
