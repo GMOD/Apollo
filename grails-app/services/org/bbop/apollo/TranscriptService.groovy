@@ -280,31 +280,70 @@ class TranscriptService {
         feature.save(flush: true)
     }
 
+    /**
+     * Add an exon to this transcript in the context of this bookmark.
+     *
+     * @param transcript
+     * @param exon
+     * @param fixTranscript
+     * @param bookmark
+     * @return
+     */
     @Transactional
-    def addExon(Transcript transcript, Exon exon, Boolean fixTranscript, Bookmark bookmark = null) {
+    def addExon(Transcript transcript, Exon exon, Boolean fixTranscript, Bookmark bookmark ) {
 
         // TODO: this method REALLY needs to be multisequence aware
 //        log.debug "exon feature locations ${exon.featureLocation}"
 //        log.debug "transcript feature locations ${transcript.featureLocation}"
-        FeatureLocation exonFeatureLocation = exon.featureLocation
-        FeatureLocation transcriptFeatureLocation = transcript.featureLocation
-        if (exonFeatureLocation.fmin < transcriptFeatureLocation.fmin) {
-            transcriptFeatureLocation.setFmin(exonFeatureLocation.fmin);
+//        FeatureLocation exonFeatureLocation = exon.featureLocation
+//        FeatureLocation transcriptFeatureLocation = transcript.featureLocation
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+
+
+
+        int transcriptFmin = bookmarkService.getMinForFeature(transcript,bookmark)
+        int transcriptFmax = bookmarkService.getMaxForFeature(transcript,bookmark)
+        int exonFmin = bookmarkService.getMinForFeature(exon,bookmark)
+        int exonFmax = bookmarkService.getMaxForFeature(exon,bookmark)
+        boolean updateTransriptBoundaries = false
+
+        if (exonFmin < transcriptFmin) {
+            transcriptFmin = exonFmin
+            updateTransriptBoundaries = true
+//            transcriptFeatureLocation.setFmin(exonFeatureLocation.fmin);
         }
-        if (exonFeatureLocation.fmax > transcriptFeatureLocation.fmax) {
-            transcriptFeatureLocation.setFmax(exonFeatureLocation.fmax);
+        if (exonFmax > transcriptFmax) {
+            transcriptFmax = exonFmax
+            updateTransriptBoundaries = true
         }
+
+//        featureProjectionService.setFeatureLocationsForProjection(projectionService.getProjection(bookmark),exon,exonFmin,exonFmax)
+        if(updateTransriptBoundaries){
+            featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,transcript,transcriptFmin,transcriptFmax)
+        }
+
         transcript.save()
 
         // if the transcript's bounds are beyond the gene's bounds, need to adjust the gene's bounds
         Gene gene = getGene(transcript)
         if (gene) {
-            FeatureLocation geneFeatureLocation = gene.featureLocation
-            if (transcriptFeatureLocation.fmin < geneFeatureLocation.fmin) {
-                geneFeatureLocation.setFmin(transcriptFeatureLocation.fmin);
+            boolean updateGeneBoundaries = false
+//            FeatureLocation geneFeatureLocation = gene.featureLocation
+            int geneFmin = gene.fmin
+            int geneFmax = gene.fmax
+            if (transcriptFmin < geneFmin) {
+                geneFmin = transcriptFmin
+                updateGeneBoundaries = true
+//                geneFeatureLocation.setFmin(transcriptFeatureLocation.fmin);
             }
-            if (transcriptFeatureLocation.fmax > geneFeatureLocation.fmax) {
-                geneFeatureLocation.setFmax(transcriptFeatureLocation.fmax);
+            if (transcriptFmax  > geneFmax) {
+                geneFmax = transcriptFmax
+                updateGeneBoundaries = true
+//                geneFeatureLocation.setFmax(transcriptFeatureLocation.fmax);
+            }
+
+            if(updateGeneBoundaries){
+                featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,gene,geneFmin,geneFmax)
             }
         }
         gene.save()
@@ -321,7 +360,7 @@ class TranscriptService {
             log.debug "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
 //
 //        // if the exon is removed during a merge, then we will get a null-pointer
-            updateGeneBoundaries(transcript);  // 6, moved transcript fmin, fmax
+            updateGeneBoundaries(transcript,multiSequenceProjection);  // 6, moved transcript fmin, fmax
             log.debug "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
         }
     }
@@ -331,7 +370,7 @@ class TranscriptService {
     }
 
     @Transactional
-    Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon) {
+    Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon,Bookmark bookmark) {
         List<Exon> exons = exonService.getSortedExons(transcript)
         Transcript splitTranscript = (Transcript) transcript.getClass().newInstance()
         splitTranscript.uniqueName = nameService.generateUniqueName()
@@ -400,11 +439,11 @@ class TranscriptService {
                 if (exon.equals(rightExon)) {
                     featureRelationshipService.removeFeatureRelationship(transcript, rightExon)
                     log.debug "right4: ${rightExon.featureLocation}"
-                    addExon(splitTranscript, rightExon, true);
+                    addExon(splitTranscript, rightExon, true,bookmark);
                 } else {
                     featureRelationshipService.removeFeatureRelationship(transcript, exon)
                     log.debug "right5: ${rightExon.featureLocation}"
-                    addExon(splitTranscript, exon, true);
+                    addExon(splitTranscript, exon, true,bookmark);
                 }
             }
         }
@@ -420,7 +459,7 @@ class TranscriptService {
      * @param transcript - Transcript to be duplicated
      */
     @Transactional
-    public Transcript duplicateTranscript(Transcript transcript) {
+    public Transcript duplicateTranscript(Transcript transcript,Bookmark bookmark) {
         Transcript duplicate = (Transcript) transcript.generateClone();
         duplicate.name = transcript.name + "-copy"
         duplicate.uniqueName = nameService.generateUniqueName(transcript)
@@ -435,7 +474,7 @@ class TranscriptService {
             Exon duplicateExon = (Exon) exon.generateClone()
             duplicateExon.name = exon.name + "-copy"
             duplicateExon.uniqueName = nameService.generateUniqueName(duplicateExon)
-            addExon(duplicate, duplicateExon, true)
+            addExon(duplicate, duplicateExon, true,bookmark)
         }
         // copy CDS
         CDS cds = getCDS(transcript)

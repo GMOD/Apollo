@@ -406,19 +406,20 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         mergeCommand = mergeCommand.replaceAll("@EXON1_UNIQUENAME@",mrnaGb52238.uniqueName)
         mergeCommand = mergeCommand.replaceAll("@EXON2_UNIQUENAME@",mrnaGb53499.uniqueName)
         requestHandlingService.mergeTranscripts(JSON.parse(mergeCommand) as JSONObject)
+        def allFeatures = Feature.all
 
         then: "we should have one transcript across two sequences"
         assert MRNA.count==1
         assert Gene.count==1
         assert CDS.count==1
         assert Exon.count==1+9
-        assert MRNA.first().featureLocations.size()==2
-        assert Gene.first().featureLocations.size()==2
-//        assert CDS.first().featureLocations.size()==2
-        // TODO: maybe this is incorrect, might be one after the merge
-        assert FeatureLocation.count==(1+1+1)*2 + (1+9) // 2 for each, except for Exon
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert MRNA.first().featureLocations.size()==2
+        assert Gene.first().featureLocations.size()==2
+        assert CDS.first().featureLocations.size()==1
+        // TODO: maybe this is incorrect, might be one after the merge
+        assert FeatureLocation.count==(1+1)*2 + 1  + (1+9) // 2 for each, except for Exon and CDS
 
     }
 

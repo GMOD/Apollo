@@ -178,4 +178,44 @@ class BookmarkService {
         return (inputString.startsWith("{") && inputString.contains(FeatureStringEnum.SEQUENCE_LIST.value))
     }
 
+    /**
+     * We want the minimimum location of a feature in the context of its bookmark
+     * @param feature
+     * @param bookmark
+     * @return
+     */
+    int getMinForFeature(Feature feature , Bookmark bookmark) {
+        Integer calculatedMin = feature.fmin
+        List<Sequence> sequencesList = getSequencesFromBookmark(bookmark)
+
+        Sequence firstSequence = feature.getFirstSequence()
+        Integer sequenceOrder = sequencesList.indexOf(firstSequence)
+
+        // add the entire length of each sequence in view
+        for(int i = 0 ; i < sequenceOrder ; i++){
+            calculatedMin += sequencesList.get(i).length
+        }
+        return calculatedMin
+    }
+
+    /**
+     * We want the maximum location of a feature in the context of its bookmark
+     * @param feature
+     * @param bookmark
+     * @return
+     */
+    int getMaxForFeature(Feature feature, Bookmark bookmark) {
+        Integer calculatedMax = feature.fmax
+        List<Sequence> sequencesList = getSequencesFromBookmark(bookmark)
+
+        // we use the first sequence here, since fmax uses prior sequences
+        Sequence firstSequence = feature.getFirstSequence()
+        Integer sequenceOrder = sequencesList.indexOf(firstSequence)
+
+        // add the entire length of each sequence in view
+        for(int i = 0 ; i < sequenceOrder ; i++){
+            calculatedMax += sequencesList.get(i).length
+        }
+        return calculatedMax
+    }
 }

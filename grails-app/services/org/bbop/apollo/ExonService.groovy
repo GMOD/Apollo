@@ -168,7 +168,7 @@ class ExonService {
 
 
     @Transactional
-    public Exon makeIntron(Exon exon, int genomicPosition, int minimumIntronSize) {
+    public Exon makeIntron(Exon exon, int genomicPosition, int minimumIntronSize,Bookmark bookmark) {
         String sequence = sequenceService.getResiduesFromFeature(exon)
         int exonPosition = featureService.convertSourceCoordinateToLocalCoordinate(exon,genomicPosition);
 //        // find donor coordinate
@@ -205,7 +205,7 @@ class ExonService {
         } else {
             acceptorCoordinate += acceptorSite.length();
         }
-        Exon splitExon = splitExon(exon, featureService.convertLocalCoordinateToSourceCoordinate(exon,donorCoordinate) , featureService.convertLocalCoordinateToSourceCoordinate(exon,acceptorCoordinate));
+        Exon splitExon = splitExon(exon, featureService.convertLocalCoordinateToSourceCoordinate(exon,donorCoordinate) , featureService.convertLocalCoordinateToSourceCoordinate(exon,acceptorCoordinate),bookmark);
 
         exon.save()
         splitExon.save()
@@ -387,7 +387,7 @@ class ExonService {
     }
 
     @Transactional
-    Exon splitExon(Exon exon, int newLeftMax, int newRightMin) {
+    Exon splitExon(Exon exon, int newLeftMax, int newRightMin,Bookmark bookmark) {
         Exon leftExon = exon;
         FeatureLocation leftFeatureLocation = leftExon.getFeatureLocation()
 
@@ -422,7 +422,7 @@ class ExonService {
         rightFeatureLocation.save()
 
         Transcript transcript = getTranscript(leftExon)
-        transcriptService.addExon(transcript,rightExon,true)
+        transcriptService.addExon(transcript,rightExon,true,bookmark)
 
         transcript.save()
         rightExon.save()

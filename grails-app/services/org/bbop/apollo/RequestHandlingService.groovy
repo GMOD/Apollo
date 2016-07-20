@@ -564,7 +564,7 @@ class RequestHandlingService {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
 
-            transcriptService.addExon(transcript, gsolExon, false)
+            transcriptService.addExon(transcript, gsolExon, false,bookmark)
 
             gsolExon.save()
         }
@@ -1547,7 +1547,7 @@ class RequestHandlingService {
         JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript)
 
 
-        Exon splitExon = exonService.splitExon(exon, exonLocation.getInt(FeatureStringEnum.FMAX.value), exonLocation.getInt(FeatureStringEnum.FMIN.value))
+        Exon splitExon = exonService.splitExon(exon, exonLocation.getInt(FeatureStringEnum.FMAX.value), exonLocation.getInt(FeatureStringEnum.FMIN.value),bookmark)
         //featureService.updateNewGsolFeatureAttributes(splitExon, sequence)
         featureService.updateNewGsolFeatureAttributes(splitExon, bookmark)
         featureService.calculateCDS(transcript,false,projectionService.getProjection(bookmark))
@@ -1928,6 +1928,7 @@ class RequestHandlingService {
                 exon
                 , exonLocation.getInt(FeatureStringEnum.FMIN.value)
                 , configWrapperService.getDefaultMinimumIntronSize()
+                , bookmark
         )
         if (splitExon == null) {
             def returnContainer = createJSONFeatureContainer()
@@ -1981,7 +1982,7 @@ class RequestHandlingService {
         Exon exon2 = Exon.findByUniqueName(featuresArray.getJSONObject(1).getString(FeatureStringEnum.UNIQUENAME.value))
 
         Transcript transcript1 = exonService.getTranscript(exon1)
-        Transcript transcript2 = transcriptService.splitTranscript(transcript1, exon1, exon2)
+        Transcript transcript2 = transcriptService.splitTranscript(transcript1, exon1, exon2,bookmark)
 
         featureService.updateNewGsolFeatureAttributes(transcript2, bookmark);
 
@@ -2173,7 +2174,7 @@ class RequestHandlingService {
 
         Transcript transcript = Transcript.findByUniqueName(inputObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value))
 
-        Transcript duplicateTranscript = transcriptService.duplicateTranscript(transcript)
+        Transcript duplicateTranscript = transcriptService.duplicateTranscript(transcript,bookmark)
         duplicateTranscript.save()
         Feature topFeature = featureService.getTopLevelFeature(transcript)
         topFeature.save()
