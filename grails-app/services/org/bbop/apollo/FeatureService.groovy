@@ -567,6 +567,12 @@ class FeatureService {
         return false;
     }
 
+    /**
+     * @deprecated  Should provide multisequence projection
+     * @param transcript
+     * @param readThroughStopCodon
+     * @return
+     */
     @Timed
     @Transactional
     def calculateCDS(Transcript transcript, boolean readThroughStopCodon) {
@@ -2296,6 +2302,48 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         mainGene.save(flush: true)
         return mainGene
+    }
+
+    /**
+     * @param features
+     * @param bookmark
+     * @return
+     */
+    List<Feature> sortFeatures(Collection<Feature> features,Bookmark bookmark) {
+        // generate a bookmark from the first feature sequence if not defined
+        if(!bookmark){
+            bookmark = bookmarkService.generateBookmarkForFeature(features.first())
+            // TODO: validate bookmar with other features?
+        }
+
+        // populate map of sequences to features using the correct order
+        Map<Sequence ,List<Feature>> firstSequenceFeatureMap = new HashMap<>()
+        List<ProjectionSequence> firstProjectionSequenceList = projectionService.getProjection(bookmark).getProjectedSequences()
+
+        firstProjectionSequenceList.each {
+            Organism organism = preferenceService.getOrganismForToken(it.organism)
+            Sequence sequence = Sequence.findByNameAndOrganism(it.name,organism)
+            firstSequenceFeatureMap.put(sequence,new ArrayList<Feature>())
+        }
+
+        // populate the features based on its first sequence
+        features.each {
+            // find matching sequence for each
+            Sequence sequence = it.firstSequence
+            firstSequenceFeatureMap.get(sequence).add(it)
+        }
+
+        // sort list of features for each sequence and add them back
+        List<Feature> returnList = new ArrayList<>()
+
+        firstProjectionSequenceList.each {
+            if(firstSequenceFeatureMap.containsKey(it)){
+                Collections.sort(firstSequenceFeatureMap.get(it),new FeaturePositionComparator<Feature>(false))
+                returnList.addAll(firstSequenceFeatureMap.get(it))
+            }
+        }
+
+        return returnList
     }
 
     private class SequenceAlterationInContextPositionComparator<SequenceAlterationInContext> implements Comparator<SequenceAlterationInContext> {

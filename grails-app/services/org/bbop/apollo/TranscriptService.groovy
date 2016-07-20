@@ -2,14 +2,12 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import grails.util.CollectionUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.MultiSequenceProjection
+import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.codehaus.groovy.grails.web.json.JSONArray
 import org.grails.plugins.metrics.groovy.Timed
-
 
 //@GrailsCompileStatic
 @Transactional(readOnly = true)
@@ -49,11 +47,15 @@ class TranscriptService {
         return (Collection<Exon>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript, Exon.ontologyId)
     }
 
-    public Collection<Exon> getSortedExons(Transcript transcript,Bookmark bookmark = null ) {
+    public Collection<Exon> getSortedExons(Transcript transcript, Bookmark bookmark = null) {
         Collection<Exon> exons = getExons(transcript)
+//        List<Exon> sortedExons = featureService.sortFeatures(exons,bookmark)
         List<Exon> sortedExons = new LinkedList<Exon>(exons);
-        if(!bookmark){
+        if (!bookmark) {
             Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(false))
+        }
+        else{
+            Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(false,bookmarkService.getSequencesFromBookmark(bookmark)))
         }
         return sortedExons
     }
@@ -94,7 +96,7 @@ class TranscriptService {
         List<FeatureLocation> transcriptFeatureLocationList = FeatureLocation.findAllByFeature(transcript)
 
 
-        for(transcriptFeatureLocation in transcriptFeatureLocationList){
+        for (transcriptFeatureLocation in transcriptFeatureLocationList) {
             FeatureLocation featureLocation = new FeatureLocation(
                     strand: transcriptFeatureLocationList.strand
                     , sequence: transcriptFeatureLocationList.sequence
@@ -151,6 +153,11 @@ class TranscriptService {
 //        return getTranscripts(gene).sort(true, new FeaturePositionComparator<Transcript>(sortByStrand))
 //    }
 
+    /**
+     * @deprecated
+     * @param transcript
+     * @param fmin
+     */
     @Transactional
     public void setFmin(Transcript transcript, Integer fmin) {
         transcript.getFeatureLocation().setFmin(fmin);
@@ -160,6 +167,11 @@ class TranscriptService {
         }
     }
 
+    /**
+     * @deprecated
+     * @param transcript
+     * @param fmax
+     */
     @Transactional
     public void setFmax(Transcript transcript, Integer fmax) {
         transcript.getFeatureLocation().setFmax(fmax);
@@ -170,7 +182,7 @@ class TranscriptService {
     }
 
     @Transactional
-    def updateGeneBoundaries(Transcript transcript,MultiSequenceProjection multiSequenceProjection) {
+    def updateGeneBoundaries(Transcript transcript, MultiSequenceProjection multiSequenceProjection) {
         Gene gene = getGene(transcript)
         if (gene == null) {
             return;
@@ -186,10 +198,9 @@ class TranscriptService {
             }
         }
 
-        featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,gene,geneFmin,geneFmax)
+        featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection, gene, geneFmin, geneFmax)
 //        featureService.setFmin(gene, geneFmin)
 //        featureService.setFmax(gene, geneFmax)
-
 
         // not sure if we want this if not actually saved
 //        gene.setLastUpdated(new Date());
@@ -270,11 +281,11 @@ class TranscriptService {
     }
 
     @Transactional
-    def addExon(Transcript transcript, Exon exon, Boolean fixTranscript , Bookmark bookmark = null ) {
+    def addExon(Transcript transcript, Exon exon, Boolean fixTranscript, Bookmark bookmark = null) {
 
         // TODO: this method REALLY needs to be multisequence aware
-        log.debug "exon feature locations ${exon.featureLocation}"
-        log.debug "transcript feature locations ${transcript.featureLocation}"
+//        log.debug "exon feature locations ${exon.featureLocation}"
+//        log.debug "transcript feature locations ${transcript.featureLocation}"
         FeatureLocation exonFeatureLocation = exon.featureLocation
         FeatureLocation transcriptFeatureLocation = transcript.featureLocation
         if (exonFeatureLocation.fmin < transcriptFeatureLocation.fmin) {
@@ -306,7 +317,7 @@ class TranscriptService {
 
 
         if (fixTranscript) {
-            featureService.removeExonOverlapsAndAdjacencies(transcript,bookmark)
+            featureService.removeExonOverlapsAndAdjacencies(transcript, bookmark)
             log.debug "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
 //
 //        // if the exon is removed during a merge, then we will get a null-pointer
@@ -389,11 +400,11 @@ class TranscriptService {
                 if (exon.equals(rightExon)) {
                     featureRelationshipService.removeFeatureRelationship(transcript, rightExon)
                     log.debug "right4: ${rightExon.featureLocation}"
-                    addExon(splitTranscript, rightExon,true);
+                    addExon(splitTranscript, rightExon, true);
                 } else {
                     featureRelationshipService.removeFeatureRelationship(transcript, exon)
                     log.debug "right5: ${rightExon.featureLocation}"
-                    addExon(splitTranscript, exon,true);
+                    addExon(splitTranscript, exon, true);
                 }
             }
         }
@@ -424,7 +435,7 @@ class TranscriptService {
             Exon duplicateExon = (Exon) exon.generateClone()
             duplicateExon.name = exon.name + "-copy"
             duplicateExon.uniqueName = nameService.generateUniqueName(duplicateExon)
-            addExon(duplicate, duplicateExon,true)
+            addExon(duplicate, duplicateExon, true)
         }
         // copy CDS
         CDS cds = getCDS(transcript)
@@ -442,16 +453,16 @@ class TranscriptService {
     }
 
     @Transactional
-    def mergeTranscripts(Transcript transcript1, Transcript transcript2,Bookmark bookmark) {
+    def mergeTranscripts(Transcript transcript1, Transcript transcript2, Bookmark bookmark) {
         // Merging transcripts basically boils down to moving all exons from one transcript to the other
 
         // moving all exons from transcript2 to transcript1
         for (Exon exon : getExons(transcript2)) {
             featureRelationshipService.removeFeatureRelationship(transcript2, exon)
-            addExon(transcript1, exon,true)
+            addExon(transcript1, exon, true,bookmark)
         }
         // we have to do this here to calculate overlaps later
-        featureService.calculateCDS(transcript1,false)
+        featureService.calculateCDS(transcript1, false,projectionService.getProjection(bookmark))
         featureService.handleDynamicIsoformOverlap(transcript1)
         transcript1.save(flush: true)
 
@@ -506,7 +517,7 @@ class TranscriptService {
             // no outstanding relationships that need to be deleted
             featureService.deleteFeature(transcript2);
         }
-        featureService.removeExonOverlapsAndAdjacencies(transcript1);
+        featureService.removeExonOverlapsAndAdjacencies(transcript1,bookmark);
     }
 
     @Transactional
@@ -752,12 +763,12 @@ class TranscriptService {
      */
     List<Feature> sortFeatures(Feature feature1, Feature feature2, Bookmark bookmark) {
 
-        FeatureLocation minFeatureLocation1 = feature1.featureLocations.sort(){ it.rank}.first()
-        FeatureLocation minFeatureLocation2 = feature2.featureLocations.sort(){ it.rank}.first()
+        FeatureLocation minFeatureLocation1 = feature1.featureLocations.sort() { it.rank }.first()
+        FeatureLocation minFeatureLocation2 = feature2.featureLocations.sort() { it.rank }.first()
 
         // we'll assume tha the rank must be the same as well
-        if(minFeatureLocation1.sequence == minFeatureLocation2.sequence){
-           return Collections.sort([feature1,feature2],new FeaturePositionComparator<Transcript>(false))
+        if (minFeatureLocation1.sequence == minFeatureLocation2.sequence) {
+            return Collections.sort([feature1, feature2], new FeaturePositionComparator<Transcript>(false))
         }
 
         // otherwise, let's sort these based on the sequence list order
@@ -767,11 +778,10 @@ class TranscriptService {
 
         List<Feature> returnList = new ArrayList<>()
         // if they were the same, they would have been caught abve
-        if(indexFeature1 < indexFeature2){
+        if (indexFeature1 < indexFeature2) {
             returnList.add(feature1)
             returnList.add(feature2)
-        }
-        else{
+        } else {
             returnList.add(feature2)
             returnList.add(feature1)
         }

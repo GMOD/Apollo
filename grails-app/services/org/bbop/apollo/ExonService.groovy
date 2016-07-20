@@ -20,6 +20,7 @@ class ExonService {
     def sequenceService
     def overlapperService
     def nameService
+    def bookmarkService
 
     /** Retrieve the transcript that this exon is associated with.  Uses the configuration to
      * determine which parent is a transcript.  The transcript object is generated on the fly.  Returns
@@ -213,9 +214,16 @@ class ExonService {
     }
 //
 
+    /**
+     * @deprecated  Should provide bookmark
+     * @param transcript
+     * @param sortByStrand
+     * @return
+     */
     List<Exon> getSortedExons(Transcript transcript,boolean sortByStrand = true ) {
         List<Exon> sortedExons= new LinkedList<Exon>(transcriptService.getExons(transcript));
-        Collections.sort(sortedExons,new FeaturePositionComparator<Exon>(sortByStrand))
+//        featureService.sortFeatures(sortedExons,bookmarkService.generateBookmarkForFeature(transcript),sortByStrand)
+        Collections.sort(sortedExons,new FeaturePositionComparator<Exon>(sortByStrand,bookmarkService.getSequencesFromBookmark(bookmarkService.generateBookmarkForFeature(transcript))))
         return sortedExons
     }
 

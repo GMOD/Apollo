@@ -1,4 +1,7 @@
 package org.bbop.apollo
+
+import grails.converters.JSON
+
 /**
  * Created by Nathan Dunn on 10/29/14.
  *
@@ -17,6 +20,7 @@ package org.bbop.apollo
 class FeaturePositionComparator<T extends Feature> implements  Comparator<T>{
 
     private boolean sortByStrand;
+    private List<Sequence> orderedSequenceList
 
     public FeaturePositionComparator() {
         this(true);
@@ -26,18 +30,29 @@ class FeaturePositionComparator<T extends Feature> implements  Comparator<T>{
         this.sortByStrand = sortByStrand;
     }
 
+    public FeaturePositionComparator(boolean sortByStrand,List<Sequence> orderedSequenceList) {
+        this.sortByStrand = sortByStrand;
+        this.orderedSequenceList = orderedSequenceList
+    }
+
     public int compare(T feature1, T feature2) {
 
-        if (feature1 == null || feature2 == null) {
-//            log.info("both features null");
-        }
-
         Sequence sequence = findCommonSequence(feature1,feature2)
+        int rankFeature1
+        int rankFeature2
         if(sequence==null){
-            throw new RuntimeException("Can not compare features on separate strands.")
+            if(!orderedSequenceList){
+                throw new RuntimeException("Can not compare features with no common sequences.")
+            }
+            else{
+                rankFeature1 = orderedSequenceList.indexOf(feature1.getFirstSequence())
+                rankFeature2 = orderedSequenceList.indexOf(feature2.getFirstSequence())
+            }
         }
-        int rankFeature1 = getRankForFeature(feature1,sequence)
-        int rankFeature2 = getRankForFeature(feature2,sequence)
+        else{
+            rankFeature1 = getRankForFeature(feature1,sequence)
+            rankFeature2 = getRankForFeature(feature2,sequence)
+        }
 
         int retVal = 0;
 

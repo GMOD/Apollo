@@ -215,4 +215,23 @@ class Feature implements Ontological{
                 ", lastUpdated=" + lastUpdated +
                 '}';
     }
+
+    Sequence getFirstSequence() {
+        if(featureLocations){
+            return featureLocations.sort(){ it.rank }.first().sequence
+        }
+        else{
+            return null
+        }
+    }
+
+
+    Sequence getLastSequence() {
+        if(featureLocations){
+            return featureLocations.sort(){ it.rank }.last().sequence
+        }
+        else{
+            return null
+        }
+    }
 }
