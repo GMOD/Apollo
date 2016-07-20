@@ -3325,4 +3325,15 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert mrna.featureDBXrefs.size() == 2
         assert mrna.featureProperties.size() == 4
     }
+
+    void "adding a simple SNV"() {
+        given: "a SNV"
+        String addVariantString = "{ ${testCredentials} \"operation\":\"add_single_nucleotide_variant\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+
+        when: "we add a SNV"
+        println requestHandlingService.addSingleNucleotideVariant(JSON.parse(addVariantString) as JSONObject)
+
+        then: "we should see the SNV"
+        assert SNV.all.size() != 0
+    }
 }
