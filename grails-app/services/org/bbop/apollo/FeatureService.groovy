@@ -254,7 +254,7 @@ class FeatureService {
             }
 
             addTranscriptToGene(gene, transcript);
-            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark);
             if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
@@ -298,7 +298,7 @@ class FeatureService {
                         transcript = tmpTranscript;
                         gene = tmpGene;
                         addTranscriptToGene(gene, transcript)
-                        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
+                        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark);
                         transcript.save()
 
                         if (jsonTranscript.has(FeatureStringEnum.PARENT.value)) {
@@ -415,7 +415,7 @@ class FeatureService {
             if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
-            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark);
             gene.save(insert: true)
             transcript.save(flush: true)
 
@@ -3033,7 +3033,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
                 cds.delete()
             }
-            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
             returnFeature = transcript
         } else {
             if (!jsonFeature.containsKey(FeatureStringEnum.NAME.value) && jsonFeature.containsKey(FeatureStringEnum.CHILDREN.value)) {
@@ -3061,7 +3061,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
                     cds.delete()
                 }
-                nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+                nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
                 transcript.save(flush: true)
                 returnFeature = transcript
             } else {

@@ -560,47 +560,11 @@ class TranscriptService {
     }
 
     @Transactional
-    Transcript flipTranscriptStrand(Transcript oldTranscript) {
-        Gene oldGene = getGene(oldTranscript)
-        boolean isPseudogene = oldGene instanceof Pseudogene
-//        featureRelationshipService.removeFeatureRelationship(oldGene, oldTranscript)
-
-//        if (getTranscripts(oldGene)?.size() == 0) {
-//            featureService.deleteFeature(oldGene)
-//        }
-        oldTranscript = featureService.flipStrand(oldTranscript)
+    Transcript flipTranscriptStrand(Transcript oldTranscript,Bookmark bookmark) {
+        oldTranscript = (Transcript) featureService.flipStrand(oldTranscript)
         oldTranscript.save()
-        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(oldTranscript)
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(oldTranscript,bookmark)
         oldTranscript.save()
-
-//        String oldGeneName = oldGene.name
-//        String oldTranscriptName = oldTranscript.name
-//        JSONObject jsonTranscript = featureService.convertFeatureToJSON(oldTranscript, false)
-//        JSONObject requestJSONObject = requestHandlingService.createJSONFeatureContainer(jsonTranscript)
-//        requestJSONObject.put(FeatureStringEnum.TRACK.value,oldTranscript.featureLocation.sequence.name)
-
-//        String sequenceName = oldTranscript.featureLocation.sequence.name
-//        Transcript newTranscript = featureService.generateTranscript(jsonTranscript,sequenceName)
-//        newTranscript.name = oldTranscriptName
-//        newTranscript.save()
-
-//        JSONObject newJsonTranscript = requestHandlingService.addTranscript(requestJSONObject)
-//        if (getTranscripts(oldGene).size() == 0) {
-//            oldGene.delete(flush: true)
-//        } else {
-//            oldGene.save(flush: true )
-//        }
-//        deleteTranscript(oldGene,oldTranscript)
-//        oldTranscript.delete(flush: true )
-//        writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(newTranscript), track);
-//        if (historyStore != null) {
-//            Transaction transaction = new Transaction(Transaction.Operation.FLIP_STRAND, newTranscript.getUniqueName(), username);
-//            transaction.addNewFeature(newTranscript);
-//            writeHistoryToStore(historyStore, transaction);
-//        }
-//        JSONArray features = newJsonTranscript.getJSONArray(FeatureStringEnum.FEATURES.value)
-//        String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value)
-//        Transcript newTranscript = Transcript.findByUniqueName(uniqueName)
 
         return oldTranscript;
     }

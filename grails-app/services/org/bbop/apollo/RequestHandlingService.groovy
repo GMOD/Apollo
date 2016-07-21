@@ -568,14 +568,15 @@ class RequestHandlingService {
 
             gsolExon.save()
         }
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
         featureService.removeExonOverlapsAndAdjacencies(transcript)
-        transcriptService.updateGeneBoundaries(transcript)
-        featureService.calculateCDS(transcript,false,projectionService.getProjection(bookmark))
+        transcriptService.updateGeneBoundaries(transcript,multiSequenceProjection)
+        featureService.calculateCDS(transcript,false,multiSequenceProjection)
 //        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
         transcript.save(flush: true)
         transcript.attach()
-        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
         transcript.save(flush: true)
 
         // TODO: one of these two versions . . .
@@ -836,7 +837,7 @@ class RequestHandlingService {
             }
 
             featureService.calculateCDS(transcript,false,projectionService.getProjection(bookmark))
-            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
             transcript.save()
             def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
             if (transcriptsToUpdate.size() > 0) {
@@ -897,7 +898,7 @@ class RequestHandlingService {
             }
 
             featureService.calculateCDS(transcript,false,projectionService.getProjection(bookmark))
-            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
             transcript.save()
             def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
             if (transcriptsToUpdate.size() > 0) {
@@ -1023,7 +1024,7 @@ class RequestHandlingService {
             exon.save()
 
             featureService.calculateCDS(transcript,false,multiSequenceProjection)
-            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
 
             transcript.save()
             def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
@@ -1189,7 +1190,7 @@ class RequestHandlingService {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                         featureService.setLongestORF(transcript,false,projectionService.getProjection(bookmark))
-                        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+                        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
                         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, true));
                     }
                     feature.save()
@@ -1265,7 +1266,7 @@ class RequestHandlingService {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                         featureService.setLongestORF(transcript,false,projectionService.getProjection(bookmark))
-                        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+                        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
                         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
                     }
                 }
@@ -1461,9 +1462,9 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
 
             if (feature instanceof Transcript) {
-                feature = transcriptService.flipTranscriptStrand((Transcript) feature);
+                feature = transcriptService.flipTranscriptStrand((Transcript) feature,bookmark);
                 featureService.setLongestORF((Transcript) feature,false,projectionService.getProjection(bookmark))
-                nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites((Transcript) feature)
+                nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites((Transcript) feature,bookmark)
                 featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON((Transcript) feature), permissionService.getCurrentUser(inputObject))
                 def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(feature)
                 if (transcriptsToUpdate.size() > 0) {
@@ -1506,7 +1507,7 @@ class RequestHandlingService {
         JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript1)
         exonService.mergeExons(exon1, exon2)
         featureService.calculateCDS(transcript1,false,projectionService.getProjection(bookmark));
-        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1);
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1,bookmark);
         // rename?
 
         transcript1.save(flush: true)
@@ -1551,7 +1552,7 @@ class RequestHandlingService {
         //featureService.updateNewGsolFeatureAttributes(splitExon, sequence)
         featureService.updateNewGsolFeatureAttributes(splitExon, bookmark)
         featureService.calculateCDS(transcript,false,projectionService.getProjection(bookmark))
-        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
 
         exon.save()
         transcript.save(flush: true)
@@ -1861,7 +1862,7 @@ class RequestHandlingService {
                 if (feature instanceof Transcript) {
                     Transcript transcript = (Transcript) feature;
                     featureService.calculateCDS(transcript,false,projectionService.getProjection(bookmark))
-                    nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+                    nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
                     transcript.name = transcript.name ?: nameService.generateUniqueName(transcript)
                     Gene gene = transcriptService.getGene(transcript)
                     gene.save()
@@ -1937,7 +1938,7 @@ class RequestHandlingService {
         }
         featureService.updateNewGsolFeatureAttributes(splitExon, bookmark)
         featureService.calculateCDS(transcript,false,projectionService.getProjection(bookmark))
-        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
 
         transcript.name = transcript.name ?: nameService.generateUniqueName(transcript)
 
@@ -1988,8 +1989,8 @@ class RequestHandlingService {
 
         featureService.calculateCDS(transcript1,false,projectionService.getProjection(bookmark))
         featureService.calculateCDS(transcript2,false,projectionService.getProjection(bookmark))
-        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1);
-        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript2);
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1,bookmark);
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript2,bookmark);
         transcript1.name = transcript1.name ?: nameService.generateUniqueName(transcript1)
         transcript2.name = transcript2.name ?: nameService.generateUniqueName(transcript2)
 
