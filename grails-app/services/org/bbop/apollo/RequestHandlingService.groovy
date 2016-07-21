@@ -91,11 +91,8 @@ class RequestHandlingService {
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
-            if (!sequence) sequence = feature.getFeatureLocation().getSequence()
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
-            }
-
+            sequence =  sequence ?: feature.getFeatureLocation().getSequence()
+            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
             feature.symbol = symbolString
             feature.save(flush: true, failOnError: true)
@@ -126,10 +123,8 @@ class RequestHandlingService {
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
-            if (!sequence) sequence = feature.getFeatureLocation().getSequence()
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
-            }
+            sequence =  sequence ?: feature.getFeatureLocation().getSequence()
+            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
 
             feature.description = descriptionString
@@ -137,14 +132,6 @@ class RequestHandlingService {
 
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
-//        if (sequence) {
-//            AnnotationEvent annotationEvent = new AnnotationEvent(
-//                    features: updateFeatureContainer
-//                    , sequence: sequence
-//                    , operation: AnnotationEvent.Operation.UPDATE
-//            )
-//            fireAnnotationEvent(annotationEvent)
-//        }
 
         return updateFeatureContainer
     }
@@ -183,7 +170,6 @@ class RequestHandlingService {
                     DBXref dbXref = DBXref.findByAccessionAndDb(accessionString, db)
                     if (dbXref) {
                         feature.removeFromFeatureDBXrefs(dbXref)
-                        DBXref.deleteAll(dbXref)
                         feature.save(failOnError: true)
                     }
                 }
@@ -464,18 +450,8 @@ class RequestHandlingService {
                 log.debug "dbString: ${dbString}"
                 String accessionString = dbXfrefJsonObject.getString(FeatureStringEnum.ACCESSION.value)
                 log.debug "accessionString : ${accessionString}"
-                DB db = DB.findByName(dbString)
-                if (!db) {
-                    db = new DB(name: dbString).save()
-                }
-                DBXref dbXref = DBXref.findOrSaveByAccessionAndDb(accessionString, db)
-                dbXref.save(flush: true)
-
-                feature.addToFeatureDBXrefs(dbXref)
-                feature.save()
+                featureService.addNonPrimaryDbxrefs(feature, dbString, accessionString)
             }
-
-
             feature.save(flush: true, failOnError: true)
 
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
@@ -1244,12 +1220,10 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
-            if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                if (activeUser) {
-                    featureService.setOwner(sequenceAlteration, activeUser)
-                } else {
-                    log.error("Unable to find valid user to set on transcript!" + inputObject)
-                }
+            if (activeUser) {
+                featureService.setOwner(sequenceAlteration, activeUser)
+            } else {
+                log.error("Unable to find valid user to set on transcript!" + inputObject)
             }
             sequenceAlteration.save()
 
@@ -1321,17 +1295,9 @@ class RequestHandlingService {
             JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.NON_RESERVED_PROPERTIES.value);
             for (int j = 0; j < properties.length(); ++j) {
                 JSONObject property = properties.getJSONObject(j);
-
                 String tag = property.getString(FeatureStringEnum.TAG.value)
                 String value = property.getString(FeatureStringEnum.VALUE.value)
-
-                FeatureProperty featureProperty = new FeatureProperty(
-                        feature: feature
-                        , value: value
-                        , tag: tag
-                ).save()
-                featurePropertyService.addProperty(feature, featureProperty)
-                feature.save()
+                featureService.addNonReservedProperties(feature, tag, value)
             }
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
@@ -1691,8 +1657,12 @@ class RequestHandlingService {
             if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.alternateCvTerm ||
                     jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.alternateCvTerm) {
                 // if jsonFeature is of type gene or pseudogene
+                JSONObject jsonGene = JSON.parse(jsonFeature.toString())
+                jsonGene.remove(FeatureStringEnum.CHILDREN.value)
                 for (JSONObject transcriptJsonFeature in jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)) {
                     // look at its children JSON Array to get the features at the *RNA level
+                    // adding jsonGene to each individual transcript
+                    transcriptJsonFeature.put(FeatureStringEnum.PARENT.value, jsonGene)
                     Feature newFeature = featureService.addFeature(transcriptJsonFeature, sequence, user, suppressHistory)
                     JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
                     JSONObject jsonObject = newFeatureJsonObject

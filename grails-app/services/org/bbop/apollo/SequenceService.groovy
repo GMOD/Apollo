@@ -3,14 +3,11 @@ package org.bbop.apollo
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.transaction.Transactional
-import org.apache.commons.lang.RandomStringUtils
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.alteration.SequenceAlterationInContext
-import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import groovy.json.JsonSlurper
 

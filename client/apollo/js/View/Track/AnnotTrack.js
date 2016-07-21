@@ -2605,6 +2605,8 @@ define([
                             var attribute = feature.non_reserved_properties[i];
                             attributes.newItem({tag: attribute.tag, value: attribute.value});
                         }
+
+
                         var attributeTableLayout = [{
                             cells: [
                                 {
@@ -2612,6 +2614,7 @@ define([
                                     field: 'tag',
                                     width: '40%',
                                     type: dojox.grid.cells.ComboBox,
+                                    //type: dojox.grid.cells.Select,
                                     options: cannedKeys,
                                     formatter: function (tag) {
                                         if (!tag) {
@@ -2626,6 +2629,7 @@ define([
                                     field: 'value',
                                     width: '60%',
                                     type: dojox.grid.cells.ComboBox,
+                                    //type: dojox.grid.cells.Select,
                                     options: cannedValues,
                                     formatter: function (value) {
                                         if (!value) {
@@ -4001,12 +4005,23 @@ define([
             exportData: function (key, options) {
                 var track = this;
                 var adapter = key;
+                var highlight = track.gview.browser.getHighlight();
                 var content = dojo.create("div");
                 var waitingDiv = dojo.create("div", {innerHTML: "<img class='waiting_image' src='plugins/WebApollo/img/loading.gif' />"}, content);
                 var responseDiv = dojo.create("div", {className: "export_response"}, content);
 
+                if(key=="highlighted region" && highlight==null){
+                    alert('You must highlight a region of the genome to export it.');
+                    return ;
+                }
+
+                if(highlight){
+                    options += "&region="+highlight ;
+                }
+                var url = context_path + "/IOService?operation=write&adapter=" + adapter + "&sequences=" + track.getUniqueTrackName() + "&" + options;
+
                 dojo.xhrGet({
-                    url: context_path + "/IOService?operation=write&adapter=" + adapter + "&sequences=" + track.getUniqueTrackName() + "&" + options,
+                    url: url ,
                     handleAs: "json",
                     load: function (response, ioArgs) {
                         dojo.create("a", {

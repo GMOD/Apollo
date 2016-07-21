@@ -1,42 +1,22 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.test.spock.IntegrationSpec
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.lang.Ignore
+
 import java.util.zip.CRC32
 
-
-class SequenceServiceIntegrationSpec extends IntegrationSpec {
+class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
     
     def requestHandlingService
     def sequenceService
     def exonService
 
-    def setup() {
-        Organism organism = new Organism(
-                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-                ,commonName: "sampleAnimal"
-        ).save(flush: true)
-
-        Sequence sequence = new Sequence(
-                length: 1405242
-                ,seqChunkSize: 20000
-                ,start: 0
-                ,end: 1405242
-                ,organism: organism
-                ,name: "Group1.10"
-        ).save(flush: true)
-    }
-
-    def cleanup() {
-    }
 
     void "add a simple gene model to get its sequence and a valid GFF3"() {
         
         given: "a simple gene model with 1 mRNA, 1 exon and 1 CDS"
-        String jsonString = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40722-RA\",\"children\":[{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String jsonString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40722-RA\",\"children\":[{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
         
         when: "the gene model is added"
@@ -50,7 +30,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         assert CDS.count == 1
         assert FeatureRelationship.count == 3
 
-        String getSequenceString = "{\"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
+        String getSequenceString = "{${testCredentials} \"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
         String uniqueName = MRNA.findByName("GB40722-RA-00001").uniqueName
         JSONObject commandObject = new JSONObject()
         
@@ -111,7 +91,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         assert getGenomicFlankSequenceReturnObject.residues == expectedGenomicSequenceWithFlank
         
         when: "A request is sent for the GFF3 of a simple gene model"
-        String getGff3String = "{\"operation\":\"get_gff3\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
+        String getGff3String = "{${testCredentials} \"operation\":\"get_gff3\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
         getGff3String = getGff3String.replaceAll("@UNIQUENAME@", uniqueName)
         JSONObject inputObject = JSON.parse(getGff3String) as JSONObject
         Sequence refSequence = Sequence.first()
@@ -130,7 +110,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
     void "add a gene model with UTRs to get its sequence and a valid GFF3"() {
         
         given: "a gene with a 5' UTR and a 3' UTR"
-        String jsonString = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":694293,\"fmax\":696055,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40749-RA\",\"children\":[{\"location\":{\"fmin\":695943,\"fmax\":696055,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":694293,\"fmax\":694440,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":694293,\"fmax\":694606,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":694918,\"fmax\":695591,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":695882,\"fmax\":696055,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":694440,\"fmax\":695943,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String jsonString = "{${testCredentials}  \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":694293,\"fmax\":696055,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40749-RA\",\"children\":[{\"location\":{\"fmin\":695943,\"fmax\":696055,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":694293,\"fmax\":694440,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":694293,\"fmax\":694606,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":694918,\"fmax\":695591,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":695882,\"fmax\":696055,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":694440,\"fmax\":695943,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
         
         when: "the gene model is added"
@@ -145,7 +125,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
 //        assert FeatureLocation.count == 6 + FlankingRegion.count
         assert FeatureRelationship.count == 5
 
-        String getSequenceString = "{\"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
+        String getSequenceString = "{${testCredentials} \"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
         String uniqueName = MRNA.findByName("GB40749-RA-00001").uniqueName
         JSONObject commandObject = new JSONObject()
         
@@ -227,10 +207,10 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
     void "Add 2 genes and get their GFF3"() {
         
         given: "a simple gene model with 1 mRNA, 1 exon and 1 CDS"
-        String jsonString1 = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40722-RA\",\"children\":[{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String jsonString1 = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40722-RA\",\"children\":[{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
         JSONObject jsonObject1 = JSON.parse(jsonString1) as JSONObject
 
-        String jsonString2 = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":729928,\"fmax\":730304,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40827-RA\",\"children\":[{\"location\":{\"fmin\":729928,\"fmax\":730010,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":730296,\"fmax\":730304,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":729928,\"fmax\":730304,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String jsonString2 = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":729928,\"fmax\":730304,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40827-RA\",\"children\":[{\"location\":{\"fmin\":729928,\"fmax\":730010,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":730296,\"fmax\":730304,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":729928,\"fmax\":730304,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
         JSONObject jsonObject2 = JSON.parse(jsonString2) as JSONObject
 
         when: "the gene model is added"
@@ -264,7 +244,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
     void "Add a gene and get the complete peptide sequence as well as peptide sequence of each exon"() {
         //GB40744-RA
         given: "a gene model with 6 exons, a 5'UTR and a 3'UTR"
-        String jsonString = "{\"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":768063},\"name\":\"GB40744-RA\",\"children\":[{\"location\":{\"fmin\":767945,\"strand\":-1,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":763070},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":763513},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765327,\"strand\":-1,\"fmax\":765472},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765551,\"strand\":-1,\"fmax\":766176},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":766255,\"strand\":-1,\"fmax\":767133},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767207,\"strand\":-1,\"fmax\":767389},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767485,\"strand\":-1,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":763070,\"strand\":-1,\"fmax\":767945},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",\"clientToken\":\"123123\"}"
+        String jsonString = "{ ${testCredentials}  \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":768063},\"name\":\"GB40744-RA\",\"children\":[{\"location\":{\"fmin\":767945,\"strand\":-1,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":763070},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":763513},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765327,\"strand\":-1,\"fmax\":765472},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765551,\"strand\":-1,\"fmax\":766176},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":766255,\"strand\":-1,\"fmax\":767133},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767207,\"strand\":-1,\"fmax\":767389},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767485,\"strand\":-1,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":763070,\"strand\":-1,\"fmax\":767945},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",\"clientToken\":\"123123\"}"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
         
         when: "The gene model is added"
@@ -334,7 +314,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
     void "testing sequence retrieval functions"() {
         //GB40744-RA
         given: "a gene model with 6 exons, a 5'UTR and a 3'UTR"
-        String jsonString = "{\"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":768063},\"name\":\"GB40744-RA\",\"children\":[{\"location\":{\"fmin\":767945,\"strand\":-1,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":763070},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":763513},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765327,\"strand\":-1,\"fmax\":765472},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765551,\"strand\":-1,\"fmax\":766176},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":766255,\"strand\":-1,\"fmax\":767133},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767207,\"strand\":-1,\"fmax\":767389},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767485,\"strand\":-1,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":763070,\"strand\":-1,\"fmax\":767945},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",\"clientToken\":\"123123\"}"
+        String jsonString = "{ ${testCredentials}  \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":768063},\"name\":\"GB40744-RA\",\"children\":[{\"location\":{\"fmin\":767945,\"strand\":-1,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":763070},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":763513},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765327,\"strand\":-1,\"fmax\":765472},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765551,\"strand\":-1,\"fmax\":766176},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":766255,\"strand\":-1,\"fmax\":767133},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767207,\"strand\":-1,\"fmax\":767389},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767485,\"strand\":-1,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":763070,\"strand\":-1,\"fmax\":767945},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",\"clientToken\":\"123123\"}"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
 
         when: "The gene model is added"
@@ -362,13 +342,10 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         Gene gene = Gene.findByName("GB40744-RA")
         def featureLocationList = gene.getFeatureLocation()
         println "featureLocationList : ${featureLocationList}"
-        //String mrnaSequence = sequenceService.getResiduesFromFeature(MRNA.findByName("GB40744-RA-00001"))
-        
+
         then: "we have it"
         println "Gene Sequence: ${geneSequence}"
         assert geneSequence.length() == 6521
-        //println "MRNA Sequence: ${mrnaSequence}"
-        //println mrnaSequence.length()
     }
     
     

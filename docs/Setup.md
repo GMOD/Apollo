@@ -88,7 +88,7 @@ command:
 
 
 This command will package the application and it will download any missing pre-requisites (jbrowse) into a WAR file in
-the "target/" subfolder. After it completes, you can then copy the WAR file (e.g. ```apollo-2.0.2.war```) from the target folder 
+the "target/" subfolder. After it completes, you can then copy the WAR file (e.g. ```apollo-2.0.4.war```) from the target folder
 to the ```web-app``` folder of your [web container](https://en.wikipedia.org/wiki/Web_container#open_source_Web_containers) installation.
 If you name the file ```apollo.war``` in your webapps folder, then you can access your app at "http://localhost:8080/apollo"
 

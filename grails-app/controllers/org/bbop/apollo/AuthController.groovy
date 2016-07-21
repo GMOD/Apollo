@@ -8,8 +8,8 @@ import org.apache.shiro.web.util.WebUtils
 
 class AuthController {
 
-    def shiroSecurityManager
-    def grailsApplication
+
+    def permissionService
 
     def index = { redirect(action: "login", params: params) }
 
@@ -42,17 +42,17 @@ class AuthController {
             // Perform the actual login. An AuthenticationException
             // will be thrown if the username is unrecognised or the
             // password is incorrect.
-            SecurityUtils.subject.login(authToken)
+            permissionService.authenticateWithToken(authToken,request)
+//            SecurityUtils.subject.login(authToken)
+            if(targetUri){
+                log.info "Redirecting to '${targetUri}'."
 
-            println "servlet path: ${request.contextPath}"
-            println "init target uri '${targetUri}'."
+//                if(!targetUri.startsWith(request.contextPath)){
+//                    targetUri = request.contextPath + targetUri
+//                }
 
-            if(!targetUri.startsWith(request.contextPath)){
-                targetUri = request.contextPath + targetUri
+                redirect(uri: targetUri)
             }
-
-            println "Redirecting to '${targetUri}'."
-            redirect(uri: targetUri)
         }
         catch (AuthenticationException ex){
             // Authentication failed, so display the appropriate message

@@ -1,10 +1,10 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import org.apache.commons.lang.RandomStringUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.DownloadFile
+import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
@@ -61,6 +61,7 @@ class IOServiceController extends AbstractApolloController {
             , @RestApiParam(name = "output", type = "string", paramType = RestApiParamType.QUERY, description = "Output method 'file','text'")
             , @RestApiParam(name = "exportAllSequences", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export all reference sequences for an organism (over-rides 'sequences')")
             , @RestApiParam(name = "exportGff3Fasta", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export reference sequence when exporting GFF3 annotations.")
+            , @RestApiParam(name = "region", type = "String", paramType = RestApiParamType.QUERY, description = "Highlighted genomic region to export in form sequence:min..max  e.g., chr3:1001..1034")
     ]
     )
     @Timed
@@ -79,6 +80,7 @@ class IOServiceController extends AbstractApolloController {
 //            String chadoExportType = dataObject.chadoExportType
             String output = dataObject.output
             String format = dataObject.format
+            String region = dataObject.region
             def sequences = dataObject.sequences // can be array or string
             Organism organism = dataObject.organism ? Organism.findByCommonName(dataObject.organism) : preferenceService.getCurrentOrganismForCurrentUser(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
@@ -134,13 +136,26 @@ class IOServiceController extends AbstractApolloController {
                 }
             } else if (typeOfExport == FeatureStringEnum.TYPE_FASTA.getValue()) {
                 if (!exportAllSequences  && sequences != null && !(sequences.class == JSONArray.class)) {
-                    fileName = "Annotations-" + sequences + "." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
+                    fileName = "Annotations-" + sequences + "${region}." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 } else {
                     fileName = "Annotations" + "." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 }
 
                 // call fastaHandlerService
-                fastaHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
+                if(region){
+                    String track = region.split(":")[0]
+                    String locationString = region.split(":")[1]
+                    Integer min = locationString.split("\\.\\.")[0] as Integer
+                    Integer max = locationString.split("\\.\\.")[1] as Integer
+                    // its an exclusive fmin, so must subtract one
+                    --min
+                    Sequence sequence = Sequence.findByOrganismAndName(organism,track)
+                    String genomicSequence = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,min,max, Strand.POSITIVE)
+                    outputFile.text = genomicSequence
+                }
+                else{
+                    fastaHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT,region)
+                }
             } else if (typeOfExport == FeatureStringEnum.TYPE_CHADO.getValue()) {
                 if (sequences) {
                     render chadoHandlerService.writeFeatures(organism, sequenceList, features)

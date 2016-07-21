@@ -289,12 +289,21 @@ apollo {
             permission : 1,
             key : "cDNA",
             options : "output=file&format=gzip&type=FASTA&seqType=cdna"
-        ],
+        ]
+        ,
         [
             permission : 1,
             key : "CDS",
             options : "output=file&format=gzip&type=FASTA&seqType=cds"
-        ]]
+        ]
+        ,
+        [
+                permission : 1,
+                key : "highlighted region",
+                options : "output=file&format=gzip&type=FASTA&seqType=genomic"
+        ]
+        ]
+
     ]]
     
 
@@ -338,7 +347,19 @@ apollo {
     // comment out if you don't want this to be reported
     google_analytics = "UA-62921593-1"
 
+    authentications = [
+        ["name":"Username Password Authenticator",
+         "className":"usernamePasswordAuthenticatorService",
+         "active":true,
+        ]
+        ,
+        ["name":"Remote User Authenticator",
+         "className":"remoteUserAuthenticatorService",
+         "active":false,
+        ]
+    ]
 }
+
 
 grails.plugin.databasemigration.updateOnStart = true
 grails.plugin.databasemigration.updateOnStartFileNames = ['changelog.groovy']
@@ -351,6 +372,8 @@ auditLog {
     logIds = true  // log db-ids of associated objects.
 
 }
+
+
 
 // Default JBrowse configuration 
 jbrowse {

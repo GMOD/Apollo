@@ -1,41 +1,23 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.test.spock.IntegrationSpec
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-class FeatureServiceIntegrationSpec extends IntegrationSpec {
+class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     def featureService
     def transcriptService
     def requestHandlingService
     def featureRelationshipService
 
-    def setup() {
-        Organism organism = new Organism(
-                directory: "test/integration/resources/sequences/honeybee-Group1.10/"
-                , commonName: "sampleAnimal"
-        ).save(flush: true)
-        Sequence sequence = new Sequence(
-                length: 1405242
-                , seqChunkSize: 20000
-                , start: 0
-                , organism: organism
-                , end: 1405242
-                , name: "Group1.10"
-        ).save()
-    }
-
-    def cleanup() {
-    }
 
     void "convert JSON to Features"() {
 
         given: "a set string and existing sequence, when we have a complicated mRNA as JSON"
-        String jsonString = "{ \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":1216824,\"fmax\":1235616,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40856-RA\",\"children\":[{\"location\":{\"fmin\":1235534,\"fmax\":1235616,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1216824,\"fmax\":1216850,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1224676,\"fmax\":1224823,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1228682,\"fmax\":1228825,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1235237,\"fmax\":1235396,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1235487,\"fmax\":1235616,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1216824,\"fmax\":1235534,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String jsonString = "{${testCredentials}  \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":1216824,\"fmax\":1235616,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40856-RA\",\"children\":[{\"location\":{\"fmin\":1235534,\"fmax\":1235616,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1216824,\"fmax\":1216850,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1224676,\"fmax\":1224823,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1228682,\"fmax\":1228825,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1235237,\"fmax\":1235396,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1235487,\"fmax\":1235616,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1216824,\"fmax\":1235534,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
 
         when: "we parse it"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
@@ -60,15 +42,12 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
     void "convert Feature to JSON and convert the JSON back to a feature"() {
 
         given: "a transcript GB40744-RA"
-        String transcriptString = '{"operation":"add_feature","features":[{"location":{"fmin":761542,"strand":-1,"fmax":768063},"children":[{"location":{"fmin":761542,"strand":-1,"fmax":768063},"children":[{"location":{"fmin":767945,"strand":-1,"fmax":768063},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":761542,"strand":-1,"fmax":763070},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":761542,"strand":-1,"fmax":763513},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":765327,"strand":-1,"fmax":765472},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":765551,"strand":-1,"fmax":766176},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":766255,"strand":-1,"fmax":767133},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":767207,"strand":-1,"fmax":767389},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":767485,"strand":-1,"fmax":768063},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":763070,"strand":-1,"fmax":767945},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"transcript","cv":{"name":"sequence"}}}],"type":{"name":"pseudogene","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
-        String changeAnnotationTypeOperationString = '{"operation":"change_annotation_type","features":[{"type":"@TYPE@","uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
-        String undoOperationString = '{"operation":"undo","count":1,"features":[{"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
-        String redoOperationString = '{"operation":"redo","count":1,"features":[{"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
-        String setSymbolString = '{"operation":"set_symbol","features":[{"symbol":"@SYMBOL@","uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
-        String setDescriptionString = '{"operation":"set_description","features":[{"description":"@DESCRIPTION@","uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
-        String addNonPrimaryDbxrefString = '{"operation":"add_non_primary_dbxrefs","features":[{"dbxrefs":[{"db":"@DB@","accession":"@ACCESSION@"}],"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
-        String addNonReservedPropertyString = '{"operation":"add_non_reserved_properties","features":[{"non_reserved_properties":[{"tag":"@TAG@","value":"@VALUE@"}],"uniquename":"@UNIQUENAME@"}],"track":"Group1.10"}'
-        String addCommentString = '{"operation":"add_comments","features":[{"uniquename":"@UNIQUENAME@","comments":["@COMMENT@"]}],"track":"Group1.10"}'
+        String transcriptString = "{${testCredentials}  \"operation\":\"add_feature\",\"features\":[{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":768063},\"children\":[{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":768063},\"children\":[{\"location\":{\"fmin\":767945,\"strand\":-1,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":763070},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":763513},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765327,\"strand\":-1,\"fmax\":765472},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765551,\"strand\":-1,\"fmax\":766176},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":766255,\"strand\":-1,\"fmax\":767133},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767207,\"strand\":-1,\"fmax\":767389},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767485,\"strand\":-1,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":763070,\"strand\":-1,\"fmax\":767945},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"transcript\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"pseudogene\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String setSymbolString = "{${testCredentials}  \"operation\":\"set_symbol\",\"features\":[{\"symbol\":\"@SYMBOL@\",\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
+        String setDescriptionString = "{${testCredentials}  \"operation\":\"set_description\",\"features\":[{\"description\":\"@DESCRIPTION@\",\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
+        String addNonPrimaryDbxrefString = "{${testCredentials}  \"operation\":\"add_non_primary_dbxrefs\",\"features\":[{\"dbxrefs\":[{\"db\":\"@DB@\",\"accession\":\"@ACCESSION@\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
+        String addNonReservedPropertyString = "{${testCredentials}  \"operation\":\"add_non_reserved_properties\",\"features\":[{\"non_reserved_properties\":[{\"tag\":\"@TAG@\",\"value\":\"@VALUE@\"}],\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
+        String addCommentString = "{${testCredentials}  \"operation\":\"add_comments\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"comments\":[\"@COMMENT@\"]}],\"track\":\"Group1.10\"}"
 
         when: "we add the transcript"
         requestHandlingService.addFeature(JSON.parse(transcriptString) as JSONObject)
@@ -195,7 +174,7 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
     void "If an annotation doesn't have strand information then it should, by default, be set to the sense strand"() {
 
         given: "a transcript with no strand information"
-        String featureString = '{"operation":"add_feature","features":[{"location":{"fmin":761542,"strand":0,"fmax":768063},"children":[{"location":{"fmin":761542,"strand":0,"fmax":768063},"children":[{"location":{"fmin":767945,"strand":0,"fmax":768063},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":761542,"strand":0,"fmax":763070},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":761542,"strand":0,"fmax":763513},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":765327,"strand":0,"fmax":765472},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":765551,"strand":0,"fmax":766176},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":766255,"strand":0,"fmax":767133},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":767207,"strand":0,"fmax":767389},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":767485,"strand":0,"fmax":768063},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":763070,"strand":0,"fmax":767945},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"transcript","cv":{"name":"sequence"}}}],"type":{"name":"pseudogene","cv":{"name":"sequence"}}}],"track":"Group1.10"}'
+        String featureString = "{${testCredentials} \"operation\":\"add_feature\",\"features\":[{\"location\":{\"fmin\":761542,\"strand\":0,\"fmax\":768063},\"children\":[{\"location\":{\"fmin\":761542,\"strand\":0,\"fmax\":768063},\"children\":[{\"location\":{\"fmin\":767945,\"strand\":0,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":0,\"fmax\":763070},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":0,\"fmax\":763513},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765327,\"strand\":0,\"fmax\":765472},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765551,\"strand\":0,\"fmax\":766176},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":766255,\"strand\":0,\"fmax\":767133},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767207,\"strand\":0,\"fmax\":767389},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767485,\"strand\":0,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":763070,\"strand\":0,\"fmax\":767945},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"transcript\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"pseudogene\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
 
         when: "we add a feature that has its strand as 0"
         requestHandlingService.addFeature(JSON.parse(featureString) as JSONObject)

@@ -119,7 +119,10 @@ class LoginController extends AbstractApolloController {
             // password is incorrect.
             Subject subject = SecurityUtils.getSubject();
             Session session = subject.getSession(true);
-            subject.login(authToken)
+            if(!permissionService.authenticateWithToken(authToken,request)){
+                throw new IncorrectCredentialsException("Bad credentaisl for user ${username}")
+            }
+//            subject.login(authToken)
             log.debug "IS AUTHENTICATED: " + subject.isAuthenticated()
             log.debug "SESSION ${session}"
             log.debug "LOGIN SESSION ${SecurityUtils.subject.getSession(false).id}"

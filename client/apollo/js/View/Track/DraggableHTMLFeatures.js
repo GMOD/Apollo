@@ -1326,6 +1326,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
 
     },
+    _exportFormats: function() {
+        return [
+            {name: 'GFF3', label: 'GFF3', fileExt: 'gff3'},
+            {name: 'FASTA', label: 'FASTA', fileExt: 'fasta'},
+            {name: 'BED', label: 'BED', fileExt: 'bed'},
+            { name: 'SequinTable', label: 'Sequin Table', fileExt: 'sqn' }
+        ];
+    },
     updateFeatureLabelPositions: function( coords ) {
         var showLabels=this.webapollo._showLabels;
         if( ! 'x' in coords )

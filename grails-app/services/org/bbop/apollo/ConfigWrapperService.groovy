@@ -92,4 +92,8 @@ class ConfigWrapperService {
     def getChadoExportFastaForCds() {
         return grailsApplication.config.apollo.chado_export_fasta_for_cds
     }
+
+    def getAuthentications() {
+        grailsApplication.config.apollo.authentications
+    }
 }

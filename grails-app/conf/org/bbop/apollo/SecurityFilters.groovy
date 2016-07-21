@@ -8,6 +8,9 @@ import org.apache.shiro.web.util.SavedRequest
 import org.apache.shiro.web.util.WebUtils
 
 class SecurityFilters {
+
+    def permissionService
+
     def filters = {
 
         // TODO: this is the right way to do this as it uses proper forwarding, but
@@ -21,6 +24,7 @@ class SecurityFilters {
 //            }
 //        }
 
+        // TODO: route more controllers through here
         all(controller: '*', action: '*') {
             before = {
                 if (controllerName == "organism"
@@ -36,14 +40,14 @@ class SecurityFilters {
                         Subject subject = SecurityUtils.getSubject();
                         if (!subject.isAuthenticated()) {
                             def req = request.JSON
-                            if (req.username && req.password) {
-                                def authToken = new UsernamePasswordToken(req.username, req.password)
-                                subject.login(authToken)
-                                redirect(uri: params.targetUri)
+                            def authToken = req.username ? new UsernamePasswordToken(req.username, req.password) : null  // we don't try to add this here
+                            if(authToken && permissionService.authenticateWithToken(authToken,request)){
+                                if(params.targetUri){
+                                    redirect(uri: params.targetUri)
+                                }
                                 return true
                             } else {
-                                log.warn "username/password not submitted"
-                                // TODO: works for most
+                                log.warn "Authentication failed"
                                 def targetUri = "/${controllerName}/${actionName}"
                                 int paramCount = 0
                                 def paramString = ""
