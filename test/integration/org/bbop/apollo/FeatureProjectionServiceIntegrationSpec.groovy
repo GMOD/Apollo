@@ -447,9 +447,9 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Gene.first().featureLocations.size()==2
         assert CDS.first().featureLocations.size()==1
         // TODO: maybe this is incorrect, might be one after the merge
-        assert FeatureLocation.count==(1+1)*2 + 1  + (1+9) // 2 for each, except for Exon and CDS
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert FeatureLocation.count==(1+1)*2 + 1  + (1+9) // 2 for each, except for Exon and CDS
 
     }
 
