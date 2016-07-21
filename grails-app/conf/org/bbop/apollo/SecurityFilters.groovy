@@ -40,8 +40,8 @@ class SecurityFilters {
                         Subject subject = SecurityUtils.getSubject();
                         if (!subject.isAuthenticated()) {
                             def req = request.JSON
-                            def authToken = new UsernamePasswordToken(req.username, req.password)
-                            if(permissionService.authenticateWithToken(authToken,request)){
+                            def authToken = req.username ? new UsernamePasswordToken(req.username, req.password) : null  // we don't try to add this here
+                            if(authToken && permissionService.authenticateWithToken(authToken,request)){
                                 if(params.targetUri){
                                     redirect(uri: params.targetUri)
                                 }

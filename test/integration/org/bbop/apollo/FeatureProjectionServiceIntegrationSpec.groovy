@@ -437,7 +437,6 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         mergeCommand = mergeCommand.replaceAll("@EXON1_UNIQUENAME@",mrnaGb52238.uniqueName)
         mergeCommand = mergeCommand.replaceAll("@EXON2_UNIQUENAME@",mrnaGb53499.uniqueName)
         requestHandlingService.mergeTranscripts(JSON.parse(mergeCommand) as JSONObject)
-        def allFeatures = Feature.all
 
         then: "we should have one transcript across two sequences"
         assert MRNA.count==1

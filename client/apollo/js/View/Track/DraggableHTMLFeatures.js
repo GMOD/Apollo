@@ -316,8 +316,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var featdiv = this.inherited( arguments );
         if( featdiv )  {  // just in case featDiv doesn't actually get created
 
-        var $featdiv = $(featdiv);
-        $featdiv.bind("mousedown", dojo.hitch( this, 'onFeatureMouseDown') );
+            var $featdiv = $(featdiv);
+            $featdiv.bind("mousedown", dojo.hitch( this, 'onFeatureMouseDown') );
             $featdiv.bind("dblclick",  dojo.hitch( this, 'onFeatureDoubleClick') );
             if (this.feature_context_menu  && (! this.has_custom_context_menu)) {
                 this.feature_context_menu.bindDomNode(featdiv);

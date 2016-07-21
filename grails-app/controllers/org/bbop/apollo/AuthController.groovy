@@ -9,7 +9,6 @@ import org.apache.shiro.web.util.WebUtils
 class AuthController {
 
 
-//    def shiroSecurityManager
     def permissionService
 
     def index = { redirect(action: "login", params: params) }
@@ -34,7 +33,9 @@ class AuthController {
         SavedRequest savedRequest = WebUtils.getSavedRequest(request)
         if (savedRequest) {
             targetUri = savedRequest.requestURI - request.contextPath
-            if (savedRequest.queryString) targetUri = targetUri + '?' + savedRequest.queryString
+            if (savedRequest.queryString) {
+                targetUri = targetUri + '?' + savedRequest.queryString
+            }
         }
         
         try{
@@ -45,6 +46,11 @@ class AuthController {
 //            SecurityUtils.subject.login(authToken)
             if(targetUri){
                 log.info "Redirecting to '${targetUri}'."
+
+//                if(!targetUri.startsWith(request.contextPath)){
+//                    targetUri = request.contextPath + targetUri
+//                }
+
                 redirect(uri: targetUri)
             }
         }
