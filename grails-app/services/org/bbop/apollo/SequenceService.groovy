@@ -26,6 +26,8 @@ class SequenceService {
     def gff3HandlerService
     def overlapperService
     def sessionFactory
+    def bookmarkService
+    def projectionService
 
 
     List<FeatureLocation> getFeatureLocations(Sequence sequence){
@@ -57,8 +59,64 @@ class SequenceService {
     }
 
 
-    String getGenomicResiduesFromSequenceWithAlterations(FlankingRegion flankingRegion) {
-        return getGenomicResiduesFromSequenceWithAlterations(flankingRegion.sequence,flankingRegion.fmin,flankingRegion.fmax,flankingRegion.strand)
+    /**
+     * This wraps the individual sequence fetch code.
+     *
+     * Here, we iterate over the sequences, where fmin and fmax are in context of the ordered sequence lengths.
+     *
+     * @param bookmark
+     * @param fmin
+     * @param fmax
+     * @param strand
+     * @return
+     */
+    String getGenomicResiduesFromSequenceWithAlterations(Bookmark bookmark, int fmin, int fmax,Strand strand) {
+        Integer currentCounter = 0
+        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+        StringBuilder stringBuilder = new StringBuilder()
+        for(int i = 0 ; i < sequenceList.size() && currentCounter < fmax ; i++){
+            Sequence sequence = sequenceList.get(i)
+            Integer calculatedFmin = -1
+            Integer calculatedFmax = -1
+
+            // 3 fmin cases
+            // 1. fmin starts after this sequence and is ignored
+            if(fmin > sequence.end + currentCounter){
+                calculatedFmin = -1
+            }
+            // 2. fmin started on the prior sequence, and so we start at 0
+            if(fmin <  currentCounter){
+                calculatedFmin = 0
+            }
+            // 3. fmin is in the current sequence
+            if(fmin >  currentCounter && fmin < sequence.end + currentCounter){
+                calculatedFmin  = fmin - currentCounter
+            }
+
+//            3 fmax cases
+            // 1. we've already gone by fmax, so we ignore
+            if(currentCounter > fmax ){
+                calculatedFmax = -1
+            }
+            // 2. fmax ends on the a further sequence
+            if(fmax > currentCounter + sequence.end  ){
+                calculatedFmax = currentCounter + sequence.end
+            }
+            // 3. fmax ends in this sequence
+            if(fmax < currentCounter + sequence.end && fmax > currentCounter){
+                calculatedFmax = fmax - currentCounter
+            }
+
+            if(calculatedFmin >= 0 && calculatedFmax >= 0){
+                println "getting fmin and fmax: ${calculatedFmin} -> ${calculatedFmax}"
+                stringBuilder.append(getGenomicResiduesFromSequenceWithAlterations(sequence,calculatedFmin,calculatedFmax,strand))
+            }
+
+            currentCounter += sequence.end
+        }
+
+
+        return stringBuilder.toString()
     }
 
     /**

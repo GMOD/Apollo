@@ -2088,15 +2088,16 @@ class RequestHandlingService {
         String transcript1UniqueName = transcript1.uniqueName
         String transcript2UniqueName = transcript2.uniqueName
 
-        JSONObject transcript2JSONObject = featureService.convertFeatureToJSON(transcript2)
+        JSONObject transcript2JSONObject = featureService.convertFeatureToJSON(transcript2,false,bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
 
         // calculate longest ORF, to reset any changes made to the CDS, before a merge
-        featureService.setLongestORF(transcript1,false,projectionService.getProjection(bookmark));
-        featureService.setLongestORF(transcript2,false,projectionService.getProjection(bookmark));
+        featureService.setLongestORF(transcript1,false,multiSequenceProjection);
+        featureService.setLongestORF(transcript2,false,multiSequenceProjection);
         // merging transcripts
         transcriptService.mergeTranscripts(transcript1, transcript2,bookmark)
-        featureService.calculateCDS(transcript1,false,projectionService.getProjection(bookmark))
-        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1)
+        featureService.calculateCDS(transcript1,false,multiSequenceProjection)
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1,bookmark)
 
         // calling handleDynamicIsoformOverlap() to account for all overlapping transcripts to the merged transcript
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript1)
