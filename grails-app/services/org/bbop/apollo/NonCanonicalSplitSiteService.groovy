@@ -209,6 +209,12 @@ class NonCanonicalSplitSiteService {
         nonCanonicalThreePrimeSpliceSite.addToChildFeatureRelationships(fr);
     }
 
+    /**
+     * The position is relative to fmin, of the min location so we grab the corresponding position based on that
+     * @param transcript
+     * @param position
+     * @return
+     */
     private static NonCanonicalFivePrimeSpliceSite createNonCanonicalFivePrimeSpliceSite(Transcript transcript, int position) {
         String uniqueName = transcript.getUniqueName() + "-non_canonical_five_prime_splice_site-" + position;
         NonCanonicalFivePrimeSpliceSite spliceSite = new NonCanonicalFivePrimeSpliceSite(
@@ -217,9 +223,11 @@ class NonCanonicalSplitSiteService {
                 ,isObsolete: transcript.isObsolete
                 ,name: uniqueName
                 ).save()
+
+        FeatureLocation featureLocation = transcript.getFeatureLocationForPosition(position)
         spliceSite.addToFeatureLocations(new FeatureLocation(
                 strand: transcript.strand
-                ,sequence: transcript.featureLocation.sequence
+                ,sequence: featureLocation.sequence
                 ,fmin: position
                 ,fmax: position
                 ,feature: spliceSite
@@ -236,9 +244,10 @@ class NonCanonicalSplitSiteService {
                 ,isAnalysis: transcript.isAnalysis
                 ,isObsolete: transcript.isObsolete
         ).save()
+        FeatureLocation featureLocation = transcript.getFeatureLocationForPosition(position)
         spliceSite.addToFeatureLocations(new FeatureLocation(
                 strand: transcript.strand
-                ,sequence: transcript.featureLocation.sequence
+                ,sequence: featureLocation.sequence
                 ,fmin: position
                 ,fmax: position
                 ,feature: spliceSite

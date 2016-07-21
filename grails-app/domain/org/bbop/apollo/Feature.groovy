@@ -234,4 +234,14 @@ class Feature implements Ontological{
             return null
         }
     }
+
+    FeatureLocation getFeatureLocationForPosition(int position) {
+        int currentPosition = 0
+        for(FeatureLocation featureLocation in featureLocations.sort(){it.rank}){
+            if(position>=currentPosition && position < featureLocation.sequence.end){
+                return featureLocation
+            }
+        }
+        return null
+    }
 }
