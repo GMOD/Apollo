@@ -122,11 +122,11 @@ class TranscriptService {
         Integer fmin = null;
         Integer fmax = null;
         for (Transcript t : getTranscripts(gene)) {
-            if (fmin == null || t.getFeatureLocation().getFmin() < fmin) {
-                fmin = t.getFeatureLocation().getFmin();
+            if (fmin == null || t.fmin < fmin) {
+                fmin = t.fmin
             }
-            if (fmax == null || t.getFeatureLocation().getFmax() > fmax) {
-                fmax = t.getFeatureLocation().getFmax();
+            if (fmax == null || t.getFmax() > fmax) {
+                fmax = t.getFmax();
             }
         }
         if (fmin != null) {
@@ -152,13 +152,12 @@ class TranscriptService {
 //    }
 
     /**
-     * @deprecated
      * @param transcript
      * @param fmin
      */
     @Transactional
     public void setFmin(Transcript transcript, Integer fmin) {
-        transcript.getFeatureLocation().setFmin(fmin);
+        featureService.setFmin(transcript,fmin)
         Gene gene = getGene(transcript)
         if (gene != null && fmin < gene.getFmin()) {
             featureService.setFmin(gene, fmin)
@@ -166,13 +165,12 @@ class TranscriptService {
     }
 
     /**
-     * @deprecated
      * @param transcript
      * @param fmax
      */
     @Transactional
     public void setFmax(Transcript transcript, Integer fmax) {
-        transcript.getFeatureLocation().setFmax(fmax);
+        featureService.setFmax(transcript,fmax)
         Gene gene = getGene(transcript)
         if (gene != null && fmax > gene.getFmax()) {
             featureService.setFmax(gene, fmax);

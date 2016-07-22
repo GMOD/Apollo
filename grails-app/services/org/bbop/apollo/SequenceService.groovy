@@ -43,13 +43,16 @@ class SequenceService {
         String returnResidues = ""
         def orderedFeatureLocations = feature.featureLocations.sort { it.rank }
         for(FeatureLocation featureLocation in orderedFeatureLocations) {
-            String residues = getResidueFromFeatureLocation(featureLocation)
-            if(featureLocation.strand == Strand.NEGATIVE.value) {
-                returnResidues += SequenceTranslationHandler.reverseComplementSequence(residues)
-            }
-            else returnResidues += residues
+            returnResidues = getResidueFromFeatureLocation(featureLocation)
         }
 
+        if(feature.isNegativeStrand()){
+            returnResidues = SequenceTranslationHandler.reverseComplementSequence(returnResidues)
+        }
+//        if(featureLocation.strand == Strand.NEGATIVE.value) {
+//            returnResidues += SequenceTranslationHandler.reverseComplementSequence(residues)
+//        }
+//        else returnResidues += residues
 
         return returnResidues
     }
