@@ -133,6 +133,15 @@ class Feature implements Ontological{
         return locs ? locs.first() : null
     }
 
+    public FeatureLocation getFirstFeatureLocation() {
+        List<FeatureLocation> locs = getFeatureLocations().sort(){ it?.rank ?: it.fmin ?: it.length };
+        return locs ? locs.first() : null
+    }
+
+    public FeatureLocation getLastFeatureLocation() {
+        List<FeatureLocation> locs = getFeatureLocations().sort(){ it?.rank ?: it.fmin ?: it.length };
+        return locs ? locs.last() : null
+    }
 
     /** Get the length of this feature.
      *

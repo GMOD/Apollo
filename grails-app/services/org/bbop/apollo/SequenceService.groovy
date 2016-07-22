@@ -331,17 +331,17 @@ class SequenceService {
     }
 
     def setResiduesForFeatureFromLocation(Deletion deletion) {
-        FeatureLocation featureLocation = deletion.featureLocation
+        FeatureLocation featureLocation = deletion.firstFeatureLocation
         deletion.alterationResidue = getResidueFromFeatureLocation(featureLocation)
     }
-    
-    
+
+
     def getSequenceForFeature(Feature gbolFeature, String type, int flank = 0) {
         // Method returns the sequence for a single feature
         // Directly called for FASTA Export
         String featureResidues = null
         StandardTranslationTable standardTranslationTable = new StandardTranslationTable()
-        
+
         if (type.equals(FeatureStringEnum.TYPE_PEPTIDE.value)) {
             if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
                 CDS cds = transcriptService.getCDS((Transcript) gbolFeature)
@@ -464,7 +464,7 @@ class SequenceService {
     }
 
     def getSequenceForFeatures(JSONObject inputObject, File outputFile=null) {
-        // Method returns a JSONObject 
+        // Method returns a JSONObject
         // Suitable for 'get sequence' operation from AEC
         log.debug "input at getSequenceForFeature: ${inputObject}"
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -489,7 +489,7 @@ class SequenceService {
             return outFeature
         }
     }
-    
+
     def getGff3ForFeature(JSONObject inputObject, File outputFile) {
         List<Feature> featuresToWrite = new ArrayList<>();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -503,11 +503,11 @@ class SequenceService {
             int fmin = gbolFeature.fmin
             int fmax = gbolFeature.fmax
 
-            Sequence sequence = gbolFeature.featureLocation.sequence
-
             // TODO: does strand and alteration length matter here?
-            List<Feature> listOfSequenceAlterations = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes and fl.fmin >= :fmin and fl.fmax <= :fmax ", [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations,fmin:fmin,fmax:fmax])
-            featuresToWrite += listOfSequenceAlterations
+            gbolFeature.featureLocations.sequence.each { sequence ->
+                List<Feature> listOfSequenceAlterations = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes and fl.fmin >= :fmin and fl.fmax <= :fmax ", [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations,fmin:fmin,fmax:fmax])
+                featuresToWrite += listOfSequenceAlterations
+            }
         }
         gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
     }
