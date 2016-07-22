@@ -550,10 +550,10 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         then: "there should be 2 and in the right order"
         assert sortedExons.size() == 2
-        assert sortedExons.get(0).featureLocation.fmax < sortedExons.get(1).featureLocation.fmin
+        assert sortedExons.get(0).fmax < sortedExons.get(1).fmin
         String exonToSplitUniqueName = sortedExons.get(1).uniqueName
-        assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
-        assert CDS.first().featureLocation.fmax == MRNA.first().featureLocation.fmax
+        assert CDS.first().fmin == MRNA.first().fmin
+        assert CDS.first().fmax == MRNA.first().fmax
 
 
 
@@ -588,13 +588,13 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
             assert locationObject != null
         }
         assert finalSortedExons.size() == 3
-        assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
-        assert CDS.first().featureLocation.fmax < MRNA.first().featureLocation.fmax
-        assert CDS.first().featureLocation.fmax < MRNA.first().featureLocation.fmax
+        assert CDS.first().fmin == MRNA.first().fmin
+        assert CDS.first().fmax < MRNA.first().fmax
+        assert CDS.first().fmax < MRNA.first().fmax
 
         // the end of the CDS should be on the last exon
-        assert CDS.first().featureLocation.fmax < lastExon.featureLocation.fmax
-        assert CDS.first().featureLocation.fmax > lastExon.featureLocation.fmin
+        assert CDS.first().fmax < lastExon.fmax
+        assert CDS.first().fmax > lastExon.fmin
 
 
     }
@@ -635,10 +635,10 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         then: "there should be 2 and in the right order"
         assert sortedExons.size() == 2
-        assert sortedExons.get(0).featureLocation.fmax < sortedExons.get(1).featureLocation.fmin
+        assert sortedExons.get(0).fmax < sortedExons.get(1).fmin
 //        String exonToSplitUniqueName = sortedExons.get(1).uniqueName
-        assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
-        assert CDS.first().featureLocation.fmax == MRNA.first().featureLocation.fmax
+        assert CDS.first().fmin == MRNA.first().fmin
+        assert CDS.first().fmax == MRNA.first().fmax
 
 
 
@@ -769,8 +769,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         then: "this one should be long-gone"
         assert undisturbedMRNA != null
         assert bigMRNA != null
-        assert undisturbedMRNA.featureLocation.fmax > undisturbedMRNA.featureLocation.fmin
-        assert undisturbedMRNA.featureLocation.fmax - undisturbedMRNA.featureLocation.fmin > 0
+        assert undisturbedMRNA.fmax > undisturbedMRNA.fmin
+        assert undisturbedMRNA.fmax - undisturbedMRNA.fmin > 0
         assert 0 == MRNA.countByName("GB40788-RA-00001")
         assert undisturbedMRNA.parentFeatureRelationships.size() == 2 + 1 + 0
         assert bigMRNA.parentFeatureRelationships.size() == 5 + 1 + 2
@@ -2120,7 +2120,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         
         then: "we should see a difference in CDS length for transcript1"
         CDS alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
-        int alteredCDSLength = alteredCDS.featureLocation.fmax - alteredCDS.featureLocation.fmin
+        int alteredCDSLength = alteredCDS.fmax - alteredCDS.fmin
         assert initialCDSLength != alteredCDSLength
         
         when: "we add transcript2"
@@ -2132,7 +2132,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcript2Name = addTranscript2ReturnObject.name
         String transcript2UniqueName = addTranscript2ReturnObject.uniquename
         CDS initialCDS2 = transcriptService.getCDS(MRNA.findByUniqueName(transcript2UniqueName))
-        int initialCDSLength2 = initialCDS2.featureLocation.fmax - initialCDS2.featureLocation.fmin
+        int initialCDSLength2 = initialCDS2.fmax - initialCDS2.fmin
         
         when: "we set translation start for transcript2"
         setTranslationStartForTranscript2 = setTranslationStartForTranscript2.replace("@UNIQUENAME@", transcript2UniqueName)
@@ -2175,7 +2175,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert MRNA.count == 1
         String transcript1UniqueName = addTranscript1ReturnObject.uniquename
         CDS initialCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
-        int initialCDSLength = initialCDS.featureLocation.fmax - initialCDS.featureLocation.fmin
+        int initialCDSLength = initialCDS.fmax - initialCDS.fmin
         
         when: "we set translation start and end for transcript1"
         setTranslationStartForTranscript1 = setTranslationStartForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
@@ -2185,7 +2185,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         
         then: "we should see a difference in CDS length for transcript 1"
         CDS alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
-        int alteredCDSLength = alteredCDS.featureLocation.fmax - alteredCDS.featureLocation.fmin
+        int alteredCDSLength = alteredCDS.fmax - alteredCDS.fmin
         assert initialCDSLength != alteredCDSLength
         
         when: "we add transcript2"
@@ -2197,7 +2197,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcript2Name = addTranscript2ReturnObject.name
         String transcript2UniqueName = addTranscript2ReturnObject.uniquename
         CDS transcript2InitialCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript2UniqueName))
-        int transcript2InitialCDSLength = transcript2InitialCDS.featureLocation.fmax - transcript2InitialCDS.featureLocation.fmin
+        int transcript2InitialCDSLength = transcript2InitialCDS.fmax - transcript2InitialCDS.fmin
         
         when: "we set translation start and end for transcript2"
         setTranslationStartForTranscript2 = setTranslationStartForTranscript2.replace("@UNIQUENAME@", transcript2UniqueName)

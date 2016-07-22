@@ -425,7 +425,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         List<Exon> exonList = transcriptService.getSortedExons(MRNA.findByName("GB40788-RA-00001"), true)
         String exonUniqueName = exonList.first().uniqueName
         Exon exon = Exon.findByUniqueName(exonUniqueName)
-        FeatureLocation featureLocation = exon.featureLocation
+        FeatureLocation featureLocation = exon.firstFeatureLocation
 
 
         then: "we should see 2 genes, 2 transcripts, 5 exons, 2 CDS, no noncanonical splice sites"
@@ -445,7 +445,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         setExonBoundaryCommand = setExonBoundaryCommand.replace("@EXON_UNIQUENAME@", exonUniqueName)
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand) as JSONObject)
         exon = Exon.findByUniqueName(exonUniqueName)
-        featureLocation = exon.featureLocation
+        featureLocation = exon.firstFeatureLocation
 
 
         then: "a change was made!"
@@ -598,7 +598,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         List<Exon> exonList = transcriptService.getSortedExons(MRNA.first(), true)
         String exonUniqueName = exonList.get(1).uniqueName
         Exon exon = Exon.findByUniqueName(exonUniqueName)
-        FeatureLocation featureLocation = exon.featureLocation
+        FeatureLocation featureLocation = exon.firstFeatureLocation
 
 
         then: "we should see 2 genes, 2 transcripts, 5 exons, 2 CDS, no noncanonical splice sites"
@@ -617,7 +617,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         setExonBoundaryCommand = setExonBoundaryCommand.replace("@EXON_UNIQUENAME@",exonUniqueName)
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand) as JSONObject)
         exon = Exon.findByUniqueName(exonUniqueName)
-        featureLocation = exon.featureLocation
+        featureLocation = exon.firstFeatureLocation
 
 
         then: "a change was made!"
@@ -759,7 +759,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         List<Exon> exonList = transcriptService.getSortedExons(firstMrna, true)
         String exonUniqueName = exonList.get(1).uniqueName
         Exon exon = Exon.findByUniqueName(exonUniqueName)
-        FeatureLocation featureLocation = exon.featureLocation
+        FeatureLocation featureLocation = exon.firstFeatureLocation
 
 
         then: "we should see 2 genes, 2 transcripts, 5 exons, 2 CDS, no noncanonical splice sites"
@@ -778,7 +778,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         setExonBoundaryCommand = setExonBoundaryCommand.replace("@EXON_UNIQUENAME@",exonUniqueName)
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand) as JSONObject)
         exon = Exon.findByUniqueName(exonUniqueName)
-        featureLocation = exon.featureLocation
+        featureLocation = exon.firstFeatureLocation
 
 
         then: "a change was made!"
@@ -916,11 +916,11 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         List<Exon> exonList40788 = transcriptService.getSortedExons(mrna40788, true)
         String exon788UniqueName = exonList40788.first().uniqueName
         Exon exon788 = Exon.findByUniqueName(exon788UniqueName)
-        FeatureLocation featureLocation788 = exon788.featureLocation
+        FeatureLocation featureLocation788 = exon788.firstFeatureLocation
         List<Exon> exonList40787 = transcriptService.getSortedExons(mrna40787, true)
         String exon787UniqueName = exonList40787.last().uniqueName
         Exon exon787 = Exon.findByUniqueName(exon787UniqueName)
-        FeatureLocation featureLocation787 = exon787.featureLocation
+        FeatureLocation featureLocation787 = exon787.firstFeatureLocation
 
 
         then: "we verify that they are there and the coordinates (A1/B1)"
@@ -944,9 +944,9 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         setExonBoundary40787Command = setExonBoundary40787Command.replace("@EXON_UNIQUENAME@", exon787UniqueName)
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary40787Command) as JSONObject)
         exon788 = Exon.findByUniqueName(exon788UniqueName)
-        featureLocation788 = exon788.featureLocation
+        featureLocation788 = exon788.firstFeatureLocation
         exon787 = Exon.findByUniqueName(exon787UniqueName)
-        featureLocation787 = exon787.featureLocation
+        featureLocation787 = exon787.firstFeatureLocation
 
 
         then: "we verify that they are there and the NEW coordinates (A2/B2)"
@@ -984,9 +984,9 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         String undoString = undoOperation.replace("@UNIQUENAME@", mrna40787.uniqueName).replace("@COUNT@","1")
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         exon788 = Exon.findByUniqueName(exon788UniqueName)
-        featureLocation788 = exon788.featureLocation
+        featureLocation788 = exon788.firstFeatureLocation
         exon787 = Exon.findByUniqueName(exon787UniqueName)
-        featureLocation787 = exon787.featureLocation
+        featureLocation787 = exon787.firstFeatureLocation
 
 
         then: "we verify that it is the most recent values (A2/B2) and that the history is correct"
@@ -1006,9 +1006,9 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         undoString = undoOperation.replace("@UNIQUENAME@", mrna40788.uniqueName).replace("@COUNT@","1")
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         exon788 = Exon.findByUniqueName(exon788UniqueName)
-        featureLocation788 = exon788.featureLocation
+        featureLocation788 = exon788.firstFeatureLocation
         exon787 = Exon.findByUniqueName(exon787UniqueName)
-        featureLocation787 = exon787.featureLocation
+        featureLocation787 = exon787.firstFeatureLocation
 
         JSONObject historyContainer = createJSONFeatureContainer();
         def thisHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", mrna40787.uniqueName)
@@ -1071,9 +1071,9 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         undoString = undoOperation.replace("@UNIQUENAME@", mrna40787.uniqueName).replace("@COUNT@","1")
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         exon788 = Exon.findByUniqueName(exon788UniqueName)
-        featureLocation788 = exon788.featureLocation
+        featureLocation788 = exon788.firstFeatureLocation
         exon787 = Exon.findByUniqueName(exon787UniqueName)
-        featureLocation787 = exon787.featureLocation
+        featureLocation787 = exon787.firstFeatureLocation
 
 
         then: "we should get B1/A1"
@@ -1092,9 +1092,9 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         def redoString = redoOperation.replace("@UNIQUENAME@",mrna40787.uniqueName).replace("@COUNT@","1")
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
         exon788 = Exon.findByUniqueName(exon788UniqueName)
-        featureLocation788 = exon788.featureLocation
+        featureLocation788 = exon788.firstFeatureLocation
         exon787 = Exon.findByUniqueName(exon787UniqueName)
-        featureLocation787 = exon787.featureLocation
+        featureLocation787 = exon787.firstFeatureLocation
 
         then: "we confirm A2 / B1 "
         assert Gene.count == 2

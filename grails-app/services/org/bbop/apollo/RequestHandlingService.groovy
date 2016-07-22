@@ -1114,16 +1114,21 @@ class RequestHandlingService {
             returnString = returnString.substring(1, returnString.length() - 1)
         }
         try {
-            // TODO: also send to any overlapping sequences as well?
+            if(bookmark){
+                // TODO: also send to any overlapping sequences as well?
 //            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + sequence.organismId + "/" + sequence.id, returnString
-            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + bookmark.organismId + "/" + bookmark.id, returnString
+                brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + bookmark.organismId + "/" + bookmark.id, returnString
 //            println "sending: /topic/AnnotationNotification/" + bookmark.organismId + "/" + bookmark.id
 
-            JSONArray sequenceArray = JSON.parse(bookmark.sequenceList) as JSONArray
-            for (int i = 0; i < sequenceArray.size(); i++) {
-                String sequenceName = sequenceArray.getJSONObject(i).name
-                brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + bookmark.organismId + "/" + sequenceName, returnString
+                JSONArray sequenceArray = JSON.parse(bookmark.sequenceList) as JSONArray
+                for (int i = 0; i < sequenceArray.size(); i++) {
+                    String sequenceName = sequenceArray.getJSONObject(i).name
+                    brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + bookmark.organismId + "/" + sequenceName, returnString
 //                println "sending: /topic/AnnotationNotification/" + bookmark.organismId + "/" + sequenceName
+                }
+            }
+            else{
+                log.info("Can not send event without a bookmark: ${returnString}")
             }
         } catch (e) {
             log.error("problem sending message: ${e}")

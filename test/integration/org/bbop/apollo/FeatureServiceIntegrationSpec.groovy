@@ -187,11 +187,11 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         Transcript transcript = transcriptService.getTranscripts(gene).iterator().next()
         def exonList = transcriptService.getExons(transcript)
 
-        assert gene.featureLocation.strand == Strand.POSITIVE.value
-        assert transcript.featureLocation.strand == Strand.POSITIVE.value
+        assert gene.isPositiveStrand()
+        assert transcript.isPositiveStrand()
 
         exonList.each {
-            it.featureLocation.strand == Strand.POSITIVE.value
+            it.isPositiveStrand()
         }
     }
 }

@@ -233,11 +233,21 @@ class Feature implements Ontological{
     }
 
     public Boolean isNegativeStrand(){
-        featureLocations.first().strand== Strand.NEGATIVE.value
+        for(fl in featureLocations){
+            if(fl.strand!=Strand.NEGATIVE.value){
+                return false
+            }
+        }
+        return true
     }
 
     public Boolean isPositiveStrand(){
-        featureLocations.first().strand== Strand.POSITIVE.value
+        for(fl in featureLocations){
+            if(fl.strand!=Strand.POSITIVE.value){
+                return false
+            }
+        }
+        return true
     }
 
     @Override

@@ -90,7 +90,7 @@ class OverlapperService implements Overlapper{
             cdsEntity.length = cdsEntityLength;
             cdsEntity.name = cds.name;
             cdsEntity.uniqueName = cds.uniqueName + "-cds-entity"
-            cdsEntity.sequence = cds.featureLocation.sequence
+//            cdsEntity.sequence = cds.featureLocation.sequence
             cdsEntity.strand = cds.strand
             cdsEntities.add(cdsEntity);
         }
