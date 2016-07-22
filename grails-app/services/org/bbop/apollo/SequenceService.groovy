@@ -425,18 +425,18 @@ class SequenceService {
                 if (fmin < 0) {
                     fmin = 0
                 }
-                if (fmin < gbolFeature.getFeatureLocation().sequence.start) {
-                    fmin = gbolFeature.getFeatureLocation().sequence.start
+                if (fmin < gbolFeature.firstSequence.start) {
+                    fmin = gbolFeature.firstSequence.start
                 }
-                if (fmax > gbolFeature.getFeatureLocation().sequence.length) {
-                    fmax = gbolFeature.getFeatureLocation().sequence.length
+                if (fmax > gbolFeature.lastSequence.length) {
+                    fmax = gbolFeature.lastSequence.length
                 }
-                if (fmax > gbolFeature.getFeatureLocation().sequence.end) {
-                    fmax = gbolFeature.getFeatureLocation().sequence.end
+                if (fmax > gbolFeature.lastSequence.end) {
+                    fmax = gbolFeature.lastSequence.end
                 }
 
             }
-            featureResidues = getGenomicResiduesFromSequenceWithAlterations(gbolFeature.featureLocation.sequence,fmin,fmax,Strand.getStrandForValue(gbolFeature.strand))
+            featureResidues = getGenomicResiduesFromSequenceWithAlterations(bookmarkService.generateBookmarkForFeature(gbolFeature),fmin,fmax,Strand.getStrandForValue(gbolFeature.strand))
         }
         return featureResidues
     }
