@@ -44,23 +44,17 @@ class TranscriptService {
      * @return Collection of exons associated with this transcript
      */
     public Collection<Exon> getExons(Transcript transcript) {
-        return (Collection<Exon>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript, Exon.ontologyId)
+        return featureRelationshipService.getChildrenForFeatureAndTypes(transcript, Exon.ontologyId)
     }
 
-    public Collection<Exon> getSortedExons(Transcript transcript, Bookmark bookmark = null) {
-
-    }
 
     public Collection<Exon> getSortedExons(Transcript transcript,boolean sortByStrand, Bookmark bookmark = null) {
         Collection<Exon> exons = getExons(transcript)
-//        List<Exon> sortedExons = featureService.sortFeatures(exons,bookmark)
         List<Exon> sortedExons = new LinkedList<Exon>(exons);
-        if (!bookmark) {
-            Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(sortByStrand))
+        if(!bookmark){
+            bookmark = bookmarkService.generateBookmarkForFeature(transcript)
         }
-        else{
-            Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(sortByStrand,bookmarkService.getSequencesFromBookmark(bookmark)))
-        }
+        Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(sortByStrand,bookmarkService.getSequencesFromBookmark(bookmark)))
         return sortedExons
     }
 
@@ -574,7 +568,8 @@ class TranscriptService {
     }
 
     String getResiduesFromTranscript(Transcript transcript) {
-        def exons = getSortedExons(transcript,true)
+        Bookmark bookmark =  bookmarkService.generateBookmarkForFeature(transcript)
+        def exons = getSortedExons(transcript,true,bookmark)
         if (!exons) {
             return null
         }

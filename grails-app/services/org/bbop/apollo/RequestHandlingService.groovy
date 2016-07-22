@@ -571,7 +571,7 @@ class RequestHandlingService {
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
         featureService.removeExonOverlapsAndAdjacencies(transcript)
         transcriptService.updateGeneBoundaries(transcript,multiSequenceProjection)
-        featureService.calculateCDS(transcript,false,multiSequenceProjection)
+        featureService.calculateCDS(transcript,false,bookmark)
 //        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
         transcript.save(flush: true)
@@ -1023,7 +1023,7 @@ class RequestHandlingService {
 
             exon.save()
 
-            featureService.calculateCDS(transcript,false,multiSequenceProjection)
+            featureService.calculateCDS(transcript,false,bookmark)
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
 
             transcript.save()
@@ -2097,7 +2097,7 @@ class RequestHandlingService {
         featureService.setLongestORF(transcript2,false,multiSequenceProjection);
         // merging transcripts
         transcriptService.mergeTranscripts(transcript1, transcript2,bookmark)
-        featureService.calculateCDS(transcript1,false,multiSequenceProjection)
+        featureService.calculateCDS(transcript1,false,bookmark)
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1,bookmark)
 
         // calling handleDynamicIsoformOverlap() to account for all overlapping transcripts to the merged transcript
@@ -2105,7 +2105,7 @@ class RequestHandlingService {
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
             transcriptsToUpdate.each {
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
             }
             fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
         }
@@ -2119,10 +2119,10 @@ class RequestHandlingService {
         JSONObject updateFeatureContainer = createJSONFeatureContainer()
         gene1.refresh()
         for (Transcript transcript : transcriptService.getTranscripts(gene1)) {
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false,bookmark));
         }
         for (Transcript transcript : transcriptService.getTranscripts(mergedTranscriptGene)) {
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false,bookmark));
         }
 
         // delete feature container for delete annotation event
@@ -2131,7 +2131,7 @@ class RequestHandlingService {
 
         // TODO: history tracking
         JSONObject featureForHistory = createJSONFeatureContainer()
-        featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript1));
+        featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript1,false,bookmark));
 
         Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value) ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value) : false
         if (!suppressHistory) {

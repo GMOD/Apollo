@@ -567,16 +567,11 @@ class FeatureService {
         return false;
     }
 
-    @Transactional
-    def calculateCDS(Transcript transcript, boolean readThroughStopCodon,Bookmark bookmark) {
-        calculateCDS(transcript,readThroughStopCodon,projectionService.getProjection(bookmark))
-    }
-
-
     @Timed
     @Transactional
-    def calculateCDS(Transcript transcript, boolean readThroughStopCodon,MultiSequenceProjection multiSequenceProjection) {
+    def calculateCDS(Transcript transcript, boolean readThroughStopCodon,Bookmark bookmark) {
         CDS cds = transcriptService.getCDS(transcript);
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
         log.info "calculateCDS"
         if (cds == null) {
             setLongestORF(transcript, readThroughStopCodon,multiSequenceProjection);
@@ -590,9 +585,9 @@ class FeatureService {
         if (!manuallySetStart && !manuallySetEnd) {
             setLongestORF(transcript, readThroughStopCodon,multiSequenceProjection);
         } else if (manuallySetStart) {
-            setTranslationStart(transcript, cds.getFeatureLocation().getStrand().equals(-1) ? cds.getFmax() - 1 : cds.getFmin(), true,configWrapperService.getTranslationTable(), readThroughStopCodon,multiSequenceProjection);
+            setTranslationStart(transcript, cds.isNegativeStrand() ? cds.getFmax() - 1 : cds.getFmin(), true,configWrapperService.getTranslationTable(), readThroughStopCodon,multiSequenceProjection);
         } else {
-            setTranslationEnd(transcript, cds.getFeatureLocation().getStrand().equals(-1) ? cds.getFmin() : cds.getFmax() - 1, true,configWrapperService.getTranslationTable(),multiSequenceProjection);
+            setTranslationEnd(transcript, cds.isNegativeStrand() ? cds.getFmin() : cds.getFmax() - 1, true,configWrapperService.getTranslationTable(),multiSequenceProjection);
         }
     }
 
@@ -2401,7 +2396,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return false
     }
 
-    String getResiduesWithAlterations(Feature feature, Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
+    String getResiduesWithAlterations(Feature feature, Collection<SequenceAlteration> sequenceAlterations) {
         String residueString = null
         List<SequenceAlterationInContext> sequenceAlterationInContextList = new ArrayList<>()
         if (feature instanceof Transcript) {
@@ -2482,10 +2477,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     List<SequenceAlteration> getSequenceAlterationsForFeature(Feature feature) {
         int fmin = feature.fmin
         int fmax = feature.fmax
-        Sequence sequence = feature.featureLocation.sequence
-        sessionFactory.currentSession.flushMode = FlushMode.MANUAL
+        List<SequenceAlteration> sequenceAlterations = new ArrayList<>()
 
-        List<SequenceAlteration> sequenceAlterations = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId", [fmin: fmin, fmax: fmax, seqId: sequence])
+        sessionFactory.currentSession.flushMode = FlushMode.MANUAL
+        feature.featureLocations.each { featureLocation ->
+            Sequence sequence = featureLocation.sequence
+            sequenceAlterations.addAll(SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId", [fmin: fmin, fmax: fmax, seqId: sequence]))
+        }
         sessionFactory.currentSession.flushMode = FlushMode.AUTO
 
         return sequenceAlterations
@@ -2561,7 +2559,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
         } else {
-            List<Exon> exonList = feature instanceof CDS ? transcriptService.getSortedExons(transcriptService.getTranscript(feature),true) : transcriptService.getSortedExons((Transcript) feature, true)
+            List<Exon> exonList
+            if(feature instanceof CDS){
+                exonList = transcriptService.getSortedExons(transcriptService.getTranscript(feature),true)
+            }
+            else{
+                exonList = transcriptService.getSortedExons((Transcript) feature, true)
+            }
+
             for (Exon exon : exonList) {
                 int exonFmin = exon.fmin
                 int exonFmax = exon.fmax
