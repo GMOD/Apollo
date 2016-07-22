@@ -129,6 +129,9 @@ class Feature implements Ontological{
      * @return FeatureLocation of this object
      */
     public FeatureLocation getFeatureLocation() {
+        if(featureLocations.size()!=1){
+            throw new AnnotationException("Can not use this method if there are not a single feature location for this feature ${name} -> ${uniqueName}")
+        }
         List<FeatureLocation> locs = getFeatureLocations().sort(){ it?.rank ?: it.fmin ?: it.length };
         return locs ? locs.first() : null
     }

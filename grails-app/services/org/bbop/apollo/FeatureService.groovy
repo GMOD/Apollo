@@ -122,6 +122,14 @@ class FeatureService {
         return gsolLocation;
     }
 
+
+    public Collection<Transcript> getOverlappingTranscripts(Transcript transcript, boolean compareStrands = true) {
+        List<Transcript> transcriptList = new ArrayList<>()
+        transcript.featureLocations.each {
+            transcriptList.addAll(getOverlappingTranscripts(it,compareStrands))
+        }
+        return transcriptList
+    }
     /** Get features that overlap a given location.
      *
      * @param location - FeatureLocation that the features overlap
@@ -2145,57 +2153,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @param transcript
      */
     @Transactional
-    def handleIsoformOverlap(Transcript transcript) {
-        Gene originalGene = transcriptService.getGene(transcript)
-
-        // TODO: should go left to right, may need to sort
-        List<Transcript> originalTranscripts = transcriptService.getTranscripts(originalGene)?.sort() { a, b ->
-            a.featureLocation.fmin <=> b.featureLocation.fmin
-        }
-        List<Transcript> newTranscripts = getOverlappingTranscripts(transcript.featureLocation)?.sort() { a, b ->
-            a.featureLocation.fmin <=> b.featureLocation.fmin
-        };
-
-        List<Transcript> leftBehindTranscripts = originalTranscripts - newTranscripts
-
-        Set<Gene> newGenesToMerge = new HashSet<>()
-        for (Transcript newTranscript in newTranscripts) {
-            newGenesToMerge.add(transcriptService.getGene(newTranscript))
-        }
-        Gene newGene = newGenesToMerge ? mergeGenes(newGenesToMerge) : new Gene(
-                name: transcript.name
-                , uniqueName: nameService.generateUniqueName()
-        ).save(flush: true, insert: true)
-
-        for (Transcript newTranscript in newTranscripts) {
-            setGeneTranscript(newTranscript, newGene)
-        }
-
-
-        Set<Gene> usedGenes = new HashSet<>()
-        while (leftBehindTranscripts.size() > 0) {
-            Transcript originalOverlappingTranscript = leftBehindTranscripts.pop()
-            Gene originalOverlappingGene = transcriptService.getGene(originalOverlappingTranscript)
-            List<Transcript> overlappingTranscripts = getOverlappingTranscripts(originalOverlappingTranscript.featureLocation)
-            overlappingTranscripts = overlappingTranscripts - usedGenes
-            overlappingTranscripts.each { it ->
-                setGeneTranscript(it, originalOverlappingGene)
-            }
-            leftBehindTranscripts = leftBehindTranscripts - overlappingTranscripts
-        }
-    }
-
-    @Transactional
     def handleDynamicIsoformOverlap(Transcript transcript) {
         // Get all transcripts that overlap transcript and verify if they have the proper parent gene assigned
         List<Transcript> allOverlappingTranscripts = getTranscriptsWithOverlappingOrf(transcript)
         List<Transcript> allTranscriptsForCurrentGene = transcriptService.getTranscripts(transcriptService.getGene(transcript))
         List<Transcript> allTranscripts = (allOverlappingTranscripts + allTranscriptsForCurrentGene).unique()
-        List<Transcript> allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
-        if (transcript.strand == Strand.POSITIVE.value) {
-            allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
-        } else {
-            allSortedTranscripts = allTranscripts?.sort() { a, b -> b.featureLocation.fmax <=> a.featureLocation.fmax }
+        List<Transcript> allSortedTranscripts = allTranscripts?.sort() { a, b -> a.fmin <=> b.fmin }
+        if (transcript.isPositiveStrand()) {
+            allSortedTranscripts = allTranscripts?.sort() { a, b -> a.fmin <=> b.fmin }
+        }
+        if( transcript.isNegativeStrand()){
+            allSortedTranscripts = allTranscripts?.sort() { a, b -> b.fmax <=> a.fmax }
         }
         // In a normal scenario, all sorted transcripts should have the same parent indicating no changes to be made.
         // If there are transcripts that do overlap but do not have the same parent gene then these transcripts should 
@@ -2267,17 +2235,19 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     }
                     newGene.save(flush: true)
 
-                    FeatureLocation newGeneFeatureLocation = new FeatureLocation(
-                            feature: newGene,
-                            fmin: firstTranscript.fmin,
-                            fmax: firstTranscript.fmax,
-                            strand: firstTranscript.strand,
-                            sequence: firstTranscript.featureLocation.sequence,
-                            residueInfo: firstTranscript.featureLocation.residueInfo,
-                            locgroup: firstTranscript.featureLocation.locgroup,
-                            rank: firstTranscript.featureLocation.rank
-                    ).save(flush: true)
-                    newGene.addToFeatureLocations(newGeneFeatureLocation)
+                    firstTranscript.featureLocations.each { featureLocation ->
+                        FeatureLocation newGeneFeatureLocation = new FeatureLocation(
+                                feature: newGene,
+                                fmin: featureLocation.fmin,
+                                fmax: featureLocation.fmax,
+                                strand: featureLocation.strand,
+                                sequence: featureLocation.sequence,
+                                residueInfo: featureLocation.residueInfo,
+                                locgroup: featureLocation.locgroup,
+                                rank: featureLocation.rank
+                        ).save(flush: true)
+                        newGene.addToFeatureLocations(newGeneFeatureLocation)
+                    }
                     featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(firstTranscript), firstTranscript)
                     addTranscriptToGene(newGene, firstTranscript)
                     firstTranscript.name = nameService.generateUniqueName(firstTranscript, newGene.name)
@@ -2298,7 +2268,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     def getTranscriptsWithOverlappingOrf(Transcript transcript) {
-        ArrayList<Transcript> overlappingTranscripts = getOverlappingTranscripts(transcript.featureLocation)
+        List<Transcript> overlappingTranscripts = getOverlappingTranscripts(transcript)
         overlappingTranscripts.remove(transcript) // removing itself
         ArrayList<Transcript> transcriptsWithOverlappingOrf = new ArrayList<Transcript>()
         for (Transcript eachTranscript in overlappingTranscripts) {
@@ -2310,7 +2280,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     @Transactional
-    Gene mergeGeneEntities(Gene mainGene, ArrayList<Gene> genes) {
+    Gene mergeGeneEntities(Gene mainGene, List<Gene> genes) {
         def fminList = genes.featureLocation.fmin
         def fmaxList = genes.featureLocation.fmax
         fminList.add(mainGene.fmin)

@@ -153,7 +153,17 @@ class OverlapperService implements Overlapper{
     
     boolean overlaps(Feature leftFeature, Feature rightFeature, boolean compareStrands = true) {
         //log.debug("overlaps(Feature leftFeature, Feature rightFeature, boolean compareStrands)")
-        return overlaps(leftFeature.featureLocation, rightFeature.featureLocation, compareStrands)
+        // if any feature location of a feature overlaps than return true
+
+        for(FeatureLocation leftFeatureLocation in leftFeature.featureLocations){
+            for(FeatureLocation rightFeatureLocation in rightFeature.featureLocations){
+                if(overlaps(leftFeatureLocation,rightFeatureLocation,compareStrands)){
+                    return true
+                }
+            }
+        }
+
+        return false
     }
 
     boolean overlaps(FeatureLocation leftFeatureLocation, FeatureLocation rightFeatureLocation, boolean compareStrands = true) {
