@@ -414,7 +414,7 @@ class TranscriptService {
 
         splitTranscriptGene.addToFeatureLocations(splitTranscriptGeneFeatureLocation)
         splitTranscript.name = nameService.generateUniqueName(splitTranscript, splitTranscriptGene.name)
-        featureService.addTranscriptToGene(splitTranscriptGene, splitTranscript)
+        featureService.addTranscriptToGene(splitTranscriptGene, splitTranscript,bookmark)
 
         FeatureLocation transcriptFeatureLocation = transcript.featureLocation
 
@@ -464,7 +464,7 @@ class TranscriptService {
 
         Gene gene = getGene(transcript)
         if (gene) {
-            featureService.addTranscriptToGene(gene, duplicate)
+            featureService.addTranscriptToGene(gene, duplicate,bookmark)
             gene.save()
         }
         // copy exons
@@ -528,7 +528,7 @@ class TranscriptService {
                         // only move if it overlapps.
                         if (transcript != transcript2) {
                             deleteTranscript(gene2, transcript)
-                            featureService.addTranscriptToGene(gene1, transcript)
+                            featureService.addTranscriptToGene(gene1, transcript,bookmark)
                         }
                     }
                 }

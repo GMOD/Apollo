@@ -261,7 +261,7 @@ class FeatureService {
                 calculateCDS(transcript,false,bookmark);
             }
 
-            addTranscriptToGene(gene, transcript);
+            addTranscriptToGene(gene, transcript,bookmark);
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark);
             if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)
@@ -305,7 +305,7 @@ class FeatureService {
                         log.debug "There is an overlap, adding to an existing gene"
                         transcript = tmpTranscript;
                         gene = tmpGene;
-                        addTranscriptToGene(gene, transcript)
+                        addTranscriptToGene(gene, transcript,bookmark)
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark);
                         transcript.save()
 
@@ -419,7 +419,7 @@ class FeatureService {
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript,false,bookmark);
             }
-            removeExonOverlapsAndAdjacenciesForFeature(gene)
+            removeExonOverlapsAndAdjacenciesForFeature(gene,bookmark)
             if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
@@ -464,19 +464,24 @@ class FeatureService {
 
     @Timed
     @Transactional
-    def removeExonOverlapsAndAdjacenciesForFeature(Feature feature) {
+    def removeExonOverlapsAndAdjacenciesForFeature(Feature feature,Bookmark bookmark) {
         if (feature instanceof Gene) {
             for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
-                removeExonOverlapsAndAdjacencies(transcript);
+                removeExonOverlapsAndAdjacencies(transcript,bookmark);
             }
         } else if (feature instanceof Transcript) {
-            removeExonOverlapsAndAdjacencies((Transcript) feature);
+            removeExonOverlapsAndAdjacencies((Transcript) feature,bookmark);
         }
     }
 
-    @Transactional
+
     def addTranscriptToGene(Gene gene, Transcript transcript) {
-        removeExonOverlapsAndAdjacencies(transcript);
+
+    }
+
+    @Transactional
+    def addTranscriptToGene(Gene gene, Transcript transcript,Bookmark bookmark) {
+        removeExonOverlapsAndAdjacencies(transcript,bookmark);
         // no feature location, set location to transcript's
         if (gene.getFeatureLocation() == null) {
             FeatureLocation transcriptFeatureLocation = transcript.getFeatureLocation()
@@ -519,7 +524,7 @@ class FeatureService {
      * @return
      */
     @Transactional
-    def removeExonOverlapsAndAdjacencies(Transcript transcript,Bookmark bookmark = null ) throws AnnotationException {
+    def removeExonOverlapsAndAdjacencies(Transcript transcript,Bookmark bookmark ) throws AnnotationException {
         List<Exon> sortedExons = transcriptService.getSortedExons(transcript,false,bookmark)
         if (!sortedExons || sortedExons?.size() <= 1) {
             return;
@@ -2122,29 +2127,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     /**
-     * Remove old gene / transcript from the transcript
-     * Delete gene if no overlapping.
-     * @param transcript
-     * @param gene
-     */
-    @Transactional
-    private void setGeneTranscript(Transcript transcript, Gene gene) {
-        Gene oldGene = transcriptService.getGene(transcript)
-        if (gene.uniqueName == oldGene.uniqueName) {
-            log.info "Same gene do not need to set"
-            return
-        }
-
-        transcriptService.deleteTranscript(oldGene, transcript)
-        addTranscriptToGene(gene, transcript)
-
-        // if this is empty then delete the gene
-        if (!featureRelationshipService.getChildren(oldGene)) {
-            deleteFeature(oldGene)
-        }
-    }
-
-    /**
      * From https://github.com/GMOD/Apollo/issues/73
      * Need to add another call after other calculations are done to verify that we verify that we have not left our current isoform siblings or that we have just joined some and we should merge genes (always taking the one on the left).
      1 - using OrfOverlapper, find other isoforms
@@ -2204,7 +2186,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             for (Transcript eachTranscript in transcriptsToAssociate) {
                 Gene eachTranscriptParent = transcriptService.getGene(eachTranscript)
                 featureRelationshipService.removeFeatureRelationship(eachTranscriptParent, eachTranscript)
-                addTranscriptToGene(mergedGene, eachTranscript)
+                addTranscriptToGene(mergedGene, eachTranscript,bookmarkService.generateBookmarkForFeatures(mergedGene,eachTranscript))
                 eachTranscript.name = nameService.generateUniqueName(eachTranscript, mergedGene.name)
                 eachTranscript.save()
                 if (eachTranscriptParent.parentFeatureRelationships.size() == 0) {
@@ -2249,14 +2231,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         newGene.addToFeatureLocations(newGeneFeatureLocation)
                     }
                     featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(firstTranscript), firstTranscript)
-                    addTranscriptToGene(newGene, firstTranscript)
+                    addTranscriptToGene(newGene, firstTranscript,bookmarkService.generateBookmarkForFeatures(newGene,eachTranscript))
                     firstTranscript.name = nameService.generateUniqueName(firstTranscript, newGene.name)
                     firstTranscript.save(flush: true)
                     continue
                 }
                 if (overlapperService.overlaps(eachTranscript, firstTranscript)) {
                     featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(eachTranscript), eachTranscript)
-                    addTranscriptToGene(transcriptService.getGene(firstTranscript), eachTranscript)
+                    Gene firstGene = transcriptService.getGene(firstTranscript)
+                    addTranscriptToGene(firstGene, eachTranscript,bookmarkService.generateBookmarkForFeatures(firstGene,eachTranscript))
                     firstTranscript.name = nameService.generateUniqueName(firstTranscript, transcriptService.getGene(firstTranscript).name)
                     firstTranscript.save(flush: true)
                 } else {
@@ -2927,7 +2910,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
                 setOwner(transcript, user)
 
-                addTranscriptToGene(gene, transcript)
+                addTranscriptToGene(gene, transcript,bookmark)
                 if (!suppressHistory) {
                     String name = nameService.generateUniqueName(transcript)
                     transcript.name = name + "-" + transcript.alternateCvTerm
@@ -2981,7 +2964,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     throw new AnnotationException("Feature cannot have negative coordinates")
                 }
                 transcript = transcriptService.getTranscripts(gene).iterator().next();
-                removeExonOverlapsAndAdjacenciesForFeature(gene)
+                removeExonOverlapsAndAdjacenciesForFeature(gene,bookmark)
                 if (!suppressHistory) {
                     String name = nameService.generateUniqueName(transcript)
                     transcript.name = name + "-" + transcript.alternateCvTerm
@@ -2994,7 +2977,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 setOwner(transcript, user);
             }
 
-            removeExonOverlapsAndAdjacencies(transcript)
+            removeExonOverlapsAndAdjacencies(transcript,bookmark)
             CDS cds = transcriptService.getCDS(transcript)
             if (cds != null) {
                 featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
@@ -3022,7 +3005,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.alternateCvTerm) {
                 Transcript transcript = transcriptService.getTranscripts(feature).iterator().next()
                 setOwner(transcript, user);
-                removeExonOverlapsAndAdjacencies(transcript)
+                removeExonOverlapsAndAdjacencies(transcript,bookmark)
                 CDS cds = transcriptService.getCDS(transcript)
                 if (cds != null) {
                     featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)

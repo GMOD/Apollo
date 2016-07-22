@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bouncycastle.jce.provider.AnnotatedException
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -30,6 +31,53 @@ class BookmarkService {
             }
         }
         return generateBookmarkForSequence(sequenceList)
+    }
+
+
+    Bookmark generateBookmarkForFeatures(Feature... features) {
+        List<Sequence> sequenceList = new ArrayList<>()
+        List<FeatureLocation> featureLocationList = new ArrayList<>()
+        features.each { feature ->
+            feature.featureLocations.each { featureLocation ->
+                if(!featureLocationList.contains(featureLocation)){
+                    featureLocationList.add(featureLocation)
+                }
+            }
+        }
+
+        featureLocationList.sort(){ a,b ->
+            a.isFmaxPartial <=> b.isFmaxPartial ?: b.isFminPartial <=> a.isFminPartial ?: a.fmin <=> b.fmin
+        }.each {
+            if(!sequenceList.contains(it.sequence)){
+                sequenceList.add(it.sequence)
+            }
+        }
+
+        // TODO: validate sequenceList against each feature and their location
+        features.each {
+            validateFeatureVsSequenceList(it,sequenceList)
+        }
+
+        return generateBookmarkForSequence(sequenceList)
+    }
+
+    /**
+     * Here we want to guarantee that the sequence list exists in the same order as the
+     * feature's feature locations.
+     * @param feature
+     * @param sequences
+     * @return
+     */
+    def validateFeatureVsSequenceList(Feature feature, List<Sequence> sequences) {
+        int lastRank = 0
+        feature.featureLocations.sort(){ it.rank }.each {
+            int sequenceIndex = sequences.indexOf(it.sequence)
+            if(sequenceIndex<lastRank || sequenceIndex < 0 ){
+                throw new AnnotatedException("Sequence list does not match feature arrangement ${feature.name}")
+            }
+            lastRank = sequenceIndex
+        }
+        return true
     }
 
     Bookmark generateBookmarkForSequence(Sequence... sequences) {

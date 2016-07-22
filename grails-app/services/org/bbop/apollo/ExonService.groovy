@@ -1,11 +1,7 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import grails.transaction.Transactional
-import grails.transaction.NotTransactional
 
-//import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 
@@ -21,6 +17,7 @@ class ExonService {
     def overlapperService
     def nameService
     def bookmarkService
+    def projectionService
 
     /** Retrieve the transcript that this exon is associated with.  Uses the configuration to
      * determine which parent is a transcript.  The transcript object is generated on the fly.  Returns
@@ -53,11 +50,11 @@ class ExonService {
             throw new AnnotationException("mergeExons(): Exons must be in the same strand ${exon1} ${exon2}");
         }
         if (exon1.getFmin() > exon2.getFmin()) {
-            setFmin(exon1, exon2.getFmin())
+            setFmin(exon1, exon2.getFmin(),bookmark)
 //            exon1.setFmin(exon2.getFmin());
         }
         if (exon1.getFmax() < exon2.getFmax()) {
-            setFmax(exon1, exon2.fmax)
+            setFmax(exon1, exon2.fmax,bookmark)
 //            exon1.setFmax(exon2.getFmax());
         }
         // need to delete exon2 from transcript
@@ -153,26 +150,27 @@ class ExonService {
      * @param fmin
      */
     @Transactional
-    public void setFmin(Exon exon, Integer fmin) {
-        exon.getFeatureLocation().setFmin(fmin);
+    public void setFmin(Exon exon, Integer fmin,Bookmark bookmark) {
+        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.getProjection(bookmark)
+        featureService.setFmin(exon,fmin,projection)
         Transcript transcript = getTranscript(exon)
         if (transcript != null && fmin < transcript.getFmin()) {
-            transcriptService.setFmin(transcript, fmin);
+            featureService.setFmin(transcript, fmin,projection);
         }
     }
 
     /**
      * Need to provide a bookmark to do this
-     * @deprecated
      * @param exon
      * @param fmax
      */
     @Transactional
-    public void setFmax(Exon exon, Integer fmax) {
-        exon.getFeatureLocation().setFmax(fmax);
+    public void setFmax(Exon exon, Integer fmax,Bookmark bookmark) {
+        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.getProjection(bookmark)
+        featureService.setFmax(exon,fmax,projection)
         Transcript transcript = getTranscript(exon)
         if (transcript != null && fmax > transcript.getFmax()) {
-            transcriptService.setFmax(transcript, fmax)
+            featureService.setFmax(transcript, fmax,projection)
         }
     }
 
@@ -207,8 +205,7 @@ class ExonService {
             return null;
         }
         acceptorCoordinate += exonPosition + minimumIntronSize;
-        FeatureLocation exonFeatureLocation = exon.featureLocation
-        if (exonFeatureLocation.getStrand().equals(-1)) {
+        if (exon.isNegativeStrand()) {
             int tmp = acceptorCoordinate;
             acceptorCoordinate = donorCoordinate + 1 - donorSite.length();
             donorCoordinate = tmp + 1;
@@ -235,10 +232,11 @@ class ExonService {
     public void setExonBoundaries(Exon exon, int fmin, int fmax) {
 
         Transcript transcript = getTranscript(exon)
-//        Transcript transcript = exon.getTranscript();
-        exon.getFeatureLocation().fmin = fmin;
-        exon.getFeatureLocation().fmax = fmax;
-        featureService.removeExonOverlapsAndAdjacencies(transcript);
+        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(exon)
+        setFmin(exon,fmin,bookmark)
+        setFmax(exon,fmax,bookmark)
+
+        featureService.removeExonOverlapsAndAdjacencies(transcript,bookmark);
 
         featureService.updateGeneBoundaries(transcriptService.getGene(transcript));
     }
@@ -257,8 +255,8 @@ class ExonService {
             if (e.getUniqueName().equals(exon.getUniqueName())) {
                 if (iter.hasNext()) {
                     Exon e2 = iter.next();
-                    nextExonFmin = e2.getFeatureLocation().getFmin();
-                    nextExonFmax = e2.getFeatureLocation().getFmax();
+                    nextExonFmin = e2.fmin
+                    nextExonFmax = e2.fmax
                     break;
                 }
             }
@@ -274,10 +272,10 @@ class ExonService {
             String seq = residues.substring(coordinate, coordinate + 2);
 
             if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq)) {
-                if (exon.getFeatureLocation().getStrand() == -1) {
-                    setExonBoundaries(exon,featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate)+1,exon.getFeatureLocation().getFmax())
+                if (exon.isNegativeStrand()) {
+                    setExonBoundaries(exon,featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate)+1,exon.getFmax())
                 } else {
-                    setExonBoundaries(exon,exon.getFeatureLocation().getFmin(),featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate))
+                    setExonBoundaries(exon,exon.getFmin(),featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate))
                 }
                 return;
             }
@@ -336,7 +334,7 @@ class ExonService {
                 break;
             }
         }
-        int coordinate = exon.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax() + 2) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin() - 3);
+        int coordinate = exon.isNegativeStrand() ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax() + 2) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin() - 3);
         String residues = sequenceService.getResiduesFromFeature(gene)
         while (coordinate >= 0) {
             int c = featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate);
@@ -362,8 +360,8 @@ class ExonService {
         log.debug "setting downstream acceptor: ${exon}"
         Transcript transcript = getTranscript(exon);
         Gene gene = transcriptService.getGene(transcript);
-        int coordinate = exon.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin());
-        int exonEnd = exon.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin()) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) - 1;
+        int coordinate = exon.isNegativeStrand() ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin());
+        int exonEnd = exon.isNegativeStrand() ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin()) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) - 1;
         String residues = sequenceService.getResiduesFromFeature(gene);
         while (coordinate < residues.length()) {
             if (coordinate >= exonEnd) {
@@ -439,7 +437,7 @@ class ExonService {
                 exon.featureLocation.sequence
                 ,exon.fmin < cds.fmin ? cds.fmin : exon.fmin
                 ,exon.fmax > cds.fmax ? cds.fmax : exon.fmax
-                ,Strand.getStrandForValue(exon.featureLocation.strand)
+                ,Strand.getStrandForValue(exon.strand)
         )
 
         ArrayList <Exon> exons = transcriptService.getSortedExons(transcript,false)

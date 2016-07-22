@@ -569,7 +569,7 @@ class RequestHandlingService {
             gsolExon.save()
         }
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
-        featureService.removeExonOverlapsAndAdjacencies(transcript)
+        featureService.removeExonOverlapsAndAdjacencies(transcript,bookmark)
         transcriptService.updateGeneBoundaries(transcript,multiSequenceProjection)
         featureService.calculateCDS(transcript,false,bookmark)
 //        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
@@ -1018,7 +1018,7 @@ class RequestHandlingService {
                 featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,transcript,transcriptFmin,transcriptFmax)
             }
 
-            featureService.removeExonOverlapsAndAdjacencies(transcript)
+            featureService.removeExonOverlapsAndAdjacencies(transcript,bookmark)
             transcriptService.updateGeneBoundaries(transcript,multiSequenceProjection)
 
             exon.save()
