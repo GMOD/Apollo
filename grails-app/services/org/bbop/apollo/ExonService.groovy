@@ -42,14 +42,14 @@ class ExonService {
      * @throws AnnotationException - If exons don't belong to the same transcript or are in separate strands
      */
     @Transactional
-    public void mergeExons(Exon exon1, Exon exon2) throws AnnotationException {
+    public void mergeExons(Exon exon1, Exon exon2,Bookmark bookmark) throws AnnotationException {
 //        // both exons must be part of the same transcript
 //        if (!getTranscript(exon1).equals(getTranscript(exon2))) {
 //            throw new AnnotationEditorException("mergeExons(): Exons must have same parent transcript", exon1, exon2);
 //        }
         // both exons must be in the same strand
         Transcript transcript = getTranscript(exon1);
-        if (!exon1?.featureLocation?.getStrand()?.equals(exon2?.featureLocation?.getStrand())) {
+        if (!exon1?.getStrand()?.equals(exon2?.getStrand())) {
             throw new AnnotationException("mergeExons(): Exons must be in the same strand ${exon1} ${exon2}");
         }
         if (exon1.getFmin() > exon2.getFmin()) {
@@ -66,7 +66,7 @@ class ExonService {
         }
         
 //        setLongestORF(getTranscript(exon1));
-        featureService.removeExonOverlapsAndAdjacencies(transcript);
+        featureService.removeExonOverlapsAndAdjacencies(transcript,bookmark);
 
 //        Date date = new Date();
 //        exon1.setTimeLastModified(date);
@@ -147,7 +147,11 @@ class ExonService {
 
     }
 
-
+    /**
+     * Need to provide a bookmark to do this
+     * @param exon
+     * @param fmin
+     */
     @Transactional
     public void setFmin(Exon exon, Integer fmin) {
         exon.getFeatureLocation().setFmin(fmin);
@@ -157,6 +161,12 @@ class ExonService {
         }
     }
 
+    /**
+     * Need to provide a bookmark to do this
+     * @deprecated
+     * @param exon
+     * @param fmax
+     */
     @Transactional
     public void setFmax(Exon exon, Integer fmax) {
         exon.getFeatureLocation().setFmax(fmax);

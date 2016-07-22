@@ -525,7 +525,7 @@ class FeatureService {
                 Exon rightExon = sortedExons.get(j);
                 if (overlapperService.overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.getFeatureLocation(), rightExon.getFeatureLocation())) {
                     try {
-                        exonService.mergeExons(leftExon, rightExon);
+                        exonService.mergeExons(leftExon, rightExon,bookmark);
                         sortedExons = transcriptService.getSortedExons(transcript)
                         // we have to reload the sortedExons again and start over
                         ++inc;

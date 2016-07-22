@@ -1505,7 +1505,7 @@ class RequestHandlingService {
         Exon exon2 = (Exon) Exon.findByUniqueName(features.getJSONObject(1).getString(FeatureStringEnum.UNIQUENAME.value));
         Transcript transcript1 = exonService.getTranscript(exon1)
         JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript1)
-        exonService.mergeExons(exon1, exon2)
+        exonService.mergeExons(exon1, exon2,bookmark)
         featureService.calculateCDS(transcript1,false,projectionService.getProjection(bookmark));
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1,bookmark);
         // rename?
