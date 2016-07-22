@@ -489,18 +489,15 @@ class FeatureEventService {
             return
         }
 
-        Sequence sequence = Feature.findByUniqueName(uniqueName).featureLocation.sequence
-        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
-        log.debug "sequence: ${sequence}"
+        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(Feature.findByUniqueName(uniqueName))
+        log.debug "bookmark: ${bookmark}"
 
-
-//        def newUniqueNames = getHistory(uniqueName)[count].collect() {
         def newUniqueNames = history[count].collect() {
             it.uniqueName
         }
 
 
-        deleteCurrentState(inputObject, newUniqueNames, sequence)
+        deleteCurrentState(inputObject, newUniqueNames, bookmark)
 
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 
@@ -580,14 +577,14 @@ class FeatureEventService {
 
     }
 
-    def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Sequence sequence) {
+    def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Bookmark bookmark) {
         for (uniqueName in newUniqueNames) {
-            deleteCurrentState(inputObject, uniqueName, sequence)
+            deleteCurrentState(inputObject, uniqueName, bookmark)
         }
     }
 
 
-    def deleteCurrentState(JSONObject inputObject, String uniqueName, Sequence sequence) {
+    def deleteCurrentState(JSONObject inputObject, String uniqueName, Bookmark bookmark) {
 
         Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
 
@@ -605,7 +602,7 @@ class FeatureEventService {
             log.debug "deleteCommandObject ${deleteCommandObject as JSON}"
 
             if (!deleteCommandObject.containsKey(FeatureStringEnum.TRACK.value)) {
-                deleteCommandObject.put(FeatureStringEnum.TRACK.value, sequence.name)
+                deleteCommandObject.put(FeatureStringEnum.TRACK.value, bookmark.sequenceList)
             }
             deleteCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY, true)
             log.debug "final deleteCommandObject ${deleteCommandObject as JSON}"

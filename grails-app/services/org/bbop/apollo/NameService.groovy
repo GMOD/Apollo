@@ -32,7 +32,7 @@ class NameService {
     }
 
     String generateUniqueName(Feature thisFeature, String principalName = null) {
-        Organism organism = thisFeature.featureLocation.sequence.organism
+        Organism organism = thisFeature.organism
         if (thisFeature.name) {
             if (thisFeature instanceof Transcript) {
                 log.debug "instance of transcript"

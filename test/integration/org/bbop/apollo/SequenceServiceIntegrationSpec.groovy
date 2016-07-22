@@ -341,8 +341,6 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         
         
         Gene gene = Gene.findByName("GB40744-RA")
-        def featureLocationList = gene.getFeatureLocation()
-        println "featureLocationList : ${featureLocationList}"
 
         then: "we have it"
         println "Gene Sequence: ${geneSequence}"

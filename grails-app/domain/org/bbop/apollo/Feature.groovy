@@ -143,6 +143,24 @@ class Feature implements Ontological{
         return locs ? locs.last() : null
     }
 
+    public String getSequenceNames(){
+
+        if(!featureLocations) {
+            return "None"
+        }
+
+        String returnName = ""
+
+        featureLocations.eachWithIndex { FeatureLocation entry, int i ->
+            returnName += entry.sequence.name
+            if(i < featureLocations.size()-1){
+                returnName += "::"
+            }
+        }
+
+        return returnName
+    }
+
     /** Get the length of this feature.
      *
      * @return Length of feature
@@ -158,6 +176,15 @@ class Feature implements Ontological{
      */
     public Integer getFmin(){
         featureLocations.sort(){ it.rank }.first().fmin
+    }
+
+    public Organism getOrganism(){
+        if(!featureLocations){
+            return null
+        }
+        else{
+            return getFirstFeatureLocation().sequence.organism
+        }
     }
 
     /**
