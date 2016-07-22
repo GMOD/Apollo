@@ -84,16 +84,13 @@ class RequestHandlingService {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
-        Sequence sequence = null
+        Bookmark bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
-            sequence =  sequence ?: feature.getFeatureLocation().getSequence()
-            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
             feature.symbol = symbolString
             feature.save(flush: true, failOnError: true)
@@ -101,7 +98,6 @@ class RequestHandlingService {
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
-        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
         User user = permissionService.getCurrentUser(inputObject)
         if(user && bookmark){
             user.addToBookmarks(bookmark)
@@ -115,16 +111,13 @@ class RequestHandlingService {
     JSONObject setDescription(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        Sequence sequence = null
+        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
-            sequence =  sequence ?: feature.getFeatureLocation().getSequence()
-            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
-
 
             feature.description = descriptionString
             feature.save(flush: true, failOnError: true)
@@ -444,9 +437,7 @@ class RequestHandlingService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            feature.getFeatureLocation().getSequence()
             feature.name = jsonFeature.get(FeatureStringEnum.NAME.value)
-
 
             feature.save(flush: true, failOnError: true)
 
@@ -1186,7 +1177,7 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = SequenceAlteration.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
-            FeatureLocation sequenceAlterationFeatureLocation = sequenceAlteration.getFeatureLocation()
+            FeatureLocation sequenceAlterationFeatureLocation = sequenceAlteration.firstFeatureLocation
             deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
             FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
             sequenceAlteration.delete()
@@ -1267,7 +1258,7 @@ class RequestHandlingService {
             }
 
 
-            for (Feature feature : featureService.getOverlappingFeatures(sequenceAlteration.getFeatureLocation(), false)) {
+            for (Feature feature : featureService.getOverlappingFeatures(sequenceAlteration.firstFeatureLocation, false)) {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                         featureService.setLongestORF(transcript,false,projectionService.getProjection(bookmark))
