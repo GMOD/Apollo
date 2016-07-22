@@ -68,13 +68,15 @@ public class Gff3HandlerService {
     public void writeFeatures(WriteObject writeObject, Collection<? extends Feature> features, String source) throws IOException {
         Map<Sequence, Collection<Feature>> featuresBySource = new HashMap<Sequence, Collection<Feature>>();
         for (Feature feature : features) {
-            Sequence sourceFeature = feature.featureLocation.sequence
-            Collection<Feature> featureList = featuresBySource.get(sourceFeature);
-            if (!featureList) {
-                featureList = new ArrayList<Feature>();
-                featuresBySource.put(sourceFeature, featureList);
+            feature.featureLocations.each { featureLocation ->
+                Sequence sourceFeature = featureLocation.sequence
+                Collection<Feature> featureList = featuresBySource.get(sourceFeature);
+                if (!featureList) {
+                    featureList = new ArrayList<Feature>();
+                    featuresBySource.put(sourceFeature, featureList);
+                }
+                featureList.add(feature);
             }
-            featureList.add(feature);
         }
         featuresBySource.sort{ it.key }
         for (Map.Entry<Sequence, Collection<Feature>> entry : featuresBySource.entrySet()) {
@@ -86,18 +88,18 @@ public class Gff3HandlerService {
         }
     }
 
-    @Timed
-    public void writeFeatures(WriteObject writeObject, Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
-        while (iterator.hasNext()) {
-            Feature feature = iterator.next();
-            if (needDirectives) {
-                writeGroupDirectives(writeObject, feature.featureLocation.sequence)
-                needDirectives = false;
-            }
-            writeFeature(writeObject, feature, source);
-            writeFeatureGroupEnd(writeObject.out);
-        }
-    }
+//    @Timed
+//    public void writeFeatures(WriteObject writeObject, Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
+//        while (iterator.hasNext()) {
+//            Feature feature = iterator.next();
+//            if (needDirectives) {
+//                writeGroupDirectives(writeObject, feature.featureLocation.sequence)
+//                needDirectives = false;
+//            }
+//            writeFeature(writeObject, feature, source);
+//            writeFeatureGroupEnd(writeObject.out);
+//        }
+//    }
 
     static private void writeGroupDirectives(WriteObject writeObject, Sequence sourceFeature) {
         if (sourceFeature.featureLocations?.size() == 0) return;
@@ -118,13 +120,13 @@ public class Gff3HandlerService {
         }
     }
 
-    public void writeFasta(WriteObject writeObject, Collection<? extends Feature> features) {
-        writeEmptyFastaDirective(writeObject.out);
-        for (Feature feature : features) {
-            writeFasta(writeObject.out, feature, false);
-        }
-    }
-
+//    public void writeFasta(WriteObject writeObject, Collection<? extends Feature> features) {
+//        writeEmptyFastaDirective(writeObject.out);
+//        for (Feature feature : features) {
+//            writeFasta(writeObject.out, feature, false);
+//        }
+//    }
+//
 //    public void writeFasta(PrintWriter out, Feature feature) {
 //        writeFasta(out, feature, true);
 //    }
@@ -133,7 +135,7 @@ public class Gff3HandlerService {
 //        writeFasta(out, feature, writeFastaDirective, true);
 //    }
 
-        public void writeFasta(PrintWriter out, Feature feature, boolean writeFastaDirective) {
+    public void writeFasta(PrintWriter out, Feature feature, boolean writeFastaDirective) {
 //    public void writeFasta(PrintWriter out, Feature feature, boolean writeFastaDirective, boolean useLocation) {
         int lineLength = 60;
         if (writeFastaDirective) {

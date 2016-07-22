@@ -475,29 +475,27 @@ class FeatureService {
     }
 
 
-    def addTranscriptToGene(Gene gene, Transcript transcript) {
-
-    }
-
     @Transactional
     def addTranscriptToGene(Gene gene, Transcript transcript,Bookmark bookmark) {
         removeExonOverlapsAndAdjacencies(transcript,bookmark);
         // no feature location, set location to transcript's
-        if (gene.getFeatureLocation() == null) {
-            FeatureLocation transcriptFeatureLocation = transcript.getFeatureLocation()
-            FeatureLocation featureLocation = new FeatureLocation()
-            featureLocation.properties = transcriptFeatureLocation.properties
-            featureLocation.id = null
-            featureLocation.save()
-            gene.addToFeatureLocations(featureLocation);
+        if (gene.featureLocations == null) {
+            transcript.featureLocations.each { transcriptFeatureLocation ->
+                FeatureLocation featureLocation = new FeatureLocation()
+                featureLocation.properties = transcriptFeatureLocation.properties
+                featureLocation.id = null
+                featureLocation.save()
+                gene.addToFeatureLocations(featureLocation);
+            }
         } else {
             // if the transcript's bounds are beyond the gene's bounds, need to adjust the gene's bounds
-            if (transcript.getFeatureLocation().getFmin() < gene.getFeatureLocation().getFmin()) {
-                gene.getFeatureLocation().setFmin(transcript.getFeatureLocation().getFmin());
-            }
-            if (transcript.getFeatureLocation().getFmax() > gene.getFeatureLocation().getFmax()) {
-                gene.getFeatureLocation().setFmax(transcript.getFeatureLocation().getFmax());
-            }
+            transcriptService.updateGeneBoundaries(transcript,projectionService.getProjection(bookmark))
+//            if (transcript.fmin < gene.fmin) {
+//                gene.getFeatureLocation().setFmin(transcript.getFeatureLocation().getFmin());
+//            }
+//            if (transcript.getFeatureLocation().getFmax() > gene.getFeatureLocation().getFmax()) {
+//                gene.getFeatureLocation().setFmax(transcript.getFeatureLocation().getFmax());
+//            }
         }
 
         // add transcript
@@ -536,7 +534,7 @@ class FeatureService {
             Exon leftExon = sortedExons.get(i);
             for (int j = i + 1; j < sortedExons.size(); ++j) {
                 Exon rightExon = sortedExons.get(j);
-                if (overlapperService.overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.getFeatureLocation(), rightExon.getFeatureLocation())) {
+                if (overlapperService.overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.lastFeatureLocation, rightExon.firstFeatureLocation)) {
                     try {
                         exonService.mergeExons(leftExon, rightExon,bookmark);
                         sortedExons = transcriptService.getSortedExons(transcript,false,bookmark)
@@ -670,10 +668,10 @@ class FeatureService {
         if (localCoordinate < 0 || localCoordinate > feature.getLength()) {
             return -1;
         }
-        if (feature.getFeatureLocation().getStrand() == -1) {
-            return feature.getFeatureLocation().getFmax() - localCoordinate - 1;
+        if (feature.isNegativeStrand()) {
+            return feature.fmax - localCoordinate - 1;
         } else {
-            return feature.getFeatureLocation().getFmin() + localCoordinate;
+            return feature.fmin + localCoordinate;
         }
     }
 
@@ -735,10 +733,10 @@ class FeatureService {
                 }
             }
 
-            if (exon.getFeatureLocation().getStrand() == Strand.NEGATIVE.value) {
-                offset += exon.getFeatureLocation().getFmax() - exon.getFeatureLocation().getFmax();
+            if (exon.isNegativeStrand()) {
+                offset += exon.fmax - exon.fmax
             } else {
-                offset += exon.getFeatureLocation().getFmin() - exon.getFeatureLocation().getFmin();
+                offset += exon.fmin - exon.fmin
             }
             break;
         }
@@ -794,30 +792,34 @@ class FeatureService {
                             stopCodonReadThrough = cdsService.createStopCodonReadThrough(cds);
                             cdsService.setStopCodonReadThrough(cds, stopCodonReadThrough)
 //                            cds.setStopCodonReadThrough(stopCodonReadThrough);
-                            if (cds.strand == Strand.NEGATIVE.value) {
-                                stopCodonReadThrough.featureLocation.setFmin(convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2));
-                                stopCodonReadThrough.featureLocation.setFmax(convertModifiedLocalCoordinateToSourceCoordinate(transcript, i) + 1);
+                            if (cds.isNegativeStrand()) {
+                                featureService.setFmin(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2))
+                                featureService.setFmax(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(transcript, i) + 1);
                             } else {
-                                stopCodonReadThrough.featureLocation.setFmin(convertModifiedLocalCoordinateToSourceCoordinate(transcript, i));
-                                stopCodonReadThrough.featureLocation.setFmax(convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2) + 1);
+                                featureService.setFmin(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(transcript, i));
+                                featureService.setFmax(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2) + 1);
                             }
                         }
                         continue;
                     }
-                    if (transcript.strand == Strand.NEGATIVE.value) {
-                        cds.featureLocation.setFmin(convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 2));
+                    if (transcript.isNegativeStrand()) {
+                        featureService.setFmin(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 2));
                     } else {
-                        cds.featureLocation.setFmax(convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 3));
+                        featureService.setFmax(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 3));
                     }
                     return;
                 }
             }
             if (transcript.strand == Strand.NEGATIVE.value) {
-                cds.featureLocation.setFmin(transcript.getFmin());
-                cds.featureLocation.setIsFminPartial(true);
+                setFmin(transcript,transcript.fmin)
+                transcript.firstFeatureLocation.setIsFminPartial(true)
+//                cds.featureLocation.setFmin(transcript.getFmin());
+//                cds.featureLocation.setIsFminPartial(true);
             } else {
-                cds.featureLocation.setFmax(transcript.getFmax());
-                cds.featureLocation.setIsFmaxPartial(true);
+                setFmax(transcript,transcript.fmax)
+                transcript.lastFeatureLocation.setIsFminPartial(true)
+//                cds.featureLocation.setFmax(transcript.getFmax());
+//                cds.featureLocation.setIsFmaxPartial(true);
             }
         }
 
@@ -2393,12 +2395,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             String sequenceAlterationResidues = sequenceAlteration.alterationResidue
-            if (feature.getFeatureLocation().getStrand() == -1) {
+            if (feature.isNegativeStrand()) {
                 sequenceAlterationResidues = SequenceTranslationHandler.reverseComplementSequence(sequenceAlterationResidues);
             }
             // Insertions
             if (sequenceAlteration.instanceOf == Insertion.canonicalName) {
-                if (feature.getFeatureLocation().getStrand() == -1) {
+                if (feature.isNegativeStrand()) {
                     ++localCoordinate;
                 }
                 residues.insert(localCoordinate + currentOffset, sequenceAlterationResidues);
@@ -2406,7 +2408,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
             // Deletions
             else if (sequenceAlteration.instanceOf == Deletion.canonicalName) {
-                if (feature.getFeatureLocation().getStrand() == -1) {
+                if (feature.isNegativeStrand()) {
                     residues.delete(localCoordinate + currentOffset - sequenceAlteration.alterationResidue.length() + 1,
                             localCoordinate + currentOffset + 1);
                 } else {
@@ -2701,7 +2703,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 
         Collections.sort(alterations, new FeaturePositionComparator<SequenceAlteration>());
-        if (feature.getFeatureLocation().getStrand() == -1) {
+        if (feature.isNegativeStrand()) {
             Collections.reverse(alterations);
         }
 
@@ -2718,7 +2720,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             if (feature.strand == Strand.NEGATIVE.value) {
-                coordinateInContext = feature.featureLocation.calculateLength() - coordinateInContext
+                coordinateInContext = feature.length - coordinateInContext
                 log.debug "Checking negative insertion ${coordinateInContext} ${localCoordinate} ${(coordinateInContext - alterationResidueLength) - 1}"
                 if (coordinateInContext <= localCoordinate && alteration instanceof Deletion) {
                     log.debug "Processing negative deletion"
