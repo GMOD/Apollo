@@ -225,19 +225,6 @@ class ExonService {
 //
 
     /**
-     * @deprecated  Should provide bookmark
-     * @param transcript
-     * @param sortByStrand
-     * @return
-     */
-    List<Exon> getSortedExons(Transcript transcript,boolean sortByStrand = true ) {
-        List<Exon> sortedExons= new LinkedList<Exon>(transcriptService.getExons(transcript));
-//        featureService.sortFeatures(sortedExons,bookmarkService.generateBookmarkForFeature(transcript),sortByStrand)
-        Collections.sort(sortedExons,new FeaturePositionComparator<Exon>(sortByStrand,bookmarkService.getSequencesFromBookmark(bookmarkService.generateBookmarkForFeature(transcript))))
-        return sortedExons
-    }
-
-    /**
      * Set exon boundaries.
      *
      * @param exon - Exon to be modified
@@ -261,7 +248,7 @@ class ExonService {
         Transcript transcript = getTranscript(exon)
         Gene gene = transcriptService.getGene(transcript)
 
-        List<Exon> exons = getSortedExons(transcript,true)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
 
         Integer nextExonFmin = null;
         Integer nextExonFmax = null;
@@ -332,7 +319,7 @@ class ExonService {
         Transcript transcript = getTranscript(exon);
         Gene gene = transcriptService.getGene(transcript);
 
-        List<Exon> exons = getSortedExons(transcript,true)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
         Integer prevExonFmin = null;
         Integer prevExonFmax = null;
         for (ListIterator<Exon> iter = exons.listIterator(); iter.hasNext(); ) {
@@ -455,7 +442,7 @@ class ExonService {
                 ,Strand.getStrandForValue(exon.featureLocation.strand)
         )
 
-        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript)
+        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript,false)
         if (exon.strand == Strand.NEGATIVE.value) {
             Collections.reverse(exons)
         }
@@ -476,7 +463,7 @@ class ExonService {
             return phase
         }
 
-        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript)
+        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript,false)
         if (exon.strand == Strand.NEGATIVE.value) {
             Collections.reverse(exons)
         }

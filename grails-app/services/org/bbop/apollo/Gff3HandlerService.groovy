@@ -253,7 +253,7 @@ public class Gff3HandlerService {
         }
         Transcript transcript = transcriptService.getParentTranscriptForFeature(cds)
 
-        List<Exon> exons = exonService.getSortedExons(transcript)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
         int length = 0;
         for (Exon exon : exons) {
             if (!overlapperService.overlaps(exon, cds)) {

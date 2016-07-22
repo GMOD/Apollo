@@ -48,14 +48,18 @@ class TranscriptService {
     }
 
     public Collection<Exon> getSortedExons(Transcript transcript, Bookmark bookmark = null) {
+
+    }
+
+    public Collection<Exon> getSortedExons(Transcript transcript,boolean sortByStrand, Bookmark bookmark = null) {
         Collection<Exon> exons = getExons(transcript)
 //        List<Exon> sortedExons = featureService.sortFeatures(exons,bookmark)
         List<Exon> sortedExons = new LinkedList<Exon>(exons);
         if (!bookmark) {
-            Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(false))
+            Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(sortByStrand))
         }
         else{
-            Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(false,bookmarkService.getSequencesFromBookmark(bookmark)))
+            Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(sortByStrand,bookmarkService.getSequencesFromBookmark(bookmark)))
         }
         return sortedExons
     }
@@ -371,7 +375,7 @@ class TranscriptService {
 
     @Transactional
     Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon,Bookmark bookmark) {
-        List<Exon> exons = exonService.getSortedExons(transcript)
+        List<Exon> exons = getSortedExons(transcript,true,bookmark)
         Transcript splitTranscript = (Transcript) transcript.getClass().newInstance()
         splitTranscript.uniqueName = nameService.generateUniqueName()
         splitTranscript.name = nameService.generateUniqueName(transcript)
@@ -501,7 +505,7 @@ class TranscriptService {
             addExon(transcript1, exon, true,bookmark)
         }
         // we have to do this here to calculate overlaps later
-        featureService.calculateCDS(transcript1, false,projectionService.getProjection(bookmark))
+        featureService.calculateCDS(transcript1, false,bookmark)
         featureService.handleDynamicIsoformOverlap(transcript1)
         transcript1.save(flush: true)
 
@@ -570,7 +574,7 @@ class TranscriptService {
     }
 
     String getResiduesFromTranscript(Transcript transcript) {
-        def exons = exonService.getSortedExons(transcript)
+        def exons = getSortedExons(transcript,true)
         if (!exons) {
             return null
         }

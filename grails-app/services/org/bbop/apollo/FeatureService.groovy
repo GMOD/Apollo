@@ -250,7 +250,7 @@ class FeatureService {
             setOwner(transcript, owner);
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
-                calculateCDS(transcript,false,projectionService.getProjection(bookmark));
+                calculateCDS(transcript,false,bookmark);
             }
 
             addTranscriptToGene(gene, transcript);
@@ -287,7 +287,7 @@ class FeatureService {
                     setOwner(tmpTranscript, owner);
 
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
-                        calculateCDS(tmpTranscript,false,projectionService.getProjection(bookmark));
+                        calculateCDS(tmpTranscript,false,bookmark);
                     }
                     if (!suppressHistory) {
                         tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
@@ -409,7 +409,7 @@ class FeatureService {
             }
             transcript = transcriptService.getTranscripts(gene).iterator().next();
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
-                calculateCDS(transcript,false,projectionService.getProjection(bookmark));
+                calculateCDS(transcript,false,bookmark);
             }
             removeExonOverlapsAndAdjacenciesForFeature(gene)
             if (!suppressHistory) {
@@ -512,7 +512,7 @@ class FeatureService {
      */
     @Transactional
     def removeExonOverlapsAndAdjacencies(Transcript transcript,Bookmark bookmark = null ) throws AnnotationException {
-        List<Exon> sortedExons = transcriptService.getSortedExons(transcript,bookmark)
+        List<Exon> sortedExons = transcriptService.getSortedExons(transcript,false,bookmark)
         if (!sortedExons || sortedExons?.size() <= 1) {
             return;
         }
@@ -526,7 +526,7 @@ class FeatureService {
                 if (overlapperService.overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.getFeatureLocation(), rightExon.getFeatureLocation())) {
                     try {
                         exonService.mergeExons(leftExon, rightExon,bookmark);
-                        sortedExons = transcriptService.getSortedExons(transcript)
+                        sortedExons = transcriptService.getSortedExons(transcript,false,bookmark)
                         // we have to reload the sortedExons again and start over
                         ++inc;
                     } catch (AnnotationException e) {
@@ -567,19 +567,11 @@ class FeatureService {
         return false;
     }
 
-    /**
-     * @deprecated  Should provide multisequence projection
-     * @param transcript
-     * @param readThroughStopCodon
-     * @return
-     */
-    @Timed
     @Transactional
-    def calculateCDS(Transcript transcript, boolean readThroughStopCodon) {
-        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(transcript)
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
-        calculateCDS(transcript,readThroughStopCodon,multiSequenceProjection)
+    def calculateCDS(Transcript transcript, boolean readThroughStopCodon,Bookmark bookmark) {
+        calculateCDS(transcript,readThroughStopCodon,projectionService.getProjection(bookmark))
     }
+
 
     @Timed
     @Transactional
@@ -679,7 +671,7 @@ class FeatureService {
 
     int convertLocalCoordinateToSourceCoordinateForTranscript(Transcript transcript, int localCoordinate) {
         // Method converts localCoordinate to sourceCoordinate in reference to the Transcript
-        List<Exon> exons = exonService.getSortedExons(transcript)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
         int sourceCoordinate = -1;
         if (exons.size() == 0) {
             return convertLocalCoordinateToSourceCoordinate(transcript, localCoordinate);
@@ -709,7 +701,7 @@ class FeatureService {
             return convertLocalCoordinateToSourceCoordinate(cds, localCoordinate);
         }
         int offset = 0;
-        List<Exon> exons = exonService.getSortedExons(transcript)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
         if (exons.size() == 0) {
             log.debug "FS::convertLocalCoordinateToSourceCoordinateForCDS() - No exons for given transcript"
             return convertLocalCoordinateToSourceCoordinate(cds, localCoordinate)
@@ -1612,7 +1604,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     public int convertSourceCoordinateToLocalCoordinateForTranscript(Feature feature, int sourceCoordinate) {
-        List<Exon> exons = exonService.getSortedExons(feature)
+        List<Exon> exons = transcriptService.getSortedExons(feature,true)
         int localCoordinate = -1
         int currentCoordinate = 0
         for (Exon exon : exons) {
@@ -1631,7 +1623,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 
     public int convertSourceCoordinateToLocalCoordinateForCDS(Feature feature, int sourceCoordinate) {
-        List<Exon> exons = exonService.getSortedExons(feature, true)
+        List<Exon> exons = transcriptService.getSortedExons(feature, true)
         CDS cds = transcriptService.getCDS(feature)
         int localCoordinate = 0
 
@@ -2397,7 +2389,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     def sequenceAlterationInContextOverlapper(Feature feature, SequenceAlterationInContext sequenceAlteration) {
-        List<Exon> exonList = exonService.getSortedExons(feature, true)
+        List<Exon> exonList = transcriptService.getSortedExons(feature, true)
         for (Exon exon : exonList) {
             int fmin = exon.fmin
             int fmax = exon.fmax
@@ -2569,7 +2561,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
         } else {
-            List<Exon> exonList = feature instanceof CDS ? exonService.getSortedExons(transcriptService.getTranscript(feature)) : exonService.getSortedExons(feature, true)
+            List<Exon> exonList = feature instanceof CDS ? transcriptService.getSortedExons(transcriptService.getTranscript(feature),true) : transcriptService.getSortedExons((Transcript) feature, true)
             for (Exon exon : exonList) {
                 int exonFmin = exon.fmin
                 int exonFmax = exon.fmax

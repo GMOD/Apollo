@@ -10,7 +10,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     def requestHandlingService
-    def exonService
+    def transcriptService
     def featureEventService
 
     protected JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
@@ -422,7 +422,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we add both transcripts"
         requestHandlingService.addTranscript(jsonAddTranscriptObject1)
         requestHandlingService.addTranscript(jsonAddTranscriptObject2)
-        List<Exon> exonList = exonService.getSortedExons(MRNA.findByName("GB40788-RA-00001"), true)
+        List<Exon> exonList = transcriptService.getSortedExons(MRNA.findByName("GB40788-RA-00001"), true)
         String exonUniqueName = exonList.first().uniqueName
         Exon exon = Exon.findByUniqueName(exonUniqueName)
         FeatureLocation featureLocation = exon.featureLocation
@@ -440,7 +440,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         when: "we make changes to an exon on gene 1"
         MRNA secondMRNA = MRNA.findByName("GB40788-RA-00001")
-        exonList = exonService.getSortedExons(secondMRNA, true)
+        exonList = transcriptService.getSortedExons(secondMRNA, true)
         exonUniqueName = exonList.first().uniqueName
         setExonBoundaryCommand = setExonBoundaryCommand.replace("@EXON_UNIQUENAME@", exonUniqueName)
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand) as JSONObject)
@@ -595,7 +595,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we add both transcripts"
         requestHandlingService.addTranscript(jsonAddTranscriptObject1)
         requestHandlingService.addTranscript(jsonAddTranscriptObject2)
-        List<Exon> exonList = exonService.getSortedExons(MRNA.first(), true)
+        List<Exon> exonList = transcriptService.getSortedExons(MRNA.first(), true)
         String exonUniqueName = exonList.get(1).uniqueName
         Exon exon = Exon.findByUniqueName(exonUniqueName)
         FeatureLocation featureLocation = exon.featureLocation
@@ -612,7 +612,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert newFmax==featureLocation.fmax
 
         when: "we make changes to an exon on gene 1"
-        exonList = exonService.getSortedExons(MRNA.first(), true)
+        exonList = transcriptService.getSortedExons(MRNA.first(), true)
         exonUniqueName = exonList.get(1).uniqueName
         setExonBoundaryCommand = setExonBoundaryCommand.replace("@EXON_UNIQUENAME@",exonUniqueName)
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand) as JSONObject)
@@ -756,7 +756,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         requestHandlingService.addTranscript(jsonAddTranscriptObject1)
         requestHandlingService.addTranscript(jsonAddTranscriptObject2)
         MRNA firstMrna = MRNA.first()
-        List<Exon> exonList = exonService.getSortedExons(firstMrna, true)
+        List<Exon> exonList = transcriptService.getSortedExons(firstMrna, true)
         String exonUniqueName = exonList.get(1).uniqueName
         Exon exon = Exon.findByUniqueName(exonUniqueName)
         FeatureLocation featureLocation = exon.featureLocation
@@ -773,7 +773,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert newFmax==featureLocation.fmax
 
         when: "we make changes to an exon on gene 1"
-        exonList = exonService.getSortedExons(firstMrna, true)
+        exonList = transcriptService.getSortedExons(firstMrna, true)
         exonUniqueName = exonList.get(1).uniqueName
         setExonBoundaryCommand = setExonBoundaryCommand.replace("@EXON_UNIQUENAME@",exonUniqueName)
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand) as JSONObject)
@@ -913,11 +913,11 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         requestHandlingService.addTranscript(jsonAddTranscriptObject2)
         MRNA mrna40787 = MRNA.findByName("GB40787-RA-00001")
         MRNA mrna40788 = MRNA.findByName("GB40788-RA-00001")
-        List<Exon> exonList40788 = exonService.getSortedExons(mrna40788, true)
+        List<Exon> exonList40788 = transcriptService.getSortedExons(mrna40788, true)
         String exon788UniqueName = exonList40788.first().uniqueName
         Exon exon788 = Exon.findByUniqueName(exon788UniqueName)
         FeatureLocation featureLocation788 = exon788.featureLocation
-        List<Exon> exonList40787 = exonService.getSortedExons(mrna40787, true)
+        List<Exon> exonList40787 = transcriptService.getSortedExons(mrna40787, true)
         String exon787UniqueName = exonList40787.last().uniqueName
         Exon exon787 = Exon.findByUniqueName(exon787UniqueName)
         FeatureLocation featureLocation787 = exon787.featureLocation

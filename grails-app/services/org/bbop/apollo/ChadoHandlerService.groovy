@@ -157,7 +157,7 @@ class ChadoHandlerService {
                     createChadoFeatureRelationship(organism, chadoFeature, featureRelationship)
                 }
 
-                def exons = transcriptService.getSortedExons(transcript)
+                def exons = transcriptService.getSortedExons(transcript,false)
                 /*
                 In GMOD Chado Best Practices, it is noted that exons can be part_of more than one mRNA and that
                 no two distinct exon rows should have exact same featureloc coordinates (this would indicate they are the same exon).

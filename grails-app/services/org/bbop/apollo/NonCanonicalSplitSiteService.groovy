@@ -86,7 +86,7 @@ class NonCanonicalSplitSiteService {
         deleteAllNonCanonicalFivePrimeSpliceSites(transcript)
         deleteAllNonCanonicalThreePrimeSpliceSites(transcript)
 
-        List<Exon> exons = transcriptService.getSortedExons(transcript,bookmark)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,false,bookmark)
         int fmin = bookmarkService.getMinForFeature(transcript,bookmark)
         int fmax = bookmarkService.getMaxForFeature(transcript,bookmark)
         Strand strand=transcript.isNegativeStrand()?Strand.NEGATIVE:Strand.POSITIVE

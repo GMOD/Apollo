@@ -141,7 +141,7 @@ class CdsService {
     def getResiduesFromCDS(CDS cds) {
         // New implementation that infers CDS based on overlapping exons
         Transcript transcript = transcriptService.getTranscript(cds)
-        List <Exon> exons = exonService.getSortedExons(transcript)
+        List <Exon> exons = transcriptService.getSortedExons(transcript,true)
         String residues = ""
         for(Exon exon : exons) {
             if (!overlapperService.overlaps(exon,cds)) {
