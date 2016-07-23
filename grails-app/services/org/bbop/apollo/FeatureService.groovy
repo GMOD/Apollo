@@ -1607,7 +1607,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @return Local coordinate, -1 if source coordinate is <= fmin or >= fmax
      */
     public int convertSourceCoordinateToLocalCoordinate(Feature feature, int sourceCoordinate) {
-        return convertSourceCoordinateToLocalCoordinate(feature.featureLocation.fmin, feature.featureLocation.fmax, Strand.getStrandForValue(feature.featureLocation.strand), sourceCoordinate)
+        return convertSourceCoordinateToLocalCoordinate(feature.fmin, feature.fmax, Strand.getStrandForValue(feature.strand), sourceCoordinate)
     }
 
     public int convertSourceCoordinateToLocalCoordinate(int fmin, int fmax, Strand strand, int sourceCoordinate) {
@@ -1758,7 +1758,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
         }
 
-        if (gsolFeature.featureLocation) {
+        if (gsolFeature.featureLocations) {
             jsonFeature.put(FeatureStringEnum.SEQUENCE.value, gsolFeature.featureLocation.sequence.name);
             jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(gsolFeature.featureLocation));
         }
