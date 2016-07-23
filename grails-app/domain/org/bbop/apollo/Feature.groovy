@@ -228,6 +228,10 @@ class Feature implements Ontological{
         featureLocations.sort(){ it.rank }.first().rank
     }
 
+    /**
+     * TODO: we should validate the strands of all of the feature locations here?
+     * @return
+     */
     public Integer getStrand(){
         featureLocations.first().strand
     }

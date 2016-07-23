@@ -712,7 +712,7 @@ class FeatureService {
             log.debug "FS::convertLocalCoordinateToSourceCoordinateForCDS() - No exons for given transcript"
             return convertLocalCoordinateToSourceCoordinate(cds, localCoordinate)
         }
-        if (transcript.strand == Strand.NEGATIVE.value) {
+        if (transcript.isNegativeStrand()) {
             exons.reverse()
         }
         for (Exon exon : exons) {
@@ -725,9 +725,9 @@ class FeatureService {
                     continue
                 } else {
                     // exon doesn't overlap completely with the CDS
-                    if (exon.fmin < cds.fmin && exon.strand == Strand.POSITIVE.value) {
+                    if (exon.fmin < cds.fmin && exon.isPositiveStrand()) {
                         offset += cds.fmin - exon.fmin
-                    } else if (exon.fmax > cds.fmax && exon.strand == Strand.NEGATIVE.value) {
+                    } else if (exon.fmax > cds.fmax && exon.isNegativeStrand()) {
                         offset += exon.fmax - cds.fmax
                     }
                 }
@@ -793,24 +793,24 @@ class FeatureService {
                             cdsService.setStopCodonReadThrough(cds, stopCodonReadThrough)
 //                            cds.setStopCodonReadThrough(stopCodonReadThrough);
                             if (cds.isNegativeStrand()) {
-                                featureService.setFmin(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2))
-                                featureService.setFmax(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(transcript, i) + 1);
+                                setFmin(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2))
+                                setFmax(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(transcript, i) + 1);
                             } else {
-                                featureService.setFmin(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(transcript, i));
-                                featureService.setFmax(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2) + 1);
+                                setFmin(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(transcript, i));
+                                setFmax(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2) + 1);
                             }
                         }
                         continue;
                     }
                     if (transcript.isNegativeStrand()) {
-                        featureService.setFmin(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 2));
+                        setFmin(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 2));
                     } else {
-                        featureService.setFmax(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 3));
+                        setFmax(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 3));
                     }
                     return;
                 }
             }
-            if (transcript.strand == Strand.NEGATIVE.value) {
+            if (transcript.isNegativeStrand()) {
                 setFmin(transcript,transcript.fmin)
                 transcript.firstFeatureLocation.setIsFminPartial(true)
 //                cds.featureLocation.setFmin(transcript.getFmin());
@@ -903,10 +903,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             cds = transcriptService.createCDS(transcript);
             transcriptService.setCDS(transcript, cds);
         }
-        if (transcript.strand == Strand.NEGATIVE.value) {
-            cds.featureLocation.setFmin(translationEnd);
+        if (transcript.isNegativeStrand()) {
+            featureService.setFmin(cds,translationEnd)
+//            cds.featureLocation.setFmin(translationEnd);
         } else {
-            cds.featureLocation.setFmax(translationEnd + 1);
+            featureService.setFmax(cds,translationEnd+1)
+//            cds.featureLocation.setFmax(translationEnd + 1);
         }
         cdsService.setManuallySetTranslationEnd(cds, true);
         cdsService.deleteStopCodonReadThrough(cds);
@@ -921,19 +923,23 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
                 String codon = mrna.substring(i, i + 3);
                 if (translationTable.getStartCodons().contains(codon)) {
-                    if (transcript.strand == Strand.NEGATIVE.value) {
-                        cds.featureLocation.setFmax(convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 3));
+                    if (transcript.isNegativeStrand()) {
+                        featureService.setFmax(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 3))
+//                        cds.featureLocation.setFmax(convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 3));
                     } else {
-                        cds.featureLocation.setFmin(convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 2));
+                        featureService.setFmin(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 2))
+//                        cds.featureLocation.setFmin(convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 2));
                     }
                     return;
                 }
             }
-            if (transcript.strand == Strand.NEGATIVE.value) {
-                cds.featureLocation.setFmin(transcript.getFmin());
+            if (transcript.isNegativeStrand()) {
+                setFmin(cds,transcript.fmin)
+//                cds.featureLocation.setFmin(transcript.getFmin());
                 cds.featureLocation.setIsFminPartial(true);
             } else {
-                cds.featureLocation.setFmax(transcript.getFmax());
+                setFmax(cds,transcript.fmax)
+//                cds.featureLocation.setFmax(transcript.getFmax());
                 cds.featureLocation.setIsFmaxPartial(true);
             }
         }
@@ -1056,7 +1062,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 FeatureLocation featureLocation = new FeatureLocation(
                         fmin: frameshift.coordinate
                         , fmax: frameshift.coordinate + frameshift.frameshiftValue
-                        , strand: cds.featureLocation.strand
+                        , strand: cds.strand
                         , sequence: sequence
                 )
 
@@ -1094,7 +1100,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 FeatureLocation featureLocation = new FeatureLocation(
                         fmin: frameshift.coordinate
                         , fmax: frameshift.coordinate + frameshift.frameshiftValue
-                        , strand: cds.featureLocation.strand
+                        , strand: cds.strand
                         , sequence: sequence
                 ).save()
 
@@ -1170,7 +1176,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (bestStartIndex >= 0) {
                 int fmin = convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStartIndex);
                 int fmax = convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStopIndex);
-                if (cds.getStrand().equals(-1)) {
+                if (cds.isNegativeStrand()) {
                     int tmp = fmin;
                     fmin = fmax + 1;
                     fmax = tmp + 1;
@@ -1506,8 +1512,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 geneFmax = t.getFmax();
             }
         }
-        gene.featureLocation.setFmin(geneFmin);
-        gene.featureLocation.setFmax(geneFmax);
+        setFmin(gene,geneFmin)
+        setFmax(gene,geneFmax)
+//        gene.featureLocation.setFmin(geneFmin);
+//        gene.featureLocation.setFmax(geneFmax);
         gene.setLastUpdated(new Date());
     }
 
@@ -1620,7 +1628,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         for (Exon exon : exons) {
             if (exon.fmin <= sourceCoordinate && exon.fmax >= sourceCoordinate) {
                 //sourceCoordinate falls within the exon
-                if (exon.strand == Strand.NEGATIVE.value) {
+                if (exon.isNegativeStrand()) {
                     localCoordinate = currentCoordinate + (exon.fmax - sourceCoordinate) - 1;
                 } else {
                     localCoordinate = currentCoordinate + (sourceCoordinate - exon.fmin);
@@ -1642,7 +1650,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         int x = 0
         int y = 0
-        if (feature.strand == Strand.POSITIVE.value) {
+        if (feature.isPositiveStrand()) {
             for (Exon exon : exons) {
                 if (overlapperService.overlaps(exon, cds, true) && exon.fmin >= cds.fmin && exon.fmax <= cds.fmax) {
                     // complete overlap
@@ -2652,7 +2660,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.fmin)
             }
 
-            if (feature.strand == Strand.NEGATIVE.value) {
+            if (feature.isNegativeStrand()) {
                 if (coordinateInContext <= localCoordinate && alteration.instanceOf == Deletion.canonicalName) {
                     deletionOffset += alterationResidueLength
                 }
@@ -2719,7 +2727,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 continue
             }
 
-            if (feature.strand == Strand.NEGATIVE.value) {
+            if (feature.isNegativeStrand()) {
                 coordinateInContext = feature.length - coordinateInContext
                 log.debug "Checking negative insertion ${coordinateInContext} ${localCoordinate} ${(coordinateInContext - alterationResidueLength) - 1}"
                 if (coordinateInContext <= localCoordinate && alteration instanceof Deletion) {
