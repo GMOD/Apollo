@@ -936,11 +936,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (transcript.isNegativeStrand()) {
                 setFmin(cds,transcript.fmin)
 //                cds.featureLocation.setFmin(transcript.getFmin());
-                cds.featureLocation.setIsFminPartial(true);
+                cds.firstFeatureLocation.setIsFminPartial(true);
             } else {
                 setFmax(cds,transcript.fmax)
 //                cds.featureLocation.setFmax(transcript.getFmax());
-                cds.featureLocation.setIsFmaxPartial(true);
+                cds.lastFeatureLocation.setIsFmaxPartial(true);
             }
         }
 
@@ -1182,19 +1182,19 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     fmax = tmp + 1;
                 }
                 setFmin(cds, fmin,multiSequenceProjection);
-                cds.featureLocation.setIsFminPartial(false);
+                cds.firstFeatureLocation.setIsFminPartial(false);
                 setFmax(cds, fmax,multiSequenceProjection);
-                cds.featureLocation.setIsFmaxPartial(partialStop);
+                cds.lastFeatureLocation.setIsFmaxPartial(partialStop);
             } else {
                 setFmin(cds, transcript.getFmin(),multiSequenceProjection);
-                cds.featureLocation.setIsFminPartial(true);
+                cds.firstFeatureLocation.setIsFminPartial(true);
                 String aa = SequenceTranslationHandler.translateSequence(mrna, translationTable, true, readThroughStopCodon);
                 if (aa.substring(aa.length() - 1).equals(TranslationTable.STOP)) {
                     setFmax(cds, convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3),multiSequenceProjection);
-                    cds.featureLocation.setIsFmaxPartial(false);
+                    cds.lastFeatureLocation.setIsFmaxPartial(false);
                 } else {
                     setFmax(cds, transcript.getFmax(),multiSequenceProjection);
-                    cds.featureLocation.setIsFmaxPartial(true);
+                    cds.lastFeatureLocation.setIsFmaxPartial(true);
                 }
             }
             if (readThroughStopCodon) {

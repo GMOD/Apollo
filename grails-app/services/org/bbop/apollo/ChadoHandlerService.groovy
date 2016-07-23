@@ -442,25 +442,27 @@ class ChadoHandlerService {
          */
 
         long startTime, endTime
-        startTime = System.currentTimeMillis()
-        org.gmod.chado.Featureloc chadoFeatureLoc = new org.gmod.chado.Featureloc(
-                fmin: feature.featureLocation.fmin,
-                fmax: feature.featureLocation.fmax,
-                isFminPartial: feature.featureLocation.isFminPartial,
-                isFmaxPartial: feature.featureLocation.isFmaxPartial,
-                strand: feature.featureLocation.strand,
-                locgroup: feature.featureLocation.locgroup,
-                rank: feature.featureLocation.rank,
-                feature: chadoFeature,
-                srcfeature: getSrcFeatureForFeature(organism, feature.featureLocation.sequence)
-        ).save(flush: true)
-        endTime = System.currentTimeMillis()
-        log.debug "Time taken to create Chado featureloc for feature fmin: ${feature.fmin} fmax: ${feature.fmax}: ${endTime - startTime} ms"
-        exportStatisticsMap['featureloc_count'] += 1
-        feature.featureLocation.featureLocationPublications.each { featureLocationPublication ->
-            createChadoFeaturelocPub(chadoFeatureLoc, featureLocationPublication)
+        feature.featureLocations.each { featureLocation ->
+            startTime = System.currentTimeMillis()
+            org.gmod.chado.Featureloc chadoFeatureLoc = new org.gmod.chado.Featureloc(
+                    fmin: featureLocation.fmin,
+                    fmax: featureLocation.fmax,
+                    isFminPartial: featureLocation.isFminPartial,
+                    isFmaxPartial: featureLocation.isFmaxPartial,
+                    strand: featureLocation.strand,
+                    locgroup: featureLocation.locgroup,
+                    rank: featureLocation.rank,
+                    feature: chadoFeature,
+                    srcfeature: getSrcFeatureForFeature(organism, featureLocation.sequence)
+            ).save(flush: true)
+            endTime = System.currentTimeMillis()
+            log.debug "Time taken to create Chado featureloc for feature fmin: ${feature.fmin} fmax: ${feature.fmax}: ${endTime - startTime} ms"
+            exportStatisticsMap['featureloc_count'] += 1
+            featureLocation.featureLocationPublications.each { featureLocationPublication ->
+                createChadoFeaturelocPub(chadoFeatureLoc, featureLocationPublication)
+            }
         }
-        return chadoFeatureLoc
+//        return chadoFeatureLoc
     }
 
     /**
