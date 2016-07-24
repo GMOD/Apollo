@@ -1514,8 +1514,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         setFmin(gene,geneFmin)
         setFmax(gene,geneFmax)
-//        gene.featureLocation.setFmin(geneFmin);
-//        gene.featureLocation.setFmax(geneFmax);
         gene.setLastUpdated(new Date());
     }
 
@@ -2274,15 +2272,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     @Transactional
     Gene mergeGeneEntities(Gene mainGene, List<Gene> genes) {
-        def fminList = genes.featureLocation.fmin
-        def fmaxList = genes.featureLocation.fmax
-        fminList.add(mainGene.fmin)
-        fmaxList.add(mainGene.fmax)
+        def fmin = mainGene.fmin
+        def fmax = mainGene.fmax
+        genes.each {
+            fmin = it.fmin < fmin  ? it.fmin : fmin
+            fmax = it.fmax < fmax  ? it.fmax : fmax
+        }
 
-        FeatureLocation newFeatureLocation = mainGene.featureLocation
-        newFeatureLocation.fmin = fminList.min()
-        newFeatureLocation.fmax = fmaxList.max()
-        newFeatureLocation.save(flush: true)
+        setFmin(mainGene,fmin)
+        setFmax(mainGene,fmax)
         for (Gene gene in genes) {
             gene.featureDBXrefs.each { mainGene.addToFeatureDBXrefs(it) }
             gene.featureGenotypes.each { mainGene.addToFeatureGenotypes(it) }
