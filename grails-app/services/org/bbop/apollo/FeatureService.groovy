@@ -7,13 +7,9 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionSequence
-import org.bbop.apollo.history.FeatureOperation
-import org.bbop.apollo.alteration.SequenceAlterationInContext
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.sequence.TranslationTable
-import org.bouncycastle.jce.provider.AnnotatedException
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -1062,14 +1058,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             ProjectionSequence projectionSequence1 = multiSequenceProjection.getReverseProjectionSequence(frameshift.coordinate)
             ProjectionSequence projectionSequence2 = multiSequenceProjection.getReverseProjectionSequence(frameshift.coordinate+frameshift.frameshiftValue)
             if(projectionSequence1!=projectionSequence2){
-                throw new AnnotatedException("Can not getFrameshits across a scaffold boundary.  Please report this bug.")
+                throw new AnnotationException("Can not getFrameshits across a scaffold boundary.  Please report this bug.")
             }
             Sequence sequence1 = Sequence.findByNameAndOrganism(projectionSequence1.name,organism)
 
             if (frameshift.isPlusFrameshift()) {
                 // a plus frameshift skips bases during translation, which can be mapped to a deletion for the
                 // the skipped bases
-
 
 
                 FeatureLocation featureLocation = new FeatureLocation(
@@ -1721,7 +1716,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @return
      */
     @Timed
-    JSONObject convertFeatureToJSONLite(Feature gsolFeature, boolean includeSequence = false, int depth) {
+    JSONObject convertFeatureToJSONLite(Feature gsolFeature, boolean includeSequence = false, int depth,Bookmark bookmark) {
         JSONObject jsonFeature = new JSONObject();
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
@@ -1754,9 +1749,22 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
         }
 
-        if (gsolFeature.featureLocations) {
-            jsonFeature.put(FeatureStringEnum.SEQUENCE.value, gsolFeature.featureLocation.sequence.name);
-            jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(gsolFeature.featureLocation));
+        // TODO: use a sequence string see how long this is since LOCATION is an object and not an array
+
+        // TODO: make sure we add a sequenceList in here for seqeuence, which will get interpreted as a track
+
+        // TODO: see what intepretations in both the client and the server code do
+        List<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations()?.sort(){ it.rank};
+        if (featureLocations) {
+            if(featureLocations.size()==1){
+                jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(featureLocations.first()));
+            }
+            else{
+                jsonFeature.put(FeatureStringEnum.SEQUENCE.value, gsolFeature.sequenceNames);
+//            jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(gsolFeature.featureLocation));
+                bookmark = bookmark ?: bookmarkService.generateBookmarkForFeature(gsolFeature)
+                jsonFeature.put(FeatureStringEnum.LOCATION.value, createFeatureLocationJSONFromBookmark(gsolFeature,bookmark));
+            }
         }
 
 
@@ -1767,16 +1775,38 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
                 for (Feature f : childFeatures) {
                     Feature childFeature = f
-                    children.put(convertFeatureToJSONLite(childFeature, includeSequence, depth + 1));
+                    children.put(convertFeatureToJSONLite(childFeature, includeSequence, depth + 1,bookmark));
                 }
             }
         }
 
-
-
         jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time);
         jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time);
         return jsonFeature;
+    }
+
+    JSONObject createFeatureLocationJSONFromBookmark(Feature feature,Bookmark bookmark){
+        int calculatedFmin = -1
+        int calculatedFmax = -1
+        Boolean fminPartial = false
+        Boolean fmaxPartial = false
+
+        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+
+        List<FeatureLocation> featureLocations = feature.getFeatureLocations()?.sort(){ it.rank};
+        featureLocations.each {
+            if(sequenceList.contains(it.sequence)){
+                if(calculatedFmin<0){
+                    calculatedFmin = it.fmin
+                    fminPartial = it.isFminPartial
+                }
+                calculatedFmax = calculatedFmax < 0 ? it.fmax : it.fmax + calculatedFmax
+                fmaxPartial = it.isFmaxPartial
+            }
+        }
+
+
+        return generateFeatureLocationToJSON(feature.sequenceNames,feature.strand,calculatedFmin,calculatedFmax,fminPartial,fmaxPartial)
     }
 
     String generateOwnerString(Feature feature){
@@ -1823,35 +1853,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         long durationInMilliseconds = System.currentTimeMillis() - start;
 
         start = System.currentTimeMillis();
-        String sequenceString = ""
-        gsolFeature.featureLocations.each {
-            sequenceString += "::"
-            sequenceString += it.sequence.name
-        }
-        sequenceString = sequenceString == "" ? null : sequenceString.substring(2)
-        if(sequenceString){
-            jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequenceString);
-        }
+        jsonFeature.put(FeatureStringEnum.SEQUENCE.value, gsolFeature.sequenceNames);
 
         durationInMilliseconds = System.currentTimeMillis() - start;
 
 
         start = System.currentTimeMillis();
 
-        // TODO: move this to a configurable place or in another method to process afterwards
-        //            List<String> errorList = new ArrayList<>()
-        //            errorList.addAll(new Cds3Filter().filterFeature(gsolFeature))
-        //            errorList.addAll(new StopCodonFilter().filterFeature(gsolFeature))
-        //            JSONArray notesArray = new JSONArray()
-        //            for (String error : errorList) {
-        //                notesArray.put(error)
-        //            }
-        //            jsonFeature.put(FeatureStringEnum.NOTES.value, notesArray)
-        //            durationInMilliseconds = System.currentTimeMillis()-start;
-        //log.debug "notes ${durationInMilliseconds}"
-
-
-        start = System.currentTimeMillis();
         // get children
         List<Feature> childFeatures = featureRelationshipService.getChildrenForFeatureAndTypes(gsolFeature)
 
@@ -1890,27 +1898,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 // TODO: should probably move somewhere else, but the important part here is that it calculates a SINGLE location
                 // for the relevant bookmark
                 bookmark = bookmark ?: bookmarkService.generateBookmarkForFeature(gsolFeature)
-                List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
-
-                int calculatedFmin = -1
-                int calculatedFmax = -1
-                Boolean fminPartial = false
-                Boolean fmaxPartial = false
-
-                featureLocations.each {
-                    if(sequenceList.contains(it.sequence)){
-                        if(calculatedFmin<0){
-                            calculatedFmin = it.fmin
-                            fminPartial = it.isFminPartial
-                        }
-//                        if(it.fmax > calculatedFmax){
-                        calculatedFmax = calculatedFmax < 0 ? it.fmax : it.fmax + calculatedFmax
-                        fmaxPartial = it.isFmaxPartial
-//                        }
-                    }
-                }
-                // multiple
-                jsonFeature.put(FeatureStringEnum.LOCATION.value, generateFeatureLocationToJSON(sequenceString,gsolFeature.strand,calculatedFmin,calculatedFmax,fminPartial,fmaxPartial))
+                jsonFeature.put(FeatureStringEnum.LOCATION.value,createFeatureLocationJSONFromBookmark(gsolFeature,bookmark))
             }
         }
 
@@ -1972,8 +1960,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 properties.put(jsonProperty);
             }
         }
-//        JSONObject ownerProperty = JSON.parse("{value: ${finalOwnerString}, type: {name: 'owner', cv: {name: 'feature_property'}}}") as JSONObject
-//        properties.put(ownerProperty)
 
 
         Collection<DBXref> gsolFeatureDbxrefs = gsolFeature.getFeatureDBXrefs();

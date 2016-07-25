@@ -281,7 +281,7 @@ class AnnotatorController {
             if (returnObject.has("track")) {
                 bookmark = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             } else {
-                permissionService.checkPermissions(inputObject, PermissionEnum.READ)
+                bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
             }
             Integer index = Integer.parseInt(request)
 
@@ -385,7 +385,7 @@ class AnnotatorController {
 
             start = System.currentTimeMillis();
             for (Feature feature in features) {
-                JSONObject featureObject = featureService.convertFeatureToJSONLite(feature, false, 0)
+                JSONObject featureObject = featureService.convertFeatureToJSONLite(feature, false, 0,bookmark)
                 returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureObject)
             }
             durationInMilliseconds = System.currentTimeMillis() - start;
