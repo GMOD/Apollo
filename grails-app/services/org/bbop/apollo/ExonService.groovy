@@ -445,7 +445,7 @@ class ExonService {
         }
 
         String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(
-                exon.featureLocation.sequence
+                bookmarkService.generateBookmarkForFeature(exon)
                 ,exon.fmin < cds.fmin ? cds.fmin : exon.fmin
                 ,exon.fmax > cds.fmax ? cds.fmax : exon.fmax
                 ,Strand.getStrandForValue(exon.strand)
