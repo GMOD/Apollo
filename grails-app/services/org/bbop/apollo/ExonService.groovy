@@ -382,11 +382,22 @@ class ExonService {
     }
 
     @Transactional
-    Exon splitExon(Exon exon, int newLeftMax, int newRightMin,Bookmark bookmark) {
-        Exon leftExon = exon;
-        FeatureLocation leftFeatureLocation = leftExon.getFeatureLocation()
+    Exon splitExon(Exon leftExon, int newLeftMax, int newRightMin,Bookmark bookmark) {
 
-        String uniqueName = nameService.generateUniqueName(exon)
+        // we want to get the right-most permissible feature Location
+        FeatureLocation leftFeatureLocation
+//        = leftExon.getFeatureLocation()
+        leftExon.featureLocations.sort(){it.rank}.each {
+            if(newLeftMax < it.fmax && newLeftMax > it.fmin){
+                leftFeatureLocation = it
+            }
+        }
+
+        if(leftFeatureLocation==null){
+            throw new AnnotationException("Unable to find an existing feature location to split ${leftExon} at ${newLeftMax}.")
+        }
+
+        String uniqueName = nameService.generateUniqueName(leftExon)
         Exon rightExon = new Exon(
                 uniqueName: uniqueName
                 ,name: uniqueName
