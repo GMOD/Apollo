@@ -198,20 +198,12 @@ class BookmarkService {
             bookmark.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value): sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
             bookmark.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size()-1).getInt(FeatureStringEnum.END.value)
 
-//            User user = permissionService.getCurrentUser(jsonObject)
-//            bookmark.user = userOrganismPreference.user
             bookmark.organism = preferenceService.getOrganismFromInput(jsonObject)
             if(!bookmark.organism){
                 bookmark.organism = preferenceService.getCurrentOrganismForCurrentUser(jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             }
             bookmark.save(insert: true,flush:true)
         }
-//        else{
-//            bookmark.padding = jsonObject.padding
-//            bookmark.save(insert:false,flush:true)
-//        }
-
-//        return generateBookmarkForSequence(sequences as Sequence[])
         return bookmark
     }
 
@@ -222,7 +214,6 @@ class BookmarkService {
 
     @NotTransactional
     static Boolean isProjectionString(String inputString ){
-//        return (inputString.contains("{") && inputString.contains("projection"))
         return (inputString.startsWith("{") && inputString.contains(FeatureStringEnum.SEQUENCE_LIST.value))
     }
 

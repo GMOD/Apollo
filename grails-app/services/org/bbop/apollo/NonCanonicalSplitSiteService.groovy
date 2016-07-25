@@ -92,7 +92,6 @@ class NonCanonicalSplitSiteService {
         Strand strand=transcript.isNegativeStrand()?Strand.NEGATIVE:Strand.POSITIVE
 
         String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(bookmark,fmin,fmax,strand);
-//        String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,fmin,fmax,strand);
         if(transcript.getStrand()==-1){
             residues=residues.reverse()
         }

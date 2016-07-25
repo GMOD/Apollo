@@ -88,19 +88,6 @@ public class Gff3HandlerService {
         }
     }
 
-//    @Timed
-//    public void writeFeatures(WriteObject writeObject, Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
-//        while (iterator.hasNext()) {
-//            Feature feature = iterator.next();
-//            if (needDirectives) {
-//                writeGroupDirectives(writeObject, feature.featureLocation.sequence)
-//                needDirectives = false;
-//            }
-//            writeFeature(writeObject, feature, source);
-//            writeFeatureGroupEnd(writeObject.out);
-//        }
-//    }
-
     static private void writeGroupDirectives(WriteObject writeObject, Sequence sourceFeature) {
         if (sourceFeature.featureLocations?.size() == 0) return;
         writeObject.out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, sourceFeature.start + 1, sourceFeature.end));
@@ -120,43 +107,6 @@ public class Gff3HandlerService {
         }
     }
 
-//    public void writeFasta(WriteObject writeObject, Collection<? extends Feature> features) {
-//        writeEmptyFastaDirective(writeObject.out);
-//        for (Feature feature : features) {
-//            writeFasta(writeObject.out, feature, false);
-//        }
-//    }
-//
-//    public void writeFasta(PrintWriter out, Feature feature) {
-//        writeFasta(out, feature, true);
-//    }
-
-//    public void writeFasta(PrintWriter out, Feature feature, boolean writeFastaDirective) {
-//        writeFasta(out, feature, writeFastaDirective, true);
-//    }
-
-    public void writeFasta(PrintWriter out, Feature feature, boolean writeFastaDirective) {
-//    public void writeFasta(PrintWriter out, Feature feature, boolean writeFastaDirective, boolean useLocation) {
-        int lineLength = 60;
-        if (writeFastaDirective) {
-            writeEmptyFastaDirective(out);
-        }
-        String residues = null;
-//        if (useLocation) {
-//            residues = sequenceService.getResidueFromFeatureLocation(feature.featureLocation)
-//        } else {
-        residues = sequenceService.getResiduesFromFeature(feature)
-//        }
-        if (residues != null) {
-            out.println(">" + feature.getUniqueName());
-            int idx = 0;
-            while (idx < residues.length()) {
-                out.println(residues.substring(idx, Math.min(idx + lineLength, residues.length())));
-                idx += lineLength;
-            }
-        }
-    }
-    
     public void writeFastaForReferenceSequences(WriteObject writeObject, Collection<Sequence> sequences) {
         for (Sequence sequence : sequences) {
             writeFastaForReferenceSequence(writeObject, sequence)

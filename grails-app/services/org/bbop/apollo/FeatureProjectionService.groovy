@@ -42,20 +42,6 @@ class FeatureProjectionService {
      * @param inputFeaturesArray
      * @return
      */
-////    @Transactional(readOnly = true)
-//    JSONArray projectFeatures(Sequence sequence, String referenceTrackName, JSONArray inputFeaturesArray, Boolean reverseProjection) {
-////        DiscontinuousProjection projection = (DiscontinuousProjection) getProjection(sequence.organism, referenceTrackName, sequence.name)
-//        
-//        if (projection) {
-//            // process location . . .
-//            projectFeaturesArray(inputFeaturesArray, projection, reverseProjection)
-//            
-//        } else {
-//            
-//        }
-//        return inputFeaturesArray
-//    }
-
     private
     static JSONObject projectFeature(JSONObject inputFeature, MultiSequenceProjection projection, Boolean reverseProjection, Integer offset) {
         if (!inputFeature.has(FeatureStringEnum.LOCATION.value)) return inputFeature

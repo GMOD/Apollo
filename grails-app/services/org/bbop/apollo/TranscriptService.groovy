@@ -147,10 +147,6 @@ class TranscriptService {
         return (Collection<Transcript>) featureRelationshipService.getChildrenForFeatureAndTypes(gene, ontologyIds as String[])
     }
 
-//    List<Transcript> getTranscriptsSortedByFeatureLocation(Gene gene, boolean sortByStrand) {
-//        return getTranscripts(gene).sort(true, new FeaturePositionComparator<Transcript>(sortByStrand))
-//    }
-
     /**
      * @param transcript
      * @param fmin
@@ -195,36 +191,15 @@ class TranscriptService {
         }
 
         featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection, gene, geneFmin, geneFmax)
-//        featureService.setFmin(gene, geneFmin)
-//        featureService.setFmax(gene, geneFmax)
-
-        // not sure if we want this if not actually saved
-//        gene.setLastUpdated(new Date());
     }
 
     /**
-     * @deprecated Should require a projection
      * @param transcript
      * @return
      */
     @Transactional
     def updateGeneBoundaries(Transcript transcript) {
-        Gene gene = getGene(transcript)
-        if (gene == null) {
-            return;
-        }
-        int geneFmax = Integer.MIN_VALUE;
-        int geneFmin = Integer.MAX_VALUE;
-        for (Transcript t : getTranscripts(gene)) {
-            if (t.getFmin() < geneFmin) {
-                geneFmin = t.getFmin();
-            }
-            if (t.getFmax() > geneFmax) {
-                geneFmax = t.getFmax();
-            }
-        }
-        featureService.setFmin(gene, geneFmin)
-        featureService.setFmax(gene, geneFmax)
+        updateGeneBoundaries(transcript,projectionService.getProjection(bookmarkService.generateBookmarkForFeature(transcript)))
     }
 
     List<String> getFrameShiftOntologyIds() {
@@ -289,12 +264,7 @@ class TranscriptService {
     def addExon(Transcript transcript, Exon exon, Boolean fixTranscript, Bookmark bookmark ) {
 
         // TODO: this method REALLY needs to be multisequence aware
-//        log.debug "exon feature locations ${exon.featureLocation}"
-//        log.debug "transcript feature locations ${transcript.featureLocation}"
-//        FeatureLocation exonFeatureLocation = exon.featureLocation
-//        FeatureLocation transcriptFeatureLocation = transcript.featureLocation
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
-
 
 
         int transcriptFmin = bookmarkService.getMinForFeature(transcript,bookmark)
@@ -306,14 +276,12 @@ class TranscriptService {
         if (exonFmin < transcriptFmin) {
             transcriptFmin = exonFmin
             updateTransriptBoundaries = true
-//            transcriptFeatureLocation.setFmin(exonFeatureLocation.fmin);
         }
         if (exonFmax > transcriptFmax) {
             transcriptFmax = exonFmax
             updateTransriptBoundaries = true
         }
 
-//        featureProjectionService.setFeatureLocationsForProjection(projectionService.getProjection(bookmark),exon,exonFmin,exonFmax)
         if(updateTransriptBoundaries){
             featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,transcript,transcriptFmin,transcriptFmax)
         }
@@ -324,18 +292,15 @@ class TranscriptService {
         Gene gene = getGene(transcript)
         if (gene) {
             boolean updateGeneBoundaries = false
-//            FeatureLocation geneFeatureLocation = gene.featureLocation
             int geneFmin = gene.fmin
             int geneFmax = gene.fmax
             if (transcriptFmin < geneFmin) {
                 geneFmin = transcriptFmin
                 updateGeneBoundaries = true
-//                geneFeatureLocation.setFmin(transcriptFeatureLocation.fmin);
             }
             if (transcriptFmax  > geneFmax) {
                 geneFmax = transcriptFmax
                 updateGeneBoundaries = true
-//                geneFeatureLocation.setFmax(transcriptFeatureLocation.fmax);
             }
 
             if(updateGeneBoundaries){
@@ -433,7 +398,6 @@ class TranscriptService {
 
         // changing feature location of splitTranscript to the fmin of the right exon
         featureService.setFmin(splitTranscript,rightExon.fmin,multiSequenceProjection)
-//        log.debug "right2: ${rightExon.featureLocation}"
         for (Exon exon : exons) {
             // starting with rightExon and all right flanking exons to splitTranscript
             exon.featureLocations.each { exonFeatureLocation ->
@@ -729,69 +693,4 @@ class TranscriptService {
         return jsonFeature;
     }
 
-    JSONArray convertTranscriptsToJSON(List<Transcript> transcripts) {
-        JSONArray returnArray = new JSONArray()
-        List topLevelTranscripts = Transcript.executeQuery("select distinct f , child , childLocation from Transcript f  join f.parentFeatureRelationships pr join pr.childFeature child join child.featureLocations childLocation where f in (:transcriptList) ", [transcriptList: transcripts])
-        Map<Transcript, List<Feature>> transcriptMap = new HashMap<>()
-        Map<Transcript, List<FeatureLocation>> featureLocationMap = new HashMap<>()
-        topLevelTranscripts.each {
-            List<Feature> featureList
-            featureList = transcriptMap.containsKey(it[0]) ? transcriptMap.get(it[0]) : new ArrayList<>()
-            featureList.add(it[1])
-            transcriptMap.put(it[0], featureList)
-
-
-            List<FeatureLocation> featureLocationList
-            featureLocationList = featureLocationMap.containsKey(it[0]) ? featureLocationMap.get(it[0]) : new ArrayList<>()
-            featureLocationList.add(it[2])
-            featureLocationMap.put(it[0], featureLocationList)
-        }
-        transcripts.each { transcript ->
-//            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
-            returnArray.add(convertTranscriptToJSON(transcript, transcriptMap.get(transcript), featureLocationMap.get(transcript)));
-        }
-
-        return returnArray
-
-    }
-
-    /**
-     * Find minSequence and minFmin for each
-     * if transcripts are on the same sequence ONLY (assume a single assembly), then use fmin
-     * if transcripts are on separate ones, then use the bookmark to figure out which one is first
-     *
-     * // TODO: I'm sure there is a MUCH better way to do this, but we also have a very limited set of use-cases
-     * @param transcript
-     * @param transcript
-     * @param bookmark
-     * @return
-     */
-    List<Feature> sortFeatures(Feature feature1, Feature feature2, Bookmark bookmark) {
-
-        FeatureLocation minFeatureLocation1 = feature1.featureLocations.sort() { it.rank }.first()
-        FeatureLocation minFeatureLocation2 = feature2.featureLocations.sort() { it.rank }.first()
-
-        // we'll assume tha the rank must be the same as well
-        if (minFeatureLocation1.sequence == minFeatureLocation2.sequence) {
-            return Collections.sort([feature1, feature2], new FeaturePositionComparator<Transcript>(false))
-        }
-
-        // otherwise, let's sort these based on the sequence list order
-        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
-        int indexFeature1 = sequenceList.indexOf(minFeatureLocation1.sequence)
-        int indexFeature2 = sequenceList.indexOf(minFeatureLocation2.sequence)
-
-        List<Feature> returnList = new ArrayList<>()
-        // if they were the same, they would have been caught abve
-        if (indexFeature1 < indexFeature2) {
-            returnList.add(feature1)
-            returnList.add(feature2)
-        } else {
-            returnList.add(feature2)
-            returnList.add(feature1)
-        }
-
-        return returnList
-
-    }
 }

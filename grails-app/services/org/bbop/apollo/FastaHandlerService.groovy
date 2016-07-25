@@ -7,12 +7,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
-//import groovy.transform.CompileStatic
-//import grails.compiler.GrailsCompileStatic
 
-
-//@CompileStatic
-//@GrailsCompileStatic
 public class FastaHandlerService {
 
     private File file;
@@ -34,37 +29,7 @@ public class FastaHandlerService {
         GZIP
     }
     
-//    public FastaHandler(String path, Mode mode) throws IOException {
-//        this(path, mode, Format.TEXT);
-//    }
-//
-//    public FastaHandlerService(String path, Mode mode, Format format) throws IOException {
-//        numResiduesPerLine = 60;
-//        this.mode = mode;
-//        file = new File(path);
-//        file.createNewFile();
-//        if (mode == Mode.READ) {
-//            if (!file.canRead()) {
-//                throw new IOException("Cannot read FASTA file: " + file.getAbsolutePath());
-//            }
-//        }
-//        if (mode == Mode.WRITE) {
-//            if (!file.canWrite()) {
-//                throw new IOException("Cannot write FATA to: " + file.getAbsolutePath());
-//            }
-//            switch (format) {
-//            case Format.TEXT:
-//                out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
-//                break;
-//            case Format.GZIP:
-//                out = new PrintWriter(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file))));
-//            }
-//        }
-//    }
-    
-    public FastaHandlerService() {
-    }
-    
+
     public void close() {
         if (mode == Mode.READ) {
             //TODO

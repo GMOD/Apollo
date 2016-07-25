@@ -21,7 +21,6 @@ class FeatureEventService {
     def transcriptService
     def featureService
     def requestHandlingService
-    def featureProjectionService
     def bookmarkService
 
     /**
@@ -534,11 +533,6 @@ class FeatureEventService {
                     log.debug "original command object = ${originalCommandObject as JSON}"
                     log.debug "final command object = ${addCommandObject as JSON}"
                     requestHandlingService.addTranscript(addCommandObject)
-//                    JSONArray returnArray = featureProjectionService.projectRefSeq(addCommandObject.getJSONArray(FeatureStringEnum.FEATURES.value),bookmark,false)
-//                    addCommandObject.put(FeatureStringEnum.FEATURES.value, returnArray)
-//
-//
-//                    returnObject = requestHandlingService.addTranscript(addCommandObject)
                     transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
 
                 } else {
@@ -633,11 +627,6 @@ class FeatureEventService {
         }
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
-//        Set<String> uniqueNames = extractFeatureEventGroup(uniqueName).keySet()
-//        assert uniqueNames.remove(uniqueName)
-//        uniqueNames.each {
-//            currentIndex = Math.max(getCurrentFeatureEventIndex(it), currentIndex)
-//        }
         int count = currentIndex + countForward
         log.info "current Index ${currentIndex}"
         log.info "${count} = ${currentIndex}-${countForward}"

@@ -87,18 +87,6 @@ class ExonService {
         featureRelationshipService.removeFeatureRelationship(transcript,exon)
 
 
-        // an empty transcript should be removed from gene,  TODO??
-//        if (transcript.getNumberOfExons() == 0) {
-//            if (transcript.getGene() != null) {
-//                deleteTranscript(transcript.getGene(), transcript);
-//            }
-//            else {
-//                deleteFeature(transcript);
-//            }
-//        }
-//        else {
-//            setLongestORF(transcript);
-//        }
         // update transcript boundaries if necessary
         if (exon.getFmin().equals(transcript.getFmin())) {
             int fmin = Integer.MAX_VALUE;
@@ -121,7 +109,6 @@ class ExonService {
         // update gene boundaries if necessary
         transcriptService.updateGeneBoundaries(transcript);
 
-//        FeatureLocation.deleteAll(exon.featureLocations)
         exon.save(flush: true)
         exon.featureLocations.clear()
         exon.parentFeatureRelationships?.clear()
@@ -135,10 +122,7 @@ class ExonService {
             }
         }
 
-//        FeatureProperty.executeUpdate("delete from FeatureProperty fp where fp.feature.id = :exonId",[exonId:exon.id])
-//        Exon.executeUpdate("delete from Exon e where e.id = :exonId",[exonId:exon.id])
         exon.delete(flush: true)
-//        Exon.deleteAll(exon)
         transcript.save(flush: true)
 
 

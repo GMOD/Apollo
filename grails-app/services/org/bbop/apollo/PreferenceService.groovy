@@ -17,10 +17,8 @@ class PreferenceService {
         if (permissionService.currentUser == null) {
             return getOrganismForToken(clientToken)
         } else {
-//            return getCurrentOrganism(permissionService.currentUser, clientToken)
             return getOrganismFromPreferences(clientToken)
         }
-//        return permissionService.currentUser == null ? null : getCurrentOrganism(permissionService.currentUser,clientToken);
     }
 
     Organism getOrganismFromInput(JSONObject inputObject) {
