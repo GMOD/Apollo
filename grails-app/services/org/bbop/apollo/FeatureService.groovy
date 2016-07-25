@@ -13,6 +13,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.sequence.TranslationTable
+import org.bouncycastle.jce.provider.AnnotatedException
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -1050,20 +1051,32 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (cds == null) {
             return frameshifts;
         }
-        Sequence sequence = cds.getFeatureLocation().sequence
+        // get sequence for transcript region (generate bookmark) and frameshift coordinate
+        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(transcript)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+//        Sequence sequence = cds.getFeatureLocation().sequence
+        Organism organism = transcript.organism
         List<Frameshift> frameshiftList = transcriptService.getFrameshifts(transcript)
         for (Frameshift frameshift : frameshiftList) {
+
+            ProjectionSequence projectionSequence1 = multiSequenceProjection.getReverseProjectionSequence(frameshift.coordinate)
+            ProjectionSequence projectionSequence2 = multiSequenceProjection.getReverseProjectionSequence(frameshift.coordinate+frameshift.frameshiftValue)
+            if(projectionSequence1!=projectionSequence2){
+                throw new AnnotatedException("Can not getFrameshits across a scaffold boundary.  Please report this bug.")
+            }
+            Sequence sequence1 = Sequence.findByNameAndOrganism(projectionSequence1.name,organism)
+
             if (frameshift.isPlusFrameshift()) {
                 // a plus frameshift skips bases during translation, which can be mapped to a deletion for the
                 // the skipped bases
-//                Deletion deletion = new Deletion(cds.getOrganism(), "Deletion-" + frameshift.getCoordinate(), false,
-//                        false, new Timestamp(new Date().getTime()), cds.getConfiguration());
+
+
 
                 FeatureLocation featureLocation = new FeatureLocation(
                         fmin: frameshift.coordinate
                         , fmax: frameshift.coordinate + frameshift.frameshiftValue
                         , strand: cds.strand
-                        , sequence: sequence
+                        , sequence: sequence1
                 )
 
                 Deletion deletion = new Deletion(
@@ -1080,11 +1093,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 deletion.save()
                 frameshift.save(flush: true)
 
-//                deletion.setFeatureLocation(frameshift.getCoordinate(),
-//                        frameshift.getCoordinate() + frameshift.getFrameshiftValue(),
-//                        cds.getFeatureLocation().getStrand(), sourceFeature);
-
-
             } else {
                 // a minus frameshift goes back bases during translation, which can be mapped to an insertion for the
                 // the repeated bases
@@ -1094,28 +1102,18 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         , isObsolete: false
                 ).save()
 
-//                Insertion insertion = new Insertion(cds.getOrganism(), "Insertion-" + frameshift.getCoordinate(), false,
-//                        false, new Timestamp(new Date().getTime()), cds.getConfiguration());
-
                 FeatureLocation featureLocation = new FeatureLocation(
                         fmin: frameshift.coordinate
                         , fmax: frameshift.coordinate + frameshift.frameshiftValue
                         , strand: cds.strand
-                        , sequence: sequence
+                        , sequence: sequence1
                 ).save()
 
                 insertion.addToFeatureLocations(featureLocation)
                 featureLocation.feature = insertion
 
-//                insertion.setFeatureLocation(frameshift.getCoordinate() + frameshift.getFrameshiftValue(),
-//                        frameshift.getCoordinate() + frameshift.getFrameshiftValue(),
-//                        cds.getFeatureLocation().getStrand(), sourceFeature);
-
-                String alterationResidues = sequenceService.getRawResiduesFromSequence(sequence, frameshift.getCoordinate() + frameshift.getFrameshiftValue(), frameshift.getCoordinate())
+                String alterationResidues = sequenceService.getRawResiduesFromSequence(sequence1, frameshift.getCoordinate() + frameshift.getFrameshiftValue(), frameshift.getCoordinate())
                 insertion.alterationResidue = alterationResidues
-                // TODO: correct?
-//                insertion.setResidues(sequence.getResidues().substring(
-//                        frameshift.getCoordinate() + frameshift.getFrameshiftValue(), frameshift.getCoordinate()));
                 frameshifts.add(insertion);
 
                 insertion.save()
