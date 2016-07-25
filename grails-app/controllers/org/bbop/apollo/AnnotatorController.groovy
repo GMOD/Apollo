@@ -146,7 +146,11 @@ class AnnotatorController {
     def updateFeature() {
         log.debug "updateFeature ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
+        Bookmark bookmark
+        try {
+            bookmark = permissionService.checkPermissions(data,PermissionEnum.WRITE)
+        } catch (e) {
+            log.error("Unauthorized: "+e)
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -162,11 +166,11 @@ class AnnotatorController {
         if (feature instanceof Gene) {
             List<Feature> childFeatures = feature.parentFeatureRelationships*.childFeature
             for (childFeature in childFeatures) {
-                JSONObject jsonFeature = featureService.convertFeatureToJSON(childFeature, false)
+                JSONObject jsonFeature = featureService.convertFeatureToJSON(childFeature, false,bookmark)
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
             }
         } else {
-            JSONObject jsonFeature = featureService.convertFeatureToJSON(feature, false)
+            JSONObject jsonFeature = featureService.convertFeatureToJSON(feature, false,bookmark)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
         }
 
@@ -195,7 +199,12 @@ class AnnotatorController {
     def updateFeatureLocation() {
         log.info "updateFeatureLocation ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
+        Bookmark bookmark
+
+        try {
+            bookmark = permissionService.checkPermissions(data,PermissionEnum.WRITE)
+        } catch (e) {
+            log.error("Failed to authorize: "+e)
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -211,7 +220,7 @@ class AnnotatorController {
         // need to grant the parent feature to force a redraw
         Feature parentFeature = featureRelationshipService.getParentForFeature(feature)
 
-        JSONObject jsonFeature = featureService.convertFeatureToJSON(parentFeature, false)
+        JSONObject jsonFeature = featureService.convertFeatureToJSON(parentFeature, false,bookmark)
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
 
@@ -226,7 +235,7 @@ class AnnotatorController {
         render updateFeatureContainer
     }
 
-    private JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
+    private static JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
         JSONObject jsonFeatureContainer = new JSONObject();
         JSONArray jsonFeatures = new JSONArray();
         jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures);

@@ -1716,7 +1716,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @return
      */
     @Timed
-    JSONObject convertFeatureToJSONLite(Feature gsolFeature, boolean includeSequence = false, int depth,Bookmark bookmark) {
+    JSONObject convertFeatureToJSONLite(Feature gsolFeature, boolean includeSequence , int depth,Bookmark bookmark) {
         JSONObject jsonFeature = new JSONObject();
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
@@ -1756,15 +1756,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         // TODO: see what intepretations in both the client and the server code do
         List<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations()?.sort(){ it.rank};
         if (featureLocations) {
-            if(featureLocations.size()==1){
-                jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(featureLocations.first()));
-            }
-            else{
+//            if(featureLocations.size()==1){
+//                jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(featureLocations.first()));
+//            }
+//            else{
                 jsonFeature.put(FeatureStringEnum.SEQUENCE.value, gsolFeature.sequenceNames);
 //            jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(gsolFeature.featureLocation));
-                bookmark = bookmark ?: bookmarkService.generateBookmarkForFeature(gsolFeature)
+//                bookmark = bookmark ?: bookmarkService.generateBookmarkForFeature(gsolFeature)
                 jsonFeature.put(FeatureStringEnum.LOCATION.value, createFeatureLocationJSONFromBookmark(gsolFeature,bookmark));
-            }
+//            }
         }
 
 
@@ -1824,13 +1824,18 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
     }
 
+
+    JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
+        return convertFeatureToJSON(gsolFeature,includeSequence,bookmarkService.generateBookmarkForFeature(gsolFeature))
+    }
+
     /**
      * @param gsolFeature
      * @param includeSequence
      * @return
      */
     @Timed
-    JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false,Bookmark bookmark = null ) {
+    JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false,Bookmark bookmark ) {
         JSONObject jsonFeature = new JSONObject();
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
@@ -1870,7 +1875,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
             for (Feature f : childFeatures) {
                 Feature childFeature = f
-                children.put(convertFeatureToJSON(childFeature, includeSequence));
+                children.put(convertFeatureToJSON(childFeature, includeSequence,bookmark));
             }
         }
 
@@ -1891,15 +1896,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         List<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations()?.sort(){ it.rank};
         if (featureLocations) {
-            if(featureLocations.size()==1){
-                jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(featureLocations.first()));
-            }
-            else{
+//            if(featureLocations.size()==1){
+//                jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(featureLocations.first()));
+//            }
+//            else{
                 // TODO: should probably move somewhere else, but the important part here is that it calculates a SINGLE location
                 // for the relevant bookmark
-                bookmark = bookmark ?: bookmarkService.generateBookmarkForFeature(gsolFeature)
                 jsonFeature.put(FeatureStringEnum.LOCATION.value,createFeatureLocationJSONFromBookmark(gsolFeature,bookmark))
-            }
+//            }
         }
 
         durationInMilliseconds = System.currentTimeMillis() - start;
@@ -2753,7 +2757,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     def changeAnnotationType(JSONObject inputObject, Feature feature, Bookmark bookmark, User user, String type) {
         String uniqueName = feature.uniqueName
         String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
-        JSONObject currentFeatureJsonObject = convertFeatureToJSON(feature)
+        JSONObject currentFeatureJsonObject = convertFeatureToJSON(feature,false,bookmark)
         Feature newFeature = null
 
         String topLevelFeatureType = null

@@ -214,7 +214,8 @@ class BookmarkService {
 
     @NotTransactional
     static Boolean isProjectionString(String inputString ){
-        return (inputString.startsWith("{") && inputString.contains(FeatureStringEnum.SEQUENCE_LIST.value))
+        return ( (inputString.startsWith("{") && inputString.contains(FeatureStringEnum.SEQUENCE_LIST.value)) || (inputString.startsWith("[") && inputString.endsWith("]")) )
+
     }
 
     /**

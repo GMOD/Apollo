@@ -87,27 +87,34 @@ class ExonService {
         featureRelationshipService.removeFeatureRelationship(transcript,exon)
 
 
+        int fmin = Integer.MAX_VALUE;
+        int fmax = Integer.MIN_VALUE;
+
         // update transcript boundaries if necessary
         if (exon.getFmin().equals(transcript.getFmin())) {
-            int fmin = Integer.MAX_VALUE;
             for (Exon e : transcriptService.getExons(transcript)) {
                 if (e.getFmin() < fmin) {
                     fmin = e.getFmin();
                 }
             }
-            transcriptService.setFmin(transcript,fmin);
+            if(fmin!=Integer.MAX_VALUE){
+                transcriptService.setFmin(transcript,fmin);
+            }
         }
         if (exon.getFmax().equals(transcript.getFmax())) {
-            int fmax = Integer.MIN_VALUE;
             for (Exon e : transcriptService.getExons(transcript)) {
                 if (e.getFmax() > fmax) {
                     fmax = e.getFmax();
                 }
             }
-            transcriptService.setFmax(transcript,fmax);
+            if(fmax!=Integer.MIN_VALUE) {
+                transcriptService.setFmax(transcript, fmax);
+            }
         }
         // update gene boundaries if necessary
-        transcriptService.updateGeneBoundaries(transcript);
+        if(fmax > fmin){
+            transcriptService.updateGeneBoundaries(transcript);
+        }
 
         exon.save(flush: true)
         exon.featureLocations.clear()

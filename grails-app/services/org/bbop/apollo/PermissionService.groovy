@@ -268,10 +268,17 @@ class PermissionService {
             if (BookmarkService.isProjectionString(inputObject.track.toString())) {
 //                JSONObject sequenceObject = inputObject.track
                 def track = inputObject.track
-                if (track instanceof String) {
+                if (track instanceof String && track.startsWith("{")) {
                     track = JSON.parse(inputObject.track) as JSONObject
                 }
+                else
+                if (track instanceof String && track.startsWith("[")) {
+                    track = new JSONObject()
+                    track.sequenceList = JSON.parse(inputObject.track as String) as JSONArray
+                }
+                else
                 if (track.sequenceList instanceof String) {
+                    track = (JSONObject) track
                     track.sequenceList  = JSON.parse(track.sequenceList) as JSONArray
                 }
                 track.sequenceList.each { it ->
@@ -389,8 +396,8 @@ class PermissionService {
         if (foundSequences) {
             Bookmark bookmark = null
             if (inputObject.track instanceof String) {
-                if (inputObject.track.startsWith("{")) {
-                    JSONArray sequenceListArray = (JSON.parse(inputObject.track) as JSONObject).sequenceList
+                if (inputObject.track.startsWith("{") || inputObject.track.startsWith("[")) {
+                    JSONArray sequenceListArray = inputObject.track.startsWith("{") ? (JSON.parse(inputObject.track) as JSONObject).sequenceList : (JSON.parse(inputObject.track) as JSONArray)
                     List<String> sequenceList = []
                     for (int i = 0; i < sequenceListArray.size(); i++) {
                         sequenceList << sequenceListArray.getJSONObject(i).name
@@ -400,7 +407,20 @@ class PermissionService {
                         bookmark = bookmarkService.generateBookmarkForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
                     }
                     println "bookmark sequence list ${bookmark} vs ${sequenceList} and ${inputObject as JSON}"
-                } else {
+                }
+                if (inputObject.track.startsWith("[")) {
+                    JSONArray sequenceListArray = (JSON.parse(inputObject.track) as JSONArray)
+                    List<String> sequenceList = []
+                    for (int i = 0; i < sequenceListArray.size(); i++) {
+                        sequenceList << sequenceListArray.getJSONObject(i).name
+                    }
+                    if (sequenceList) {
+                        def sequenceObjects = Sequence.findAllByNameInList(sequenceList)
+                        bookmark = bookmarkService.generateBookmarkForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
+                    }
+                    println "bookmark sequence list ${bookmark} vs ${sequenceList} and ${inputObject as JSON}"
+                }
+                else {
                     sequence = Sequence.findByName(inputObject.track)
                     if (sequence) {
                         bookmark = bookmarkService.generateBookmarkForSequence(sequence)

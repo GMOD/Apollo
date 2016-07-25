@@ -95,7 +95,7 @@ class RequestHandlingService {
             feature.symbol = symbolString
             feature.save(flush: true, failOnError: true)
 
-            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature,bookmark)
         }
 
         User user = permissionService.getCurrentUser(inputObject)
@@ -111,7 +111,7 @@ class RequestHandlingService {
     JSONObject setDescription(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        Bookmark bookmark =permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
@@ -122,21 +122,21 @@ class RequestHandlingService {
             feature.description = descriptionString
             feature.save(flush: true, failOnError: true)
 
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature,false,bookmark));
         }
 
         return updateFeatureContainer
     }
 
-    private JSONObject wrapFeature(JSONObject jsonObject, Feature feature) {
+    private JSONObject wrapFeature(JSONObject jsonObject, Feature feature,Bookmark bookmark) {
 
         // only pass in transcript
         if (feature instanceof Gene) {
             feature.parentFeatureRelationships.childFeature.each { childFeature ->
-                jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(childFeature));
+                jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(childFeature,false,bookmark));
             }
         } else {
-            jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+            jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature,false,bookmark));
         }
 
         return jsonObject
@@ -168,7 +168,7 @@ class RequestHandlingService {
             }
 
             feature.save(flush: true, failOnError: true)
-            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature,bookmark)
         }
 
         if (bookmark) {
@@ -219,7 +219,7 @@ class RequestHandlingService {
 
             oldDbXref.save(flush: true, failOnError: true)
 
-            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature,bookmark)
         }
 
         if (bookmark) {
@@ -256,7 +256,7 @@ class RequestHandlingService {
                 Comment comment = new Comment(value: commentString, feature: feature).save()
                 featurePropertyService.addComment(feature, comment)
             }
-            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature, bookmark)
 
         }
         if (bookmark) {
@@ -286,7 +286,7 @@ class RequestHandlingService {
                 String commentString = commentsArray.getString(commentIndex);
                 featurePropertyService.deleteComment(feature, commentString)
             }
-            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature, bookmark)
 
         }
         fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
@@ -314,7 +314,7 @@ class RequestHandlingService {
                 comment.value = newCommentString
                 comment.save()
             }
-            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature, bookmark)
 
         }
         fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
@@ -341,7 +341,7 @@ class RequestHandlingService {
                 feature.status = status
                 feature.save()
             }
-            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature, bookmark)
 
         }
         fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
@@ -364,7 +364,7 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(uniqueName)
             feature.status = null
             feature.save()
-            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature, bookmark)
 
         }
         fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
@@ -418,7 +418,7 @@ class RequestHandlingService {
             }
             feature.save(flush: true, failOnError: true)
 
-            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature, bookmark)
         }
 
         fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.ADD)
@@ -441,7 +441,7 @@ class RequestHandlingService {
 
             feature.save(flush: true, failOnError: true)
 
-            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature, bookmark)
         }
 
         fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
@@ -541,7 +541,7 @@ class RequestHandlingService {
 
         String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value);
         Transcript transcript = Transcript.findByUniqueName(uniqueName)
-        JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript)
+        JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript,false,bookmark)
 
 
         for (int i = 1; i < features.length(); ++i) {
@@ -571,7 +571,7 @@ class RequestHandlingService {
         transcript.save(flush: true)
 
         // TODO: one of these two versions . . .
-        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
+        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false,bookmark)
         JSONObject returnObject = createJSONFeatureContainer(newJsonObject)
 
 
@@ -628,7 +628,7 @@ class RequestHandlingService {
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
 
             if (!suppressHistory) {
-                def json = featureService.convertFeatureToJSON(transcript)
+                def json = featureService.convertFeatureToJSON(transcript,false,bookmark)
                 featureEventService.addNewFeatureEventWithUser(FeatureOperation.ADD_TRANSCRIPT, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, json, permissionService.getCurrentUser(inputObject))
                 transcriptJSONList += json
             }
@@ -682,13 +682,13 @@ class RequestHandlingService {
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
             transcriptsToUpdate.each {
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
             }
             fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
         }
 
         Gene gene = transcriptService.getGene(transcript)
-        JSONObject newJSONObject = featureService.convertFeatureToJSON(transcript, false)
+        JSONObject newJSONObject = featureService.convertFeatureToJSON(transcript, false,bookmark)
         featureEventService.addNewFeatureEvent(setStart ? FeatureOperation.SET_TRANSLATION_START : FeatureOperation.UNSET_TRANSLATION_START, gene.name, transcript.uniqueName, inputObject, transcriptJSONObject, newJSONObject, permissionService.getCurrentUser(inputObject))
         JSONObject featureContainer = createJSONFeatureContainer(newJSONObject);
 
@@ -731,13 +731,13 @@ class RequestHandlingService {
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
             transcriptsToUpdate.each {
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
             }
 
             fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
         }
 
-        JSONObject newJSONObject = featureService.convertFeatureToJSON(transcript, false)
+        JSONObject newJSONObject = featureService.convertFeatureToJSON(transcript, false,bookmark)
         featureEventService.addNewFeatureEvent(setEnd ? FeatureOperation.SET_TRANSLATION_END : FeatureOperation.UNSET_TRANSLATION_END, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, transcriptJSONObject, newJSONObject, permissionService.getCurrentUser(inputObject))
         JSONObject featureContainer = createJSONFeatureContainer(newJSONObject);
 
@@ -755,10 +755,10 @@ class RequestHandlingService {
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
-        JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript, false)
 
         boolean readThroughStopCodon = transcriptJSONObject.getBoolean(FeatureStringEnum.READTHROUGH_STOP_CODON.value);
         Bookmark bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript, false,bookmark)
         featureService.calculateCDS(transcript, readThroughStopCodon,bookmark);
 
         transcript.save(flush: true)
@@ -766,7 +766,7 @@ class RequestHandlingService {
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
             transcriptsToUpdate.each {
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
             }
             if (bookmark) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -778,9 +778,9 @@ class RequestHandlingService {
             }
         }
 
-        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false,bookmark));
 
-        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
+        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false,bookmark)
         featureEventService.addNewFeatureEvent(readThroughStopCodon ? FeatureOperation.SET_READTHROUGH_STOP_CODON : FeatureOperation.UNSET_READTHROUGH_STOP_CODON, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
 
         JSONObject returnObject = createJSONFeatureContainer(newJsonObject);
@@ -834,7 +834,7 @@ class RequestHandlingService {
             if (transcriptsToUpdate.size() > 0) {
                 JSONObject updateFeatureContainer = createJSONFeatureContainer()
                 transcriptsToUpdate.each {
-                    updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                    updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
                 }
                 if (bookmark) {
                     AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -846,7 +846,7 @@ class RequestHandlingService {
                 }
             }
 
-            JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
+            JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript,false,bookmark)
             transcriptArray.add(newJsonObject)
             featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
         }
@@ -895,12 +895,12 @@ class RequestHandlingService {
             if (transcriptsToUpdate.size() > 0) {
                 JSONObject updateFeatureContainer = createJSONFeatureContainer()
                 transcriptsToUpdate.each {
-                    updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                    updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
                 }
                 fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
             }
 
-            JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
+            JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript,false,bookmark)
             transcriptArray.add(newJsonObject)
             featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
         }
@@ -939,13 +939,13 @@ class RequestHandlingService {
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
             transcriptsToUpdate.each {
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
             }
 
             fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
         }
 
-        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false,bookmark));
 
         JSONArray returnArray = featureProjectionService.projectTrack(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), bookmark, false)
         featureContainer.put(FeatureStringEnum.FEATURES.value, returnArray)
@@ -990,7 +990,7 @@ class RequestHandlingService {
             Exon exon = Exon.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
 
             Transcript transcript = exonService.getTranscript(exon)
-            JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript)
+            JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript,false,bookmark)
 
 
             Integer transcriptFmin = transcript.fmin
@@ -1022,13 +1022,13 @@ class RequestHandlingService {
             if (transcriptsToUpdate.size() > 0) {
                 JSONObject updateFeatureContainer = createJSONFeatureContainer()
                 transcriptsToUpdate.each {
-                    updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                    updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
                 }
 
                 fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
             }
 
-            JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
+            JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false,bookmark)
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
             featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldTranscriptJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
         }
@@ -1054,7 +1054,7 @@ class RequestHandlingService {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         features = featureProjectionService.projectTrack(features, bookmark, true)
 
-        JSONObject returnObject = createJSONFeatureContainerFromFeatures()
+        JSONObject returnObject = createJSONFeatureContainerFromFeatures(bookmark)
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject oldJsonFeature = features.getJSONObject(i);
@@ -1075,7 +1075,7 @@ class RequestHandlingService {
             featureLocation.fmax = fmax
             feature.save()
 
-            JSONObject newJsonFeature = featureService.convertFeatureToJSON(feature, false)
+            JSONObject newJsonFeature = featureService.convertFeatureToJSON(feature, false,bookmark)
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonFeature);
             featureEventService.addNewFeatureEvent(FeatureOperation.SET_BOUNDARIES, feature.name, feature.uniqueName, inputObject, oldJsonFeature, newJsonFeature, permissionService.getCurrentUser(inputObject))
         }
@@ -1147,10 +1147,10 @@ class RequestHandlingService {
     }
 
     @Timed
-    private JSONObject createJSONFeatureContainerFromFeatures(Feature... features) throws JSONException {
+    private JSONObject createJSONFeatureContainerFromFeatures(Bookmark bookmark,Feature... features) throws JSONException {
         def jsonObjects = new ArrayList()
         for (Feature feature in features) {
-            JSONObject featureObject = featureService.convertFeatureToJSON(feature, false)
+            JSONObject featureObject = featureService.convertFeatureToJSON(feature, false,bookmark)
             jsonObjects.add(featureObject)
         }
         return createJSONFeatureContainer(jsonObjects as JSONObject[])
@@ -1178,7 +1178,7 @@ class RequestHandlingService {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = SequenceAlteration.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
             FeatureLocation sequenceAlterationFeatureLocation = sequenceAlteration.firstFeatureLocation
-            deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
+            deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true,bookmark));
             FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
             sequenceAlteration.delete()
 
@@ -1187,7 +1187,7 @@ class RequestHandlingService {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                         featureService.setLongestORF(transcript,false,projectionService.getProjection(bookmark))
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
-                        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, true));
+                        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, true,bookmark));
                     }
                     feature.save()
                 }
@@ -1263,11 +1263,11 @@ class RequestHandlingService {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                         featureService.setLongestORF(transcript,false,projectionService.getProjection(bookmark))
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
-                        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
+                        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false,bookmark));
                     }
                 }
             }
-            addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
+            addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true,bookmark));
         }
 
         AnnotationEvent addAnnotationEvent = new AnnotationEvent(
@@ -1303,7 +1303,7 @@ class RequestHandlingService {
                 String value = property.getString(FeatureStringEnum.VALUE.value)
                 featureService.addNonReservedProperties(feature, tag, value)
             }
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature,false,bookmark));
         }
 
 //        AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -1344,7 +1344,7 @@ class RequestHandlingService {
                     log.error "Could not find feature property to delete ${property as JSON}"
                 }
             }
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature,false,bookmark));
         }
 
         return updateFeatureContainer
@@ -1377,7 +1377,7 @@ class RequestHandlingService {
                     log.error("No feature property found for tag ${oldTag} and value ${oldValue} for feature ${feature}")
                 }
             }
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature,false,bookmark));
 
         }
 //        fireDataStoreChange(updateFeatureContainer, track, Operation.UPDATE);
@@ -1400,7 +1400,7 @@ class RequestHandlingService {
                 ).save()
                 feature.addToFeatureProperties(featureProperty)
                 feature.save()
-                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
+                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false,bookmark));
             }
         }
 
@@ -1430,7 +1430,7 @@ class RequestHandlingService {
                 feature.removeFromFeatureProperties(featureProperty)
                 feature.save()
                 FeatureProperty.deleteAll(featureProperty)
-                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature,false,bookmark));
             } else {
                 log.error("Feature ${feature.name} was not locked.  Doing nothing.")
             }
@@ -1461,21 +1461,21 @@ class RequestHandlingService {
                 feature = transcriptService.flipTranscriptStrand((Transcript) feature,bookmark);
                 featureService.setLongestORF((Transcript) feature,false,projectionService.getProjection(bookmark))
                 nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites((Transcript) feature,bookmark)
-                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON((Transcript) feature), permissionService.getCurrentUser(inputObject))
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON((Transcript) feature,false,bookmark), permissionService.getCurrentUser(inputObject))
                 def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(feature)
                 if (transcriptsToUpdate.size() > 0) {
                     JSONObject updateFeatureContainer = createJSONFeatureContainer()
                     transcriptsToUpdate.each {
-                        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
                     }
 
                     fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
                 }
             } else {
                 feature = featureService.flipStrand(feature)
-                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, feature.name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON(feature), permissionService.getCurrentUser(inputObject))
+                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, feature.name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON(feature,false,bookmark), permissionService.getCurrentUser(inputObject))
             }
-            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
+            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false,bookmark));
         }
 
         JSONArray jsonArray = featureProjectionService.projectTrack(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), bookmark, false)
@@ -1500,7 +1500,7 @@ class RequestHandlingService {
         Exon exon1 = (Exon) Exon.findByUniqueName(features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value));
         Exon exon2 = (Exon) Exon.findByUniqueName(features.getJSONObject(1).getString(FeatureStringEnum.UNIQUENAME.value));
         Transcript transcript1 = exonService.getTranscript(exon1)
-        JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript1)
+        JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript1,false,bookmark)
         exonService.mergeExons(exon1, exon2,bookmark)
         featureService.calculateCDS(transcript1,false,bookmark);
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1,bookmark);
@@ -1512,12 +1512,12 @@ class RequestHandlingService {
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
             transcriptsToUpdate.each {
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
             }
             fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
         }
 
-        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript1)
+        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript1,false,bookmark)
         JSONObject featureContainer = createJSONFeatureContainer(newJsonObject)
 
         featureEventService.addNewFeatureEvent(FeatureOperation.MERGE_EXONS, transcriptService.getGene(transcript1).name, transcript1.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
@@ -1541,7 +1541,7 @@ class RequestHandlingService {
         Exon exon = (Exon) Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
         JSONObject exonLocation = jsonExon.getJSONObject(FeatureStringEnum.LOCATION.value);
         Transcript transcript = exonService.getTranscript(exon)
-        JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript)
+        JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript,false,bookmark)
 
 
         Exon splitExon = exonService.splitExon(exon, exonLocation.getInt(FeatureStringEnum.FMAX.value), exonLocation.getInt(FeatureStringEnum.FMIN.value),bookmark)
@@ -1556,13 +1556,13 @@ class RequestHandlingService {
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
             transcriptsToUpdate.each {
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
             }
 
             fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
         }
 
-        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
+        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript,false,bookmark)
         JSONObject featureContainer = createJSONFeatureContainer(newJsonObject);
 
         featureEventService.addNewFeatureEvent(FeatureOperation.SPLIT_EXON, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
@@ -1604,13 +1604,13 @@ class RequestHandlingService {
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
             transcriptsToUpdate.each {
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
             }
             fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
         }
 
         Feature topLevelFeature = featureService.getTopLevelFeature(transcript)
-        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topLevelFeature))
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topLevelFeature,false,bookmark))
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
@@ -1654,7 +1654,7 @@ class RequestHandlingService {
                     // adding jsonGene to each individual transcript
                     transcriptJsonFeature.put(FeatureStringEnum.PARENT.value, jsonGene)
                     Feature newFeature = featureService.addFeature(transcriptJsonFeature, bookmark, user, suppressHistory)
-                    JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
+                    JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature,false,bookmark)
                     JSONObject jsonObject = newFeatureJsonObject
 
                     if (!suppressHistory) {
@@ -1666,7 +1666,7 @@ class RequestHandlingService {
             else {
                 // jsonFeature is of type *RNA, transposable_element or repeat_region
                 Feature newFeature = featureService.addFeature(jsonFeature, bookmark, user, suppressHistory)
-                JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
+                JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature,false,bookmark)
                 log.debug "newFeatureJsonObject: ${newFeatureJsonObject.toString()}"
                 JSONObject jsonObject = newFeatureJsonObject
 //            Feature newFeature = featureService.addFeature(jsonFeature, bookmark, user, suppressHistory)
@@ -1749,11 +1749,11 @@ class RequestHandlingService {
                     Transcript transcript = exonService.getTranscript((Exon) feature)
                     // if its the same transcript, we don't want to overwrite it
                     if (!oldFeatureMap.containsKey(transcript.uniqueName)) {
-                        oldFeatureMap.put(transcript.uniqueName, featureService.convertFeatureToJSON(transcript))
+                        oldFeatureMap.put(transcript.uniqueName, featureService.convertFeatureToJSON(transcript,false,bookmark))
                     }
                 } else {
                     if (!oldFeatureMap.containsKey(feature.uniqueName)) {
-                        oldFeatureMap.put(feature.uniqueName, featureService.convertFeatureToJSON(feature))
+                        oldFeatureMap.put(feature.uniqueName, featureService.convertFeatureToJSON(feature,false,bookmark))
                     }
                 }
                 //oldJsonObjectsArray.add(featureService.convertFeatureToJSON(feature))
@@ -1785,7 +1785,7 @@ class RequestHandlingService {
                 log.debug "is not update operation "
                 // when the line below is used, the client gives an error saying TypeError: Cannot read property 'fmin' of undefined(…)
                 // featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(new JSONObject().put(FeatureStringEnum.UNIQUENAME.value, uniqueName));
-                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature,false,bookmark))
                 if (feature instanceof Transcript) {
                     Transcript transcript = (Transcript) feature;
                     Gene gene = transcriptService.getGene(transcript)
@@ -1867,7 +1867,7 @@ class RequestHandlingService {
                     if (transcriptsToUpdate.size() > 0) {
                         JSONObject updateFeatureContainer = createJSONFeatureContainer()
                         transcriptsToUpdate.each {
-                            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
                         }
                         fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
                     }
@@ -1880,7 +1880,7 @@ class RequestHandlingService {
                     featureName = feature.name
                 }
 
-                JSONObject newJsonObject = featureService.convertFeatureToJSON(feature)
+                JSONObject newJsonObject = featureService.convertFeatureToJSON(feature,false,bookmark)
                 featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
 
 
@@ -1918,7 +1918,7 @@ class RequestHandlingService {
         JSONObject jsonExon = featuresArray.getJSONObject(0)
         Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value))
         Transcript transcript = exonService.getTranscript(exon)
-        JSONObject oldJsonTranscript = featureService.convertFeatureToJSON(transcript)
+        JSONObject oldJsonTranscript = featureService.convertFeatureToJSON(transcript,false,bookmark)
         JSONObject exonLocation = jsonExon.getJSONObject(FeatureStringEnum.LOCATION.value)
 
         Exon splitExon = exonService.makeIntron(
@@ -1945,12 +1945,12 @@ class RequestHandlingService {
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
             transcriptsToUpdate.each {
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it,false,bookmark))
             }
             fireEvent(bookmark, updateFeatureContainer, AnnotationEvent.Operation.UPDATE)
         }
 
-        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
+        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript,false,bookmark)
         JSONObject featureContainer = createJSONFeatureContainer(newJsonObject)
 
         featureEventService.addNewFeatureEvent(FeatureOperation.SPLIT_EXON, transcriptService.getGene(transcript).name, transcript.uniqueName, inputObject, oldJsonTranscript, newJsonObject, permissionService.getCurrentUser(inputObject))
@@ -2005,23 +2005,23 @@ class RequestHandlingService {
         Gene updatedGene1 = transcriptService.getGene(transcript1)
         Gene updatedGene2 = transcriptService.getGene(transcript2)
         for (Transcript t : transcriptService.getTranscripts(updatedGene1)) {
-            updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
+            updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t,false,bookmark));
         }
 
         if (updatedGene1.uniqueName != updatedGene2.uniqueName) {
             for (Transcript t : transcriptService.getTranscripts(updatedGene2)) {
-                updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
+                updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t,false,bookmark));
             }
         }
 
         // returnContainer for return object
         Feature topLevelExonFeature = featureService.getTopLevelFeature(transcript1)
-        JSONObject returnContainer = createJSONFeatureContainerFromFeatures(topLevelExonFeature)
+        JSONObject returnContainer = createJSONFeatureContainerFromFeatures(bookmark,topLevelExonFeature)
 
         // features to add to history
         JSONObject featureForHistory = createJSONFeatureContainer()
-        featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript1))
-        featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript2))
+        featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript1,false,bookmark))
+        featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript2,false,bookmark))
 
         // add history for transcript1 and transcript2
         Boolean suppressHistory = inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value) ? inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value) : false
@@ -2030,7 +2030,7 @@ class RequestHandlingService {
                 featureEventService.addSplitFeatureEvent(updatedGene1.name, transcript1.uniqueName
                         , updatedGene2.name, transcript2.uniqueName
                         , inputObject
-                        , featureService.convertFeatureToJSON(transcript1)
+                        , featureService.convertFeatureToJSON(transcript1,false,bookmark)
                         , featureForHistory.getJSONArray(FeatureStringEnum.FEATURES.value)
                         , permissionService.getCurrentUser(inputObject)
                 )
@@ -2106,7 +2106,7 @@ class RequestHandlingService {
         Gene mergedTranscriptGene = transcriptService.getGene(transcript1)
         transcript1.name = transcript1.name ?: nameService.generateUniqueName(transcript1)
 
-        JSONObject returnObject = createJSONFeatureContainerFromFeatures(featureService.getTopLevelFeature(transcript1))
+        JSONObject returnObject = createJSONFeatureContainerFromFeatures(bookmark,featureService.getTopLevelFeature(transcript1))
 
         // update feature container for update annotation event for transcripts of gene1
         JSONObject updateFeatureContainer = createJSONFeatureContainer()
@@ -2175,7 +2175,7 @@ class RequestHandlingService {
         duplicateTranscript.save()
         Feature topFeature = featureService.getTopLevelFeature(transcript)
         topFeature.save()
-        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topFeature))
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topFeature,false,bookmark))
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
@@ -2232,7 +2232,7 @@ class RequestHandlingService {
             String uniqueName = features.get(i).uniquename
             Feature feature = Feature.findByUniqueName(uniqueName)
             FeatureEvent currentFeatureEvent = featureEventService.findCurrentFeatureEvent(feature.uniqueName).get(0)
-            JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature,false,bookmark)
             JSONObject originalFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
             String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
 
@@ -2243,7 +2243,7 @@ class RequestHandlingService {
             } else {
                 log.info "Changing ${uniqueName} from ${originalType} to ${type}"
                 Feature newFeature = featureService.changeAnnotationType(inputObject, feature, bookmark, user, type)
-                JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
+                JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature,false,bookmark)
                 log.debug "New feature json object: ${newFeatureJsonObject.toString()}"
                 JSONArray oldFeatureJsonArray = new JSONArray()
                 JSONArray newFeatureJsonArray = new JSONArray()

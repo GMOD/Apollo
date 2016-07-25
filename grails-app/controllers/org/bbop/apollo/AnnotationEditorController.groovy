@@ -484,7 +484,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in (:sequence) and f.class in :sequenceTypes"
                 , [sequence: sequences, sequenceTypes: requestHandlingService.viewableAlterations])
         for (SequenceAlteration alteration : sequenceAlterationList) {
-            jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true));
+            jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true,bookmark));
         }
 
         render returnObject
