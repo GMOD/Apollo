@@ -365,6 +365,14 @@ class TranscriptService {
         return (Transcript) featureRelationshipService.getParentForFeature(feature, ontologyIds as String[])
     }
 
+    /**
+     * Splits transcripts between two exons.
+     * @param transcript
+     * @param leftExon
+     * @param rightExon
+     * @param bookmark
+     * @return
+     */
     @Transactional
     Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon,Bookmark bookmark) {
         List<Exon> exons = getSortedExons(transcript,true,bookmark)
@@ -374,6 +382,7 @@ class TranscriptService {
         splitTranscript.save()
 
         // copying featureLocation of transcript to splitTranscript
+        // if they are to the RIGHT of leftExon
         transcript.featureLocations.each { featureLocation ->
             FeatureLocation newFeatureLocation = new FeatureLocation(
                     fmin: featureLocation.fmin
@@ -399,47 +408,43 @@ class TranscriptService {
             splitTranscriptGene.addToOwners(it)
         }
 
-        FeatureLocation splitTranscriptGeneFeatureLocation = new FeatureLocation(
-                feature: splitTranscriptGene,
-                fmin: splitTranscript.fmin,
-                fmax: splitTranscript.fmax,
-                strand: splitTranscript.strand,
-                sequence: splitTranscript.featureLocation.sequence,
-                residueInfo: splitTranscript.featureLocation.residueInfo,
-                locgroup: splitTranscript.featureLocation.locgroup,
-                rank: splitTranscript.featureLocation.rank
-        ).save(flush: true)
+        splitTranscript.featureLocations.each { featureLocation ->
+            FeatureLocation splitTranscriptGeneFeatureLocation = new FeatureLocation(
+                    feature: splitTranscriptGene,
+                    fmin: splitTranscript.fmin,
+                    fmax: splitTranscript.fmax,
+                    strand: splitTranscript.strand,
+                    sequence: featureLocation.sequence,
+                    residueInfo: featureLocation.residueInfo,
+                    locgroup: featureLocation.locgroup,
+                    rank: featureLocation.rank
+            ).save(flush: true)
 
-        splitTranscriptGene.addToFeatureLocations(splitTranscriptGeneFeatureLocation)
+            splitTranscriptGene.addToFeatureLocations(splitTranscriptGeneFeatureLocation)
+        }
+
         splitTranscript.name = nameService.generateUniqueName(splitTranscript, splitTranscriptGene.name)
         featureService.addTranscriptToGene(splitTranscriptGene, splitTranscript,bookmark)
 
-        FeatureLocation transcriptFeatureLocation = transcript.featureLocation
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
 
         // changing feature location of transcript to the fmax of the left exon
-        transcriptFeatureLocation.fmax = leftExon.fmax
-        FeatureLocation splitFeatureLocation = splitTranscript.featureLocation
-        log.debug "right1: ${rightExon.featureLocation}"
+        featureService.setFmax(transcript,leftExon.fmax,multiSequenceProjection)
 
         // changing feature location of splitTranscript to the fmin of the right exon
-        splitFeatureLocation.fmin = rightExon.featureLocation.fmin
-        log.debug "right2: ${rightExon.featureLocation}"
+        featureService.setFmin(splitTranscript,rightExon.fmin,multiSequenceProjection)
+//        log.debug "right2: ${rightExon.featureLocation}"
         for (Exon exon : exons) {
             // starting with rightExon and all right flanking exons to splitTranscript
-            FeatureLocation exonFeatureLocation = exon.featureLocation
-            FeatureLocation leftFeatureLocation = leftExon.featureLocation
-            if (exonFeatureLocation.fmin > leftFeatureLocation.getFmin()) {
-                log.debug "right3: ${rightExon.featureLocation}"
-//                featureRelationshipService.removeFeatureRelationship()
-//                exonService.deleteExon(transcript, exon);
-                if (exon.equals(rightExon)) {
-                    featureRelationshipService.removeFeatureRelationship(transcript, rightExon)
-                    log.debug "right4: ${rightExon.featureLocation}"
-                    addExon(splitTranscript, rightExon, true,bookmark);
-                } else {
-                    featureRelationshipService.removeFeatureRelationship(transcript, exon)
-                    log.debug "right5: ${rightExon.featureLocation}"
-                    addExon(splitTranscript, exon, true,bookmark);
+            exon.featureLocations.each { exonFeatureLocation ->
+                if (exonFeatureLocation.fmin > leftExon.getFmin()) {
+                    if (exon.equals(rightExon)) {
+                        featureRelationshipService.removeFeatureRelationship(transcript, rightExon)
+                        addExon(splitTranscript, rightExon, true,bookmark);
+                    } else {
+                        featureRelationshipService.removeFeatureRelationship(transcript, exon)
+                        addExon(splitTranscript, exon, true,bookmark);
+                    }
                 }
             }
         }

@@ -119,23 +119,6 @@ class Feature implements Ontological{
 
 
 
-    /**
-     * @deprecated  Always use a MultisequenceProjection to determine the correct FeatureLocation.
-     *
-     * Convenience method for retrieving the location.  Assumes that it only contains a single
-     *  location so it returns the first (and hopefully only) location from the collection of
-     *  locations.  Returns <code>null</code> if none are found.
-     *
-     * @return FeatureLocation of this object
-     */
-    public FeatureLocation getFeatureLocation() {
-        if(featureLocations.size()!=1){
-            throw new AnnotationException("Can not use this method if there are not a single feature location for this feature ${name} -> ${uniqueName}")
-        }
-        List<FeatureLocation> locs = getFeatureLocations().sort(){ it?.rank ?: it.fmin ?: it.length };
-        return locs ? locs.first() : null
-    }
-
     public FeatureLocation getFirstFeatureLocation() {
         List<FeatureLocation> locs = getFeatureLocations().sort(){ it?.rank ?: it.fmin ?: it.length };
         return locs ? locs.first() : null
