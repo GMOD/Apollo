@@ -1137,6 +1137,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 int deletionLength = jsonFeature.location.fmax - jsonFeature.location.fmin
                 gsolFeature.deletionLength = deletionLength
             }
+            if (gsolFeature instanceof SNV) {
+                gsolFeature.referenceBase = jsonFeature.getString("referenceBase")
+                gsolFeature.alternateBase = jsonFeature.getString("alternateBase")
+            }
 
             gsolFeature.save(failOnError: true)
 
@@ -1605,6 +1609,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      */
     @Timed
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
+
         JSONObject jsonFeature = new JSONObject();
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
@@ -1694,6 +1699,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         durationInMilliseconds = System.currentTimeMillis() - start;
         //log.debug "featloc ${durationInMilliseconds}"
 
+        if (gsolFeature instanceof SNV) {
+            SNV snv = (SNV) gsolFeature
+            jsonFeature.put("referenceBase", snv.referenceBase)
+            jsonFeature.put("alternateBase", snv.alternateBase)
+        }
 
         if (gsolFeature instanceof SequenceAlteration) {
             SequenceAlteration sequenceAlteration = (SequenceAlteration) gsolFeature
@@ -1773,7 +1783,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (ontologyId == null) return null;
         JSONObject jsonObject = new JSONObject();
         def feature = generateFeatureForType(ontologyId)
-        String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
+
+        String cvTerm
+        if (feature instanceof SNV) {
+            cvTerm = feature.cvTerm
+        }
+        else {
+            cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
+        }
 
         jsonObject.put(FeatureStringEnum.NAME.value, cvTerm)
 

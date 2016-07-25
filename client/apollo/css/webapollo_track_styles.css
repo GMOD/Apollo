@@ -493,6 +493,17 @@ div.annot-sequence  {
     z-index: 20;  
 }
 
+.Apollo .sequence-alteration.SNV,
+.Apollo .sequence-alteration.plus-SNV,
+.Apollo .sequence-alteration.minus-SNV {
+    border-style: solid;
+    border-color: #CC564B;
+    border-width: 1px;
+    height: 100%;
+    background-color: #FF7062;
+    z-index: 20;
+}
+
 .Apollo .sequence-alteration.substitution, 
 .Apollo .sequence-alteration.plus-substitution,
 .Apollo .sequence-alteration.minus-substitution {

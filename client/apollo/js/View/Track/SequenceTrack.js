@@ -555,6 +555,19 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     featDiv.appendChild(container);
                 }
             }
+            else if ((ftype == "SNV")) {
+                if ( scale == charSize.width ) {
+                    var container = document.createElement("div");
+                    var residues = feature.get("alternateBase");
+                    $(container).addClass("dna-residues");
+                    container.appendChild(document.createTextNode( residues ));
+                    container.style.position = "absolute";
+                    container.style.top = "-16px";
+                    container.style.border = "1px solid black";
+                    container.style.backgroundColor = "#FF7062";
+                    featDiv.appendChild(container);
+                }
+            }
         }
         seqNode.appendChild(featDiv);
         return featDiv;
@@ -758,6 +771,15 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     }
                 } ));
                 thisObj.residuesMenuItems["create_substitution"] = index++;
+
+                thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
+                    label: "Create Single Nucleotide Variant (SNV)",
+                    onClick: function(event) {
+                        thisObj.freezeHighlightedBases = true;
+                        thisObj.createSingleNucleotideVariant();
+                    }
+                } ));
+                thisObj.residuesMenuItems["create_snv"] = index++;
         }
 
         thisObj.residues_context_menu.onOpen = function(event) {
@@ -807,6 +829,12 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
         var content = this.createAddSequenceAlterationPanel("substitution", gcoord);
         this.annotTrack.openDialog("Add Substitution", content);
+    },
+
+    createSingleNucleotideVariant: function() {
+        var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
+        var content = this.createAddSingleNucleotideVariantPanel("snv", gcoord);
+        this.annotTrack.openDialog("Add SNV", content);
     },
 
     deleteSelectedFeatures: function()  {
@@ -1094,6 +1122,92 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
         return content;
     },
+
+    createAddSingleNucleotideVariantPanel: function(type, gcoord) {
+            var track = this;
+            var content = dojo.create("div");
+
+            if (type == "snv") {
+                var referenceNucleotideDiv = dojo.create("div", { }, content);
+                var referenceNucleotideLabel = dojo.create("label", { innerHTML: "reference base (+) ", className: "snv_reference_base_label"}, referenceNucleotideDiv);
+                var referenceNucleotideField = dojo.create("input", { type: "text", size: 15, className: "snv_reference_base_field"}, referenceNucleotideDiv);
+                var alternateNucleotideDiv = dojo.create("div", { }, content);
+                var alternateNucleotideLabel = dojo.create("label", { innerHTML: "alternate base (+) ", className: "snv_alternate_base_label"}, alternateNucleotideDiv);
+                var alternateNucleotideField = dojo.create("input", { type: "text", size: 15, className: "snv_alternate_base_field"}, alternateNucleotideDiv);
+            }
+
+            $(referenceNucleotideField).keydown(function(e) {
+                var unicode = e.charCode || e.keyCode;
+                var newchar = String.fromCharCode(unicode);
+                var isBackspace = (unicode == 8);
+                if (!newchar.match(/[acgtnACGTN]/) && !isBackspace) {
+                    return false;
+                }
+            });
+
+            $(alternateNucleotideField).keydown(function(e) {
+                var unicode = e.charCode || e.keyCode;
+                var newchar = String.fromCharCode(unicode);
+                var isBackspace = (unicode == 8);
+                if (!newchar.match(/[acgtnACGTN]/) && !isBackspace) {
+                    return false;
+                }
+            });
+
+            var buttonDiv = dojo.create("div", { className: "add_snv_button_div" }, content);
+            var addButton = dojo.create("button", { innerHTML: "Add", className: "add_snv_button" }, buttonDiv);
+
+            var addSingleNucleotideVariant = function() {
+                var ok = true;
+                var referenceBase = referenceNucleotideField.value;
+                var alternateBase = alternateNucleotideField.value;
+                // TODO: replace all alert calls with ConfirmDialog
+                if(referenceBase.length == 0) {
+                    alert("reference base field cannot be empty");
+                    ok = false;
+                }
+                if (alternateBase.length == 0) {
+                    alert("alternate base field cannot be empty");
+                    ok = false;
+                }
+
+                if (ok) {
+                    var referenceBaseString = referenceBase.toUpperCase();
+                    var alternateBaseString = alternateBase.toUpperCase();
+                    var fmin = gcoord;
+                    var fmax = gcoord + referenceBaseString.length;
+                    // TODO: Standardize the JSON Object similar to GA4GH
+                    var features = [{
+                        location: {
+                            fmin: fmin,
+                            fmax: fmax,
+                            strand: 1
+                        },
+                        type: {
+                            name: type,
+                            cv: {
+                                name: "sequence"
+                            }
+                        },
+                        referenceBase: referenceBaseString,
+                        alternateBase: alternateBaseString
+                    }];
+                    var postData = {
+                        track: track.annotTrack.getUniqueTrackName(),
+                        features: features,
+                        operation: "add_single_nucleotide_variant"
+                    };
+                    track.annotTrack.executeUpdateOperation(JSON.stringify(postData));
+                    track.annotTrack.closeDialog();
+                }
+            };
+
+            dojo.connect(addButton, "onclick", null, function() {
+                addSingleNucleotideVariant();
+            });
+
+            return content;
+        },
 
     handleError: function(response) {
         console.log("ERROR: ");

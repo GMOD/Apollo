@@ -66,7 +66,8 @@ class RequestHandlingService {
     public static final List<String> viewableAlterations = [
             Deletion.class.name,
             Insertion.class.name,
-            Substitution.class.name
+            Substitution.class.name,
+            SNV.class.name
     ]
 
     public static final List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
@@ -2302,7 +2303,7 @@ class RequestHandlingService {
                 features: addFeatureContainer,
                 sequence: sequence,
                 operation: AnnotationEvent.Operation.ADD,
-                sequenceAlterationEvent: false
+                sequenceAlterationEvent: true
         )
         fireAnnotationEvent(addAnnotationEvent)
         return addFeatureContainer

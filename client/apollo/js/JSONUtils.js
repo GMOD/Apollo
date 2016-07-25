@@ -183,26 +183,42 @@ JSONUtils.makeSimpleFeature = function(feature, parent)  {
 JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
     var loc = afeature.location; 
     var uid = afeature.uniquename;
+
     var justification;
     for (var i = 0; i < afeature.properties.length; i++) {
         if (afeature.properties[i].type.name === "justification") {
             justification = afeature.properties[i].value;
         }
     }
-
-    return new SimpleFeature({
-        data: {
-            start:    loc.fmin,
-            end:      loc.fmax,
-            strand:   loc.strand,
-            id:       uid,
-            type:     afeature.type.name,
-            residues: afeature.residues,
-            seq:      afeature.residues,
-            justification: justification
-        },
-        id: uid
-    });
+    if (afeature.type.name === "SNV") {
+        return new SimpleFeature({
+           data: {
+               start:           loc.fmin,
+               end:             loc.fmax,
+               strand:          loc.strand,
+               id:              uid,
+               type:            afeature.type.name,
+               referenceBase:   afeature.referenceBase,
+               alternateBase:   afeature.alternateBase
+           },
+           id: uid
+        });
+    }
+    else {
+        return new SimpleFeature({
+            data: {
+                start:    loc.fmin,
+                end:      loc.fmax,
+                strand:   loc.strand,
+                id:       uid,
+                type:     afeature.type.name,
+                residues: afeature.residues,
+                seq:      afeature.residues,
+                justification: justification
+            },
+            id: uid
+        });
+    }
 };
 
 
