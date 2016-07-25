@@ -2067,9 +2067,6 @@ class RequestHandlingService {
             throw new AnnotationException("You cannot merge transcripts on opposite strands");
         }
 
-//        List<Transcript> sortedTranscripts = transcriptService.sortFeatures(transcript1,transcript2,bookmark)
-//        List<Transcript> sortedTranscripts = Collections.sort([transcript1,transcript2],new FeaturePositionComparator<Transcript>(false,sequenceList))
-
         List<Transcript> sortedTranscripts = [transcript1, transcript2].sort { a, b ->
             a.fmin <=> b.fmin
         }
@@ -2117,8 +2114,10 @@ class RequestHandlingService {
         for (Transcript transcript : transcriptService.getTranscripts(gene1)) {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false,bookmark));
         }
-        for (Transcript transcript : transcriptService.getTranscripts(mergedTranscriptGene)) {
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false,bookmark));
+        if(mergedTranscriptGene && mergedTranscriptGene!=gene1){
+            for (Transcript transcript : transcriptService.getTranscripts(mergedTranscriptGene)) {
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false,bookmark));
+            }
         }
 
         // delete feature container for delete annotation event
