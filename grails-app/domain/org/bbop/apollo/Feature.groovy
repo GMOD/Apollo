@@ -161,6 +161,9 @@ class Feature implements Ontological{
      * @return
      */
     public Integer getFmin(){
+        if(!featureLocations){
+            throw new Exception("No feature locations exist for feature")
+        }
         featureLocations.sort(){ it.rank }.first().fmin
     }
 

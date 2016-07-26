@@ -35,7 +35,6 @@ import org.gwtbootstrap3.client.ui.Anchor;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
-import org.gwtbootstrap3.client.ui.html.Div;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
@@ -179,7 +178,7 @@ public class MainPanel extends Composite {
                         start -= newLength * GENE_VIEW_BUFFER;
                         end += newLength * GENE_VIEW_BUFFER;
                         start = start < 0 ? 0 : start;
-                        updateGenomicViewerForLocation(annotationInfo.getSequence(), start, end);
+                        updateGenomicViewerForBookmark(annotationInfo.getSequence(), start, end);
                         break;
                 }
             }
@@ -442,8 +441,8 @@ public class MainPanel extends Composite {
                 displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
     }
 
-    public static void updateGenomicViewerForLocation(String selectedSequence, Long minRegion, Long maxRegion) {
-        updateGenomicViewerForLocation(selectedSequence, minRegion, maxRegion, false);
+    public static void updateGenomicViewerForBookmark(String selectedSequence, Long minRegion, Long maxRegion) {
+        updateGenomicViewerForBookmark(selectedSequence, minRegion, maxRegion, false);
     }
 
     /**
@@ -478,12 +477,11 @@ public class MainPanel extends Composite {
     }
 
     /**
-     * @deprecated
      * @param bookmarkInfo
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForLocation(BookmarkInfo bookmarkInfo, Long minRegion, Long maxRegion, Boolean forceReload) {
+    public static void updateGenomicViewerForBookmark(BookmarkInfo bookmarkInfo, Long minRegion, Long maxRegion, Boolean forceReload) {
 
         if (!forceReload && currentBookmark != null && currentBookmark.getName().equals(bookmarkInfo.getName()) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
             long oldLength = maxRegion - minRegion;
@@ -506,10 +504,9 @@ public class MainPanel extends Composite {
         trackListString += URL.encodeQueryString(BookmarkInfoConverter.convertBookmarkInfoToJSONObject(currentBookmark).toString());
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
         trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
+        trackListString += getCurrentQueryParamsAsString();
 
-        final String finalString = trackListString;
-
-        frame.setUrl(finalString);
+        frame.setUrl(trackListString);
     }
 
 
@@ -518,59 +515,21 @@ public class MainPanel extends Composite {
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForLocation(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload) {
+    public static void updateGenomicViewerForBookmark(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload) {
 
-        if (!forceReload && currentBookmark != null && currentBookmark.getSequenceList().toString().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
-            long oldLength = maxRegion - minRegion;
-            double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
-            double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) oldLength;
-            if (diff1 < UPDATE_DIFFERENCE_BUFFER && diff2 < UPDATE_DIFFERENCE_BUFFER) {
-                return;
-            }
-        }
-
-        currentStartBp = minRegion;
-        currentEndBp = maxRegion;
-
-
-        String trackListString = Annotator.getRootUrl() + Annotator.getClientToken() +"/jbrowse/index.html?loc=";
-        GWT.log("SELECTED Sequence: "+selectedSequence);
+        BookmarkInfo bookmarkInfo ;
         if (selectedSequence.startsWith("{")) {
             GWT.log("calling string instead of bookmark for selected sequence");
-            currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
-            if (selectedSequence.contains("feature")) {
-                minRegion = currentBookmark.getStart();
-                maxRegion = currentBookmark.getEnd();
-            }
-            trackListString += URL.encodeQueryString(selectedSequence);
-            trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
-            trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
+            bookmarkInfo = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
         } else {
-            BookmarkInfo bookmark = new BookmarkInfo();
+            bookmarkInfo = new BookmarkInfo();
             BookmarkSequenceList bookmarkSequenceList = new BookmarkSequenceList();
             BookmarkSequence bookmarkSequence = new BookmarkSequence();
             bookmarkSequence.setName(selectedSequence);
             bookmarkSequenceList.addSequence(bookmarkSequence);
-            bookmark.setSequenceList(bookmarkSequenceList);
-            currentBookmark = bookmark;
-//            currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
-            trackListString += selectedSequence;
-            trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
-            trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
+            bookmarkInfo.setSequenceList(bookmarkSequenceList);
         }
-//        String trackListString = Annotator.getRootUrl() ;
-//        trackListString +=  Annotator.getClientToken() +"/";
-//        trackListString += "jbrowse/index.html?loc=";
-//        trackListString += selectedSequence;
-//        trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
-//        trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
-////        trackListString += "&clientToken=" + Annotator.getClientToken();
-
-        trackListString += getCurrentQueryParamsAsString();
-
-        GWT.log(trackListString);
-
-        frame.setUrl(trackListString);
+        updateGenomicViewerForBookmark(bookmarkInfo,minRegion,maxRegion,forceReload);
     }
 
 
@@ -593,9 +552,9 @@ public class MainPanel extends Composite {
 
     public static void updateGenomicViewer(boolean forceReload) {
         if (currentStartBp != null && currentEndBp != null) {
-            updateGenomicViewerForLocation(currentBookmark.getSequenceList().toString(), currentStartBp, currentEndBp, forceReload);
+            updateGenomicViewerForBookmark(currentBookmark, currentStartBp, currentEndBp, forceReload);
         } else {
-            updateGenomicViewerForLocation(currentBookmark.getSequenceList().toString(), currentBookmark.getStart(), currentBookmark.getEnd(), forceReload);
+            updateGenomicViewerForBookmark(currentBookmark, currentBookmark.getStart(), currentBookmark.getEnd(), forceReload);
         }
     }
 

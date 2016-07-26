@@ -4,7 +4,6 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bouncycastle.jce.provider.AnnotatedException
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -73,7 +72,7 @@ class BookmarkService {
         feature.featureLocations.sort(){ it.rank }.each {
             int sequenceIndex = sequences.indexOf(it.sequence)
             if(sequenceIndex<lastRank || sequenceIndex < 0 ){
-                throw new AnnotatedException("Sequence list does not match feature arrangement ${feature.name}")
+                throw new AnnotationException("Sequence list does not match feature arrangement ${feature.name}")
             }
             lastRank = sequenceIndex
         }
@@ -180,7 +179,6 @@ class BookmarkService {
         def bookmarks = user.bookmarks.findAll(){
             it.organism==organism
         }
-        println "# of bookmarks = ${bookmarks.size()}"
         return bookmarks
     }
 

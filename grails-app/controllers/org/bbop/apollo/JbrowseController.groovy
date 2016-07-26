@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.Transactional
 import liquibase.util.file.FilenameUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.MultiSequenceProjection
@@ -289,6 +290,7 @@ class JbrowseController {
 /**
      * Handles data directory serving for jbrowse
      */
+    @Transactional
     def data() {
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
         String dataDirectory = getJBrowseDirectoryForSession(params.get(clientToken).toString())
