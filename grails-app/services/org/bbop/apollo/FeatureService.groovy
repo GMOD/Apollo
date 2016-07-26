@@ -59,7 +59,15 @@ class FeatureService {
         Sequence sequence
         if(jsonLocation.containsKey(FeatureStringEnum.SEQUENCE.value)){
             String sequenceString = jsonLocation.getString(FeatureStringEnum.SEQUENCE.value)
-            sequence = Sequence.findByNameAndOrganism(sequenceString,organism)
+            String sequenceName = sequenceString
+            if (sequenceString.startsWith("{")) {
+                sequenceName = (JSON.parse(sequenceString) as JSONObject).name
+            }
+            else
+            if (sequenceString.startsWith("[")) {
+                sequenceName = (JSON.parse(sequenceString) as JSONArray)[0].name
+            }
+            sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
         }
         else{
             ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(min)
@@ -1792,21 +1800,32 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         Boolean fmaxPartial = false
 
         List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+        MultiSequenceProjection projection = projectionService.getProjection(bookmark)
+        List<ProjectionSequence> projectionSequenceList = projection.getProjectedSequences()
 
         List<FeatureLocation> featureLocations = feature.getFeatureLocations()?.sort(){ it.rank};
-        featureLocations.each {
-            if(sequenceList.contains(it.sequence)){
+//        int offset = 0
+        for(FeatureLocation featureLocation in featureLocations){
+            // calculate offset based on index
+            int featureLocationIndex = sequenceList.indexOf(featureLocation.sequence)
+            if(featureLocationIndex >= 0){
+//                ProjectionSequence projectionSequence = projectionSequenceList.get(featureLocationIndex)
                 if(calculatedFmin<0){
-                    calculatedFmin = it.fmin
-                    fminPartial = it.isFminPartial
+//                    calculatedFmin = featureLocation.fmin  + projectionSequence.offset // only does the first one, which is typically 0
+                    calculatedFmin = featureLocation.fmin
+                    fminPartial = featureLocation.isFminPartial
                 }
-                calculatedFmax = calculatedFmax < 0 ? it.fmax : it.fmax + calculatedFmax
-                fmaxPartial = it.isFmaxPartial
+//                calculatedFmax = featureLocation.fmax + projectionSequence.offset
+//                calculatedFmax = featureLocation.fmax
+//                fmaxPartial = featureLocation.isFmaxPartial
+                calculatedFmax = calculatedFmax < 0 ? featureLocation.fmax : featureLocation.fmax + calculatedFmax
+                fmaxPartial = featureLocation.isFmaxPartial
             }
+//            offset += featureLocation.sequence.end
         }
 
 
-        return generateFeatureLocationToJSON(feature.sequenceNames,feature.strand,calculatedFmin,calculatedFmax,fminPartial,fmaxPartial)
+        return generateFeatureLocationToJSON(bookmark.sequenceList,feature.strand,calculatedFmin,calculatedFmax,fminPartial,fmaxPartial)
     }
 
     String generateOwnerString(Feature feature){

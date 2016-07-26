@@ -152,7 +152,13 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert NonCanonicalThreePrimeSpliceSite.count==0
         MRNA.countByName("GB53496-RA-00001")==1
-        assert locationObject.sequence == "GroupUn87"
+//        assert locationObject.sequence == "GroupUn87"
+//        assert locationObject.sequence == [{"id":1852,"start":0,"name":"Group11.4","length":75085,"end":75085},{"id":1853,"start":0,"name":"GroupUn87","length":78258,"end":78258}]
+        assert locationObject.sequence.startsWith("[{")
+        assert locationObject.sequence.endsWith("}]")
+        assert locationObject.sequence.contains("\"name\":\"Group11.4\"")
+        assert locationObject.sequence.contains("\"name\":\"GroupUn87\"")
+        assert locationObject.sequence.indexOf("\"name\":\"Group11.4\"") <  locationObject.sequence.indexOf("\"name\":\"GroupUn87\"")
         assert MRNA.first().featureLocations.first().fmin == 85051 - Sequence.findByName("Group11.4").length
         assert MRNA.first().featureLocations.first().fmax == 85264 - Sequence.findByName("Group11.4").length
 

@@ -2119,6 +2119,9 @@ class RequestHandlingService {
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false,bookmark));
             }
         }
+        JSONArray updatedFeatures = updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
+        updatedFeatures = featureProjectionService.projectTrack(updatedFeatures,bookmark,false)
+        updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, updatedFeatures)
 
         // delete feature container for delete annotation event
         JSONObject deleteFeatureContainer = createJSONFeatureContainer()
