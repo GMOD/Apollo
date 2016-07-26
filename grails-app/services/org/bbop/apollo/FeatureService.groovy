@@ -1799,9 +1799,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         Boolean fminPartial = false
         Boolean fmaxPartial = false
 
+        bookmark = bookmark ?: bookmarkService.generateBookmarkForFeature(feature)
         List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
         MultiSequenceProjection projection = projectionService.getProjection(bookmark)
-        List<ProjectionSequence> projectionSequenceList = projection.getProjectedSequences()
+//        List<ProjectionSequence> projectionSequenceList = projection.getProjectedSequences()
 
         List<FeatureLocation> featureLocations = feature.getFeatureLocations()?.sort(){ it.rank};
 //        int offset = 0

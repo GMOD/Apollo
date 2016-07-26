@@ -478,6 +478,7 @@ public class MainPanel extends Composite {
     }
 
     /**
+     * @deprecated
      * @param bookmarkInfo
      * @param minRegion
      * @param maxRegion
@@ -519,7 +520,7 @@ public class MainPanel extends Composite {
      */
     public static void updateGenomicViewerForLocation(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload) {
 
-        if (!forceReload && currentBookmark != null && currentBookmark.getName().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
+        if (!forceReload && currentBookmark != null && currentBookmark.getSequenceList().toString().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
             long oldLength = maxRegion - minRegion;
             double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
             double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) oldLength;
@@ -533,6 +534,7 @@ public class MainPanel extends Composite {
 
 
         String trackListString = Annotator.getRootUrl() + Annotator.getClientToken() +"/jbrowse/index.html?loc=";
+        GWT.log("SELECTED Sequence: "+selectedSequence);
         if (selectedSequence.startsWith("{")) {
             GWT.log("calling string instead of bookmark for selected sequence");
             currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
@@ -588,38 +590,12 @@ public class MainPanel extends Composite {
         return returnString;
     }
 
-    /**
-     * In this case we add the following
-     * variables in are: padding, type, reference at the top level
-     * <p/>
-     * then a JSON Array "sequence" . . . which includes the entire sequence
-     * each sequence potentially has a features array . . of which each has a name
-     * <p/>
-     * URL should turn to:
-     * - reference-track=<Official OGS, etc.>
-     * - project=<none,exon,transcript>
-     * - paddding=<0-200>
-     * - sequences=[name1:[X1,X2],name2,name3:[X3]]   . . where X1, X2, etc. are features . . and not requried.
-     * <p/>
-     * These settings
-     */
-    public void updateGenomicViewer(JSONObject genomicObject) {
-//        String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
-//        trackListString += selectedSequence;
-//        trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
-//        trackListString += "&highlight=&tracklist=0";
-
-//        final String finalString = trackListString;
-
-//        frame.setUrl(finalString);
-
-    }
 
     public static void updateGenomicViewer(boolean forceReload) {
         if (currentStartBp != null && currentEndBp != null) {
-            updateGenomicViewerForLocation(currentBookmark, currentStartBp, currentEndBp, forceReload);
+            updateGenomicViewerForLocation(currentBookmark.getSequenceList().toString(), currentStartBp, currentEndBp, forceReload);
         } else {
-            updateGenomicViewerForLocation(currentBookmark, currentBookmark.getStart(), currentBookmark.getEnd(), forceReload);
+            updateGenomicViewerForLocation(currentBookmark.getSequenceList().toString(), currentBookmark.getStart(), currentBookmark.getEnd(), forceReload);
         }
     }
 
