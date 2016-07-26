@@ -459,4 +459,87 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     }
 
+    void "I can set the exon boundary on the RHS of a transcript with two exons"(){
+
+
+        given: "if we create a transcript in the latter half of a combined scaffold it should not have any non-canonical splice sites"
+        // with a front-facing GroupUn87
+        String transcriptUn87Gb53497 = "{${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"features\":[{\"location\":{\"fmin\":85596,\"fmax\":101804,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53497-RA\",\"children\":[{\"location\":{\"fmin\":85596,\"fmax\":85624,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":101736,\"fmax\":101804,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":85596,\"fmax\":101804,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+
+        // TODO: create proper exon command
+        String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":85483,\"fmax\":85624}}],\"operation\":\"set_exon_boundaries\"}"
+        String getFeaturesStringUn87 = "{ ${testCredentials} \"track\":{\"name\":\"GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
+        String getFeaturesString11_4 = "{ ${testCredentials} \"track\":{\"name\":\"Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"operation\":\"get_features\"}"
+        String getFeaturesString = "{ ${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
+        String getFeaturesStringReverse = "{ ${testCredentials} \"track\":{\"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"operation\":\"get_features\"}"
+
+        when: "we add a transcript"
+        requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53497 ) as JSONObject)
+        Sequence sequenceGroupUn87 = Sequence.findByName("GroupUn87")
+        MRNA mrnaGb53497 = MRNA.findByName("GB53497-RA-00001")
+        String exonUniqueName = Exon.all.sort(){ it.fmin }.first().uniqueName
+
+        then: "we should have a gene  with NO NonCanonical splice sites"
+        assert MRNA.count==1
+        assert Gene.count==1
+        assert CDS.count==1
+        assert Exon.count==2
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert FeatureLocation.count==1+1+1+2
+        assert mrnaGb53497.featureLocations[0].sequence==sequenceGroupUn87
+
+        when: "we set the exon boundary across a scaffold"
+        setExonBoundaryCommand1 = setExonBoundaryCommand1.replaceAll("@EXON_UNIQUE_NAME@",exonUniqueName)
+        requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryCommand1) as JSONObject)
+        JSONArray retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesString) as JSONObject).features
+        JSONObject locationJsonObject = retrievedFeatures.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
+
+        then: "we should have one transcript across two sequences"
+        assert MRNA.count==1
+        assert Gene.count==1
+        assert CDS.count==1
+        assert Exon.count==2
+        // TODO: not sure if this is exactly correct, but one of them should be 0
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert Exon.first().featureLocations.size()==1
+        assert MRNA.first().featureLocations.size()==1
+        assert Gene.first().featureLocations.size()==1
+        assert CDS.first().featureLocations.size()==1  // is just in the first sequence
+        assert FeatureLocation.count==1+1+1+2
+        assert Exon.first().firstFeatureLocation.sequence.name =="GroupUn87"
+        assert Exon.last().firstFeatureLocation.sequence.name =="GroupUn87"
+        assert CDS.first().firstFeatureLocation.sequence.name =="GroupUn87"
+        // should be the same for all
+//        assert Gene.first().firstFeatureLocation.sequence.name =="GroupUn87"
+        assert locationJsonObject.fmin==85483
+        assert locationJsonObject.fmax==101804
+
+        when: "we retrieve features on one Un87"
+        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesStringUn87) as JSONObject).features
+        locationJsonObject = retrievedFeatures.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
+
+
+        then: "we should only see locations on Un87"
+        assert retrievedFeatures.size()==1
+        assert locationJsonObject.fmin==10398
+        assert locationJsonObject.fmax==26719
+
+        when: "we retrieve features on one Group11.4"
+        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesString11_4) as JSONObject).features
+
+        then: "we should only see locations on Group11.4"
+        assert retrievedFeatures.size()==0
+
+        when: "we retrieve features on one Un87::11.4"
+        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesStringReverse) as JSONObject).features
+        locationJsonObject = retrievedFeatures.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
+
+
+        then: "we should only see locations on Un87"
+        assert retrievedFeatures.size()==1
+        assert locationJsonObject.fmin==10398
+        assert locationJsonObject.fmax==26719
+    }
 }

@@ -993,14 +993,16 @@ class RequestHandlingService {
             JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript,false,bookmark)
 
 
-            Integer transcriptFmin = transcript.fmin
-            Integer transcriptFmax = transcript.fmax
+            Integer transcriptFmin = bookmarkService.getMinForFeature(transcript,bookmark)
+            Integer transcriptFmax = bookmarkService.getMaxForFeature(transcript,bookmark)
+            Integer exonFmin = bookmarkService.getMinForFeature(exon,bookmark)
+            Integer exonFmax = bookmarkService.getMaxForFeature(exon,bookmark)
             boolean updateTransriptBoundaries = false
-            if(exon.fmin==transcriptFmin){
+            if(exonFmin==transcriptFmin){
                 transcriptFmin=fmin
                 updateTransriptBoundaries = true
             }
-            if(exon.fmax==transcriptFmax){
+            if(exonFmax==transcriptFmax){
                 transcriptFmax=fmax
                 updateTransriptBoundaries = true
             }
