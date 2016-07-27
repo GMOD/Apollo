@@ -340,6 +340,10 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         // TODO: not sure if this is exactly correct, but one of them should be 0
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert Exon.first().featureLocations.size()==1
+        assert MRNA.first().featureLocations.size()==1
+        assert Gene.first().featureLocations.size()==1
+        assert CDS.first().featureLocations.size()==1  // is just in the first sequence
         assert FeatureLocation.count==1+1+1+1
         assert mrnaGb53499.featureLocations[0].sequence==sequenceGroupUn87
     }
@@ -516,6 +520,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert CDS.first().firstFeatureLocation.sequence.name =="GroupUn87"
         // should be the same for all
         assert Gene.first().firstFeatureLocation.sequence.name =="GroupUn87"
+        assert Gene.first().featureLocations.size() == 1
         assert locationJsonObject.fmin==85483
         assert locationJsonObject.fmax==101804
 

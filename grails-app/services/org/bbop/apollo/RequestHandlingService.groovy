@@ -561,7 +561,7 @@ class RequestHandlingService {
         }
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
         featureService.removeExonOverlapsAndAdjacencies(transcript,bookmark)
-        transcriptService.updateGeneBoundaries(transcript,multiSequenceProjection)
+        transcriptService.updateGeneBoundaries(transcript,bookmark)
         featureService.calculateCDS(transcript,false,bookmark)
 //        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
@@ -1012,7 +1012,7 @@ class RequestHandlingService {
             }
 
             featureService.removeExonOverlapsAndAdjacencies(transcript,bookmark)
-            transcriptService.updateGeneBoundaries(transcript,multiSequenceProjection)
+            transcriptService.updateGeneBoundaries(transcript,bookmark)
 
             exon.save()
 

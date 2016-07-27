@@ -494,7 +494,7 @@ class FeatureService {
             }
         } else {
             // if the transcript's bounds are beyond the gene's bounds, need to adjust the gene's bounds
-            transcriptService.updateGeneBoundaries(transcript,projectionService.getProjection(bookmark))
+            transcriptService.updateGeneBoundaries(transcript,bookmark)
 //            if (transcript.fmin < gene.fmin) {
 //                gene.getFeatureLocation().setFmin(transcript.getFeatureLocation().getFmin());
 //            }

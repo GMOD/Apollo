@@ -174,28 +174,32 @@ class TranscriptService {
     }
 
     @Transactional
-    def updateGeneBoundaries(Transcript transcript, MultiSequenceProjection multiSequenceProjection) {
+    def updateGeneBoundaries(Transcript transcript, Bookmark bookmark) {
         Gene gene = getGene(transcript)
         if (gene == null) {
             return;
         }
 
-//        Integer geneFmin = bookmarkService.getMinForFeature(gene,bookmark)
-//        Integer geneFmax = bookmarkService.getMaxForFeature(gene,bookmark)
-//        Integer exonFmin = bookmarkService.getMinForFeature(exon,bookmark)
-//        Integer exonFmax = bookmarkService.getMaxForFeature(exon,bookmark)
+        // we set it here to handle either expansion or contraction of the gene / transcripts
+        Integer geneFmin = Integer.MAX_VALUE
+        Integer geneFmax = Integer.MIN_VALUE
 
+        println "INIT ${geneFmin}-${geneFmax}"
 
-        int geneFmax = Integer.MIN_VALUE;
-        int geneFmin = Integer.MAX_VALUE;
         for (Transcript t : getTranscripts(gene)) {
-            if (t.getFmin() < geneFmin) {
-                geneFmin = t.getFmin();
+            Integer transcriptFmin = bookmarkService.getMinForFeature(t,bookmark)
+            Integer transcriptFmax = bookmarkService.getMaxForFeature(t,bookmark)
+            if (transcriptFmin < geneFmin) {
+                geneFmin = transcriptFmin;
             }
-            if (t.getFmax() > geneFmax) {
-                geneFmax = t.getFmax();
+            if (transcriptFmax > geneFmax) {
+                geneFmax = transcriptFmax;
             }
         }
+
+        println "FINAL ${geneFmin}-${geneFmax}"
+
+        MultiSequenceProjection  multiSequenceProjection = projectionService.getProjection(bookmark)
 
         featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection, gene, geneFmin, geneFmax)
     }
@@ -206,7 +210,7 @@ class TranscriptService {
      */
     @Transactional
     def updateGeneBoundaries(Transcript transcript) {
-        updateGeneBoundaries(transcript,projectionService.getProjection(bookmarkService.generateBookmarkForFeature(transcript)))
+        updateGeneBoundaries(transcript,bookmarkService.generateBookmarkForFeature(transcript))
     }
 
     List<String> getFrameShiftOntologyIds() {
@@ -328,7 +332,7 @@ class TranscriptService {
             log.debug "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
 //
 //        // if the exon is removed during a merge, then we will get a null-pointer
-            updateGeneBoundaries(transcript,multiSequenceProjection);  // 6, moved transcript fmin, fmax
+            updateGeneBoundaries(transcript,bookmark);  // 6, moved transcript fmin, fmax
             log.debug "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
         }
     }
