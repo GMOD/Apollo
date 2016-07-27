@@ -128,18 +128,26 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         println "first location ${firstLocation as JSON}"
         println "second location ${secondLocation as JSON}"
         println "third location ${thirdLocation as JSON}"
+        println "aLocation ${aLocation as JSON}"
+        println "bLocation ${bLocation as JSON}"
+        println "cLocation ${cLocation as JSON}"
         int overallFmin = 29396
         int overallFmax = 30329
 
         then: "we should have features in the proper place"
         assert returnedFeatureObject.size()==3
         // should be
-        assert aLocation.fmin == 29396-overallFmin
-        assert aLocation.fmax == 30271-overallFmin
-        assert bLocation.fmin == 29396-overallFmin
-        assert bLocation.fmax == 30271-overallFmin
-        assert cLocation.fmin == 29927-overallFmin
-        assert cLocation.fmax == 30329-overallFmin
+        // exon 1 (at transcript start 5')
+        assert firstLocation.fmin == 29396-overallFmin
+        assert firstLocation.fmax == 29403-overallFmin
+
+        // CDS (at transcript start 5', almost to 5')
+        assert secondLocation.fmin == 29396-overallFmin
+        assert secondLocation.fmax == 30271-overallFmin
+
+        // exon 2 (at transcript end 3')
+        assert thirdLocation.fmin == 29927-overallFmin
+        assert thirdLocation.fmax == 30329-overallFmin
     }
 
 
@@ -482,7 +490,6 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         // with a front-facing GroupUn87
         String transcriptUn87Gb53497 = "{${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"features\":[{\"location\":{\"fmin\":85596,\"fmax\":101804,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53497-RA\",\"children\":[{\"location\":{\"fmin\":85596,\"fmax\":85624,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":101736,\"fmax\":101804,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":85596,\"fmax\":101804,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
 
-        // TODO: create proper exon command
         String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":85483,\"fmax\":85624}}],\"operation\":\"set_exon_boundaries\"}"
         String getFeaturesStringUn87 = "{ ${testCredentials} \"track\":{\"name\":\"GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
         String getFeaturesString11_4 = "{ ${testCredentials} \"track\":{\"name\":\"Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"operation\":\"get_features\"}"

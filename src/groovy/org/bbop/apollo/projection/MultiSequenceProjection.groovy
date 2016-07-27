@@ -179,7 +179,6 @@ class MultiSequenceProjection extends AbstractProjection {
     }
 
     def addLocations(List<Location> locationList) {
-        println "adding locations ${locationList.size()}"
         for (Location location in locationList) {
             addLocation(location)
         }

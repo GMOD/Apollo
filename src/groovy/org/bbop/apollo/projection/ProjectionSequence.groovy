@@ -24,28 +24,55 @@ class ProjectionSequence implements Comparable<ProjectionSequence>{
     // the length of the sequence before projection . . the projected length comes from the associated discontinuous projection
 
 
+//    boolean equals(o) {
+//        if (this.is(o)) return true
+//        if (getClass() != o.class) return false
+//
+//        ProjectionSequence that = (ProjectionSequence) o
+//
+////        if (id != that.id) return false
+////        if (order != that.order) return false
+//        if (name != that.name) return false
+////        if (offset != that.offset) return false
+////        if (organism != that.organism) return false
+//
+//        return true
+//    }
+//
+//    int hashCode() {
+//        int result
+////        result = (id != null ? id.hashCode() : 0)
+////        result = 31 * result + (order != null ? order.hashCode() : 0)
+//        result = 31 * result + (name != null ? name.hashCode() : 0)
+////        result = 31 * result + (organism != null ? organism.hashCode() : 0)
+////        result = 31 * result + (offset != null ? offset.hashCode() : 0)
+//        return result
+//    }
+
     boolean equals(o) {
         if (this.is(o)) return true
-        if (getClass() != o.class) return false
+        if (!(o instanceof ProjectionSequence)) return false
 
         ProjectionSequence that = (ProjectionSequence) o
 
-//        if (id != that.id) return false
-//        if (order != that.order) return false
-        if (name != that.name) return false
-//        if (offset != that.offset) return false
-//        if (organism != that.organism) return false
+        if (end != that.end) return false
+        if (features != that.features) return false
+        if (offset != that.offset) return false
+        if (organism != that.organism) return false
+        if (originalOffset != that.originalOffset) return false
+        if (start != that.start) return false
 
         return true
     }
 
     int hashCode() {
         int result
-//        result = (id != null ? id.hashCode() : 0)
-//        result = 31 * result + (order != null ? order.hashCode() : 0)
-        result = 31 * result + (name != null ? name.hashCode() : 0)
-//        result = 31 * result + (organism != null ? organism.hashCode() : 0)
-//        result = 31 * result + (offset != null ? offset.hashCode() : 0)
+        result = start.hashCode()
+        result = 31 * result + end.hashCode()
+        result = 31 * result + (offset != null ? offset.hashCode() : 0)
+        result = 31 * result + (originalOffset != null ? originalOffset.hashCode() : 0)
+        result = 31 * result + (features != null ? features.hashCode() : 0)
+        result = 31 * result + (organism != null ? organism.hashCode() : 0)
         return result
     }
 

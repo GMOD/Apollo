@@ -183,7 +183,6 @@ class BookmarkService {
     }
 
     Bookmark convertJsonToBookmark(JSONObject jsonObject) {
-        println "convert json to bookmark ${jsonObject as JSON}"
         standardizeSequenceList(jsonObject)
         JSONArray sequenceListArray = JSON.parse(jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
         Bookmark bookmark = Bookmark.findBySequenceList(sequenceListArray.toString())

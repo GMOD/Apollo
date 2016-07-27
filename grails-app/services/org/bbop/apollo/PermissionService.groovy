@@ -708,10 +708,8 @@ class PermissionService {
     @NotTransactional
     String handleToken(GrailsParameterMap params, JSONObject dataObject) {
         if (params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
-            println "contains a valid client token !!!"
             dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value, params.get(FeatureStringEnum.CLIENT_TOKEN.value))
         } else {
-            println "DOES NOT contain a valid client token !!!, regenerating! ${dataObject} and ${params}"
             dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,ClientTokenGenerator.generateRandomString())
         }
         return dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
