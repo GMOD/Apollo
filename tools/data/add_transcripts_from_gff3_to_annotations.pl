@@ -113,6 +113,7 @@ sub parse_options {
             ++$skip_ids{$id};
         }
     }
+	print_usage() if(!$username && !$password && !$url);
     die "Missing required parameter: username\n" if !$username;
     die "Missing required parameter: password\n" if !$password;
     die "Missing required parameter: url\n" if !$url;
