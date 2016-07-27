@@ -179,6 +179,13 @@ class TranscriptService {
         if (gene == null) {
             return;
         }
+
+//        Integer geneFmin = bookmarkService.getMinForFeature(gene,bookmark)
+//        Integer geneFmax = bookmarkService.getMaxForFeature(gene,bookmark)
+//        Integer exonFmin = bookmarkService.getMinForFeature(exon,bookmark)
+//        Integer exonFmax = bookmarkService.getMaxForFeature(exon,bookmark)
+
+
         int geneFmax = Integer.MIN_VALUE;
         int geneFmin = Integer.MAX_VALUE;
         for (Transcript t : getTranscripts(gene)) {

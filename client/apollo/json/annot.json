@@ -156,7 +156,8 @@
   "favicon": "./plugins/WebApollo/img/webapollo_favicon.ico",
   "locationBox": "searchBox",
   "alwaysOnTracks": "DNA,Legend,Annotations",
-  "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
+//  "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
+  "bookmarkService": "getSeqBoundaries",
   "classicMenu" : 1,
   "formatVersion" : 1
 }

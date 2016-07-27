@@ -37,6 +37,7 @@ class UrlMappings {
         "/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
+        "/${clientToken}/jbrowse/getSeqBoundaries"(controller: "jbrowse", action: "getSeqBoundaries")
 
 
 

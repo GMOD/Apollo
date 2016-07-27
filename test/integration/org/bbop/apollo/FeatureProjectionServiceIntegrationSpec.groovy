@@ -48,7 +48,6 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         String getFeaturesString = "{${testCredentials} \"track\":{\"id\":6723, \"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
 
         when: "You add a transcript via JSON"
-
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
         JSONObject getFeaturesObject = JSON.parse(getFeaturesString) as JSONObject
 
@@ -66,6 +65,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
 
         then: "You should see that transcript"
+        assert Preference.count == 1
         assert Exon.count == 2
         assert CDS.count == 1
         assert MRNA.count == 1
@@ -487,7 +487,10 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert NonCanonicalThreePrimeSpliceSite.count==0
         assert FeatureLocation.count==1+1+1+2
+        assert mrnaGb53497.featureLocations.size()==1
+        assert Gene.first().featureLocations.size() == 1
         assert mrnaGb53497.featureLocations[0].sequence==sequenceGroupUn87
+        assert Gene.first().firstFeatureLocation.sequence.name =="GroupUn87"
 
         when: "we set the exon boundary across a scaffold"
         setExonBoundaryCommand1 = setExonBoundaryCommand1.replaceAll("@EXON_UNIQUE_NAME@",exonUniqueName)
@@ -512,7 +515,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.last().firstFeatureLocation.sequence.name =="GroupUn87"
         assert CDS.first().firstFeatureLocation.sequence.name =="GroupUn87"
         // should be the same for all
-//        assert Gene.first().firstFeatureLocation.sequence.name =="GroupUn87"
+        assert Gene.first().firstFeatureLocation.sequence.name =="GroupUn87"
         assert locationJsonObject.fmin==85483
         assert locationJsonObject.fmax==101804
 
