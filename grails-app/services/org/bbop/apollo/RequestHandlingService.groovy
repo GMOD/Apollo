@@ -465,16 +465,16 @@ class RequestHandlingService {
         List<String> sequenceNameList = permissionService.getSequenceNameFromInput(inputObject)
         Bookmark bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
         List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
-        if (!sequencesMatchNames(sequenceNameList, sequenceList)) {
-            sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceNameList, sequenceList.first().organism)
-            preferenceService.setCurrentSequence(permissionService.getCurrentUser(inputObject), sequence, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-            // TODO: remember to set a projection or a bookmark here !
-//        String sequenceName = permissionService.getSequenceNameFromInput(inputObject)
-//        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
-//        if (sequenceName != sequence.name) {
-//            sequence = Sequence.findByNameAndOrganism(sequenceName, sequence.organism)
-//            preferenceService.setCurrentSequence(permissionService.getCurrentUser(inputObject), sequence,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-        }
+//        if (!sequencesMatchNames(sequenceNameList, sequenceList)) {
+//            sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceNameList, sequenceList.first().organism)
+//            preferenceService.setCurrentSequence(permissionService.getCurrentUser(inputObject), sequence, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+//            // TODO: remember to set a projection or a bookmark here !
+////        String sequenceName = permissionService.getSequenceNameFromInput(inputObject)
+////        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
+////        if (sequenceName != sequence.name) {
+////            sequence = Sequence.findByNameAndOrganism(sequenceName, sequence.organism)
+////            preferenceService.setCurrentSequence(permissionService.getCurrentUser(inputObject), sequence,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+//        }
 
 //        log.debug "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
 

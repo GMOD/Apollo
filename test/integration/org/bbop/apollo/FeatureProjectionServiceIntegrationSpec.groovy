@@ -42,27 +42,26 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
     void "add transcript and view in second-place in the projection"() {
 
         given: "a transcript"
-//        String jsonString = "{${testCredentials} \"organism\":${Organism.first().id},\"track\":{\"start\":0,\"end\":${78258+75085},\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"GroupUn87\"}], \"label\":\"GroupUn87\"},\"features\":[{\"location\":{\"fmin\":29396,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53498-RA\",\"children\":[{\"location\":{\"fmin\":30271,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29396,\"fmax\":29403,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29927,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29396,\"fmax\":30271,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
-        String jsonString = "{${testCredentials} \"organism\":${Organism.first().id},\"track\":\"GroupUn87\",\"features\":[{\"location\":{\"fmin\":29396,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53498-RA\",\"children\":[{\"location\":{\"fmin\":30271,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29396,\"fmax\":29403,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29927,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29396,\"fmax\":30271,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
-//        String getFeaturesString = "{${testCredentials} \"organism\":${Organism.first().id},\"track\":{\"start\":0,\"end\":${78258+75085},\"padding\":0, \"projection\":\"None\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"},{\"name\":\"GroupUn87\"}], \"label\":\"Group11.4::GroupUn87\"},\"operation\":\"get_features\"}"
+        String addTranscriptString = "{${testCredentials} \"organism\":${Organism.first().id},\"track\":\"GroupUn87\",\"features\":[{\"location\":{\"fmin\":29396,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53498-RA\",\"children\":[{\"location\":{\"fmin\":30271,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29396,\"fmax\":29403,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29927,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29396,\"fmax\":30271,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
         String getFeaturesString = "{${testCredentials} \"track\":{\"id\":6723, \"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
+        String getFeaturesInFeaturesViewString = "{${testCredentials} \"track\":{\"name\":\"GB53498-RA (GroupUn87)\", \"padding\":0, \"start\":29396, \"end\":30329, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":29396, \"end\":30329, \"feature\":{\"name\":\"GB53498-RA\"}}]},\"operation\":\"get_features\"}"
 
         when: "You add a transcript via JSON"
-        JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+        JSONObject addTranscriptJsonObject = JSON.parse(addTranscriptString) as JSONObject
         JSONObject getFeaturesObject = JSON.parse(getFeaturesString) as JSONObject
 
         then: "there should be no features"
         assert Feature.count == 0
         assert FeatureLocation.count == 0
         assert Sequence.count == 3
-        JSONArray mrnaArray = jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONArray mrnaArray = addTranscriptJsonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert 1 == mrnaArray.size()
-        assert 4 == getCodingArray(jsonObject).size()
+        assert 4 == getCodingArray(addTranscriptJsonObject).size()
 
 
 
         when: "you parse add a transcript"
-        JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
+        JSONObject returnObject = requestHandlingService.addTranscript(addTranscriptJsonObject)
 
         then: "You should see that transcript"
         assert Preference.count == 1
@@ -75,8 +74,6 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         // this is the new part
         assert FeatureLocation.count == 5
         assert Feature.count == 5
-
-        JSONArray returnedCodingArray = getCodingArray(returnObject)
 
 
         when: "we get the features across multiple sequences"
@@ -102,32 +99,47 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         then: "we should have reasonable locations based on length or previously projected feature arrays . . . "
         assert 1==firstLocation.getInt(FeatureStringEnum.STRAND.value)
-        // 29397 + 64197 ??
-        // 29397 + 75085 ??
-//        assert (29397 + 64197) ==firstLocation.getInt(FeatureStringEnum.FMIN.value)
         assert 29396 + 75085 ==firstLocation.getInt(FeatureStringEnum.FMIN.value)
-//         29403 + ??
-        // 29403 + 75085 ??
-//        assert 93600==firstLocation.getInt(FeatureStringEnum.FMAX.value)
         assert 29403 + 75085  ==firstLocation.getInt(FeatureStringEnum.FMAX.value)
 
         assert 1==secondLocation.getInt(FeatureStringEnum.STRAND.value)
-        // 29928 + 64197
-        // 29928 + 75085
         assert 29396 + 75085 ==secondLocation.getInt(FeatureStringEnum.FMIN.value)
-        // 30329 + 64197
-        // 30329 + 75085
-//        assert 94526==secondLocation.getInt(FeatureStringEnum.FMAX.value)
         assert 30271 + 75085  ==secondLocation.getInt(FeatureStringEnum.FMAX.value)
 
         assert 1==thirdLocation.getInt(FeatureStringEnum.STRAND.value)
-        // 29928 + 64197
-        // 29928 + 75085
         assert 29928 + 75085-1==thirdLocation.getInt(FeatureStringEnum.FMIN.value)
-        // 30329 + 64197
-        // 30329 + 75085
-//        assert 94526==thirdLocation.getInt(FeatureStringEnum.FMAX.value)
         assert 30329 + 75085  ==thirdLocation.getInt(FeatureStringEnum.FMAX.value)
+
+
+        when: "we get the features within the set sequence"
+        featureObject = requestHandlingService.getFeatures(JSON.parse(getFeaturesInFeaturesViewString) as JSONObject)
+        returnedFeatureObject = getCodingArray(featureObject)
+        println "retrieved features object ${featureObject as JSON}"
+        println "returned feature object ${returnedFeatureObject as JSON}"
+        aLocation = returnedFeatureObject.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
+        bLocation = returnedFeatureObject.getJSONObject(1).getJSONObject(FeatureStringEnum.LOCATION.value)
+        cLocation = returnedFeatureObject.getJSONObject(2).getJSONObject(FeatureStringEnum.LOCATION.value)
+        locationObjects = [aLocation,bLocation,cLocation].sort(true){ a,b ->
+            a.getInt(FeatureStringEnum.FMIN.value) <=> b.getInt(FeatureStringEnum.FMIN.value) ?: a.getInt(FeatureStringEnum.FMAX.value) <=> b.getInt(FeatureStringEnum.FMAX.value)
+        }
+        firstLocation = locationObjects[0]
+        secondLocation = locationObjects[1]
+        thirdLocation = locationObjects[2]
+        println "first location ${firstLocation as JSON}"
+        println "second location ${secondLocation as JSON}"
+        println "third location ${thirdLocation as JSON}"
+        int overallFmin = 29396
+        int overallFmax = 30329
+
+        then: "we should have features in the proper place"
+        assert returnedFeatureObject.size()==3
+        // should be
+        assert aLocation.fmin == 29396-overallFmin
+        assert aLocation.fmax == 30271-overallFmin
+        assert bLocation.fmin == 29396-overallFmin
+        assert bLocation.fmax == 30271-overallFmin
+        assert cLocation.fmin == 29927-overallFmin
+        assert cLocation.fmax == 30329-overallFmin
     }
 
 
