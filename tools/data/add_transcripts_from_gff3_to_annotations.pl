@@ -17,6 +17,7 @@ use LWP::UserAgent;
 use JSON;
 
 my $gene_types_in = "gene";
+my $pseudogene_types_in = "pseudogene";
 my $transcript_types_in = "transcript|mRNA";
 my $exon_types_in = "exon";
 my $cds_types_in = "CDS";
@@ -77,13 +78,14 @@ sub parse_options {
            "password|p=s"       => \$password,
            "url|U=s"            => \$url,
            "gene_types_in|g=s"      => \$gene_types_in,
+           "pseudogene_type_in|n=s" => \$pseudogene_types_in,
            "transcript_types_in|t=s"    => \$transcript_types_in,
            "exon_types_in|e=s"      => \$exon_types_in,
            "organism|o=s"      => \$organism,
            "cds_types_in|d=s"       => \$cds_types_in,
            "ontology|O=s"       => \$ontology,
            "gene_type_out|G=s"      => \$gene_type_out,
-           "pseudogene_type_out|PG=s" => \$pseudogene_type_out,
+           "pseudogene_type_out|N=s" => \$pseudogene_type_out,
            "mrna_type_out|M=s"    => \$mrna_type_out,
            "transcript_type_out|T=s" => \$transcript_type_out,
            "exon_type_out|E=s"      => \$exon_type_out,
@@ -98,7 +100,7 @@ sub parse_options {
            "test|x"           => \$test,
            "help|h"         => \$help,
            "name_attributes=s"   => \$name_attributes);
-           
+
     print_usage() if $help;
     $in = new IO::File($input_file) or die "Error reading $input_file: $!\n"
         if $input_file;
@@ -111,6 +113,7 @@ sub parse_options {
             ++$skip_ids{$id};
         }
     }
+	print_usage() if(!$username && !$password && !$url);
     die "Missing required parameter: username\n" if !$username;
     die "Missing required parameter: password\n" if !$password;
     die "Missing required parameter: url\n" if !$url;
@@ -125,12 +128,13 @@ usage: $progname
     --username|-u <username>
     --password|-p <password>
     [--genes_types_in|-g <gene types for input>]
+    [--pseudogene_type_in|-n <pseudogene type for input>]
     [--transcript_types_in|-t <transcript types for input>]
     [--exon_types_in|-e <exon types for input>]
     [--cds_types_in|-d <CDS types for input>]
     [--ontology|-O <ontology name used in server>]
     [--gene_type_out|-G <gene type used in server>]
-    [--pseudogene_type_out|-G <gene type used in server>]
+    [--pseudogene_type_out|-N <pseudogene type used in server>]
     [--mrna_type_out|-T <mRNA type used in server>]
     [--transcript_type_out|-T <transcript type used in server>]
     [--exon_type_out|-E <exon type used in server>]
@@ -153,15 +157,19 @@ usage: $progname
     p: password to access Apollo
     g: string/regex to define the GFF3 types to treat as genes
        [default: "$gene_types_in"]
+    n: string/regex to define the GFF3 types to treat as pseudogenes
+       [default: "$pseudogene_types_in"]
     t: string/regex to define the GFF3 types to treat as transcripts
        [default: "$transcript_types_in"]
-    e: string/regex to define the GFF3 types to treat as exons 
+    e: string/regex to define the GFF3 types to treat as exons
        [default: "$exon_types_in"]
+    d: string/regex to define the GFF3 types to treat as CDS
+       [default: "$cds_types_in"]
     O: ontology name used in Apollo instance
        [default: "$ontology"]
     G: gene type used in Apollo instance
        [default: "$gene_type_out"]
-    D: pseudogene type used in Apollo instance
+    N: pseudogene type used in Apollo instance
        [default: "$pseudogene_type_out"]
     M: mRNA type used in Apollo instance
        [default: "$mrna_type_out"]
@@ -169,6 +177,8 @@ usage: $progname
        [default: "$transcript_type_out"]
     E: exon type used in Apollo instance
        [default: "$exon_type_out"]
+    D: CDS type used in Apollo instance
+       [default: "$cds_type_out"]
     R: property ontology name used in Apollo instance
        [default: "$property_ontology"]
     C: comment type used in Apollo instance
@@ -179,6 +189,7 @@ usage: $progname
        [default: "$annotation_track_prefix"]
     i: input GFF3 file
        [default: STDIN]
+    o: organism common name in Apollo instance
     l: log file for ids that were successfully processed
     L: log file for ids that were erroneously processed
     s: file with ids to skip
@@ -336,7 +347,7 @@ sub convert_feature {
         my $json_dbxref = {
             accession => $accession,
             db => {
-                name => $db 
+                name => $db
             }
         };
         push @{$json_dbxrefs}, $json_dbxref;
@@ -392,7 +403,7 @@ sub send_request {
     my $res = $ua->request($req);
     if ($res->is_success()) {
         return $json->decode($res->content());
-    }   
+    }
     else {
         my $content;
         my $message;
@@ -505,7 +516,7 @@ sub process_gene {
     my $features = shift;
     my $gene_type = get_type($features);
     my $gene;
-    if ($gene_type =~ /pseudogene/) {
+    if ($gene_type =~ $pseudogene_types_in) {
         $gene = convert_feature($features, $pseudogene_type_out, $name_attributes);
     }
     else {
@@ -517,7 +528,7 @@ sub process_gene {
         if ($type =~ /$transcript_types_in/) {
             my $transcript = process_transcript($subfeature);
             push(@{$gene->{children}}, $transcript) if $transcript;
-        }   
+        }
     }
     return $gene;
 }
@@ -539,7 +550,7 @@ sub process_transcript {
         if ($type =~ /$exon_types_in/) {
             my $exon = convert_feature($subfeature, $exon_type_out,$name_attributes);
             push(@{$transcript->{children}}, $exon);
-        }   
+        }
         elsif ($type =~ /$cds_types_in/) {
             my $start = get_start($subfeature);
             my $end = get_end($subfeature);
