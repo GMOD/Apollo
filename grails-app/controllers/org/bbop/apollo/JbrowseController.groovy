@@ -372,7 +372,13 @@ class JbrowseController {
                 jsonObject.plugins = new JSONArray()
             } else {
                 for (int i = 0; i < jsonObject.plugins.size(); i++) {
-                    pluginKeys.add(jsonObject.plugins[i].name)
+                    if(jsonObject.plugins[i] instanceof JSONObject){
+                        pluginKeys.add(jsonObject.plugins[i].name)
+                    }
+                    else
+                    if(jsonObject.plugins[i] instanceof String){
+                        pluginKeys.add(jsonObject.plugins[i])
+                    }
                 }
             }
             // add core plugin: https://github.com/GMOD/jbrowse/blob/master/src/JBrowse/Browser.js#L244
