@@ -346,6 +346,7 @@ public class AnnotatorPanel extends Composite {
     @UiHandler("viewAnnotation")
     void viewAnnotation(ClickEvent clickEvent) {
         BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
+        expandBookmark(bookmarkInfo,2d);
         BookmarkRestService.addBoorkmarkAndView(bookmarkInfo);
     }
 
@@ -376,9 +377,30 @@ public class AnnotatorPanel extends Composite {
         return bookmarkInfo;
     }
 
+    void expandBookmark(BookmarkInfo bookmarkInfo,Double expansionFactor){
+        BookmarkSequenceList bookmarkSequenceList = bookmarkInfo.getSequenceList();
+        BookmarkSequence bookmarkSequence = bookmarkSequenceList.getSequence(0);
+        Long start = bookmarkSequence.getStart();
+        Long end = bookmarkSequence.getEnd();
+        Long width = end - start ;
+        // we must now double the size
+        Double desiredWidth = width * expansionFactor ;
+        Long desiredStart = start - (long) (desiredWidth / 2.0) ;
+        Long desiredEnd = end + (long) (desiredWidth / 2.0) ;
+        start = desiredStart < 0 ? start : desiredStart ;
+        end = desiredEnd ;  // can we maximize this?
+        bookmarkSequence.setStart(start);
+        bookmarkSequence.setEnd(end);
+        bookmarkSequenceList.set(0,bookmarkSequence);
+        bookmarkInfo.setSequenceList(bookmarkSequenceList);
+    }
+
     @UiHandler("addNewBookmark")
     void addNewBookmark(ClickEvent clickEvent) {
         BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
+        expandBookmark(bookmarkInfo,2d);
+
+
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {

@@ -259,6 +259,7 @@ class AnnotatorController {
      * @param sort
      * @return
      */
+    @Transactional
     def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort,String clientToken) {
         JSONObject inputObject = permissionService.handleInput(this.request,params)
         try {
