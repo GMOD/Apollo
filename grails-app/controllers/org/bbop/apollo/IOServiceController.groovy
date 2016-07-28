@@ -80,6 +80,7 @@ class IOServiceController extends AbstractApolloController {
             Boolean exportGff3Fasta = dataObject.exportGff3Fasta ? Boolean.valueOf(dataObject.exportGff3Fasta) : false
 //            String chadoExportType = dataObject.chadoExportType
             String output = dataObject.output
+            String adapter = dataObject.adapter
             String format = dataObject.format
             String region = dataObject.region
             def sequences = dataObject.sequences // can be array or string
@@ -137,13 +138,14 @@ class IOServiceController extends AbstractApolloController {
                 }
             } else if (typeOfExport == FeatureStringEnum.TYPE_FASTA.getValue()) {
                 if (!exportAllSequences  && sequences != null && !(sequences.class == JSONArray.class)) {
-                    fileName = "Annotations-" + sequences + "${region}." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
+                    String regionString = (region && adapter == FeatureStringEnum.HIGHLIGHTED_REGION.value) ? region : ""
+                    fileName = "Annotations-" + sequences + "${regionString}." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 } else {
                     fileName = "Annotations" + "." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 }
 
                 // call fastaHandlerService
-                if(region){
+                if(region && adapter == FeatureStringEnum.HIGHLIGHTED_REGION.value){
                     String track = region.split(":")[0]
                     String locationString = region.split(":")[1]
                     Integer min = locationString.split("\\.\\.")[0] as Integer
