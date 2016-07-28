@@ -198,9 +198,11 @@ class LoginController extends AbstractApolloController {
 
     def logout(){
         log.debug "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
-        SecurityUtils.subject.logout()
         println "logging out with params: ${params}"
-        sendLogout(SecurityUtils.subject.principal,params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+        // have to retrive the username first
+        String username = SecurityUtils.subject.principal
+        SecurityUtils.subject.logout()
+        sendLogout(username,params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
         if(params.targetUri){
             redirect(uri:"/auth/login?targetUri=${params.targetUri}")
         }
@@ -211,7 +213,7 @@ class LoginController extends AbstractApolloController {
 
     def sendLogout(String username,String clientToken) {
         User user = User.findByUsername(username)
-        log.debug "sending logout for ${user} via ${username}"
+        log.debug "sending logout for ${user} via ${username} with ${clientToken}"
         JSONObject jsonObject = new JSONObject()
         if(!user){
             log.error("Already logged out or user not found: ${username}")

@@ -428,17 +428,17 @@ define([
 
                     if (changeData.operation == "logout" && changeData.username == track.username) {
                         if(track.getClientToken()!=changeData.clientToken){
-                            alert('attempting to logout');
                             track.logout();
                         }
-                        alert("You have been logged out or your session has expired");
-                        if (window.parent) {
-                            parent.location.reload();
+                        else{
+                            alert("You have been logged out or your session has expired");
+                            if (window.parent) {
+                                parent.location.reload();
+                            }
+                            else {
+                                location.reload();
+                            }
                         }
-                        else {
-                            location.reload();
-                        }
-
                         return;
                     }
 
