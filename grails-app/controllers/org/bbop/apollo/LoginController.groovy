@@ -198,8 +198,9 @@ class LoginController extends AbstractApolloController {
 
     def logout(){
         log.debug "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
-        sendLogout(SecurityUtils.subject.principal)
         SecurityUtils.subject.logout()
+        println "logging out with params: ${params}"
+        sendLogout(SecurityUtils.subject.principal,params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
         if(params.targetUri){
             redirect(uri:"/auth/login?targetUri=${params.targetUri}")
         }
@@ -208,7 +209,7 @@ class LoginController extends AbstractApolloController {
         }
     }
 
-    def sendLogout(String username ) {
+    def sendLogout(String username,String clientToken) {
         User user = User.findByUsername(username)
         log.debug "sending logout for ${user} via ${username}"
         JSONObject jsonObject = new JSONObject()
@@ -217,6 +218,7 @@ class LoginController extends AbstractApolloController {
             return jsonObject.toString()
         }
         jsonObject.put(FeatureStringEnum.USERNAME.value,username)
+        jsonObject.put(FeatureStringEnum.CLIENT_TOKEN.value,clientToken)
         jsonObject.put(REST_OPERATION,"logout")
         log.debug "sending to: '/topic/AnnotationNotification/user/' + ${user.username}"
         try {
