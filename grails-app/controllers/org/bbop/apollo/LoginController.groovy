@@ -198,8 +198,17 @@ class LoginController extends AbstractApolloController {
 
     def logout(){
         log.debug "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
-        sendLogout(SecurityUtils.subject.principal)
+        println "logging out with params: ${params}"
+        // have to retrive the username first
+        String username = SecurityUtils.subject.principal
+        println "sending logout"
+        sendLogout(username,params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+        println "sent logout"
+        sleep(1000)
+        println "doing local logout"
         SecurityUtils.subject.logout()
+        sleep(1000)
+        println "logged out"
         if(params.targetUri){
             redirect(uri:"/auth/login?targetUri=${params.targetUri}")
         }
@@ -208,15 +217,16 @@ class LoginController extends AbstractApolloController {
         }
     }
 
-    def sendLogout(String username ) {
+    def sendLogout(String username,String clientToken) {
         User user = User.findByUsername(username)
-        log.debug "sending logout for ${user} via ${username}"
+        log.debug "sending logout for ${user} via ${username} with ${clientToken}"
         JSONObject jsonObject = new JSONObject()
         if(!user){
             log.error("Already logged out or user not found: ${username}")
             return jsonObject.toString()
         }
         jsonObject.put(FeatureStringEnum.USERNAME.value,username)
+        jsonObject.put(FeatureStringEnum.CLIENT_TOKEN.value,clientToken)
         jsonObject.put(REST_OPERATION,"logout")
         log.debug "sending to: '/topic/AnnotationNotification/user/' + ${user.username}"
         try {

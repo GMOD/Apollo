@@ -436,6 +436,10 @@ class PermissionService {
      * @return
      */
     Boolean hasGlobalPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
+        if(!jsonObject.username){
+            log.debug "Username not supplied so can not authenticate."
+            return false
+        }
         jsonObject = validateSessionForJsonObject(jsonObject)
         User user = User.findByUsername(jsonObject.username)
         if (!user) {
