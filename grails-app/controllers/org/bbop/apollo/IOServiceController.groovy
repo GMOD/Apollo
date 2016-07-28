@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import com.google.common.base.Splitter
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -150,7 +151,10 @@ class IOServiceController extends AbstractApolloController {
                     // its an exclusive fmin, so must subtract one
                     --min
                     Sequence sequence = Sequence.findByOrganismAndName(organism,track)
-                    String genomicSequence = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,min,max, Strand.POSITIVE)
+
+                    String defline = String.format(">Genomic region %s - %s\n",region,sequence.organism.commonName);
+                    String genomicSequence = defline
+                    genomicSequence += Splitter.fixedLength(FastaHandlerService.NUM_RESIDUES_PER_LINE).split(sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,min,max, Strand.POSITIVE)).join("\n")
                     outputFile.text = genomicSequence
                 }
                 else{
