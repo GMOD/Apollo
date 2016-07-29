@@ -407,6 +407,10 @@ class PermissionService {
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
+            if(!jsonObject.username){
+                log.debug "Username not supplied so can not authenticate."
+                return false
+            }
             def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
             try {
                 Subject subject = SecurityUtils.getSubject();
@@ -436,10 +440,6 @@ class PermissionService {
      * @return
      */
     Boolean hasGlobalPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
-        if(!jsonObject.username){
-            log.debug "Username not supplied so can not authenticate."
-            return false
-        }
         jsonObject = validateSessionForJsonObject(jsonObject)
         User user = User.findByUsername(jsonObject.username)
         if (!user) {
