@@ -500,7 +500,7 @@ div.annot-sequence  {
     border-color: #CC564B;
     border-width: 1px;
     height: 100%;
-    background-color: #FF7062;
+    background-color: rgba(255,112,98,0.3);
     z-index: 20;
 }
 
