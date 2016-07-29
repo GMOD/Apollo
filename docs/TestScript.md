@@ -33,11 +33,17 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 1.2) Check that you can switch organisms from the _Organism_ tab in the _Annotator Panel_
 
+1.3) Check that the organism preference is only preserved on a single browser tab.
+
 2) Test top-level menu options:
 
 2.1) Login / Logout
    
    Test that you are able to logout using the options on the upper right corner of the main window by clicking on your user ID and choosing to 'logout'. Then, test that you are able to log back in. 
+   
+   Test that all browsers log out for a set user. 
+   
+   When logged out you should still be able to view "public" organisms and browse public genomes from the link on the login screen.
 
 2.2) File 
 
@@ -49,7 +55,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 2.3) View
    
-   Follow menu options to go to "Changes" and "Sequences" (select sequences) page, check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 10), and changing the color scheme (dark or light).
+   Check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 10), and changing the color scheme (dark or light).
 
 2.4) Tools
 
@@ -109,7 +115,11 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 7.1.8) Use the annotation in progress and a genomic feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
 
-8) Check that the URL can be used for sharing work (on a different browser): bring up different browser window and paste the shared URL. Check real-time update by dragging and dropping another exon to the model on the left (same strand); check that “non-canonical boundaries” warning sign appears as appropriate. Last, delete an exon, Redo/Undo to test. 
+7.1.9) Set exon boundary to create and uncreate an isoform and use history to undo / redo operations.
+
+7.1.10) Change annotation type.  Undo / redo. 
+
+8) Check that the URL can be used for sharing work (on a different browser) for both logged in and logged out (JBrowse only) mode: bring up different browser window and paste the shared URL. Check real-time update by dragging and dropping another exon to the model on the left (same strand); check that “non-canonical boundaries” warning sign appears as appropriate. Last, delete an exon, Redo/Undo to test.  
 
 9) Check that you are able to export data from the _User-created Annotations_ track using the drop down menu option (from the track label) and choosing the 'Save track data' option. Here check both GFF3 (with and without FASTA) and FASTA files (CDS, cDNA, peptide, and highlighted region (note: you must first highlight a region to test this)).
 
