@@ -45,7 +45,8 @@ class RequestHandlingService {
 
     public static final List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
-            TransposableElement.class.name
+            TransposableElement.class.name,
+            SNV.class.name
     ]
     public static final List<String> viewableAnnotationTranscriptParentList = [
             Gene.class.name,
@@ -67,7 +68,6 @@ class RequestHandlingService {
             Deletion.class.name,
             Insertion.class.name,
             Substitution.class.name,
-            SNV.class.name
     ]
 
     public static final List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
