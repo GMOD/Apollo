@@ -198,8 +198,8 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
                strand:          loc.strand,
                id:              uid,
                type:            afeature.type.name,
-               referenceBase:   afeature.referenceBase,
-               alternateBase:   afeature.alternateBase
+               referenceNucleotide:   afeature.referenceNucleotide,
+               alternateNucleotide:   afeature.alternateNucleotide
            },
            id: uid
         });

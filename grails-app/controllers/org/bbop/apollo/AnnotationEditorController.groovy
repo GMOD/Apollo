@@ -1035,8 +1035,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             newFeature.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(feature.ontologyId));
             if (feature instanceof SNV) {
                 newFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(feature.featureLocation));
-                newFeature.put("referenceBase", feature.referenceNucleotide);
-                newFeature.put("alternateBase", feature.alternateNucleotide);
+                newFeature.put("referenceNucleotide", feature.referenceNucleotide);
+                newFeature.put("alternateNucleotide", feature.alternateNucleotide);
             }
 
 

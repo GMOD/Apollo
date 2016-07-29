@@ -2303,7 +2303,7 @@ class RequestHandlingService {
                 features: addFeatureContainer,
                 sequence: sequence,
                 operation: AnnotationEvent.Operation.ADD,
-                sequenceAlterationEvent: true
+                sequenceAlterationEvent: false
         )
         fireAnnotationEvent(addAnnotationEvent)
         return addFeatureContainer
