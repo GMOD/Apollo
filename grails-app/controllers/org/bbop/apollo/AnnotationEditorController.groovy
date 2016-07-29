@@ -523,7 +523,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONArray supportedTypes = new JSONArray();
         supportedTypes.add(FeatureStringEnum.DEFAULT.value)
         annotationInfoEditorConfig.put(FeatureStringEnum.SUPPORTED_TYPES.value, supportedTypes);
-        log.debug "return config ${annotationInfoEditorConfigContainer}"
         render annotationInfoEditorConfigContainer
     }
 
@@ -1034,6 +1033,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             newFeature.put(FeatureStringEnum.DATE_CREATION.value, feature.dateCreated.time);
             newFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
             newFeature.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(feature.ontologyId));
+            if (feature instanceof SNV) {
+                newFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(feature.featureLocation));
+                newFeature.put("referenceBase", feature.referenceNucleotide);
+                newFeature.put("alternateBase", feature.alternateNucleotide);
+            }
+
 
             if (feature.featureLocation) {
                 newFeature.put(FeatureStringEnum.SEQUENCE.value, feature.featureLocation.sequence.name);
