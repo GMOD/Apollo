@@ -55,7 +55,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 2.3) View
    
-   Check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 10), and changing the color scheme (dark or light).
+   Check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS, and changing the color scheme (dark or light).
 
 2.4) Tools
 
