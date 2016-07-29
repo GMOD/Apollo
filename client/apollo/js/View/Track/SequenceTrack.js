@@ -556,9 +556,10 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                 }
             }
             else if ((ftype == "SNV")) {
+                //featDiv.style.width = "1%";
                 if ( scale == charSize.width ) {
                     var container = document.createElement("div");
-                    var residues = feature.get("alternateBase");
+                    var residues = feature.get("alternateNucleotide");
                     $(container).addClass("dna-residues");
                     container.appendChild(document.createTextNode( residues ));
                     container.style.position = "absolute";
@@ -1129,11 +1130,11 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
             if (type == "snv") {
                 var referenceNucleotideDiv = dojo.create("div", { }, content);
-                var referenceNucleotideLabel = dojo.create("label", { innerHTML: "reference base (+) ", className: "snv_reference_base_label"}, referenceNucleotideDiv);
-                var referenceNucleotideField = dojo.create("input", { type: "text", size: 15, className: "snv_reference_base_field"}, referenceNucleotideDiv);
+                var referenceNucleotideLabel = dojo.create("label", { innerHTML: "reference nucleotide (+) ", className: "snv_reference_nucleotide_label"}, referenceNucleotideDiv);
+                var referenceNucleotideField = dojo.create("input", { type: "text", size: 15, className: "snv_reference_nucleotide_field"}, referenceNucleotideDiv);
                 var alternateNucleotideDiv = dojo.create("div", { }, content);
-                var alternateNucleotideLabel = dojo.create("label", { innerHTML: "alternate base (+) ", className: "snv_alternate_base_label"}, alternateNucleotideDiv);
-                var alternateNucleotideField = dojo.create("input", { type: "text", size: 15, className: "snv_alternate_base_field"}, alternateNucleotideDiv);
+                var alternateNucleotideLabel = dojo.create("label", { innerHTML: "alternate nucleotide (+) ", className: "snv_alternate_nucleotide_label"}, alternateNucleotideDiv);
+                var alternateNucleotideField = dojo.create("input", { type: "text", size: 15, className: "snv_alternate_nucleotide_field"}, alternateNucleotideDiv);
             }
 
             $(referenceNucleotideField).keydown(function(e) {
@@ -1159,24 +1160,23 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
             var addSingleNucleotideVariant = function() {
                 var ok = true;
-                var referenceBase = referenceNucleotideField.value;
-                var alternateBase = alternateNucleotideField.value;
+                var referenceNucleotide = referenceNucleotideField.value;
+                var alternateNucleotide = alternateNucleotideField.value;
                 // TODO: replace all alert calls with ConfirmDialog
-                if(referenceBase.length == 0) {
+                if(referenceNucleotide.length == 0) {
                     alert("reference base field cannot be empty");
                     ok = false;
                 }
-                if (alternateBase.length == 0) {
+                if (alternateNucleotide.length == 0) {
                     alert("alternate base field cannot be empty");
                     ok = false;
                 }
 
                 if (ok) {
-                    var referenceBaseString = referenceBase.toUpperCase();
-                    var alternateBaseString = alternateBase.toUpperCase();
+                    var referenceNucleotideString = referenceNucleotide.toUpperCase();
+                    var alternateNucleotideString = alternateNucleotide.toUpperCase();
                     var fmin = gcoord;
-                    var fmax = gcoord + referenceBaseString.length;
-                    // TODO: Standardize the JSON Object similar to GA4GH
+                    var fmax = gcoord + referenceNucleotide.length;
                     var features = [{
                         location: {
                             fmin: fmin,
@@ -1189,8 +1189,8 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                                 name: "sequence"
                             }
                         },
-                        referenceBase: referenceBaseString,
-                        alternateBase: alternateBaseString
+                        referenceNucleotide: referenceNucleotideString,
+                        alternateNucleotide: alternateNucleotideString
                     }];
                     var postData = {
                         track: track.annotTrack.getUniqueTrackName(),

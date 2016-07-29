@@ -1138,8 +1138,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.deletionLength = deletionLength
             }
             if (gsolFeature instanceof SNV) {
-                gsolFeature.referenceBase = jsonFeature.getString("referenceBase")
-                gsolFeature.alternateBase = jsonFeature.getString("alternateBase")
+                gsolFeature.referenceNucleotide = jsonFeature.getString("referenceNucleotide")
+                gsolFeature.alternateNucleotide = jsonFeature.getString("alternateNucleotide")
             }
 
             gsolFeature.save(failOnError: true)
@@ -1701,8 +1701,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         if (gsolFeature instanceof SNV) {
             SNV snv = (SNV) gsolFeature
-            jsonFeature.put("referenceBase", snv.referenceBase)
-            jsonFeature.put("alternateBase", snv.alternateBase)
+            jsonFeature.put("referenceNucleotide", snv.referenceNucleotide)
+            jsonFeature.put("alternateNucleotide", snv.alternateNucleotide)
         }
 
         if (gsolFeature instanceof SequenceAlteration) {
