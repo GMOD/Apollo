@@ -71,7 +71,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 2.6) Full-screen view
 
-   Check that this link opens up a new window showing only the browser and JBrowse track menu, withour the annotator panel.
+   Check that this link opens up a new window showing only the browser and JBrowse track menu, without the annotator panel. Then, check that you are able to return from _Full-screen view_ to a window that includes both the main annotation area with the _Annotator Panel_ on the side by using the _Show Annotator Panel_ button.
 
 3) Test the Navigation Bar
 
