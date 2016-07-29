@@ -33,7 +33,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 1.2) Check that you can switch organisms from the _Organism_ tab in the _Annotator Panel_
 
-1.3) Check that the organism preference is only preserved on a single browser tab.
+1.3) Check that the organism preference is preserved only on a single browser tab.
 
 2) Test top-level menu options:
 
@@ -107,17 +107,17 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 7.1.4) Set to Downstream Splice Donor, Set to Upstream Splice Donor, Set to Downstream Splice Acceptor, Set to Upstream Splice Acceptor.
 
-7.1.5) Undo, Redo
+7.1.5) Check the _Undo_ and _Redo_ operations
 
-7.1.6) Show History, and test the ability to revert to any of the previous versions of the feature by clicking on the arrow buttons to the right of each version.
+7.1.6) Show _History_ from the right click menu, and test the ability to revert to any of the previous versions of the feature by clicking on the arrow buttons to the right of each version.
 
 7.1.7) Annotation Information Editor: Name, Symbol, DBXRefs, Comments, Gene Ontology IDs, and PubMed IDs.
 
-7.1.8) Use the annotation in progress and a genomic feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
+7.1.8) Use both the genomic feature you are currently annotating and a genomic feature from one of the evidence tracks to modify the exon and UTR boundaries for the annotation in the _User-created Annotations_ area using the following operations from the right-click menu: _Set as 3' end_, _Set as 5' end_, _Set both ends_.
 
-7.1.9) Set exon boundary to create and uncreate an isoform and use history to undo / redo operations.
+7.1.9) Set exon boundary to create and remove an isoform, and use _History_ to conduct _Undo_ / _Redo_ operations on this isoform.
 
-7.1.10) Change annotation type.  Undo / redo. 
+7.1.10) Change the annotation type from the right-click menu and check _Undo_ / _Redo_ operations on this annotation.
 
 8) Check that the URL can be used for sharing work (on a different browser) for both logged in and logged out (JBrowse only) mode: bring up different browser window and paste the shared URL. Check real-time update by dragging and dropping another exon to the model on the left (same strand); check that “non-canonical boundaries” warning sign appears as appropriate. Last, delete an exon, Redo/Undo to test.  
 
