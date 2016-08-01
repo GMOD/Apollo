@@ -1,5 +1,8 @@
 ## 2.0.4
-(Version 2.0.4 will be released on 08-August-2016)
+
+__Warnings:__ 
+
++ __Version 2.0.4 will be released on 08-August-2016__
 
 Features
 
