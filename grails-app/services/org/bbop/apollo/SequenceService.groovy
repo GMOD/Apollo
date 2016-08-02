@@ -86,13 +86,13 @@ class SequenceService {
                 // alteration is within the generic feature
                 sa.fmin = alterationFmin
                 sa.fmax = alterationFmax
-                if (sequenceAlteration instanceof Insertion) {
+                if (sequenceAlteration.class.name == Insertion.class.name) {
                     sa.instanceOf = Insertion.canonicalName
                 }
-                else if (sequenceAlteration instanceof Deletion) {
+                else if (sequenceAlteration.class.name == Deletion.class.name) {
                     sa.instanceOf = Deletion.canonicalName
                 }
-                else if (sequenceAlteration instanceof Substitution) {
+                else if (sequenceAlteration.class.name == Substitution.class.name) {
                     sa.instanceOf = Substitution.canonicalName
                 }
                 sa.type = 'within'
@@ -108,13 +108,13 @@ class SequenceService {
                 int difference = alterationFmax - fmax
                 sa.fmin = alterationFmin
                 sa.fmax = Math.min(fmax,alterationFmax)
-                if (sequenceAlteration instanceof Insertion) {
+                if (sequenceAlteration.class.name == Insertion.class.name) {
                     sa.instanceOf = Insertion.canonicalName
                 }
-                else if (sequenceAlteration instanceof Deletion) {
+                else if (sequenceAlteration.class.name == Deletion.class.name) {
                     sa.instanceOf = Deletion.canonicalName
                 }
-                else if (sequenceAlteration instanceof Substitution) {
+                else if (sequenceAlteration.class.name == Substitution.class.name) {
                     sa.instanceOf = Substitution.canonicalName
                 }
                 sa.type = 'exon-to-intron'
@@ -130,13 +130,13 @@ class SequenceService {
                 int difference = fmin - alterationFmin
                 sa.fmin = Math.max(fmin, alterationFmin)
                 sa.fmax = alterationFmax
-                if (sequenceAlteration instanceof Insertion) {
+                if (sequenceAlteration.class.name == Insertion.class.name) {
                     sa.instanceOf = Insertion.canonicalName
                 }
-                else if (sequenceAlteration instanceof Deletion) {
+                else if (sequenceAlteration.class.name == Deletion.class.name) {
                     sa.instanceOf = Deletion.canonicalName
                 }
-                else if (sequenceAlteration instanceof Substitution) {
+                else if (sequenceAlteration.class.name == Substitution.class.name) {
                     sa.instanceOf = Substitution.canonicalName
                 }
                 sa.type = 'intron-to-exon'

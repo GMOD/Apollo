@@ -32,6 +32,7 @@ class FeatureService {
     def sessionFactory
 
     public static final def rnaFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
+    public static final def assemblyErrorCorrectionTypes = [Insertion.class.name, Deletion.class.name, Substitution.class.name]
     public static final def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
     @Timed
     @Transactional
@@ -1133,7 +1134,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (jsonFeature.has(FeatureStringEnum.DESCRIPTION.value)) {
                 gsolFeature.setDescription(jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value));
             }
-            if (gsolFeature instanceof Deletion) {
+            if (gsolFeature.class.name == Deletion.class.name) {
                 int deletionLength = jsonFeature.location.fmax - jsonFeature.location.fmin
                 gsolFeature.deletionLength = deletionLength
             }
@@ -1162,9 +1163,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.addToFeatureLocations(featureLocation);
             }
 
-            if (gsolFeature instanceof Deletion) {
+            if (gsolFeature.class.name == Deletion.class.name) {
                 sequenceService.setResiduesForFeatureFromLocation((Deletion) gsolFeature)
-            } else if (jsonFeature.has(FeatureStringEnum.RESIDUES.value) && gsolFeature instanceof SequenceAlteration) {
+            } else if (jsonFeature.has(FeatureStringEnum.RESIDUES.value) && gsolFeature.class.name in [Insertion.class.name, Substitution.class.name]) {
                 sequenceService.setResiduesForFeature(gsolFeature, jsonFeature.getString(FeatureStringEnum.RESIDUES.value))
             }
 
@@ -1709,7 +1710,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put("minor_allele_frequency", snv.minorAlleleFrequency)
         }
 
-        if (gsolFeature instanceof SequenceAlteration) {
+        if (gsolFeature.class.name in assemblyErrorCorrectionTypes) {
             SequenceAlteration sequenceAlteration = (SequenceAlteration) gsolFeature
             if (sequenceAlteration.alterationResidue) {
                 jsonFeature.put(FeatureStringEnum.RESIDUES.value, sequenceAlteration.alterationResidue);
@@ -2234,10 +2235,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         int fmax = feature.fmax
         Sequence sequence = feature.featureLocation.sequence
         sessionFactory.currentSession.flushMode = FlushMode.MANUAL
-
-        List<SequenceAlteration> sequenceAlterations = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId", [fmin: fmin, fmax: fmax, seqId: sequence])
+        Long start = System.currentTimeMillis()
+        List<SequenceAlteration> sequenceAlterations = SequenceAlteration.executeQuery(
+                "select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId and sa.class in :assemblyErrorCorrections",
+                [fmin: fmin, fmax: fmax, seqId: sequence, assemblyErrorCorrections: assemblyErrorCorrectionTypes])
         sessionFactory.currentSession.flushMode = FlushMode.AUTO
-
         return sequenceAlterations
     }
 
@@ -2256,11 +2258,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     // alteration is within the generic feature
                     sa.fmin = alterationFmin
                     sa.fmax = alterationFmax
-                    if (eachSequenceAlteration instanceof Insertion) {
+                    if (eachSequenceAlteration.class.name == Insertion.class.name) {
                         sa.instanceOf = Insertion.canonicalName
-                    } else if (eachSequenceAlteration instanceof Deletion) {
+                    } else if (eachSequenceAlteration.class.name == Deletion.class.name) {
                         sa.instanceOf = Deletion.canonicalName
-                    } else if (eachSequenceAlteration instanceof Substitution) {
+                    } else if (eachSequenceAlteration.class.name == Substitution.class.name) {
                         sa.instanceOf = Substitution.canonicalName
                     }
                     sa.type = 'within'
@@ -2275,11 +2277,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     int difference = alterationFmax - featureFmax
                     sa.fmin = alterationFmin
                     sa.fmax = Math.min(featureFmax, alterationFmax)
-                    if (eachSequenceAlteration instanceof Insertion) {
+                    if (eachSequenceAlteration.class.name == Insertion.class.name) {
                         sa.instanceOf = Insertion.canonicalName
-                    } else if (eachSequenceAlteration instanceof Deletion) {
+                    } else if (eachSequenceAlteration.class.name == Deletion.class.name) {
                         sa.instanceOf = Deletion.canonicalName
-                    } else if (eachSequenceAlteration instanceof Substitution) {
+                    } else if (eachSequenceAlteration.class.name == Substitution.class.name) {
                         sa.instanceOf = Substitution.canonicalName
                     }
                     sa.type = 'exon-to-intron'
@@ -2294,11 +2296,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     int difference = featureFmin - alterationFmin
                     sa.fmin = Math.max(featureFmin, alterationFmin)
                     sa.fmax = alterationFmax
-                    if (eachSequenceAlteration instanceof Insertion) {
+                    if (eachSequenceAlteration.class.name == Insertion.class.name) {
                         sa.instanceOf = Insertion.canonicalName
-                    } else if (eachSequenceAlteration instanceof Deletion) {
+                    } else if (eachSequenceAlteration.class.name == Deletion.class.name) {
                         sa.instanceOf = Deletion.canonicalName
-                    } else if (eachSequenceAlteration instanceof Substitution) {
+                    } else if (eachSequenceAlteration.class.name == Substitution.class.name) {
                         sa.instanceOf = Substitution.canonicalName
                     }
                     sa.type = 'intron-to-exon'
@@ -2324,11 +2326,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         // alteration is within exon
                         sa.fmin = alterationFmin
                         sa.fmax = alterationFmax
-                        if (eachSequenceAlteration instanceof Insertion) {
+                        if (eachSequenceAlteration.class.name == Insertion.class.name) {
                             sa.instanceOf = Insertion.canonicalName
-                        } else if (eachSequenceAlteration instanceof Deletion) {
+                        } else if (eachSequenceAlteration.class.name == Deletion.class.name) {
                             sa.instanceOf = Deletion.canonicalName
-                        } else if (eachSequenceAlteration instanceof Substitution) {
+                        } else if (eachSequenceAlteration.class.name == Substitution.class.name) {
                             sa.instanceOf = Substitution.canonicalName
                         }
                         sa.type = 'within'
@@ -2343,11 +2345,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         int difference = alterationFmax - exonFmax
                         sa.fmin = alterationFmin
                         sa.fmax = Math.min(exonFmax, alterationFmax)
-                        if (eachSequenceAlteration instanceof Insertion) {
+                        if (eachSequenceAlteration.class.name == Insertion.class.name) {
                             sa.instanceOf = Insertion.canonicalName
-                        } else if (eachSequenceAlteration instanceof Deletion) {
+                        } else if (eachSequenceAlteration.class.name == Deletion.class.name) {
                             sa.instanceOf = Deletion.canonicalName
-                        } else if (eachSequenceAlteration instanceof Substitution) {
+                        } else if (eachSequenceAlteration.class.name == Substitution.class.name) {
                             sa.instanceOf = Substitution.canonicalName
                         }
                         sa.type = 'exon-to-intron'
@@ -2362,11 +2364,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         int difference = exonFmin - alterationFmin
                         sa.fmin = Math.max(exonFmin, alterationFmin)
                         sa.fmax = alterationFmax
-                        if (eachSequenceAlteration instanceof Insertion) {
+                        if (eachSequenceAlteration.class.name == Insertion.class.name) {
                             sa.instanceOf = Insertion.canonicalName
-                        } else if (eachSequenceAlteration instanceof Deletion) {
+                        } else if (eachSequenceAlteration.class.name == Deletion.class.name) {
                             sa.instanceOf = Deletion.canonicalName
-                        } else if (eachSequenceAlteration instanceof Substitution) {
+                        } else if (eachSequenceAlteration.class.name == Substitution.class.name) {
                             sa.instanceOf = Substitution.canonicalName
                         }
                         sa.type = 'intron-to-exon'
@@ -2512,30 +2514,30 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (feature.strand == Strand.NEGATIVE.value) {
                 coordinateInContext = feature.featureLocation.calculateLength() - coordinateInContext
                 log.debug "Checking negative insertion ${coordinateInContext} ${localCoordinate} ${(coordinateInContext - alterationResidueLength) - 1}"
-                if (coordinateInContext <= localCoordinate && alteration instanceof Deletion) {
+                if (coordinateInContext <= localCoordinate && alteration.class.name == Deletion.class.name) {
                     log.debug "Processing negative deletion"
                     deletionOffset += alterationResidueLength
                 }
-                if ((coordinateInContext - alterationResidueLength) - 1 <= localCoordinate && alteration instanceof Insertion) {
+                if ((coordinateInContext - alterationResidueLength) - 1 <= localCoordinate && alteration.class.name == Insertion.class.name) {
                     log.debug "Processing negative insertion ${coordinateInContext} ${localCoordinate} ${(coordinateInContext - alterationResidueLength) - 1}"
                     insertionOffset += alterationResidueLength
                 }
-                if ((localCoordinate - coordinateInContext) - 1 < alterationResidueLength && (localCoordinate - coordinateInContext) >= 0 && alteration instanceof Insertion) {
+                if ((localCoordinate - coordinateInContext) - 1 < alterationResidueLength && (localCoordinate - coordinateInContext) >= 0 && alteration.class.name == Insertion.class.name) {
                     log.debug "Processing negative insertion pt 2"
                     insertionOffset -= (alterationResidueLength - (localCoordinate - coordinateInContext - 1))
 
                 }
 
             } else {
-                if (coordinateInContext < localCoordinate && alteration instanceof Deletion) {
+                if (coordinateInContext < localCoordinate && alteration.class.name == Deletion.class.name) {
                     log.debug "Processing positive deletion"
                     deletionOffset += alterationResidueLength
                 }
-                if ((coordinateInContext + alterationResidueLength) <= localCoordinate && alteration instanceof Insertion) {
+                if ((coordinateInContext + alterationResidueLength) <= localCoordinate && alteration.class.name == Insertion.class.name) {
                     log.debug "Processing positive insertion"
                     insertionOffset += alterationResidueLength
                 }
-                if ((localCoordinate - coordinateInContext) < alterationResidueLength && (localCoordinate - coordinateInContext) >= 0 && alteration instanceof Insertion) {
+                if ((localCoordinate - coordinateInContext) < alterationResidueLength && (localCoordinate - coordinateInContext) >= 0 && alteration.class.name == Insertion.class.name) {
                     log.debug "Processing positive insertion pt 2"
                     insertionOffset += localCoordinate - coordinateInContext
                 }
