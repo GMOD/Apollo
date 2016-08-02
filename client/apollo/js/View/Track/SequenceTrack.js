@@ -555,20 +555,20 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     featDiv.appendChild(container);
                 }
             }
-            else if ((ftype == "SNV")) {
-                //featDiv.style.width = "1%";
-                if ( scale == charSize.width ) {
-                    var container = document.createElement("div");
-                    var residues = feature.get("alternateNucleotide");
-                    $(container).addClass("dna-residues");
-                    container.appendChild(document.createTextNode( residues ));
-                    container.style.position = "absolute";
-                    container.style.top = "-16px";
-                    container.style.border = "1px solid black";
-                    container.style.backgroundColor = "#FF7062";
-                    featDiv.appendChild(container);
-                }
-            }
+            //else if ((ftype == "SNV")) {
+            //    //featDiv.style.width = "1%";
+            //    if ( scale == charSize.width ) {
+            //        var container = document.createElement("div");
+            //        var residues = feature.get("alternateNucleotide");
+            //        $(container).addClass("dna-residues");
+            //        container.appendChild(document.createTextNode( residues ));
+            //        container.style.position = "absolute";
+            //        container.style.top = "-16px";
+            //        container.style.border = "1px solid black";
+            //        container.style.backgroundColor = "#FF7062";
+            //        featDiv.appendChild(container);
+            //    }
+            //}
         }
         seqNode.appendChild(featDiv);
         return featDiv;
