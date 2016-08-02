@@ -1140,6 +1140,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (gsolFeature instanceof SNV) {
                 gsolFeature.referenceNucleotide = jsonFeature.getString("referenceNucleotide")
                 gsolFeature.alternateNucleotide = jsonFeature.getString("alternateNucleotide")
+                if (jsonFeature.has("minor_allele_frequency")) {
+                    gsolFeature.minorAlleleFrequency = Float.parseFloat(jsonFeature.getString("minor_allele_frequency"))
+                }
             }
 
             gsolFeature.save(failOnError: true)
@@ -1703,6 +1706,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             SNV snv = (SNV) gsolFeature
             jsonFeature.put("referenceNucleotide", snv.referenceNucleotide)
             jsonFeature.put("alternateNucleotide", snv.alternateNucleotide)
+            jsonFeature.put("minor_allele_frequency", snv.minorAlleleFrequency)
         }
 
         if (gsolFeature instanceof SequenceAlteration) {

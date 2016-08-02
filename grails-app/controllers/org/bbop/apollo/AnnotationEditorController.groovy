@@ -994,6 +994,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    def setMinorAlleleFrequency() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.setMinorAlleleFrequency(inputObject)
+        }
+        else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
     @Timed
     def getAnnotationInfoEditorData() {
         Sequence sequence
@@ -1037,6 +1047,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 newFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(feature.featureLocation));
                 newFeature.put("referenceNucleotide", feature.referenceNucleotide);
                 newFeature.put("alternateNucleotide", feature.alternateNucleotide);
+                if (feature.minorAlleleFrequency) {
+                    newFeature.put("minor_allele_frequency", Float.toString(feature.minorAlleleFrequency));
+                }
             }
 
 

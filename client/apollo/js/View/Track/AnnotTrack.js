@@ -1992,7 +1992,14 @@ define([
                     dojo.place(parentContent, content);
                     ++numItems;
                 }
-                var annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName(), selector, false);
+                var annotContent;
+                if (annot.afeature.type.name == "SNV") {
+                    // if feature is of type SNV
+                    annotContent = this.createAnnotationInfoEditorPanelForVariant(annot.id(), track.getUniqueTrackName(), selector, false);
+                }
+                else {
+                    annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName(), selector, false);
+                }
                 dojo.attr(annotContent, "class", "annotation_info_editor");
                 dojo.attr(annotContent, "id", "child_annotation_info_editor");
                 dojo.place(annotContent, content);
@@ -3360,6 +3367,21 @@ define([
                 var altNucleotideField = new dijitTextBox({'class': "annotation_editor_field"});
                 dojo.place(altNucleotideField.domNode, altNucleotideDiv);
 
+                // MAF field
+                var minorAlleleFrequencyDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
+                var minorAlleleFrequencyLabel = dojo.create("label", {
+                    innerHTML: "MAF",
+                    'class': "annotation_info_editor_label"
+                }, minorAlleleFrequencyDiv);
+                var minorAlleleFrequencyField = new dijitTextBox({'class': "annotation_editor_field"});
+                dojo.place(minorAlleleFrequencyField.domNode, minorAlleleFrequencyDiv);
+                new Tooltip({
+                    connectId: minorAlleleFrequencyDiv,
+                    label: "The frequency of the second most frequent allele",
+                    position: ["above"],
+                    showDelay: 600
+                });
+
                 // Description field
                 var descriptionDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
                 var descriptionLabel = dojo.create("label", {
@@ -3573,6 +3595,7 @@ define([
                             initPosition(feature);
                             initRefNucleotide(feature);
                             initAltNucleotide(feature);
+                            initMinorAlleleFrequency(feature);
                             initDescription(feature);
                             initDates(feature);
                             initStatus(feature, config);
@@ -3647,6 +3670,23 @@ define([
                     if (feature.alternateNucleotide) {
                         altNucleotideField.set("value", feature.alternateNucleotide);
                     }
+                };
+
+                // initialize MAF field
+                var initMinorAlleleFrequency = function(feature) {
+                    if (feature.minor_allele_frequency) {
+                        minorAlleleFrequencyField.set("value", feature.minor_allele_frequency);
+                    }
+                    var oldMinorAlleleFrequency;
+                    dojo.connect(minorAlleleFrequencyField, "onFocus", function () {
+                        oldMinorAlleleFrequency = minorAlleleFrequencyField.get("value");
+                    });
+                    dojo.connect(minorAlleleFrequencyField, "onBlur", function () {
+                        var newMinorAlleleFrequency = minorAlleleFrequencyField.get("value");
+                        if (oldMinorAlleleFrequency != newMinorAlleleFrequency) {
+                            updateMinorAlleleFrequency(newMinorAlleleFrequency);
+                        }
+                    });
                 };
 
                 // initialize Description field
@@ -4305,6 +4345,22 @@ define([
                     var operation = "set_description";
                     var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
                     track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var updateMinorAlleleFrequency = function (mafValue) {
+                    var features = [
+                        {
+                            uniquename: uniqueName,
+                            minor_allele_frequency: mafValue
+                        }
+                    ];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "set_minor_allele_frequency"
+                    };
+                    track.executeUpdateOperation(JSON.stringify(postData));
                     updateTimeLastUpdated();
                 };
 

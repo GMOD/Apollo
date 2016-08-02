@@ -2285,6 +2285,7 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i)
             SNV singleNucleotideVariant = (SNV) featureService.convertJSONToFeature(jsonFeature, sequence)
+            println "DEBUG: ${singleNucleotideVariant}"
             if (activeUser) {
                 featureService.setOwner(singleNucleotideVariant, activeUser)
             } else {
@@ -2307,5 +2308,34 @@ class RequestHandlingService {
         )
         fireAnnotationEvent(addAnnotationEvent)
         return addFeatureContainer
+    }
+
+    def setMinorAlleleFrequency(JSONObject inputObject) {
+        println "@updateMinorAlleleFrequency"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            String mafValue = jsonFeature.get("minor_allele_frequency")
+            SNV snv = SNV.findByUniqueName(uniqueName)
+            //snv.minorAlleleFrequency = Float.parseFloat(mafValue)
+            snv.minorAlleleFrequency = Float.valueOf(mafValue)
+            snv.save()
+            updateFeatureContainer.put(FeatureStringEnum.FEATURES.value,featureService.convertFeatureToJSON(snv))
+        }
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return updateFeatureContainer
     }
 }
