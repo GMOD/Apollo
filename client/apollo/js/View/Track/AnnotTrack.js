@@ -3354,9 +3354,14 @@ define([
                     innerHTML: "REF",
                     'class': "annotation_info_editor_label"
                 }, refNucleotideDiv);
-                var refNucleotideField = new dijitTextBox({'class': "annotation_editor_field", });
+                var refNucleotideField = new dijitTextBox({'class': "annotation_editor_field"});
                 dojo.place(refNucleotideField.domNode, refNucleotideDiv);
-                // TODO: tooltip
+                new Tooltip({
+                    connectId: refNucleotideDiv,
+                    label: "Reference nucleotide w.r.t. the forward (+) strand",
+                    position: ["above"],
+                    showDelay: 600
+                });
 
                 // Alternate Nucleotide field
                 var altNucleotideDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
@@ -3366,6 +3371,12 @@ define([
                 }, altNucleotideDiv);
                 var altNucleotideField = new dijitTextBox({'class': "annotation_editor_field"});
                 dojo.place(altNucleotideField.domNode, altNucleotideDiv);
+                new Tooltip({
+                    connectId: altNucleotideDiv,
+                    label: "Alternate nucleotide w.r.t. the forward (+) strand",
+                    position: ["above"],
+                    showDelay: 600
+                });
 
                 // MAF field
                 var minorAlleleFrequencyDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
@@ -3450,7 +3461,7 @@ define([
                 var attributesDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var attributesLabel = dojo.create("div", {
                     'class': "annotation_info_editor_section_header",
-                    innerHTML: "Attributes"
+                    innerHTML: "INFO"
                 }, attributesDiv);
                 var attributesTable = dojo.create("div", {
                     'class': "attributes",
@@ -3683,6 +3694,15 @@ define([
                     });
                     dojo.connect(minorAlleleFrequencyField, "onBlur", function () {
                         var newMinorAlleleFrequency = minorAlleleFrequencyField.get("value");
+                        if(newMinorAlleleFrequency < 0.0 || newMinorAlleleFrequency > 1.0) {
+                            newMinorAlleleFrequency = oldMinorAlleleFrequency;
+                            new ConfirmDialog({
+                                title: 'Invalid MAF value',
+                                message: 'Minor Allele Frequency (MAF) must be within the range 0.0 - 1.0',
+                                confirmLabel: 'OK',
+                                denyLabel: 'Cancel'
+                            }).show();
+                        }
                         if (oldMinorAlleleFrequency != newMinorAlleleFrequency) {
                             updateMinorAlleleFrequency(newMinorAlleleFrequency);
                         }
