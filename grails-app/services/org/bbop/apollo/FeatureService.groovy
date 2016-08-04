@@ -916,15 +916,22 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     /**
-     // TODO: should be a single query here, currently 194 ms
      * Get all sequenceAlterations associated with a feature.
      * Basically I want to include all upstream alterations on a sequence for that feature
      * @param feature
      * @return
      */
     List<SequenceAlteration> getAllSequenceAlterationsForFeature(Feature feature) {
-        List<Sequence> sequence = Sequence.executeQuery("select s from Feature  f join f.featureLocations fl join fl.sequence s where f = :feature ", [feature: feature])
-        SequenceAlteration.executeQuery("select sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence s where s = :sequence order by fl.fmin asc ", [sequence: sequence])
+        def sequenceAlterations = []
+        def results = SequenceAlteration.executeQuery(
+                "select sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence s where s = :sequence order by fl.fmin asc ",
+                [sequence: feature.featureLocation.sequence])
+        results.each {
+            if (it.class.name in assemblyErrorCorrectionTypes) {
+                sequenceAlterations.add(it)
+            }
+        }
+        return sequenceAlterations
     }
 
     List<SequenceAlteration> getFrameshiftsAsAlterations(Transcript transcript) {
@@ -2234,12 +2241,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         int fmin = feature.fmin
         int fmax = feature.fmax
         Sequence sequence = feature.featureLocation.sequence
+        def sequenceAlterations = []
         sessionFactory.currentSession.flushMode = FlushMode.MANUAL
-        Long start = System.currentTimeMillis()
-        List<SequenceAlteration> sequenceAlterations = SequenceAlteration.executeQuery(
-                "select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId and sa.class in :assemblyErrorCorrections",
-                [fmin: fmin, fmax: fmax, seqId: sequence, assemblyErrorCorrections: assemblyErrorCorrectionTypes])
+        List<SequenceAlteration> results = SequenceAlteration.executeQuery(
+                "select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId",
+                [fmin: fmin, fmax: fmax, seqId: sequence])
         sessionFactory.currentSession.flushMode = FlushMode.AUTO
+        results.each {
+            if (it.class.name in assemblyErrorCorrectionTypes) {
+                sequenceAlterations.add(it)
+            }
+        }
         return sequenceAlterations
     }
 

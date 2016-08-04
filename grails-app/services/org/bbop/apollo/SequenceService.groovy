@@ -61,6 +61,17 @@ class SequenceService {
         return getGenomicResiduesFromSequenceWithAlterations(flankingRegion.sequence,flankingRegion.fmin,flankingRegion.fmax,flankingRegion.strand)
     }
 
+    List<SequenceAlteration> getSequenceAlterationsForSequence(Sequence sequence) {
+        def sequenceAlterations = []
+        List<SequenceAlteration> results = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId ",[seqId:sequence.id])
+        results.each {
+            if (it.class.name in featureService.assemblyErrorCorrectionTypes) {
+                sequenceAlterations.add(it)
+            }
+        }
+        return sequenceAlterations
+    }
+
     /**
      * Just meant for non-transcript genomic sequence
      * @param sequence
@@ -76,7 +87,7 @@ class SequenceService {
         }
         
         StringBuilder residues = new StringBuilder(residueString);
-        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId ",[seqId:sequence.id])
+        List<SequenceAlteration> sequenceAlterationList = getSequenceAlterationsForSequence(sequence)
         List<SequenceAlterationInContext> sequenceAlterationsInContextList = new ArrayList<SequenceAlterationInContext>()
         for (SequenceAlteration sequenceAlteration : sequenceAlterationList) {
             int alterationFmin = sequenceAlteration.fmin
