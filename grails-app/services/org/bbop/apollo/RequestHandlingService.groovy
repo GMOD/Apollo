@@ -1174,12 +1174,12 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = SequenceAlteration.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
-            FeatureLocation sequenceAlterationFeatureLocation = sequenceAlteration.getFeatureLocation()
+            def overlappingFeatures = featureService.getOverlappingFeatures(sequenceAlteration.getFeatureLocation(), false)
             deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
             FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
-            sequenceAlteration.delete()
+            sequenceAlteration.delete(flush: true)
 
-            for (Feature feature : featureService.getOverlappingFeatures(sequenceAlterationFeatureLocation, false)) {
+            for (Feature feature : overlappingFeatures) {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                         featureService.setLongestORF(transcript)
