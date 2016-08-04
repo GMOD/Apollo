@@ -151,6 +151,13 @@ class AnnotatorController {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
         }
 
+        if (feature instanceof SNV) {
+            feature.referenceNucleotide = data.referenceNucleotide
+            feature.alternateNucleotide = data.alternateNucleotide
+            if (data.minor_allele_frequency) {
+                feature.minorAlleleFrequency = data.minor_allele_frequency
+            }
+        }
         Sequence sequence = feature?.featureLocation?.sequence
 
         AnnotationEvent annotationEvent = new AnnotationEvent(

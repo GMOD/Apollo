@@ -93,6 +93,8 @@ public class AnnotatorPanel extends Composite {
     @UiField
     static RepeatRegionDetailPanel repeatRegionDetailPanel;
     @UiField
+    static VariantDetailPanel variantDetailPanel;
+    @UiField
     static TabLayoutPanel tabPanel;
     @UiField
     ListBox userField;
@@ -358,10 +360,11 @@ public class AnnotatorPanel extends Composite {
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
         String type = annotationInfo.getType();
-        GWT.log("annotation type: " + type);
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         repeatRegionDetailPanel.setVisible(false);
+        variantDetailPanel.setVisible(false);
+        GWT.log(type);
         switch (type) {
             case "gene":
             case "pseudogene":
@@ -388,6 +391,11 @@ public class AnnotatorPanel extends Composite {
             case "repeat_region":
                 fireAnnotationInfoChangeEvent(annotationInfo);
                 repeatRegionDetailPanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(1).getParent().setVisible(false);
+                break;
+            case "SNV":
+                fireAnnotationInfoChangeEvent(annotationInfo);
+                variantDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 break;
             default:
@@ -522,7 +530,6 @@ public class AnnotatorPanel extends Composite {
     public static void displayTranscript(int geneIndex, String uniqueName) {
         AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
         AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
-
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
             if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
                 exonDetailPanel.updateData(childAnnotation);

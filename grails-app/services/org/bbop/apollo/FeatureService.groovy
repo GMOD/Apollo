@@ -1556,6 +1556,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
+        if (gsolFeature instanceof SNV) {
+            jsonFeature.put("referenceNucleotide", gsolFeature.referenceNucleotide)
+            jsonFeature.put("alternateNucleotide", gsolFeature.alternateNucleotide)
+            if (gsolFeature.minorAlleleFrequency) {
+                jsonFeature.put("minor_allele_frequency", Float.toString(gsolFeature.minorAlleleFrequency))
+            }
+        }
         long start = System.currentTimeMillis();
         if (depth <= 1) {
             String finalOwnerString

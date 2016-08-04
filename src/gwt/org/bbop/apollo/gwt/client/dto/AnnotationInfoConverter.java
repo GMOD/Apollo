@@ -39,6 +39,15 @@ public class AnnotationInfoConverter {
         if (object.get("description") != null) {
             annotationInfo.setDescription(object.get("description").isString().stringValue());
         }
+        if (annotationInfo.getType().equals("SNV")) {
+            // If annotation is a variant annotation
+            annotationInfo.setReferenceNucleotide(object.get("referenceNucleotide").isString().stringValue());
+            annotationInfo.setAlternateNucleotide(object.get("alternateNucleotide").isString().stringValue());
+            if (object.get("minor_allele_frequency") != null) {
+                annotationInfo.setMinorAlleleFrequency(object.get("minor_allele_frequency").isString().stringValue());
+            }
+        }
+
         annotationInfo.setMin((int) object.get("location").isObject().get("fmin").isNumber().doubleValue());
         annotationInfo.setMax((int) object.get("location").isObject().get("fmax").isNumber().doubleValue());
         annotationInfo.setStrand((int) object.get("location").isObject().get("strand").isNumber().doubleValue());

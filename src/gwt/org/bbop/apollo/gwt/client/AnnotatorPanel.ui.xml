@@ -90,6 +90,7 @@
                     <b:Container fluid="true" width="100%">
                         <b:Row>
                             <apollo:GeneDetailPanel ui:field="geneDetailPanel" visible="false"/>
+                            <apollo:VariantDetailPanel ui:field="variantDetailPanel" visible="false"/>
                             <apollo:TranscriptDetailPanel ui:field="transcriptDetailPanel" visible="false"/>
                             <apollo:RepeatRegionDetailPanel ui:field="repeatRegionDetailPanel" visible="false"/>
                             <!--<apollo:ExonDetailPanel ui:field="exonDetailPanel" visible="false"/>-->

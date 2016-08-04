@@ -20,6 +20,9 @@ public class AnnotationInfo {
     private Integer phase;
     private String owner;
     private String date;
+    private String referenceNucleotide;
+    private String alternateNucleotide;
+    private Float minorAlleleFrequency;
 
     public String getOwner() {
         return owner;
@@ -146,4 +149,16 @@ public class AnnotationInfo {
     public void setPhase(Integer phase) {
         this.phase = phase;
     }
+
+    public String getReferenceNucleotide() { return referenceNucleotide; }
+
+    public void setReferenceNucleotide(String referenceNucleotide) { this.referenceNucleotide = referenceNucleotide; }
+
+    public String getAlternateNucleotide() { return alternateNucleotide; }
+
+    public void setAlternateNucleotide(String alternateNucleotide) { this.alternateNucleotide = alternateNucleotide; }
+
+    public Float getMinorAlleleFrequency() { return minorAlleleFrequency; }
+
+    public void setMinorAlleleFrequency(String minorAlleleFrequency) { this.minorAlleleFrequency = Float.parseFloat(minorAlleleFrequency); }
 }
