@@ -54,6 +54,7 @@ class JbrowseController {
                 return
             }
             if(!availableOrganisms.contains(organism)){
+                log.warn "Organism ${organism.commonName} is not viewable by this user so viewing ${availableOrganisms.first().commonName} instead."
                 organism = availableOrganisms.first()
             }
             if(organism && clientToken){
