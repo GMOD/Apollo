@@ -61,8 +61,9 @@ public class MainPanel extends Composite {
     private static Integer currentStartBp; // start base pair
     private static Integer currentEndBp; // end base pair
     private static Map<String,List<String>> currentQueryParams ; // list of organisms for user
-    public static boolean useNativeTracklist; // list of organisms for user
+    public static boolean useNativeTracklist; // list native tracks
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
+    private static final String trackListViewString = "&tracklist=";
 
     private static boolean handlingNavEvent = false;
 
@@ -445,16 +446,28 @@ public class MainPanel extends Composite {
         trackListString += "jbrowse/index.html?loc=";
         trackListString += selectedSequence;
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
-//        trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
 
         trackListString += getCurrentQueryParamsAsString();
 
 
-        String trackListViewString = "&tracklist=";
+        // if the trackList contains a string, it should over-ride and set?
         if(trackListString.contains(trackListViewString)){
-            int index = trackListString.indexOf(trackListViewString);
-            MainPanel.useNativeTracklist = (trackListString.substring(index + trackListViewString.length() + 1,1).equals("1"));
+            // replace with whatever is in the toggle ? ? ?
+            Boolean showTrackValue = trackPanel.trackListToggle.getValue();
+
+            String positiveString = trackListViewString+"1";
+            String negativeString = trackListViewString+"0";
+            if(trackListString.contains(positiveString) && !showTrackValue){
+                trackListString = trackListString.replace(positiveString,negativeString);
+            }
+            else
+            if(trackListString.contains(negativeString) && showTrackValue){
+                trackListString = trackListString.replace(negativeString,positiveString);
+            }
+
+            MainPanel.useNativeTracklist = showTrackValue ;
         }
+        // otherwise we use the nativeTrackList
         else{
             trackListString += "&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
         }
