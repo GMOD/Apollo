@@ -445,12 +445,19 @@ public class MainPanel extends Composite {
         trackListString += "jbrowse/index.html?loc=";
         trackListString += selectedSequence;
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
-        trackListString += "&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
 //        trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
 
         trackListString += getCurrentQueryParamsAsString();
 
-        GWT.log(trackListString);
+
+        String trackListViewString = "&tracklist=";
+        if(trackListString.contains(trackListViewString)){
+            int index = trackListString.indexOf(trackListViewString);
+            MainPanel.useNativeTracklist = (trackListString.substring(index + trackListViewString.length() + 1,1).equals("1"));
+        }
+        else{
+            trackListString += "&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
+        }
 
         frame.setUrl(trackListString);
     }
