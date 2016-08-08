@@ -35,7 +35,8 @@ class PreferenceService {
     def setCurrentOrganism(User user, Organism organism, String clientToken) {
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientToken(user, organism, clientToken,[sort: "lastUpdated", order: "desc"])
         if(userOrganismPreferences.size()>1){
-            log.warn("wrong number of preferences: "+userOrganismPreferences.size())
+            log.warn("Multiple preferences found: "+userOrganismPreferences.size())
+            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
         }
 
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
@@ -67,6 +68,7 @@ class PreferenceService {
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientTokenAndSequence(user, organism, clientToken, sequence,[sort: "lastUpdated", order: "desc"])
         if(userOrganismPreferences.size()>1){
             log.warn("Multiple preferences for sequence and organism: "+userOrganismPreferences.size())
+            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
         }
 
         UserOrganismPreference userOrganismPreference  = userOrganismPreferences ? userOrganismPreferences.first() : null
@@ -92,6 +94,7 @@ class PreferenceService {
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(currentUser, true, clientToken,[sort: "lastUpdated", order: "desc"])
         if(userOrganismPreferences.size()>1){
             log.warn("Multiple preferences found: "+userOrganismPreferences.size())
+            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
         }
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (!userOrganismPreference) {
@@ -128,6 +131,7 @@ class PreferenceService {
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(user, true, clientToken,[sort: "lastUpdated", order: "desc"])
         if(userOrganismPreferences.size()>1){
             log.warn("Multiple preferences found: "+userOrganismPreferences.size())
+            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
         }
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (userOrganismPreference) {
@@ -138,6 +142,7 @@ class PreferenceService {
         userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(user, false, clientToken,[sort: "lastUpdated", order: "desc"])
         if(userOrganismPreferences.size()>1){
             log.warn("Multiple preferences found: "+userOrganismPreferences.size())
+            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
         }
         userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (userOrganismPreference) {
@@ -152,6 +157,7 @@ class PreferenceService {
         userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganism(user, true,[sort: "lastUpdated", order: "desc"])
         if(userOrganismPreferences.size()>1){
             log.warn("Multiple preferences found: "+userOrganismPreferences.size())
+            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
         }
         userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
 

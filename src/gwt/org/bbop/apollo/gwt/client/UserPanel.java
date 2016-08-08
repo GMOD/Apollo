@@ -234,7 +234,7 @@ public class UserPanel extends Composite {
             @Override
             public boolean execute() {
                 if (MainPanel.getInstance().getCurrentUser() != null) {
-                    if(MainPanel.getInstance().getCurrentUser()!=null) {
+                    if(MainPanel.getInstance().isCurrentUserAdmin()) {
                         UserRestService.loadUsers(userInfoList);
                     }
                     return false ;
