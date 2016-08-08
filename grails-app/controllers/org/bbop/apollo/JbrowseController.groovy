@@ -45,6 +45,17 @@ class JbrowseController {
         // case 3 - validated login (just read from preferences, then
         if (permissionService.currentUser && clientToken) {
             Organism organism = preferenceService.getOrganismForToken(clientToken)
+            def availableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
+            if(!availableOrganisms){
+                String urlString = "/jbrowse/index.html?${paramList.join("&")}"
+                String username = permissionService.currentUser.username
+                org.apache.shiro.SecurityUtils.subject.logout()
+                forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "User '${username}' lacks permissions to view or edit the annotations of any organism."])
+                return
+            }
+            if(!availableOrganisms.contains(organism)){
+                organism = availableOrganisms.first()
+            }
             if(organism && clientToken){
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
             }
