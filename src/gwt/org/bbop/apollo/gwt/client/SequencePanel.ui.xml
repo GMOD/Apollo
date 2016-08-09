@@ -11,7 +11,8 @@
         .northPanel {
             padding: 0px;
             margin: 10px;
-            display: inline-table;
+            display: inline;
+            width: 100%;
         }
 
         .widgetPanel {

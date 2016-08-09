@@ -43,19 +43,19 @@
         <gwt:north size="100">
             <b:Container fluid="true" styleName="{style.northPanel}" ui:field="northPanelContainer">
                 <b:Row styleName="{style.rowPadding}">
-                    <b:Column size="MD_5">
-                        <b:TextBox placeholder="Annotation Name" width="150px"
+                    <b:Column size="MD_6">
+                        <b:TextBox placeholder="Annotation Name"
                                    ui:field="nameSearchBox" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                    <b:Column size="MD_5">
-                        <b:SuggestBox ui:field="sequenceList" width="150px" addStyleNames="{style.widgetBox}"/>
+                    <b:Column size="MD_4">
+                        <b:ListBox ui:field="typeList"  addStyleNames="{style.widgetBox}"/>
+                    </b:Column>
+                    <b:Column size="MD_6">
+                        <b:SuggestBox ui:field="sequenceList" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
                 <!--</b:Row>-->
                 <!--<b:Row styleName="{style.rowPadding}">-->
-                    <b:Column size="MD_3">
-                        <b:ListBox ui:field="typeList"  addStyleNames="{style.widgetBox}"/>
-                    </b:Column>
-                    <b:Column size="MD_3">
+                    <b:Column size="MD_4">
                         <b:ListBox ui:field="userField" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
                 </b:Row>
