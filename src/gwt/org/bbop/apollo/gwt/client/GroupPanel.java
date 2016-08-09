@@ -4,6 +4,7 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -17,7 +18,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
@@ -100,7 +100,7 @@ public class GroupPanel extends Composite {
 
     public GroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        availableUsers.getElement().setAttribute("data-dropup-auto",Boolean.toString(false));
+        availableUsers.getElement().setAttribute("data-dropup-auto", Boolean.toString(false));
 
         TextColumn<GroupInfo> firstNameColumn = new TextColumn<GroupInfo>() {
             @Override
@@ -180,11 +180,20 @@ public class GroupPanel extends Composite {
             }
         });
 
-        // TODO: not sure why this is not being set or if it matters
-//        if (MainPanel.getInstance().getCurrentUser() != null) {
-            GroupRestService.loadGroups(groupInfoList);
-            UserRestService.loadUsers(allUsersList);
-//        }
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                if (MainPanel.getInstance().getCurrentUser() != null) {
+//        Window.alert("Has current user: " + (MainPanel.getInstance().getCurrentUser()==null ? "is null " : "exists"));
+                    if(MainPanel.getInstance().isCurrentUserAdmin()) {
+                        GroupRestService.loadGroups(groupInfoList);
+                        UserRestService.loadUsers(allUsersList);
+                    }
+                    return false;
+                }
+                return true;
+            }
+        }, 100);
     }
 
     @UiHandler("updateUsers")

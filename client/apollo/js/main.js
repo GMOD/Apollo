@@ -448,7 +448,11 @@ return declare( [JBPlugin, HelpMixin],
                         var jbrowseString = "/jbrowse/index.html?";
                         var jbrowseIndex = hrefString.indexOf(jbrowseString);
                         var params = hrefString.substring(jbrowseIndex + jbrowseString.length);
-                        var finalString =  "../../annotator/loadLink?"+params + "&organism=" + organism + "&clientToken="+webapollo.getAnnotTrack().getClientToken();
+                        params = params.replace("tracklist=1","tracklist=0");
+                        var finalString =  "../../annotator/loadLink?"+params + "&organism=" + organism ;
+                        if(params.indexOf("&clientToken=")<0){
+                            finalString += "&clientToken="+webapollo.getAnnotTrack().getClientToken();
+                        }
                         window.location.href = finalString;
                     }
                 });

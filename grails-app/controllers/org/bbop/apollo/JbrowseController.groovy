@@ -48,12 +48,22 @@ class JbrowseController {
         // case 3 - validated login (just read from preferences, then
         if (permissionService.currentUser && clientToken) {
             Organism organism = preferenceService.getOrganismForToken(clientToken)
+            organism = organism ?: preferenceService.getOrganismFromPreferences(clientToken)
+            def availableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
+            if(!availableOrganisms){
+                String urlString = "/jbrowse/index.html?${paramList.join("&")}"
+                String username = permissionService.currentUser.username
+                org.apache.shiro.SecurityUtils.subject.logout()
+                forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "User '${username}' lacks permissions to view or edit the annotations of any organism."])
+                return
+            }
+            if(!availableOrganisms.contains(organism)){
+                log.warn "Organism '${organism?.commonName}' is not viewable by this user so viewing ${availableOrganisms.first().commonName} instead."
+                organism = availableOrganisms.first()
+            }
             if(organism && clientToken){
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
             }
-        }
-
-        if (permissionService.currentUser) {
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
             render file.text
             return
@@ -687,7 +697,13 @@ class JbrowseController {
                 jsonObject.plugins = new JSONArray()
             } else {
                 for (int i = 0; i < jsonObject.plugins.size(); i++) {
-                    pluginKeys.add(jsonObject.plugins[i].name)
+                    if(jsonObject.plugins[i] instanceof JSONObject){
+                        pluginKeys.add(jsonObject.plugins[i].name)
+                    }
+                    else
+                    if(jsonObject.plugins[i] instanceof String){
+                        pluginKeys.add(jsonObject.plugins[i])
+                    }
                 }
             }
             // add core plugin: https://github.com/GMOD/jbrowse/blob/master/src/JBrowse/Browser.js#L244

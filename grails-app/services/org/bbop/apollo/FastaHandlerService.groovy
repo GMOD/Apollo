@@ -1,19 +1,18 @@
 package org.bbop.apollo
 
 import org.bbop.apollo.sequence.Strand
-import org.codehaus.groovy.grails.web.json.JSONObject
-import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
+
 
 public class FastaHandlerService {
 
     private File file;
     private PrintWriter out;
     private Mode mode;
-    private int numResiduesPerLine = 60;
+    public final static int NUM_RESIDUES_PER_LINE = 60;
 
     def sequenceService
     def transcriptService
@@ -255,8 +254,9 @@ public class FastaHandlerService {
         }
         out.println(defline);
 //        String seq = sequenceService.getResiduesFromFeature(feature)
-        for (int i = 0; i < seq.length(); i += numResiduesPerLine) {
-            int endIdx = i + numResiduesPerLine;
+        // TODO: use splitter
+        for (int i = 0; i < seq.length(); i += NUM_RESIDUES_PER_LINE) {
+            int endIdx = i + NUM_RESIDUES_PER_LINE;
             out.println(seq.substring(i, endIdx > seq.length() ? seq.length() : endIdx));
         }
     }

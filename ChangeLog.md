@@ -1,5 +1,9 @@
 ## 2.0.4
 
+__Warnings:__ 
+
++ __Version 2.0.4 will be released on 08-August-2016__
+
 Features
 
 + Upgraded to Grails 2.5.5
@@ -15,7 +19,7 @@ Bugfixes
 + Expired sessions or server disconnection triggers reconnection instead of a silent failure (#493)
 + Fixed bugs in certain web service scripts (#1155)
 + Fixed bug where garbage client token is created (#1172)
-+ Fixed several deployment and installation issues (#1135, #1137, #1150)
++ Fixed several deployment and installation issues (#1135, #1137, #1138, #1150)
 + Fixed adding comments to a sequence alteration fails to create the sequence alteration (#1179)
 + Parameters passed into loadLink are no longer dropped (#1140)
 + Fixed bug not allowing addition of FeatureType in admin menu (#1144)
@@ -24,6 +28,16 @@ Bugfixes
 
 
 ## 2.0.3
+
+__Warnings__
+
+* __Before doing the build with Apollo v2.0.3, make sure to install node.js (which includes npm) and install bower. This process will be automatic in v2.0.4 and fixes are detailed in [#1138](https://github.com/GMOD/Apollo/pull/1138).__
+* __Download node.js from https://nodejs.org/en/download/__
+* __To install bower:__
+    * <code>npm install -g bower</code>
+* __Then__:
+    * <code>./apollo clean-all</code>
+    * <code>./apollo deploy</code>
 
 Features
 

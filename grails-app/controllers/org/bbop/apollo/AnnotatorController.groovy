@@ -66,6 +66,18 @@ class AnnotatorController {
             if(!organism){
                 organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
             }
+            def allowedOrganisms = permissionService.getOrganisms(permissionService.currentUser)
+            if(!allowedOrganisms){
+                throw new RuntimeException("User does have permissions to access any organisms.")
+            }
+
+
+            if(!allowedOrganisms.contains(organism)){
+                log.error("Can not load organism ${organism?.commonName} so loading ${allowedOrganisms.first().commonName} instead.")
+                params.loc = null
+                organism = allowedOrganisms.first()
+            }
+
             log.debug "loading organism: ${organism}"
             preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
             if (params.loc) {

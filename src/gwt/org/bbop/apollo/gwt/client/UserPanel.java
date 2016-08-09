@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -227,6 +228,20 @@ public class UserPanel extends Composite {
                 }
             }
         });
+
+
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                if (MainPanel.getInstance().getCurrentUser() != null) {
+                    if(MainPanel.getInstance().isCurrentUserAdmin()) {
+                        UserRestService.loadUsers(userInfoList);
+                    }
+                    return false ;
+                }
+                return true ;
+            }
+        }, 100);
     }
 
     @UiHandler("userDetailTab")

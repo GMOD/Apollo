@@ -88,7 +88,13 @@ class PreferenceService {
 //    def setCurrentOrganism(User user, Organism organism) {
 //        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
     def setCurrentOrganism(User user, Organism organism, String clientToken) {
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(user, organism, clientToken,[max: 1, sort: "lastUpdated", order: "desc"])
+        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientToken(user, organism, clientToken,[sort: "lastUpdated", order: "desc"])
+        if(userOrganismPreferences.size()>1){
+            log.warn("Multiple preferences found: "+userOrganismPreferences.size())
+            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
+        }
+
+        UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user
@@ -143,12 +149,20 @@ class PreferenceService {
 //    def setCurrentSequence(User user, Sequence sequence) {
     def setCurrentSequence(User user, Sequence sequence, String clientToken) {
         Organism organism = sequence.organism
-//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
         Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
         if(user && bookmark){
             user.addToBookmarks(bookmark)
         }
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientTokenAndBookmark(user, organism, clientToken, bookmark,[max: 1, sort: "lastUpdated", order: "desc"])
+        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientTokenAndBookmark(user, organism, clientToken, bookmark,[sort: "lastUpdated", order: "desc"])
+        if(userOrganismPreferences.size()>1){
+            log.warn("Multiple preferences for sequence and organism: "+userOrganismPreferences.size())
+            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
+        }
+
+        UserOrganismPreference userOrganismPreference  = userOrganismPreferences ? userOrganismPreferences.first() : null
+
+//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
+//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientTokenAndBookmark(user, organism, clientToken, bookmark,[max: 1, sort: "lastUpdated", order: "desc"])
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user
@@ -169,7 +183,12 @@ class PreferenceService {
 
     UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
         User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(currentUser, true, clientToken,[max: 1, sort: "lastUpdated", order: "desc"])
+        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(currentUser, true, clientToken,[sort: "lastUpdated", order: "desc"])
+        if(userOrganismPreferences.size()>1){
+            log.warn("Multiple preferences found: "+userOrganismPreferences.size())
+            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
+        }
+        UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (!userOrganismPreference) {
             userOrganismPreference = UserOrganismPreference.findByUser(currentUser,[max: 1, sort: "lastUpdated", order: "desc"])
         }
@@ -195,7 +214,7 @@ class PreferenceService {
         userOrganismPreference.bookmark = bookmark
         userOrganismPreference.setStartbp(startBp ?: 0)
         userOrganismPreference.setEndbp(endBp ?: bookmark.end)
-        userOrganismPreference.save(flush: true)
+        userOrganismPreference.save(flush: true,insert:false)
     }
 
 
@@ -205,13 +224,23 @@ class PreferenceService {
             return null
         }
         // 1 - if a user exists, look up their client token and if they have a current organism.
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(user, true, clientToken,[max: 1, sort: "lastUpdated", order: "desc"])
+        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(user, true, clientToken,[sort: "lastUpdated", order: "desc"])
+        if(userOrganismPreferences.size()>1){
+            log.warn("Multiple preferences found: "+userOrganismPreferences.size())
+            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
+        }
+        UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (userOrganismPreference) {
             return userOrganismPreference
         }
 
         // 2 - if there is not a current organism for that token, then grab the first non-current one (unlikely) and make it current
-        userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(user, false, clientToken,[max: 1, sort: "lastUpdated", order: "desc"])
+        userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(user, false, clientToken,[sort: "lastUpdated", order: "desc"])
+        if(userOrganismPreferences.size()>1){
+            log.warn("Multiple preferences found: "+userOrganismPreferences.size())
+            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
+        }
+        userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (userOrganismPreference) {
             setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
             userOrganismPreference.currentOrganism = true
@@ -221,7 +250,14 @@ class PreferenceService {
 
         //3 - if none at all exist, we should ignore the client token and look it up by the user (missing), saving it for the current client token
         // we create a new one off of that, but for this client token
-        userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true,[max: 1, sort: "lastUpdated", order: "desc"])
+        userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganism(user, true,[sort: "lastUpdated", order: "desc"])
+        if(userOrganismPreferences.size()>1){
+            log.warn("Multiple preferences found: "+userOrganismPreferences.size())
+            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
+        }
+        userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
+
+        // just grab an adjacent one for that user, that is not current
         userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndCurrentOrganism(user, false,[max: 1, sort: "lastUpdated", order: "desc"])
         if (userOrganismPreference) {
             Organism organism = userOrganismPreference.organism
@@ -241,7 +277,7 @@ class PreferenceService {
         // 4 - if none at all exist, then we create one
         if (!userOrganismPreference) {
             // find a random organism based on sequence
-            Bookmark bookmark = Bookmark.findByName(trackName)
+            Bookmark bookmark = trackName ? Bookmark.findByName(trackName) : null
             Set<Organism> organisms = permissionService.getOrganisms(user)
             Organism organism = bookmark?.organism
             if(!organism && organisms){
@@ -254,6 +290,10 @@ class PreferenceService {
                 throw new PermissionException("User does not have permission for any organisms.")
             }
 
+            if(!bookmark){
+                Sequence sequence =  organism.sequences.first()
+                bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+            }
 
             if(user){
                 UserOrganismPreference newUserOrganismPreference = new UserOrganismPreference(
@@ -262,6 +302,8 @@ class PreferenceService {
                         , currentOrganism: true
                         , bookmark: bookmark
                         , clientToken: clientToken
+                        , startbp: bookmark.start
+                        , endbp: bookmark.end
                 ).save(insert: true, flush: true)
                 return newUserOrganismPreference
             }
