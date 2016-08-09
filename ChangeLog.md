@@ -4,10 +4,11 @@ Features
 
 + Upgraded to Grails 2.5.5
 + Allow REMOTE_USER authentication (apache / nginx) and added pluggable user authentication (#1042)
-+ Added the comments of Canned Keys and Attribute Pairs similar to Canned Comments (#86)
-+ Sequence download is available from highlighted regions in the User-created annotations export menu (#1163)
-+ Added ability to pass in parent information when loading transcripts using the add_transcript_from_gff3_to_annotations.pl loading script (#1171)
-+ Added [documentation for using Docker with Apollo](https://github.com/GMOD/Apollo/blob/master/docs/Setup.md#configure-for-docker) (#1016)
++ Ability to enter pre-specified (canned) values for Attributes in the 'Information Editor', similar to canned Comments. (#86)
++ Users may download the genomic sequence from highlighted regions using the export menu in the _User-created Annotations_ area export (#1163)
++ Information from parent features can be retained when loading transcripts onto the 'User-created Annotations' area using the add_transcript_from_gff3_to_annotations.pl loading script (#1171)
++ Added [documentation for using Apollo with Docker](https://github.com/GMOD/Apollo/blob/master/docs/Setup.md#configure-for-docker) (#1016)
+
 
 Bugfixes
 
