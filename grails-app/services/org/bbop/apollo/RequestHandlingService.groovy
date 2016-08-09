@@ -1176,7 +1176,7 @@ class RequestHandlingService {
             FeatureLocation sequenceAlterationFeatureLocation = sequenceAlteration.getFeatureLocation()
             deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
             FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
-            sequenceAlteration.delete()
+            sequenceAlteration.delete(flush: true)
 
             for (Feature feature : featureService.getOverlappingFeatures(sequenceAlterationFeatureLocation, false)) {
                 if (feature instanceof Gene) {
@@ -1185,7 +1185,7 @@ class RequestHandlingService {
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
                         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, true));
                     }
-                    feature.save()
+                    feature.save(flush: true)
                 }
             }
         }
