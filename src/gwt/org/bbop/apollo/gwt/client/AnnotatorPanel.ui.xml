@@ -47,7 +47,7 @@
                         <b:TextBox placeholder="Annotation Name"
                                    ui:field="nameSearchBox" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                    <b:Column size="MD_4">
+                    <b:Column size="MD_5">
                         <b:ListBox ui:field="typeList"  addStyleNames="{style.widgetBox}"/>
                     </b:Column>
                     <b:Column size="MD_6">
@@ -55,7 +55,7 @@
                     </b:Column>
                 <!--</b:Row>-->
                 <!--<b:Row styleName="{style.rowPadding}">-->
-                    <b:Column size="MD_4">
+                    <b:Column size="MD_5">
                         <b:ListBox ui:field="userField" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
                 </b:Row>
