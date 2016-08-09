@@ -774,6 +774,38 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     background-color: blue;
 }
 
+.red-ibeam {
+    height: 12px;
+    border-left-color: red;
+    border-right-color: red;
+    border-width: 0px 2px 0px 2px;
+    border-style: solid;
+    background-color: transparent;
+    z-index: 10;
+}
+
+.red-ibeam-render {
+    height: 3px;
+    margin-top: 4px;
+    background-color: red;
+}
+
+.green-ibeam {
+    height: 12px;
+    border-left-color: lawngreen;
+    border-right-color: lawngreen;
+    border-width: 0px 2px 0px 2px;
+    border-style: solid;
+    background-color: transparent;
+    z-index: 10;
+}
+
+.green-ibeam-render {
+    height: 3px;
+    margin-top: 4px;
+    background-color: lawngreen;
+}
+
 .magenta-80pct,
 .plus-magenta-80pct, 
 .minus-magenta-80pct {

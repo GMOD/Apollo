@@ -961,8 +961,28 @@ define([
                 }
             },
 
-            createAnnotations: function (selection_records) {
-                console.log('createAnnotations');
+            createAnnotations: function(selection_records) {
+                var target_track = this;
+                var geneSelectionRecords = new Array();
+                var variantSelectionRecords = new Array();
+                for (var i in selection_records) {
+                    if (selection_records[i].feature.get("type") == "SNV") {
+                        variantSelectionRecords.push(selection_records[i]);
+                    }
+                    else {
+                        geneSelectionRecords.push(selection_records[i]);
+                    }
+                }
+                if (geneSelectionRecords.length > 0) {
+                    target_track.createGeneAnnotations(geneSelectionRecords);
+                }
+
+                if (variantSelectionRecords.length > 0) {
+                    target_track.createVariantAnnotations(variantSelectionRecords);
+                }
+            },
+
+            createGeneAnnotations: function (selection_records) {
                 var target_track = this;
                 var featuresToAdd = new Array();
                 var parentFeatures = new Object();
@@ -1113,6 +1133,26 @@ define([
                     process();
                 }
 
+            },
+
+            createVariantAnnotations: function(selection_records) {
+                var target_track = this;
+                var featuresToAdd = new Array();
+
+                for (var i in selection_records) {
+                    var dragfeat = selection_records[i].feature;
+                    var featureToAdd = JSONUtils.makeSimpleFeature(dragfeat);
+                    var afeat = JSONUtils.createApolloVariant(featureToAdd, "SNV", true);
+                    featuresToAdd.push(afeat);
+                }
+
+                var postData = {
+                    track: target_track.getUniqueTrackName(),
+                    features: featuresToAdd,
+                    operation: "add_single_nucleotide_variant"
+                };
+                console.log("PostData: ", postData);
+                target_track.executeUpdateOperation(JSON.stringify(postData));
             },
 
             createGenericAnnotations: function (feats, type, subfeatType, topLevelType) {
@@ -1919,7 +1959,7 @@ define([
                 var track = this;
                 var selectedFeature = record.feature;
                 var selectedTrack = record.track;
-                var uniqueName = selectedFeature.afeature.type.name === "exon" ? selectedFeature.afeature.parent_id : selectedFeature.getUniqueName();
+                var uniqueName = selectedFeature.afeature.type.name == "exon" ? selectedFeature.afeature.parent_id : selectedFeature.getUniqueName();
 
                 if (selectedTrack == track) {
                     var trackdiv = track.div;
@@ -5833,7 +5873,7 @@ define([
                         label: "repeat_region",
                         onClick: function(event) {
                             var selected = thisB.selectionManager.getSelection();
-                            var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
+                            var selectedFeatureType = selected[0].feature.afeature.type.name == "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
                             if (selectedFeatureType != "transposable_element") {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
@@ -5848,7 +5888,7 @@ define([
                         label: "transposable_element",
                         onClick: function(event) {
                             var selected = thisB.selectionManager.getSelection();
-                            var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
+                            var selectedFeatureType = selected[0].feature.afeature.type.name == "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
                             if (selectedFeatureType != "repeat_region") {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
@@ -6272,50 +6312,53 @@ define([
 
             updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {
                 var selected = this.selectionManager.getSelection();
-                var selectedType = selected[0].feature.afeature.type.name === "exon" ?
+                var selectedType = selected[0].feature.afeature.type.name == "exon" ?
                     selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
                 var menuItems = changeAnnotationMenu.getChildren();
                 for (var i in menuItems) {
-                    if (selectedType === "mRNA") {
-                        if (menuItems[i].label === "gene") {
+                    if (selectedType == "mRNA") {
+                        if (menuItems[i].label == "gene") {
                             menuItems[i].setDisabled(true);
                         }
                         else {
                             menuItems[i].setDisabled(false);
                         }
                     }
-                    else if (selectedType === "transcript") {
-                        if (menuItems[i].label === "pseudogene") {
+                    else if (selectedType == "transcript") {
+                        if (menuItems[i].label == "pseudogene") {
                             menuItems[i].setDisabled(true);
                         }
                         else {
                             menuItems[i].setDisabled(false);
                         }
                     }
-                    else if (selectedType === "miRNA" || selectedType == "snRNA" || selectedType === "snoRNA" ||
-                        selectedType === "rRNA" || selectedType === "tRNA" || selectedType === "ncRNA") {
-                        if (menuItems[i].label === selectedType) {
+                    else if (selectedType == "miRNA" || selectedType == "snRNA" || selectedType == "snoRNA" ||
+                        selectedType == "rRNA" || selectedType == "tRNA" || selectedType == "ncRNA") {
+                        if (menuItems[i].label == selectedType) {
                             menuItems[i].setDisabled(true);
                         }
                         else {
                             menuItems[i].setDisabled(false);
                         }
                     }
-                    else if (selectedType === "repeat_region") {
-                        if (menuItems[i].label === "transposable_element") {
+                    else if (selectedType == "repeat_region") {
+                        if (menuItems[i].label == "transposable_element") {
                             menuItems[i].setDisabled(false);
                         }
                         else {
                             menuItems[i].setDisabled(true);
                         }
                     }
-                    else if (selectedType === "transposable_element") {
-                        if (menuItems[i].label === "repeat_region") {
+                    else if (selectedType == "transposable_element") {
+                        if (menuItems[i].label == "repeat_region") {
                             menuItems[i].setDisabled(false);
                         }
                         else {
                             menuItems[i].setDisabled(true);
                         }
+                    }
+                    else if (selectedType == "SNV") {
+                        menuItems[i].setDisabled(true);
                     }
                     else {
                         menuItems[i].setDisabled(false);

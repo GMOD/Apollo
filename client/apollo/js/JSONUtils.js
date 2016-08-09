@@ -427,6 +427,58 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     return afeature;
 };
 
+JSONUtils.createApolloVariant = function( jfeature, specified_type, useName ) {
+    var afeature = new Object();
+    var astrand;
+    switch (jfeature.get('strand')) {
+        case 1:
+        case '+':
+            astrand = 1; break;
+        case '-1':
+        case'-':
+            astrand = -1; break;
+        default:
+            // assume that the variant is on the forward strand
+            astrand = 1;
+    }
+
+    afeature.location = {
+        fmin: jfeature.get('start'),
+        fmax: jfeature.get('end'),
+        strand: astrand
+    };
+
+    var typename;
+    if (specified_type) {
+        typename = specified_type;
+    }
+    else if (jfeature.get('type')) {
+        typename = jfeature.get('type');
+    }
+
+    if (typename) {
+        afeature.type = {
+            cv: {
+                name: "sequence"
+            }
+        };
+        afeature.type.name = typename;
+    }
+
+    var name = jfeature.get('name');
+    if (useName && name) {
+        afeature.name = name;
+    }
+
+    var referenceNucleotide = jfeature.get('reference_allele');
+    var alternateNucleotide = jfeature.get('alternative_alleles').values;
+    afeature.referenceNucleotide = referenceNucleotide;
+    afeature.alternateNucleotide = alternateNucleotide;
+
+    // TODO: Add additional metadata
+    return afeature;
+};
+
 // experimenting with forcing export of JSONUtils into global namespace...
 window.JSONUtils = JSONUtils;
 
