@@ -1,6 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
+            'dojo/promise/all',
             'JBrowse/View/Track/HTMLVariants',
             'WebApollo/FeatureSelectionManager',
             'dijit/Menu',
@@ -16,22 +17,24 @@ define( [
             'WebApollo/SequenceOntologyUtils'
 
         ],
-    function( declare,
-             array,
-             HTMLVariantTrack,
-             FeatureSelectionManager,
-             dijitMenu,
-             dijitMenuItem,
-             dijitCheckedMenuItem,
-             dijitMenuSeparator,
-             dijitPopupMenuItem,
-             dijitDialog,
-             $,
-             draggable,
-             Util,
-             SimpleFeature,
-             SeqOnto ) {
 
+        function(
+            declare,
+            array,
+            all,
+            HTMLVariantTrack,
+            FeatureSelectionManager,
+            dijitMenu,
+            dijitMenuItem,
+            dijitCheckedMenuItem,
+            dijitMenuSeparator,
+            dijitPopupMenuItem,
+            dijitDialog,
+            $,
+            draggable,
+            Util,
+            SimpleFeature,
+            SeqOnto ) {
 
 var debugFrame = false;
 // this is class
@@ -577,34 +580,38 @@ var draggableTrack = declare( HTMLVariantTrack,
     _trackMenuOptions: function () {
         var thisB = this;
         var browser = this.browser;
-        var clabel = this.name + "-collapsed";
-        var options = this.inherited(arguments) || [];
-        options = this.webapollo.removeItemWithLabel(options, "Pin to top");
-        options = this.webapollo.removeItemWithLabel(options, "Delete track");
 
-        options.push( {
-            label: "Collapsed view",
-            title: "Collapsed view",
-            type: 'dijit/CheckedMenuItem',
-            checked: !!('collapsedMode' in thisB ? thisB.collapsedMode : browser.cookie(clabel) == "true"),
-            onClick: function(event) {
-                thisB.collapsedMode = this.get("checked");
-                browser.cookie(clabel, this.get("checked") ? "true" : "false");
-                var temp = thisB.showLabels;
-                if (this.get("checked")) {
-                    thisB.showLabels = false;
+        return all([this.inherited(arguments)]).then(function(options) {
+            var o = options.shift();
+            var clabel = this.name + "-collapsed";
+            o = thisB.webapollo.removeItemWithLabel(o, "Pin to top");
+            o = thisB.webapollo.removeItemWithLabel(o, "Delete track");
+            o.push({
+                type: 'dijit/MenuSeparator'
+            });
+            o.push({
+                label: "Collapsed view",
+                title: "Collapsed view",
+                type: 'dijit/CheckedMenuItem',
+                checked: !!('collapsedMode' in thisB ? thisB.collapsedMode : browser.cookie(clabel) == "true"),
+                onClick: function(event) {
+                    thisB.collapsedMode = this.get("checked");
+                    browser.cookie(clabel, this.get("checked") ? "true" : "false");
+                    var temp = thisB.showLabels;
+                    if (this.get("checked")) {
+                        thisB.showLabels = false;
+                    }
+                    else if (thisB.previouslyShowLabels) {
+                        thisB.showLabels = true;
+                    }
+                    thisB.previouslyShowLabels = temp;
+                    delete thisB.trackMenu;
+                    thisB.makeTrackMenu();
+                    thisB.redraw();
                 }
-                else if (thisB.previouslyShowLabels) {
-                    thisB.showLabels = true;
-                }
-                thisB.previouslyShowLabels = temp;
-                delete thisB.trackMenu;
-                thisB.makeTrackMenu();
-                thisB.redraw();
-            }
-        } );
-
-        return options;
+            });
+            return o;
+        });
     },
 
     updateContextMenu: function() {
