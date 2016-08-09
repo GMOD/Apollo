@@ -198,17 +198,17 @@ class LoginController extends AbstractApolloController {
 
     def logout(){
         log.debug "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
-        println "logging out with params: ${params}"
+        log.info "logging out with params: ${params}"
         // have to retrive the username first
         String username = SecurityUtils.subject.principal
-        println "sending logout"
+        log.debug "sending logout"
         sendLogout(username,params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-        println "sent logout"
+        log.debug "sent logout"
         sleep(1000)
-        println "doing local logout"
+        log.debug "doing local logout"
         SecurityUtils.subject.logout()
         sleep(1000)
-        println "logged out"
+        log.debug "logged out"
         if(params.targetUri){
             redirect(uri:"/auth/login?targetUri=${params.targetUri}")
         }
