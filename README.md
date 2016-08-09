@@ -7,8 +7,9 @@
 [![Documentation](https://readthedocs.org/projects/genomearchitect/badge/?version=latest)](https://genomearchitect.readthedocs.org/en/latest/)
 [![Chat at Gitter](https://badges.gitter.im/GMOD/Apollo.svg)](https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-
-## [![Downlaod the latest stable release](https://github.com/GMOD/Apollo/blob/master/docs/images/download.png)](https://github.com/GMOD/Apollo/releases/latest).
+<h1>
+<a href="https://github.com/GMOD/Apollo/releases/latest"><img src="https://github.com/GMOD/Apollo/blob/master/docs/images/download.png" width="35px" valign="bottom">&nbsp;Download the latest release<a>
+</h1>
 
 An instantaneous, collaborative, genome annotation editor.  The stack is a Java web application / database backend and a
 Javascript client that runs in a web browser as a JBrowse plugin.  
