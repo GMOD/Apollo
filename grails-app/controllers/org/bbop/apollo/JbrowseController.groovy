@@ -61,9 +61,6 @@ class JbrowseController {
             if(organism && clientToken){
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
             }
-        }
-
-        if (permissionService.currentUser) {
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
             render file.text
             return
