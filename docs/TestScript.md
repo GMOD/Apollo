@@ -156,7 +156,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 13.4) Organism
 
-13.4.1) Check that you can alter the metadata or source fule for existing organisms, add new organisms, and delete current organisms. 
+13.4.1) Check that you can alter the metadata or source file for existing organisms, add new organisms, and delete current organisms. 
 
 13.4.2) Test that you can switch between organisms by double clicking on one of them. 
 
