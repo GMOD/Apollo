@@ -1,9 +1,5 @@
 ## 2.0.4
 
-__Warnings:__ 
-
-+ __Version 2.0.4 will be released on 08-August-2016__
-
 Features
 
 + Upgraded to Grails 2.5.5
