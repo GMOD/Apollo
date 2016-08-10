@@ -34,6 +34,7 @@ class UrlMappings {
         "/${clientToken}/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/${clientToken}/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/${clientToken}/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
+        "/${clientToken}/jbrowse/plugins/WebApollo/json/annot.json"(controller:"jbrowse", action: "annotInclude")
         "/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")

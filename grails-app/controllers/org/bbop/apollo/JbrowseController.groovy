@@ -686,7 +686,9 @@ class JbrowseController {
 
         jsonObject.put("datasets", organismObjectContainer)
 
-        if (jsonObject.include == null) jsonObject.put("include", new JSONArray())
+        if (jsonObject.include == null){
+            jsonObject.put("include", new JSONArray())
+        }
         jsonObject.include.add("../plugins/WebApollo/json/annot.json")
 
         def plugins = grailsApplication.config.jbrowse?.plugins
@@ -723,6 +725,24 @@ class JbrowseController {
 
         response.outputStream << jsonObject.toString()
         response.outputStream.close()
+    }
+
+    def annotInclude(){
+        String realPath = servletContext.getRealPath("/jbrowse/plugins/WebApollo/json/annot.json")
+        File file = new File(realPath)
+        String returnString = file.text
+
+        response.outputStream << filterObject(returnString)
+        response.outputStream.close()
+    }
+
+    // TODO: can optimize and get fancier if have to add more stuff to our filter replacment code
+    def filterObject(String returnString) {
+
+        String currentUrl = createLink(absolute: true,uri:"/")
+        returnString = returnString.replaceAll("@SERVER@",currentUrl)
+
+        return returnString
     }
 
     private static boolean isCacheableFile(String fileName) {

@@ -12,7 +12,7 @@
       "key": "Projection Legend",
       "type": "JBrowse/View/Track/CanvasFeatures",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
-      "baseUrl": "http://localhost:8080/apollo/projectionLegend",
+      "baseUrl": "@SERVER@projectionLegend",
       "style": {
         "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
       },
@@ -31,7 +31,7 @@
       "type": "WebApollo/View/Track/ProjectionLegend",
       //      "type": "WebApollo/View/Track/LegendTrack",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
-      "baseUrl": "http://localhost:8080/apollo/projectionGrid",
+      "baseUrl": "@SERVER@projectionGrid",
       "style": {
         "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
       },
@@ -49,7 +49,7 @@
       //      "type": "WebApollo/View/Track/Legend2",
       "type": "WebApollo/View/Track/LegendTrack",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
-      "baseUrl": "http://localhost:8080/apollo/projectionGrid",
+      "baseUrl": "@SERVER@projectionGrid",
       "style": {
         "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
       },
@@ -66,7 +66,7 @@
       //      "type": "JBrowse/View/Track/CanvasVariants",
       "type": "JBrowse/View/Track/SVGLollipop",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
-      "baseUrl": "http://localhost:8080/apollo/projectionGrid",
+      "baseUrl": "@SERVER@projectionGrid",
       "style": {
         "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
       },
