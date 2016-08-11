@@ -337,6 +337,10 @@ class TrackService {
             if (subArray instanceof JSONArray) {
                 projectJsonArray(projection, subArray, offset, projectionSequence, trackName)
             }
+            if(subArray instanceof JSONObject && subArray.containsKey("Sublist")){
+                def subArrays2 = subArray.getJSONArray("Sublist")
+                projectJsonArray(projection, subArrays2, offset, projectionSequence, trackName)
+            }
         }
 
 
@@ -446,6 +450,11 @@ class TrackService {
             def subArray = coordinate.get(subIndex)
             if (subArray instanceof JSONArray) {
                 nudgeNcListArray(subArray, nudgeAmount, nudgeIndex,organismName,trackName)
+            }
+            else
+            if (subArray instanceof JSONObject && subArray.containsKey("Sublist")) {
+                JSONArray subArray2 = subArray.getJSONArray("Sublist")
+                nudgeNcListArray(subArray2, nudgeAmount, nudgeIndex,organismName,trackName)
             }
         }
 
