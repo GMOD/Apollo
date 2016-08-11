@@ -476,13 +476,32 @@ class RequestHandlingService {
 ////            preferenceService.setCurrentSequence(permissionService.getCurrentUser(inputObject), sequence,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 //        }
 
-//        log.debug "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
+        JSONArray sequenceListObject = new JSONArray(bookmark.sequenceList)
+
+        Map<String,Sequence> sequenceMap = new HashMap<>()
+        Map<String,Long> sequenceMin = new HashMap<>()
+        Map<String,Long> sequenceMax = new HashMap<>()
+
+        sequenceList.each {
+            sequenceMap.put(it.name,it)
+        }
+
+        sequenceListObject.each {
+            sequenceMin.put(it.name,it.start)
+            sequenceMax.put(it.name,it.end)
+        }
+
+        assert sequenceMin.size()==sequenceMap.size()
 
         def features = Feature.createCriteria().listDistinct {
-            featureLocations {
-                'in'('sequence', sequenceList)
-                'ge'('fmin', bookmark.start)
-                'le'('fmax', bookmark.end)
+            or{
+                sequenceMap.each { sequenceEntry ->
+                    featureLocations {
+                        'eq'('sequence', sequenceEntry.value)
+                        'ge'('fmin', sequenceMin.get(sequenceEntry.key))
+                        'le'('fmax', sequenceMax.get(sequenceEntry.key))
+                    }
+                }
             }
             fetchMode 'owners', FetchMode.JOIN
             fetchMode 'featureLocations', FetchMode.JOIN
