@@ -739,4 +739,79 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert FeatureLocation.count == 2 + 2 + 2 + 1 + 9 // one for each
         assert retrievedFeatures.size()==2
     }
+
+    void "Add a transcript add an isoform as well"() {
+
+        given: "if we create transcripts from one gene"
+        String transcriptUn87Gb53499 = "{${testCredentials} \"track\":{\"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+
+        when: "we add one transcript"
+        requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499) as JSONObject)
+        Sequence sequenceGroupUn87 = Sequence.findByName("GroupUn87")
+        MRNA mrnaGb53499 = MRNA.findByName("GB53499-RA-00001")
+
+        then: "we assert that we created one"
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert CDS.count == 1
+        assert Exon.count == 1
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert FeatureLocation.count == 1 + 1 + 1 + 1
+        assert mrnaGb53499.featureLocations[0].sequence == sequenceGroupUn87
+
+        when: "we add another one in projection"
+        requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499) as JSONObject)
+        MRNA mrnaGb53499v2 = MRNA.findByName("GB53499-RA-00002")
+
+        then: "we assert that we created an isoform"
+        assert mrnaGb53499v2!=null
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert CDS.count == 2
+        assert Exon.count == 2
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert FeatureLocation.count == (1 + 1 + 1)*2 + 1
+        assert mrnaGb53499.featureLocations[0].sequence == sequenceGroupUn87
+    }
+
+    // same as above
+    void "Add a transcript when projecting around it and add the isoform as well"() {
+
+        given: "if we create transcripts from one gene"
+        String transcriptUn87Gb53499InProjection = "{${testCredentials} \"track\":{\"id\":30621, \"name\":\"GB53499-RA (GroupUn87)\", \"padding\":0, \"start\":45455, \"end\":45575, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}}]},\"features\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+//        String getFeaturesString = "{ ${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
+//        String getFeaturesInProjectionString = "{ ${testCredentials} \"track\":{\"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"operation\":\"get_features\"}"
+
+        when: "we add one transcript"
+        requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499InProjection) as JSONObject)
+        Sequence sequenceGroupUn87 = Sequence.findByName("GroupUn87")
+        MRNA mrnaGb53499 = MRNA.findByName("GB53499-RA-00001")
+
+        then: "we assert that we created one"
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert CDS.count == 1
+        assert Exon.count == 1
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert FeatureLocation.count == 1 + 1 + 1 + 1
+        assert mrnaGb53499.featureLocations[0].sequence == sequenceGroupUn87
+
+        when: "we add another one in projection"
+        requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499InProjection) as JSONObject)
+        MRNA mrnaGb53499v2 = MRNA.findByName("GB53499-RA-00002")
+
+        then: "we assert that we created an isoform"
+        assert mrnaGb53499v2!=null
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert CDS.count == 2
+        assert Exon.count == 2
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert FeatureLocation.count == (1 + 1 + 1)*2 + 1
+        assert mrnaGb53499.featureLocations[0].sequence == sequenceGroupUn87
+    }
 }
