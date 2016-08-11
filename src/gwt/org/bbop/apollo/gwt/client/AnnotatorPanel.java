@@ -387,7 +387,7 @@ public class AnnotatorPanel extends Composite {
         Double desiredWidth = width * expansionFactor ;
         Long desiredStart = start - (long) (desiredWidth / 2.0) ;
         Long desiredEnd = end + (long) (desiredWidth / 2.0) ;
-        start = desiredStart < 0 ? start : desiredStart ;
+        start = desiredStart < 0 ? 0 : desiredStart ;
         end = desiredEnd ;  // can we maximize this?
         bookmarkSequence.setStart(start);
         bookmarkSequence.setEnd(end);
