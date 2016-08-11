@@ -255,4 +255,28 @@ class BookmarkService {
         }
         return calculatedMax
     }
+
+    def removeBookmarkById(Long id,User user) {
+        def bookmark = Bookmark.findById(id)
+        if(bookmark){
+            def uops = UserOrganismPreference.findAllByBookmark(bookmark)
+            Boolean canDelete = uops.find(){ it.currentOrganism } == null
+            if(canDelete){
+                user.removeFromBookmarks(bookmark)
+                uops.each {
+                    it.delete()
+                }
+                bookmark.delete(flush: true)
+                return true
+            }
+            else{
+                log.error("Preference is still current, ignoring ${id}")
+                return false
+            }
+        }
+        else{
+            log.error("No bookmark found to delete for ${id} and ${user.username}")
+            return false
+        }
+    }
 }

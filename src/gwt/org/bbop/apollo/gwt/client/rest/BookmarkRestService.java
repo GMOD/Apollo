@@ -3,11 +3,16 @@ package org.bbop.apollo.gwt.client.rest;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import org.bbop.apollo.gwt.client.MainPanel;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
 import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfoConverter;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+
 
 /**
  * This class stores Boorkmars
@@ -28,7 +33,15 @@ public class BookmarkRestService {
     }
 
     public static void removeBookmarks(RequestCallback requestCallback,BookmarkInfo... selectedSet) {
-        RestService.sendRequest(requestCallback, "bookmark/deleteBookmark",BookmarkInfoConverter.convertBookmarkInfoToJSONArray(selectedSet));
+        JSONArray removeArray = new JSONArray();
+        JSONArray idList = new JSONArray();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(FeatureStringEnum.ID.getValue(),idList);
+        for(BookmarkInfo bookmarkInfo : selectedSet){
+            idList.set(idList.size(),new JSONNumber(bookmarkInfo.getId()));
+        }
+        removeArray.set(0,jsonObject);
+        RestService.sendRequest(requestCallback, "bookmark/deleteBookmark",removeArray);
     }
 
     public static void getBookmarks(RequestCallback requestCallback, BookmarkInfo bookmarkInfo) {

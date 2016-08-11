@@ -62,34 +62,10 @@ class BookmarkController {
     def deleteBookmark() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         User user = permissionService.getCurrentUser(inputObject)
-        Organism organism = preferenceService.getOrganismFromPreferences(user, null, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+//        Organism organism = preferenceService.getOrganismFromPreferences(user, null, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
-
-        def idList = []
-//        for(int i = 0 ; i < inputObject.size() ; i++){
-//            def obj = inputObject.getJSONObject(i)
-        idList.add(inputObject.id)
-//        }
-
-        def bookmark = Bookmark.findById(inputObject.id)
-        if(bookmark){
-            user.removeFromBookmarks(bookmark)
-            def uops = UserOrganismPreference.findAllByBookmark(bookmark)
-            for(uop in uops){
-                if(uop){
-                    if(uop.currentOrganism){
-                        log.error("Preference is still current, ignoring")
-                        throw new AnnotationException("Can not delete the current bookmark!")
-                    }
-                    else{
-                        uop.delete()
-                    }
-                }
-            }
-            bookmark.delete(flush: true)
-        }
-        else{
-            log.error("No bookmark found to delete for ${inputObject as JSON}")
+        inputObject.id.each{
+            bookmarkService.removeBookmarkById(it,user)
         }
 
         render list() as JSON

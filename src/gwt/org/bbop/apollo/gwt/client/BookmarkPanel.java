@@ -72,6 +72,8 @@ public class BookmarkPanel extends Composite {
     Input paddingForm;
     @UiField
     Button clearButton;
+    @UiField
+    Button deleteButton;
 //    @UiField
 //    Button goButton;
 
@@ -163,7 +165,14 @@ public class BookmarkPanel extends Composite {
         BookmarkRestService.clearBookmarkCache();
     }
 
-    @UiHandler("removeButton")
+    @UiHandler("deleteButton")
+    public void delete(ClickEvent clickEvent){
+        BookmarkRestService.removeBookmarks(new UpdateBookmarksCallback(),dataProvider.getList().toArray(new BookmarkInfo[dataProvider.getList().size()]) );
+        resetPanel();
+    }
+
+
+        @UiHandler("removeButton")
     public void remove(ClickEvent clickEvent) {
         BookmarkRestService.removeBookmarks(new UpdateBookmarksCallback(), selectionModel.getSelectedSet().toArray(new BookmarkInfo[selectionModel.getSelectedSet().size()]));
         resetPanel();

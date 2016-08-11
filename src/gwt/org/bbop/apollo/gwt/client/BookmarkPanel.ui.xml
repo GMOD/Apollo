@@ -80,12 +80,15 @@
                     <!--<b:Column size="MD_3">-->
                     <!--<gwt:HTML><b>Search</b></gwt:HTML>-->
                     <!--</b:Column>-->
-                    <b:Column size="MD_6">
-                        <b:TextBox ui:field="searchBox" width="200px" enabled="true"
+                    <b:Column size="MD_5">
+                        <b:TextBox ui:field="searchBox" enabled="true"
                                    placeholder="Search for Bookmarks"/>
                     </b:Column>
                     <b:Column size="MD_3">
-                        <b:Button text="Clear Bookmark Cache" icon="REMOVE" ui:field="clearButton"/>
+                        <b:Button text="Clear Cache" icon="REMOVE" ui:field="clearButton"/>
+                    </b:Column>
+                    <b:Column size="MD_3">
+                        <b:Button text="Delete All Bookmarks" icon="TRASH" ui:field="deleteButton"/>
                     </b:Column>
                 </b:Row>
             </b:Container>
