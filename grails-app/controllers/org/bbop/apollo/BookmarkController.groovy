@@ -74,14 +74,16 @@ class BookmarkController {
         def bookmark = Bookmark.findById(inputObject.id)
         if(bookmark){
             user.removeFromBookmarks(bookmark)
-            UserOrganismPreference uop = UserOrganismPreference.findByBookmark(bookmark)
-            if(uop){
-                if(uop.currentOrganism){
-                    log.error("Preference is still current, ignoring")
-                    throw new AnnotationException("Can not delete the current bookmark!")
-                }
-                else{
-                    uop.delete()
+            def uops = UserOrganismPreference.findAllByBookmark(bookmark)
+            for(uop in uops){
+                if(uop){
+                    if(uop.currentOrganism){
+                        log.error("Preference is still current, ignoring")
+                        throw new AnnotationException("Can not delete the current bookmark!")
+                    }
+                    else{
+                        uop.delete()
+                    }
                 }
             }
             bookmark.delete(flush: true)
