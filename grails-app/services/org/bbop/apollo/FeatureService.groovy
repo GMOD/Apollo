@@ -1543,7 +1543,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      */
     @Transactional
     def setFmin(Feature feature, int fmin,MultiSequenceProjection multiSequenceProjection) {
-        ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(fmin)
+        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(fmin)
         Organism organism = preferenceService.getOrganismForToken(projectionSequence.organism)
         Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
 
@@ -1572,7 +1572,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     @Transactional
     def setFmax(Feature feature, int fmax,MultiSequenceProjection multiSequenceProjection) {
-        ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(fmax)
+        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(fmax)
         Organism organism = preferenceService.getOrganismForToken(projectionSequence.organism)
         Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
 

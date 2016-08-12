@@ -870,6 +870,8 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,organism: "Human"
                 ,order: 0
                 ,unprojectedLength: 100
+                ,start: 0
+                ,end: 99
         )// from 0-99
         ProjectionSequence sequence2 = new ProjectionSequence(
                 id: 2
@@ -877,6 +879,8 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,organism: "Human"
                 ,order: 1
                 ,unprojectedLength: 100
+                ,start: 0
+                ,end: 99
         ) // from 100-200
         ProjectionDescription projectionDescription = new ProjectionDescription(
                 referenceTrack: []

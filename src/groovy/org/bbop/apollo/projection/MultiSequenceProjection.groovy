@@ -18,7 +18,6 @@ class MultiSequenceProjection extends AbstractProjection {
         for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
             Integer bufferedLength = sequenceDiscontinuousProjectionMap.get(projectionSequence).bufferedLength
             if (input >= projectionSequence.offset && input <= projectionSequence.offset + bufferedLength) {
-//                if (input >= projectionSequence.offset + projectionSequence.start && input <= projectionSequence.offset + bufferedLength + projectionSequence.start) {
                 return projectionSequence
             }
         }
