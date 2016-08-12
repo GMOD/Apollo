@@ -814,4 +814,55 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert FeatureLocation.count == (1 + 1 + 1)*2 + 1
         assert mrnaGb53499.featureLocations[0].sequence == sequenceGroupUn87
     }
+
+    void "We can view transcripts across two scaffolds in a projection and get all feature data"() {
+
+        given: "if we create transcripts from two genes and merge them"
+        String transcriptUn87Gb53499 = "{${testCredentials} \"track\":{\"id\":31085, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String transcript11_4GB52238 = "{${testCredentials} \"track\":{\"id\":31085, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"location\":{\"fmin\":720,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52238-RA\",\"children\":[{\"location\":{\"fmin\":720,\"fmax\":765,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":3184,\"fmax\":3516,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":3696,\"fmax\":3824,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":4168,\"fmax\":4835,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":5879,\"fmax\":6690,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":6862,\"fmax\":6940,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":7743,\"fmax\":7949,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":8681,\"fmax\":8917,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":9024,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":720,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+//        String getFeaturesString = "{ ${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
+
+        // TODO: create actual projeciton getFeatures
+        String getFeaturesInProjectionString2 = "{${testCredentials} \"track\":{\"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"operation\":\"get_features\"}"
+
+
+        when: "we add two transcripts"
+        JSONObject addTransriptResponseUn87Gb53499 = requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499) as JSONObject)
+        JSONObject addTransriptResponseUn87Gb53499_iso1 = requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499) as JSONObject)
+        JSONObject addTransriptResponse11_45Un87Gb2238 = requestHandlingService.addTranscript(JSON.parse(transcript11_4GB52238) as JSONObject)
+        JSONObject addTransriptResponse11_45Un87Gb2238_iso1 = requestHandlingService.addTranscript(JSON.parse(transcript11_4GB52238) as JSONObject)
+        Sequence sequenceGroupUn87 = Sequence.findByName("GroupUn87")
+        Sequence sequenceGroup11_4 = Sequence.findByName("Group11.4")
+        MRNA mrnaGb53499 = MRNA.findByName("GB53499-RA-00001")
+        MRNA mrnaGb52238 = MRNA.findByName("GB52238-RA-00001")
+
+
+        then: "we verify that we have two transcripts, one on each scaffold"
+        assert MRNA.count == 4
+        assert Gene.count == 2
+        assert CDS.count == 4
+        assert Exon.count == (1 + 9)*2
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert FeatureLocation.count == 4 + 2 + 4 + (1 + 9)*2 // one for each
+        assert mrnaGb53499.featureLocations[0].sequence == sequenceGroupUn87
+        assert mrnaGb52238.featureLocations[0].sequence == sequenceGroup11_4
+
+        when: "we get all of the features with projected features"
+        JSONArray retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesInProjectionString2) as JSONObject).features
+//        JSONObject locationJsonObject = retrievedFeatures.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
+
+        then: "we should see both features"
+        assert retrievedFeatures.size()==4
+        assert retrievedFeatures.getJSONObject(0).name == mrnaGb53499.name
+        assert retrievedFeatures.getJSONObject(2).name == mrnaGb52238.name
+        assert retrievedFeatures.getJSONObject(0).location.fmin >0
+        assert retrievedFeatures.getJSONObject(0).location.fmax >0
+        assert retrievedFeatures.getJSONObject(1).location.fmin >0
+        assert retrievedFeatures.getJSONObject(1).location.fmax >0
+        assert retrievedFeatures.getJSONObject(2).location.fmin >0
+        assert retrievedFeatures.getJSONObject(2).location.fmax >0
+        assert retrievedFeatures.getJSONObject(3).location.fmin >0
+        assert retrievedFeatures.getJSONObject(3).location.fmax >0
+    }
 }
