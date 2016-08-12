@@ -70,8 +70,8 @@ public class BookmarkPanel extends Composite {
     org.gwtbootstrap3.client.ui.TextBox searchBox;
 //    @UiField
     Input paddingForm;
-    @UiField
-    Button clearButton;
+//    @UiField
+//    Button clearButton;
     @UiField
     Button deleteButton;
 //    @UiField
@@ -160,10 +160,10 @@ public class BookmarkPanel extends Composite {
 
     }
 
-    @UiHandler("clearButton")
-    public void clear(ClickEvent clickEvent){
-        BookmarkRestService.clearBookmarkCache();
-    }
+//    @UiHandler("clearButton")
+//    public void clear(ClickEvent clickEvent){
+//        BookmarkRestService.clearBookmarkCache();
+//    }
 
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent){

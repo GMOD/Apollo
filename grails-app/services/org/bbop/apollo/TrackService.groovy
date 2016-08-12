@@ -639,7 +639,7 @@ class TrackService {
 
 
         multiSequenceProjection.projectionChunkList = projectionChunkList
-        projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
+//        projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
 
         JSONObject trackObject = mergeTrackObject(trackObjectList, multiSequenceProjection,currentOrganism,trackName)
 

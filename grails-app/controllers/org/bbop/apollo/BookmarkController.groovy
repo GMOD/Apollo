@@ -73,9 +73,9 @@ class BookmarkController {
 
     def searchBookmarks(String searchQuery) {
         JSONObject inputObject = permissionService.handleInput(request, params)
-        String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-        User user = permissionService.currentUser;
-        Organism organism = preferenceService.getOrganismForToken(clientToken);
+//        String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+        User user = permissionService.getCurrentUser(inputObject);
+//        Organism organism = preferenceService.getOrganismForToken(clientToken);
 
         ArrayList<Bookmark> bookmarkResults = new ArrayList<Bookmark>();
         for (Bookmark bookmark : user.bookmarks) {
@@ -91,8 +91,8 @@ class BookmarkController {
         }
     }
 
-    def clearBookmarkCache() {
-        projectionService.clearProjections()
-        render new JSONObject() as JSON
-    }
+//    def clearBookmarkCache() {
+//        projectionService.clearProjections()
+//        render new JSONObject() as JSON
+//    }
 }

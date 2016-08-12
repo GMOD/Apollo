@@ -84,9 +84,9 @@
                         <b:TextBox ui:field="searchBox" enabled="true"
                                    placeholder="Search for Bookmarks"/>
                     </b:Column>
-                    <b:Column size="MD_3">
-                        <b:Button text="Clear Cache" icon="REMOVE" ui:field="clearButton"/>
-                    </b:Column>
+                    <!--<b:Column size="MD_3">-->
+                        <!--<b:Button text="Clear Cache" icon="REMOVE" ui:field="clearButton"/>-->
+                    <!--</b:Column>-->
                     <b:Column size="MD_3">
                         <b:Button text="Delete All Bookmarks" icon="TRASH" ui:field="deleteButton"/>
                     </b:Column>

@@ -23,7 +23,7 @@ class ProjectionService {
 
 //    private Map<String, Map<String, ProjectionInterface>> projectionMap = new HashMap<>()
 
-    private Map<ProjectionDescription, MultiSequenceProjection> multiSequenceProjectionMap = new HashMap<>()
+//    private Map<ProjectionDescription, MultiSequenceProjection> multiSequenceProjectionMap = new HashMap<>()
 
 
     @NotTransactional
@@ -501,6 +501,7 @@ class ProjectionService {
             projectionSequenceMap.put(it.name,it)
         }
 //        List<String> sequenceNames = multiSequenceProjection.projectedSequences.name
+        // TODO: speed this up by caching sequences
         Sequence.findAllByNameInList(projectionSequenceMap.keySet() as List<String>).each {
             def projectionSequence = projectionSequenceMap.get(it.name)
             projectionSequence.unprojectedLength = it.length
@@ -692,11 +693,13 @@ class ProjectionService {
  */
     MultiSequenceProjection getProjection(JSONObject bookmarkObject) {
         ProjectionDescription projectionDescription = convertJsonObjectToProjectDescription(bookmarkObject)
-        if (!multiSequenceProjectionMap.containsKey(projectionDescription)) {
-            MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(projectionDescription)
-            multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
-        }
-        return multiSequenceProjectionMap.get(projectionDescription)
+        return createMultiSequenceProjection(projectionDescription)
+//        ProjectionDescription projectionDescription = convertJsonObjectToProjectDescription(bookmarkObject)
+//        if (true || !multiSequenceProjectionMap.containsKey(projectionDescription)) {
+//            MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(projectionDescription)
+//            multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
+//        }
+//        return multiSequenceProjectionMap.get(projectionDescription)
     }
 
 //    Boolean containsSequence(Map<ProjectionSequence, MultiSequenceProjection> projectionSequenceMultiSequenceProjectionMap, String sequenceName, Long sequenceId, Organism currentOrganism) {
@@ -713,10 +716,10 @@ class ProjectionService {
     def storeProjection(String putativeRefererLocation, MultiSequenceProjection multiSequenceProjection, Organism organism) {
         JSONObject bookmarkObject = convertProjectionToBookmarkJsonObject(putativeRefererLocation, organism)
         ProjectionDescription projectionDescription = convertJsonObjectToProjectDescription(bookmarkObject)
-        multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
+//        multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
     }
 
     def clearProjections() {
-        multiSequenceProjectionMap.clear()
+//        multiSequenceProjectionMap.clear()
     }
 }
