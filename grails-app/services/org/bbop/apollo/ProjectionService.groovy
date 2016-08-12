@@ -713,13 +713,13 @@ class ProjectionService {
 //
 //    }
 
-    def storeProjection(String putativeRefererLocation, MultiSequenceProjection multiSequenceProjection, Organism organism) {
-        JSONObject bookmarkObject = convertProjectionToBookmarkJsonObject(putativeRefererLocation, organism)
-        ProjectionDescription projectionDescription = convertJsonObjectToProjectDescription(bookmarkObject)
-//        multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
-    }
+//    def storeProjection(String putativeRefererLocation, MultiSequenceProjection multiSequenceProjection, Organism organism) {
+//        JSONObject bookmarkObject = convertProjectionToBookmarkJsonObject(putativeRefererLocation, organism)
+//        ProjectionDescription projectionDescription = convertJsonObjectToProjectDescription(bookmarkObject)
+////        multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
+//    }
 
-    def clearProjections() {
+//    def clearProjections() {
 //        multiSequenceProjectionMap.clear()
-    }
+//    }
 }

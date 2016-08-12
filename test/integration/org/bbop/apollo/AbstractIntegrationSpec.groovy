@@ -4,6 +4,7 @@ import grails.test.spock.IntegrationSpec
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.crypto.hash.Sha256Hash
+import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
 import org.apache.shiro.util.ThreadContext
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager
@@ -21,7 +22,7 @@ class AbstractIntegrationSpec extends IntegrationSpec{
 
     def setup(){
        setupDefaultUserOrg()
-       projectionService.clearProjections()
+//       projectionService.clearProjections()
     }
 
     String password = "testPass"
@@ -31,7 +32,36 @@ class AbstractIntegrationSpec extends IntegrationSpec{
         "\"${FeatureStringEnum.CLIENT_TOKEN.value}\":\"1231232\",\"${FeatureStringEnum.USERNAME.value}\":\"test@test.com\","
     }
 
+    // Logout the user fully before continuing.
+    private void ensureUserIsLoggedOut()
+    {
+        try
+        {
+            // Get the user if one is logged in.
+            Subject currentUser = SecurityUtils.getSubject();
+            if (currentUser == null){
+                return;
+            }
+
+            // Log the user out and kill their session if possible.
+            currentUser.logout();
+            Session session = currentUser.getSession(false);
+            if (session == null){
+                return;
+            }
+
+            session.stop();
+        }
+        catch (Exception e)
+        {
+            // Ignore all errors, as we're trying to silently
+            // log the user out.
+        }
+    }
+
     def setupDefaultUserOrg(){
+        ensureUserIsLoggedOut()
+
         if(User.findByUsername('test@test.com')){
             return
         }

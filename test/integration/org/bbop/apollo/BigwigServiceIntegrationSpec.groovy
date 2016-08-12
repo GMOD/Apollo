@@ -37,7 +37,7 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
                 , organism: organism
                 , name: "GroupUn87"
         ).save(failOnError: true)
-        projectionService.clearProjections()
+//        projectionService.clearProjections()
     }
 
     def cleanup() {
