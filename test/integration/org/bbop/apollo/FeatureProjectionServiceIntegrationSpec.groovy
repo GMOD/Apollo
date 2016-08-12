@@ -865,4 +865,166 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert retrievedFeatures.getJSONObject(3).location.fmin >0
         assert retrievedFeatures.getJSONObject(3).location.fmax >0
     }
+
+    void "We can add a transcript in a projection and set the exon boundary on both the 3' and 5' sides"() {
+
+        given: "if we create transcripts from two genes and merge them"
+        String transcriptUn87Gb53499 = "{${testCredentials} \"track\":{\"id\":31085, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String setExonBoundaryUn87Gb53499 = "{ ${testCredentials} \"track\":{\"id\":31240, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME_1@\",\"location\":{\"fmin\":200,\"fmax\":413}}],\"operation\":\"set_exon_boundaries\"}"
+        String setExonBoundaryUn87Gb53499Across = "{ ${testCredentials} \"track\":{\"id\":31240, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME_1@\",\"location\":{\"fmin\":200,\"fmax\":682}}],\"operation\":\"set_exon_boundaries\"}"
+
+        String transcript11_4GB52238 = "{${testCredentials} \"track\":{\"id\":31085, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"location\":{\"fmin\":720,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52238-RA\",\"children\":[{\"location\":{\"fmin\":720,\"fmax\":765,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":3184,\"fmax\":3516,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":3696,\"fmax\":3824,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":4168,\"fmax\":4835,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":5879,\"fmax\":6690,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":6862,\"fmax\":6940,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":7743,\"fmax\":7949,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":8681,\"fmax\":8917,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":9024,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":720,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        String setExonBoundary11_4GB52238 = "{ ${testCredentials} \"track\":{\"id\":31240, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME_2@\",\"location\":{\"fmin\":632,\"fmax\":765}}],\"operation\":\"set_exon_boundaries\"}"
+        String setExonBoundary11_4GB52238ACross = "{ ${testCredentials} \"track\":{\"id\":31240, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME_2@\",\"location\":{\"fmin\":415,\"fmax\":765}}],\"operation\":\"set_exon_boundaries\"}"
+
+        // TODO: create actual projeciton getFeatures
+        String getFeaturesInProjectionString2 = "{${testCredentials} \"track\":{\"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"operation\":\"get_features\"}"
+
+
+        when: "we add two transcripts"
+        JSONObject addTransriptResponseUn87Gb53499 = requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499) as JSONObject)
+        Exon exon1 = Exon.first()
+        String exonUniqueName1 = exon1.uniqueName
+        JSONObject addTransriptResponse11_45Un87Gb2238 = requestHandlingService.addTranscript(JSON.parse(transcript11_4GB52238) as JSONObject)
+        List<Exon> exonList = Exon.all.sort(){ it.featureLocations.first().fmin }
+        String exonUniqueName2 = exonList.get(0).uniqueName
+        Sequence sequenceGroupUn87 = Sequence.findByName("GroupUn87")
+        Sequence sequenceGroup11_4 = Sequence.findByName("Group11.4")
+        MRNA mrnaGb53499 = MRNA.findByName("GB53499-RA-00001")
+        setExonBoundaryUn87Gb53499 = setExonBoundaryUn87Gb53499.replaceAll("@EXON_UNIQUE_NAME_1@",exonUniqueName1)
+        setExonBoundaryUn87Gb53499Across = setExonBoundaryUn87Gb53499Across.replaceAll("@EXON_UNIQUE_NAME_1@",exonUniqueName1)
+        MRNA mrnaGb52238 = MRNA.findByName("GB52238-RA-00001")
+        setExonBoundary11_4GB52238 = setExonBoundary11_4GB52238.replaceAll("@EXON_UNIQUE_NAME_2@",exonUniqueName2)
+        setExonBoundary11_4GB52238ACross = setExonBoundary11_4GB52238ACross.replaceAll("@EXON_UNIQUE_NAME_2@",exonUniqueName2)
+
+
+        then: "we verify that we have two transcripts, one on each scaffold"
+        assert MRNA.count == 2
+        assert Gene.count == 2
+        assert CDS.count == 2
+        assert Exon.count == (1 + 9)
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert FeatureLocation.count == 2 + 2 + 2 + (1 + 9) // one for each
+        assert mrnaGb53499.featureLocations[0].sequence == sequenceGroupUn87
+        assert mrnaGb52238.featureLocations[0].sequence == sequenceGroup11_4
+
+        when: "we get all of the features with projected features"
+        JSONArray retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesInProjectionString2) as JSONObject).features
+//        JSONObject locationJsonObject = retrievedFeatures.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
+
+        then: "we should see both features"
+        assert retrievedFeatures.size()==2
+//        assert retrievedFeatures.getJSONObject(0).name == mrnaGb53499.name
+//        assert retrievedFeatures.getJSONObject(1).name == mrnaGb52238.name
+        assert retrievedFeatures.getJSONObject(0).location.fmin >0
+        assert retrievedFeatures.getJSONObject(0).location.fmax >0
+        assert retrievedFeatures.getJSONObject(1).location.fmin >0
+        assert retrievedFeatures.getJSONObject(1).location.fmax >0
+
+        when: "we set the exon boundaries on the 5' side"
+        requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryUn87Gb53499) as JSONObject)
+        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesInProjectionString2) as JSONObject).features
+
+        then: "we should still have valid locations "
+        assert retrievedFeatures.getJSONObject(0).location.fmin >0
+        assert retrievedFeatures.getJSONObject(0).location.fmax >0
+        assert retrievedFeatures.getJSONObject(1).location.fmin >0
+        assert retrievedFeatures.getJSONObject(1).location.fmax >0
+
+        when: "we set the exon boundaries on the 3' side"
+        requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary11_4GB52238) as JSONObject)
+        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesInProjectionString2) as JSONObject).features
+
+        then: "we should still have valid locations "
+        assert retrievedFeatures.getJSONObject(0).location.fmin >0
+        assert retrievedFeatures.getJSONObject(0).location.fmax >0
+        assert retrievedFeatures.getJSONObject(1).location.fmin >0
+        assert retrievedFeatures.getJSONObject(1).location.fmax >0
+
+        when: "we set the exon boundaries on the 5' side across to the 3' side"
+        requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryUn87Gb53499Across) as JSONObject)
+        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesInProjectionString2) as JSONObject).features
+
+        then: "we should still have valid locations "
+        assert retrievedFeatures.getJSONObject(0).location.fmin >0
+        assert retrievedFeatures.getJSONObject(0).location.fmax >0
+        assert retrievedFeatures.getJSONObject(1).location.fmin >0
+        assert retrievedFeatures.getJSONObject(1).location.fmax >0
+
+        when: "we set the exon boundaries on the 3' side across to the 5' side"
+        requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary11_4GB52238ACross) as JSONObject)
+        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesInProjectionString2) as JSONObject).features
+
+        then: "we should still have valid locations "
+        assert retrievedFeatures.getJSONObject(0).location.fmin >0
+        assert retrievedFeatures.getJSONObject(0).location.fmax >0
+        assert retrievedFeatures.getJSONObject(1).location.fmin >0
+        assert retrievedFeatures.getJSONObject(1).location.fmax >0
+    }
+
+    void "We can merge two transcript in a projection between the 3' and 5' sides"() {
+
+        given: "if we create transcripts from two genes and merge them"
+        String transcriptUn87Gb53499 = "{${testCredentials} \"track\":{\"id\":31085, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String transcript11_4GB52238 = "{${testCredentials} \"track\":{\"id\":31085, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"location\":{\"fmin\":720,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52238-RA\",\"children\":[{\"location\":{\"fmin\":720,\"fmax\":765,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":3184,\"fmax\":3516,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":3696,\"fmax\":3824,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":4168,\"fmax\":4835,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":5879,\"fmax\":6690,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":6862,\"fmax\":6940,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":7743,\"fmax\":7949,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":8681,\"fmax\":8917,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":9024,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":720,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        String mergeExonCommand ="{ ${testCredentials} \"track\": {\"id\":31240, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]}, \"features\": [ { \"uniquename\": \"@EXON_UNIQUE_NAME_1@\" }, { \"uniquename\": \"@EXON_UNIQUE_NAME_2@\" } ], \"operation\": \"merge_transcripts\"}"
+
+        // TODO: create actual projeciton getFeatures
+        String getFeaturesInProjectionString2 = "{${testCredentials} \"track\":{\"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"operation\":\"get_features\"}"
+
+        when: "we add two transcripts"
+        JSONObject addTransriptResponseUn87Gb53499 = requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499) as JSONObject)
+        Exon exon1 = Exon.first()
+        String exonUniqueName1 = exon1.uniqueName
+        JSONObject addTransriptResponse11_45Un87Gb2238 = requestHandlingService.addTranscript(JSON.parse(transcript11_4GB52238) as JSONObject)
+        List<Exon> exonList = Exon.all.sort(){ it.featureLocations.first().fmin }
+        String exonUniqueName2 = exonList.get(0).uniqueName
+        mergeExonCommand = mergeExonCommand.replaceAll("@EXON_UNIQUE_NAME_1@",exonUniqueName1)
+        mergeExonCommand = mergeExonCommand.replaceAll("@EXON_UNIQUE_NAME_2@",exonUniqueName2)
+        Sequence sequenceGroupUn87 = Sequence.findByName("GroupUn87")
+        Sequence sequenceGroup11_4 = Sequence.findByName("Group11.4")
+        MRNA mrnaGb53499 = MRNA.findByName("GB53499-RA-00001")
+        MRNA mrnaGb52238 = MRNA.findByName("GB52238-RA-00001")
+
+
+        then: "we verify that we have two transcripts, one on each scaffold"
+        assert MRNA.count == 2
+        assert Gene.count == 2
+        assert CDS.count == 2
+        assert Exon.count == (1 + 9)
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert FeatureLocation.count == 2 + 2 + 2 + (1 + 9) // one for each
+        assert mrnaGb53499.featureLocations[0].sequence == sequenceGroupUn87
+        assert mrnaGb52238.featureLocations[0].sequence == sequenceGroup11_4
+
+        when: "we get all of the features with projected features"
+        JSONArray retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesInProjectionString2) as JSONObject).features
+
+        then: "we should see both features"
+        assert retrievedFeatures.size()==2
+        assert retrievedFeatures.getJSONObject(0).location.fmin >0
+        assert retrievedFeatures.getJSONObject(0).location.fmax >0
+        assert retrievedFeatures.getJSONObject(1).location.fmin >0
+        assert retrievedFeatures.getJSONObject(1).location.fmax >0
+
+        when: "we set the exon boundaries on the 5' side"
+        requestHandlingService.mergeTranscripts(JSON.parse(mergeExonCommand) as JSONObject)
+        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesInProjectionString2) as JSONObject).features
+
+        then: "we should still have valid locations "
+        assert retrievedFeatures.getJSONObject(0).location.fmin >0
+        assert retrievedFeatures.getJSONObject(0).location.fmax >0
+        assert retrievedFeatures.getJSONObject(1).location.fmin >0
+        assert retrievedFeatures.getJSONObject(1).location.fmax >0
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert CDS.count == 1
+        assert Exon.count == (1 + 9)
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert FeatureLocation.count == 2 + 2 + 2 + (1 + 9) // one for each
+
+    }
 }
