@@ -965,8 +965,12 @@ define([
                 var target_track = this;
                 var geneSelectionRecords = new Array();
                 var variantSelectionRecords = new Array();
+                var variantTypes = ["SNV", "SNP", "MNV", "MNP", "INDEL", "INSERTION", "DELETION"]; // supported variant types
+
                 for (var i in selection_records) {
-                    if (selection_records[i].feature.get("type") == "SNV") {
+                    var type = selection_records[i].feature.get("type").toUpperCase();
+                    if (variantTypes.indexOf(type) != -1) {
+                        // feature is a variant
                         variantSelectionRecords.push(selection_records[i]);
                     }
                     else {
@@ -1142,14 +1146,14 @@ define([
                 for (var i in selection_records) {
                     var dragfeat = selection_records[i].feature;
                     var featureToAdd = JSONUtils.makeSimpleFeature(dragfeat);
-                    var afeat = JSONUtils.createApolloVariant(featureToAdd, "SNV", true);
+                    var afeat = JSONUtils.createApolloVariant(featureToAdd, true);
                     featuresToAdd.push(afeat);
                 }
 
                 var postData = {
                     track: target_track.getUniqueTrackName(),
                     features: featuresToAdd,
-                    operation: "add_single_nucleotide_variant"
+                    operation: "add_variant_annotation"
                 };
                 console.log("PostData: ", postData);
                 target_track.executeUpdateOperation(JSON.stringify(postData));

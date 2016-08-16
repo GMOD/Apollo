@@ -427,34 +427,21 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     return afeature;
 };
 
-JSONUtils.createApolloVariant = function( jfeature, specified_type, useName ) {
+JSONUtils.createApolloVariant = function( jfeature, useName ) {
     var afeature = new Object();
-    var astrand;
-    switch (jfeature.get('strand')) {
-        case 1:
-        case '+':
-            astrand = 1; break;
-        case '-1':
-        case'-':
-            astrand = -1; break;
-        default:
-            // assume that the variant is on the forward strand
-            astrand = 1;
-    }
+    var astrand = 1; // variants are represented w.r.t. the sense strand
+    var fmin = jfeature.get('start');
+    var fmax = jfeature.get('end');
+    var referenceAllele = jfeature.get('reference_allele');
+    var alternativeAlleles = jfeature.get('alternative_alleles').values.split(',');
 
     afeature.location = {
-        fmin: jfeature.get('start'),
-        fmax: jfeature.get('end'),
+        fmin: fmin,
+        fmax: fmax,
         strand: astrand
     };
 
-    var typename;
-    if (specified_type) {
-        typename = specified_type;
-    }
-    else if (jfeature.get('type')) {
-        typename = jfeature.get('type');
-    }
+    var typename = JSONUtils.classifyVariant(referenceAllele, alternativeAlleles, fmin, fmax);
 
     if (typename) {
         afeature.type = {
@@ -470,13 +457,39 @@ JSONUtils.createApolloVariant = function( jfeature, specified_type, useName ) {
         afeature.name = name;
     }
 
-    var referenceNucleotide = jfeature.get('reference_allele');
-    var alternateNucleotide = jfeature.get('alternative_alleles').values;
-    afeature.referenceNucleotide = referenceNucleotide;
-    afeature.alternateNucleotide = alternateNucleotide;
+    afeature.referenceNucleotide = referenceAllele;
+    afeature.alternateNucleotide = alternativeAlleles;
 
     // TODO: Add additional metadata
     return afeature;
+};
+
+JSONUtils.classifyVariant = function( refAllele, altAlleles, fmin, fmax ) {
+    // http://genome.sph.umich.edu/wiki/Variant_classification
+    // SNV - The reference and alternate sequences are of length 1 and the base nucleotide is different from one another.
+    // SNP - Same as a SNV but occurs at a relatively high frequency.
+    // MNV - The reference and alternate sequences are of the same length and have to be greater than 1 and all nucleotides in the sequences differ from one another
+    // MNP - Same as a MNV but occurs at a relatively high frequency.
+    // indel - The reference and alternate sequences are not of the same length.
+
+    var type;
+    var altAllele = altAlleles[0]; // type defaults to type of the first occuring alt allele
+    var refLength = refAllele.length;
+    var altLength = altAllele.length;
+
+    if (refLength - altLength == 0) {
+        if (refLength == 1 && refAllele != altAllele) {
+            type = "SNV";
+        }
+        else if (refLength > 1) {
+            type = "MNV";
+        }
+    }
+    else {
+        type = "indel";
+    }
+    console.log("TYPE inferred: ", type);
+    return type;
 };
 
 // experimenting with forcing export of JSONUtils into global namespace...
