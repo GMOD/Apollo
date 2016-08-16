@@ -215,18 +215,21 @@ class JbrowseController {
             // original start (0 if full scaffold), original end (length if full scaffold) left text (nullable), right text (nullable)
             // we also have folding information once that is available
             JSONArray displayArray = new JSONArray()
+
+
             int offset = 0
             for (int i = 0; sequenceList && i < sequenceList.size(); i++) {
                 JSONObject thisSeq = sequenceList.get(i)
-                Sequence sequence = Sequence.findByName(thisSeq.name)
                 JSONObject regionObject = new JSONObject(thisSeq.toString())
                 regionObject.refseq = generateRefSeqLabel(thisSeq)
+                // TODO: factor in projected offset
                 int currentPosition =  thisSeq.start ?: 0
                 regionObject.originalPosition = currentPosition
                 currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
                 regionObject.start = currentPosition + offset
                 // TODO: if it has an end use that . . otherwise use the sequence value
-                regionObject.end = regionObject.start + sequence.end
+//                regionObject.end = projection ? projection.projectValue(thisSeq.end) : Sequence.findByName(thisSeq.name)?.end
+                regionObject.end = currentPosition + offset + 1
                 regionObject.ref = refererLoc
                 regionObject.color = 'none'
                 regionObject.background = 'red'
