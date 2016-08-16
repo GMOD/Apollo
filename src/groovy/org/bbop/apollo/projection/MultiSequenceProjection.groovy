@@ -43,6 +43,31 @@ class MultiSequenceProjection extends AbstractProjection {
 
     /**
      * Find which sequence I am on by iterating over coordinates
+     * @param minInput
+     * @return
+     */
+    List<ProjectionSequence> getProjectionSequences(Integer minInput, Integer  maxInput) {
+
+        List<ProjectionSequence> orderedSequences = []
+
+        Integer startOrder = getProjectionSequence(minInput)?.order
+        Integer endOrder = getProjectionSequence(maxInput)?.order
+
+        if(endOrder==null ){
+            endOrder = getLastSequence().order
+        }
+
+        for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
+            if(projectionSequence.order>=startOrder && projectionSequence.order <= endOrder){
+                orderedSequences << projectionSequence
+            }
+        }
+
+        return orderedSequences
+    }
+
+    /**
+     * Find which sequence I am on by iterating over coordinates
      * @param input
      * @return
      */
