@@ -227,16 +227,16 @@ class RefSeqProjectorService {
 
         // re-project the string
 //                String projectedString = projection.projectSequence(unprojectedString,unprojectedStart,unprojectedEnd,0)
-        switch (projection.projectionDescription.projection.toUpperCase()) {
-            case "EXON":
+//        switch (projection.projectionDescription.projection.toUpperCase()) {
+//            case "EXON":
 //                String returnString = projection.projectSequence(unprojectedString, 0, unprojectedString.length() - 1, unprojectedStart-projectedStart)
-                String returnString = projection.projectSequence(unprojectedString, 0, unprojectedString.length() - 1, 0)
+//                String returnString = projection.projectSequence(unprojectedString, 0, unprojectedString.length() - 1, 0)
 //                String returnString = projection.projectSequence(unprojectedString, unprojectedStart, unprojectedEnd, 0)
-                return returnString
-            default:
+//                return returnString
+//            default:
                 return unprojectedString
 
-        }
+//        }
 
 
     }

@@ -17,10 +17,8 @@ class MultiSequenceProjectionSpec extends Specification {
     void "when adding intervals overlapping intervals should merge"() {
 
         given: "some intervals"
-        ProjectionDescription projectionDescription = new ProjectionDescription()
         ProjectionSequence projectionSequence = new ProjectionSequence(order: 0)
-        projectionDescription.sequenceList = [projectionSequence]
-        ProjectionInterface projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
+        ProjectionInterface projection = new MultiSequenceProjection(sequenceList: [projectionSequence])
 
 
         when: "we add an interval to a null one"
@@ -286,13 +284,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,name: "Sequence1"
                 ,organism: "Human"
         )// from 0-99
-        ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTrack: []
-                ,sequenceList: [sequence1]
-                , projection: "exon" // probably ignored here
-                ,padding: 0
-        )
-        MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
+        MultiSequenceProjection projection = new MultiSequenceProjection(sequenceList: [sequence1])
 
         when: "we add the overlapping coordinates"
         projection.addInterval(694694, 694915,sequence1)
@@ -357,13 +349,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,name: "Sequence1"
                 ,organism: "Human"
         )// from 0-99
-        ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTrack: []
-                ,sequenceList: [sequence1]
-                , projection: "exon" // probably ignored here
-                ,padding: 0
-        )
-        MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
+        MultiSequenceProjection projection = new MultiSequenceProjection(sequenceList: [sequence1])
         int index = 0
 
         when: "we add the overlapping coordinates"
@@ -515,13 +501,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,name: "Sequence1"
                 ,organism: "Human"
         )// from 0-99
-        ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTrack: []
-                ,sequenceList: [sequence1]
-                , projection: "exon" // probably ignored here
-                ,padding: 0
-        )
-        MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
+        MultiSequenceProjection projection = new MultiSequenceProjection(sequenceList: [sequence1])
         int index = 0
 
         when: "we add some normal intervals"
@@ -615,13 +595,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,name: "Sequence1"
                 ,organism: "Human"
         )// from 0-99
-        ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTrack: []
-                ,sequenceList: [sequence1]
-                , projection: "exon" // probably ignored here
-                ,padding: 0
-        )
-        MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
+        MultiSequenceProjection projection = new MultiSequenceProjection(sequenceList: [sequence1])
         int index = 0
 
         when: "we add some projections"
@@ -710,13 +684,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,name: "Sequence1"
                 ,organism: "Human"
         )// from 0-99
-        ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTrack: []
-                ,sequenceList: [sequence1]
-                , projection: "exon" // probably ignored here
-                ,padding: 0
-        )
-        MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
+        MultiSequenceProjection projection = new MultiSequenceProjection(sequenceList: [sequence1])
         int index = 0
 
         when: "we add some intervals"
@@ -773,13 +741,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,name: "Sequence1"
                 ,organism: "Human"
         )// from 0-99
-        ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTrack: []
-                ,sequenceList: [sequence1]
-                , projection: "exon" // probably ignored here
-                ,padding: 0
-        )
-        MultiSequenceProjection projection = new MultiSequenceProjection(projectionDescription: projectionDescription)
+        MultiSequenceProjection projection = new MultiSequenceProjection(sequenceList: [sequence1])
         int index = 0
 
         when: "we add a series of intervals"
@@ -882,13 +844,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,start: 0
                 ,end: 99
         ) // from 100-200
-        ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTrack: []
-                ,sequenceList: [sequence1,sequence2]
-                , projection: "exon" // probably ignored here
-                ,padding: 0
-        )
-        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(projectionDescription: projectionDescription)
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(sequenceList: [sequence1,sequence2])
         Location location1 = new Location( min: 10 ,max: 12 ,sequence: sequence1 )
         Location location2 = new Location( min: 22 ,max: 25 ,sequence: sequence1 )
         Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )
@@ -1006,13 +962,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,order: 3
                 ,unprojectedLength: 50
         ) // from 150-200
-        ProjectionDescription projectionDescription = new ProjectionDescription(
-                referenceTrack: []
-                ,sequenceList: [sequence1,sequence2,sequence3,sequence4]
-                , projection: "exon" // probably ignored here
-                ,padding: 0
-        )
-        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(projectionDescription: projectionDescription)
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(sequenceList: [sequence1,sequence2,sequence3,sequence4])
         Location location1 = new Location( min: 10 ,max: 12 ,sequence: sequence1 ) // 3
         Location location2 = new Location( min: 22 ,max: 25 ,sequence: sequence1 ) // 4
         Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )  // 5

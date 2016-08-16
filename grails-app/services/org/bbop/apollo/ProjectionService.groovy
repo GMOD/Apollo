@@ -4,13 +4,7 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.projection.DiscontinuousProjection
-import org.bbop.apollo.projection.Location
-import org.bbop.apollo.projection.MultiSequenceProjection
-import org.bbop.apollo.projection.ProjectionDescription
-import org.bbop.apollo.projection.ProjectionInterface
-import org.bbop.apollo.projection.ProjectionSequence
-import org.bbop.apollo.projection.TrackIndex
+import org.bbop.apollo.projection.*
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -299,11 +293,21 @@ class ProjectionService {
         return inputFeature
     }
 
-//    @NotTransactional
-    MultiSequenceProjection createMultiSequenceProjection(ProjectionDescription description) {
-        List<Location> locationList = getLocationsForSequences(description)
-        return createMultiSequenceProjection(description, locationList)
+    MultiSequenceProjection createMultiSequenceProjection(Bookmark bookmark) {
+        List<Location> locationList = getLocationsFromBookmark(bookmark)
+        return createMultiSequenceProjection(bookmark,locationList)
     }
+
+//    @NotTransactional
+    /**
+     * @deprecated
+     * @param description
+     * @return
+     */
+//    MultiSequenceProjection createMultiSequenceProjection(ProjectionDescription description) {
+//        List<Location> locationList = getLocationsForSequences(description)
+//        return createMultiSequenceProjection(description, locationList)
+//    }
 
 //    @NotTransactional
 //    List<Location> getLocationsForDescription(ProjectionDescription projectionDescription) {
@@ -411,50 +415,90 @@ class ProjectionService {
 //        return returnArray
 //    }
 
+    ProjectionSequence convertJsonToProjectionSequence(JSONObject jSONObject,int index,Bookmark bookmark){
+        ProjectionSequence projectionSequence = new ProjectionSequence()
+        if(jSONObject.start==null){
+            Sequence sequence = Sequence.findByName(jSONObject.name)
+            projectionSequence.start = sequence.start
+            projectionSequence.end = sequence.end
+        }
+        else{
+            projectionSequence.start = jSONObject.start
+            projectionSequence.end = jSONObject.end
+        }
+        projectionSequence.setOrder(index)
+        projectionSequence.setName(jSONObject.name)
+        projectionSequence.setOrganism(bookmark.organism.commonName)
+
+        JSONArray featureArray = jSONObject.features
+        List<String> features = new ArrayList<>()
+        for (int j = 0; featureArray != null && j < featureArray.size(); j++) {
+            features.add(featureArray.getString(j))
+        }
+        projectionSequence.setFeatures(features)
+
+        return projectionSequence
+    }
+
+    List<Location> getLocationsFromBookmark(Bookmark bookmark) {
+        List<Location> locationList = new ArrayList<>()
+
+
+        JSONArray sequencListArray = JSON.parse(bookmark.sequenceList) as JSONArray
+
+        sequencListArray.eachWithIndex { JSONObject it , int i ->
+            ProjectionSequence projectionSequence = convertJsonToProjectionSequence(it,i,bookmark)
+            locationList.add(new Location(min: it.start, max: it.end, sequence: projectionSequence))
+        }
+
+        return locationList
+    }
+
     /**
+     * @deprecated
      * Create an interval for each "sequence" min/max
      * Create an "fold" for each fold / splitting the interval
      * @param projectionDescription
      * @return
      */
-    List<Location> getLocationsForSequences(ProjectionDescription projectionDescription) {
-        List<Location> locationList = new ArrayList<>()
-
-
-        projectionDescription.sequenceList.each {
-            locationList.add(new Location(min: it.start,max:it.end,sequence: it))
-        }
-
-//        // should just return one VERY big location
-//        List<String> sequenceList = new ArrayList<>()
-//        String organismName = projectionSequences.iterator().next().organism
-//        projectionSequences.each {
-//            sequenceList.add(it.name)
-//        }
-//        Organism organism = Organism.findByCommonName(organismName)
-//        Map<String, Sequence> sequencMap = new TreeMap<>()
-//        Sequence.findAllByNameInListAndOrganism(sequenceList, organism).each {
-//            sequencMap.put(it.name, it)
+//    List<Location> getLocationsForSequences(ProjectionDescription projectionDescription) {
+//        List<Location> locationList = new ArrayList<>()
+//
+//
+//        projectionDescription.sequenceList.each {
+//            locationList.add(new Location(min: it.start,max:it.end,sequence: it))
 //        }
 //
-//        projectionSequences.each {
-//            Sequence sequence1 = sequencMap.get(it.name)
-//            it.id = sequence1.id
+////        // should just return one VERY big location
+////        List<String> sequenceList = new ArrayList<>()
+////        String organismName = projectionSequences.iterator().next().organism
+////        projectionSequences.each {
+////            sequenceList.add(it.name)
+////        }
+////        Organism organism = Organism.findByCommonName(organismName)
+////        Map<String, Sequence> sequencMap = new TreeMap<>()
+////        Sequence.findAllByNameInListAndOrganism(sequenceList, organism).each {
+////            sequencMap.put(it.name, it)
+////        }
+////
+////        projectionSequences.each {
+////            Sequence sequence1 = sequencMap.get(it.name)
+////            it.id = sequence1.id
+////
+//////            ProjectionSequence projectionSequence1 = new ProjectionSequence(
+//////                  id:sequence1.id
+//////                    ,name:sequence1.name
+//////                    ,organism: organism
+//////                    ,order:locationList.size()
+//////            )
+////            Location location = new Location(min: 0, max: sequence1.end, sequence: it)
+////            locationList.add(location)
+////        }
 //
-////            ProjectionSequence projectionSequence1 = new ProjectionSequence(
-////                  id:sequence1.id
-////                    ,name:sequence1.name
-////                    ,organism: organism
-////                    ,order:locationList.size()
-////            )
-//            Location location = new Location(min: 0, max: sequence1.end, sequence: it)
-//            locationList.add(location)
-//        }
-
-
-
-        return locationList
-    }
+//
+//
+//        return locationList
+//    }
 
 //    List<Location> getSequenceLocations(ProjectionDescription projectionDescription) {
 //        List<ProjectionSequence> projectionSequences = projectionDescription.sequenceList
@@ -491,8 +535,17 @@ class ProjectionService {
 //    }
 
 //    @NotTransactional
-    MultiSequenceProjection createMultiSequenceProjection(ProjectionDescription description, List<Location> locationList) {
-        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(projectionDescription: description)
+
+    MultiSequenceProjection createMultiSequenceProjection(Bookmark bookmark,List<Location> locationList) {
+
+        List<ProjectionSequence> projectionSequenceList = new ArrayList<>()
+        (JSON.parse(bookmark.sequenceList) as JSONArray).eachWithIndex { JSONObject it, int i ->
+            ProjectionSequence projectionSequence = convertJsonToProjectionSequence(it,i,bookmark)
+
+            projectionSequenceList.add(projectionSequence)
+        }
+
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(sequenceList: projectionSequenceList)
         multiSequenceProjection.addLocations(locationList)
         multiSequenceProjection.calculateOffsets()
         Map<String,ProjectionSequence> projectionSequenceMap = [:]
@@ -509,6 +562,26 @@ class ProjectionService {
 
         return multiSequenceProjection
     }
+
+
+//    MultiSequenceProjection createMultiSequenceProjection(ProjectionDescription description, List<Location> locationList) {
+//        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(projectionDescription: description)
+//        multiSequenceProjection.addLocations(locationList)
+//        multiSequenceProjection.calculateOffsets()
+//        Map<String,ProjectionSequence> projectionSequenceMap = [:]
+//
+//        multiSequenceProjection.projectedSequences.each {
+//            projectionSequenceMap.put(it.name,it)
+//        }
+////        List<String> sequenceNames = multiSequenceProjection.projectedSequences.name
+//        // TODO: speed this up by caching sequences
+//        Sequence.findAllByNameInList(projectionSequenceMap.keySet() as List<String>).each {
+//            def projectionSequence = projectionSequenceMap.get(it.name)
+//            projectionSequence.unprojectedLength = it.length
+//        }
+//
+//        return multiSequenceProjection
+//    }
 
     List<Location> extractHighLevelLocations(JSONArray coordinate, Organism organism, String trackName) {
         TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
@@ -622,56 +695,56 @@ class ProjectionService {
         return false;
     }
 
-    ProjectionDescription convertJsonObjectToProjectDescription(JSONObject bookmarkObject) {
-        
-        ProjectionDescription projectionDescription = new ProjectionDescription()
-
-        projectionDescription.projection = bookmarkObject.projection ?: "NONE"
-        projectionDescription.padding = bookmarkObject.padding ?: 0
-        projectionDescription.organism = bookmarkObject.organism
-        //projectionDescription.referenceTrack = [bookmarkObject.referenceTrack] as List<String>
-//        projectionDescription.referenceTrack = new ArrayList<String>()
-//        if (isValidJson((String) bookmarkObject.referenceTrack)) {
-//            JSONArray referenceTrackJsonArray = JSON.parse(bookmarkObject.referenceTrack.toString()) as JSONArray
+//    ProjectionDescription convertJsonObjectToProjectDescription(JSONObject bookmarkObject) {
 //
-//            for (int i = 0; i < referenceTrackJsonArray.size(); i++) {
-//                projectionDescription.referenceTrack.add(i, referenceTrackJsonArray.getString(i));
+//        ProjectionDescription projectionDescription = new ProjectionDescription()
+//
+//        projectionDescription.projection = bookmarkObject.projection ?: "NONE"
+//        projectionDescription.padding = bookmarkObject.padding ?: 0
+//        projectionDescription.organism = bookmarkObject.organism
+//        //projectionDescription.referenceTrack = [bookmarkObject.referenceTrack] as List<String>
+////        projectionDescription.referenceTrack = new ArrayList<String>()
+////        if (isValidJson((String) bookmarkObject.referenceTrack)) {
+////            JSONArray referenceTrackJsonArray = JSON.parse(bookmarkObject.referenceTrack.toString()) as JSONArray
+////
+////            for (int i = 0; i < referenceTrackJsonArray.size(); i++) {
+////                projectionDescription.referenceTrack.add(i, referenceTrackJsonArray.getString(i));
+////            }
+////        }
+////        else {
+////            projectionDescription.referenceTrack.add(bookmarkObject.referenceTrack)
+////        }
+//
+//        projectionDescription.sequenceList = new ArrayList<>()
+//
+//
+//        // TODO: reference / ?
+//        for (int i = 0; i < bookmarkObject.sequenceList.size(); i++) {
+//            JSONObject bookmarkSequence = bookmarkObject.sequenceList.getJSONObject(i)
+//            ProjectionSequence projectionSequence1 = new ProjectionSequence()
+//            if(bookmarkSequence.start==null){
+//                Sequence sequence = Sequence.findByName(bookmarkSequence.name)
+//                projectionSequence1.start = sequence.start
+//                projectionSequence1.end = sequence.end
 //            }
+//            else{
+//                projectionSequence1.start = bookmarkSequence.start
+//                projectionSequence1.end = bookmarkSequence.end
+//            }
+//            projectionSequence1.setOrder(i)
+//            projectionSequence1.setName(bookmarkSequence.name)
+//            projectionSequence1.setOrganism(projectionDescription.organism)
+//
+//            JSONArray featureArray = bookmarkSequence.features
+//            List<String> features = new ArrayList<>()
+//            for (int j = 0; featureArray != null && j < featureArray.size(); j++) {
+//                features.add(featureArray.getString(j))
+//            }
+//            projectionSequence1.setFeatures(features)
+//            projectionDescription.sequenceList.add(projectionSequence1)
 //        }
-//        else {
-//            projectionDescription.referenceTrack.add(bookmarkObject.referenceTrack)
-//        }
-
-        projectionDescription.sequenceList = new ArrayList<>()
-
-
-        // TODO: reference / ?
-        for (int i = 0; i < bookmarkObject.sequenceList.size(); i++) {
-            JSONObject bookmarkSequence = bookmarkObject.sequenceList.getJSONObject(i)
-            ProjectionSequence projectionSequence1 = new ProjectionSequence()
-            if(bookmarkSequence.start==null){
-                Sequence sequence = Sequence.findByName(bookmarkSequence.name)
-                projectionSequence1.start = sequence.start
-                projectionSequence1.end = sequence.end
-            }
-            else{
-                projectionSequence1.start = bookmarkSequence.start
-                projectionSequence1.end = bookmarkSequence.end
-            }
-            projectionSequence1.setOrder(i)
-            projectionSequence1.setName(bookmarkSequence.name)
-            projectionSequence1.setOrganism(projectionDescription.organism)
-
-            JSONArray featureArray = bookmarkSequence.features
-            List<String> features = new ArrayList<>()
-            for (int j = 0; featureArray != null && j < featureArray.size(); j++) {
-                features.add(featureArray.getString(j))
-            }
-            projectionSequence1.setFeatures(features)
-            projectionDescription.sequenceList.add(projectionSequence1)
-        }
-        return projectionDescription
-    }
+//        return projectionDescription
+//    }
 
     MultiSequenceProjection getProjection(Bookmark bookmark) {
         JSONObject jsonObject = bookmarkService.convertBookmarkToJson(bookmark)
@@ -692,8 +765,8 @@ class ProjectionService {
  * @return
  */
     MultiSequenceProjection getProjection(JSONObject bookmarkObject) {
-        ProjectionDescription projectionDescription = convertJsonObjectToProjectDescription(bookmarkObject)
-        return createMultiSequenceProjection(projectionDescription)
+        Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkObject)
+        return createMultiSequenceProjection(bookmark)
 //        ProjectionDescription projectionDescription = convertJsonObjectToProjectDescription(bookmarkObject)
 //        if (true || !multiSequenceProjectionMap.containsKey(projectionDescription)) {
 //            MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(projectionDescription)

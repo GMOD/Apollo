@@ -9,7 +9,7 @@ class MultiSequenceProjection extends AbstractProjection {
 
     // if a projection includes multiple sequences, this will include greater than one
     TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>()
-    ProjectionDescription projectionDescription  // description of how this is generated
+    List<ProjectionSequence> sequenceList // an ordered array of sequences or ALL . . .if empty then all
 
     List<String> chunks = new ArrayList<>()
     ProjectionChunkList projectionChunkList = new ProjectionChunkList()
@@ -222,7 +222,7 @@ class MultiSequenceProjection extends AbstractProjection {
 //        ProjectionSequence projectionSequence = getProjectionSequence(location)
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(location.sequence)
         if (discontinuousProjection) {
-            discontinuousProjection.addInterval(location.min, location.max, projectionDescription.padding)
+            discontinuousProjection.addInterval(location.min, location.max, 0)
         } else {
 //        if (!projectionSequence) {
             ProjectionSequence internalProjectionSequence = location.sequence
@@ -231,13 +231,13 @@ class MultiSequenceProjection extends AbstractProjection {
             internalProjectionSequence.order = order
 
             DiscontinuousProjection thisDiscontinuousProjection = new DiscontinuousProjection()
-            thisDiscontinuousProjection.addInterval(location.min, location.max, projectionDescription.padding)
+            thisDiscontinuousProjection.addInterval(location.min, location.max, 0)
             sequenceDiscontinuousProjectionMap.put(internalProjectionSequence, thisDiscontinuousProjection)
         }
     }
 
     Integer findSequenceOrder(ProjectionSequence projectionSequence) {
-        List<ProjectionSequence> projectionSequenceList = projectionDescription.sequenceList
+        List<ProjectionSequence> projectionSequenceList = sequenceList
         int index = 0
         for (ProjectionSequence projectionSequence1 in projectionSequenceList) {
             if (projectionSequence1.name == projectionSequence.name) {
@@ -318,7 +318,7 @@ class MultiSequenceProjection extends AbstractProjection {
     public String toString() {
         return "MultiSequenceProjection{" +
                 "sequenceDiscontinuousProjectionMap=" + sequenceDiscontinuousProjectionMap +
-                ", projectionDescription=" + projectionDescription +
+//                ", projectionDescription=" + projectionDescription +
                 '}';
     }
 

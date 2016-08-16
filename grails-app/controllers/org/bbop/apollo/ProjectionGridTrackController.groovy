@@ -33,6 +33,20 @@ class ProjectionGridTrackController {
     }
 
     /**
+     * Gets the client token from the referring URL.  It makes the assumption that referer URL is always jbrowse
+     * @param referer
+     * @return
+     */
+    def extractClientToken(String referer){
+
+        // referer is always jbrowse
+        String rootUrl = createLink("uri":"/")
+        int startClientIndex = referer.indexOf(rootUrl)+rootUrl.length()
+        int endClientIndex = referer.indexOf("/jbrowse/")
+        return referer.substring(startClientIndex,endClientIndex)
+    }
+
+    /**
      *{"featureDensity": 0.02,
 
      "featureCount": 234235,
@@ -49,12 +63,18 @@ class ProjectionGridTrackController {
         String sequenceName = refererLoc
         Integer endIndex = sequenceName.indexOf("}:") + 1
 
+
+
+
+
         JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
+        sequenceObject.put(org.bbop.apollo.gwt.shared.FeatureStringEnum.CLIENT_TOKEN.value,extractClientToken(referer))
         Integer featureCount = sequenceObject.sequenceList.size()
+
+
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
         Integer range = multiSequenceProjection.getLength()
 
-//        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
         JSONObject jsonObject = new JSONObject()
         jsonObject.featureCount= featureCount
         jsonObject.featureDensity = featureCount / (range) * 1.0
@@ -72,11 +92,13 @@ class ProjectionGridTrackController {
      */
     def statsRegion() {
         println "stats region params: ${params}"
+        String referer = request.getHeader("Referer")
         Integer start = Integer.parseInt(params.start)
         Integer end = Integer.parseInt(params.end)
         String sequenceName = params.sequenceName
         Integer endIndex = sequenceName.indexOf("}:") + 1
         JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
+        sequenceObject.put(org.bbop.apollo.gwt.shared.FeatureStringEnum.CLIENT_TOKEN.value,extractClientToken(referer))
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
         List<ProjectionSequence> projectionSequences = multiSequenceProjection.getReverseProjectionSequences(start, end)
         Integer featureCount = projectionSequences.size()
@@ -98,9 +120,11 @@ class ProjectionGridTrackController {
         String sequenceName = params.sequenceName
         Integer start = Integer.parseInt(params.start)
         Integer end = Integer.parseInt(params.end)
+        String referer = request.getHeader("Referer")
 
         Integer endIndex = sequenceName.indexOf("}:") + 1
         JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
+        sequenceObject.put(org.bbop.apollo.gwt.shared.FeatureStringEnum.CLIENT_TOKEN.value,extractClientToken(referer))
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
 
         JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
