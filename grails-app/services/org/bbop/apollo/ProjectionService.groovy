@@ -722,4 +722,57 @@ class ProjectionService {
 //    def clearProjections() {
 //        multiSequenceProjectionMap.clear()
 //    }
+
+    /**
+     * @deprecated
+     * We want the minimimum location of a feature in the context of its bookmark
+     * @param feature
+     * @param bookmark
+     * @return
+     */
+    Integer getMinForFeature(Feature feature , MultiSequenceProjection multiSequenceProjection) {
+        Integer fmin = feature.fmin
+//        Integer projectedFmin = multiSequenceProjection.projectValue(feature.fmin)
+
+
+        String firstSequenceName = feature.getFirstSequence().name
+        ProjectionSequence firstProjectionSequence = multiSequenceProjection.projectedSequences.find(){
+            it.name == firstSequenceName
+        }
+
+        Integer calculatedMin = firstProjectionSequence.unprojectedLength
+
+//        // add the entire length of each sequence in view
+//        for(int i = 0 ; i < firstProjectionSequence.order; i++){
+//            calculatedMin += multiSequenceProjection.projectedSequences.get(i).length
+//        }
+        Integer finalValue = fmin + calculatedMin
+        Integer projectedValue = multiSequenceProjection.projectValue(finalValue)
+        return projectedValue
+
+    }
+
+    /**
+     * @deprecated
+     * We want the maximum location of a feature in the context of its bookmark
+     * @param feature
+     * @param bookmark
+     * @return
+     */
+    Integer getMaxForFeature(Feature feature, MultiSequenceProjection multiSequenceProjection) {
+        Integer fmax = feature.fmax
+
+        Integer calculatedMax = 0
+        // add the entire length of each sequence in view
+        String firstSequenceName = feature.getFirstSequence().name
+        ProjectionSequence firstProjectionSequence = multiSequenceProjection.projectedSequences.find(){
+            it.name == firstSequenceName
+        }
+        for(int i = 0 ; i < firstProjectionSequence.order; i++){
+            calculatedMax += multiSequenceProjection.projectedSequences.get(i).length
+        }
+        calculatedMax += multiSequenceProjection.projectValue(fmax)
+
+        return calculatedMax
+    }
 }
