@@ -35,6 +35,7 @@ class FeatureService {
     def bookmarkService
     def projectionService
     def preferenceService
+    def featureProjectionService
     def sessionFactory
 
     public static final def rnaFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
@@ -620,47 +621,6 @@ class FeatureService {
         setLongestORF(transcript, configWrapperService.getTranslationTable(), false, readThroughStopCodon,multiSequenceProjection);
     }
 
-///**
-// * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
-// * Instantiates the CDS object for the transcript if it doesn't already exist.
-// *
-// * @param transcript - Transcript to set the translation start in
-// * @param translationStart - Coordinate of the start of translation
-// */
-//    @Transactional
-//    public void setTranslationStart(Transcript transcript, int translationStart) {
-//        log.debug "setTranslationStart"
-//        setTranslationStart(transcript, translationStart, false);
-//    }
-
-/**
- * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
- * Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation start in
- * @param translationStart - Coordinate of the start of translation
- * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
- */
-//    @Transactional
-//    public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd) {
-//        log.debug "setTranslationStart(transcript,translationStart,translationEnd)"
-//        setTranslationStart(transcript, translationStart, setTranslationEnd, false);
-//    }
-
-/**
- * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
- * Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation start in
- * @param translationStart - Coordinate of the start of translation
- * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
- * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
- */
-//    @Transactional
-//    public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, boolean readThroughStopCodon) {
-//        log.debug "setTranslationStart(transcript,translationStart,translationEnd,readThroughStopCodon)"
-//        setTranslationStart(transcript, translationStart, setTranslationEnd, setTranslationEnd ? configWrapperService.getTranslationTable() : null, readThroughStopCodon);
-//    }
 
     /** Convert local coordinate to source feature coordinate.
      *
@@ -773,9 +733,7 @@ class FeatureService {
             setFmin(cds, translationStart,multiSequenceProjection);
         }
         cdsService.setManuallySetTranslationStart(cds, true);
-//        cds.deleteStopCodonReadThrough();
         cdsService.deleteStopCodonReadThrough(cds);
-//        featureRelationshipService.deleteRelationships()
 
         if (setTranslationEnd && translationTable != null) {
             String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
@@ -832,65 +790,8 @@ class FeatureService {
         cds.setLastUpdated(date);
         transcript.setLastUpdated(date);
 
-        // event fire
-//        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
 
     }
-
-/** Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
- *  Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation start in
- * @param translationEnd - Coordinate of the end of translation
- */
-/*
-public void setTranslationEnd(Transcript transcript, int translationEnd) {
-    CDS cds = transcript.getCDS();
-    if (cds == null) {
-        cds = createCDS(transcript);
-        transcript.setCDS(cds);
-    }
-    if (transcript.getStrand() == -1) {
-        cds.setFmin(translationEnd + 1);
-    }
-    else {
-        cds.setFmax(translationEnd);
-    }
-    setManuallySetTranslationEnd(cds, true);
-    cds.deleteStopCodonReadThrough();
-
-    // event fire
-    fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-
-}
-*/
-
-/**
- * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
- * Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation end in
- * @param translationEnd - Coordinate of the end of translation
- */
-//    @Transactional
-//    public void setTranslationEnd(Transcript transcript, int translationEnd) {
-//        setTranslationEnd(transcript, translationEnd, false);
-//    }
-
-/**
- * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
- * Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation end in
- * @param translationEnd - Coordinate of the end of translation
- * @param setTranslationStart - if set to true, will search for the nearest in frame start
- */
-//    @Transactional
-//    public void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart) {
-//        setTranslationEnd(transcript, translationEnd, setTranslationStart,
-//                setTranslationStart ? configWrapperService.getTranslationTable() : null
-//        );
-//    }
 
 /**
  * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
@@ -910,10 +811,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         if (transcript.isNegativeStrand()) {
             featureService.setFmin(cds,translationEnd)
-//            cds.featureLocation.setFmin(translationEnd);
         } else {
             featureService.setFmax(cds,translationEnd+1)
-//            cds.featureLocation.setFmax(translationEnd + 1);
         }
         cdsService.setManuallySetTranslationEnd(cds, true);
         cdsService.deleteStopCodonReadThrough(cds);
@@ -933,14 +832,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //                        cds.featureLocation.setFmax(convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 3));
                     } else {
                         featureService.setFmin(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 2))
-//                        cds.featureLocation.setFmin(convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 2));
                     }
                     return;
                 }
             }
             if (transcript.isNegativeStrand()) {
                 setFmin(cds,transcript.fmin)
-//                cds.featureLocation.setFmin(transcript.getFmin());
                 cds.firstFeatureLocation.setIsFminPartial(true);
             } else {
                 setFmax(cds,transcript.fmax)
@@ -953,68 +850,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         cds.setLastUpdated(date);
         transcript.setLastUpdated(date);
 
-        // event fire TODO: ??
-//        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-
     }
 
-//    @Transactional
-//    void setTranslationFmin(Transcript transcript, int translationFmin) {
-//        CDS cds = transcriptService.getCDS(transcript);
-//        if (cds == null) {
-//            cds = transcriptService.createCDS(transcript);
-//            transcriptService.setCDS(transcript, cds);
-//        }
-//        setFmin(cds, translationFmin);
-//        // event fire
-////        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-//    }
-
-//    @Transactional
-//    void setTranslationFmax(Transcript transcript, int translationFmax) {
-//        CDS cds = transcriptService.getCDS(transcript);
-//        if (cds == null) {
-//            cds = transcriptService.createCDS(transcript);
-//            transcriptService.setCDS(transcript, cds);
-//        }
-//        setFmax(cds, translationFmax);
-//
-//        // event fire
-////        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-//
-//    }
-
-/**
- * Set the translation start and end in the transcript.  Sets the translation start and end in the underlying CDS
- * feature.  Instantiates the CDS object for the transcript if it doesn't already exist.
- *
- * @param transcript - Transcript to set the translation start in
- * @param translationStart - Coordinate of the start of translation
- * @param translationEnd - Coordinate of the end of translation
- * @param manuallySetStart - whether the start was manually set
- * @param manuallySetEnd - whether the end was manually set
- */
-//    @Transactional
-//    public void setTranslationEnds(Transcript transcript, int translationStart, int translationEnd, boolean manuallySetStart, boolean manuallySetEnd) {
-//        setTranslationFmin(transcript, translationStart);
-//        setTranslationFmax(transcript, translationEnd);
-//        cdsService.setManuallySetTranslationStart(transcriptService.getCDS(transcript), manuallySetStart);
-//        cdsService.setManuallySetTranslationEnd(transcriptService.getCDS(transcript), manuallySetEnd);
-//
-//        Date date = new Date();
-//        transcriptService.getCDS(transcript).setLastUpdated(date);
-//        transcript.setLastUpdated(date);
-//
-//        // event fire
-////        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-//
-//    }
-
-
-//    public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension) {
-//        log.debug "setLongestORF(transcript,translationTable,allowPartialExtension)"
-//        setLongestORF(transcript, translationTable, allowPartialExtension, false);
-//    }
 
     /** Get the residues for a feature with any alterations and frameshifts.
      *
