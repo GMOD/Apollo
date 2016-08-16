@@ -221,7 +221,7 @@ class BookmarkService {
      * @param bookmark
      * @return
      */
-    int getMinForFeature(Feature feature , Bookmark bookmark) {
+    int getMinForFeatureFullScaffold(Feature feature, Bookmark bookmark) {
         Integer calculatedMin = feature.fmin
         List<Sequence> sequencesList = getSequencesFromBookmark(bookmark)
 
@@ -241,7 +241,7 @@ class BookmarkService {
      * @param bookmark
      * @return
      */
-    int getMaxForFeature(Feature feature, Bookmark bookmark) {
+    int getMaxForFeatureFullScaffold(Feature feature, Bookmark bookmark) {
         Integer calculatedMax = feature.fmax
         List<Sequence> sequencesList = getSequencesFromBookmark(bookmark)
 

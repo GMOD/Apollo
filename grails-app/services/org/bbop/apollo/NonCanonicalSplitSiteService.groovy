@@ -87,8 +87,8 @@ class NonCanonicalSplitSiteService {
         deleteAllNonCanonicalThreePrimeSpliceSites(transcript)
 
         List<Exon> exons = transcriptService.getSortedExons(transcript,false,bookmark)
-        int fmin = bookmarkService.getMinForFeature(transcript,bookmark)
-        int fmax = bookmarkService.getMaxForFeature(transcript,bookmark)
+        int fmin = bookmarkService.getMinForFeatureFullScaffold(transcript,bookmark)
+        int fmax = bookmarkService.getMaxForFeatureFullScaffold(transcript,bookmark)
         Strand strand=transcript.isNegativeStrand()?Strand.NEGATIVE:Strand.POSITIVE
 
         String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(bookmark,fmin,fmax,strand);

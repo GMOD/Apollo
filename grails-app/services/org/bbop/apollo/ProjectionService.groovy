@@ -797,55 +797,39 @@ class ProjectionService {
 //    }
 
     /**
-     * @deprecated
-     * We want the minimimum location of a feature in the context of its bookmark
+     * We want the minimimum location of a feature in the context of its projection.
+     *
+     * So should be fmin + offset (all previous lengths) - start
      * @param feature
      * @param bookmark
      * @return
      */
-    Integer getMinForFeature(Feature feature , MultiSequenceProjection multiSequenceProjection) {
-        Integer fmin = feature.fmin
-//        Integer projectedFmin = multiSequenceProjection.projectValue(feature.fmin)
-
-
+    Integer getMinForFeatureInProjection(Feature feature, MultiSequenceProjection multiSequenceProjection) {
         String firstSequenceName = feature.getFirstSequence().name
         ProjectionSequence firstProjectionSequence = multiSequenceProjection.projectedSequences.find(){
             it.name == firstSequenceName
         }
 
-        Integer calculatedMin = firstProjectionSequence.unprojectedLength
-
-//        // add the entire length of each sequence in view
-//        for(int i = 0 ; i < firstProjectionSequence.order; i++){
-//            calculatedMin += multiSequenceProjection.projectedSequences.get(i).length
-//        }
-        Integer finalValue = fmin + calculatedMin
-        Integer projectedValue = multiSequenceProjection.projectValue(finalValue)
-        return projectedValue
+        Integer calculatedMin = firstProjectionSequence.offset - firstProjectionSequence.start + feature.fmin
+        return calculatedMin
 
     }
 
     /**
-     * @deprecated
-     * We want the maximum location of a feature in the context of its bookmark
+     * We want the maximum location of a feature in the context of its projection
+     *
+     * So should be fmax (of the last sequence) + offset (all previous lengths) - start
      * @param feature
      * @param bookmark
      * @return
      */
-    Integer getMaxForFeature(Feature feature, MultiSequenceProjection multiSequenceProjection) {
-        Integer fmax = feature.fmax
-
-        Integer calculatedMax = 0
-        // add the entire length of each sequence in view
-        String firstSequenceName = feature.getFirstSequence().name
-        ProjectionSequence firstProjectionSequence = multiSequenceProjection.projectedSequences.find(){
-            it.name == firstSequenceName
+    Integer getMaxForFeatureInProjection(Feature feature, MultiSequenceProjection multiSequenceProjection) {
+        String lasttSequenceName = feature.getLastSequence().name
+        ProjectionSequence lastProjectionSequence = multiSequenceProjection.projectedSequences.find(){
+            it.name == lasttSequenceName
         }
-        for(int i = 0 ; i < firstProjectionSequence.order; i++){
-            calculatedMax += multiSequenceProjection.projectedSequences.get(i).length
-        }
-        calculatedMax += multiSequenceProjection.projectValue(fmax)
 
+        Integer calculatedMax = lastProjectionSequence.offset - lastProjectionSequence.start + feature.fmax
         return calculatedMax
     }
 }

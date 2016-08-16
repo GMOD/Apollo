@@ -1,13 +1,8 @@
 package org.bbop.apollo
 
-import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.MultiSequenceProjection
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONException
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.grails.plugins.metrics.groovy.Timed
 
 //@GrailsCompileStatic
 @Transactional(readOnly = true)
@@ -189,10 +184,8 @@ class TranscriptService {
         println "INIT ${geneFmin}-${geneFmax}"
 
         for (Transcript t : getTranscripts(gene)) {
-//            Integer transcriptFmin = projectionService.getMinForFeature(t,multiSequenceProjection)
-//            Integer transcriptFmax = projectionService.getMaxForFeature(t,multiSequenceProjection)
-            Integer transcriptFmin = bookmarkService.getMinForFeature(t,bookmark)
-            Integer transcriptFmax = bookmarkService.getMaxForFeature(t,bookmark)
+            Integer transcriptFmin = projectionService.getMinForFeatureInProjection(t,multiSequenceProjection)
+            Integer transcriptFmax = projectionService.getMaxForFeatureInProjection(t,multiSequenceProjection)
             if (transcriptFmin < geneFmin) {
                 geneFmin = transcriptFmin;
             }
@@ -204,7 +197,6 @@ class TranscriptService {
         println "FINAL ${geneFmin}-${geneFmax}"
 
 
-//        featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection, gene, multiSequenceProjection.projectValue(geneFmin), multiSequenceProjection.projectValue(geneFmax))
         featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection, gene, geneFmin, geneFmax)
     }
 
@@ -282,10 +274,10 @@ class TranscriptService {
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
 
 
-        int transcriptFmin = bookmarkService.getMinForFeature(transcript,bookmark)
-        int transcriptFmax = bookmarkService.getMaxForFeature(transcript,bookmark)
-        int exonFmin = bookmarkService.getMinForFeature(exon,bookmark)
-        int exonFmax = bookmarkService.getMaxForFeature(exon,bookmark)
+        int transcriptFmin = bookmarkService.getMinForFeatureFullScaffold(transcript,bookmark)
+        int transcriptFmax = bookmarkService.getMaxForFeatureFullScaffold(transcript,bookmark)
+        int exonFmin = bookmarkService.getMinForFeatureFullScaffold(exon,bookmark)
+        int exonFmax = bookmarkService.getMaxForFeatureFullScaffold(exon,bookmark)
         boolean updateTransriptBoundaries = false
 
         if (exonFmin < transcriptFmin) {

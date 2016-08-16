@@ -569,7 +569,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         Integer bookmarkStart = 100
 
         String getFeaturesStringUn87InProjection = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":${bookmarkStart}, \"end\":43810, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${bookmarkStart}, \"end\":43810, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"operation\":\"get_features\"}"
-        String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":9682, \"end\":26746, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${bookmarkStart}, \"end\":43810, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":26651,\"fmax\":26884}}],\"operation\":\"set_exon_boundaries\"}"
+        String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":9682, \"end\":26919, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${bookmarkStart}, \"end\":43810, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":26651,\"fmax\":26884}}],\"operation\":\"set_exon_boundaries\"}"
 
         when: "we add a transcript"
         requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53497 ) as JSONObject)
