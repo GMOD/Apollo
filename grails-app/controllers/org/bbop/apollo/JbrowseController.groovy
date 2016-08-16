@@ -124,6 +124,7 @@ class JbrowseController {
             return getDirectoryFromSession(clientToken)
         }
 
+        // TODO: remove?
         String thisToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
         request.session.setAttribute(FeatureStringEnum.CLIENT_TOKEN.value, clientToken)
 

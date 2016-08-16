@@ -198,6 +198,15 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert un87Length+elevenFourLength==returnedSequence.length()
     }
 
+    void "confirm unprojected contiguous"(){
+
+        given: "the two unprojected groups"
+
+
+        when: "retrieving "
+
+    }
+
     // TODO: add this test for verification
 //    void "get unprojected contiguous - three sequences"() {
 //        given:
