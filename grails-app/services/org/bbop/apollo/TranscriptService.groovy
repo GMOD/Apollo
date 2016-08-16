@@ -184,9 +184,13 @@ class TranscriptService {
         Integer geneFmin = Integer.MAX_VALUE
         Integer geneFmax = Integer.MIN_VALUE
 
+        MultiSequenceProjection  multiSequenceProjection = projectionService.getProjection(bookmark)
+
         println "INIT ${geneFmin}-${geneFmax}"
 
         for (Transcript t : getTranscripts(gene)) {
+//            Integer transcriptFmin = projectionService.getMinForFeature(t,multiSequenceProjection)
+//            Integer transcriptFmax = projectionService.getMaxForFeature(t,multiSequenceProjection)
             Integer transcriptFmin = bookmarkService.getMinForFeature(t,bookmark)
             Integer transcriptFmax = bookmarkService.getMaxForFeature(t,bookmark)
             if (transcriptFmin < geneFmin) {
@@ -199,8 +203,8 @@ class TranscriptService {
 
         println "FINAL ${geneFmin}-${geneFmax}"
 
-        MultiSequenceProjection  multiSequenceProjection = projectionService.getProjection(bookmark)
 
+//        featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection, gene, multiSequenceProjection.projectValue(geneFmin), multiSequenceProjection.projectValue(geneFmax))
         featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection, gene, geneFmin, geneFmax)
     }
 

@@ -975,7 +975,7 @@ class RequestHandlingService {
     }
 
     /**
-     * TODO: test in interface
+     *
      * @param inputObject
      * @return
      */
@@ -1011,11 +1011,38 @@ class RequestHandlingService {
             Transcript transcript = exonService.getTranscript(exon)
             JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript,false,bookmark)
 
+//            // TODO: this is a poor-man's projection
+//            JSONArray projectedArray = new JSONArray()
+//            projectedArray.add(JSON.parse(oldTranscriptJsonObject.toString()) as JSONObject)
+//            projectedArray = featureProjectionService.projectTrack(projectedArray,multiSequenceProjection)
+//            JSONObject projectedFeature = projectedArray.getJSONObject(0)
+//            JSONObject projectedLocation = projectedFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
+//
+//
+////            Integer transcriptFmin = projectionService.getMinForFeature(transcript,multiSequenceProjection)
+////            Integer transcriptFmax = projectionService.getMaxForFeature(transcript,multiSequenceProjection)
+//            Integer transcriptFmin = projectedLocation.getInt(FeatureStringEnum.FMIN.value)
+//            Integer transcriptFmax = projectedLocation.getInt(FeatureStringEnum.FMAX.value)
+//
+//            // now we find a child with the correct UniqueName (ugh!) and get fmin / fmax location
+//            Integer exonFmin = -1
+//            Integer exonFmax = -1
+//            JSONArray childArray = projectedFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
+//            for(int childIndex = 0 ; childIndex < childArray.size() ; childIndex++){
+//                JSONObject childObject = childArray.getJSONObject(childIndex)
+//                if(childObject.uniquename == exon.uniqueName){
+//                   exonFmin = childObject.getJSONObject(FeatureStringEnum.LOCATION.value).getInt(FeatureStringEnum.FMIN.value)
+//                   exonFmax = childObject.getJSONObject(FeatureStringEnum.LOCATION.value).getInt(FeatureStringEnum.FMAX.value)
+//                }
+//            }
 
+//            Integer exonFmin = projectionService.getMinForFeature(exon,multiSequenceProjection)
+//            Integer exonFmax = projectionService.getMaxForFeature(exon,multiSequenceProjection)
             Integer transcriptFmin = bookmarkService.getMinForFeature(transcript,bookmark)
             Integer transcriptFmax = bookmarkService.getMaxForFeature(transcript,bookmark)
             Integer exonFmin = bookmarkService.getMinForFeature(exon,bookmark)
             Integer exonFmax = bookmarkService.getMaxForFeature(exon,bookmark)
+
             boolean updateTransriptBoundaries = false
             if(exonFmin==transcriptFmin){
                 transcriptFmin=fmin
