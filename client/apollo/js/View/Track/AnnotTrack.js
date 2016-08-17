@@ -965,11 +965,10 @@ define([
                 var target_track = this;
                 var geneSelectionRecords = new Array();
                 var variantSelectionRecords = new Array();
-                var variantTypes = ["SNV", "SNP", "MNV", "MNP", "INDEL", "INSERTION", "DELETION"]; // supported variant types
 
                 for (var i in selection_records) {
                     var type = selection_records[i].feature.get("type").toUpperCase();
-                    if (variantTypes.indexOf(type) != -1) {
+                    if (JSONUtils.variantTypes.indexOf(type) != -1) {
                         // feature is a variant
                         variantSelectionRecords.push(selection_records[i]);
                     }
@@ -2037,8 +2036,8 @@ define([
                     ++numItems;
                 }
                 var annotContent;
-                if (annot.afeature.type.name == "SNV") {
-                    // if feature is of type SNV
+                if (JSONUtils.variantTypes.indexOf(annot.afeature.type.name) != -1) {
+                    // feature is a variant
                     annotContent = this.createAnnotationInfoEditorPanelForVariant(annot.id(), track.getUniqueTrackName(), selector, false);
                 }
                 else {
@@ -5915,7 +5914,7 @@ define([
                     dojo.connect(changeAnnotationMenu, "onOpen", dojo.hitch(this, function() {
                         this.updateChangeAnnotationTypeMenu(changeAnnotationMenu);
                     }));
-                    contextMenuItems["annotation_info_editor"] = index++;
+                    contextMenuItems["change_annotation_type"] = index++;
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
@@ -6292,6 +6291,7 @@ define([
 
             updateMenu: function () {
                 this.updateDeleteMenuItem();
+                this.updateChangeAnnotationTypeMenuItem();
                 this.updateSetTranslationStartMenuItem();
                 this.updateSetTranslationEndMenuItem();
                 this.updateSetLongestOrfMenuItem();
@@ -6381,6 +6381,17 @@ define([
                     }
                 }
                 menuItem.set("disabled", false);
+            },
+
+            updateChangeAnnotationTypeMenuItem: function () {
+                var menuItem = this.getMenuItem("change_annotation_type");
+                var selected = this.selectionManager.getSelection();
+                if (JSONUtils.variantTypes.indexOf(selected[0].feature.afeature.type.name) != 1) {
+                    menuItem.set("disabled", true);
+                }
+                else {
+                    menuItem.set("disabled", false);
+                }
             },
 
             updateSetTranslationStartMenuItem: function () {

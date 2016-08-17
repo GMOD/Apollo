@@ -529,28 +529,13 @@ var draggableTrack = declare( HTMLVariantTrack,
         menu.addChild(new dijitMenuSeparator());
 
         this.contextMenuItems = {};
-        var createAnnotationMenu = new dijitMenu();
-        createAnnotationMenu.addChild(new dijitMenuItem( {
-            label: "SNV",
+        var createAnnotationMenuItem = new dijitMenuItem( {
+            label: "Create new annotation",
             onClick: dojo.hitch(this, function() {
                 var selection = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
                 atrack.createVariantAnnotations(selection);
             })
-        } ));
-        // TODO: support for additional variant types OR a generic 'Variant Annotation'
-        //createAnnotationMenu.addChild(new dijitMenuItem( {
-        //    label: "SNP",
-        //    onClick: dojo.hitch(this, function() {
-        //        var selection = this.selectionManager.getSelection();
-        //        this.selectionManager.clearSelection();
-        //        //atrack.createVariantAnnotations(selection);
-        //    })
-        //} ));
-
-        var createAnnotationMenuItem = new dijitPopupMenuItem( {
-            label: "Create new annotation",
-            popup: createAnnotationMenu
         } );
         this.contextMenuItems["create_annotation"] = createAnnotationMenuItem;
         menu.addChild(createAnnotationMenuItem);

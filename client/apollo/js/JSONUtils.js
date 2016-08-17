@@ -10,6 +10,7 @@ function JSONUtils() {
 }
 
 JSONUtils.verbose_conversion = false;
+JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "indel" ];
 
 /**
 *  creates a feature in JBrowse JSON format
