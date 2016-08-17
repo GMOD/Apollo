@@ -1074,4 +1074,70 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert FeatureLocation.count == 2 + 2 + 2 + (1 + 9) // one for each
 
     }
+
+    void "we can set the longest ORF and set the exon boundary and the CDS is smaller than the transcript before and after"(){
+
+        given: "an add transcript string"
+        String addTranscriptString = "{${testCredentials} \"track\":{\"id\":31240, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"location\":{\"fmin\":7743,\"fmax\":7949,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52238-RA\",\"children\":[{\"location\":{\"fmin\":7743,\"fmax\":7949,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String setExonBoundary = "{${testCredentials} \"track\":{\"id\":31240, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME_1@\",\"location\":{\"fmin\":6878,\"fmax\":7949}}],\"operation\":\"set_exon_boundaries\"}"
+
+
+        when: "we add a transcript"
+        JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        CDS cds = CDS.first()
+        FeatureLocation cdsFeatureLocation = CDS.first().firstFeatureLocation
+        FeatureLocation transcriptFeatureLocation = Transcript.first().firstFeatureLocation
+        FeatureLocation exonFeatureLocation = Exon.first().firstFeatureLocation
+        FeatureLocation geneFeatureLocation = Gene.first().firstFeatureLocation
+        Integer preFmin = cdsFeatureLocation.fmin
+        Integer preFmax = cdsFeatureLocation.fmax
+        setExonBoundary = setExonBoundary.replaceAll("@EXON_UNIQUE_NAME_1@",Exon.first().uniqueName)
+
+
+        then: "we should see that correct number of components and that the CDS is smaller than the exon and transcript (which should be identical)"
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert CDS.count == 1
+        assert Exon.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert cds.featureLocations.size()==1
+        assert FeatureLocation.count == 1 + 1 + 1 + 1
+        assert transcriptFeatureLocation.fmin == geneFeatureLocation.fmin
+        assert transcriptFeatureLocation.fmax == geneFeatureLocation.fmax
+        assert transcriptFeatureLocation.fmin == exonFeatureLocation.fmin
+        assert transcriptFeatureLocation.fmax == exonFeatureLocation.fmax
+        assert cdsFeatureLocation.fmin > exonFeatureLocation.fmin
+        assert cdsFeatureLocation.fmax < exonFeatureLocation.fmax
+
+
+
+        when: "we set the exon boundary"
+        requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary) as JSONObject)
+        cdsFeatureLocation = CDS.first().firstFeatureLocation
+        transcriptFeatureLocation = Transcript.first().firstFeatureLocation
+        exonFeatureLocation = Exon.first().firstFeatureLocation
+        geneFeatureLocation = Gene.first().firstFeatureLocation
+
+
+        then: "we should see that correct number of components and that the CDS is smaller than the exon and transcript (which should be identical)"
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert CDS.count == 1
+        assert Exon.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert cds.featureLocations.size()==1
+        assert FeatureLocation.count == 1 + 1 + 1 + 1
+        assert transcriptFeatureLocation.fmin == geneFeatureLocation.fmin
+        assert transcriptFeatureLocation.fmax == geneFeatureLocation.fmax
+        assert transcriptFeatureLocation.fmin == exonFeatureLocation.fmin
+        assert transcriptFeatureLocation.fmax == exonFeatureLocation.fmax
+        assert cdsFeatureLocation.fmin > exonFeatureLocation.fmin
+        assert cdsFeatureLocation.fmax < exonFeatureLocation.fmax
+        // should have shifted and not stayed the same
+        assert preFmin > cdsFeatureLocation.fmin
+        assert preFmax > cdsFeatureLocation.fmax
+
+    }
 }
