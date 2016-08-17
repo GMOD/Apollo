@@ -1062,11 +1062,12 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.count == (1 + 9)
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 0
-        assert FeatureLocation.count == 2 + 2 + 2 + (1 + 9) // one for each
         assert retrievedFeatures.getJSONObject(0).location.fmin >0
         assert retrievedFeatures.getJSONObject(0).location.fmax >0
         assert retrievedFeatures.getJSONObject(1).location.fmin >0
         assert retrievedFeatures.getJSONObject(1).location.fmax >0
+        // 15 or 16 depending on if CDS has two Feature Locations
+        assert FeatureLocation.count == 2 + 2 + 2 + (1 + 9) // one for each
 
     }
 
