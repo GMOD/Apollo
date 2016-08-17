@@ -176,8 +176,8 @@ class RefSeqProjectorService {
             Integer startIndex, endIndex
             if (index == 0) {
                 if (sequences.size() == 1) {
-                    startIndex = unprojectedStart - projectionSequence.originalOffset - startOffset
-                    endIndex = unprojectedEnd - projectionSequence.originalOffset - startOffset
+                    startIndex = unprojectedStart - projectionSequence.originalOffset - startOffset + projectionSequence.start
+                    endIndex = unprojectedEnd - projectionSequence.originalOffset - startOffset + projectionSequence.start
                     endIndex = endIndex > sequence.length ? sequence.length : endIndex
 //                    stringList << sequenceService.getRawResiduesFromSequence(sequence, unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
                 } else {

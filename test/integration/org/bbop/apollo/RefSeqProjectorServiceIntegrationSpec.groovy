@@ -205,6 +205,9 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "retrieving "
 
+
+        then: "sum"
+
     }
 
     // TODO: add this test for verification
