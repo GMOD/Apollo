@@ -870,7 +870,11 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert retrievedFeatures.getJSONObject(3).location.fmax >0
     }
 
-    void "We can add a transcript in a projection and set the exon boundary on both the 3' and 5' sides"() {
+    /**
+     *
+     "We can add a transcript in a projection and set the exon boundary on both the 3' and 5' sides"() {
+     */
+    void "Set exon boundary in projection across"() {
 
         given: "if we create transcripts from two genes and merge them"
 //        String transcriptUn87Gb53499 = "{${testCredentials} \"track\":{\"id\":31085, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"

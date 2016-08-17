@@ -1381,9 +1381,7 @@ class FeatureService {
     @Transactional
     def setFmin(Feature feature, int fmin,MultiSequenceProjection multiSequenceProjection) {
         Sequence firstSequence = feature.firstSequence
-        Integer offset = multiSequenceProjection.getOffsetForSequence(firstSequence.name)
-
-        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(fmin+offset)
+        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(firstSequence.name,firstSequence.organism)
         Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,firstSequence.organism)
 
         List<FeatureLocation> toDelete = new ArrayList<>()
@@ -1405,17 +1403,13 @@ class FeatureService {
         toDelete.each {
             feature.removeFromFeatureLocations(it)
         }
-//        FeatureLocation.delete(it)
-//        FeatureLocation.deleteAll(toDelete)
     }
 
     @Transactional
     def setFmax(Feature feature, int fmax,MultiSequenceProjection multiSequenceProjection) {
-        Sequence firstSequence = feature.firstSequence
-        Integer offset = multiSequenceProjection.getOffsetForSequence(firstSequence.name)
-
-        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(fmax+offset)
-        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,firstSequence.organism)
+        Sequence lastSequence = feature.lastSequence
+        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(lastSequence.name,lastSequence.organism)
+        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,lastSequence.organism)
 
         List<FeatureLocation> toDelete = new ArrayList<>()
         Boolean fmaxSet = false
@@ -1435,10 +1429,7 @@ class FeatureService {
         // remove to delete
         toDelete.each {
             feature.removeFromFeatureLocations(it)
-//            FeatureLocation.delete(it)
         }
-//        FeatureLocation.deleteAll(toDelete)
-//        feature.getFeatureLocation().setFmax(fmax);
     }
 
     /** Convert source feature coordinate to local coordinate.
