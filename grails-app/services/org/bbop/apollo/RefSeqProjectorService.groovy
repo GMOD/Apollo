@@ -175,48 +175,35 @@ class RefSeqProjectorService {
             // could be only one, any portion
             Integer startIndex, endIndex
             if (index == 0) {
+                // this is the only sequence, so just grab the exact amount
+                startIndex = unprojectedStart - projectionSequence.originalOffset - startOffset + projectionSequence.start
                 if (sequences.size() == 1) {
-                    startIndex = unprojectedStart - projectionSequence.originalOffset - startOffset + projectionSequence.start
                     endIndex = unprojectedEnd - projectionSequence.originalOffset - startOffset + projectionSequence.start
                     endIndex = endIndex > sequence.length ? sequence.length : endIndex
-//                    stringList << sequenceService.getRawResiduesFromSequence(sequence, unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
-                } else {
-                    startIndex = unprojectedStart - projectionSequence.originalOffset - startOffset
-//                    endIndex = projection.getMaxCoordinate(projectionSequence).max
-                    endIndex = sequence.length
-//                    stringList << sequenceService.getRawResiduesFromSequence(sequence, unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
+                }
+                // there are more than one sequences and this is the first of possibly several
+                    // we go to the end of the projection then
+                else {
+                    endIndex = projectionSequence.end
+                    endIndex = endIndex > sequence.length ? sequence.length : endIndex
                 }
             }
             // end case
             // implied at least 2, so the start will always be 0
             // ends with the end sequence
             else if (index == sequences.size() - 1) {
-                startIndex = 0
-//                endIndex = unprojectedEnd - projectionSequence.originalOffset
-                endIndex = sequence.length
-//                stringList << sequenceService.getRawResiduesFromSequence(sequence, 0, unprojectedEnd - endSequence.originalOffset )
+                startIndex =projectionSequence.start
+                endIndex = projectionSequence.end
+                endIndex = endIndex > sequence.length ? sequence.length : endIndex
             }
-            // middle case
+            // middle case, should just be the start and end of this sequence
             else {
-                startIndex = 0
-//                endIndex = projection.getMaxCoordinate(projectionSequence).max
-                endIndex = sequence.length
-//                stringList << sequenceService.getRawResiduesFromSequence(sequence, 0, sequence.length)
+                startIndex = projectionSequence.start
+                endIndex = projectionSequence.end
             }
             stringList << sequenceService.getRawResiduesFromSequence(sequence, startIndex, endIndex)
             ++index
         }
-//        if ( startSequence.name == endSequence.name) {
-//            unprojectedString += sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name), unprojectedStart - startSequence.originalOffset - startOffset, unprojectedEnd - endSequence.originalOffset)
-//        }
-//        // TODO: handle intermediate sequences?
-//        else {
-//            def stringList = []
-//            stringList <<  sequenceService.getRawResiduesFromSequence(Sequence.findByName(startSequence.name), unprojectedStart - startSequence.originalOffset)
-//            stringList <<  sequenceService.getRawResiduesFromSequence(Sequence.findByName(endSequence.name), 0, unprojectedEnd - endSequence.originalOffset)
-//            unprojectedString = stringList.join("")
-//        }
-
         String unprojectedString = stringList.join("")
 
         // TODO: cache the response for this "unique" file
@@ -226,19 +213,7 @@ class RefSeqProjectorService {
 //                response.setHeader("ETag", eTag);
 //                response.setHeader("Last-Modified", dateString);
 
-        // re-project the string
-//                String projectedString = projection.projectSequence(unprojectedString,unprojectedStart,unprojectedEnd,0)
-//        switch (projection.projectionDescription.projection.toUpperCase()) {
-//            case "EXON":
-//                String returnString = projection.projectSequence(unprojectedString, 0, unprojectedString.length() - 1, unprojectedStart-projectedStart)
-//                String returnString = projection.projectSequence(unprojectedString, 0, unprojectedString.length() - 1, 0)
-//                String returnString = projection.projectSequence(unprojectedString, unprojectedStart, unprojectedEnd, 0)
-//                return returnString
-//            default:
-                return unprojectedString
-
-//        }
-
+        return unprojectedString
 
     }
 }
