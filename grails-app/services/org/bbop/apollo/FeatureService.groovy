@@ -1380,9 +1380,11 @@ class FeatureService {
      */
     @Transactional
     def setFmin(Feature feature, int fmin,MultiSequenceProjection multiSequenceProjection) {
-        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(fmin)
-        Organism organism = preferenceService.getOrganismForToken(projectionSequence.organism)
-        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
+        Sequence firstSequence = feature.firstSequence
+        Integer offset = multiSequenceProjection.getOffsetForSequence(firstSequence.name)
+
+        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(fmin+offset)
+        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,firstSequence.organism)
 
         List<FeatureLocation> toDelete = new ArrayList<>()
         Boolean fminSet = false
@@ -1409,9 +1411,11 @@ class FeatureService {
 
     @Transactional
     def setFmax(Feature feature, int fmax,MultiSequenceProjection multiSequenceProjection) {
-        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(fmax)
-        Organism organism = preferenceService.getOrganismForToken(projectionSequence.organism)
-        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,organism)
+        Sequence firstSequence = feature.firstSequence
+        Integer offset = multiSequenceProjection.getOffsetForSequence(firstSequence.name)
+
+        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(fmax+offset)
+        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,firstSequence.organism)
 
         List<FeatureLocation> toDelete = new ArrayList<>()
         Boolean fmaxSet = false

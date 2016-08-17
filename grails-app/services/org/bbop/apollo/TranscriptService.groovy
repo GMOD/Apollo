@@ -91,11 +91,11 @@ class TranscriptService {
 
         for (transcriptFeatureLocation in transcriptFeatureLocationList) {
             FeatureLocation featureLocation = new FeatureLocation(
-                    strand: transcriptFeatureLocationList.strand
-                    , sequence: transcriptFeatureLocationList.sequence
-                    , fmin: transcriptFeatureLocationList.fmin
-                    , fmax: transcriptFeatureLocationList.fmax
-                    , rank: transcriptFeatureLocationList.rank
+                    strand: transcriptFeatureLocation.strand
+                    , sequence: transcriptFeatureLocation.sequence
+                    , fmin: transcriptFeatureLocation.fmin
+                    , fmax: transcriptFeatureLocation.fmax
+                    , rank: transcriptFeatureLocation.rank
                     , feature: cds
             ).save(insert: true, failOnError: true)
             cds.addToFeatureLocations(featureLocation);
