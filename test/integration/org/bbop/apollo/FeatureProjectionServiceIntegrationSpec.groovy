@@ -1009,30 +1009,25 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert retrievedFeatures.getJSONObject(1).location.fmax >0
     }
 
-    @Ignore
     void "We can merge two transcript in a projection between the 3' and 5' sides"() {
 
         given: "if we create transcripts from two genes and merge them"
         String transcriptUn87Gb53499 = "{${testCredentials} \"track\":{\"id\":31085, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
         String transcript11_4GB52238 = "{${testCredentials} \"track\":{\"id\":31085, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"location\":{\"fmin\":720,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52238-RA\",\"children\":[{\"location\":{\"fmin\":720,\"fmax\":765,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":3184,\"fmax\":3516,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":3696,\"fmax\":3824,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":4168,\"fmax\":4835,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":5879,\"fmax\":6690,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":6862,\"fmax\":6940,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":7743,\"fmax\":7949,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":8681,\"fmax\":8917,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":9024,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":720,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
-        String mergeExonCommand ="{ ${testCredentials} \"track\": {\"id\":31240, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]}, \"features\": [ { \"uniquename\": \"@EXON_UNIQUE_NAME_1@\" }, { \"uniquename\": \"@EXON_UNIQUE_NAME_2@\" } ], \"operation\": \"merge_transcripts\"}"
+        String mergeExonCommand ="{ ${testCredentials} \"track\": {\"id\":31240, \"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]}, \"features\": [ { \"uniquename\": \"@TRANSCRIPT_UNIQUE_NAME_1@\" }, { \"uniquename\": \"@TRANSCRIPT_UNIQUE_NAME_2@\" } ], \"operation\": \"merge_transcripts\"}"
 
         // TODO: create actual projeciton getFeatures
         String getFeaturesInProjectionString2 = "{${testCredentials} \"track\":{\"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"operation\":\"get_features\"}"
 
         when: "we add two transcripts"
         JSONObject addTransriptResponseUn87Gb53499 = requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499) as JSONObject)
-        Exon exon1 = Exon.first()
-        String exonUniqueName1 = exon1.uniqueName
         JSONObject addTransriptResponse11_45Un87Gb2238 = requestHandlingService.addTranscript(JSON.parse(transcript11_4GB52238) as JSONObject)
-        List<Exon> exonList = Exon.all.sort(){ it.featureLocations.first().fmin }
-        String exonUniqueName2 = exonList.get(0).uniqueName
-        mergeExonCommand = mergeExonCommand.replaceAll("@EXON_UNIQUE_NAME_1@",exonUniqueName1)
-        mergeExonCommand = mergeExonCommand.replaceAll("@EXON_UNIQUE_NAME_2@",exonUniqueName2)
         Sequence sequenceGroupUn87 = Sequence.findByName("GroupUn87")
         Sequence sequenceGroup11_4 = Sequence.findByName("Group11.4")
         MRNA mrnaGb53499 = MRNA.findByName("GB53499-RA-00001")
         MRNA mrnaGb52238 = MRNA.findByName("GB52238-RA-00001")
+        mergeExonCommand = mergeExonCommand.replaceAll("@TRANSCRIPT_UNIQUE_NAME_1@",mrnaGb53499.uniqueName)
+        mergeExonCommand = mergeExonCommand.replaceAll("@TRANSCRIPT_UNIQUE_NAME_2@",mrnaGb52238.uniqueName)
 
 
         then: "we verify that we have two transcripts, one on each scaffold"
@@ -1061,10 +1056,6 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesInProjectionString2) as JSONObject).features
 
         then: "we should still have valid locations "
-        assert retrievedFeatures.getJSONObject(0).location.fmin >0
-        assert retrievedFeatures.getJSONObject(0).location.fmax >0
-        assert retrievedFeatures.getJSONObject(1).location.fmin >0
-        assert retrievedFeatures.getJSONObject(1).location.fmax >0
         assert MRNA.count == 1
         assert Gene.count == 1
         assert CDS.count == 1
@@ -1072,6 +1063,10 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 0
         assert FeatureLocation.count == 2 + 2 + 2 + (1 + 9) // one for each
+        assert retrievedFeatures.getJSONObject(0).location.fmin >0
+        assert retrievedFeatures.getJSONObject(0).location.fmax >0
+        assert retrievedFeatures.getJSONObject(1).location.fmin >0
+        assert retrievedFeatures.getJSONObject(1).location.fmax >0
 
     }
 
