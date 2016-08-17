@@ -1145,9 +1145,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 int deletionLength = jsonFeature.location.fmax - jsonFeature.location.fmin
                 gsolFeature.deletionLength = deletionLength
             }
-            if (gsolFeature instanceof SNV) {
-                gsolFeature.referenceNucleotide = jsonFeature.getString("referenceNucleotide")
-                gsolFeature.alternateNucleotide = jsonFeature.getString("alternateNucleotide")
+
+            if (gsolFeature instanceof SequenceAlteration && type.name in RequestHandlingService.variantAnnotationTypes) {
+                gsolFeature.referenceBases = jsonFeature.getString("referenceBases")
+                gsolFeature.alternateBases = jsonFeature.getString("alternateBases")
                 if (jsonFeature.has("minor_allele_frequency")) {
                     gsolFeature.minorAlleleFrequency = Float.parseFloat(jsonFeature.getString("minor_allele_frequency"))
                 }
@@ -1334,6 +1335,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case NonCanonicalThreePrimeSpliceSite.ontologyId: return new NonCanonicalThreePrimeSpliceSite()
             case StopCodonReadThrough.ontologyId: return new StopCodonReadThrough()
             case SNV.ontologyId: return new SNV()
+            case SNP.ontologyId: return new SNP()
+            case MNV.ontologyId: return new MNV()
+            case MNP.ontologyId: return new MNP()
+            case Indel.ontologyId: return new Indel()
             default:
                 log.error("No feature type exists for ${ontologyId}")
                 return null
@@ -1373,6 +1378,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 case NonCanonicalFivePrimeSpliceSite.alternateCvTerm.toUpperCase(): return NonCanonicalFivePrimeSpliceSite.ontologyId
                 case NonCanonicalThreePrimeSpliceSite.alternateCvTerm.toUpperCase(): return NonCanonicalThreePrimeSpliceSite.ontologyId
                 case SNV.cvTerm.toUpperCase(): return SNV.ontologyId
+                case SNP.cvTerm.toUpperCase(): return SNP.ontologyId
+                case MNV.cvTerm.toUpperCase(): return MNV.ontologyId
+                case MNP.cvTerm.toUpperCase(): return MNP.ontologyId
+                case Indel.cvTerm.toUpperCase(): return Indel.ontologyId
                 default:
                     log.error("CV Term not known ${cvTermString} for CV ${FeatureStringEnum.SEQUENCE}")
                     return null
@@ -1541,7 +1550,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      */
     @Timed
     JSONObject convertFeatureToJSONLite(Feature gsolFeature, boolean includeSequence = false, int depth) {
+        println "ConvertFeatureToJSONLite : ${gsolFeature.class.name}"
         JSONObject jsonFeature = new JSONObject();
+
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
         }
@@ -1556,9 +1567,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
-        if (gsolFeature instanceof SNV) {
-            jsonFeature.put("referenceNucleotide", gsolFeature.referenceNucleotide)
-            jsonFeature.put("alternateNucleotide", gsolFeature.alternateNucleotide)
+
+        if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantAnnotationList) {
+            println "gsolFeat is SequenceAlt"
+            if(gsolFeature.referenceBases) {
+                println "gsolFeat referenceBases exists"
+                jsonFeature.put("referenceBases", gsolFeature.referenceBases)
+                jsonFeature.put("alternateBases", JSON.parse(gsolFeature.alternateBases) as JSONArray)
+            }
+
             if (gsolFeature.minorAlleleFrequency) {
                 jsonFeature.put("minor_allele_frequency", Float.toString(gsolFeature.minorAlleleFrequency))
             }
@@ -1717,11 +1734,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         durationInMilliseconds = System.currentTimeMillis() - start;
         //log.debug "featloc ${durationInMilliseconds}"
 
-        if (gsolFeature instanceof SNV) {
-            SNV snv = (SNV) gsolFeature
-            jsonFeature.put("referenceNucleotide", snv.referenceNucleotide)
-            jsonFeature.put("alternateNucleotide", snv.alternateNucleotide)
-            jsonFeature.put("minor_allele_frequency", snv.minorAlleleFrequency)
+        if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantAnnotationList) {
+            jsonFeature.put("referenceBases", gsolFeature.referenceBases)
+            jsonFeature.put("alternateBases", JSON.parse(gsolFeature.alternateBases) as JSONArray)
+            jsonFeature.put("minor_allele_frequency", gsolFeature.minorAlleleFrequency)
         }
 
         if (gsolFeature.class.name in assemblyErrorCorrectionTypes) {
@@ -1804,7 +1820,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         def feature = generateFeatureForType(ontologyId)
 
         String cvTerm
-        if (feature instanceof SNV) {
+        if (feature.class.name in RequestHandlingService.variantAnnotationList) {
             cvTerm = feature.cvTerm
         }
         else {

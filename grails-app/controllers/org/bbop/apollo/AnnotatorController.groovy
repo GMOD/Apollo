@@ -151,9 +151,9 @@ class AnnotatorController {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
         }
 
-        if (feature instanceof SNV) {
-            feature.referenceNucleotide = data.referenceNucleotide
-            feature.alternateNucleotide = data.alternateNucleotide
+        if (feature instanceof SequenceAlteration && feature.type) {
+            feature.referenceBases = data.referenceBases
+            feature.alternateBases = data.alternateBases
             if (data.minor_allele_frequency) {
                 feature.minorAlleleFrequency = data.minor_allele_frequency
             }
@@ -170,7 +170,6 @@ class AnnotatorController {
 
         render updateFeatureContainer
     }
-
 
     @RestApiMethod(description = "Update feature location", path = "/annotator/updateFeatureLocation", verb = RestApiVerb.POST)
     @RestApiParams(params = [

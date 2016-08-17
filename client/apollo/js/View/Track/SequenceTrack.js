@@ -1175,8 +1175,8 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                             name: "sequence"
                         }
                     },
-                    referenceNucleotide: referenceBasesString,
-                    alternateNucleotide: alternateBasesString
+                    referenceBases: referenceBasesString,
+                    alternateBases: alternateBasesString
                 }];
                 var postData = {
                     track: track.annotTrack.getUniqueTrackName(),

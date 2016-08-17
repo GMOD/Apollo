@@ -198,8 +198,8 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
                strand:          loc.strand,
                id:              uid,
                type:            afeature.type.name,
-               referenceNucleotide:   afeature.referenceNucleotide,
-               alternateNucleotide:   afeature.alternateNucleotide
+               referenceBases:   afeature.referenceBases,
+               alternateBases:   afeature.alternateBases
            },
            id: uid
         });
@@ -457,8 +457,8 @@ JSONUtils.createApolloVariant = function( jfeature, useName ) {
         afeature.name = name;
     }
 
-    afeature.referenceNucleotide = referenceAllele;
-    afeature.alternateNucleotide = alternativeAlleles;
+    afeature.referenceBases = referenceAllele;
+    afeature.alternateBases = alternativeAlleles;
 
     // TODO: Add additional metadata
     return afeature;

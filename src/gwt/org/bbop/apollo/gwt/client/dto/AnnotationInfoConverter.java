@@ -5,6 +5,7 @@ import java.util.Date;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import org.bbop.apollo.gwt.client.VariantDetailPanel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +40,14 @@ public class AnnotationInfoConverter {
         if (object.get("description") != null) {
             annotationInfo.setDescription(object.get("description").isString().stringValue());
         }
-        if (annotationInfo.getType().equals("SNV")) {
+        if (VariantDetailPanel.variantTypes.contains(annotationInfo.getType())) {
             // If annotation is a variant annotation
-            annotationInfo.setReferenceNucleotide(object.get("referenceNucleotide").isString().stringValue());
-            annotationInfo.setAlternateNucleotide(object.get("alternateNucleotide").isString().stringValue());
+            if (object.get("referenceBases") != null) {
+                annotationInfo.setReferenceBases(object.get("referenceBases").isString().stringValue());
+            }
+            if (object.get("alternateBases") != null) {
+                annotationInfo.setAlternateBases(object.get("alternateBases").isArray());
+            }
             if (object.get("minor_allele_frequency") != null) {
                 annotationInfo.setMinorAlleleFrequency(object.get("minor_allele_frequency").isString().stringValue());
             }

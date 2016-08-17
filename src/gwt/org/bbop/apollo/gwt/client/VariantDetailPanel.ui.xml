@@ -32,9 +32,9 @@
             <b:Column size="XS_5" styleName="{style.widgetPanel}">
                 <b:InputGroup >
                     <b:InputGroupAddon visible="true">REF</b:InputGroupAddon>
-                    <b:TextBox autoComplete="false" ui:field="referenceNucleotideField" visible="true"/>
+                    <b:TextBox autoComplete="false" ui:field="referenceBasesField" visible="true"/>
                     <b:InputGroupAddon visible="true">ALT</b:InputGroupAddon>
-                    <b:TextBox autoComplete="false" ui:field="alternateNucleotideField" visible="true"/>
+                    <b:TextBox autoComplete="false" ui:field="alternateBasesField" visible="true"/>
                     <b:InputGroupAddon visible="true">MAF</b:InputGroupAddon>
                     <b:TextBox autoComplete="false" ui:field="minorAlleleFrequencyField" visible="true" />
                 </b:InputGroup>

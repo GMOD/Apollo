@@ -1,5 +1,10 @@
 package org.bbop.apollo.gwt.client.dto;
 
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+
 import java.util.*;
 
 /**
@@ -20,8 +25,8 @@ public class AnnotationInfo {
     private Integer phase;
     private String owner;
     private String date;
-    private String referenceNucleotide;
-    private String alternateNucleotide;
+    private String referenceBases;
+    private List<String> alternateBases = new ArrayList<>();
     private Float minorAlleleFrequency;
 
     public String getOwner() {
@@ -150,13 +155,37 @@ public class AnnotationInfo {
         this.phase = phase;
     }
 
-    public String getReferenceNucleotide() { return referenceNucleotide; }
+    public String getReferenceBases() { return referenceBases; }
 
-    public void setReferenceNucleotide(String referenceNucleotide) { this.referenceNucleotide = referenceNucleotide; }
+    public void setReferenceBases(String referenceBasesString) { this.referenceBases = referenceBasesString; }
 
-    public String getAlternateNucleotide() { return alternateNucleotide; }
+    public String getAlternateBases() {
+        String alternateBasesString = "";
+        for (String alt : alternateBases) {
+            if (alternateBasesString.equals("")) {
+                alternateBasesString = alt;
+            }
+            else {
+                alternateBasesString += "," + alt;
+            }
+        }
+        return alternateBasesString;
+    }
 
-    public void setAlternateNucleotide(String alternateNucleotide) { this.alternateNucleotide = alternateNucleotide; }
+    public void setAlternateBases(String alternateBasesString) {
+        this.alternateBases = Arrays.asList(alternateBasesString.split(","));
+    }
+
+    public void setAlternateBases(ArrayList<String> alternateBases) {
+        this.alternateBases = alternateBases;
+    }
+
+    public void setAlternateBases(JSONArray array) {
+        // TODO: a better way of handling this
+        for (int i = 0; i < array.size(); i++) {
+            this.alternateBases.add(array.get(i).toString().replaceAll("\"", ""));
+        }
+    }
 
     public Float getMinorAlleleFrequency() { return minorAlleleFrequency; }
 

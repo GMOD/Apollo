@@ -3328,10 +3328,10 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     void "adding a simple SNV"() {
         given: "a SNV"
-        String addVariantString = "{ ${testCredentials} \"operation\":\"add_single_nucleotide_variant\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"referenceNucleotide\": \"A\", \"alternateNucleotide\": \"G\", \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"referenceBases\": \"A\", \"alternateBases\": \"G\", \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
 
         when: "we add a SNV"
-        println requestHandlingService.addSingleNucleotideVariant(JSON.parse(addVariantString) as JSONObject)
+        println requestHandlingService.addVariantAnnotation(JSON.parse(addVariantString) as JSONObject)
 
         then: "we should see the SNV"
         assert SNV.all.size() != 0

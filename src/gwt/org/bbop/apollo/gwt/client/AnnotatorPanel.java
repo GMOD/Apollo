@@ -394,6 +394,10 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 break;
             case "SNV":
+            case "SNP":
+            case "MNV":
+            case "MNP":
+            case "indel":
                 fireAnnotationInfoChangeEvent(annotationInfo);
                 variantDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);

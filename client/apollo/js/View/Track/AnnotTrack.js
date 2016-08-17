@@ -3392,31 +3392,32 @@ define([
                 var positionField = new dijitTextBox({'class': "annotation_editor_field", readonly: true});
                 dojo.place(positionField.domNode, positionDiv);
 
-                // Reference Nucleotide field
-                var refNucleotideDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
-                var refNucleotideLabel = dojo.create("label", {
+                // Reference bases field
+                var refBasesDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
+                var refBasesLabel = dojo.create("label", {
                     innerHTML: "REF",
                     'class': "annotation_info_editor_label"
-                }, refNucleotideDiv);
-                var refNucleotideField = new dijitTextBox({'class': "annotation_editor_field"});
-                dojo.place(refNucleotideField.domNode, refNucleotideDiv);
+                }, refBasesDiv);
+                var refBasesField = new dijitTextBox({'class': "annotation_editor_field"});
+                dojo.place(refBasesField.domNode, refBasesDiv);
                 new Tooltip({
-                    connectId: refNucleotideDiv,
+                    connectId: refBasesDiv,
                     label: "Reference nucleotide w.r.t. the forward (+) strand",
                     position: ["above"],
                     showDelay: 600
                 });
 
-                // Alternate Nucleotide field
-                var altNucleotideDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
-                var altNucleotideLabel = dojo.create("label", {
+                // Alternate bases field
+                // TODO: Show Alt bases in a table to support multi-allelic variants
+                var altBasesDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
+                var altBasesLabel = dojo.create("label", {
                     innerHTML: "ALT",
                     'class': "annotation_info_editor_label"
-                }, altNucleotideDiv);
-                var altNucleotideField = new dijitTextBox({'class': "annotation_editor_field"});
-                dojo.place(altNucleotideField.domNode, altNucleotideDiv);
+                }, altBasesDiv);
+                var altBasesField = new dijitTextBox({'class': "annotation_editor_field"});
+                dojo.place(altBasesField.domNode, altBasesDiv);
                 new Tooltip({
-                    connectId: altNucleotideDiv,
+                    connectId: altBasesDiv,
                     label: "Alternate nucleotide w.r.t. the forward (+) strand",
                     position: ["above"],
                     showDelay: 600
@@ -3648,8 +3649,8 @@ define([
                             initType(feature);
                             initName(feature);
                             initPosition(feature);
-                            initRefNucleotide(feature);
-                            initAltNucleotide(feature);
+                            initRefBases(feature);
+                            initAltBases(feature);
                             initMinorAlleleFrequency(feature);
                             initDescription(feature);
                             initDates(feature);
@@ -3714,16 +3715,16 @@ define([
                 };
 
                 // initialize REF field
-                var initRefNucleotide = function(feature) {
-                    if (feature.referenceNucleotide) {
-                        refNucleotideField.set("value", feature.referenceNucleotide);
+                var initRefBases = function(feature) {
+                    if (feature.referenceBases) {
+                        refBasesField.set("value", feature.referenceBases);
                     }
                 };
 
                 // initialize ALT field
-                var initAltNucleotide = function(feature) {
-                    if (feature.alternateNucleotide) {
-                        altNucleotideField.set("value", feature.alternateNucleotide);
+                var initAltBases = function(feature) {
+                    if (feature.alternateBases) {
+                        altBasesField.set("value", feature.alternateBases);
                     }
                 };
 

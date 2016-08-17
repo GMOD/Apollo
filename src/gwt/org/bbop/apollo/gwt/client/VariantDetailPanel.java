@@ -18,10 +18,15 @@ import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by deepak.unni3 on 8/2/16.
  */
 public class VariantDetailPanel extends Composite {
+    public static List<String> variantTypes = Arrays.asList("SNV", "SNP", "MNV", "MNP", "indel");
     private AnnotationInfo internalAnnotationInfo;
 
     interface AnnotationDetailPanelUiBinder extends UiBinder<Widget, VariantDetailPanel> {
@@ -40,9 +45,9 @@ public class VariantDetailPanel extends Composite {
     @UiField
     TextBox userField;
     @UiField
-    TextBox referenceNucleotideField;
+    TextBox referenceBasesField;
     @UiField
-    TextBox alternateNucleotideField;
+    TextBox alternateBasesField;
     @UiField
     TextBox minorAlleleFrequencyField;
 
@@ -53,8 +58,8 @@ public class VariantDetailPanel extends Composite {
     public void updateData(AnnotationInfo variantAnnotationInfo) {
         this.internalAnnotationInfo = variantAnnotationInfo;
         nameField.setText(internalAnnotationInfo.getName());
-        referenceNucleotideField.setText(internalAnnotationInfo.getReferenceNucleotide());
-        alternateNucleotideField.setText(internalAnnotationInfo.getAlternateNucleotide());
+        referenceBasesField.setText(internalAnnotationInfo.getReferenceBases());
+        alternateBasesField.setText(internalAnnotationInfo.getAlternateBases());
         if (internalAnnotationInfo.getMinorAlleleFrequency() != null) {
             minorAlleleFrequencyField.setText(internalAnnotationInfo.getMinorAlleleFrequency().toString());
         }
@@ -93,29 +98,29 @@ public class VariantDetailPanel extends Composite {
         updateVariant();
     }
 
-    @UiHandler("referenceNucleotideField")
-    void handleReferenceNucleotideChange(ChangeEvent e) {
-        String updatedReferenceNucleotide = referenceNucleotideField.getText().toUpperCase();
-        if (isValidDNA(updatedReferenceNucleotide)) {
-            internalAnnotationInfo.setReferenceNucleotide(updatedReferenceNucleotide);
+    @UiHandler("referenceBasesField")
+    void handleReferenceBasesChange(ChangeEvent e) {
+        String updatedReferenceBases = referenceBasesField.getText().toUpperCase();
+        if (isValidDNA(updatedReferenceBases)) {
+            internalAnnotationInfo.setReferenceBases(updatedReferenceBases);
             updateVariant();
         }
         else {
             Bootbox.alert("Nucleotides should be A, T, C, G or N");
-            referenceNucleotideField.clear();
+            referenceBasesField.clear();
         }
     }
 
-    @UiHandler("alternateNucleotideField")
+    @UiHandler("alternateBasesField")
     void handleAlternateNucleotideChange(ChangeEvent e) {
-        String updatedAlternateNucleotide = alternateNucleotideField.getText().toUpperCase();
-        if (isValidDNA(updatedAlternateNucleotide)) {
-            internalAnnotationInfo.setAlternateNucleotide(updatedAlternateNucleotide);
+        String updatedAlternateBases = alternateBasesField.getText().toUpperCase();
+        if (isValidDNA(updatedAlternateBases)) {
+            internalAnnotationInfo.setAlternateBases(updatedAlternateBases);
             updateVariant();
         }
         else {
             Bootbox.alert("Nucleotides should be A, T, C, G or N");
-            alternateNucleotideField.clear();
+            alternateBasesField.clear();
         }
     }
 
@@ -140,8 +145,8 @@ public class VariantDetailPanel extends Composite {
 
     private void enableFields(boolean enabled) {
         nameField.setEnabled(enabled);
-        referenceNucleotideField.setEnabled(enabled);
-        alternateNucleotideField.setEnabled(enabled);
+        referenceBasesField.setEnabled(enabled);
+        alternateBasesField.setEnabled(enabled);
         minorAlleleFrequencyField.setEnabled(enabled);
         descriptionField.setEnabled(enabled);
     }

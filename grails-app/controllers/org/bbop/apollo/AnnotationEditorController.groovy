@@ -977,18 +977,18 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    @RestApiMethod(description = "Add Single Nucleotide Variant (SNV)", path = "/annotationEditor/addSingleNucleotideVariant", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Add a variant", path = "/annotationEditor/addVariantAnnotation", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY),
             @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY),
             @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name"),
             @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism ID or common name"),
-            @RestApiParam(name = "features", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "JSONArray with Single Nucleotide Variant (SNV) objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/")
+            @RestApiParam(name = "features", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "JSONArray with variant feature objects, as described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/")
     ])
-    def addSingleNucleotideVariant() {
+    def addVariantAnotation() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.addSingleNucleotideVariant(inputObject)
+            render requestHandlingService.addVariantAnnotation(inputObject)
         } else {
             render status: HttpStatus.UNAUTHORIZED
         }
@@ -1043,15 +1043,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             newFeature.put(FeatureStringEnum.DATE_CREATION.value, feature.dateCreated.time);
             newFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
             newFeature.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(feature.ontologyId));
-            if (feature instanceof SNV) {
+
+            if (feature instanceof SequenceAlteration && feature.class.name in RequestHandlingService.variantAnnotationList) {
                 newFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(feature.featureLocation));
-                newFeature.put("referenceNucleotide", feature.referenceNucleotide);
-                newFeature.put("alternateNucleotide", feature.alternateNucleotide);
+                newFeature.put("referenceBases", feature.referenceBases);
+                newFeature.put("alternateBases", feature.alternateBases);
                 if (feature.minorAlleleFrequency) {
                     newFeature.put("minor_allele_frequency", Float.toString(feature.minorAlleleFrequency));
                 }
             }
-
 
             if (feature.featureLocation) {
                 newFeature.put(FeatureStringEnum.SEQUENCE.value, feature.featureLocation.sequence.name);

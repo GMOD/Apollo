@@ -1,8 +1,10 @@
 package org.bbop.apollo.gwt.client.rest;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import org.bbop.apollo.gwt.client.VariantDetailPanel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 
 /**
@@ -18,9 +20,9 @@ public class AnnotationRestService {
        jsonObject.put("symbol",annotationInfo.getSymbol()!=null ? new JSONString(annotationInfo.getSymbol()):new JSONString(""));
        jsonObject.put("description",annotationInfo.getDescription()!=null ? new JSONString(annotationInfo.getDescription()):new JSONString(""));
        jsonObject.put("type",new JSONString(annotationInfo.getType()));
-       if (annotationInfo.getType().equals("SNV")) {
-           jsonObject.put("referenceNucleotide", annotationInfo.getReferenceNucleotide() != null ? new JSONString(annotationInfo.getReferenceNucleotide()) : new JSONString(""));
-           jsonObject.put("alternateNucleotide", annotationInfo.getAlternateNucleotide() != null ? new JSONString(annotationInfo.getAlternateNucleotide()) : new JSONString(""));
+       if (VariantDetailPanel.variantTypes.contains(annotationInfo.getType())) {
+           jsonObject.put("referenceBases", annotationInfo.getReferenceBases() != null ? new JSONString(annotationInfo.getReferenceBases()) : new JSONString(""));
+           jsonObject.put("alternateBases", annotationInfo.getAlternateBases() != null ? new JSONString(annotationInfo.getAlternateBases()) : new JSONString(""));
            if (annotationInfo.getMinorAlleleFrequency() != null) {
                jsonObject.put("minor_allele_frequency", new JSONNumber(annotationInfo.getMinorAlleleFrequency()));
            }

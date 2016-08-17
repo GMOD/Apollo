@@ -46,8 +46,13 @@ class RequestHandlingService {
     public static final List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
             TransposableElement.class.name,
-            SNV.class.name
+            SNV.class.name,
+            SNP.class.name,
+            MNV.class.name,
+            MNP.class.name,
+            Indel.class.name
     ]
+
     public static final List<String> viewableAnnotationTranscriptParentList = [
             Gene.class.name,
             Pseudogene.class.name
@@ -69,6 +74,16 @@ class RequestHandlingService {
             Insertion.class.name,
             Substitution.class.name,
     ]
+
+    public static final List<String> variantAnnotationList = [
+            SNV.class.name,
+            SNP.class.name,
+            MNV.class.name,
+            MNP.class.name,
+            Indel.class.name
+    ]
+
+    public static final List<String> variantAnnotationTypes = [ SNV.cvTerm, SNP.cvTerm, MNV.cvTerm, MNP.cvTerm, Indel.cvTerm ]
 
     public static final List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
 
@@ -2275,8 +2290,8 @@ class RequestHandlingService {
         return featureContainer
     }
 
-    def addSingleNucleotideVariant(JSONObject inputObject) {
-        println "@addSingleNucleotideVariant: ${inputObject.toString()}"
+    def addVariantAnnotation(JSONObject inputObject) {
+        println "@addVariantAnnotation: ${inputObject.toString()}"
         JSONObject addFeatureContainer = createJSONFeatureContainer();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
@@ -2284,20 +2299,20 @@ class RequestHandlingService {
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i)
-            SNV singleNucleotideVariant = (SNV) featureService.convertJSONToFeature(jsonFeature, sequence)
-            println "DEBUG: ${singleNucleotideVariant}"
+            def variant = featureService.convertJSONToFeature(jsonFeature, sequence)
+
             if (activeUser) {
-                featureService.setOwner(singleNucleotideVariant, activeUser)
+                featureService.setOwner(variant, activeUser)
             } else {
-                log.error "Unable to find valid user to set on SNV: " + inputObject.toString()
+                log.error "Unable to find valid user to set on variant: " + inputObject.toString()
             }
-            singleNucleotideVariant.save()
-            featureService.updateNewGsolFeatureAttributes(singleNucleotideVariant, sequence)
-            if (singleNucleotideVariant.getFmin() < 0 || singleNucleotideVariant.getFmax() < 0) {
+            variant.save()
+            featureService.updateNewGsolFeatureAttributes(variant, sequence)
+            if (variant.getFmin() < 0 || variant.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
-            singleNucleotideVariant.save(flush: true)
-            addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(singleNucleotideVariant, true))
+            variant.save(flush: true)
+            addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(variant, true))
         }
 
         AnnotationEvent addAnnotationEvent = new AnnotationEvent(
@@ -2311,7 +2326,6 @@ class RequestHandlingService {
     }
 
     def setMinorAlleleFrequency(JSONObject inputObject) {
-        println "@updateMinorAlleleFrequency"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
