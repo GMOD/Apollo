@@ -531,4 +531,17 @@ class SequenceService {
     String getChunkSuffix(String inputFileName) {
         return inputFileName.substring(inputFileName.lastIndexOf("-"))
     }
+
+    String calculatePath(String input) {
+        String jbrowseSequencePrefix = "/jbrowse/data/"
+        Integer startIndex = input.indexOf(jbrowseSequencePrefix)
+        if(startIndex>5){
+            Integer length = jbrowseSequencePrefix.length()
+            String returnString = input.substring(startIndex+length)
+            return returnString
+        }
+        else{
+            return input
+        }
+    }
 }

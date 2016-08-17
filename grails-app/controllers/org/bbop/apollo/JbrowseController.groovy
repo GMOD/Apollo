@@ -341,8 +341,23 @@ class JbrowseController {
 
             } else
             if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+                String sequencePath = sequenceService.calculatePath(params.path)
 
-                String returnSequence = refSeqProjectorService.projectSequence(dataFileName, currentOrganism)
+                SequenceCache cache = SequenceCache.findByKey(sequencePath)
+                String returnSequence
+                if(cache){
+                    returnSequence = cache.value
+                }
+                else{
+                    returnSequence = refSeqProjectorService.projectSequence(dataFileName, currentOrganism)
+                    cache = new SequenceCache(key:sequencePath,value:returnSequence).save(insert: true)
+                }
+                Date lastModifiedDate = cache.lastUpdated
+                String dateString = SimpleDateFormat.getDateInstance().format(lastModifiedDate)
+                String eTag = createHash(sequencePath,(long) returnSequence.bytes.length, (long) lastModifiedDate.time);
+                response.setHeader("ETag", eTag);
+                response.setHeader("Last-Modified", dateString);
+
                 // output the string the response
                 // TODO: optimize this to not store in memory?
                 response.setContentLength((int) returnSequence.bytes.length);
