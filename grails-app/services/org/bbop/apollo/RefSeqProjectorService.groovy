@@ -206,12 +206,6 @@ class RefSeqProjectorService {
         }
         String unprojectedString = stringList.join("")
 
-        // TODO: cache the response for this "unique" file
-//                Date lastModifiedDate = getLastModifiedDate(files);
-//                String dateString = formatLastModifiedDate(files);
-//                String eTag = createHash(putativeSequencePathName,(long) projectedString.bytes.length, (long) lastModifiedDate.time);
-//                response.setHeader("ETag", eTag);
-//                response.setHeader("Last-Modified", dateString);
 
         return unprojectedString
 

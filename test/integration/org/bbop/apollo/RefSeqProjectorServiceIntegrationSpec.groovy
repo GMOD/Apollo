@@ -168,17 +168,6 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         Integer chunkNumber = 0
         String dataFileName = "${Organism.first().directory}/seq/aa2/286/99/{\"padding\":0, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"${sequenceName1}\"},{\"name\":\"${sequenceName2}\"}], \"label\":\"${sequenceName1}::${sequenceName2}\"}:-1..-1-${chunkNumber}.txt"
 
-//        Integer elevenFourLength = 15764
-//        Integer un87Length = 843
-//        Integer elevenFourLength = 15734 + 31
-//        Integer un87Length = 838 + 6
-//        Integer elevenFourLength = 15734 // + 31
-//        Integer un87Length = 838 //+ 6
-//        String un87StartSequence = "ATGCACTGTCAACGTACACGGG" // starts at 0
-//        String un87EndSequence = "AAAACATAA" // starts at 0
-//        String elevenFourStartSequence = "ATGTTTGCTTGGGGAACTTGTGTTCTCTATGGATGGAGGTTAAA"
-//        String elevenFourEndSequence = "AAGGTTACGTTTATATCATTCGAATAATATAAC" // last projected from OGS
-
         when:
         String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
 
@@ -198,15 +187,86 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert un87Length+elevenFourLength==returnedSequence.length()
     }
 
-    void "confirm unprojected contiguous"(){
+    void "projected single sequence"(){
 
         given: "the two unprojected groups"
+        Integer start = 10057
+        Integer end = 18796
+        String dataFileName = URLDecoder.decode("${Organism.first().directory}/seq/220/ca9/1c/%7B%22name%22:%22GB52238-RA%20(Group11.4)%22,%20%22padding%22:0,%20%22start%22:10257,%20%22end%22:18596,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:10057,%20%22end%22:18796,%20%22feature%22:%7B%22name%22:%22GB52238-RA%22%7D%7D]%7D:10257..18596-0.txt")
+        String sequence10086 = "ATCTTCTCA"
+        String sequence18286= "GGAAGTGGCAC"
 
 
         when: "retrieving "
+        String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
+        Integer returnedIndex = returnedSequence.indexOf(sequence10086) // should be at 10,087
 
 
-        then: "sum"
+        then: "found first one"
+        assert returnedSequence.split(sequence10086).length==2
+        assert returnedIndex == 10086 - start - 1 // projected - start
+
+        when: "retrieving "
+        returnedIndex = returnedSequence.indexOf(sequence18286) // should be at 10,087
+
+        then: "found second one"
+        assert returnedSequence.split(sequence18286).length==2
+        assert returnedIndex == 18286 - start - 1 // projected - start // 8229
+
+    }
+
+    void "projected contiguous sequence"(){
+
+        given: "the two unprojected groups"
+        Integer start = 45455
+        Integer end = 64171
+        String dataFileName = URLDecoder.decode("${Organism.first().directory}/seq/d0d/e13/35/%7B%22name%22:%22GB53499-RA%20(GroupUn87)::GB52238-RA%20(Group11.4)%22,%20%22padding%22:0,%20%22start%22:45455,%20%22end%22:64171,%20%22sequenceList%22:[%7B%22name%22:%22GroupUn87%22,%20%22start%22:45255,%20%22end%22:45775,%20%22feature%22:%7B%22name%22:%22GB53499-RA%22%7D%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:10057,%20%22end%22:18796,%20%22feature%22:%7B%22name%22:%22GB52238-RA%22%7D%7D]%7D:45455..64171-0.txt")
+        String sequence10086 = "ATCTTCTCA"
+        String sequence18286= "GGAAGTGGCAC"
+
+
+        when: "retrieving "
+        String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
+        Integer returnedIndex = returnedSequence.indexOf(sequence10086) // should be at 10,087
+
+
+        then: "found first one"
+        assert returnedSequence.split(sequence10086).length==2
+        assert returnedIndex == 549 - 1 // projected - start // 549
+
+        when: "retrieving "
+        returnedIndex = returnedSequence.indexOf(sequence18286) // should be at 10,087
+
+        then: "found second one"
+        assert returnedSequence.split(sequence18286).length==2
+        assert returnedIndex == 8749 - 1 // projected - start // 8749
+
+    }
+
+    void "get unprojected contiguous sequence"(){
+
+        given: "the two unprojected groups"
+        String dataFileName = URLDecoder.decode("${Organism.first().directory}/seq/e62/08c/1e/%7B%22name%22:%22GroupUn87::Group11.4%22,%20%22padding%22:0,%20%22start%22:0,%20%22end%22:153343,%20%22sequenceList%22:[%7B%22name%22:%22GroupUn87%22,%20%22start%22:0,%20%22end%22:78258%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:0,%20%22end%22:75085%7D]%7D:0..153343-4.txt")
+        String sequence10086 = "ATCTTCTCA"
+        String sequence18286= "GGAAGTGGCAC"
+
+
+        when: "retrieving "
+        String returnedSequence = refSeqProjectorService.projectSequence(dataFileName,Organism.first())
+        Integer returnedIndex = returnedSequence.indexOf(sequence10086) // should be at 10,087
+
+
+        then: "found first one"
+        assert returnedSequence.split(sequence10086).length==2
+        assert returnedIndex == 8344 - 1 // projected - start // 8343
+        assert returnedSequence.size()==20000
+
+        when: "retrieving "
+        returnedIndex = returnedSequence.indexOf(sequence18286) // should be at 10,087
+
+        then: "found second one"
+        assert returnedSequence.split(sequence18286).length==2
+        assert returnedIndex == 16544 - 1 // projected - start // 8749
 
     }
 
