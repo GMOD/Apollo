@@ -274,10 +274,16 @@ class TranscriptService {
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
 
 
-        int transcriptFmin = bookmarkService.getMinForFeatureFullScaffold(transcript,bookmark)
-        int transcriptFmax = bookmarkService.getMaxForFeatureFullScaffold(transcript,bookmark)
-        int exonFmin = bookmarkService.getMinForFeatureFullScaffold(exon,bookmark)
-        int exonFmax = bookmarkService.getMaxForFeatureFullScaffold(exon,bookmark)
+//        int transcriptFmin = bookmarkService.getMinForFeatureFullScaffold(transcript,bookmark)
+//        int transcriptFmax = bookmarkService.getMaxForFeatureFullScaffold(transcript,bookmark)
+//        int exonFmin = bookmarkService.getMinForFeatureFullScaffold(exon,bookmark)
+//        int exonFmax = bookmarkService.getMaxForFeatureFullScaffold(exon,bookmark)
+
+        int transcriptFmin = projectionService.getMinForFeatureInProjection(transcript,multiSequenceProjection)
+        int transcriptFmax = projectionService.getMaxForFeatureInProjection(transcript,multiSequenceProjection)
+        int exonFmin = projectionService.getMinForFeatureInProjection(exon,multiSequenceProjection)
+        int exonFmax = projectionService.getMaxForFeatureInProjection(exon,multiSequenceProjection)
+
         boolean updateTransriptBoundaries = false
 
         if (exonFmin < transcriptFmin) {

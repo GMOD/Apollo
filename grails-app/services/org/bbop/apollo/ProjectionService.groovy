@@ -676,6 +676,13 @@ class ProjectionService {
 //        return getProjection(projectionDescription)
 //    }
 
+    /**
+     * Has to be transactional as it might create a bookmark.
+     * @param putativeProjectionLoc
+     * @param organism
+     * @return
+     */
+    @Transactional
     def getProjection(String putativeProjectionLoc, Organism organism) {
         if (BookmarkService.isProjectionString(putativeProjectionLoc)) {
             JSONObject bookmarkJsonObject = convertProjectionToBookmarkJsonObject(putativeProjectionLoc, organism)
