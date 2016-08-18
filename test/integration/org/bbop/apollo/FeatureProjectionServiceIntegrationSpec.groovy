@@ -1231,6 +1231,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert transcriptLastFeatureLocation.fmax == exonLastFeatureLocation.fmax
         assert cdsFeatureLocation.fmin > exonFirstFeatureLocation.fmin
         assert cdsFeatureLocation.fmax < exonLastFeatureLocation.fmax
+//        assert preFmin != cdsFeatureLocation.fmin
+//        assert preFmax != cdsFeatureLocation.fmax
         // should have shifted and not stayed the same
     }
 
@@ -1273,7 +1275,9 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         requestHandlingService.addExon(JSON.parse(addExonString) as JSONObject)
         cdsFeatureLocation = CDS.first().firstFeatureLocation
         transcriptFeatureLocation = Transcript.first().firstFeatureLocation
+        FeatureLocation transcriptLastFeatureLocation = Transcript.last().lastFeatureLocation
         geneFeatureLocation = Gene.first().firstFeatureLocation
+        FeatureLocation geneLastFeatureLocation = Gene.first().lastFeatureLocation
         def map = [:]
         Transcript.first().featureLocations.sort(){ a,b ->
             a.rank <=> b.rank
@@ -1294,20 +1298,37 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Gene.count == 1
         assert CDS.count == 1
         assert Exon.count == 2
-        assert NonCanonicalThreePrimeSpliceSite.count==0
-        assert NonCanonicalFivePrimeSpliceSite.count==0
-        assert cds.featureLocations.size()==1
-        assert FeatureLocation.count == 1 + 1 + 1 + 1
+        assert MRNA.first().featureLocations.size()==2
+        assert Gene.first().featureLocations.size()==2
+        assert Exon.first().featureLocations.size()==1
+        assert Exon.last().featureLocations.size()==1
+        assert CDS.first().featureLocations.size()==1
+
+
+        assert geneFeatureLocation.fmin == 18561
+        assert geneFeatureLocation.fmax == 75085
+        assert geneLastFeatureLocation.fmin == 0
+        assert geneLastFeatureLocation.fmax == 45575
+        assert exonFirstFeatureLocation.fmin == geneFeatureLocation.fmin
+        assert exonFirstFeatureLocation.fmax < geneFeatureLocation.fmax
+        assert exonFirstFeatureLocation.sequence ==  geneFeatureLocation.sequence
+        assert exonLastFeatureLocation.fmin > geneLastFeatureLocation.fmin
+        assert exonLastFeatureLocation.fmax == geneLastFeatureLocation.fmax
+        assert exonLastFeatureLocation.sequence ==  geneLastFeatureLocation.sequence
+
         assert transcriptFeatureLocation.fmin == geneFeatureLocation.fmin
         assert transcriptFeatureLocation.fmax == geneFeatureLocation.fmax
-        assert transcriptFeatureLocation.fmin == exonFirstFeatureLocation.fmin
-        assert transcriptFeatureLocation.fmax == exonFirstFeatureLocation.fmax
-        assert cdsFeatureLocation.fmin > exonFirstFeatureLocation.fmin
-        assert cdsFeatureLocation.fmax < exonFirstFeatureLocation.fmax
-        // should have shifted and not stayed the same
-        assert preFmin > cdsFeatureLocation.fmin
-        assert preFmax > cdsFeatureLocation.fmax
+        assert transcriptLastFeatureLocation.fmin == geneLastFeatureLocation.fmin
+        assert transcriptLastFeatureLocation.fmax == geneLastFeatureLocation.fmax
 
+        assert NonCanonicalThreePrimeSpliceSite.count==1
+        assert NonCanonicalFivePrimeSpliceSite.count==2
+
+        assert FeatureLocation.count == (MRNA.count + Gene.count)*2 + CDS.count + Exon.count + NonCanonicalFivePrimeSpliceSite.count + NonCanonicalThreePrimeSpliceSite.count
+//        assert cdsFeatureLocation.fmin > exonFirstFeatureLocation.fmin
+//        assert cdsFeatureLocation.fmax < exonLastFeatureLocation.fmax
+//        assert preFmin != cdsFeatureLocation.fmin
+//        assert preFmax != cdsFeatureLocation.fmax
     }
 
 
