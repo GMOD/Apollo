@@ -1,9 +1,6 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import org.apache.shiro.authc.UsernamePasswordToken
-import org.apache.shiro.subject.Subject
-import org.apache.shiro.web.session.mgt.DefaultWebSessionManager
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -1019,10 +1016,11 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalThreePrimeSpliceSite.count == 0
         assert retrievedFeatures.getJSONObject(0).location.fmin >0
         assert retrievedFeatures.getJSONObject(0).location.fmax >0
-        assert retrievedFeatures.getJSONObject(1).location.fmin >0
-        assert retrievedFeatures.getJSONObject(1).location.fmax >0
+        assert retrievedFeatures.size()==1
+//        assert retrievedFeatures.getJSONObject(1).location.fmin >0
+//        assert retrievedFeatures.getJSONObject(1).location.fmax >0
         // 15 or 16 depending on if CDS has two Feature Locations
-        assert FeatureLocation.count == 2 + 2 + 2 + (1 + 9) // one for each
+        assert FeatureLocation.count == (MRNA.count + Gene.count)*2 + CDS.count + (Exon.count) // one for each
 
     }
 
@@ -1093,7 +1091,6 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
     }
 
 
-    @IgnoreRest
     void "Add exon to projected transcript"(){
         given: "an add transcript string"
         String addTranscriptString = "{${testCredentials} \"track\":{\"id\":31239, \"name\":\"GB52238-RA (Group11.4)\", \"padding\":0, \"start\":10257, \"end\":18596, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"features\":[{\"location\":{\"fmin\":8161,\"fmax\":8397,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52238-RA\",\"children\":[{\"location\":{\"fmin\":8161,\"fmax\":8397,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
@@ -1162,7 +1159,160 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     }
 
-    void "We can merge transcripts across two scaffolds"() {
+    void "we can add exons across scaffolds"(){
+        given: "an add transcript string"
+        String addTranscriptString = "{${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"features\":[{\"location\":{\"fmin\":53392,\"fmax\":56055,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52239-RA\",\"children\":[{\"location\":{\"fmin\":53392,\"fmax\":56055,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String addExonString = "{${testCredentials} \"track\": {\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]}, \"features\": [ {\"uniquename\": \"@TRANSCRIPT_UNIQUE_NAME_1@\"}, {\"location\":{\"fmin\":85596,\"fmax\":85624,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}], \"operation\": \"add_exon\"}"
+
+        when: "we add a transcript"
+        JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        CDS cds = CDS.first()
+        FeatureLocation cdsFeatureLocation = CDS.first().firstFeatureLocation
+        FeatureLocation transcriptFeatureLocation = Transcript.first().firstFeatureLocation
+        FeatureLocation exonFirstFeatureLocation = Exon.first().firstFeatureLocation
+        FeatureLocation geneFeatureLocation = Gene.first().firstFeatureLocation
+        Integer preFmin = cdsFeatureLocation.fmin
+        Integer preFmax = cdsFeatureLocation.fmax
+        addExonString = addExonString.replaceAll("@TRANSCRIPT_UNIQUE_NAME_1@",MRNA.first().uniqueName)
+
+
+        then: "we should see that correct number of components and that the CDS is smaller than the exon and transcript (which should be identical)"
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert CDS.count == 1
+        assert Exon.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert cds.featureLocations.size()==1
+        assert FeatureLocation.count == 1 + 1 + 1 + 1
+        assert transcriptFeatureLocation.fmin == geneFeatureLocation.fmin
+        assert transcriptFeatureLocation.fmax == geneFeatureLocation.fmax
+        assert transcriptFeatureLocation.fmin == exonFirstFeatureLocation.fmin
+        assert transcriptFeatureLocation.fmax == exonFirstFeatureLocation.fmax
+        assert cdsFeatureLocation.fmin > exonFirstFeatureLocation.fmin
+        assert cdsFeatureLocation.fmax == exonFirstFeatureLocation.fmax
+
+
+
+        when: "we add the exon"
+        requestHandlingService.addExon(JSON.parse(addExonString) as JSONObject)
+        cdsFeatureLocation = CDS.first().firstFeatureLocation
+        transcriptFeatureLocation = Transcript.first().firstFeatureLocation
+        FeatureLocation transcriptLastFeatureLocation = Transcript.last().lastFeatureLocation
+        geneFeatureLocation = Gene.first().firstFeatureLocation
+        FeatureLocation geneLastFeatureLocation = Gene.first().lastFeatureLocation
+        def map = [:]
+        Transcript.first().featureLocations.sort(){ a,b ->
+            a.rank <=> b.rank
+        }.eachWithIndex { FeatureLocation it, int index ->
+            map.put(it.sequence.name,index)
+        }
+
+
+        List<Exon> exons = Exon.all.sort() { a,b ->
+            map.get(a.firstFeatureLocation.sequence.name) <=> map.get(b.firstFeatureLocation.sequence.name)
+        }
+        exonFirstFeatureLocation = exons.first().firstFeatureLocation
+        FeatureLocation exonLastFeatureLocation = exons.last().firstFeatureLocation
+
+
+        then: "we should see that correct number of components and that the CDS is smaller than the exon and transcript (which should be identical)"
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert CDS.count == 1
+        assert Exon.count == 2
+        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert NonCanonicalFivePrimeSpliceSite.count==1
+        assert CDS.count == 1
+        assert FeatureLocation.count == (MRNA.count + Gene.count)*2 + CDS.count + Exon.count + NonCanonicalFivePrimeSpliceSite.count
+        assert transcriptFeatureLocation.fmin == geneFeatureLocation.fmin
+        assert transcriptLastFeatureLocation.fmax == geneLastFeatureLocation.fmax
+        assert transcriptFeatureLocation.fmin == exonFirstFeatureLocation.fmin
+        assert transcriptLastFeatureLocation.fmax == exonLastFeatureLocation.fmax
+        assert cdsFeatureLocation.fmin > exonFirstFeatureLocation.fmin
+        assert cdsFeatureLocation.fmax < exonLastFeatureLocation.fmax
+        // should have shifted and not stayed the same
+    }
+
+    void "we can add exons across scaffolds in a projection"(){
+        given: "an add transcript string"
+        String addTranscriptString = "{${testCredentials} \"track\":{\"id\":31285, \"name\":\"GB52238-RA (Group11.4)::GB53499-RA (GroupUn87)\", \"padding\":0, \"start\":10257, \"end\":64171, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}},{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}}]},\"features\":[{\"location\":{\"fmin\":8504,\"fmax\":8539,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52238-RA\",\"children\":[{\"location\":{\"fmin\":8504,\"fmax\":8539,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String addExonString = "{${testCredentials} \"track\": {\"id\":31285, \"name\":\"GB52238-RA (Group11.4)::GB53499-RA (GroupUn87)\", \"padding\":0, \"start\":10257, \"end\":64171, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}},{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}}]}, \"features\": [ {\"uniquename\": \"@TRANSCRIPT_UNIQUE_NAME_1@\"}, {\"location\":{\"fmin\":8939,\"fmax\":9059,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}], \"operation\": \"add_exon\"}"
+
+        when: "we add a transcript"
+        JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        CDS cds = CDS.first()
+        FeatureLocation cdsFeatureLocation = CDS.first().firstFeatureLocation
+        FeatureLocation transcriptFeatureLocation = Transcript.first().firstFeatureLocation
+        FeatureLocation exonFirstFeatureLocation = Exon.first().firstFeatureLocation
+        FeatureLocation geneFeatureLocation = Gene.first().firstFeatureLocation
+        Integer preFmin = cdsFeatureLocation.fmin
+        Integer preFmax = cdsFeatureLocation.fmax
+        addExonString = addExonString.replaceAll("@TRANSCRIPT_UNIQUE_NAME_1@",MRNA.first().uniqueName)
+
+
+        then: "we should see that correct number of components and that the CDS is smaller than the exon and transcript (which should be identical)"
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert CDS.count == 1
+        assert Exon.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert cds.featureLocations.size()==1
+        assert FeatureLocation.count == 1 + 1 + 1 + 1
+        assert transcriptFeatureLocation.fmin == geneFeatureLocation.fmin
+        assert transcriptFeatureLocation.fmax == geneFeatureLocation.fmax
+        assert transcriptFeatureLocation.fmin == exonFirstFeatureLocation.fmin
+        assert transcriptFeatureLocation.fmax == exonFirstFeatureLocation.fmax
+        assert cdsFeatureLocation.fmin == exonFirstFeatureLocation.fmin
+        assert cdsFeatureLocation.fmax < exonFirstFeatureLocation.fmax
+
+
+
+        when: "we add the exon"
+        requestHandlingService.addExon(JSON.parse(addExonString) as JSONObject)
+        cdsFeatureLocation = CDS.first().firstFeatureLocation
+        transcriptFeatureLocation = Transcript.first().firstFeatureLocation
+        geneFeatureLocation = Gene.first().firstFeatureLocation
+        def map = [:]
+        Transcript.first().featureLocations.sort(){ a,b ->
+            a.rank <=> b.rank
+        }.eachWithIndex { FeatureLocation it, int index ->
+            map.put(it.sequence.name,index)
+        }
+
+
+        List<Exon> exons = Exon.all.sort() { a,b ->
+            map.get(a.firstFeatureLocation.sequence.name) <=> map.get(b.firstFeatureLocation.sequence.name)
+        }
+        exonFirstFeatureLocation = exons.first().firstFeatureLocation
+        FeatureLocation exonLastFeatureLocation = exons.last().lastFeatureLocation
+
+
+        then: "we should see that correct number of components and that the CDS is smaller than the exon and transcript (which should be identical)"
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert CDS.count == 1
+        assert Exon.count == 2
+        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert NonCanonicalFivePrimeSpliceSite.count==0
+        assert cds.featureLocations.size()==1
+        assert FeatureLocation.count == 1 + 1 + 1 + 1
+        assert transcriptFeatureLocation.fmin == geneFeatureLocation.fmin
+        assert transcriptFeatureLocation.fmax == geneFeatureLocation.fmax
+        assert transcriptFeatureLocation.fmin == exonFirstFeatureLocation.fmin
+        assert transcriptFeatureLocation.fmax == exonFirstFeatureLocation.fmax
+        assert cdsFeatureLocation.fmin > exonFirstFeatureLocation.fmin
+        assert cdsFeatureLocation.fmax < exonFirstFeatureLocation.fmax
+        // should have shifted and not stayed the same
+        assert preFmin > cdsFeatureLocation.fmin
+        assert preFmax > cdsFeatureLocation.fmax
+
+    }
+
+
+    @Ignore
+    void "We can merge transcripts across two scaffolds in a projetion"() {
 
         given: "if we create transcripts from two genes and merge them"
         String transcriptUn87Gb53499 = "{${testCredentials} \"track\":{\"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":45455,\"fmax\":45575,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"

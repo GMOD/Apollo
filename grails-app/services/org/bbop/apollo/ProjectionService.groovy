@@ -648,33 +648,6 @@ class ProjectionService {
         return bookmarkJsonObject
     }
 
-    /**
-     * This is for the reference so this should always be null AFAIK
-     *
-     * @param organism
-     * @param trackName
-     * @param sequenceName
-     * @return
-     */
-//    @NotTransactional
-//    ProjectionInterface getProjection(Organism organism, String trackName, String sequenceName) {
-//
-////
-//        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
-//        ProjectionDescription projectionDescription = new ProjectionDescription(
-//                referenceTrack: [trackName]
-//                , projection: "Exon"
-//                , padding: 50
-//        )
-//        ProjectionSequence projectionSequence = new ProjectionSequence(
-//                id: sequence.id
-//                , name: sequence.name
-//                , organism: organism.commonName
-//        )
-//
-//        projectionDescription.sequenceList = [projectionSequence]
-//        return getProjection(projectionDescription)
-//    }
 
     /**
      * Has to be transactional as it might create a bookmark.
@@ -702,56 +675,6 @@ class ProjectionService {
         return false;
     }
 
-//    ProjectionDescription convertJsonObjectToProjectDescription(JSONObject bookmarkObject) {
-//
-//        ProjectionDescription projectionDescription = new ProjectionDescription()
-//
-//        projectionDescription.projection = bookmarkObject.projection ?: "NONE"
-//        projectionDescription.padding = bookmarkObject.padding ?: 0
-//        projectionDescription.organism = bookmarkObject.organism
-//        //projectionDescription.referenceTrack = [bookmarkObject.referenceTrack] as List<String>
-////        projectionDescription.referenceTrack = new ArrayList<String>()
-////        if (isValidJson((String) bookmarkObject.referenceTrack)) {
-////            JSONArray referenceTrackJsonArray = JSON.parse(bookmarkObject.referenceTrack.toString()) as JSONArray
-////
-////            for (int i = 0; i < referenceTrackJsonArray.size(); i++) {
-////                projectionDescription.referenceTrack.add(i, referenceTrackJsonArray.getString(i));
-////            }
-////        }
-////        else {
-////            projectionDescription.referenceTrack.add(bookmarkObject.referenceTrack)
-////        }
-//
-//        projectionDescription.sequenceList = new ArrayList<>()
-//
-//
-//        // TODO: reference / ?
-//        for (int i = 0; i < bookmarkObject.sequenceList.size(); i++) {
-//            JSONObject bookmarkSequence = bookmarkObject.sequenceList.getJSONObject(i)
-//            ProjectionSequence projectionSequence1 = new ProjectionSequence()
-//            if(bookmarkSequence.start==null){
-//                Sequence sequence = Sequence.findByName(bookmarkSequence.name)
-//                projectionSequence1.start = sequence.start
-//                projectionSequence1.end = sequence.end
-//            }
-//            else{
-//                projectionSequence1.start = bookmarkSequence.start
-//                projectionSequence1.end = bookmarkSequence.end
-//            }
-//            projectionSequence1.setOrder(i)
-//            projectionSequence1.setName(bookmarkSequence.name)
-//            projectionSequence1.setOrganism(projectionDescription.organism)
-//
-//            JSONArray featureArray = bookmarkSequence.features
-//            List<String> features = new ArrayList<>()
-//            for (int j = 0; featureArray != null && j < featureArray.size(); j++) {
-//                features.add(featureArray.getString(j))
-//            }
-//            projectionSequence1.setFeatures(features)
-//            projectionDescription.sequenceList.add(projectionSequence1)
-//        }
-//        return projectionDescription
-//    }
 
     MultiSequenceProjection getProjection(Bookmark bookmark) {
         JSONObject jsonObject = bookmarkService.convertBookmarkToJson(bookmark)
@@ -774,34 +697,8 @@ class ProjectionService {
     MultiSequenceProjection getProjection(JSONObject bookmarkObject) {
         Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkObject)
         return createMultiSequenceProjection(bookmark)
-//        ProjectionDescription projectionDescription = convertJsonObjectToProjectDescription(bookmarkObject)
-//        if (true || !multiSequenceProjectionMap.containsKey(projectionDescription)) {
-//            MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(projectionDescription)
-//            multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
-//        }
-//        return multiSequenceProjectionMap.get(projectionDescription)
     }
 
-//    Boolean containsSequence(Map<ProjectionSequence, MultiSequenceProjection> projectionSequenceMultiSequenceProjectionMap, String sequenceName, Long sequenceId, Organism currentOrganism) {
-//        ProjectionSequence projectionSequence = new ProjectionSequence(
-//                id: sequenceId
-//                , name: sequenceName
-//                , organism: currentOrganism.commonName
-//        )
-//        // this guarantees that the query is local to the descrption
-//        return projectionSequenceMultiSequenceProjectionMap.containsKey(projectionSequence)
-//
-//    }
-
-//    def storeProjection(String putativeRefererLocation, MultiSequenceProjection multiSequenceProjection, Organism organism) {
-//        JSONObject bookmarkObject = convertProjectionToBookmarkJsonObject(putativeRefererLocation, organism)
-//        ProjectionDescription projectionDescription = convertJsonObjectToProjectDescription(bookmarkObject)
-////        multiSequenceProjectionMap.put(projectionDescription, multiSequenceProjection)
-//    }
-
-//    def clearProjections() {
-//        multiSequenceProjectionMap.clear()
-//    }
 
     /**
      * We want the minimimum location of a feature in the context of its projection.
@@ -812,12 +709,13 @@ class ProjectionService {
      * @return
      */
     Integer getMinForFeatureInProjection(Feature feature, MultiSequenceProjection multiSequenceProjection) {
-        String firstSequenceName = feature.getFirstSequence().name
+        FeatureLocation firstFeatureLocation = feature.firstFeatureLocation
+        String firstSequenceName = firstFeatureLocation.sequence.name
         ProjectionSequence firstProjectionSequence = multiSequenceProjection.projectedSequences.find(){
             it.name == firstSequenceName
         }
 
-        Integer calculatedMin = firstProjectionSequence.offset - firstProjectionSequence.start + feature.fmin
+        Integer calculatedMin = firstProjectionSequence.offset - firstProjectionSequence.start + firstFeatureLocation.fmin
         return calculatedMin
 
     }
@@ -830,13 +728,15 @@ class ProjectionService {
      * @param bookmark
      * @return
      */
+
     Integer getMaxForFeatureInProjection(Feature feature, MultiSequenceProjection multiSequenceProjection) {
-        String lasttSequenceName = feature.getLastSequence().name
+        FeatureLocation lastFeatureLocation = feature.lastFeatureLocation
+        String lasttSequenceName = lastFeatureLocation.sequence.name
         ProjectionSequence lastProjectionSequence = multiSequenceProjection.projectedSequences.find(){
             it.name == lasttSequenceName
         }
 
-        Integer calculatedMax = lastProjectionSequence.offset - lastProjectionSequence.start + feature.fmax
+        Integer calculatedMax = lastProjectionSequence.offset - lastProjectionSequence.start + lastFeatureLocation.fmax
         return calculatedMax
     }
 }
