@@ -27,7 +27,7 @@ class UserOrganismPreference extends UserPreference{
 
         if (id != that.id) return false
         if (organism != that.organism) return false
-        if (sequence != that.sequence) return false
+        if (bookmark!= that.bookmark) return false
 
         return true
     }
@@ -35,7 +35,7 @@ class UserOrganismPreference extends UserPreference{
     int hashCode() {
         int result
         result = organism.hashCode()
-        result = 31 * result + sequence.hashCode()
+        result = 31 * result + bookmark.hashCode()
         result = 31 * result + id.hashCode()
         return result
     }
