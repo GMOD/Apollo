@@ -491,6 +491,26 @@ class RequestHandlingService {
             sequenceMax.put(it.name,it.end)
         }
 
+//
+//        int firstIndex = 0
+//        int lastIndex = sequenceListObject.size()-1
+//
+//        sequenceListObject.eachWithIndex { JSONObject it, int i ->
+//            if(i==firstIndex){
+//                sequenceMin.put(it.name,it.start)
+//            }
+//            else{
+//                sequenceMin.put(it.name,0)
+//            }
+//
+//            if(i==lastIndex){
+//                sequenceMax.put(it.name,it.end)
+//            }
+//            else{
+//                sequenceMax.put(it.name,0)
+//            }
+//        }
+
         assert sequenceMin.size()==sequenceMap.size()
 
         def features = Feature.createCriteria().listDistinct {
