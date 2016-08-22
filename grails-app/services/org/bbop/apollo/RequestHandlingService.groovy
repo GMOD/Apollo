@@ -511,18 +511,16 @@ class RequestHandlingService {
                         featureLocations {
                             'eq'('sequence', sequenceMap.get(sequenceEntry.value))
                             'lt'('fmin', sequenceMin.get(sequenceName))
-                            'gt'('fmin', sequenceMax.get(sequenceName))
+                            'gt'('fmax', sequenceMin.get(sequenceName))
                         }
                         // overlaps the max edge
                         featureLocations {
                             'eq'('sequence', sequenceMap.get(sequenceEntry.value))
-                            'lt'('fmax', sequenceMin.get(sequenceName))
+                            'lt'('fmin', sequenceMax.get(sequenceName))
                             'gt'('fmax', sequenceMax.get(sequenceName))
                         }
                     }
                 }
-//                sequenceMap.each { sequenceEntry ->
-//                }
             }
             fetchMode 'owners', FetchMode.JOIN
             fetchMode 'featureLocations', FetchMode.JOIN
