@@ -826,6 +826,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
      *
      "We can add a transcript in a projection and set the exon boundary on both the 3' and 5' sides"() {
      */
+//    @IgnoreRest
     void "Set exon boundary in projection across"() {
 
         given: "if we create transcripts from two genes and merge them"
@@ -903,7 +904,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.count == (1 + 9)
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 0
-        assert FeatureLocation.count == 2 + 2 + 2 + (1 + 9) // one for each
+        assert FeatureLocation.count == 2 + 2 + 2 + (1 + 9) // one for each, was 19 (
         assert mrnaGb53499.featureLocations[0].sequence == sequenceGroupUn87
         assert mrnaGb52238.featureLocations[0].sequence == sequenceGroup11_4
 
@@ -943,18 +944,33 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we set the exon boundaries on the 5' side across to the 3' side"
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundaryUn87Gb53499Across) as JSONObject)
         retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesInProjectionString2) as JSONObject).features
+        def mrnas = MRNA.all
 
         then: "we should still have valid locations "
+        assert MRNA.count == 2
+        assert Gene.count == 2
+        assert CDS.count == 2
+        assert Exon.count == (1 + 9)
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+//        assert FeatureLocation.count == 2 + 2 + 2 + (1 + 9) // one for each
+        assert retrievedFeatures.size()==2
         assert retrievedFeatures.getJSONObject(0).location.fmin >0
         assert retrievedFeatures.getJSONObject(0).location.fmax >0
-//        assert retrievedFeatures.getJSONObject(1).location.fmin ==0
-//        assert retrievedFeatures.getJSONObject(1).location.fmax >0
+        assert retrievedFeatures.getJSONObject(1).location.fmin ==0
+        assert retrievedFeatures.getJSONObject(1).location.fmax >0
 
         when: "we set the exon boundaries on the 3' side across to the 5' side"
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary11_4GB52238ACross) as JSONObject)
         retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesInProjectionString2) as JSONObject).features
 
         then: "we should still have valid locations "
+        assert MRNA.count == 2
+        assert Gene.count == 2
+        assert CDS.count == 2
+        assert Exon.count == (1 + 9)
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
         assert retrievedFeatures.getJSONObject(0).location.fmin >0
         assert retrievedFeatures.getJSONObject(0).location.fmax >0
         assert retrievedFeatures.getJSONObject(1).location.fmin ==0

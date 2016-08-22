@@ -481,47 +481,48 @@ class RequestHandlingService {
         Map<String,Sequence> sequenceMap = new HashMap<>()
         Map<String,Long> sequenceMin = new HashMap<>()
         Map<String,Long> sequenceMax = new HashMap<>()
+        Map<Integer,String> sequenceOrder = new TreeMap<>()
 
         sequenceList.each {
             sequenceMap.put(it.name,it)
         }
 
-        sequenceListObject.each {
+        sequenceListObject.eachWithIndex { JSONObject it , int i ->
             sequenceMin.put(it.name,it.start)
             sequenceMax.put(it.name,it.end)
+            sequenceOrder.put(i,it.name)
         }
 
-//
-//        int firstIndex = 0
-//        int lastIndex = sequenceListObject.size()-1
-//
-//        sequenceListObject.eachWithIndex { JSONObject it, int i ->
-//            if(i==firstIndex){
-//                sequenceMin.put(it.name,it.start)
-//            }
-//            else{
-//                sequenceMin.put(it.name,0)
-//            }
-//
-//            if(i==lastIndex){
-//                sequenceMax.put(it.name,it.end)
-//            }
-//            else{
-//                sequenceMax.put(it.name,0)
-//            }
-//        }
 
         assert sequenceMin.size()==sequenceMap.size()
 
         def features = Feature.createCriteria().listDistinct {
             or{
-                sequenceMap.each { sequenceEntry ->
-                    featureLocations {
-                        'eq'('sequence', sequenceEntry.value)
-                        'ge'('fmin', sequenceMin.get(sequenceEntry.key))
-                        'le'('fmax', sequenceMax.get(sequenceEntry.key))
+                sequenceOrder.each { sequenceEntry ->
+                    String sequenceName = sequenceEntry.value
+                    or {
+                        // inbetween the projection
+                        featureLocations {
+                            'eq'('sequence', sequenceMap.get(sequenceEntry.value))
+                            'ge'('fmin', sequenceMin.get(sequenceName))
+                            'le'('fmax', sequenceMax.get(sequenceName))
+                        }
+                        // overlaps the min edge
+                        featureLocations {
+                            'eq'('sequence', sequenceMap.get(sequenceEntry.value))
+                            'lt'('fmin', sequenceMin.get(sequenceName))
+                            'gt'('fmin', sequenceMax.get(sequenceName))
+                        }
+                        // overlaps the max edge
+                        featureLocations {
+                            'eq'('sequence', sequenceMap.get(sequenceEntry.value))
+                            'lt'('fmax', sequenceMin.get(sequenceName))
+                            'gt'('fmax', sequenceMax.get(sequenceName))
+                        }
                     }
                 }
+//                sequenceMap.each { sequenceEntry ->
+//                }
             }
             fetchMode 'owners', FetchMode.JOIN
             fetchMode 'featureLocations', FetchMode.JOIN
