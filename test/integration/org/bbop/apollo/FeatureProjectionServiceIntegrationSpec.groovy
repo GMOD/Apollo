@@ -1178,7 +1178,6 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     }
 
-    @IgnoreRest
     void "we can add exons across scaffolds left to right"(){
         given: "an add transcript string"
         String addTranscriptString = "{${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"features\":[{\"location\":{\"fmin\":53392,\"fmax\":56055,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52239-RA\",\"children\":[{\"location\":{\"fmin\":53392,\"fmax\":56055,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
@@ -1251,7 +1250,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert transcriptLastFeatureLocation.fmax == exonLastFeatureLocation.fmax
         assert CDS.first().featureLocations.size()==1
         assert cdsFeatureLocation.fmin > exonFirstFeatureLocation.fmin
-        assert cdsFeatureLocation.fmax < exonLastFeatureLocation.fmax
+        // last exon only exists on the last sequence, so fmax only represents that sequence
+        assert cdsFeatureLocation.fmax < exonLastFeatureLocation.fmax + exonFirstFeatureLocation.sequence.length
         assert cdsFeatureLocation.fmin > 0
         assert cdsFeatureLocation.fmax > 0
         assert cdsFeatureLocation.fmin < cdsFeatureLocation.fmax
