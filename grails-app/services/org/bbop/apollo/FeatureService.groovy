@@ -633,6 +633,7 @@ class FeatureService {
         if (localCoordinate < 0 || localCoordinate > feature.getLength()) {
             return -1;
         }
+
         if (feature.isNegativeStrand()) {
             return feature.fmax - localCoordinate - 1;
         } else {
@@ -643,6 +644,9 @@ class FeatureService {
     int convertLocalCoordinateToSourceCoordinateForTranscript(Transcript transcript, int localCoordinate) {
         // Method converts localCoordinate to sourceCoordinate in reference to the Transcript
         List<Exon> exons = transcriptService.getSortedExons(transcript,true)
+
+        Map<Sequence,Integer> offsetMap = generateOffsetMap(transcript)
+
         int sourceCoordinate = -1;
         if (exons.size() == 0) {
             return convertLocalCoordinateToSourceCoordinate(transcript, localCoordinate);
@@ -653,9 +657,9 @@ class FeatureService {
             int exonLength = exon.getLength();
             if (currentLength + exonLength >= localCoordinate) {
                 if (transcript.isNegativeStrand()) {
-                    sourceCoordinate = exon.getFmax() - currentCoordinate - 1;
+                    sourceCoordinate = exon.getFmax() - currentCoordinate - 1 + offsetMap.get(exon.getLastSequence());
                 } else {
-                    sourceCoordinate = exon.getFmin() + currentCoordinate;
+                    sourceCoordinate = exon.getFmin() + currentCoordinate + offsetMap.get(exon.getFirstSequence());
                 }
                 break;
             }
@@ -663,6 +667,19 @@ class FeatureService {
             currentCoordinate -= exonLength;
         }
         return sourceCoordinate;
+    }
+
+    Map<Sequence, Integer> generateOffsetMap(Feature feature) {
+        Map<Sequence,Integer> offsetMap = new HashMap()
+        int offset = 0
+
+        feature.featureLocations.sort(){ a,b ->
+               a.rank <=> b.rank
+        }.each {
+            offsetMap.put(it.sequence,offset)
+            offset += it.sequence.length
+        }
+        return offsetMap
     }
 
     int convertLocalCoordinateToSourceCoordinateForCDS(CDS cds, int localCoordinate) {

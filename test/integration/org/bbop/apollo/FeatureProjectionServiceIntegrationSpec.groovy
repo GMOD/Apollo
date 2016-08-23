@@ -1164,6 +1164,9 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalThreePrimeSpliceSite.count==0
         assert NonCanonicalFivePrimeSpliceSite.count==0
         assert cds.featureLocations.size()==1
+        assert cds.firstFeatureLocation.fmin > 0
+        assert cds.firstFeatureLocation.fmax > 0
+        assert cds.firstFeatureLocation.fmin < cds.firstFeatureLocation.fmax
         assert FeatureLocation.count == 1 + 1 + 1 + 2  // each exon should have only one
         assert transcriptFeatureLocation.fmin == geneFeatureLocation.fmin
         assert transcriptFeatureLocation.fmax == geneFeatureLocation.fmax
@@ -1175,6 +1178,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     }
 
+    @IgnoreRest
     void "we can add exons across scaffolds left to right"(){
         given: "an add transcript string"
         String addTranscriptString = "{${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"features\":[{\"location\":{\"fmin\":53392,\"fmax\":56055,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52239-RA\",\"children\":[{\"location\":{\"fmin\":53392,\"fmax\":56055,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
@@ -1245,8 +1249,12 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert transcriptLastFeatureLocation.fmax == geneLastFeatureLocation.fmax
         assert transcriptFeatureLocation.fmin == exonFirstFeatureLocation.fmin
         assert transcriptLastFeatureLocation.fmax == exonLastFeatureLocation.fmax
+        assert CDS.first().featureLocations.size()==1
         assert cdsFeatureLocation.fmin > exonFirstFeatureLocation.fmin
         assert cdsFeatureLocation.fmax < exonLastFeatureLocation.fmax
+        assert cdsFeatureLocation.fmin > 0
+        assert cdsFeatureLocation.fmax > 0
+        assert cdsFeatureLocation.fmin < cdsFeatureLocation.fmax
 //        assert preFmin != cdsFeatureLocation.fmin
 //        assert preFmax != cdsFeatureLocation.fmax
         // should have shifted and not stayed the same
@@ -1320,6 +1328,9 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.first().featureLocations.size()==1
         assert Exon.last().featureLocations.size()==1
         assert CDS.first().featureLocations.size()==1
+        assert cdsFeatureLocation.fmin > 0
+        assert cdsFeatureLocation.fmax > 0
+        assert cdsFeatureLocation.fmin < cdsFeatureLocation.fmax
 
 
         assert transcriptFeatureLocation.fmin == 18561
@@ -1420,6 +1431,9 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.first().featureLocations.size()==1
         assert Exon.last().featureLocations.size()==1
         assert CDS.first().featureLocations.size()==1
+        assert cdsFeatureLocation.fmin > 0
+        assert cdsFeatureLocation.fmax > 0
+        assert cdsFeatureLocation.fmin < cdsFeatureLocation.fmax
 
 
         assert geneFeatureLocation.fmin == 18561
