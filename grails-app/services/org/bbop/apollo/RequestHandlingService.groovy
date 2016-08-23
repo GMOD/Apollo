@@ -544,6 +544,7 @@ class RequestHandlingService {
             fetchMode 'parentFeatureRelationships.childFeature.featureDBXrefs', FetchMode.JOIN
             fetchMode 'parentFeatureRelationships.childFeature.owners', FetchMode.JOIN
             'in'('class', viewableAnnotationTranscriptList + viewableAnnotationFeatureList)
+            order("name","asc")
         }
 
 

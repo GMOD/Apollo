@@ -62,9 +62,6 @@ public class DiscontinuousProjection extends AbstractProjection {
         Integer floorMaxKey = maxMap.floorKey(input)
         Integer ceilMaxKey = maxMap.ceilingKey(input)
 
-//        log.debug "input ${input} minKey ${floorMinKey}-${ceilMinKey}"
-//        log.debug "input ${input} maxKey ${floorMaxKey}-${ceilMaxKey}"
-
         if (floorMinKey == null || ceilMaxKey == null) {
             return UNMAPPED_VALUE
         }
@@ -117,8 +114,6 @@ public class DiscontinuousProjection extends AbstractProjection {
         return coordinate
     }
 
-//    private List<Coordinate> removeIntermediates()
-
     /**
      * Replace an existing coordinate with a new set (e.g., an overlap)
      * @param coordinate
@@ -127,7 +122,6 @@ public class DiscontinuousProjection extends AbstractProjection {
      * @return
      */
     private Coordinate replaceCoordinate(Coordinate coordinate, int min, int max) {
-//        println "replace coordinate ${coordinate.min}/${coordinate.max}->${min}/${max}"
         assert minMap.remove(coordinate.min) != null
         assert maxMap.remove(coordinate.max) != null
 
@@ -137,7 +131,6 @@ public class DiscontinuousProjection extends AbstractProjection {
         // we have to remove any overlapping elements here
         while (nextMin && minMap && maxMap && nextMin < max && !doBreak) {
             Coordinate nextMinCoord = minMap.get(nextMin)
-//            println "nextMinCoord.max ${nextMinCoord.max} > ${min}"
             if (nextMinCoord.max > min) {
                 assert minMap.remove(nextMinCoord.min) != null
                 assert maxMap.remove(nextMinCoord.max) != null
@@ -145,7 +138,6 @@ public class DiscontinuousProjection extends AbstractProjection {
                 doBreak = true
             }
             nextMin = minMap.higherKey(coordinate.min)
-//            println "nextMin ${coordinate.min} -> higher key -> ${nextMin} < ${max} "
         }
         return addCoordinate(min, max)
     }
@@ -155,8 +147,6 @@ public class DiscontinuousProjection extends AbstractProjection {
         min -= padding ?: 0
         max += padding ?: 0
         min = min < 0 ? 0 : min
-//        println "${min},${max}"
-//        max = max > length ? length: max
         assert max >= min
 
         Integer floorMinKey = minMap.floorKey(min)
@@ -307,14 +297,12 @@ public class DiscontinuousProjection extends AbstractProjection {
             } else if (floorMaxCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMinCoord != ceilMinCoord) {
                 return replaceCoordinate(floorMinCoord, floorMinCoord.min, ceilMaxCoord.max)
             } else if (floorMinCoord == floorMaxCoord && floorMaxCoord == ceilMinCoord && floorMinCoord != ceilMaxCoord) {
-//                return replaceCoordinate(floorMinCoord,floorMinCoord.min,ceilMaxCoord.max)
                 return null
             }
 
             return addCoordinate(min, max)
 
         } else {
-//            println "else else ${min}/${max}"
             return addCoordinate(min, max)
         }
 
@@ -353,7 +341,6 @@ public class DiscontinuousProjection extends AbstractProjection {
                 return new Coordinate(min: newMin, max: floorMaxKey)
             } else {
                 return null
-//                throw new RuntimeException("can not get correct value  ${min}->${newMin}, ${max}->${newMax}/${floorMaxKey}")
             }
         } else if (newMax >= 0) {
             // newMin is less than 0 so find the next one higher and move up
@@ -362,7 +349,6 @@ public class DiscontinuousProjection extends AbstractProjection {
                 return new Coordinate(min: ceilMinKey, max: newMax)
             } else {
                 return null
-//                throw new RuntimeException("can not get correctvalue  ${min}->${newMin}/${ceilMinKey}, ${max}->${newMax}")
             }
         } else {
             throw new RuntimeException("not sure how we got here ${min}->${newMin}, ${max}->${newMax}")
@@ -376,9 +362,6 @@ public class DiscontinuousProjection extends AbstractProjection {
         if (newMin < 0 && newMax < 0) return null
     }
 
-    public Integer getOriginalLength() {
-        return maxMap.values().last().max
-    }
 
     /**
      * This allows for a space between each coordindate
@@ -397,10 +380,6 @@ public class DiscontinuousProjection extends AbstractProjection {
         }
         return returnValue
     }
-
-//    String projectSequence(String inputSequence) {
-//        projectSequence(inputSequence, -1, -1, 0)
-//    }
 
     String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate) {
         projectSequence(inputSequence, minCoordinate, maxCoordinate, 0)
@@ -479,7 +458,6 @@ public class DiscontinuousProjection extends AbstractProjection {
     @Override
     Integer clear() {
         int returnValue = minMap.size()
-//        assert returnValue == maxMap.size()
         minMap.clear()
         maxMap.clear()
         return returnValue
