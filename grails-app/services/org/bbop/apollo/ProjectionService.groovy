@@ -421,14 +421,16 @@ class ProjectionService {
             Sequence sequence = Sequence.findByName(jSONObject.name)
             projectionSequence.start = sequence.start
             projectionSequence.end = sequence.end
+            projectionSequence.unprojectedLength = sequence.length
         }
         else{
             projectionSequence.start = jSONObject.start
             projectionSequence.end = jSONObject.end
+            projectionSequence.unprojectedLength = jSONObject.length
         }
-        projectionSequence.setOrder(index)
-        projectionSequence.setName(jSONObject.name)
-        projectionSequence.setOrganism(bookmark.organism.commonName)
+        projectionSequence.order = index
+        projectionSequence.name = jSONObject.name
+        projectionSequence.organism = bookmark.organism.commonName
 
         JSONArray featureArray = jSONObject.features
         List<String> features = new ArrayList<>()

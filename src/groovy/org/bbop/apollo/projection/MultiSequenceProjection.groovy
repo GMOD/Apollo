@@ -46,25 +46,25 @@ class MultiSequenceProjection extends AbstractProjection {
      * @param minInput
      * @return
      */
-    List<ProjectionSequence> getProjectionSequences(Integer minInput, Integer  maxInput) {
-
-        List<ProjectionSequence> orderedSequences = []
-
-        Integer startOrder = getProjectionSequence(minInput)?.order
-        Integer endOrder = getProjectionSequence(maxInput)?.order
-
-        if(endOrder==null ){
-            endOrder = getLastSequence().order
-        }
-
-        for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
-            if(projectionSequence.order>=startOrder && projectionSequence.order <= endOrder){
-                orderedSequences << projectionSequence
-            }
-        }
-
-        return orderedSequences
-    }
+//    List<ProjectionSequence> getProjectionSequences(Integer minInput, Integer  maxInput) {
+//
+//        List<ProjectionSequence> orderedSequences = []
+//
+//        Integer startOrder = getProjectionSequence(minInput)?.order
+//        Integer endOrder = getProjectionSequence(maxInput)?.order
+//
+//        if(endOrder==null ){
+//            endOrder = getLastSequence().order
+//        }
+//
+//        for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
+//            if(projectionSequence.order>=startOrder && projectionSequence.order <= endOrder){
+//                orderedSequences << projectionSequence
+//            }
+//        }
+//
+//        return orderedSequences
+//    }
 
     /**
      * Find which sequence I am on by iterating over coordinates
@@ -77,10 +77,15 @@ class MultiSequenceProjection extends AbstractProjection {
         // should deliver these in order
         for (projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
             DiscontinuousProjection projection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
-            if (input >= offset && input <= projection.originalLength + offset) {
+//            int sequenceLength = projectionSequence.unprojectedLength ?: projection.originalLength
+            assert projectionSequence.unprojectedLength != null
+            assert projectionSequence.unprojectedLength > 0
+            int sequenceLength = projectionSequence.unprojectedLength
+            if (input >= offset && input <= sequenceLength  + offset) {
                 return projectionSequence
             }
-            offset += projection.originalLength
+//            offset += projection.originalLength
+            offset += sequenceLength
         }
         return null
     }
@@ -277,7 +282,11 @@ class MultiSequenceProjection extends AbstractProjection {
 
             lastLength += discontinuousProjection.bufferedLength
             // TODO: this is the incorrect length . . . should be the other one + buffered
-            originalLength += discontinuousProjection.originalLength
+//            originalLength += discontinuousProjection.originalLength
+//            originalLength += it.unprojectedLength ?: discontinuousProjection.originalLength
+            assert it.unprojectedLength != null
+            assert it.unprojectedLength > 0
+            originalLength += it.unprojectedLength
 //            originalLength += discontinuousProjection.length
             ++currentOrder
         }

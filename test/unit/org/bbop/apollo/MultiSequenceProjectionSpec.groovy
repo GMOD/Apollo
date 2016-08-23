@@ -8,11 +8,6 @@ import spock.lang.Specification
  */
 class MultiSequenceProjectionSpec extends Specification {
 
-    def setup() {
-    }
-
-    def cleanup() {
-    }
 
     void "when adding intervals overlapping intervals should merge"() {
 
@@ -860,6 +855,7 @@ class MultiSequenceProjectionSpec extends Specification {
         multiSequenceProjection.calculateOffsets()
         List<Coordinate> coordinateCollection = multiSequenceProjection.listCoordinates()
         List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.sequenceDiscontinuousProjectionMap.keySet() as List<ProjectionSequence>
+        Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
 
         then: "we should get a single projection of size 4"
         assert multiSequenceProjection.size()==4
@@ -876,17 +872,17 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 6==projectionSequenceList.get(1).offset
         assert 8==multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(1)).bufferedLength
         assert "Sequence1"==multiSequenceProjection.getProjectionSequence(10).name
-        assert "Sequence2"==multiSequenceProjection.getProjectionSequence(60+25).name
-        assert 6==multiSequenceProjection.getProjectionSequence(60+25).offset
+        assert "Sequence2"==multiSequenceProjection.getProjectionSequence(60+offset).name
+        assert 6==multiSequenceProjection.getProjectionSequence(60+offset).offset
 
         assert 0==multiSequenceProjection.projectValue(10)
         assert 2==multiSequenceProjection.projectValue(12)
         assert 3==multiSequenceProjection.projectValue(22)
         assert 6==multiSequenceProjection.projectValue(25)
-        assert 6==multiSequenceProjection.projectValue(25+23)
-        assert 10==multiSequenceProjection.projectValue(25+27)
-        assert 11==multiSequenceProjection.projectValue(25+60)
-        assert 14==multiSequenceProjection.projectValue(25+63)
+        assert 6==multiSequenceProjection.projectValue(offset+23)
+        assert 10==multiSequenceProjection.projectValue(offset+27)
+        assert 11==multiSequenceProjection.projectValue(offset+60)
+        assert 14==multiSequenceProjection.projectValue(offset+63)
 
 
         assert 10==multiSequenceProjection.projectReverseValue(0)
@@ -906,7 +902,6 @@ class MultiSequenceProjectionSpec extends Specification {
         // length should be 200
         String inputSequence = "ATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCA"
         String projectedSequence = multiSequenceProjection.projectSequence(inputSequence,0,200,0)
-        Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
 
         then: "we should confirm that both the input and retrieved sequence are correct"
         assert 200==inputSequence.length()

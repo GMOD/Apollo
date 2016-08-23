@@ -826,7 +826,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
      *
      "We can add a transcript in a projection and set the exon boundary on both the 3' and 5' sides"() {
      */
-//    @IgnoreRest
+    @IgnoreRest
     void "Set exon boundary in projection across"() {
 
         given: "if we create transcripts from two genes and merge them"
@@ -955,10 +955,10 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalThreePrimeSpliceSite.count == 0
 //        assert FeatureLocation.count == 2 + 2 + 2 + (1 + 9) // one for each
         assert retrievedFeatures.size()==2
-        assert retrievedFeatures.getJSONObject(0).location.fmin >0
-        assert retrievedFeatures.getJSONObject(0).location.fmax >0
-        assert retrievedFeatures.getJSONObject(1).location.fmin ==0
-        assert retrievedFeatures.getJSONObject(1).location.fmax >0
+        assert retrievedFeatures.getJSONObject(0).location.fmin == 200 // 45455 - 45255
+        assert retrievedFeatures.getJSONObject(0).location.fmax == 682 //
+        assert retrievedFeatures.getJSONObject(1).location.fmin == 632
+        assert retrievedFeatures.getJSONObject(1).location.fmax == 9059
 
         when: "we set the exon boundaries on the 3' side across to the 5' side"
         requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary11_4GB52238ACross) as JSONObject)
@@ -973,7 +973,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalThreePrimeSpliceSite.count == 0
         assert retrievedFeatures.getJSONObject(0).location.fmin >0
         assert retrievedFeatures.getJSONObject(0).location.fmax >0
-        assert retrievedFeatures.getJSONObject(1).location.fmin ==0
+        assert retrievedFeatures.getJSONObject(1).location.fmin >0
         assert retrievedFeatures.getJSONObject(1).location.fmax >0
     }
 
