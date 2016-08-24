@@ -1474,7 +1474,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
 //        assert preFmax != cdsFeatureLocation.fmax
     }
 
-    @Ignore
+//    @Ignore
     void "We can merge transcripts across two scaffolds in a projetion"() {
 
         given: "if we create transcripts from two genes and merge them"
