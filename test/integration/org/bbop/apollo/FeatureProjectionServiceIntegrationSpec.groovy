@@ -1178,6 +1178,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     }
 
+    @IgnoreRest
     void "we can add exons across scaffolds left to right"(){
         given: "an add transcript string"
         String addTranscriptString = "{${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"features\":[{\"location\":{\"fmin\":53392,\"fmax\":56055,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52239-RA\",\"children\":[{\"location\":{\"fmin\":53392,\"fmax\":56055,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
@@ -1186,12 +1187,12 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we add a transcript"
         JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
         CDS cds = CDS.first()
-        FeatureLocation cdsFeatureLocation = CDS.first().firstFeatureLocation
+        FeatureLocation cdsFirstFeatureLocation = CDS.first().firstFeatureLocation
         FeatureLocation transcriptFeatureLocation = Transcript.first().firstFeatureLocation
         FeatureLocation exonFirstFeatureLocation = Exon.first().firstFeatureLocation
         FeatureLocation geneFeatureLocation = Gene.first().firstFeatureLocation
-        Integer preFmin = cdsFeatureLocation.fmin
-        Integer preFmax = cdsFeatureLocation.fmax
+        Integer preFmin = cdsFirstFeatureLocation.fmin
+        Integer preFmax = cdsFirstFeatureLocation.fmax
         addExonString = addExonString.replaceAll("@TRANSCRIPT_UNIQUE_NAME_1@",MRNA.first().uniqueName)
 
 
@@ -1208,14 +1209,16 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert transcriptFeatureLocation.fmax == geneFeatureLocation.fmax
         assert transcriptFeatureLocation.fmin == exonFirstFeatureLocation.fmin
         assert transcriptFeatureLocation.fmax == exonFirstFeatureLocation.fmax
-        assert cdsFeatureLocation.fmin > exonFirstFeatureLocation.fmin
-        assert cdsFeatureLocation.fmax == exonFirstFeatureLocation.fmax
+        assert cdsFirstFeatureLocation.fmin > exonFirstFeatureLocation.fmin
+        assert cdsFirstFeatureLocation.fmax == exonFirstFeatureLocation.fmax
 
 
 
         when: "we add the exon"
         requestHandlingService.addExon(JSON.parse(addExonString) as JSONObject)
-        cdsFeatureLocation = CDS.first().firstFeatureLocation
+        def cdses = CDS.all
+        cdsFirstFeatureLocation = CDS.first().firstFeatureLocation
+        FeatureLocation cdsLastFeatureLocation = CDS.first().lastFeatureLocation
         transcriptFeatureLocation = Transcript.first().firstFeatureLocation
         FeatureLocation transcriptLastFeatureLocation = Transcript.last().lastFeatureLocation
         geneFeatureLocation = Gene.first().firstFeatureLocation
@@ -1242,19 +1245,22 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.count == 2
         assert NonCanonicalThreePrimeSpliceSite.count==0
         assert NonCanonicalFivePrimeSpliceSite.count==1
-        assert CDS.count == 1
+        assert CDS.first().featureLocations.size()==2
+//        assert cdsFirstFeatureLocation.fmin == 55798
+//        assert cdsFirstFeatureLocation.fmax == cdsFirstFeatureLocation.sequence.length
+//        assert cdsLastFeatureLocation.fmin == 0
+//        assert cdsLastFeatureLocation.fmax == 85618 - cdsFirstFeatureLocation.sequence.length
         assert FeatureLocation.count == (MRNA.count + Gene.count)*2 + CDS.count + Exon.count + NonCanonicalFivePrimeSpliceSite.count
         assert transcriptFeatureLocation.fmin == geneFeatureLocation.fmin
         assert transcriptLastFeatureLocation.fmax == geneLastFeatureLocation.fmax
         assert transcriptFeatureLocation.fmin == exonFirstFeatureLocation.fmin
         assert transcriptLastFeatureLocation.fmax == exonLastFeatureLocation.fmax
-        assert CDS.first().featureLocations.size()==1
-        assert cdsFeatureLocation.fmin > exonFirstFeatureLocation.fmin
+        assert cdsFirstFeatureLocation.fmin > exonFirstFeatureLocation.fmin
         // last exon only exists on the last sequence, so fmax only represents that sequence
-        assert cdsFeatureLocation.fmax < exonLastFeatureLocation.fmax + exonFirstFeatureLocation.sequence.length
-        assert cdsFeatureLocation.fmin > 0
-        assert cdsFeatureLocation.fmax > 0
-        assert cdsFeatureLocation.fmin < cdsFeatureLocation.fmax
+        assert cdsFirstFeatureLocation.fmax < exonLastFeatureLocation.fmax + exonFirstFeatureLocation.sequence.length
+        assert cdsFirstFeatureLocation.fmin > 0
+        assert cdsFirstFeatureLocation.fmax > 0
+        assert cdsFirstFeatureLocation.fmin < cdsFirstFeatureLocation.fmax
 //        assert preFmin != cdsFeatureLocation.fmin
 //        assert preFmax != cdsFeatureLocation.fmax
         // should have shifted and not stayed the same

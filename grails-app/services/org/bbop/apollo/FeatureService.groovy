@@ -845,10 +845,9 @@ class FeatureService {
                 String codon = mrna.substring(i, i + 3);
                 if (translationTable.getStartCodons().contains(codon)) {
                     if (transcript.isNegativeStrand()) {
-                        featureService.setFmax(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 3))
-//                        cds.featureLocation.setFmax(convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 3));
+                        setFmax(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 3))
                     } else {
-                        featureService.setFmin(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 2))
+                        setFmin(cds,convertLocalCoordinateToSourceCoordinateForTranscript(transcript, i + 2))
                     }
                     return;
                 }
@@ -1425,8 +1424,9 @@ class FeatureService {
     @Transactional
     def setFmax(Feature feature, int fmax,MultiSequenceProjection multiSequenceProjection) {
         Sequence lastSequence = feature.lastSequence
-        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(lastSequence.name,lastSequence.organism)
-        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name,lastSequence.organism)
+        ProjectionSequence currentProjectionSequence = multiSequenceProjection.getProjectionSequence(lastSequence.name,lastSequence.organism)
+        ProjectionSequence lastProjectionSequence = multiSequenceProjection.getProjectionSequence(fmax)
+        Sequence sequence = Sequence.findByNameAndOrganism(currentProjectionSequence.name,lastSequence.organism)
 
         List<FeatureLocation> toDelete = new ArrayList<>()
         Boolean fmaxSet = false
@@ -1442,6 +1442,7 @@ class FeatureService {
                 toDelete.add(featureLocation)
             }
         }
+
 
         // remove to delete
         toDelete.each {
