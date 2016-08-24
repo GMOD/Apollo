@@ -23,7 +23,7 @@ class BookmarkService {
     Bookmark generateBookmarkForFeature(Feature feature) {
         List<Sequence> sequenceList = new ArrayList<>()
         feature.featureLocations.sort(){ a,b ->
-            a.isFmaxPartial <=> b.isFmaxPartial ?: b.isFminPartial <=> a.isFminPartial ?: a.fmin <=> b.fmin
+            a.rank <=> b.rank ?: a.isFmaxPartial <=> b.isFmaxPartial ?: b.isFminPartial <=> a.isFminPartial ?: a.fmin <=> b.fmin
         }.each {
             if(!sequenceList.contains(it.sequence)){
                 sequenceList.add(it.sequence)

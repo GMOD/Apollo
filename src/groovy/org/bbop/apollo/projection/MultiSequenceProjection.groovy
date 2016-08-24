@@ -336,7 +336,8 @@ class MultiSequenceProjection extends AbstractProjection {
     }
 
     List<ProjectionSequence> getProjectedSequences(){
-        return sequenceDiscontinuousProjectionMap.keySet().sort(){a,b -> a.order <=> b.order }
+        List<ProjectionSequence> orderedSequences = sequenceDiscontinuousProjectionMap.keySet().sort(){a,b -> a.order <=> b.order }
+        return orderedSequences
     }
 
 }
