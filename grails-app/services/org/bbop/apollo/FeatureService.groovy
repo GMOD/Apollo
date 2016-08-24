@@ -762,11 +762,13 @@ class FeatureService {
                             cdsService.setStopCodonReadThrough(cds, stopCodonReadThrough)
 //                            cds.setStopCodonReadThrough(stopCodonReadThrough);
                             if (cds.isNegativeStrand()) {
-                                setFmin(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2))
-                                setFmax(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i) + 1);
+                                setFeatureLocations(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2), convertModifiedLocalCoordinateToSourceCoordinate(transcript, i) + 1)
+//                                setFmin(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2))
+//                                setFmax(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i) + 1);
                             } else {
-                                setFmin(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i));
-                                setFmax(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2) + 1);
+                                setFeatureLocations(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i), convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2) + 1)
+//                                setFmin(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i));
+//                                setFmax(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2) + 1);
                             }
                         }
                         continue;
@@ -1024,23 +1026,23 @@ class FeatureService {
                     fmax = tmp + 1;
                 }
                 // get the projection from the transcript,
-                setFeatureLocations(cds,fmin,fmax,transcript)
+                setFeatureLocations(cds, fmin, fmax, transcript)
 //                setFmin(cds, fmin, multiSequenceProjection);
 //                cds.firstFeatureLocation.setIsFminPartial(false);
 //                setFmax(cds, fmax, multiSequenceProjection);
 //                cds.lastFeatureLocation.setIsFmaxPartial(partialStop);
             } else {
-                setFmin(cds, transcript.getFmin(), multiSequenceProjection);
-                cds.firstFeatureLocation.setIsFminPartial(true);
+//                setFmin(cds, transcript.getFmin(), multiSequenceProjection);
+//                cds.firstFeatureLocation.setIsFminPartial(true);
                 String aa = SequenceTranslationHandler.translateSequence(mrna, translationTable, true, readThroughStopCodon);
                 if (aa.substring(aa.length() - 1).equals(TranslationTable.STOP)) {
-//                    setFeatureLocations(cds,transcript.fmin,convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3),multiSequenceProjection)
-                    setFmax(cds, convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3), multiSequenceProjection);
+                    setFeatureLocations(cds, transcript.fmin, convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3), multiSequenceProjection)
+//                    setFmax(cds, convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3), multiSequenceProjection);
                     cds.lastFeatureLocation.setIsFmaxPartial(false);
                 } else {
-//                    setFeatureLocations(cds,transcript.fmin,transcript.fmax,multiSequenceProjection)
-                    setFmax(cds, transcript.getFmax(), multiSequenceProjection);
-                    cds.lastFeatureLocation.setIsFmaxPartial(true);
+                    setFeatureLocations(cds, transcript.fmin, transcript.fmax, multiSequenceProjection)
+//                    setFmax(cds, transcript.getFmax(), multiSequenceProjection);
+//                    cds.lastFeatureLocation.setIsFmaxPartial(true);
                 }
             }
             if (readThroughStopCodon) {
@@ -1050,9 +1052,9 @@ class FeatureService {
                     StopCodonReadThrough stopCodonReadThrough = cdsService.createStopCodonReadThrough(cds);
                     cdsService.setStopCodonReadThrough(cds, stopCodonReadThrough);
                     int offset = transcript.getStrand() == -1 ? -2 : 0;
-//                    setFeatureLocations(stopCodonReadThrough,convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + offset,convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + 3 + offset,multiSequenceProjection)
-                    setFmin(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + offset, multiSequenceProjection);
-                    setFmax(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + 3 + offset, multiSequenceProjection);
+                    setFeatureLocations(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + offset, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + 3 + offset, multiSequenceProjection)
+//                    setFmin(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + offset, multiSequenceProjection);
+//                    setFmax(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + 3 + offset, multiSequenceProjection);
                 }
             } else {
                 cdsService.deleteStopCodonReadThrough(cds);
@@ -1384,30 +1386,30 @@ class FeatureService {
      */
     @Transactional
     def setFmin(Feature feature, int fmin, MultiSequenceProjection multiSequenceProjection) {
-//        setFeatureLocations(feature,fmin,null,multiSequenceProjection)
-        Sequence firstSequence = feature.firstSequence
-        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(firstSequence.name, firstSequence.organism)
-        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name, firstSequence.organism)
-
-        List<FeatureLocation> toDelete = new ArrayList<>()
-        Boolean fminSet = false
-        for (FeatureLocation featureLocation in feature.getFeatureLocations().sort() { it.rank }) {
-            // if we've already set the fmin, we have to delete it (i.e., our fmin has increased)
-            if (featureLocation.sequence == sequence) {
-                featureLocation.setFmin(fmin)
-                featureLocation.setIsFminPartial(false)
-                featureLocation.save()
-                fminSet = true
-            }
-            if (featureLocation.sequence != sequence && fminSet) {
-                toDelete.add(featureLocation)
-            }
-        }
-
-        // remove to delete
-        toDelete.each {
-            feature.removeFromFeatureLocations(it)
-        }
+        setFeatureLocations(feature, fmin, null, multiSequenceProjection)
+//        Sequence firstSequence = feature.firstSequence
+//        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(firstSequence.name, firstSequence.organism)
+//        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name, firstSequence.organism)
+//
+//        List<FeatureLocation> toDelete = new ArrayList<>()
+//        Boolean fminSet = false
+//        for (FeatureLocation featureLocation in feature.getFeatureLocations().sort() { it.rank }) {
+//            // if we've already set the fmin, we have to delete it (i.e., our fmin has increased)
+//            if (featureLocation.sequence == sequence) {
+//                featureLocation.setFmin(fmin)
+//                featureLocation.setIsFminPartial(false)
+//                featureLocation.save()
+//                fminSet = true
+//            }
+//            if (featureLocation.sequence != sequence && fminSet) {
+//                toDelete.add(featureLocation)
+//            }
+//        }
+//
+//        // remove to delete
+//        toDelete.each {
+//            feature.removeFromFeatureLocations(it)
+//        }
     }
 
     /**
@@ -1417,9 +1419,21 @@ class FeatureService {
      * @param fmax
      */
     @Transactional
-    def setFeatureLocations(Feature feature, Integer fmin, Integer fmax,Feature contextFeature) {
+    def setFeatureLocations(Feature feature, Integer fmin, Integer fmax) {
+        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(feature)
+        setFeatureLocations(feature, fmin, fmax, projectionService.getProjection(bookmark))
+    }
+
+    /**
+     * Generate the projection from the feature
+     * @param feature
+     * @param fmin
+     * @param fmax
+     */
+    @Transactional
+    def setFeatureLocations(Feature feature, Integer fmin, Integer fmax, Feature contextFeature) {
         Bookmark bookmark = bookmarkService.generateBookmarkForFeature(contextFeature)
-        setFeatureLocations(feature,fmin,fmax,projectionService.getProjection(bookmark))
+        setFeatureLocations(feature, fmin, fmax, projectionService.getProjection(bookmark))
     }
 
     /**
@@ -1444,8 +1458,8 @@ class FeatureService {
         Strand strand = Strand.getStrandForValue(feature.firstFeatureLocation?.strand)
         println "# of feature locations ${feature.featureLocations}"
         Organism organism = preferenceService.getOrganismForToken(multiSequenceProjection.projectedSequences.first().organism)
-        Map<String,Sequence> sequenceMap = Sequence.findAllByNameInListAndOrganism(multiSequenceProjection.projectedSequences.name,organism).collectEntries(){
-            [ (it.name) : it]
+        Map<String, Sequence> sequenceMap = Sequence.findAllByNameInListAndOrganism(multiSequenceProjection.projectedSequences.name, organism).collectEntries() {
+            [(it.name): it]
         }
 
         ProjectionSequence firstProjectionSequence = fmin ? multiSequenceProjection.getProjectionSequence(fmin) : null
@@ -1458,9 +1472,9 @@ class FeatureService {
         int featureLocationOrder = -1
         for (ProjectionSequence projectionSequence in multiSequenceProjection.projectedSequences) {
 
-            if(projectionSequence.order==firstProjectionSequence.order && firstProjectionSequence.order==lastProjectionSequence.order ){
+            if (firstProjectionSequence && lastProjectionSequence && projectionSequence.order == firstProjectionSequence.order && firstProjectionSequence.order == lastProjectionSequence.order) {
                 FeatureLocation featureLocation = featureLocationMap.get(projectionSequence.name)
-                if(!featureLocation){
+                if (!featureLocation) {
                     featureLocation = new FeatureLocation(
                             feature: feature,
                             sequence: sequenceMap.get(firstProjectionSequence.name),
@@ -1474,8 +1488,7 @@ class FeatureService {
                     toAdd.add(featureLocation)
 //                    feature.addToFeatureLocations(featureLocation)
 //                    feature.save(insert: false, flush: true,failOnError: true )
-                }
-                else{
+                } else {
                     featureLocation.fmin = fmin - firstProjectionSequence.originalOffset
                     featureLocation.isFminPartial = false
                     featureLocation.rank = 0
@@ -1488,7 +1501,7 @@ class FeatureService {
             if (projectionSequence.order == firstProjectionSequence?.order && firstProjectionSequence?.order != lastProjectionSequence?.order) {
                 featureLocationOrder = 0
                 FeatureLocation featureLocation = featureLocationMap.get(projectionSequence.name)
-                if(!featureLocation){
+                if (!featureLocation) {
                     featureLocation = new FeatureLocation(
                             feature: feature,
                             sequence: sequenceMap.get(firstProjectionSequence.name),
@@ -1500,13 +1513,12 @@ class FeatureService {
                             rank: featureLocationOrder
                     ).save()
                     toAdd.add(featureLocation)
-                }
-                else{
+                } else {
                     featureLocation.fmin = fmin - firstProjectionSequence.originalOffset
                     featureLocation.isFminPartial = false
                     featureLocation.rank = featureLocationOrder
                     // if this is not fmax projectionSequence, then we have to set to the max
-                    if(firstProjectionSequence && lastProjectionSequence && firstProjectionSequence.order<lastProjectionSequence.order){
+                    if (firstProjectionSequence && lastProjectionSequence && firstProjectionSequence.order < lastProjectionSequence.order) {
                         featureLocation.fmax = projectionSequence.unprojectedLength
                         featureLocation.isFmaxPartial = true
                     }
@@ -1517,7 +1529,7 @@ class FeatureService {
             if (projectionSequence.order == lastProjectionSequence?.order && firstProjectionSequence?.order != lastProjectionSequence?.order) {
                 ++featureLocationOrder
                 FeatureLocation featureLocation = featureLocationMap.get(projectionSequence.name)
-                if(!featureLocation){
+                if (!featureLocation) {
                     featureLocation = new FeatureLocation(
                             feature: feature,
                             sequence: sequenceMap.get(lastProjectionSequence.name),
@@ -1529,31 +1541,29 @@ class FeatureService {
                             rank: featureLocationOrder
                     ).save()
                     toAdd.add(featureLocation)
-                }
-                else{
+                } else {
                     featureLocation.fmax = fmax - lastProjectionSequence.originalOffset
                     featureLocation.isFminPartial = false
-                    if(firstProjectionSequence && lastProjectionSequence && firstProjectionSequence.order<lastProjectionSequence.order){
+                    if (firstProjectionSequence && lastProjectionSequence && firstProjectionSequence.order < lastProjectionSequence.order) {
                         featureLocation.fmin = 0
                         featureLocation.isFminPartial = true
                     }
-                    featureLocation.save(insert: false,failOnError: true)
+                    featureLocation.save(insert: false, failOnError: true)
                 }
             }
 
-            if(firstProjectionSequence && lastProjectionSequence){
+            if (firstProjectionSequence && lastProjectionSequence) {
                 // below or above fmin or fmax, so delete
                 FeatureLocation featureLocation = featureLocationMap.get(projectionSequence.name)
                 if (projectionSequence.order < firstProjectionSequence.order || projectionSequence.order > lastProjectionSequence.order) {
-                    if(featureLocation){
+                    if (featureLocation) {
                         toDelete.add(featureLocation)
                     }
                 }
                 // inbetween the fmin and the fmax, so add and update to full scaffold length
-                else
-                if (projectionSequence.order > firstProjectionSequence.order && projectionSequence.order < lastProjectionSequence.order) {
+                else if (projectionSequence.order > firstProjectionSequence.order && projectionSequence.order < lastProjectionSequence.order) {
                     ++featureLocationOrder
-                    if(!featureLocation){
+                    if (!featureLocation) {
                         featureLocation = new FeatureLocation(
                                 feature: feature,
                                 sequence: sequenceMap.get(projectionSequence.name),
@@ -1565,8 +1575,7 @@ class FeatureService {
                                 rank: featureLocationOrder
                         ).save()
                         toAdd.add(featureLocation)
-                    }
-                    else{
+                    } else {
                         featureLocation.fmin = 0
                         featureLocation.isFminPartial = true
                         featureLocation.fmax = projectionSequence.unprojectedLength
@@ -1587,37 +1596,37 @@ class FeatureService {
             feature.addToFeatureLocations(it)
         }
 
-        feature.save(flush: true,insert: false)
+        feature.save(flush: true, insert: false)
 
     }
 
     @Transactional
     def setFmax(Feature feature, int fmax, MultiSequenceProjection multiSequenceProjection) {
-//        setFeatureLocations(feature,null,fmax,multiSequenceProjection)
-        Sequence lastSequence = feature.lastSequence
-        ProjectionSequence currentProjectionSequence = multiSequenceProjection.getProjectionSequence(lastSequence.name, lastSequence.organism)
-        ProjectionSequence lastProjectionSequence = multiSequenceProjection.getProjectionSequence(fmax)
-        Sequence sequence = Sequence.findByNameAndOrganism(currentProjectionSequence.name, lastSequence.organism)
-
-        List<FeatureLocation> toDelete = new ArrayList<>()
-        Boolean fmaxSet = false
-        for (FeatureLocation featureLocation in feature.getFeatureLocations().sort() { it.rank }.reverse()) {
-            // if we've already set the fmin, we have to delete it (i.e., our fmin has increased)
-            if (featureLocation.sequence == sequence) {
-                featureLocation.setFmax(fmax)
-                featureLocation.setIsFmaxPartial(false)
-                featureLocation.save()
-                fmaxSet = true
-            }
-            if (featureLocation.sequence != sequence && fmaxSet) {
-                toDelete.add(featureLocation)
-            }
-        }
-
-        // remove to delete
-        toDelete.each {
-            feature.removeFromFeatureLocations(it)
-        }
+        setFeatureLocations(feature, null, fmax, multiSequenceProjection)
+//        Sequence lastSequence = feature.lastSequence
+//        ProjectionSequence currentProjectionSequence = multiSequenceProjection.getProjectionSequence(lastSequence.name, lastSequence.organism)
+//        ProjectionSequence lastProjectionSequence = multiSequenceProjection.getProjectionSequence(fmax)
+//        Sequence sequence = Sequence.findByNameAndOrganism(currentProjectionSequence.name, lastSequence.organism)
+//
+//        List<FeatureLocation> toDelete = new ArrayList<>()
+//        Boolean fmaxSet = false
+//        for (FeatureLocation featureLocation in feature.getFeatureLocations().sort() { it.rank }.reverse()) {
+//            // if we've already set the fmin, we have to delete it (i.e., our fmin has increased)
+//            if (featureLocation.sequence == sequence) {
+//                featureLocation.setFmax(fmax)
+//                featureLocation.setIsFmaxPartial(false)
+//                featureLocation.save()
+//                fmaxSet = true
+//            }
+//            if (featureLocation.sequence != sequence && fmaxSet) {
+//                toDelete.add(featureLocation)
+//            }
+//        }
+//
+//        // remove to delete
+//        toDelete.each {
+//            feature.removeFromFeatureLocations(it)
+//        }
     }
 
     /** Convert source feature coordinate to local coordinate.
