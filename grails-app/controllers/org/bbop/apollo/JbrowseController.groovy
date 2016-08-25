@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import liquibase.util.file.FilenameUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.MultiSequenceProjection
@@ -27,6 +28,7 @@ class JbrowseController {
     def projectionService
     def trackService
     def refSeqProjectorService
+    def sequenceCacheService
 
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
@@ -314,6 +316,20 @@ class JbrowseController {
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         if (refererLoc.contains("sequenceList")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
+
+                SequenceCache cache = SequenceCache.findByKey(dataFileName)
+                if(cache){
+                    if(cache.value==String.valueOf(HttpServletResponse.SC_NOT_FOUND)){
+                        response.setStatus(HttpServletResponse.SC_NOT_FOUND)
+                    }
+                    else{
+                        sequenceCacheService.generateCacheTags(response,cache,dataFileName,cache.value.bytes.length)
+                        response.outputStream << cache.value
+                    }
+                    return
+                }
+
+
                 String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
                 println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
 
@@ -321,10 +337,15 @@ class JbrowseController {
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
 
                 if (fileName.endsWith("trackData.json")) {
+
+
                     JSONObject trackObject = trackService.projectTrackData(sequenceArray, dataFileName, refererLoc, currentOrganism)
                     if (trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value).size() == 0) {
+                        cache = new SequenceCache(key:dataFileName,value:HttpServletResponse.SC_NOT_FOUND).save(insert: true)
                         response.setStatus(HttpServletResponse.SC_NOT_FOUND)
                     } else {
+                        cache = new SequenceCache(key:dataFileName,value:trackObject.toString()).save(insert: true)
+                        sequenceCacheService.generateCacheTags(response,cache,dataFileName,cache.value.bytes.length)
                         response.outputStream << trackObject.toString()
                     }
                     return
@@ -332,8 +353,11 @@ class JbrowseController {
                     String trackName = projectionService.getTrackName(dataFileName)
                     JSONArray trackArray = trackService.projectTrackChunk(fileName, dataFileName, refererLoc, currentOrganism, trackName)
                     if (trackArray.size() == 0) {
+                        cache = new SequenceCache(key:dataFileName,value:HttpServletResponse.SC_NOT_FOUND).save(insert: true)
                         response.setStatus(HttpServletResponse.SC_NOT_FOUND)
                     } else {
+                        cache = new SequenceCache(key:dataFileName,value:trackArray.toString()).save(insert: true)
+                        sequenceCacheService.generateCacheTags(response,cache,dataFileName,cache.value.bytes.length)
                         response.outputStream << trackArray.toString()
                     }
                     return
@@ -354,7 +378,7 @@ class JbrowseController {
                 }
                 Date lastModifiedDate = cache.lastUpdated
                 String dateString = SimpleDateFormat.getDateInstance().format(lastModifiedDate)
-                String eTag = createHash(sequencePath,(long) returnSequence.bytes.length, (long) lastModifiedDate.time);
+                String eTag = sequenceCacheService.createHash(sequencePath,(long) returnSequence.bytes.length, (long) lastModifiedDate.time);
                 response.setHeader("ETag", eTag);
                 response.setHeader("Last-Modified", dateString);
 
@@ -401,12 +425,7 @@ class JbrowseController {
 
 
         if (isCacheableFile(fileName)) {
-            cacheFile(file)
-//            String eTag = createHashFromFile(file);
-//            String dateString = formatLastModifiedDate(file);
-//
-//            response.setHeader("ETag", eTag);
-//            response.setHeader("Last-Modified", dateString);
+            sequenceCacheService.cacheFile(response,file)
         }
 
         String range = request.getHeader("range");
@@ -634,15 +653,6 @@ class JbrowseController {
 
     }
 
-    def cacheFile(File file) {
-//        if (isCacheableFile(fileName)) {
-        String eTag = createHashFromFile(file);
-        String dateString = formatLastModifiedDate(file);
-        response.setHeader("ETag", eTag);
-        response.setHeader("Last-Modified", dateString);
-//        }
-
-    }
 
     private String calculateOriginalChunkName(List<ProjectionChunk> projectionChunks, String finalSequenceString, Integer chunkIndex) {
         for (int i = 0; i < projectionChunks.size(); i++) {
@@ -778,43 +788,6 @@ class JbrowseController {
     }
 
     /**
-     * We choose a date to use for last modified
-     * @param files
-     * @return
-     */
-    private static String formatLastModifiedDate(File... files) {
-        Date earliestDate = getLastModifiedDate(files)
-        return SimpleDateFormat.getDateInstance().format(earliestDate)
-    }
-
-    /**
-     * We choose a date to use for last modified
-     * @param files
-     * @return
-     */
-    private static Date getLastModifiedDate(File... files) {
-        Date earliestDate = new Date()
-        for (File file : files) {
-            Date lastModifiedDate = new Date(file.lastModified())
-            if (lastModifiedDate.before(earliestDate)) {
-                earliestDate = lastModifiedDate
-            }
-        }
-        return earliestDate
-    }
-
-    private static String createHash(String name, long length, long lastModified) {
-        return name + "_" + length + "_" + lastModified;
-    }
-
-    private static String createHashFromFile(File file) {
-        String fileName = file.getName();
-        long length = file.length();
-        long lastModified = file.lastModified();
-        return createHash(fileName, length, lastModified)
-    }
-
-    /**
      * Returns a substring of the given string value from the given begin index to the given end
      * index as a long. If the substring is empty, then -1 will be returned
      *
@@ -845,14 +818,9 @@ class JbrowseController {
 
         String mimeType = getServletContext().getMimeType(fileName);
 
-        String eTag = createHashFromFile(file);
-        String dateString = formatLastModifiedDate(file);
+        // TODO: refactor to use existing methods in cache service
+        sequenceCacheService.cacheFile(response,file)
 
-//        if (isCacheableFile(fileName)) {
-            response.setHeader("ETag", eTag);
-            response.setHeader("Last-Modified", dateString);
-//        }
-        
         response.setContentType(mimeType);
 //        // Set content size
 //        response << file.text
