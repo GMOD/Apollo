@@ -38,6 +38,14 @@ class ProjectionSequence implements Comparable<ProjectionSequence> {
         return true
     }
 
+    Integer getOriginalOffsetStart(){
+        return start + originalOffset
+    }
+
+    Integer getOriginalOffsetEnd(){
+        return end + originalOffset
+    }
+
     int hashCode() {
         int result
         result = start.hashCode()

@@ -353,6 +353,27 @@ class TrackService {
             TrackIndex trackIndex = trackMapperService.getIndices(projectionSequence.organism, trackName, coordinate.getInt(0))
             Integer oldMin = coordinate.getInt(trackIndex.start) + projectionSequence.originalOffset
             Integer oldMax = coordinate.getInt(trackIndex.end) + projectionSequence.originalOffset
+            assert oldMin <= oldMax
+
+            // case 1: coordinates encompass the projection, so both the LHS and RHS will be bound (and partial)
+            if(oldMin < projectionSequence.originalOffsetStart && oldMax > projectionSequence.originalOffsetEnd){
+                oldMin = projectionSequence.originalOffsetStart
+                oldMax = projectionSequence.originalOffsetEnd
+            }
+            else
+            // case 2: coordinates span the LHS (and are thus partial)
+            if(oldMin < projectionSequence.originalOffsetStart && oldMax > projectionSequence.originalOffsetStart && oldMax < projectionSequence.originalOffsetEnd){
+                oldMax = projectionSequence.originalOffsetEnd
+            }
+            else
+            // case 3: coordinates span the RHS of the projection (and are thus partial)
+            if(oldMin > projectionSequence.originalOffsetStart && oldMin < projectionSequence.originalOffsetEnd && oldMax > projectionSequence.originalOffsetEnd){
+                oldMax = projectionSequence.originalOffsetStart
+            }
+            // else do nothing, and they will be mapped internally
+            // case 4: coordinates are outside the scope of the projection, so no processing
+            // case 5: coordinates are internal to the projection, so no processing
+
             Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax-1)
             if (newCoordinate && newCoordinate.isValid()) {
                 coordinate.set(trackIndex.start, newCoordinate.min + offset - projectionSequence.offset)
