@@ -639,7 +639,7 @@ class TrackService {
 
 
         multiSequenceProjection.projectionChunkList = projectionChunkList
-//        projectionService.storeProjection(refererLoc, multiSequenceProjection, currentOrganism)
+        projectionService.cacheProjection(refererLoc, multiSequenceProjection)
 
         JSONObject trackObject = mergeTrackObject(trackObjectList, multiSequenceProjection,currentOrganism,trackName)
 
@@ -671,7 +671,8 @@ class TrackService {
         List<JSONArray> trackArrayList = new ArrayList<>()
         List<Integer> sequenceLengths = []
 
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(refererLoc, currentOrganism)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
+        multiSequenceProjection =  multiSequenceProjection ?: projectionService.getProjection(refererLoc, currentOrganism)
 
         Integer chunkIndex = getChunkIndex(fileName)
         ProjectionChunk projectionChunk = multiSequenceProjection.projectionChunkList.findProjectChunkForIndex(chunkIndex)

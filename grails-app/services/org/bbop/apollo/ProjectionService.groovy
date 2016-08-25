@@ -18,6 +18,7 @@ class ProjectionService {
 //    private Map<String, Map<String, ProjectionInterface>> projectionMap = new HashMap<>()
 
 //    private Map<ProjectionDescription, MultiSequenceProjection> multiSequenceProjectionMap = new HashMap<>()
+    private Map<String, MultiSequenceProjection> multiSequenceProjectionMap = new HashMap<>()
 
 
     @NotTransactional
@@ -740,5 +741,23 @@ class ProjectionService {
 
         Integer calculatedMax = lastProjectionSequence.offset - lastProjectionSequence.start + lastFeatureLocation.fmax
         return calculatedMax
+    }
+
+    @NotTransactional
+    JSONArray getSequenceListJSON(String inputString){
+        JSONObject jsonObject = JSON.parse(inputString) as JSONObject
+        return jsonObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
+    }
+
+
+    // TODO: constant / read-only, so could always move to a database cache
+    @NotTransactional
+    def cacheProjection(String projectionString, MultiSequenceProjection multiSequenceProjection) {
+        multiSequenceProjectionMap.put(getSequenceListJSON(projectionString),multiSequenceProjection)
+    }
+
+    @NotTransactional
+    MultiSequenceProjection getCachedProjection(String projectionString) {
+        return multiSequenceProjectionMap.get(getSequenceListJSON(projectionString))
     }
 }
