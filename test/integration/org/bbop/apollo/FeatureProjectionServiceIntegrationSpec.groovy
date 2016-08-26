@@ -1521,4 +1521,25 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert FeatureLocation.count==(1+1)*2 + 1  + (1+9) // 2 for each, except for Exon and CDS
 
     }
+
+    @IgnoreRest
+    void "adding transcripts across a scaffold"(){
+
+        given: "an add transcript string from 11.4 (GB52330) and Un87 (GB53947)"
+        String addGB52339LastExonGB53947FirstExonTranscriptString = "{ ${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"features\":[{\"location\":{\"fmin\":53392,\"fmax\":85624,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"children\":[{\"location\":{\"fmin\":85596,\"fmax\":85624,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":53392,\"fmax\":56055,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+
+        when: "we add the transcript"
+        JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(addGB52339LastExonGB53947FirstExonTranscriptString))
+
+        then: "we expect to see it across two scaffolds"
+        assert Gene.count==1
+        assert MRNA.count==1
+        assert CDS.count==1
+        assert Exon.count==2
+        assert Gene.first().featureLocations.size()==2
+        assert MRNA.first().featureLocations.size()==2
+        assert Exon.first().featureLocations.size()==1
+        assert Exon.last().featureLocations.size()==1
+
+    }
 }

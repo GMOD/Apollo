@@ -16,21 +16,9 @@ class FeatureProjectionService {
 
     JSONArray projectTrack(JSONArray inputFeaturesArray, Bookmark bookmark, Boolean reverseProjection = false) {
         MultiSequenceProjection projection = projectionService.getProjection(bookmark)
-        return projectTrack(inputFeaturesArray, projection, reverseProjection)
+        return projectFeaturesArray(inputFeaturesArray, projection, reverseProjection,0)
     }
 
-    JSONArray projectTrack(JSONArray inputFeaturesArray, MultiSequenceProjection projection, Boolean reverseProjection = false) {
-
-
-        if (projection) {
-            // process location . . .
-            projectFeaturesArray(inputFeaturesArray, projection, reverseProjection, 0)
-
-        } else {
-
-        }
-        return inputFeaturesArray
-    }
 
     /**
      * Anything in this space is assumed to be visible
