@@ -697,6 +697,7 @@ class ProjectionService {
  * @param bookmarkArray
  * @return
  */
+    @Transactional
     MultiSequenceProjection getProjection(JSONObject bookmarkObject) {
         Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkObject)
         return createMultiSequenceProjection(bookmark)

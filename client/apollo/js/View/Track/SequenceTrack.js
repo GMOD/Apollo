@@ -1081,7 +1081,9 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                         feature += ', "non_reserved_properties": [{"tag": "justification", "value": "' + commentFieldValue + '" }]';
                     }
                     var features = '[ { ' + feature + ' } ]';
-                    var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }';
+                    var trackName = track.annotTrack.getUniqueTrackName();
+                    var trackName = trackName.substr(0,trackName.lastIndexOf(':'));
+                    var postData = '{ "track":  '+ trackName + ', "features": ' + features + ', "operation": "add_sequence_alteration" }';
                     track.annotTrack.executeUpdateOperation(postData);
                     track.annotTrack.closeDialog();
                 }
