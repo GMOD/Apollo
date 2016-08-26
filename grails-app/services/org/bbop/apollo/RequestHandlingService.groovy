@@ -1257,7 +1257,12 @@ class RequestHandlingService {
         JSONObject addFeatureContainer = createJSONFeatureContainer();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
+
         Bookmark bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        // TODO: add projection here
+//        features = featureProjectionService.projectTrack(features , bookmark, true)
+
         User activeUser = permissionService.getCurrentUser(inputObject)
 
         for (int i = 0; i < features.length(); ++i) {
@@ -1306,6 +1311,8 @@ class RequestHandlingService {
                     }
                 }
             }
+
+            // TODO: revert projection
             addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true,bookmark));
         }
 
