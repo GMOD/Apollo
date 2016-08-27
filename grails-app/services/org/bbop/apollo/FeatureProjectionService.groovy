@@ -60,8 +60,17 @@ class FeatureProjectionService {
         }
         // if we don't have a sequence .. need to assign one
         if (!locationObject.containsKey(FeatureStringEnum.SEQUENCE.value)) {
-//        assert projectionSequence1==projectionSequence2
-            locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence1 ? projectionSequence1?.name : projectionSequence2?.name)
+            if(projectionSequence1 && projectionSequence2) {
+                // case 1, projectionSequence1 exists and is equals to projectionSequence2
+                if (projectionSequence1.name == projectionSequence2.name) {
+                    locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence1.name)
+                } else if (projectionSequence1.name != projectionSequence2.name) {
+                    locationObject.put(FeatureStringEnum.SEQUENCE.value, "[{\"name\":\""+projectionSequence1.name + "\"},{\"name\":\"" + projectionSequence2.name+"\"}]")
+                }
+            }
+            else{
+                locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence1 ? projectionSequence1?.name : projectionSequence2?.name)
+            }
         }
         return inputFeature
     }

@@ -32,13 +32,18 @@ class FeatureServiceSpec extends Specification {
                 end: 100,
                 length: 99,
         ).save(failOnError: true)
+        Bookmark bookmark = new Bookmark(
+                name: "Bookmark name"
+                ,sequenceList: "[{name:'Chr3':start:1,end:100,length:100}]"
+        ).save(failOnError: true)
         jsonObject.put(FeatureStringEnum.FMIN.value, 73)
         jsonObject.put(FeatureStringEnum.FMAX.value, 113)
         jsonObject.put(FeatureStringEnum.STRAND.value, Strand.POSITIVE.value)
 
 
         then: "We should return a valid FeatureLocation"
-        FeatureLocation featureLocation = service.convertJSONToFeatureLocation(jsonObject, sequence)
+//        FeatureLocation featureLocation = service.convertJSONToFeatureLocation(jsonObject, sequence,0)
+        FeatureLocation featureLocation = service.convertJSONToFeatureLocation(jsonObject, bookmark,false)
         assert featureLocation.sequence.name == "Chr3"
         assert featureLocation.fmin == 73
         assert featureLocation.fmax == 113

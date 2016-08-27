@@ -41,6 +41,60 @@ class FeatureService {
     public static final
     def rnaFeatureTypes = [MRNA.alternateCvTerm, MiRNA.alternateCvTerm, NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
     public static final def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
+
+    /**
+     * If a json feature location extends across two scaffolds, we need a feature locaiton for each
+     * @param jsonLocation
+     * @param bookmark
+     * @param projected
+     * @param defaultStrand
+     * @return
+     * @throws JSONException
+     */
+    @Timed
+    @Transactional
+    public List<FeatureLocation> convertJSONToFeatureLocations(JSONObject jsonLocation, Bookmark bookmark, int defaultStrand = Strand.POSITIVE.value) throws JSONException {
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+
+        Integer min = jsonLocation.getInt(FeatureStringEnum.FMIN.value)
+        Integer max = jsonLocation.getInt(FeatureStringEnum.FMAX.value)
+        Organism organism = bookmark.organism
+
+        List<String> sequenceListString = []
+//        List<Sequence> sequenceList
+//        Map<String,Integer> orderedSequenceMap = multiSequenceProjection.getOrdereSequenceMap()
+
+        // TODO: I think that passing the SEQUENCE value in addition to the projection is asking for trouble.  fmin / fmax should just apply to the projection
+        if (jsonLocation.containsKey(FeatureStringEnum.SEQUENCE.value)) {
+            String sequenceString = jsonLocation.getString(FeatureStringEnum.SEQUENCE.value)
+            if (sequenceString.startsWith("{")) {
+                sequenceListString.add((JSON.parse(sequenceString) as JSONObject).name)
+            } else if (sequenceString.startsWith("[")) {
+                sequenceListString.addAll((JSON.parse(sequenceString) as JSONArray).name)
+            } else {
+                sequenceListString.add(sequenceString)
+            }
+        } else {
+
+            // TODO: this should be the default / only method if possible
+            List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getReverseProjectionSequences(min, max)
+
+            for (ProjectionSequence projectionSequence in projectionSequenceList) {
+                sequenceListString.add(projectionSequence.name)
+            }
+        }
+
+        List<FeatureLocation> featureLocationList = new ArrayList<>()
+
+        sequenceListString.eachWithIndex { String entry, int order ->
+            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, multiSequenceProjection, order, defaultStrand)
+            featureLocationList.add(featureLocation)
+        }
+
+        return featureLocationList
+
+    }
+
     /**
      * We assume that the jsonLocation must be reverse-projected . . . and then associated with the appropriate sequence
      *
@@ -48,6 +102,7 @@ class FeatureService {
      * @param bookmark
      * @return
      * @throws JSONException
+     * @deprecated
      */
     @Timed
     @Transactional
@@ -58,62 +113,151 @@ class FeatureService {
         Integer min = jsonLocation.getInt(FeatureStringEnum.FMIN.value)
         Integer max = jsonLocation.getInt(FeatureStringEnum.FMAX.value)
         Organism organism = bookmark.organism
-        Sequence sequence
+        ProjectionSequence firstProjectionSequence  = multiSequenceProjection.getProjectionSequence(min)
+        ProjectionSequence lastProjectionSequence = multiSequenceProjection.getProjectionSequence(max)
+        Map<String,Integer> sequenceMap = multiSequenceProjection.getOrdereSequenceMap()
+
+        Integer order = -1
         if (jsonLocation.containsKey(FeatureStringEnum.SEQUENCE.value)) {
             String sequenceString = jsonLocation.getString(FeatureStringEnum.SEQUENCE.value)
             String sequenceName = sequenceString
             if (sequenceString.startsWith("{")) {
                 sequenceName = (JSON.parse(sequenceString) as JSONObject).name
+//                if(firstProjectionSequence.name==sequenceName){
+//                    order = firstProjectionSequence.order
+//                }
+//                else{
+//                    lastProjectionSequence.name==sequenceName
+//                    order = lastProjectionSequence.order
+//                }
             } else if (sequenceString.startsWith("[")) {
+                println "parsing a sequenceString ${sequenceString}"
                 sequenceName = (JSON.parse(sequenceString) as JSONArray)[0].name
+                // TODO: this is the par that needs to have the  orrect order
             }
-            sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
+            order = sequenceMap.get(sequenceName)
+
+//            sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
         } else {
             ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(min)
             ProjectionSequence projectionSequence2 = multiSequenceProjection.getReverseProjectionSequence(max)
             assert projectionSequence == projectionSequence2
-            sequence = Sequence.findByNameAndOrganism(projectionSequence.name, organism)
+            order = projectionSequence.order
+//            sequence = Sequence.findByNameAndOrganism(projectionSequence.name, organism)
         }
 
-        FeatureLocation gsolLocation = new FeatureLocation();
 
-        if (projected) {
-            Coordinate coordinate = multiSequenceProjection.projectReverseCoordinate(min, max)
-            gsolLocation.setFmin(coordinate.min);
-            gsolLocation.setFmax(coordinate.max);
-        } else {
-            gsolLocation.setFmin(min);
-            gsolLocation.setFmax(max);
-        }
 
-        if (jsonLocation.has(FeatureStringEnum.ID.value)) {
-            gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
-        }
-        if (jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.POSITIVE.value || jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.NEGATIVE.value) {
-            gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
-        } else {
-            gsolLocation.setStrand(defaultStrand)
-        }
-        gsolLocation.setSequence(sequence)
-        return gsolLocation;
+        return convertJSONToFeatureLocation(jsonLocation,multiSequenceProjection,order,defaultStrand)
+
+//        Sequence sequence
+//        if (jsonLocation.containsKey(FeatureStringEnum.SEQUENCE.value)) {
+//            String sequenceString = jsonLocation.getString(FeatureStringEnum.SEQUENCE.value)
+//            String sequenceName = sequenceString
+//            if (sequenceString.startsWith("{")) {
+//                sequenceName = (JSON.parse(sequenceString) as JSONObject).name
+//            } else if (sequenceString.startsWith("[")) {
+//                sequenceName = (JSON.parse(sequenceString) as JSONArray)[0].name
+//            }
+//            sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
+//        } else {
+//            ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(min)
+//            ProjectionSequence projectionSequence2 = multiSequenceProjection.getReverseProjectionSequence(max)
+//            assert projectionSequence == projectionSequence2
+//            sequence = Sequence.findByNameAndOrganism(projectionSequence.name, organism)
+//        }
+//
+//        FeatureLocation gsolLocation = new FeatureLocation();
+//
+//        if (projected) {
+//            Coordinate coordinate = multiSequenceProjection.projectReverseCoordinate(min, max)
+//            gsolLocation.setFmin(coordinate.min);
+//            gsolLocation.setFmax(coordinate.max);
+//        } else {
+//            gsolLocation.setFmin(min);
+//            gsolLocation.setFmax(max);
+//        }
+//
+//        if (jsonLocation.has(FeatureStringEnum.ID.value)) {
+//            gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
+//        }
+//        if (jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.POSITIVE.value || jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.NEGATIVE.value) {
+//            gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
+//        } else {
+//            gsolLocation.setStrand(defaultStrand)
+//        }
+//        gsolLocation.setSequence(sequence)
+//        return gsolLocation;
     }
 
     /**
-     * @deprecated
-     * @param jsonLocation
-     * @param sequence
+     *
+     * @param jsonLocation We assume that things are brought in projected
+     * @param multiSequenceProjection
+     * @param order
+     * @param defaultStrand
      * @return
      * @throws JSONException
+     *
+     * In this method we have to assert that each "order" correlates with a single sequence
+     * If the fmin / fmax DO NOT correspond, then it has to be dropped.
      */
     @Timed
     @Transactional
-    public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence, int defaultStrand = Strand.POSITIVE.value) throws JSONException {
+    public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, MultiSequenceProjection multiSequenceProjection, int order, int defaultStrand = Strand.POSITIVE.value) throws JSONException {
+
+        /**
+         * fmin/ fmax have not been projected yet
+         */
+        int fmin = jsonLocation.getInt(FeatureStringEnum.FMIN.value);
+        int fmax = jsonLocation.getInt(FeatureStringEnum.FMAX.value);
+
+        ProjectionSequence projectionSequence = multiSequenceProjection.projectedSequences.get(order)
+        List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getReverseProjectionSequences(fmin, fmax)
+//        assert projectionSequenceList.size()==2
+        ProjectionSequence firstProjectionSequence = projectionSequenceList.first()
+        ProjectionSequence lastProjectionSequence = projectionSequenceList.last()
+
+        if (false) {
+            // case 1, fmin and fmax are both within the projectSequence and match the order . . . we just do a reverse projection
+            if (firstProjectionSequence == lastProjectionSequence && projectionSequence.order == firstProjectionSequence.order) {
+//            fmin = multiSequenceProjection.projectReverseValue(fmin)
+//            fmax = multiSequenceProjection.projectReverseValue(fmax)
+            }
+            // case 2, fmin and fmax are both outside the projectSequence
+            if (firstProjectionSequence.name != projectionSequence.name && lastProjectionSequence.name != projectionSequence.name) {
+                return null
+            }
+            // case 3, fmin is outside to the left and fmax is within it
+            if (firstProjectionSequence.name != projectionSequence.name
+                    && firstProjectionSequence.order < projectionSequence.order
+                    && lastProjectionSequence.name == projectionSequence.name
+                    && lastProjectionSequence.order == projectionSequence.order
+            ) {
+                fmin = projectionSequence.originalOffset
+//            fmax = multiSequenceProjection.projectReverseValue(fmax)
+            }
+            // case 4, fmin is inside and fmax is to the right
+            if (lastProjectionSequence.name != projectionSequence.name
+                    && lastProjectionSequence.order > projectionSequence.order
+                    && firstProjectionSequence.name == projectionSequence.name
+                    && firstProjectionSequence.order == projectionSequence.order
+            ) {
+//            fmin = multiSequenceProjection.projectReverseValue(fmax)
+                fmax = projectionSequence.originalOffset + projectionSequence.unprojectedLength
+            }
+        }
+
+        // we have to do a reverse projection of it,
+        Organism organism = preferenceService.getOrganismForToken(projectionSequence.organism)
+        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name, organism)
+
         FeatureLocation gsolLocation = new FeatureLocation();
         if (jsonLocation.has(FeatureStringEnum.ID.value)) {
             gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
         }
-        gsolLocation.setFmin(jsonLocation.getInt(FeatureStringEnum.FMIN.value));
-        gsolLocation.setFmax(jsonLocation.getInt(FeatureStringEnum.FMAX.value));
+        gsolLocation.setFmin(fmin);
+        gsolLocation.setFmax(fmax);
         if (jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.POSITIVE.value || jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.NEGATIVE.value) {
             gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
         } else {
@@ -165,6 +309,20 @@ class FeatureService {
             //Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax ))",[fmin:location.fmin,fmax:location.fmax,sequence:location.sequence])
             Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax))", [fmin: location.fmin, fmax: location.fmax, sequence: location.sequence])
         }
+    }
+
+    /**
+     * Should return a unique set of features.
+     * @param locationList
+     * @param compareStrands
+     * @return
+     */
+    public Collection<Feature> getOverlappingFeaturesFromList(List<FeatureLocation> locationList, boolean compareStrands = true) {
+        List<Feature> overlappingFeatures = []
+        locationList.each { it ->
+            overlappingFeatures.addAll(getOverlappingFeatures(it, compareStrands))
+        }
+        return overlappingFeatures.unique()
     }
 
     /**
@@ -270,6 +428,12 @@ class FeatureService {
         } else {
             // Scenario II - find an overlapping isoform and if present, add current transcript to its gene
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), bookmark, false)
+//            List<FeatureLocation> featureLocationList = convertJSONToFeatureLocations(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), bookmark)
+//            Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocationList).findAll() {
+//                it = Feature.get(it.id)
+//                it instanceof Gene
+//            }
+//            FeatureLocation featureLocation = featureLocationList.first()
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll() {
                 it = Feature.get(it.id)
                 it instanceof Gene
@@ -634,7 +798,7 @@ class FeatureService {
         // Method converts localCoordinate to sourceCoordinate in reference to the Transcript
         List<Exon> exons = transcriptService.getSortedExons(transcript, true)
 
-        Map<Sequence, Integer> offsetMap = generateOffsetMap(transcript)
+        Map<String, Integer> offsetMap = generateOffsetMap(transcript)
 
         int sourceCoordinate = -1;
         if (exons.size() == 0) {
@@ -646,9 +810,13 @@ class FeatureService {
             int exonLength = exon.getLength();
             if (currentLength + exonLength >= localCoordinate) {
                 if (transcript.isNegativeStrand()) {
-                    sourceCoordinate = exon.getFmax() - currentCoordinate - 1 + offsetMap.get(exon.getLastSequence());
+                    String sequenceName = exon.lastSequence.name
+                    Integer offset = offsetMap.get(sequenceName)
+                    sourceCoordinate = exon.getFmax() - currentCoordinate - 1 + offset
                 } else {
-                    sourceCoordinate = exon.getFmin() + currentCoordinate + offsetMap.get(exon.getFirstSequence());
+                    String sequenceName = exon.firstSequence.name
+                    Integer offset = offsetMap.get(sequenceName)
+                    sourceCoordinate = exon.getFmin() + currentCoordinate + offset
                 }
                 break;
             }
@@ -658,14 +826,14 @@ class FeatureService {
         return sourceCoordinate;
     }
 
-    Map<Sequence, Integer> generateOffsetMap(Feature feature) {
-        Map<Sequence, Integer> offsetMap = new HashMap()
+    Map<String, Integer> generateOffsetMap(Feature feature) {
+        Map<String, Integer> offsetMap = new HashMap()
         int offset = 0
 
         feature.featureLocations.sort() { a, b ->
             a.rank <=> b.rank
         }.each {
-            offsetMap.put(it.sequence, offset)
+            offsetMap.put(it.sequence.name, offset)
             offset += it.sequence.length
         }
         return offsetMap
@@ -1118,16 +1286,24 @@ class FeatureService {
             // TODO: will have to split this
             if (jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
                 JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
+                List<FeatureLocation> featureLocationList
                 FeatureLocation featureLocation
                 if (singletonFeatureTypes.contains(type.getString(FeatureStringEnum.NAME.value))) {
+//                    featureLocationList = convertJSONToFeatureLocations(jsonLocation, bookmark, Strand.NONE.value)
                     featureLocation = convertJSONToFeatureLocation(jsonLocation, bookmark, false, Strand.NONE.value)
                 } else {
+//                    featureLocationList = convertJSONToFeatureLocations(jsonLocation, bookmark)
                     featureLocation = convertJSONToFeatureLocation(jsonLocation, bookmark, false)
                 }
-//                featureLocation.sequence = sequence
+
                 featureLocation.feature = gsolFeature
                 featureLocation.save()
-                gsolFeature.addToFeatureLocations(featureLocation);
+                gsolFeature.addToFeatureLocations(featureLocation)
+//                featureLocationList.each { FeatureLocation featureLocation ->
+//                    featureLocation.feature = gsolFeature
+//                    featureLocation.save()
+//                    gsolFeature.addToFeatureLocations(featureLocation);
+//                }
             }
 
             if (gsolFeature instanceof Deletion) {

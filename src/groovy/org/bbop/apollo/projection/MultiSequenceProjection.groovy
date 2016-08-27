@@ -340,4 +340,9 @@ class MultiSequenceProjection extends AbstractProjection {
         return orderedSequences
     }
 
+    Map<String,Integer> getOrdereSequenceMap() {
+        return getProjectedSequences().collectEntries { it ->
+            [ (it.name) : it.order ]
+        }
+    }
 }
