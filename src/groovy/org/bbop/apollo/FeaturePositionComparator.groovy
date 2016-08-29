@@ -56,14 +56,14 @@ class FeaturePositionComparator<T extends Feature> implements  Comparator<T>{
 
         int retVal = 0;
 
-        // if the rank of feature for this sequence is greater, then it is the tailing
-        // part of another exon, crossing a previous boundary
-        if(rankFeature1 > rankFeature2){
-            return -1 ;
-        }
         // if the rank of feature for this sequence is less, then it is the prefixing
         // part of another feature, crossing a boundary after this one
         if(rankFeature1 < rankFeature2){
+            return -1 ;
+        }
+        // if the rank of feature for this sequence is greater, then it is the tailing
+        // part of another exon, crossing a previous boundary
+        if(rankFeature1 > rankFeature2){
             return 1 ;
         }
         if (feature1.getFmin() < feature2.getFmin()) {

@@ -1516,9 +1516,10 @@ class FeatureService {
         List<FeatureLocation> toDelete = new ArrayList<>()
         List<FeatureLocation> toAdd = new ArrayList<>()
 
-        int featureLocationOrder = -1
+        int featureLocationOrder = 0
         for (ProjectionSequence projectionSequence in multiSequenceProjection.projectedSequences) {
 
+            // if we only have this one
             if (firstProjectionSequence && lastProjectionSequence && projectionSequence.order == firstProjectionSequence.order && firstProjectionSequence.order == lastProjectionSequence.order) {
                 FeatureLocation featureLocation = featureLocationMap.get(projectionSequence.name)
                 if (!featureLocation) {
@@ -1531,19 +1532,21 @@ class FeatureService {
                             isFmaxPartial: false,
                             strand: strand.value,
                             rank: 0
-                    ).save()
+                    ).save(insert: true, failOnError: true)
                     toAdd.add(featureLocation)
-//                    feature.addToFeatureLocations(featureLocation)
-//                    feature.save(insert: false, flush: true,failOnError: true )
+
+                    // we remove anything that is currently on there then, which is probably nothing
+                    toDelete.addAll(feature.featureLocations)
                 } else {
                     featureLocation.fmin = fmin - firstProjectionSequence.originalOffset
                     featureLocation.isFminPartial = false
                     featureLocation.rank = 0
                     featureLocation.fmax = fmax - firstProjectionSequence.originalOffset
                     featureLocation.isFmaxPartial = false
-                    featureLocation.save()
+                    featureLocation.save(insert: false, failOnError: true)
                 }
             }
+            else
             // set fmin, so add and/or update to set fmin
             if (projectionSequence.order == firstProjectionSequence?.order && firstProjectionSequence?.order != lastProjectionSequence?.order) {
                 featureLocationOrder = 0
@@ -1558,7 +1561,8 @@ class FeatureService {
                             isFmaxPartial: true,
                             strand: strand.value,
                             rank: featureLocationOrder
-                    ).save()
+                    ).save(insert: true, failOnError: true)
+                    bumpFeatureLocationRanks(feature)
                     toAdd.add(featureLocation)
                 } else {
                     featureLocation.fmin = fmin - firstProjectionSequence.originalOffset
@@ -1569,9 +1573,11 @@ class FeatureService {
                         featureLocation.fmax = projectionSequence.unprojectedLength
                         featureLocation.isFmaxPartial = true
                     }
-                    featureLocation.save()
+                    featureLocation.save(insert: false, failOnError: true)
                 }
             }
+            else
+            // set fmin, so add and/or update to set fmin
             // set fmax, so add and/or update to set fmax
             if (projectionSequence.order == lastProjectionSequence?.order && firstProjectionSequence?.order != lastProjectionSequence?.order) {
                 ++featureLocationOrder
@@ -1586,7 +1592,7 @@ class FeatureService {
                             isFmaxPartial: false,
                             strand: strand.value,
                             rank: featureLocationOrder
-                    ).save()
+                    ).save(insert: true, failOnError: true)
                     toAdd.add(featureLocation)
                 } else {
                     featureLocation.fmax = fmax - lastProjectionSequence.originalOffset
@@ -1598,6 +1604,7 @@ class FeatureService {
                     featureLocation.save(insert: false, failOnError: true)
                 }
             }
+
 
             if (firstProjectionSequence && lastProjectionSequence) {
                 // below or above fmin or fmax, so delete
@@ -1620,7 +1627,7 @@ class FeatureService {
                                 isFmaxPartial: true,
                                 strand: strand.value,
                                 rank: featureLocationOrder
-                        ).save()
+                        ).save(insert: true, failOnError: true)
                         toAdd.add(featureLocation)
                     } else {
                         featureLocation.fmin = 0
@@ -1628,7 +1635,7 @@ class FeatureService {
                         featureLocation.fmax = projectionSequence.unprojectedLength
                         featureLocation.isFmaxPartial = true
                         featureLocation.rank = featureLocationOrder
-                        featureLocation.save(insert: false)
+                        featureLocation.save(insert: false,failOnError: true)
                     }
                 }
             }
@@ -1645,6 +1652,18 @@ class FeatureService {
 
         feature.save(flush: true, insert: false)
 
+    }
+
+    @Transactional
+    int bumpFeatureLocationRanks(Feature feature) {
+
+        int bumped = 0
+        for(FeatureLocation featureLocation in feature.featureLocations){
+            featureLocation.rank = featureLocation.rank +1
+            featureLocation.save(insert:false)
+            ++bumped
+        }
+        return bumped
     }
 
     @Transactional
