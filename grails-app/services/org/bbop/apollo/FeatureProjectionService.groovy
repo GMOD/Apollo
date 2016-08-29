@@ -41,7 +41,7 @@ class FeatureProjectionService {
 
         if (reverseProjection) {
             // TODO: add reverse offset?
-            fmin = fmin ? projection.projectReverseValue(fmin) : null
+            fmin = fmin ? projection.projectReverseValue(fmin)  : null
 
             // we are projecting a REVERSE, exclusive value
             fmax = fmax ? projection.projectReverseValue(fmax) : null

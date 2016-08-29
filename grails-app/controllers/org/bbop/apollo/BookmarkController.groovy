@@ -16,6 +16,7 @@ class BookmarkController {
     def projectionService
     def bookmarkService
 
+    @Transactional
     def list() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         User user = permissionService.getCurrentUser(inputObject)

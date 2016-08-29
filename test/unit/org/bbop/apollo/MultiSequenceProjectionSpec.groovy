@@ -893,10 +893,10 @@ class MultiSequenceProjectionSpec extends Specification {
 //        assert 25+27==multiSequenceProjection.projectReverseValue(11)
 //        assert 25+60==multiSequenceProjection.projectReverseValue(12)
 //        assert 25+63==multiSequenceProjection.projectReverseValue(15)
-        assert 24==multiSequenceProjection.projectReverseValue(7)
-        assert 27==multiSequenceProjection.projectReverseValue(10)
-        assert 60==multiSequenceProjection.projectReverseValue(11)
-        assert 63==multiSequenceProjection.projectReverseValue(14)
+        assert 24+sequence1.unprojectedLength==multiSequenceProjection.projectReverseValue(7)
+        assert 27+sequence1.unprojectedLength==multiSequenceProjection.projectReverseValue(10)
+        assert 60+sequence1.unprojectedLength==multiSequenceProjection.projectReverseValue(11)
+        assert 63+sequence1.unprojectedLength==multiSequenceProjection.projectReverseValue(14)
 
         when: "we project a sequence through these coordinates"
         // length should be 200

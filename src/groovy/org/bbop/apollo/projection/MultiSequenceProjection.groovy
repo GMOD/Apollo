@@ -90,7 +90,7 @@ class MultiSequenceProjection extends AbstractProjection {
     Integer projectReverseValue(Integer input) {
         ProjectionSequence projectionSequence = getReverseProjectionSequence(input)
         if (!projectionSequence) return -1
-        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectReverseValue(input - projectionSequence.offset)
+        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectReverseValue(input - projectionSequence.offset) + projectionSequence.originalOffset
     }
 
     Integer getLength() {
@@ -340,7 +340,7 @@ class MultiSequenceProjection extends AbstractProjection {
         return orderedSequences
     }
 
-    Map<String,Integer> getOrdereSequenceMap() {
+    Map<String,Integer> getOrderedSequenceMap() {
         return getProjectedSequences().collectEntries { it ->
             [ (it.name) : it.order ]
         }
