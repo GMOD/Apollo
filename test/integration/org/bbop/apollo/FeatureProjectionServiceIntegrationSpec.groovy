@@ -10,6 +10,7 @@ import spock.lang.IgnoreRest
 class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
     
     def requestHandlingService
+    def featureService
 
     def setup() {
 
@@ -1541,5 +1542,38 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.first().featureLocations.size()==1
         assert Exon.last().featureLocations.size()==1
 
+    }
+
+    void "convert JSON to Feature Location"() {
+
+        when: "We have a valid json object"
+        JSONObject jsonObject = new JSONObject()
+        Sequence sequence = new Sequence(
+                name: "Chr3",
+                seqChunkSize: 20,
+                start: 0,
+                end: 199,
+                length: 200,
+                organism: Organism.first()
+        ).save(failOnError: true)
+        Bookmark bookmark = new Bookmark(
+                name: "Bookmark name"
+                ,sequenceList: "[{\"name\":\"Chr3\",start:0,end:199,length:200}]"
+                ,organism:Organism.first()
+                ,start:0
+                ,end:99
+        ).save(failOnError: true)
+        jsonObject.put(FeatureStringEnum.FMIN.value, 73)
+        jsonObject.put(FeatureStringEnum.FMAX.value, 113)
+        jsonObject.put(FeatureStringEnum.STRAND.value, org.bbop.apollo.sequence.Strand.POSITIVE.value)
+
+
+        then: "We should return a valid FeatureLocation"
+//        FeatureLocation featureLocation = service.convertJSONToFeatureLocation(jsonObject, sequence,0)
+        FeatureLocation featureLocation = featureService.convertJSONToFeatureLocation(jsonObject, bookmark,false)
+        assert featureLocation.sequence.name == "Chr3"
+        assert featureLocation.fmin == 73
+        assert featureLocation.fmax == 113
+        assert featureLocation.strand == org.bbop.apollo.sequence.Strand.POSITIVE.value
     }
 }
