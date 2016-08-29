@@ -421,7 +421,7 @@ class UserController {
             , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "User ID to fetch")
     ])
     def getOrganismPermissionsForUser() {
-        JSONObject dataObject = JSON.parse(params.data)
+        JSONObject dataObject = permissionService.handleInput(request, params)
         User user = User.findById(dataObject.userId)
 
         List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByUser(user)
