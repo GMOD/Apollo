@@ -1589,8 +1589,15 @@ class RequestHandlingService {
         Transcript transcript = exonService.getTranscript(exon)
         JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript,false,bookmark)
 
+        Integer genomicMaxPosition = exonLocation.getInt(FeatureStringEnum.FMAX.value)
+        Integer genomicMinPosition = exonLocation.getInt(FeatureStringEnum.FMIN.value)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        org.bbop.apollo.projection.ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(genomicMaxPosition)
+        genomicMaxPosition = genomicMaxPosition - projectionSequence.originalOffset
+        genomicMinPosition = genomicMinPosition - projectionSequence.originalOffset
 
-        Exon splitExon = exonService.splitExon(exon, exonLocation.getInt(FeatureStringEnum.FMAX.value), exonLocation.getInt(FeatureStringEnum.FMIN.value),bookmark)
+
+        Exon splitExon = exonService.splitExon(exon, genomicMaxPosition, genomicMinPosition ,bookmark)
         //featureService.updateNewGsolFeatureAttributes(splitExon, sequence)
         featureService.updateNewGsolFeatureAttributes(splitExon, bookmark)
         featureService.calculateCDS(transcript,false,bookmark)
@@ -1966,10 +1973,14 @@ class RequestHandlingService {
         Transcript transcript = exonService.getTranscript(exon)
         JSONObject oldJsonTranscript = featureService.convertFeatureToJSON(transcript,false,bookmark)
         JSONObject exonLocation = jsonExon.getJSONObject(FeatureStringEnum.LOCATION.value)
+        Integer genomicPosition = exonLocation.getInt(FeatureStringEnum.FMIN.value)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        org.bbop.apollo.projection.ProjectionSequence projectionSequence= multiSequenceProjection.getReverseProjectionSequence(genomicPosition)
+        genomicPosition = genomicPosition - projectionSequence.originalOffset
 
         Exon splitExon = exonService.makeIntron(
                 exon
-                , exonLocation.getInt(FeatureStringEnum.FMIN.value)
+                , genomicPosition
                 , configWrapperService.getDefaultMinimumIntronSize()
                 , bookmark
         )

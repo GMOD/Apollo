@@ -1618,4 +1618,57 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert featureLocation.fmax == 113
         assert featureLocation.strand == org.bbop.apollo.sequence.Strand.POSITIVE.value
     }
+
+    void "make intron in 3 prime"(){
+
+        given: "add transcript and make intron string"
+        String addTranscriptGb52239BigExonString = "{ ${testCredentials} \"track\":{\"id\":27979, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52239-RA\",\"children\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String makeIntronString = "{ ${testCredentials} \"track\": {\"id\":27979, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]}, \"features\": [ { \"uniquename\": \"@EXON_UNIQUE_NAME_1@\", \"location\": { \"fmin\": 111258 } } ], \"operation\": \"make_intron\" }"
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptGb52239BigExonString))
+
+        then: "we should have a single exon transcript"
+        assert Gene.count==1
+        assert MRNA.count==1
+        assert Exon.count==1
+        assert CDS.count==1
+
+        when: "we make an intron in the middle of one"
+        makeIntronString = makeIntronString.replace("@EXON_UNIQUE_NAME_1@",Exon.first().uniqueName)
+        requestHandlingService.makeIntron(JSON.parse(makeIntronString))
+
+        then: "we should expect to see two exons"
+        assert Gene.count==1
+        assert MRNA.count==1
+        assert Exon.count==2
+        assert CDS.count==1
+    }
+
+    @IgnoreRest
+    void "split exon in 3 prime"(){
+
+        given: "add transcript and make intron string"
+        String addTranscriptGb52239BigExonString = "{ ${testCredentials} \"track\":{\"id\":27979, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52239-RA\",\"children\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String splitExonString = "{ ${testCredentials} \"track\": {\"id\":27979, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]}, \"features\": [ { \"uniquename\": \"@EXON_UNIQUE_NAME_1@\", \"location\": { \"fmax\": 111258, \"fmin\": 111259 } } ], \"operation\": \"split_exon\", \"clientToken\":\"1986001742624362051356493373\" }\"u0000\"]\t"
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptGb52239BigExonString))
+
+        then: "we should have a single exon transcript"
+        assert Gene.count==1
+        assert MRNA.count==1
+        assert Exon.count==1
+        assert CDS.count==1
+
+        when: "we make an intron in the middle of one"
+        splitExonString = splitExonString.replace("@EXON_UNIQUE_NAME_1@",Exon.first().uniqueName)
+        requestHandlingService.splitExon(JSON.parse(splitExonString))
+
+        then: "we should expect to see two exons"
+        assert Gene.count==1
+        assert MRNA.count==1
+        assert Exon.count==2
+        assert CDS.count==1
+    }
 }

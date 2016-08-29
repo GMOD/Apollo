@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-
+import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 
