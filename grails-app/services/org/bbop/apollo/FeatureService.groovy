@@ -34,7 +34,6 @@ class FeatureService {
     def bookmarkService
     def projectionService
     def preferenceService
-    def featureProjectionService
     def sessionFactory
 
     public static final
@@ -103,102 +102,6 @@ class FeatureService {
 
     }
 
-//    /**
-//     * We assume that the jsonLocation must be reverse-projected . . . and then associated with the appropriate sequence
-//     *
-//     * @param jsonLocation
-//     * @param bookmark
-//     * @return
-//     * @throws JSONException
-//     * @deprecated
-//     */
-//    @Timed
-//    @Transactional
-//    public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Bookmark bookmark, Boolean projected, int defaultStrand = Strand.POSITIVE.value) throws JSONException {
-//
-//        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
-//
-//        Integer min = jsonLocation.getInt(FeatureStringEnum.FMIN.value)
-//        Integer max = jsonLocation.getInt(FeatureStringEnum.FMAX.value)
-////        Organism organism = bookmark.organism
-//        ProjectionSequence firstProjectionSequence = multiSequenceProjection.getProjectionSequence(min)
-//        ProjectionSequence lastProjectionSequence = multiSequenceProjection.getProjectionSequence(max)
-//        Map<String, Integer> sequenceMap = multiSequenceProjection.getOrderedSequenceMap()
-//
-//        Integer order = -1
-//        String sequenceName
-//        if (jsonLocation.containsKey(FeatureStringEnum.SEQUENCE.value)) {
-//            String sequenceString = jsonLocation.getString(FeatureStringEnum.SEQUENCE.value)
-//            sequenceName = sequenceString
-//            if (sequenceString.startsWith("{")) {
-//                sequenceName = (JSON.parse(sequenceString) as JSONObject).name
-////                if(firstProjectionSequence.name==sequenceName){
-////                    order = firstProjectionSequence.order
-////                }
-////                else{
-////                    lastProjectionSequence.name==sequenceName
-////                    order = lastProjectionSequence.order
-////                }
-//            } else if (sequenceString.startsWith("[")) {
-//                println "parsing a sequenceString ${sequenceString}"
-//                sequenceName = (JSON.parse(sequenceString) as JSONArray)[0].name
-//                // TODO: this is the par that needs to have the  orrect order
-//            }
-//            order = sequenceMap.get(sequenceName)
-//
-////            sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
-//        } else {
-//            ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(min)
-//            ProjectionSequence projectionSequence2 = multiSequenceProjection.getReverseProjectionSequence(max)
-//            assert projectionSequence == projectionSequence2
-//            sequenceName = projectionSequence.name
-////            sequence = Sequence.findByNameAndOrganism(projectionSequence.name, organism)
-//        }
-//
-//        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(sequenceName,bookmark.organism)
-//
-//
-//        return convertJSONToFeatureLocation(jsonLocation, multiSequenceProjection, projectionSequence, defaultStrand)
-//
-////        Sequence sequence
-////        if (jsonLocation.containsKey(FeatureStringEnum.SEQUENCE.value)) {
-////            String sequenceString = jsonLocation.getString(FeatureStringEnum.SEQUENCE.value)
-////            String sequenceName = sequenceString
-////            if (sequenceString.startsWith("{")) {
-////                sequenceName = (JSON.parse(sequenceString) as JSONObject).name
-////            } else if (sequenceString.startsWith("[")) {
-////                sequenceName = (JSON.parse(sequenceString) as JSONArray)[0].name
-////            }
-////            sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
-////        } else {
-////            ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(min)
-////            ProjectionSequence projectionSequence2 = multiSequenceProjection.getReverseProjectionSequence(max)
-////            assert projectionSequence == projectionSequence2
-////            sequence = Sequence.findByNameAndOrganism(projectionSequence.name, organism)
-////        }
-////
-////        FeatureLocation gsolLocation = new FeatureLocation();
-////
-////        if (projected) {
-////            Coordinate coordinate = multiSequenceProjection.projectReverseCoordinate(min, max)
-////            gsolLocation.setFmin(coordinate.min);
-////            gsolLocation.setFmax(coordinate.max);
-////        } else {
-////            gsolLocation.setFmin(min);
-////            gsolLocation.setFmax(max);
-////        }
-////
-////        if (jsonLocation.has(FeatureStringEnum.ID.value)) {
-////            gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
-////        }
-////        if (jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.POSITIVE.value || jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.NEGATIVE.value) {
-////            gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
-////        } else {
-////            gsolLocation.setStrand(defaultStrand)
-////        }
-////        gsolLocation.setSequence(sequence)
-////        return gsolLocation;
-//    }
 
     /**
      *
@@ -228,7 +131,7 @@ class FeatureService {
         ProjectionSequence lastProjectionSequence = projectionSequenceList.last()
 
 //        if (false) {
-        // case 1, fmin and fmax are both within the projectSequence and match the order . . . we just do a reverse projection
+        // case 1, fmin and fmax are both within the projectSequence and match the order, nothing to do
         if (firstProjectionSequence == lastProjectionSequence && projectionSequence.order == firstProjectionSequence.order) {
 //            fmin = multiSequenceProjection.projectReverseValue(fmin)
 //            fmax = multiSequenceProjection.projectReverseValue(fmax)
@@ -261,23 +164,23 @@ class FeatureService {
         Organism organism = preferenceService.getOrganismForToken(projectionSequence.organism)
         Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name, organism)
 
-        FeatureLocation gsolLocation = new FeatureLocation();
+        FeatureLocation featureLocation = new FeatureLocation();
         if (jsonLocation.has(FeatureStringEnum.ID.value)) {
-            gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
+            featureLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
         }
         // let's revert this a bit
         fmin = fmin - projectionSequence.originalOffset
         fmax = fmax - projectionSequence.originalOffset
 
-        gsolLocation.setFmin(fmin);
-        gsolLocation.setFmax(fmax);
+        featureLocation.setFmin(fmin);
+        featureLocation.setFmax(fmax);
         if (jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.POSITIVE.value || jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.NEGATIVE.value) {
-            gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
+            featureLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
         } else {
-            gsolLocation.setStrand(defaultStrand)
+            featureLocation.setStrand(defaultStrand)
         }
-        gsolLocation.setSequence(sequence)
-        return gsolLocation;
+        featureLocation.setSequence(sequence)
+        return featureLocation;
     }
 
 
@@ -342,19 +245,19 @@ class FeatureService {
      * Set sequence based on FeatureLocation.
      * If a sequence has multiple feature locations, then use the first one?
      *
-     * @param gsolFeature
+     * @param feature
      * @param bookmark
      */
     @Transactional
-    void updateNewGsolFeatureAttributes(Feature gsolFeature, Bookmark bookmark) {
+    void updateNewGsolFeatureAttributes(Feature feature, Bookmark bookmark) {
 
-        gsolFeature.setIsAnalysis(false);
-        gsolFeature.setIsObsolete(false);
+        feature.setIsAnalysis(false);
+        feature.setIsObsolete(false);
         if (bookmark) {
             MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
 
             Organism organism
-            gsolFeature.featureLocations.each() {
+            feature.featureLocations.each() {
                 // if its set . . . don't reset!
                 if (!it.sequence) {
                     ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(it.fmin)
@@ -365,36 +268,12 @@ class FeatureService {
             }
         }
 
-        for (FeatureRelationship fr : gsolFeature.getParentFeatureRelationships()) {
+        for (FeatureRelationship fr : feature.getParentFeatureRelationships()) {
             updateNewGsolFeatureAttributes(fr.getChildFeature(), bookmark);
         }
 
     }
 
-    /**
-     * @deprecated
-     * @param gsolFeature
-     * @param sequence
-     */
-
-    @Transactional
-    void updateNewGsolFeatureAttributes(Feature gsolFeature, Sequence sequence = null) {
-
-        gsolFeature.setIsAnalysis(false);
-        gsolFeature.setIsObsolete(false);
-
-        if (sequence) {
-            // TODO: this needs to handle muliple featre locations
-            gsolFeature.getFeatureLocations().iterator().next().sequence = sequence;
-        }
-
-        // TODO: this may be a mistake, is different than the original code
-        // you are iterating through all of the children in order to set the SourceFeature and analysis
-        // for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
-        for (FeatureRelationship fr : gsolFeature.getParentFeatureRelationships()) {
-            updateNewGsolFeatureAttributes(fr.getChildFeature(), sequence);
-        }
-    }
 
     @Transactional
     def setOwner(Feature feature, User owner) {
@@ -1578,29 +1457,6 @@ class FeatureService {
     @Transactional
     def setFmin(Feature feature, int fmin, MultiSequenceProjection multiSequenceProjection) {
         setFeatureLocations(feature, fmin, null, multiSequenceProjection)
-//        Sequence firstSequence = feature.firstSequence
-//        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(firstSequence.name, firstSequence.organism)
-//        Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name, firstSequence.organism)
-//
-//        List<FeatureLocation> toDelete = new ArrayList<>()
-//        Boolean fminSet = false
-//        for (FeatureLocation featureLocation in feature.getFeatureLocations().sort() { it.rank }) {
-//            // if we've already set the fmin, we have to delete it (i.e., our fmin has increased)
-//            if (featureLocation.sequence == sequence) {
-//                featureLocation.setFmin(fmin)
-//                featureLocation.setIsFminPartial(false)
-//                featureLocation.save()
-//                fminSet = true
-//            }
-//            if (featureLocation.sequence != sequence && fminSet) {
-//                toDelete.add(featureLocation)
-//            }
-//        }
-//
-//        // remove to delete
-//        toDelete.each {
-//            feature.removeFromFeatureLocations(it)
-//        }
     }
 
     /**
@@ -1794,30 +1650,6 @@ class FeatureService {
     @Transactional
     def setFmax(Feature feature, int fmax, MultiSequenceProjection multiSequenceProjection) {
         setFeatureLocations(feature, null, fmax, multiSequenceProjection)
-//        Sequence lastSequence = feature.lastSequence
-//        ProjectionSequence currentProjectionSequence = multiSequenceProjection.getProjectionSequence(lastSequence.name, lastSequence.organism)
-//        ProjectionSequence lastProjectionSequence = multiSequenceProjection.getProjectionSequence(fmax)
-//        Sequence sequence = Sequence.findByNameAndOrganism(currentProjectionSequence.name, lastSequence.organism)
-//
-//        List<FeatureLocation> toDelete = new ArrayList<>()
-//        Boolean fmaxSet = false
-//        for (FeatureLocation featureLocation in feature.getFeatureLocations().sort() { it.rank }.reverse()) {
-//            // if we've already set the fmin, we have to delete it (i.e., our fmin has increased)
-//            if (featureLocation.sequence == sequence) {
-//                featureLocation.setFmax(fmax)
-//                featureLocation.setIsFmaxPartial(false)
-//                featureLocation.save()
-//                fmaxSet = true
-//            }
-//            if (featureLocation.sequence != sequence && fmaxSet) {
-//                toDelete.add(featureLocation)
-//            }
-//        }
-//
-//        // remove to delete
-//        toDelete.each {
-//            feature.removeFromFeatureLocations(it)
-//        }
     }
 
     /** Convert source feature coordinate to local coordinate.
