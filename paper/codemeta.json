@@ -39,6 +39,7 @@
             "name":"elsikc@missouri.edu",
     },
     {
+            "@id": "http://orcid.org/0000-0002-8343-612X",
             "@type": "Person",
             "name": "Suzanna Lewis",
             "email" "selewis@lbl.gov",
