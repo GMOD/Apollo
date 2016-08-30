@@ -1645,12 +1645,62 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert CDS.count==1
     }
 
-    @IgnoreRest
     void "split exon in 3 prime"(){
 
-        given: "add transcript and make intron string"
+        given: "add transcript and split exon string"
         String addTranscriptGb52239BigExonString = "{ ${testCredentials} \"track\":{\"id\":27979, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52239-RA\",\"children\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
         String splitExonString = "{ ${testCredentials} \"track\": {\"id\":27979, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]}, \"features\": [ { \"uniquename\": \"@EXON_UNIQUE_NAME_1@\", \"location\": { \"fmax\": 111258, \"fmin\": 111259 } } ], \"operation\": \"split_exon\", \"clientToken\":\"1986001742624362051356493373\" }\"u0000\"]\t"
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptGb52239BigExonString))
+
+        then: "we should have a single exon transcript"
+        assert Gene.count==1
+        assert MRNA.count==1
+        assert Exon.count==1
+        assert CDS.count==1
+
+        when: "we make an intron in the middle of one"
+        splitExonString = splitExonString.replace("@EXON_UNIQUE_NAME_1@",Exon.first().uniqueName)
+        requestHandlingService.splitExon(JSON.parse(splitExonString))
+
+        then: "we should expect to see two exons"
+        assert Gene.count==1
+        assert MRNA.count==1
+        assert Exon.count==2
+        assert CDS.count==1
+    }
+
+    void "make intron in projected 3 prime"(){
+        given: "add transcript and make intron string"
+        String addTranscriptGb52239BigExonString = "{ ${testCredentials} \"track\":{\"id\":27979, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52239-RA\",\"children\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String makeIntronString = "{ ${testCredentials}  \"track\": {\"id\":33720, \"name\":\"GB53497-RA (GroupUn87)::GB52239-RA (Group11.4)\", \"padding\":0, \"start\":10511, \"end\":82774, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":10311, \"end\":26919, \"feature\":{\"name\":\"GB53497-RA\"}},{\"name\":\"Group11.4\", \"start\":18705, \"end\":56255, \"feature\":{\"name\":\"GB52239-RA\"}}]}, \"features\": [ { \"uniquename\": \"@EXON_UNIQUE_NAME_1@\", \"location\": { \"fmin\": 30399 } } ], \"operation\": \"make_intron\"}"
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptGb52239BigExonString))
+
+        then: "we should have a single exon transcript"
+        assert Gene.count==1
+        assert MRNA.count==1
+        assert Exon.count==1
+        assert CDS.count==1
+
+        when: "we make an intron in the middle of one"
+        makeIntronString = makeIntronString.replace("@EXON_UNIQUE_NAME_1@",Exon.first().uniqueName)
+        requestHandlingService.makeIntron(JSON.parse(makeIntronString))
+
+        then: "we should expect to see two exons"
+        assert Gene.count==1
+        assert MRNA.count==1
+        assert Exon.count==2
+        assert CDS.count==1
+    }
+
+    void "split exon in projected 3 prime"(){
+
+        given: "add transcript and split exon string"
+        String addTranscriptGb52239BigExonString = "{ ${testCredentials} \"track\":{\"id\":27979, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52239-RA\",\"children\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String splitExonString = "{ ${testCredentials}  \"track\": {\"id\":33720, \"name\":\"GB53497-RA (GroupUn87)::GB52239-RA (Group11.4)\", \"padding\":0, \"start\":10511, \"end\":82774, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":10311, \"end\":26919, \"feature\":{\"name\":\"GB53497-RA\"}},{\"name\":\"Group11.4\", \"start\":18705, \"end\":56255, \"feature\":{\"name\":\"GB52239-RA\"}}]}, \"features\": [ { \"uniquename\": \"@EXON_UNIQUE_NAME_1\", \"location\": { \"fmax\": 30199, \"fmin\": 30200 } } ], \"operation\": \"split_exon\"}"
 
         when: "we add the transcript"
         requestHandlingService.addTranscript(JSON.parse(addTranscriptGb52239BigExonString))

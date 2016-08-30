@@ -1589,9 +1589,11 @@ class RequestHandlingService {
         Transcript transcript = exonService.getTranscript(exon)
         JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript,false,bookmark)
 
-        Integer genomicMaxPosition = exonLocation.getInt(FeatureStringEnum.FMAX.value)
-        Integer genomicMinPosition = exonLocation.getInt(FeatureStringEnum.FMIN.value)
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        Integer genomicMaxPosition = exonLocation.getInt(FeatureStringEnum.FMAX.value)
+        genomicMaxPosition = multiSequenceProjection.projectReverseValue(genomicMaxPosition)
+        Integer genomicMinPosition = exonLocation.getInt(FeatureStringEnum.FMIN.value)
+        genomicMinPosition = multiSequenceProjection.projectReverseValue(genomicMinPosition)
         org.bbop.apollo.projection.ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(genomicMaxPosition)
         genomicMaxPosition = genomicMaxPosition - projectionSequence.originalOffset
         genomicMinPosition = genomicMinPosition - projectionSequence.originalOffset
@@ -1976,6 +1978,7 @@ class RequestHandlingService {
         Integer genomicPosition = exonLocation.getInt(FeatureStringEnum.FMIN.value)
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
         org.bbop.apollo.projection.ProjectionSequence projectionSequence= multiSequenceProjection.getReverseProjectionSequence(genomicPosition)
+//        genomicPosition = multiSequenceProjection.projectReverseValue(genomicPosition)
         genomicPosition = genomicPosition - projectionSequence.originalOffset
 
         Exon splitExon = exonService.makeIntron(
