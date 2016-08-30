@@ -1937,6 +1937,10 @@ class RequestHandlingService {
                 JSONObject newJsonObject = featureService.convertFeatureToJSON(feature,false,bookmark)
                 featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
 
+                JSONArray updateArray = featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
+                updateArray = featureProjectionService.projectTrack(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),bookmark,false)
+                featureContainer.put(FeatureStringEnum.FEATURES.value,updateArray)
+
 
                 if (!suppressEvents) {
                     featureEventService.addNewFeatureEvent(featureOperation, featureName, feature.uniqueName, inputObject, new JSONObject().put(FeatureStringEnum.FEATURES.value, oldJsonObjectsArray), newJsonObject, permissionService.getCurrentUser(inputObject))
