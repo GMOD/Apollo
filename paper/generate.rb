@@ -54,7 +54,7 @@ when "y", "yes"
   # Note we don't extract emails here as there's often different emails for
   # each user. Instead we capture emails at the end.
 
-  git_log = `git shortlog --summary --numbered --no-merges`
+  git_log = `git shortlog --summary --numbered --no-merges | head -8`
 
   # ["252\tMichael Jackson", "151\tMC Hammer"]
   authors_and_counts = git_log.split("\n").map(&:strip)
