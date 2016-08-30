@@ -2,7 +2,40 @@
   "@context": "https://raw.githubusercontent.com/mbjones/codemeta/master/codemeta.jsonld",
   "@type": "Code",
   "author": [
-
+    {
+           "@id": "http://orcid.org/0000-0002-4862-3181",
+            "@type": "Person",
+            "email": "nathandunn@lbl.gov",
+            "name": "Nathan Dunn",
+    },
+    {
+            "@type": "Person",
+            "name": "Moni Munoz-Torres",
+    },
+    {
+            "@type": "Person",
+            "name": "Deepak Unni",
+    },
+    {
+            "@type": "Person",
+            "name": "Colin Diesh",
+    },
+    {
+            "@type": "Person",
+            "name": "Eric Yao",
+    },
+    {
+            "@type": "Person",
+            "name": "Ian Holmes",
+    },
+    {
+            "@type": "Person",
+            "name": "Christine Elsik",
+    },
+    {
+            "@type": "Person",
+            "name": "Suzanna Lewis",
+    },
   ],
   "identifier": "http://dx.doi.org/10.5281/zenodo.59904",
   "codeRepository": "https://github.com/GMOD/Apollo",
