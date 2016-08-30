@@ -11,30 +11,37 @@
     {
             "@type": "Person",
             "name": "Moni Munoz-Torres",
+            "email": "McMunozT@lbl.gov",
     },
     {
             "@type": "Person",
             "name": "Deepak Unni",
+            "email": "unnid@missouri.edu",
     },
     {
             "@type": "Person",
             "name": "Colin Diesh",
+            "email": "dieshc@missouri.edu",
     },
     {
             "@type": "Person",
             "name": "Eric Yao",
+            "email":"ericiam@berkeley.edu",
     },
     {
             "@type": "Person",
             "name": "Ian Holmes",
+            "email": "ihh@berkeley.edu",
     },
     {
             "@type": "Person",
             "name": "Christine Elsik",
+            "name":"elsikc@missouri.edu",
     },
     {
             "@type": "Person",
             "name": "Suzanna Lewis",
+            "email" "selewis@lbl.gov",
     },
   ],
   "identifier": "http://dx.doi.org/10.5281/zenodo.59904",
