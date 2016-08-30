@@ -1591,10 +1591,8 @@ class RequestHandlingService {
 
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
         Integer genomicMaxPosition = exonLocation.getInt(FeatureStringEnum.FMAX.value)
-        genomicMaxPosition = multiSequenceProjection.projectReverseValue(genomicMaxPosition)
         Integer genomicMinPosition = exonLocation.getInt(FeatureStringEnum.FMIN.value)
-        genomicMinPosition = multiSequenceProjection.projectReverseValue(genomicMinPosition)
-        org.bbop.apollo.projection.ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(genomicMaxPosition)
+        org.bbop.apollo.projection.ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(genomicMaxPosition)
         genomicMaxPosition = genomicMaxPosition - projectionSequence.originalOffset
         genomicMinPosition = genomicMinPosition - projectionSequence.originalOffset
 
@@ -1975,10 +1973,9 @@ class RequestHandlingService {
         Transcript transcript = exonService.getTranscript(exon)
         JSONObject oldJsonTranscript = featureService.convertFeatureToJSON(transcript,false,bookmark)
         JSONObject exonLocation = jsonExon.getJSONObject(FeatureStringEnum.LOCATION.value)
-        Integer genomicPosition = exonLocation.getInt(FeatureStringEnum.FMIN.value)
+        Integer genomicPosition = exonLocation.getInt(FeatureStringEnum.FMIN.value) // already reverse projected
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
-        org.bbop.apollo.projection.ProjectionSequence projectionSequence= multiSequenceProjection.getReverseProjectionSequence(genomicPosition)
-//        genomicPosition = multiSequenceProjection.projectReverseValue(genomicPosition)
+        org.bbop.apollo.projection.ProjectionSequence projectionSequence= multiSequenceProjection.getProjectionSequence(genomicPosition)
         genomicPosition = genomicPosition - projectionSequence.originalOffset
 
         Exon splitExon = exonService.makeIntron(

@@ -1696,11 +1696,12 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert CDS.count==1
     }
 
+    @IgnoreRest
     void "split exon in projected 3 prime"(){
 
         given: "add transcript and split exon string"
         String addTranscriptGb52239BigExonString = "{ ${testCredentials} \"track\":{\"id\":27979, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52239-RA\",\"children\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
-        String splitExonString = "{ ${testCredentials}  \"track\": {\"id\":33720, \"name\":\"GB53497-RA (GroupUn87)::GB52239-RA (Group11.4)\", \"padding\":0, \"start\":10511, \"end\":82774, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":10311, \"end\":26919, \"feature\":{\"name\":\"GB53497-RA\"}},{\"name\":\"Group11.4\", \"start\":18705, \"end\":56255, \"feature\":{\"name\":\"GB52239-RA\"}}]}, \"features\": [ { \"uniquename\": \"@EXON_UNIQUE_NAME_1\", \"location\": { \"fmax\": 30199, \"fmin\": 30200 } } ], \"operation\": \"split_exon\"}"
+        String splitExonString = "{ ${testCredentials}  \"track\": {\"id\":33720, \"name\":\"GB53497-RA (GroupUn87)::GB52239-RA (Group11.4)\", \"padding\":0, \"start\":10511, \"end\":82774, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":10311, \"end\":26919, \"feature\":{\"name\":\"GB53497-RA\"}},{\"name\":\"Group11.4\", \"start\":18705, \"end\":56255, \"feature\":{\"name\":\"GB52239-RA\"}}]}, \"features\": [ { \"uniquename\": \"@EXON_UNIQUE_NAME_1@\", \"location\": { \"fmax\": 30199, \"fmin\": 30200 } } ], \"operation\": \"split_exon\"}"
 
         when: "we add the transcript"
         requestHandlingService.addTranscript(JSON.parse(addTranscriptGb52239BigExonString))
