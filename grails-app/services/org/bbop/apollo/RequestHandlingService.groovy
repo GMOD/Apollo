@@ -709,8 +709,8 @@ class RequestHandlingService {
             featureService.calculateCDS(transcript,false,bookmark)
         } else {
             JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
-//            featureService.setTranslationStart(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMIN.value), true,false)
-            featureService.setTranslationStart(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMIN.value), true, configWrapperService.getTranslationTable() , false,projectionService.getProjection(bookmark));
+            int genomicPosition = jsonCDSLocation.getInt(FeatureStringEnum.FMIN.value)
+            featureService.setTranslationStart(transcript, genomicPosition , true, configWrapperService.getTranslationTable() , false,projectionService.getProjection(bookmark));
         }
 
         transcript.save()
@@ -759,9 +759,10 @@ class RequestHandlingService {
             featureService.calculateCDS(transcript,false,bookmark)
         } else {
             JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
-            //featureService.setTranslationEnd(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value), true)
-            //TODO: Should translationStart be allowed to be set automatically?
-            featureService.setTranslationEnd(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value),false,configWrapperService.getTranslationTable(),projectionService.getProjection(bookmark))
+            int genomicPosition =jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value)
+            MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+            genomicPosition = genomicPosition - multiSequenceProjection.getProjectionSequence(genomicPosition).originalOffset
+            featureService.setTranslationEnd(transcript, genomicPosition ,false,configWrapperService.getTranslationTable(),projectionService.getProjection(bookmark))
         }
         transcript.save()
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)

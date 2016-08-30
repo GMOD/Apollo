@@ -1751,4 +1751,53 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.first().firstFeatureLocation.fmin >= Gene.first().firstFeatureLocation.fmin
         assert Exon.first().firstFeatureLocation.fmax <= Gene.first().firstFeatureLocation.fmax
     }
+
+    void "setting translation startand end should work when projected"(){
+
+        given: "add transcript and split exon string"
+        String addTranscriptGb52239BigExonString = "{ ${testCredentials} \"track\":{\"id\":27979, \"name\":\"GroupUn87::Group11.4\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258},{\"name\":\"Group11.4\", \"start\":0, \"end\":75085}]},\"features\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB52239-RA\",\"children\":[{\"location\":{\"fmin\":108132,\"fmax\":113395,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String setTranslationStartString  = "{ ${testCredentials} \"track\": {\"id\":33720, \"name\":\"GB53497-RA (GroupUn87)::GB52239-RA (Group11.4)\", \"padding\":0, \"start\":10511, \"end\":82774, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":10311, \"end\":26919, \"feature\":{\"name\":\"GB53497-RA\"}},{\"name\":\"Group11.4\", \"start\":18705, \"end\":56255, \"feature\":{\"name\":\"GB52239-RA\"}}]}, \"features\": [ { \"uniquename\": \"@TRANSCRIPT_UNIQUE_NAME_1@\", \"location\": { \"fmin\": 28736 } } ], \"operation\": \"set_translation_start\"}"
+        String setTranslationEndString = "{ ${testCredentials} \"track\": {\"id\":33720, \"name\":\"GB53497-RA (GroupUn87)::GB52239-RA (Group11.4)\", \"padding\":0, \"start\":10511, \"end\":82774, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":10311, \"end\":26919, \"feature\":{\"name\":\"GB53497-RA\"}},{\"name\":\"Group11.4\", \"start\":18705, \"end\":56255, \"feature\":{\"name\":\"GB52239-RA\"}}]}, \"features\": [ { \"uniquename\": \"@TRANSCRIPT_UNIQUE_NAME_1@\", \"location\": { \"fmax\": 32030 } } ], \"operation\": \"set_translation_end\"}"
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptGb52239BigExonString))
+        int preCdsFmin = CDS.first().firstFeatureLocation.fmin
+        int preCdsFmax = CDS.first().firstFeatureLocation.fmax
+
+        then: "we should have a single exon transcript"
+        assert Gene.count==1
+        assert MRNA.count==1
+        assert Exon.count==1
+        assert CDS.count==1
+        assert CDS.first().featureLocations.size()==1
+        assert preCdsFmin < preCdsFmax
+
+        when: "we should set the translation start"
+        setTranslationStartString = setTranslationStartString.replace("@TRANSCRIPT_UNIQUE_NAME_1@",MRNA.first().uniqueName)
+        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartString))
+
+        then: "we should have a single exon"
+        assert Gene.count==1
+        assert MRNA.count==1
+        assert Exon.count==1
+        assert CDS.count==1
+        assert CDS.first().featureLocations.size()==1
+        assert CDS.first().firstFeatureLocation.fmin > preCdsFmin
+        assert CDS.first().firstFeatureLocation.fmax == preCdsFmax
+
+
+
+        when: "we should set the translation end"
+        setTranslationEndString = setTranslationEndString.replace("@TRANSCRIPT_UNIQUE_NAME_1@",MRNA.first().uniqueName)
+        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationEndString))
+
+        then: "it should also be smaller as well"
+        assert Gene.count==1
+        assert MRNA.count==1
+        assert Exon.count==1
+        assert CDS.count==1
+        assert CDS.first().featureLocations.size()==1
+        assert CDS.first().firstFeatureLocation.fmin > preCdsFmin
+        assert CDS.first().firstFeatureLocation.fmax < preCdsFmax
+    }
 }
