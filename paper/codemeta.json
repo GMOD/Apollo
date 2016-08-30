@@ -7,41 +7,49 @@
             "@type": "Person",
             "email": "nathandunn@lbl.gov",
             "name": "Nathan Dunn",
+			"affiliation": "Lawrence Berkeley National Lab"
     },
     {
             "@type": "Person",
             "name": "Moni Munoz-Torres",
             "email": "McMunozT@lbl.gov",
+			"affiliation": "Lawrence Berkeley National Lab"
     },
     {
             "@type": "Person",
             "name": "Deepak Unni",
             "email": "unnid@missouri.edu",
+	    	"affiliation": "University of Missouri, Columbia"
     },
     {
             "@type": "Person",
             "name": "Colin Diesh",
             "email": "dieshc@missouri.edu",
+	    	"affiliation": "University of Missouri, Columbia"
     },
     {
             "@type": "Person",
             "name": "Eric Yao",
             "email":"ericiam@berkeley.edu",
+	    	"affiliation": "University of California, Berkeley"
     },
     {
             "@type": "Person",
             "name": "Ian Holmes",
             "email": "ihh@berkeley.edu",
+	    	"affiliation": "University of California, Berkeley"
     },
     {
             "@type": "Person",
             "name": "Christine Elsik",
             "name":"elsikc@missouri.edu",
+	    	"affiliation": "University of Missouri, Columbia"
     },
     {
             "@type": "Person",
             "name": "Suzanna Lewis",
             "email" "selewis@lbl.gov",
+			"affiliation": "Lawrence Berkeley National Lab"
     },
   ],
   "identifier": "http://dx.doi.org/10.5281/zenodo.59904",
@@ -50,7 +58,7 @@
   "dateModified": "2016-08-30",
   "dateCreated": "2016-08-30",
   "description": "Genome annotation editor with a Java Server backend and a Javascript client that runs in a web browser as a JBrowse plugin. http://genomearchitect.org ",
-  "keywords": "bioinformatics, biocuration, genome curation",
+  "keywords": "bioinformatics, biocuration, genome annotation",
   "license": "BSD",
   "title": "Apollo",
   "version": "2.0.4"
