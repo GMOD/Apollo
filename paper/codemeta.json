@@ -1,0 +1,17 @@
+{
+  "@context": "https://raw.githubusercontent.com/mbjones/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+
+  ],
+  "identifier": "http://dx.doi.org/10.5281/zenodo.59904",
+  "codeRepository": "https://github.com/GMOD/Apollo",
+  "datePublished": "2016-08-30",
+  "dateModified": "2016-08-30",
+  "dateCreated": "2016-08-30",
+  "description": "Genome annotation editor with a Java Server backend and a Javascript client that runs in a web browser as a JBrowse plugin. http://genomearchitect.org ",
+  "keywords": "bioinformatics, biocuration, genome curation",
+  "license": "BSD",
+  "title": "Apollo",
+  "version": "2.0.4"
+}
