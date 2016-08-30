@@ -39,38 +39,29 @@ class ExonService {
      * @throws AnnotationException - If exons don't belong to the same transcript or are in separate strands
      */
     @Transactional
-    public void mergeExons(Exon exon1, Exon exon2,Bookmark bookmark) throws AnnotationException {
+    public void mergeExons(Exon exon1, Exon exon2) throws AnnotationException {
 //        // both exons must be part of the same transcript
 //        if (!getTranscript(exon1).equals(getTranscript(exon2))) {
 //            throw new AnnotationEditorException("mergeExons(): Exons must have same parent transcript", exon1, exon2);
 //        }
         // both exons must be in the same strand
         Transcript transcript = getTranscript(exon1);
+        Bookmark transcriptBookmark = bookmarkService.generateBookmarkForFeature(transcript)
         if (!exon1?.getStrand()?.equals(exon2?.getStrand())) {
             throw new AnnotationException("mergeExons(): Exons must be in the same strand ${exon1} ${exon2}");
         }
         if (exon1.getFmin() > exon2.getFmin()) {
-            setFmin(exon1, exon2.getFmin(),bookmark)
-//            exon1.setFmin(exon2.getFmin());
+            setFmin(exon1, exon2.getFmin(),transcriptBookmark)
         }
         if (exon1.getFmax() < exon2.getFmax()) {
-            setFmax(exon1, exon2.fmax,bookmark)
-//            exon1.setFmax(exon2.getFmax());
+            setFmax(exon1, exon2.fmax,transcriptBookmark)
         }
         // need to delete exon2 from transcript
         if (getTranscript(exon2) != null) {
             deleteExon(getTranscript(exon2), exon2);
         }
         
-//        setLongestORF(getTranscript(exon1));
-        featureService.removeExonOverlapsAndAdjacencies(transcript,bookmark);
-
-//        Date date = new Date();
-//        exon1.setTimeLastModified(date);
-//        transcript.setTimeLastModified(date);
-
-        // TODO: event fire
-//        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
+        featureService.removeExonOverlapsAndAdjacencies(transcript,transcriptBookmark);
 
     }
 
