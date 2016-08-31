@@ -158,7 +158,8 @@ class BookmarkService {
             UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             organism = userOrganismPreference?.organism
         }
-        Map<String,Sequence> sequenceMap = getSequencesFromBookmark(organism,sequenceArray.toString()).collectEntries(){
+        List<Sequence> sequences1 = getSequencesFromBookmark(organism,sequenceArray.toString())
+        Map<String,Sequence> sequenceMap = sequences1.collectEntries(){
             [it.name,it]
         }
 
