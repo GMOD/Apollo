@@ -548,7 +548,9 @@ class ProjectionService {
             projectionSequenceList.add(projectionSequence)
         }
 
-        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(sequenceList: projectionSequenceList)
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+//        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(sequenceList: projectionSequenceList)
+        multiSequenceProjection.addProjectionSequences(projectionSequenceList)
         multiSequenceProjection.addLocations(locationList)
         multiSequenceProjection.calculateOffsets()
         Map<String,ProjectionSequence> projectionSequenceMap = [:]

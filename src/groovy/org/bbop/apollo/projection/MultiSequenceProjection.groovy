@@ -9,7 +9,7 @@ class MultiSequenceProjection extends AbstractProjection {
 
     // if a projection includes multiple sequences, this will include greater than one
     TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>()
-    List<ProjectionSequence> sequenceList // an ordered array of sequences or ALL . . .if empty then all
+//    List<ProjectionSequence> sequenceList // an ordered array of sequences or ALL . . .if empty then all
 
     List<String> chunks = new ArrayList<>()
     ProjectionChunkList projectionChunkList = new ProjectionChunkList()
@@ -200,7 +200,10 @@ class MultiSequenceProjection extends AbstractProjection {
     }
 
     Integer findSequenceOrder(ProjectionSequence projectionSequence) {
-        List<ProjectionSequence> projectionSequenceList = sequenceList
+        // should return an ordered set
+        List<ProjectionSequence> projectionSequenceList = sequenceDiscontinuousProjectionMap.keySet().sort() {a,b -> a.order <=> b.order }
+
+//        List<ProjectionSequence> projectionSequenceList = sequenceList
         int index = 0
         for (ProjectionSequence projectionSequence1 in projectionSequenceList) {
             if (projectionSequence1.name == projectionSequence.name) {
@@ -343,6 +346,12 @@ class MultiSequenceProjection extends AbstractProjection {
     Map<String,Integer> getOrderedSequenceMap() {
         return getProjectedSequences().collectEntries { it ->
             [ (it.name) : it.order ]
+        }
+    }
+
+    def addProjectionSequences(List<ProjectionSequence> theseProjectionSequences) {
+        theseProjectionSequences.each {
+            sequenceDiscontinuousProjectionMap.put(it,null)
         }
     }
 }

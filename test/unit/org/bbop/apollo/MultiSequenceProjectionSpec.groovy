@@ -13,7 +13,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
         given: "some intervals"
         ProjectionSequence projectionSequence = new ProjectionSequence(order: 0)
-        ProjectionInterface projection = new MultiSequenceProjection(sequenceList: [projectionSequence])
+        ProjectionInterface projection = new MultiSequenceProjection()
 
 
         when: "we add an interval to a null one"
@@ -279,7 +279,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,name: "Sequence1"
                 ,organism: "Human"
         )// from 0-99
-        MultiSequenceProjection projection = new MultiSequenceProjection(sequenceList: [sequence1])
+        MultiSequenceProjection projection = new MultiSequenceProjection()
 
         when: "we add the overlapping coordinates"
         projection.addInterval(694694, 694915,sequence1)
@@ -344,7 +344,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,name: "Sequence1"
                 ,organism: "Human"
         )// from 0-99
-        MultiSequenceProjection projection = new MultiSequenceProjection(sequenceList: [sequence1])
+        MultiSequenceProjection projection = new MultiSequenceProjection()
         int index = 0
 
         when: "we add the overlapping coordinates"
@@ -496,7 +496,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,name: "Sequence1"
                 ,organism: "Human"
         )// from 0-99
-        MultiSequenceProjection projection = new MultiSequenceProjection(sequenceList: [sequence1])
+        MultiSequenceProjection projection = new MultiSequenceProjection()
         int index = 0
 
         when: "we add some normal intervals"
@@ -590,7 +590,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,name: "Sequence1"
                 ,organism: "Human"
         )// from 0-99
-        MultiSequenceProjection projection = new MultiSequenceProjection(sequenceList: [sequence1])
+        MultiSequenceProjection projection = new MultiSequenceProjection()
         int index = 0
 
         when: "we add some projections"
@@ -679,7 +679,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,name: "Sequence1"
                 ,organism: "Human"
         )// from 0-99
-        MultiSequenceProjection projection = new MultiSequenceProjection(sequenceList: [sequence1])
+        MultiSequenceProjection projection = new MultiSequenceProjection()
         int index = 0
 
         when: "we add some intervals"
@@ -736,7 +736,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,name: "Sequence1"
                 ,organism: "Human"
         )// from 0-99
-        MultiSequenceProjection projection = new MultiSequenceProjection(sequenceList: [sequence1])
+        MultiSequenceProjection projection = new MultiSequenceProjection()
         int index = 0
 
         when: "we add a series of intervals"
@@ -839,7 +839,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,start: 0
                 ,end: 99
         ) // from 100-200
-        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(sequenceList: [sequence1,sequence2])
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         Location location1 = new Location( min: 10 ,max: 12 ,sequence: sequence1 )
         Location location2 = new Location( min: 22 ,max: 25 ,sequence: sequence1 )
         Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )
@@ -957,7 +957,7 @@ class MultiSequenceProjectionSpec extends Specification {
                 ,order: 3
                 ,unprojectedLength: 50
         ) // from 150-200
-        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(sequenceList: [sequence1,sequence2,sequence3,sequence4])
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         Location location1 = new Location( min: 10 ,max: 12 ,sequence: sequence1 ) // 3
         Location location2 = new Location( min: 22 ,max: 25 ,sequence: sequence1 ) // 4
         Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )  // 5
