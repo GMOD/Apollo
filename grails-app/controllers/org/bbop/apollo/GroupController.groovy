@@ -53,13 +53,12 @@ class GroupController {
     def loadGroups() {
         try {
             log.debug "loadGroups"
-            JSONArray returnArray = new JSONArray()
-            JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data ?: "{}"))) as JSONObject
-            permissionService.handleToken(params,dataObject)
+            JSONObject dataObject = permissionService.handleInput(request,params)
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
+            JSONArray returnArray = new JSONArray()
             def allowableOrganisms = permissionService.getOrganisms((User) permissionService.currentUser)
 
             Map<String, List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
