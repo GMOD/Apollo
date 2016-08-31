@@ -6,7 +6,9 @@ import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
+import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
@@ -462,7 +464,6 @@ class RequestHandlingService {
     JSONObject getFeatures(JSONObject inputObject) {
         long start = System.currentTimeMillis()
 
-        List<String> sequenceNameList = permissionService.getSequenceNameFromInput(inputObject)
         Bookmark bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
         List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
 //        if (!sequencesMatchNames(sequenceNameList, sequenceList)) {
@@ -479,45 +480,47 @@ class RequestHandlingService {
         JSONArray sequenceListObject = new JSONArray(bookmark.sequenceList)
 
         Map<String,Sequence> sequenceMap = new HashMap<>()
-        Map<String,Long> sequenceMin = new HashMap<>()
-        Map<String,Long> sequenceMax = new HashMap<>()
-        Map<Integer,String> sequenceOrder = new TreeMap<>()
+        Map<Integer,Location> sequenceOrder = new TreeMap<>()
 
         sequenceList.each {
             sequenceMap.put(it.name,it)
         }
 
         sequenceListObject.eachWithIndex { JSONObject it , int i ->
-            sequenceMin.put(it.name,it.start)
-            sequenceMax.put(it.name,it.end)
-            sequenceOrder.put(i,it.name)
+            ProjectionSequence projectionSequence = new ProjectionSequence(
+                    name: it.name
+            )
+            Location location = new Location(
+                    min:it.start,
+                    max:it.end,
+                    sequence: projectionSequence
+            )
+            sequenceOrder.put(i,location)
         }
-
-
-        assert sequenceMin.size()==sequenceMap.size()
 
         def features = Feature.createCriteria().listDistinct {
             or{
                 sequenceOrder.each { sequenceEntry ->
-                    String sequenceName = sequenceEntry.value
+                    Location location = sequenceEntry.value
+                    Sequence sequence = sequenceMap.get(location.sequence.name)
                     or {
                         // inbetween the projection
                         featureLocations {
-                            'eq'('sequence', sequenceMap.get(sequenceEntry.value))
-                            'ge'('fmin', sequenceMin.get(sequenceName))
-                            'le'('fmax', sequenceMax.get(sequenceName))
+                            'eq'('sequence', sequence)
+                            'ge'('fmin', location.min)
+                            'le'('fmax', location.max)
                         }
                         // overlaps the min edge
                         featureLocations {
-                            'eq'('sequence', sequenceMap.get(sequenceEntry.value))
-                            'lt'('fmin', sequenceMin.get(sequenceName))
-                            'gt'('fmax', sequenceMin.get(sequenceName))
+                            'eq'('sequence', sequence)
+                            'lt'('fmin', location.min)
+                            'gt'('fmax', location.min)
                         }
                         // overlaps the max edge
                         featureLocations {
-                            'eq'('sequence', sequenceMap.get(sequenceEntry.value))
-                            'lt'('fmin', sequenceMax.get(sequenceName))
-                            'gt'('fmax', sequenceMax.get(sequenceName))
+                            'eq'('sequence', sequence)
+                            'lt'('fmin', location.max)
+                            'gt'('fmax', location.max)
                         }
                     }
                 }
