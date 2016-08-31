@@ -19,7 +19,7 @@ import org.springframework.http.HttpStatus
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 
-@RestApi(name = "Organism Services", description = "Methods for managing users")
+@RestApi(name = "Organism Services", description = "Methods for managing organims")
 @Transactional(readOnly = true)
 class OrganismController {
 

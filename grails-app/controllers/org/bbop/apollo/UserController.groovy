@@ -29,12 +29,11 @@ class UserController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId")
+            , @RestApiParam(name = "userId", type = "long / string", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId as an integer database id or a username string")
     ])
     def loadUsers() {
         try {
-            JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data ?: "{}"))) as JSONObject
-            permissionService.handleToken(params,dataObject)
+            JSONObject dataObject = permissionService.handleInput(request,params)
             JSONArray returnArray = new JSONArray()
             if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
@@ -421,7 +420,7 @@ class UserController {
             , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "User ID to fetch")
     ])
     def getOrganismPermissionsForUser() {
-        JSONObject dataObject = JSON.parse(params.data)
+        JSONObject dataObject = permissionService.handleInput(request, params)
         User user = User.findById(dataObject.userId)
 
         List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByUser(user)

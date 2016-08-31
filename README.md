@@ -1,5 +1,5 @@
 # Apollo
-[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.55682.svg)](http://dx.doi.org/10.5281/zenodo.55682)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.59904.svg)](http://dx.doi.org/10.5281/zenodo.59904)
 
 
 ![Build](https://travis-ci.org/GMOD/Apollo.svg?branch=master)
