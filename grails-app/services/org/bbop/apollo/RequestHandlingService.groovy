@@ -663,7 +663,7 @@ class RequestHandlingService {
             // https://github.com/GMOD/Apollo/issues/453
             // enforce calculation for ALL created transcripts
             // checking for overlapping Sequence Alterations
-            featureService.setLongestORF(transcript,false,projectionService.getProjection(bookmark))
+            featureService.setLongestORF(transcript,false,projectionService.createMultiSequenceProjection(bookmark))
             Gene gene = transcriptService.getGene(transcript)
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
 
@@ -713,7 +713,7 @@ class RequestHandlingService {
         } else {
             JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
             int genomicPosition = jsonCDSLocation.getInt(FeatureStringEnum.FMIN.value)
-            featureService.setTranslationStart(transcript, genomicPosition , true, configWrapperService.getTranslationTable() , false,projectionService.getProjection(bookmark));
+            featureService.setTranslationStart(transcript, genomicPosition , true, configWrapperService.getTranslationTable() , false,projectionService.createMultiSequenceProjection(bookmark));
         }
 
         transcript.save()
@@ -763,9 +763,9 @@ class RequestHandlingService {
         } else {
             JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
             int genomicPosition =jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value)
-            MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+            MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
             genomicPosition = genomicPosition - multiSequenceProjection.getProjectionSequence(genomicPosition).originalOffset
-            featureService.setTranslationEnd(transcript, genomicPosition ,false,configWrapperService.getTranslationTable(),projectionService.getProjection(bookmark))
+            featureService.setTranslationEnd(transcript, genomicPosition ,false,configWrapperService.getTranslationTable(),projectionService.createMultiSequenceProjection(bookmark))
         }
         transcript.save()
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
@@ -973,7 +973,7 @@ class RequestHandlingService {
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
         Bookmark bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
-        featureService.setLongestORF(transcript, false,projectionService.getProjection(bookmark))
+        featureService.setLongestORF(transcript, false,projectionService.createMultiSequenceProjection(bookmark))
 
         transcript.save(flush: true, insert: false)
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
@@ -1026,7 +1026,7 @@ class RequestHandlingService {
             }
 
             // next, we have to get the set of sequences and fmin/fmax for this location
-            MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+            MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
 
             Exon exon = Exon.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
 
@@ -1228,7 +1228,7 @@ class RequestHandlingService {
             for (Feature feature : featureService.getOverlappingFeatures(sequenceAlterationFeatureLocation, false)) {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
-                        featureService.setLongestORF(transcript,false,projectionService.getProjection(bookmark))
+                        featureService.setLongestORF(transcript,false,projectionService.createMultiSequenceProjection(bookmark))
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
                         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, true,bookmark));
                     }
@@ -1309,7 +1309,7 @@ class RequestHandlingService {
             for (Feature feature : featureService.getOverlappingFeatures(sequenceAlteration.firstFeatureLocation, false)) {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
-                        featureService.setLongestORF(transcript,false,projectionService.getProjection(bookmark))
+                        featureService.setLongestORF(transcript,false,projectionService.createMultiSequenceProjection(bookmark))
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,bookmark)
                         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false,bookmark));
                     }
@@ -1509,7 +1509,7 @@ class RequestHandlingService {
 
             if (feature instanceof Transcript) {
                 feature = transcriptService.flipTranscriptStrand((Transcript) feature,bookmark);
-                featureService.setLongestORF((Transcript) feature,false,projectionService.getProjection(bookmark))
+                featureService.setLongestORF((Transcript) feature,false,projectionService.createMultiSequenceProjection(bookmark))
                 nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites((Transcript) feature,bookmark)
                 featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON((Transcript) feature,false,bookmark), permissionService.getCurrentUser(inputObject))
                 def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(feature)
@@ -1593,7 +1593,7 @@ class RequestHandlingService {
         Transcript transcript = exonService.getTranscript(exon)
         JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript,false,bookmark)
 
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
         Integer genomicMaxPosition = exonLocation.getInt(FeatureStringEnum.FMAX.value)
         Integer genomicMinPosition = exonLocation.getInt(FeatureStringEnum.FMIN.value)
         org.bbop.apollo.projection.ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(genomicMaxPosition)
@@ -1982,7 +1982,7 @@ class RequestHandlingService {
         JSONObject oldJsonTranscript = featureService.convertFeatureToJSON(transcript,false,bookmark)
         JSONObject exonLocation = jsonExon.getJSONObject(FeatureStringEnum.LOCATION.value)
         Integer genomicPosition = exonLocation.getInt(FeatureStringEnum.FMIN.value) // already reverse projected
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
         org.bbop.apollo.projection.ProjectionSequence projectionSequence= multiSequenceProjection.getProjectionSequence(genomicPosition)
         genomicPosition = genomicPosition - projectionSequence.originalOffset
 
@@ -2148,7 +2148,7 @@ class RequestHandlingService {
         String transcript2UniqueName = transcript2.uniqueName
 
         JSONObject transcript2JSONObject = featureService.convertFeatureToJSON(transcript2,false,bookmark)
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
 
         // calculate longest ORF, to reset any changes made to the CDS, before a merge
         featureService.setLongestORF(transcript1,false,multiSequenceProjection);

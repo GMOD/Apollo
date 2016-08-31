@@ -1606,7 +1606,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec{
         jsonObject.put(FeatureStringEnum.FMIN.value, 73)
         jsonObject.put(FeatureStringEnum.FMAX.value, 113)
         jsonObject.put(FeatureStringEnum.STRAND.value, org.bbop.apollo.sequence.Strand.POSITIVE.value)
-        MultiSequenceProjection projection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(bookmark)
         org.bbop.apollo.projection.ProjectionSequence projectionSequence = projection.getProjectionSequence("Chr3",Organism.first())
 
 

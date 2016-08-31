@@ -52,7 +52,7 @@ class FeatureService {
     @Timed
     @Transactional
     public List<FeatureLocation> convertJSONToFeatureLocations(JSONObject jsonLocation, Bookmark bookmark, int defaultStrand = Strand.POSITIVE.value) throws JSONException {
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
 
         Integer min = jsonLocation.getInt(FeatureStringEnum.FMIN.value)
         Integer max = jsonLocation.getInt(FeatureStringEnum.FMAX.value)
@@ -254,7 +254,7 @@ class FeatureService {
         feature.setIsAnalysis(false);
         feature.setIsObsolete(false);
         if (bookmark) {
-            MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+            MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
 
             Organism organism
             feature.featureLocations.each() {
@@ -640,7 +640,7 @@ class FeatureService {
     @Transactional
     def calculateCDS(Transcript transcript, boolean readThroughStopCodon, Bookmark bookmark) {
         CDS cds = transcriptService.getCDS(transcript);
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
         log.info "calculateCDS"
         if (cds == null) {
             setLongestORF(transcript, readThroughStopCodon, multiSequenceProjection);
@@ -966,7 +966,7 @@ class FeatureService {
         }
         // get sequence for transcript region (generate bookmark) and frameshift coordinate
         Bookmark bookmark = bookmarkService.generateBookmarkForFeature(transcript)
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
 //        Sequence sequence = cds.getFeatureLocation().sequence
         Organism organism = transcript.organism
         List<Frameshift> frameshiftList = transcriptService.getFrameshifts(transcript)
@@ -1434,14 +1434,14 @@ class FeatureService {
     @Transactional
     def setFmax(Feature feature, int fmax) {
         Bookmark bookmark = bookmarkService.generateBookmarkForFeature(feature)
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
         setFmax(feature, fmax, multiSequenceProjection)
     }
 
     @Transactional
     def setFmin(Feature feature, int fmin) {
         Bookmark bookmark = bookmarkService.generateBookmarkForFeature(feature)
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
         setFmin(feature, fmin, multiSequenceProjection)
     }
 
@@ -1468,7 +1468,7 @@ class FeatureService {
     @Transactional
     def setFeatureLocations(Feature feature, Integer fmin, Integer fmax) {
         Bookmark bookmark = bookmarkService.generateBookmarkForFeature(feature)
-        setFeatureLocations(feature, fmin, fmax, projectionService.getProjection(bookmark))
+        setFeatureLocations(feature, fmin, fmax, projectionService.createMultiSequenceProjection(bookmark))
     }
 
     /**
@@ -1480,7 +1480,7 @@ class FeatureService {
     @Transactional
     def setFeatureLocations(Feature feature, Integer fmin, Integer fmax, Feature contextFeature) {
         Bookmark bookmark = bookmarkService.generateBookmarkForFeature(contextFeature)
-        setFeatureLocations(feature, fmin, fmax, projectionService.getProjection(bookmark))
+        setFeatureLocations(feature, fmin, fmax, projectionService.createMultiSequenceProjection(bookmark))
     }
 
     /**
@@ -1872,7 +1872,7 @@ class FeatureService {
 
         bookmark = bookmark ?: bookmarkService.generateBookmarkForFeature(feature)
         List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
-        MultiSequenceProjection projection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(bookmark)
 //        List<ProjectionSequence> projectionSequenceList = projection.getProjectedSequences()
 
         List<FeatureLocation> featureLocations = feature.getFeatureLocations()?.sort() { it.rank };
@@ -2388,7 +2388,7 @@ class FeatureService {
 
         // populate map of sequences to features using the correct order
         Map<Sequence, List<Feature>> firstSequenceFeatureMap = new HashMap<>()
-        List<ProjectionSequence> firstProjectionSequenceList = projectionService.getProjection(bookmark).getProjectedSequences()
+        List<ProjectionSequence> firstProjectionSequenceList = projectionService.createMultiSequenceProjection(bookmark).getProjectedSequences()
 
         firstProjectionSequenceList.each {
             Organism organism = preferenceService.getOrganismForToken(it.organism)
@@ -2911,11 +2911,11 @@ class FeatureService {
             if (type == MRNA.alternateCvTerm) {
                 // *RNA to mRNA
                 transcript = generateTranscript(currentFeatureJsonObject, bookmark, true)
-                setLongestORF(transcript, false, projectionService.getProjection(bookmark))
+                setLongestORF(transcript, false, projectionService.createMultiSequenceProjection(bookmark))
             } else {
                 // *RNA to *RNA
                 transcript = addFeature(currentFeatureJsonObject, bookmark, user, true)
-                setLongestORF(transcript, false, projectionService.getProjection(bookmark))
+                setLongestORF(transcript, false, projectionService.createMultiSequenceProjection(bookmark))
             }
 
             Gene newGene = transcriptService.getGene(transcript)

@@ -133,7 +133,7 @@ class ExonService {
      */
     @Transactional
     public void setFmin(Exon exon, Integer fmin,Bookmark bookmark) {
-        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.getProjection(bookmark)
+        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(bookmark)
         featureService.setFmin(exon,fmin,projection)
         Transcript transcript = getTranscript(exon)
         if (transcript != null && fmin < transcript.getFmin()) {
@@ -148,7 +148,7 @@ class ExonService {
      */
     @Transactional
     public void setFmax(Exon exon, Integer fmax,Bookmark bookmark) {
-        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.getProjection(bookmark)
+        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(bookmark)
         featureService.setFmax(exon,fmax,projection)
         Transcript transcript = getTranscript(exon)
         if (transcript != null && fmax > transcript.getFmax()) {

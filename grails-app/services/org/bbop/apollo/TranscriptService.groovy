@@ -179,7 +179,7 @@ class TranscriptService {
         Integer geneFmin = Integer.MAX_VALUE
         Integer geneFmax = Integer.MIN_VALUE
 
-        MultiSequenceProjection  multiSequenceProjection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection  multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
 
         println "INIT ${geneFmin}-${geneFmax}"
 
@@ -271,7 +271,7 @@ class TranscriptService {
     def addExon(Transcript transcript, Exon exon, Boolean fixTranscript, Bookmark bookmark ) {
 
         // TODO: this method REALLY needs to be multisequence aware
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
 
         int transcriptFmin = projectionService.getMinForFeatureInProjection(transcript,multiSequenceProjection)
         int transcriptFmax = projectionService.getMaxForFeatureInProjection(transcript,multiSequenceProjection)
@@ -398,7 +398,7 @@ class TranscriptService {
         splitTranscript.name = nameService.generateUniqueName(splitTranscript, splitTranscriptGene.name)
         featureService.addTranscriptToGene(splitTranscriptGene, splitTranscript,bookmark)
 
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
 
         // changing feature location of transcript to the fmax of the left exon
         featureService.setFmax(transcript,leftExon.fmax,multiSequenceProjection)

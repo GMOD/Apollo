@@ -300,11 +300,11 @@ class ProjectionService {
     }
 
 //    @NotTransactional
-    /**
-     * @deprecated
-     * @param description
-     * @return
-     */
+//    /**
+//     * @deprecated
+//     * @param description
+//     * @return
+//     */
 //    MultiSequenceProjection createMultiSequenceProjection(ProjectionDescription description) {
 //        List<Location> locationList = getLocationsForSequences(description)
 //        return createMultiSequenceProjection(description, locationList)
@@ -457,13 +457,13 @@ class ProjectionService {
         return locationList
     }
 
-    /**
-     * @deprecated
-     * Create an interval for each "sequence" min/max
-     * Create an "fold" for each fold / splitting the interval
-     * @param projectionDescription
-     * @return
-     */
+//    /**
+//     * @deprecated
+//     * Create an interval for each "sequence" min/max
+//     * Create an "fold" for each fold / splitting the interval
+//     * @param projectionDescription
+//     * @return
+//     */
 //    List<Location> getLocationsForSequences(ProjectionDescription projectionDescription) {
 //        List<Location> locationList = new ArrayList<>()
 //
@@ -678,7 +678,11 @@ class ProjectionService {
         return false;
     }
 
-
+    /**
+     * @deprecated  Use the createMultisequenceProjection method instead
+     * @param bookmark
+     * @return
+     */
     MultiSequenceProjection getProjection(Bookmark bookmark) {
         JSONObject jsonObject = bookmarkService.convertBookmarkToJson(bookmark)
         return getProjection(jsonObject)
