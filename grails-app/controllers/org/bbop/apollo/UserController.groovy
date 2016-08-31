@@ -29,7 +29,7 @@ class UserController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId")
+            , @RestApiParam(name = "userId", type = "long / string", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId as an integer database id or a username string")
     ])
     def loadUsers() {
         try {
