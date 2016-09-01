@@ -195,35 +195,32 @@ class MultiSequenceProjection extends AbstractProjection {
 // here we are adding a location to project
     def addLocation(Location location) {
         // if a single projection . . the default .. then assert that it is the same sequence / projection
-//        ProjectionSequence projectionSequence = getProjectionSequence(location)
-        DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(location.sequence)
+        ProjectionSequence projectionSequence = getProjectionSequenceForLocation(location)
+        DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
         if (discontinuousProjection) {
             discontinuousProjection.addInterval(location.min, location.max, 0)
         } else {
-            ProjectionSequence internalProjectionSequence = location.sequence
-
-            Integer order = findSequenceOrder(internalProjectionSequence)
-            internalProjectionSequence.order = order
-
             DiscontinuousProjection thisDiscontinuousProjection = new DiscontinuousProjection()
             thisDiscontinuousProjection.addInterval(location.min, location.max, 0)
-            sequenceDiscontinuousProjectionMap.put(internalProjectionSequence, thisDiscontinuousProjection)
+            sequenceDiscontinuousProjectionMap.put(projectionSequence, thisDiscontinuousProjection)
         }
     }
 
-    Integer findSequenceOrder(ProjectionSequence projectionSequence) {
-        // should return an ordered set
-        List<ProjectionSequence> projectionSequenceList = sequenceDiscontinuousProjectionMap.keySet().sort() {a,b -> a.order <=> b.order }
-
-//        List<ProjectionSequence> projectionSequenceList = sequenceList
-        int index = 0
-        for (ProjectionSequence projectionSequence1 in projectionSequenceList) {
-            if (projectionSequence1.name == projectionSequence.name) {
-                return index
-            }
-            ++index
+    /**
+     * Finds the most appropriate sequence projection for a given location
+     * @param location
+     * @return
+     */
+    ProjectionSequence getProjectionSequenceForLocation(Location location) {
+        ProjectionSequence matchSequence = location.sequence
+        TreeMap<Integer,ProjectionSequence> projectionSequenceTreeMap = new TreeMap<>()
+        sequenceDiscontinuousProjectionMap.keySet().each {
+            int score = it.name==matchSequence.name ? 1 : 0
+            score += it.start==matchSequence.start ? 1 : 0
+            score += it.end ==matchSequence.end ? 1 : 0
+            projectionSequenceTreeMap.put(score,it)
         }
-        return -1
+        return projectionSequenceTreeMap.lastEntry().value
     }
 
 
@@ -234,17 +231,19 @@ class MultiSequenceProjection extends AbstractProjection {
         Integer currentOrder = 0
         Integer lastLength = 0
         Integer originalLength = 0
-        sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }.each {
-            DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(it)
+        sequenceDiscontinuousProjectionMap.keySet().sort() { a, b ->
+            a.order <=> b.order
+        }.each { ProjectionSequence projectionSequence ->
+            DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
             if (currentOrder > 0) {
-                it.offset = lastLength
-                it.originalOffset = originalLength
+                projectionSequence.offset = lastLength
+                projectionSequence.originalOffset = originalLength
             }
 
             lastLength += discontinuousProjection.bufferedLength
-            assert it.unprojectedLength != null
-            assert it.unprojectedLength > 0
-            originalLength += it.unprojectedLength
+            assert projectionSequence.unprojectedLength != null
+            assert projectionSequence.unprojectedLength > 0
+            originalLength += projectionSequence.unprojectedLength
             ++currentOrder
         }
     }
