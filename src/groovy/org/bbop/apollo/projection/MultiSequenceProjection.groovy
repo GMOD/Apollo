@@ -55,7 +55,10 @@ class MultiSequenceProjection extends AbstractProjection {
 
 
     /**
-     * Find which sequence I am on by iterating over coordinates
+     * Find which sequence I am on by iterating over coordinates.
+     *
+     * I want to return the first projection sequence where the start / end contains the input
+     *
      * @param input
      * @return
      */

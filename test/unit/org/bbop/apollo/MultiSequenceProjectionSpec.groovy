@@ -259,8 +259,6 @@ class MultiSequenceProjectionSpec extends Specification {
 
     }
 
-
-
     /**
      * 694694	694915		1	221
      694959	695222	44	2	263
@@ -277,44 +275,44 @@ class MultiSequenceProjectionSpec extends Specification {
         given: "a projection"
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
-                ,name: "Sequence1"
-                ,organism: "Human"
+                , name: "Sequence1"
+                , organism: "Human"
         )// from 0-99
         MultiSequenceProjection projection = new MultiSequenceProjection()
         projection.addProjectionSequences([sequence1])
 
         when: "we add the overlapping coordinates"
-        projection.addInterval(694694, 694915,sequence1)
-        projection.addInterval(694959, 695222,sequence1)
+        projection.addInterval(694694, 694915, sequence1)
+        projection.addInterval(694959, 695222, sequence1)
 
         then: "we should have 1"
         assert projection.size() == 2
 
         when: "we add some more overlapping ones"
-        projection.addInterval(695185, 695546,sequence1)
-        projection.addInterval(695511, 695782,sequence1)
-        projection.addInterval(695745, 696068,sequence1)
-        projection.addInterval(696071, 696395,sequence1)
-        projection.addInterval(696559, 697320,sequence1)
+        projection.addInterval(695185, 695546, sequence1)
+        projection.addInterval(695511, 695782, sequence1)
+        projection.addInterval(695745, 696068, sequence1)
+        projection.addInterval(696071, 696395, sequence1)
+        projection.addInterval(696559, 697320, sequence1)
 
         then: "there should be 4 projections"
         assert projection.size() == 4
 
         when: "we add one more"
-        projection.addInterval(697283, 697566,sequence1)
+        projection.addInterval(697283, 697566, sequence1)
 
 
         then: "4 again"
         assert projection.size() == 4
 
         when: "we add the last one"
-        projection.addInterval(696108, 696395,sequence1)
+        projection.addInterval(696108, 696395, sequence1)
 
         then: "there should just be the 4"
         assert projection.size() == 4
 
         when: "we add one of the LHS"
-        projection.addInterval(696071, 696390,sequence1)
+        projection.addInterval(696071, 696390, sequence1)
 
 
         then: "should still be four"
@@ -343,28 +341,28 @@ class MultiSequenceProjectionSpec extends Specification {
         given: "a projection"
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
-                ,name: "Sequence1"
-                ,organism: "Human"
-                ,order: 0
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
         )// from 0-99
         MultiSequenceProjection projection = new MultiSequenceProjection()
         int index = 0
         projection.addProjectionSequences([sequence1])
 
         when: "we add the overlapping coordinates"
-        projection.addInterval(426970, 427288,sequence1)
-        projection.addInterval(427273, 427960,sequence1)
+        projection.addInterval(426970, 427288, sequence1)
+        projection.addInterval(427273, 427960, sequence1)
 
         then: "we should have 1"
         assert projection.size() == 1
 
         when: "when we add non-verlapping coordinates"
-        projection.addInterval(427987, 428349,sequence1) // 2
-        projection.addInterval(428394, 428830,sequence1) // 3
-        projection.addInterval(428905, 429123,sequence1) // 4
-        projection.addInterval(429080, 429230,sequence1) // 4
-        projection.addInterval(429198, 429434,sequence1) // 4
-        projection.addInterval(429406, 429609,sequence1) // 4
+        projection.addInterval(427987, 428349, sequence1) // 2
+        projection.addInterval(428394, 428830, sequence1) // 3
+        projection.addInterval(428905, 429123, sequence1) // 4
+        projection.addInterval(429080, 429230, sequence1) // 4
+        projection.addInterval(429198, 429434, sequence1) // 4
+        projection.addInterval(429406, 429609, sequence1) // 4
         index = 0
 
 
@@ -389,7 +387,7 @@ class MultiSequenceProjectionSpec extends Specification {
         }
 
         when: "we add anoverlapping one"
-        projection.addInterval(428187, 428534,sequence1)
+        projection.addInterval(428187, 428534, sequence1)
         index = 0
 
         then: "we should have 3"
@@ -411,7 +409,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add the rest of them, they should continue to overlap"
-        projection.addInterval(428528, 428829,sequence1)
+        projection.addInterval(428528, 428829, sequence1)
         index = 0
 
         then: "we should be down to 3"
@@ -433,8 +431,8 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add the rest"
-        projection.addInterval(428905, 429115,sequence1)
-        projection.addInterval(429073, 429230,sequence1)
+        projection.addInterval(428905, 429115, sequence1)
+        projection.addInterval(429073, 429230, sequence1)
         index = 0
 
         then: "there should not be any change"
@@ -456,14 +454,14 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add too more in-between"
-        projection.addInterval(429198, 429439,sequence1)
-        projection.addInterval(429410, 429605,sequence1)
+        projection.addInterval(429198, 429439, sequence1)
+        projection.addInterval(429410, 429605, sequence1)
 
         then: "we should still have 3"
         assert projection.size() == 3
 
         when: "we add this last one"
-        projection.addInterval(429597, 430007,sequence1)
+        projection.addInterval(429597, 430007, sequence1)
 
         then: "it should not blow up and we should have 2"
         assert projection.size() == 3
@@ -497,20 +495,20 @@ class MultiSequenceProjectionSpec extends Specification {
         given: "a discontinuous projection"
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
-                ,name: "Sequence1"
-                ,organism: "Human"
-                ,order: 0
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
         )// from 0-99
         MultiSequenceProjection projection = new MultiSequenceProjection()
         projection.addProjectionSequences([sequence1])
         int index = 0
 
         when: "we add some normal intervals"
-        projection.addInterval(285235, 285658,sequence1)
-        projection.addInterval(285628, 285895,sequence1)
-        projection.addInterval(285887, 286954,sequence1)
-        projection.addInterval(286965, 287209,sequence1)
-        projection.addInterval(287225, 287371,sequence1)
+        projection.addInterval(285235, 285658, sequence1)
+        projection.addInterval(285628, 285895, sequence1)
+        projection.addInterval(285887, 286954, sequence1)
+        projection.addInterval(286965, 287209, sequence1)
+        projection.addInterval(287225, 287371, sequence1)
         index = 0
 
 
@@ -533,8 +531,8 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "you add additional intervals"
-        projection.addInterval(285192, 286954,sequence1)
-        projection.addInterval(286965, 287209,sequence1)
+        projection.addInterval(285192, 286954, sequence1)
+        projection.addInterval(286965, 287209, sequence1)
         index = 0
 
         then: "you would expect the same, but modified"
@@ -556,7 +554,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add the last interval"
-        projection.addInterval(287225, 288061,sequence1)
+        projection.addInterval(287225, 288061, sequence1)
 
         then: "we have to see if its the right one"
         assert projection.size() == 3
@@ -593,22 +591,22 @@ class MultiSequenceProjectionSpec extends Specification {
         given: "a discontinuous projection"
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
-                ,name: "Sequence1"
-                ,organism: "Human"
-                ,order: 0
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
         )// from 0-99
         MultiSequenceProjection projection = new MultiSequenceProjection()
         projection.addProjectionSequences([sequence1])
         int index = 0
 
         when: "we add some projections"
-        projection.addInterval(1764232, 1764464,sequence1)  // 0
-        projection.addInterval(1764440, 1764723,sequence1)  // 0
-        projection.addInterval(1764736, 1764943,sequence1)  // 1
-        projection.addInterval(1764907, 1765195,sequence1)  // 1
-        projection.addInterval(1765229, 1765487,sequence1)  // 2
-        projection.addInterval(1765511, 1765761,sequence1)  // 3
-        projection.addInterval(1765764, 1766416,sequence1)  // 4
+        projection.addInterval(1764232, 1764464, sequence1)  // 0
+        projection.addInterval(1764440, 1764723, sequence1)  // 0
+        projection.addInterval(1764736, 1764943, sequence1)  // 1
+        projection.addInterval(1764907, 1765195, sequence1)  // 1
+        projection.addInterval(1765229, 1765487, sequence1)  // 2
+        projection.addInterval(1765511, 1765761, sequence1)  // 3
+        projection.addInterval(1765764, 1766416, sequence1)  // 4
         index = 0
 
         then: "we should see a few"
@@ -636,7 +634,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add an overlapping one"
-        projection.addInterval(1764703, 1765195,sequence1)
+        projection.addInterval(1764703, 1765195, sequence1)
         index = 0
 
 
@@ -661,7 +659,7 @@ class MultiSequenceProjectionSpec extends Specification {
         }
 
         when: "we add the last one"
-        projection.addInterval(1765229, 1766403,sequence1)
+        projection.addInterval(1765229, 1766403, sequence1)
         index = 0
 
         then: "it should not blow up"
@@ -684,23 +682,23 @@ class MultiSequenceProjectionSpec extends Specification {
         given: "a discontinuous projection"
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
-                ,name: "Sequence1"
-                ,organism: "Human"
-                ,order: 0
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
         )// from 0-99
         MultiSequenceProjection projection = new MultiSequenceProjection()
         int index = 0
         projection.addProjectionSequences([sequence1])
 
         when: "we add some intervals"
-        projection.addInterval(322874, 323189,sequence1) // 0
-        projection.addInterval(323171, 323490,sequence1) // 0
-        projection.addInterval(323458, 323739,sequence1) // 0
-        projection.addInterval(323719, 323996,sequence1) // 0
-        projection.addInterval(323984, 324541,sequence1) // 0
-        projection.addInterval(324636, 325100,sequence1) // 1
-        projection.addInterval(325109, 325906,sequence1) // 2
-        projection.addInterval(325883, 329527,sequence1) // 2
+        projection.addInterval(322874, 323189, sequence1) // 0
+        projection.addInterval(323171, 323490, sequence1) // 0
+        projection.addInterval(323458, 323739, sequence1) // 0
+        projection.addInterval(323719, 323996, sequence1) // 0
+        projection.addInterval(323984, 324541, sequence1) // 0
+        projection.addInterval(324636, 325100, sequence1) // 1
+        projection.addInterval(325109, 325906, sequence1) // 2
+        projection.addInterval(325883, 329527, sequence1) // 2
         index = 0
 
 
@@ -722,7 +720,7 @@ class MultiSequenceProjectionSpec extends Specification {
         }
 
         when: "we add the last one"
-        projection.addInterval(323453, 329527,sequence1)
+        projection.addInterval(323453, 329527, sequence1)
         index = 0
 
         then: "we should see the same one"
@@ -738,26 +736,26 @@ class MultiSequenceProjectionSpec extends Specification {
 
     }
 
-    void "another overlap edgecase"(){
+    void "another overlap edgecase"() {
 
         given: "a discontinuous projection"
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
-                ,name: "Sequence1"
-                ,organism: "Human"
-                ,order: 0
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
         )// from 0-99
         MultiSequenceProjection projection = new MultiSequenceProjection()
         int index = 0
         projection.addProjectionSequences([sequence1])
 
         when: "we add a series of intervals"
-        projection.addInterval(411456,411745,sequence1) // 0
-        projection.addInterval(411775,411934,sequence1) // 1
-        projection.addInterval(412094,412542,sequence1) // 2
-        projection.addInterval(412570,412901,sequence1) // 3
-        projection.addInterval(412977,414637,sequence1) // 4
-        projection.addInterval(412312,412542,sequence1) // 2
+        projection.addInterval(411456, 411745, sequence1) // 0
+        projection.addInterval(411775, 411934, sequence1) // 1
+        projection.addInterval(412094, 412542, sequence1) // 2
+        projection.addInterval(412570, 412901, sequence1) // 3
+        projection.addInterval(412977, 414637, sequence1) // 4
+        projection.addInterval(412312, 412542, sequence1) // 2
         index = 0
 
         then: "we should get 2"
@@ -785,7 +783,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "we add the last one"
-        projection.addInterval(412570,413980,sequence1) // 1
+        projection.addInterval(412570, 413980, sequence1) // 1
         index = 0
 
         then: "we should get the proper solution"
@@ -830,33 +828,33 @@ class MultiSequenceProjectionSpec extends Specification {
      * seq1 . . offset = 0, length = 5 +1 = 6
      * seq2 . . offset = 6 (6+1) = 7, length = 7 + 1 = 8
      */
-    void "explicitly test multiple scaffolds"(){
+    void "explicitly test multiple scaffolds"() {
 
         given: "a projection"
         ProjectionSequence sequence1 = new ProjectionSequence(
-               id: 1
-                ,name: "Sequence1"
-                ,organism: "Human"
-                ,order: 0
-                ,unprojectedLength: 100
-                ,start: 0
-                ,end: 99
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
+                , unprojectedLength: 100
+                , start: 0
+                , end: 99
         )// from 0-99
         ProjectionSequence sequence2 = new ProjectionSequence(
                 id: 2
-                ,name: "Sequence2"
-                ,organism: "Human"
-                ,order: 1
-                ,unprojectedLength: 100
-                ,start: 0
-                ,end: 99
+                , name: "Sequence2"
+                , organism: "Human"
+                , order: 1
+                , unprojectedLength: 100
+                , start: 0
+                , end: 99
         ) // from 100-200
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
-        multiSequenceProjection.addProjectionSequences([sequence1,sequence2])
-        Location location1 = new Location( min: 10 ,max: 12 ,sequence: sequence1 )
-        Location location2 = new Location( min: 22 ,max: 25 ,sequence: sequence1 )
-        Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )
-        Location location4 = new Location( min: 60,max: 63,sequence: sequence2 )
+        multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
+        Location location1 = new Location(min: 10, max: 12, sequence: sequence1)
+        Location location2 = new Location(min: 22, max: 25, sequence: sequence1)
+        Location location3 = new Location(min: 23, max: 27, sequence: sequence2)
+        Location location4 = new Location(min: 60, max: 63, sequence: sequence2)
 
 
 
@@ -871,115 +869,114 @@ class MultiSequenceProjectionSpec extends Specification {
         Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
 
         then: "we should get a single projection of size 4"
-        assert multiSequenceProjection.size()==4
-        coordinateCollection.get(0).min==10
-        coordinateCollection.get(0).max==12
-        coordinateCollection.get(1).min==22
-        coordinateCollection.get(1).max==25
-        coordinateCollection.get(2).min==23
-        coordinateCollection.get(2).max==27
-        coordinateCollection.get(3).min==60
-        coordinateCollection.get(3).max==63
-        assert 0==projectionSequenceList.get(0).offset
-        assert 6==multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(0)).bufferedLength
-        assert 6==projectionSequenceList.get(1).offset
-        assert 8==multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(1)).bufferedLength
-        assert "Sequence1"==multiSequenceProjection.getProjectionSequence(10).name
-        assert "Sequence2"==multiSequenceProjection.getProjectionSequence(60+offset).name
-        assert 6==multiSequenceProjection.getProjectionSequence(60+offset).offset
+        assert multiSequenceProjection.size() == 4
+        coordinateCollection.get(0).min == 10
+        coordinateCollection.get(0).max == 12
+        coordinateCollection.get(1).min == 22
+        coordinateCollection.get(1).max == 25
+        coordinateCollection.get(2).min == 23
+        coordinateCollection.get(2).max == 27
+        coordinateCollection.get(3).min == 60
+        coordinateCollection.get(3).max == 63
+        assert 0 == projectionSequenceList.get(0).offset
+        assert 6 == multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(0)).bufferedLength
+        assert 6 == projectionSequenceList.get(1).offset
+        assert 8 == multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(1)).bufferedLength
+        assert "Sequence1" == multiSequenceProjection.getProjectionSequence(10).name
+        assert "Sequence2" == multiSequenceProjection.getProjectionSequence(60 + offset).name
+        assert 6 == multiSequenceProjection.getProjectionSequence(60 + offset).offset
 
-        assert 0==multiSequenceProjection.projectValue(10)
-        assert 2==multiSequenceProjection.projectValue(12)
-        assert 3==multiSequenceProjection.projectValue(22)
-        assert 6==multiSequenceProjection.projectValue(25)
-        assert 6==multiSequenceProjection.projectValue(offset+23)
-        assert 10==multiSequenceProjection.projectValue(offset+27)
-        assert 11==multiSequenceProjection.projectValue(offset+60)
-        assert 14==multiSequenceProjection.projectValue(offset+63)
+        assert 0 == multiSequenceProjection.projectValue(10)
+        assert 2 == multiSequenceProjection.projectValue(12)
+        assert 3 == multiSequenceProjection.projectValue(22)
+        assert 6 == multiSequenceProjection.projectValue(25)
+        assert 6 == multiSequenceProjection.projectValue(offset + 23)
+        assert 10 == multiSequenceProjection.projectValue(offset + 27)
+        assert 11 == multiSequenceProjection.projectValue(offset + 60)
+        assert 14 == multiSequenceProjection.projectValue(offset + 63)
 
 
-        assert 10==multiSequenceProjection.projectReverseValue(0)
-        assert 12==multiSequenceProjection.projectReverseValue(2)
-        assert 22==multiSequenceProjection.projectReverseValue(3)
-        assert 25==multiSequenceProjection.projectReverseValue(6)
+        assert 10 == multiSequenceProjection.projectReverseValue(0)
+        assert 12 == multiSequenceProjection.projectReverseValue(2)
+        assert 22 == multiSequenceProjection.projectReverseValue(3)
+        assert 25 == multiSequenceProjection.projectReverseValue(6)
 //        assert 25+23==multiSequenceProjection.projectReverseValue(7)
 //        assert 25+27==multiSequenceProjection.projectReverseValue(11)
 //        assert 25+60==multiSequenceProjection.projectReverseValue(12)
 //        assert 25+63==multiSequenceProjection.projectReverseValue(15)
-        assert 24+sequence1.unprojectedLength==multiSequenceProjection.projectReverseValue(7)
-        assert 27+sequence1.unprojectedLength==multiSequenceProjection.projectReverseValue(10)
-        assert 60+sequence1.unprojectedLength==multiSequenceProjection.projectReverseValue(11)
-        assert 63+sequence1.unprojectedLength==multiSequenceProjection.projectReverseValue(14)
+        assert 24 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(7)
+        assert 27 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(10)
+        assert 60 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(11)
+        assert 63 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(14)
 
         when: "we project a sequence through these coordinates"
         // length should be 200
         String inputSequence = "ATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCA"
-        String projectedSequence = multiSequenceProjection.projectSequence(inputSequence,0,200,0)
+        String projectedSequence = multiSequenceProjection.projectSequence(inputSequence, 0, 200, 0)
 
         then: "we should confirm that both the input and retrieved sequence are correct"
-        assert 200==inputSequence.length()
-        assert 100==offset
-        assert inputSequence.substring(10,12)==projectedSequence.substring(0,2)
-        assert inputSequence.substring(22,25)==projectedSequence.substring(3,6)
-        assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(7,11)
-        assert inputSequence.substring(60+offset,63+offset)==projectedSequence.substring(12,15)
-        assert 16==projectedSequence.length()
+        assert 200 == inputSequence.length()
+        assert 100 == offset
+        assert inputSequence.substring(10, 12) == projectedSequence.substring(0, 2)
+        assert inputSequence.substring(22, 25) == projectedSequence.substring(3, 6)
+        assert inputSequence.substring(23 + offset, 27 + offset) == projectedSequence.substring(7, 11)
+        assert inputSequence.substring(60 + offset, 63 + offset) == projectedSequence.substring(12, 15)
+        assert 16 == projectedSequence.length()
 
         when: "we project a sequence through these smaller coordinates"
         // length should be 200
-        projectedSequence = multiSequenceProjection.projectSequence(inputSequence,50,150,0)
+        projectedSequence = multiSequenceProjection.projectSequence(inputSequence, 50, 150, 0)
 //        Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
 
         then: "we should confirm that both the input and retrieved sequence are correct"
 //        assert 200==inputSequence.length()
-        assert 100==offset
+        assert 100 == offset
 //        assert inputSequence.substring(10,12)==projectedSequence.substring(0,2)
 //        assert inputSequence.substring(22,25)==projectedSequence.substring(3,6)
-        assert 5==projectedSequence.length()
-        assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(0,4)
+        assert 5 == projectedSequence.length()
+        assert inputSequence.substring(23 + offset, 27 + offset) == projectedSequence.substring(0, 4)
     }
 
-    void "more multi-scaffold tests"(){
+    void "more multi-scaffold tests"() {
 
         given: "a projection"
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
-                ,name: "Sequence1"
-                ,organism: "Human"
-                ,order: 0
-                ,unprojectedLength: 50
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
+                , unprojectedLength: 50
         )// from 0-49
         ProjectionSequence sequence2 = new ProjectionSequence(
                 id: 2
-                ,name: "Sequence2"
-                ,organism: "Human"
-                ,order: 1
-                ,unprojectedLength: 75
+                , name: "Sequence2"
+                , organism: "Human"
+                , order: 1
+                , unprojectedLength: 75
         ) // from 50-124
         ProjectionSequence sequence3 = new ProjectionSequence(
                 id: 3
-                ,name: "Sequence3"
-                ,organism: "Human"
-                ,order: 2
-                ,unprojectedLength: 25
+                , name: "Sequence3"
+                , organism: "Human"
+                , order: 2
+                , unprojectedLength: 25
         ) // from 125-149
         ProjectionSequence sequence4 = new ProjectionSequence(
                 id: 4
-                ,name: "Sequence4"
-                ,organism: "Human"
-                ,order: 3
-                ,unprojectedLength: 50
+                , name: "Sequence4"
+                , organism: "Human"
+                , order: 3
+                , unprojectedLength: 50
         ) // from 150-200
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
-        multiSequenceProjection.addProjectionSequences([sequence1,sequence2,sequence3,sequence4])
-        Location location1 = new Location( min: 10 ,max: 12 ,sequence: sequence1 ) // 3
-        Location location2 = new Location( min: 22 ,max: 25 ,sequence: sequence1 ) // 4
-        Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )  // 5
-        Location location4 = new Location( min: 60,max: 63,sequence: sequence2 )  // 4
-        Location location5 = new Location( min: 5,max: 10,sequence: sequence3 )   // 6
-        Location location6 = new Location( min: 10,max: 12,sequence: sequence4 )  // 3
+        multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3, sequence4])
+        Location location1 = new Location(min: 10, max: 12, sequence: sequence1) // 3
+        Location location2 = new Location(min: 22, max: 25, sequence: sequence1) // 4
+        Location location3 = new Location(min: 23, max: 27, sequence: sequence2)  // 5
+        Location location4 = new Location(min: 60, max: 63, sequence: sequence2)  // 4
+        Location location5 = new Location(min: 5, max: 10, sequence: sequence3)   // 6
+        Location location6 = new Location(min: 10, max: 12, sequence: sequence4)  // 3
         // total 25
-
 
 
         when: "we create some intervals for a few scaffolds"
@@ -995,42 +992,103 @@ class MultiSequenceProjectionSpec extends Specification {
 
         then: "we should get a single projection of size 4"
         // TODO: TEST 4 cases in MultiSequenceProject projectSequence!!!!!!!!
-        assert multiSequenceProjection.size()==6
+        assert multiSequenceProjection.size() == 6
 
         when: "we project a sequence through these coordinates"
         // length should be 200
         String inputSequence = "ATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCAATGCA"
-        String projectedSequence = multiSequenceProjection.projectSequence(inputSequence,0,200,0)
+        String projectedSequence = multiSequenceProjection.projectSequence(inputSequence, 0, 200, 0)
         Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
 
         then: "we should confirm that both the input and retrieved sequence are correct"
-        assert 200==inputSequence.length()
-        assert 50==offset
-        assert 25==projectedSequence.length()
-        assert inputSequence.substring(10,12)==projectedSequence.substring(0,2)
-        assert inputSequence.substring(22,25)==projectedSequence.substring(3,6)
-        assert inputSequence.substring(23+offset,27+offset)==projectedSequence.substring(7,11)
-        assert inputSequence.substring(60+offset,63+offset)==projectedSequence.substring(12,15)
+        assert 200 == inputSequence.length()
+        assert 50 == offset
+        assert 25 == projectedSequence.length()
+        assert inputSequence.substring(10, 12) == projectedSequence.substring(0, 2)
+        assert inputSequence.substring(22, 25) == projectedSequence.substring(3, 6)
+        assert inputSequence.substring(23 + offset, 27 + offset) == projectedSequence.substring(7, 11)
+        assert inputSequence.substring(60 + offset, 63 + offset) == projectedSequence.substring(12, 15)
 
         when: "case 1 and 2: we project a sequence through these smaller coordinates "
         // length should be 200
-        projectedSequence = multiSequenceProjection.projectSequence(inputSequence,50,150,0)
+        projectedSequence = multiSequenceProjection.projectSequence(inputSequence, 50, 150, 0)
 //        Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
 
         then: "we should confirm that both the input and retrieved sequence are correct"
-        assert 15==projectedSequence.length()
+        assert 15 == projectedSequence.length()
 
         when: "we attempt case 3: a subset of a projection sequence"
-        projectedSequence = multiSequenceProjection.projectSequence(inputSequence,60,120,0)
+        projectedSequence = multiSequenceProjection.projectSequence(inputSequence, 60, 120, 0)
 
         then: "we should see only see all of the coordinates on sequence 3"
-        assert 9==projectedSequence.length()
+        assert 9 == projectedSequence.length()
 
         when: "we attempt case 4 (and also 1 and 2): we overlap the entire projection sequence space"
-        projectedSequence = multiSequenceProjection.projectSequence(inputSequence,20,8+125,0)
+        projectedSequence = multiSequenceProjection.projectSequence(inputSequence, 20, 8 + 125, 0)
 
         then: "we will just project tne entire thing"
-        assert 4+9+4==projectedSequence.length()
+        assert 4 + 9 + 4 == projectedSequence.length()
+
+    }
+
+    void "we can get get the proper projection from two contiguous scaffolds"() {
+
+        given: "a projection"
+        ProjectionSequence sequence1 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
+                , unprojectedLength: 100
+                , start: 10
+                , end: 12
+        )// from 0-99
+        ProjectionSequence sequence2 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 1
+                , unprojectedLength: 100
+                , start: 22
+                , end: 25
+        )// from 0-99
+        ProjectionSequence sequence3 = new ProjectionSequence(
+                id: 2
+                , name: "Sequence2"
+                , organism: "Human"
+                , order: 2
+                , unprojectedLength: 200
+                , start: 60
+                , end: 63
+        ) // from 100-200
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+        multiSequenceProjection.addProjectionSequences([sequence1, sequence2,sequence3])
+        Location location1 = new Location(min: 10, max: 12, sequence: sequence1)
+        Location location2 = new Location(min: 22, max: 25, sequence: sequence2)
+        Location location4 = new Location(min: 60, max: 63, sequence: sequence3)
+//        Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )
+
+        when: "we add the locations"
+        multiSequenceProjection.addLocation(location1)
+        multiSequenceProjection.addLocation(location2)
+//        multiSequenceProjection.addLocation(location3)
+        multiSequenceProjection.addLocation(location4)
+        multiSequenceProjection.calculateOffsets()
+
+        then: "we should be able to get out the proper projection sequence"
+        multiSequenceProjection.getProjectionSequence(10).order == 0
+        multiSequenceProjection.getProjectionSequence(12).order == 0
+        multiSequenceProjection.getProjectionSequence(10).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(12).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(22).order == 1
+        multiSequenceProjection.getProjectionSequence(25).order == 1
+        multiSequenceProjection.getProjectionSequence(22).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(25).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(60+sequence2.unprojectedLength).order == 2
+        multiSequenceProjection.getProjectionSequence(63+sequence2.unprojectedLength).order == 2
+        multiSequenceProjection.getProjectionSequence(60+sequence2.unprojectedLength).name == "Sequence2"
+        multiSequenceProjection.getProjectionSequence(63+sequence2.unprojectedLength).name == "Sequence2"
+
 
     }
 
