@@ -1176,7 +1176,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                         }
                     },
                     referenceBases: referenceBasesString,
-                    alternateBases: alternateBasesString
+                    alternateAlleles: [{ bases: alternateBasesString }]
                 }];
                 var postData = {
                     track: track.annotTrack.getUniqueTrackName(),

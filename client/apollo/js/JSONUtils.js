@@ -200,7 +200,7 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
                id:              uid,
                type:            afeature.type.name,
                referenceBases:   afeature.referenceBases,
-               alternateBases:   afeature.alternateBases
+               alternateAlleles:   [{ bases: afeature.alternateBases }]
            },
            id: uid
         });
@@ -433,8 +433,8 @@ JSONUtils.createApolloVariant = function( jfeature, useName ) {
     var astrand = 1; // variants are represented w.r.t. the sense strand
     var fmin = jfeature.get('start');
     var fmax = jfeature.get('end');
-    var referenceAllele = jfeature.get('reference_allele');
-    var alternativeAlleles = jfeature.get('alternative_alleles').values.split(',');
+    var referenceBases = jfeature.get('reference_allele');
+    var alternateAlleles = jfeature.get('alternative_alleles').values.split(',');
 
     afeature.location = {
         fmin: fmin,
@@ -442,7 +442,7 @@ JSONUtils.createApolloVariant = function( jfeature, useName ) {
         strand: astrand
     };
 
-    var typename = JSONUtils.classifyVariant(referenceAllele, alternativeAlleles, fmin, fmax);
+    var typename = JSONUtils.classifyVariant(referenceBases, alternateAlleles, fmin, fmax);
 
     if (typename) {
         afeature.type = {
@@ -458,8 +458,8 @@ JSONUtils.createApolloVariant = function( jfeature, useName ) {
         afeature.name = name;
     }
 
-    afeature.referenceBases = referenceAllele;
-    afeature.alternateBases = alternativeAlleles;
+    afeature.referenceBases = referenceBases;
+    afeature.alternateAlleles = alternateAlleles;
 
     // TODO: Add additional metadata
     return afeature;

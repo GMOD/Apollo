@@ -13,11 +13,14 @@ class Allele {
             variant: SequenceAlteration
     ]
 
-    // TODO: Should alleleInfo use a separate class than FeatureProperty
-
     static hasMany = [
-            alleleInfo: FeatureProperty,
+            alleleInfo: AlleleInfo,
             variantEffects: VariantEffect
     ]
+
+    static mapping = {
+        alleleInfo cascade: 'all-delete-orphan'
+        variantEffects cascade: 'all-delete-orphan'
+    }
 
 }

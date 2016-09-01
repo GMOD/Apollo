@@ -994,12 +994,29 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    def setMinorAlleleFrequency() {
+    def addAlternateAlleles() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.setMinorAlleleFrequency(inputObject)
+            render requestHandlingService.addAlternateAlleles(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
         }
-        else {
+    }
+
+    def deleteAlternateAlleles() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.deleteAlternateAlleles(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+    def updateAlternateAlleles() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.updateAlternateAlleles(inputObject)
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
@@ -1047,10 +1064,24 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             if (feature instanceof SequenceAlteration && feature.class.name in RequestHandlingService.variantAnnotationList) {
                 newFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(feature.featureLocation));
                 newFeature.put("referenceBases", feature.referenceBases);
-                newFeature.put("alternateBases", feature.alternateBases);
-                if (feature.minorAlleleFrequency) {
-                    newFeature.put("minor_allele_frequency", Float.toString(feature.minorAlleleFrequency));
+                JSONArray alternateAllelesArray = new JSONArray()
+                for (Allele allele : feature.alternateAlleles) {
+                    JSONObject alternateAlleleObject = new JSONObject()
+                    alternateAlleleObject.put("bases", allele.bases)
+                    alternateAlleleObject.put("alleleFrequency", String.valueOf(allele.alleleFrequency))
+                    if (allele.alleleInfo) {
+                        JSONArray alleleInfoArray = new JSONArray()
+                        allele.alleleInfo.each { alleleInfo ->
+                            JSONObject alleleInfoObject = new JSONObject()
+                            alleleInfoObject.put(FeatureStringEnum.TAG.value, alleleInfo.tag)
+                            alleleInfoObject.put(FeatureStringEnum.VALUE.value, alleleInfo.value)
+                            alleleInfoArray.add(alleleInfoObject)
+                        }
+                        alternateAlleleObject.put("info", alleleInfoArray)
+                    }
+                    alternateAllelesArray.add(alternateAlleleObject)
                 }
+                newFeature.put("alternateAlleles", alternateAllelesArray);
             }
 
             if (feature.featureLocation) {

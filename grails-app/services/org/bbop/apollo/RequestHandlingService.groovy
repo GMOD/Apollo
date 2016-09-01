@@ -2325,31 +2325,85 @@ class RequestHandlingService {
         return addFeatureContainer
     }
 
-    def setMinorAlleleFrequency(JSONObject inputObject) {
-        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+    def addAlternateAlleles(JSONObject inputObject) {
+        println "@addAlternateAlleles: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
-        for (int i = 0; i < featuresArray.size(); i++) {
+        for (int i = 0; i < featuresArray.length(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            String mafValue = jsonFeature.get("minor_allele_frequency")
-            SNV snv = SNV.findByUniqueName(uniqueName)
-            //snv.minorAlleleFrequency = Float.parseFloat(mafValue)
-            snv.minorAlleleFrequency = Float.valueOf(mafValue)
-            snv.save()
-            updateFeatureContainer.put(FeatureStringEnum.FEATURES.value,featureService.convertFeatureToJSON(snv))
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            JSONArray alternateAllelesArray = jsonFeature.getJSONArray("alternateAlleles")
+            println "ALTERNATE ALLELES ARRAY: ${alternateAllelesArray.toString()}"
+
+            for (int j = 0; j < alternateAllelesArray.size(); j++) {
+                JSONObject alternateAlleleObject = alternateAllelesArray.getJSONObject(j)
+                String bases = alternateAlleleObject.getString("bases")
+                String alleleFrequency = alternateAlleleObject.getString("AF")
+                println "Allele: ${bases} with AF ${alleleFrequency}"
+                Allele allele = new Allele(bases: bases, alleleFrequency: Float.parseFloat(alleleFrequency))
+                allele.variant = (SequenceAlteration) feature
+                allele.save()
+                feature.addToAlternateAlleles(allele)
+            }
+            feature.save(flush:true, failOnError: true)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.ADD
             )
             fireAnnotationEvent(annotationEvent)
         }
 
         return updateFeatureContainer
     }
+
+    def deleteAlternateAlleles(JSONObject inputObject) {
+        println "@deleteAlternateAlleles: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < featuresArray.length(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            JSONArray alternateAllelesArray = jsonFeature.getJSONArray("alternateAlleles")
+
+            for (int j = 0; j < alternateAllelesArray.size(); j++) {
+                JSONObject alternateAlleleObject = alternateAllelesArray.getJSONObject(j)
+                String bases = alternateAlleleObject.getString("bases")
+                def alternateAlleles = feature.alternateAlleles
+                for (def allele : alternateAlleles) {
+                    if (allele.bases == bases) {
+                        feature.removeFromAlternateAlleles(allele)
+                        allele.delete(flush:true)
+                        break;
+                    }
+                }
+                println "Allele removed from feature: ${feature}"
+            }
+
+            feature.save(flush: true, failOnError: true)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+        }
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return updateFeatureContainer
+    }
+
 }

@@ -1148,14 +1148,36 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             if (gsolFeature instanceof SequenceAlteration && type.name in RequestHandlingService.variantAnnotationTypes) {
                 gsolFeature.referenceBases = jsonFeature.getString("referenceBases")
-                gsolFeature.alternateBases = jsonFeature.getString("alternateBases")
-                if (jsonFeature.has("minor_allele_frequency")) {
-                    gsolFeature.minorAlleleFrequency = Float.parseFloat(jsonFeature.getString("minor_allele_frequency"))
+                gsolFeature.save()
+                JSONArray alternateAllelesArray = jsonFeature.getJSONArray("alternateAlleles")
+                for (int i = 0; i < alternateAllelesArray.length(); i++) {
+                    Allele allele = new Allele( bases: alternateAllelesArray.getJSONObject(i).getString("bases") )
+                    allele.variant = gsolFeature
+                    allele.save()
+
+                    // Processing properties of an Allele
+                    if (alternateAllelesArray.getJSONObject(i).has("info")) {
+                        JSONArray alleleInfoArray = alternateAllelesArray.getJSONObject(i).getJSONArray("info")
+                        for (int j = 0; j < alleleInfoArray.length(); j++) {
+                            JSONObject info = alleleInfoArray.getJSONObject(j)
+                            if (info.getString(FeatureStringEnum.TAG.value) == "AF") {
+                                // Alelle Frequency
+                                allele.alleleFrequency = Float.parseFloat(info.getString(FeatureStringEnum.VALUE.value))
+                            }
+                            else {
+                                // Treating all other properties of an allele as a AlleleInfo accessible via allele.alleleInfo
+                                String tag = info.getString(FeatureStringEnum.TAG.value)
+                                String value = info.getString(FeatureStringEnum.VALUE.value)
+                                AlleleInfo alleleInfo = new AlleleInfo(tag: tag, value: value, allele: allele).save()
+                                allele.addToAlleleInfo(alleleInfo)
+                            }
+                        }
+                    }
+                    gsolFeature.addToAlternateAlleles(allele);
                 }
             }
 
             gsolFeature.save(failOnError: true)
-
 
             if (jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
                 JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
@@ -1550,7 +1572,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      */
     @Timed
     JSONObject convertFeatureToJSONLite(Feature gsolFeature, boolean includeSequence = false, int depth) {
-        println "ConvertFeatureToJSONLite : ${gsolFeature.class.name}"
         JSONObject jsonFeature = new JSONObject();
 
         if (gsolFeature.id) {
@@ -1569,17 +1590,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
         if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantAnnotationList) {
-            println "gsolFeat is SequenceAlt"
-            if(gsolFeature.referenceBases) {
-                println "gsolFeat referenceBases exists"
-                jsonFeature.put("referenceBases", gsolFeature.referenceBases)
-                jsonFeature.put("alternateBases", JSON.parse(gsolFeature.alternateBases) as JSONArray)
+            jsonFeature.put("referenceBases", gsolFeature.referenceBases)
+            JSONArray alternateAllelesArray = new JSONArray()
+            gsolFeature.alternateAlleles.each {
+                JSONObject alternateAlleleObject = new JSONObject()
+                alternateAlleleObject.put("bases", it.bases)
+                alternateAllelesArray.add(alternateAlleleObject)
             }
-
-            if (gsolFeature.minorAlleleFrequency) {
-                jsonFeature.put("minor_allele_frequency", Float.toString(gsolFeature.minorAlleleFrequency))
-            }
+            jsonFeature.put("alternateAlleles", alternateAllelesArray)
+            // TODO: Packaging additional metadata
         }
+
         long start = System.currentTimeMillis();
         if (depth <= 1) {
             String finalOwnerString
@@ -1736,8 +1757,24 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantAnnotationList) {
             jsonFeature.put("referenceBases", gsolFeature.referenceBases)
-            jsonFeature.put("alternateBases", JSON.parse(gsolFeature.alternateBases) as JSONArray)
-            jsonFeature.put("minor_allele_frequency", gsolFeature.minorAlleleFrequency)
+            JSONArray alternateAllelesArray = new JSONArray()
+            gsolFeature.alternateAlleles.each { allele ->
+                JSONObject alternateAlleleObject = new JSONObject()
+                alternateAlleleObject.put("bases", allele.bases)
+                alternateAlleleObject.put("alleleFrequency", String.valueOf(allele.alleleFrequency))
+                if (allele.alleleInfo) {
+                    JSONArray alleleInfoArray = new JSONArray()
+                    allele.alleleInfo.each { alleleInfo ->
+                        JSONObject alleleInfoObject = new JSONObject()
+                        alleleInfoObject.put(FeatureStringEnum.TAG.value, alleleInfo.tag)
+                        alleleInfoObject.put(FeatureStringEnum.VALUE.value, alleleInfo.value)
+                        alleleInfoArray.add(alleleInfoObject)
+                    }
+                    alternateAlleleObject.put("info", alleleInfoArray)
+                }
+                alternateAllelesArray.add(alternateAlleleObject)
+            }
+            jsonFeature.put("alternateAlleles", alternateAllelesArray)
         }
 
         if (gsolFeature.class.name in assemblyErrorCorrectionTypes) {
