@@ -1,17 +1,26 @@
 package org.bbop.apollo
 
-import java.util.ArrayList;
+class Indel extends SequenceAlteration implements Variant {
 
-class Indel extends SequenceAlteration {
-
-    static constraints = {
-        minorAlleleFrequency min: 0.0F, max: 1.0F, scale: 3, nullable: true
-    }
-
-    String referenceBases
-    String alternateBases
-    Float minorAlleleFrequency
     static String cvTerm = "indel"
     static String ontologyId = "SO:1000032"
     static String alternateCvTerm = "indel"
+
+    String referenceBases
+
+    static hasMany = [
+            alternateAlleles: Allele,
+            variantInfo     : FeatureProperty,
+            variantCalls    : Call
+    ]
+
+//    static mappedBy = [
+//            alternateAlleles: "variant"
+//    ]
+
+    static mapping = {
+        alternateAlleles cascade: 'all-delete-orphan'
+        variantInfo cascade: 'all-delete-orphan'
+        variantCalls cascade: 'all-delete-orphan'
+    }
 }

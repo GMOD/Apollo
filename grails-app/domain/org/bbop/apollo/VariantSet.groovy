@@ -7,7 +7,7 @@ class VariantSet {
     static constraints = {
     }
 
-    static HasMany = [
+    static hasMany = [
             metadata: VariantSetMetadata
     ]
 }

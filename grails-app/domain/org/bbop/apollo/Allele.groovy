@@ -6,7 +6,7 @@ class Allele {
     Float alleleFrequency;
 
     static constraints = {
-        alleleFrequency min: 0.0F, max: 1.0F, scale: 3, nullable: true
+        alleleFrequency min: 0.0F, max: 1.0F, scale: 5, nullable: true
     }
 
     static belongsTo = [
