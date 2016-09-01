@@ -66,19 +66,40 @@ class MultiSequenceProjection extends AbstractProjection {
 
         Integer offset = 0
         // should deliver these in order
-        for (projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
-            assert projectionSequence.unprojectedLength != null
-            assert projectionSequence.unprojectedLength > 0
-            int sequenceLength = projectionSequence.unprojectedLength
-            if (input >= offset && input <= sequenceLength  + offset) {
-                return projectionSequence
+
+        for(List<ProjectionSequence> projectionSequenceList in getOrderedSequences().values()){
+            for(ProjectionSequence projectionSequence in projectionSequenceList){
+                if (input >= projectionSequence.start + offset && input <= projectionSequence.end+ offset) {
+                    return projectionSequence
+                }
             }
-            offset += sequenceLength
+            offset += projectionSequenceList.first().unprojectedLength
         }
+
         return null
     }
 
-    Integer projectValue(Integer input,Integer inputOffset,Integer outputOffset) {
+    /**
+     *
+     * @return Returns the relative order order of scaffolds in relation to each other.
+     */
+    TreeMap<Integer, List<ProjectionSequence>> getOrderedSequences() {
+        Map<String,Integer> orderedMap = getOrderedSequenceMap()
+
+        TreeMap<Integer,List<ProjectionSequence>> map = new TreeMap<>()
+
+        for (projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
+            Integer order = orderedMap.get(projectionSequence.name)
+            def projectList = map.get(order) ?: new ArrayList<ProjectionSequence>()
+            projectList.add(projectionSequence)
+            map.put(order,projectList)
+        }
+
+
+        return map
+    }
+
+    Integer projectValue(Integer input, Integer inputOffset, Integer outputOffset) {
         ProjectionSequence projectionSequence = getProjectionSequence(input)
         if (!projectionSequence) {
             return UNMAPPED_VALUE
@@ -357,10 +378,18 @@ class MultiSequenceProjection extends AbstractProjection {
         return orderedSequences
     }
 
+    /**
+     * Returns the first entry of a ProjectionSequence
+     * @return
+     */
     Map<String,Integer> getOrderedSequenceMap() {
-        return getProjectedSequences().collectEntries { it ->
-            [ (it.name) : it.order ]
+        Map<String,Integer> returnMap = new HashMap<>()
+        getProjectedSequences().each{ it ->
+            if(!returnMap.containsKey(it.name)){
+               returnMap.put(it.name,it.order)
+            }
         }
+        return returnMap
     }
 
     def addProjectionSequences(List<ProjectionSequence> theseProjectionSequences) {

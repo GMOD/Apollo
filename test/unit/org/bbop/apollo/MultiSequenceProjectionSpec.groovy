@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import org.bbop.apollo.projection.*
+import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 /**
