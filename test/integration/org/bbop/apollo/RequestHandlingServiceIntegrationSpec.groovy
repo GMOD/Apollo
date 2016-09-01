@@ -5,6 +5,8 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import spock.lang.Ignore
+import spock.lang.IgnoreRest
 
 class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
@@ -17,7 +19,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
     def sequenceService
     def gff3HandlerService
     def projectionService
-
 
     void "add transcript with UTR"() {
 
@@ -3328,12 +3329,65 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     void "adding a simple SNV"() {
         given: "a SNV"
-        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"referenceBases\": \"A\", \"alternateBases\": \"G\", \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"referenceBases\": \"A\", \"alternateAlleles\": [{\"bases\": \"G\"}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
 
         when: "we add a SNV"
-        println requestHandlingService.addVariantAnnotation(JSON.parse(addVariantString) as JSONObject)
+        requestHandlingService.addVariantAnnotation(JSON.parse(addVariantString) as JSONObject)
 
         then: "we should see the SNV"
-        assert SNV.all.size() != 0
+        assert SNV.all.size() == 1
+        assert Allele.all.size() == 1
+    }
+
+    void "adding a multi-alleleic SNV"() {
+        given: "a SNV that has 3 alternate alleles"
+        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"referenceBases\": \"A\", \"alternateAlleles\": [{\"bases\": \"G\"}, {\"bases\": \"C\"}, {\"bases\": \"T\"}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+
+        when: "we add a SNV"
+        requestHandlingService.addVariantAnnotation(JSON.parse(addVariantString) as JSONObject)
+
+        then: "we should see the SNV and it should have 3 alleles"
+        assert SNV.all.size() == 1
+        assert Allele.all.size() == 3
+
+        SNV snv = SNV.findByName("rs0000000")
+        assert snv.alternateAlleles.size() == 3
+    }
+
+    @IgnoreRest
+    void "adding a multi-allelic SNV and adding additional properties"() {
+        given: "a SNV that has 3 alternate alleles and additional properties that describe the SNV and its alleles"
+        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"referenceBases\": \"A\", \"alternateAlleles\": [{\"bases\": \"G\", \"info\": [{\"tag\": \"AF\", \"value\": 0.0321}, {\"tag\": \"AC\", \"value\": 32}]}, {\"bases\": \"C\", \"info\": [{\"tag\": \"AF\", \"value\": 0.00123}, {\"tag\": \"AC\", \"value\": 7}]}, {\"bases\": \"T\", \"info\": [{\"tag\": \"AF\", \"value\": 0.00111}, {\"tag\": \"AC\", \"value\": 3}]}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+
+        when: "we add a SNV"
+        requestHandlingService.addVariantAnnotation(JSON.parse(addVariantString) as JSONObject)
+
+        then: "we should see the SNV and it should have 3 alleles, with each alelle having its own properties such as AF and AC"
+        assert SNV.all.size() == 1
+        assert Allele.all.size() == 3
+
+        SNV snv = SNV.findByName("rs0000000")
+        assert snv.alternateAlleles.size() == 3
+
+        snv.alternateAlleles.each {
+            if (it.bases == "G") {
+                assert it.alleleFrequency == Float.parseFloat("0.0321")
+                assert it.alleleInfo[0].tag == "AC"
+                assert it.alleleInfo[0].value == "32"
+            }
+            else if (it.bases == "C") {
+                assert it.alleleFrequency == Float.parseFloat("0.00123")
+                assert it.alleleInfo[0].tag == "AC"
+                assert it.alleleInfo[0].value == "7"
+            }
+            else if (it.bases == "T") {
+                assert it.alleleFrequency == Float.parseFloat("0.00111")
+                assert it.alleleInfo[0].tag == "AC"
+                assert it.alleleInfo[0].value == "3"
+            }
+            else {
+                assert false
+            }
+        }
     }
 }
