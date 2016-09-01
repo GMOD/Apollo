@@ -1093,4 +1093,125 @@ class MultiSequenceProjectionSpec extends Specification {
 
     }
 
+    void "we can get get the proper projection from three contiguous scaffolds"() {
+
+        given: "a projection"
+        ProjectionSequence sequence1 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
+                , unprojectedLength: 100
+                , start: 10
+                , end: 12
+        )// from 0-99
+        ProjectionSequence sequence2 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 1
+                , unprojectedLength: 100
+                , start: 22
+                , end: 25
+        )// from 0-99
+        ProjectionSequence sequence3 = new ProjectionSequence(
+                id: 2
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 2
+                , unprojectedLength: 100
+                , start: 60
+                , end: 63
+        ) // from 100-200
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+        multiSequenceProjection.addProjectionSequences([sequence1, sequence2,sequence3])
+        Location location1 = new Location(min: 10, max: 12, sequence: sequence1)
+        Location location2 = new Location(min: 22, max: 25, sequence: sequence2)
+        Location location4 = new Location(min: 60, max: 63, sequence: sequence3)
+//        Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )
+
+        when: "we add the locations"
+        multiSequenceProjection.addLocation(location1)
+        multiSequenceProjection.addLocation(location2)
+//        multiSequenceProjection.addLocation(location3)
+        multiSequenceProjection.addLocation(location4)
+        multiSequenceProjection.calculateOffsets()
+
+        then: "we should be able to get out the proper projection sequence"
+        multiSequenceProjection.getProjectionSequence(10).order == 0
+        multiSequenceProjection.getProjectionSequence(12).order == 0
+        multiSequenceProjection.getProjectionSequence(10).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(12).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(22).order == 1
+        multiSequenceProjection.getProjectionSequence(25).order == 1
+        multiSequenceProjection.getProjectionSequence(22).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(25).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(60).order == 2
+        multiSequenceProjection.getProjectionSequence(63).order == 2
+        multiSequenceProjection.getProjectionSequence(60).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(63).name == "Sequence1"
+
+
+    }
+
+    void "we can get get the proper projection from three contiguous scaffolds out of order"() {
+
+        given: "a projection"
+        ProjectionSequence sequence1 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 1
+                , unprojectedLength: 100
+                , start: 10
+                , end: 12
+        )// from 0-99
+        ProjectionSequence sequence2 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 2
+                , unprojectedLength: 100
+                , start: 22
+                , end: 25
+        )// from 0-99
+        ProjectionSequence sequence3 = new ProjectionSequence(
+                id: 2
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
+                , unprojectedLength: 100
+                , start: 60
+                , end: 63
+        ) // from 100-200
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+        multiSequenceProjection.addProjectionSequences([sequence1, sequence2,sequence3])
+        Location location1 = new Location(min: 10, max: 12, sequence: sequence1)
+        Location location2 = new Location(min: 22, max: 25, sequence: sequence2)
+        Location location4 = new Location(min: 60, max: 63, sequence: sequence3)
+//        Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )
+
+        when: "we add the locations"
+        multiSequenceProjection.addLocation(location1)
+        multiSequenceProjection.addLocation(location2)
+//        multiSequenceProjection.addLocation(location3)
+        multiSequenceProjection.addLocation(location4)
+        multiSequenceProjection.calculateOffsets()
+
+        then: "we should be able to get out the proper projection sequence"
+        multiSequenceProjection.getProjectionSequence(10).order == 1
+        multiSequenceProjection.getProjectionSequence(12).order == 1
+        multiSequenceProjection.getProjectionSequence(10).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(12).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(22).order == 2
+        multiSequenceProjection.getProjectionSequence(25).order == 2
+        multiSequenceProjection.getProjectionSequence(22).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(25).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(60).order == 0
+        multiSequenceProjection.getProjectionSequence(63).order == 0
+        multiSequenceProjection.getProjectionSequence(60).name == "Sequence1"
+        multiSequenceProjection.getProjectionSequence(63).name == "Sequence1"
+
+
+    }
 }
