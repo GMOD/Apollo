@@ -3,13 +3,25 @@ package org.bbop.apollo.projection
 import org.bbop.apollo.Organism
 
 /**
+ *
+ * The class represents a single projected view.
+ * Within that view, there are multiple ordered sequences (scaffolds).
+ * Each sequence can represent the entire sequence, or a portion thereof.
+ * Each sequence can have a reverse complement.
+ * Each sequence can be repeated.
+ * This allows an entire sequence region to be visualized.
+ *
+ * Within each sequence, only a portion thereof may shown due to a variety of folding.
+ * This is represented by the DiscontinuousProjection.
+ * The DiscontinuousProjection refer to viewed exons (or an entire unfolded transcript) within a scaffold region.
+ *
+ *
  * Created by nathandunn on 9/24/15.
  */
 class MultiSequenceProjection extends AbstractProjection {
 
     // if a projection includes multiple sequences, this will include greater than one
     TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>()
-//    List<ProjectionSequence> sequenceList // an ordered array of sequences or ALL . . .if empty then all
 
     List<String> chunks = new ArrayList<>()
     ProjectionChunkList projectionChunkList = new ProjectionChunkList()
