@@ -2341,9 +2341,16 @@ class RequestHandlingService {
             for (int j = 0; j < alternateAllelesArray.size(); j++) {
                 JSONObject alternateAlleleObject = alternateAllelesArray.getJSONObject(j)
                 String bases = alternateAlleleObject.getString("bases")
-                String alleleFrequency = alternateAlleleObject.getString("AF")
+                String alleleFrequencyString = alternateAlleleObject.getString("AF")
+                Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
                 println "Allele: ${bases} with AF ${alleleFrequency}"
-                Allele allele = new Allele(bases: bases, alleleFrequency: Float.parseFloat(alleleFrequency))
+                Allele allele = new Allele(bases: bases)
+                if (alleleFrequency >= 0 && alleleFrequency <= 1.0) {
+                    allele.alleleFrequency = alleleFrequency
+                }
+                else {
+                    log.error "Unexpected Alternate Allele Frequency value of ${alleleFrequencyString}"
+                }
                 allele.variant = (SequenceAlteration) feature
                 allele.save()
                 feature.addToAlternateAlleles(allele)
@@ -2391,6 +2398,52 @@ class RequestHandlingService {
             }
 
             feature.save(flush: true, failOnError: true)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+        }
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return updateFeatureContainer
+    }
+
+    def updateAlternateAlleles(JSONObject inputObject) {
+        println "@updateAlternateAlleles: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < featuresArray.length(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            JSONObject oldAlternateAlleleObject = jsonFeature.getJSONArray("oldAlternateAlleles").getJSONObject(0)
+            JSONObject newAlternateAlleleObject = jsonFeature.getJSONArray("newAlternateAlleles").getJSONObject(0)
+
+            String oldAltAlleleBases = oldAlternateAlleleObject.getString("bases")
+            Float oldAltAlleleFrequency = Float.parseFloat(oldAlternateAlleleObject.getString("AF"))
+            String newAltAlleleBases = newAlternateAlleleObject.getString("bases")
+            Float newAltAlleleFrequency = Float.parseFloat(newAlternateAlleleObject.getString("AF"))
+            def alternateAlleles = feature.alternateAlleles
+            for (def allele : alternateAlleles) {
+                if (allele.bases == oldAltAlleleBases) {
+                    allele.bases = newAltAlleleBases
+                    if (newAltAlleleFrequency >= 0 && newAltAlleleFrequency <= 1) {
+                        allele.alleleFrequency = newAltAlleleFrequency
+                    }
+                    else {
+                        log.error "Unexpected Alternate Allele Frequency value of ${newAltAlleleFrequency}"
+                    }
+                    allele.save(flush:true, failOnError: true)
+                }
+            }
+
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
