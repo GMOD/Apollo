@@ -2340,7 +2340,7 @@ class RequestHandlingService {
 
             for (int j = 0; j < alternateAllelesArray.size(); j++) {
                 JSONObject alternateAlleleObject = alternateAllelesArray.getJSONObject(j)
-                String bases = alternateAlleleObject.getString("bases")
+                String bases = alternateAlleleObject.getString("bases").toUpperCase()
                 String alleleFrequencyString = alternateAlleleObject.getString("AF")
                 Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
                 println "Allele: ${bases} with AF ${alleleFrequency}"
@@ -2385,7 +2385,7 @@ class RequestHandlingService {
 
             for (int j = 0; j < alternateAllelesArray.size(); j++) {
                 JSONObject alternateAlleleObject = alternateAllelesArray.getJSONObject(j)
-                String bases = alternateAlleleObject.getString("bases")
+                String bases = alternateAlleleObject.getString("bases").toUpperCase()
                 def alternateAlleles = feature.alternateAlleles
                 for (def allele : alternateAlleles) {
                     if (allele.bases == bases) {
@@ -2426,9 +2426,9 @@ class RequestHandlingService {
             JSONObject oldAlternateAlleleObject = jsonFeature.getJSONArray("oldAlternateAlleles").getJSONObject(0)
             JSONObject newAlternateAlleleObject = jsonFeature.getJSONArray("newAlternateAlleles").getJSONObject(0)
 
-            String oldAltAlleleBases = oldAlternateAlleleObject.getString("bases")
+            String oldAltAlleleBases = oldAlternateAlleleObject.getString("bases").toUpperCase()
             Float oldAltAlleleFrequency = Float.parseFloat(oldAlternateAlleleObject.getString("AF"))
-            String newAltAlleleBases = newAlternateAlleleObject.getString("bases")
+            String newAltAlleleBases = newAlternateAlleleObject.getString("bases").toUpperCase()
             Float newAltAlleleFrequency = Float.parseFloat(newAlternateAlleleObject.getString("AF"))
             def alternateAlleles = feature.alternateAlleles
             for (def allele : alternateAlleles) {
