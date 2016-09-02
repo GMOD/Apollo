@@ -2341,15 +2341,18 @@ class RequestHandlingService {
             for (int j = 0; j < alternateAllelesArray.size(); j++) {
                 JSONObject alternateAlleleObject = alternateAllelesArray.getJSONObject(j)
                 String bases = alternateAlleleObject.getString("bases").toUpperCase()
-                String alleleFrequencyString = alternateAlleleObject.getString("AF")
-                Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
-                println "Allele: ${bases} with AF ${alleleFrequency}"
                 Allele allele = new Allele(bases: bases)
-                if (alleleFrequency >= 0 && alleleFrequency <= 1.0) {
-                    allele.alleleFrequency = alleleFrequency
-                }
-                else {
-                    log.error "Unexpected Alternate Allele Frequency value of ${alleleFrequencyString}"
+                String alleleFrequencyString
+                if (alternateAlleleObject.getString("AF")) {
+                    alleleFrequencyString = alternateAlleleObject.getString("AF")
+                    Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
+                    println "Allele: ${bases} with AF ${alleleFrequency}"
+                    if (alleleFrequency >= 0 && alleleFrequency <= 1.0) {
+                        allele.alleleFrequency = alleleFrequency
+                    }
+                    else {
+                        log.error "Unexpected Alternate Allele Frequency value of ${alleleFrequencyString}"
+                    }
                 }
                 allele.variant = (SequenceAlteration) feature
                 allele.save()
@@ -2427,18 +2430,26 @@ class RequestHandlingService {
             JSONObject newAlternateAlleleObject = jsonFeature.getJSONArray("newAlternateAlleles").getJSONObject(0)
 
             String oldAltAlleleBases = oldAlternateAlleleObject.getString("bases").toUpperCase()
-            Float oldAltAlleleFrequency = Float.parseFloat(oldAlternateAlleleObject.getString("AF"))
             String newAltAlleleBases = newAlternateAlleleObject.getString("bases").toUpperCase()
-            Float newAltAlleleFrequency = Float.parseFloat(newAlternateAlleleObject.getString("AF"))
+            Float oldAltAlleleFrequency
+            if (oldAlternateAlleleObject.has("AF") && oldAlternateAlleleObject.getString("AF") != "") {
+                oldAltAlleleFrequency = Float.parseFloat(oldAlternateAlleleObject.getString("AF"))
+            }
+            Float newAltAlleleFrequency
+            if (newAlternateAlleleObject.has("AF") && newAlternateAlleleObject.getString("AF") != "") {
+                newAltAlleleFrequency = Float.parseFloat(newAlternateAlleleObject.getString("AF"))
+            }
             def alternateAlleles = feature.alternateAlleles
             for (def allele : alternateAlleles) {
                 if (allele.bases == oldAltAlleleBases) {
                     allele.bases = newAltAlleleBases
-                    if (newAltAlleleFrequency >= 0 && newAltAlleleFrequency <= 1) {
-                        allele.alleleFrequency = newAltAlleleFrequency
-                    }
-                    else {
-                        log.error "Unexpected Alternate Allele Frequency value of ${newAltAlleleFrequency}"
+                    if (newAltAlleleFrequency) {
+                        if (newAltAlleleFrequency >= 0 && newAltAlleleFrequency <= 1) {
+                            allele.alleleFrequency = newAltAlleleFrequency
+                        }
+                        else {
+                            log.error "Unexpected Alternate Allele Frequency value of ${newAltAlleleFrequency}"
+                        }
                     }
                     allele.save(flush:true, failOnError: true)
                 }
