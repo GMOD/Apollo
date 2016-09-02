@@ -153,10 +153,14 @@ class AnnotatorController {
 
         if (feature instanceof SequenceAlteration && feature.type) {
             feature.referenceBases = data.referenceBases
-            feature.alternateBases = data.alternateBases
-            if (data.minor_allele_frequency) {
-                feature.minorAlleleFrequency = data.minor_allele_frequency
+            JSONArray alternateAllelesArray = data.getJSONArray("alternateAlleles")
+            for (int i = 0; i < alternateAllelesArray.length(); i++) {
+                Allele allele = new Allele(bases: alternateAllelesArray.getJSONObject(i).getString("bases"))
+                allele.variant = feature
+                allele.save()
+                feature.setAlternateAlleles(allele)
             }
+            // TODO: set additional metadata
         }
         Sequence sequence = feature?.featureLocation?.sequence
 
