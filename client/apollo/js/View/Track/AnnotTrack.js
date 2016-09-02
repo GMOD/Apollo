@@ -3397,7 +3397,7 @@ define([
                     innerHTML: "REF",
                     'class': "annotation_info_editor_label"
                 }, refBasesDiv);
-                var refBasesField = new dijitTextBox({'class': "annotation_editor_field"});
+                var refBasesField = new dijitTextBox({'class': "annotation_editor_field", readonly: true});
                 dojo.place(refBasesField.domNode, refBasesDiv);
                 new Tooltip({
                     connectId: refBasesDiv,
@@ -3736,8 +3736,8 @@ define([
                 // initialize Position field
                 var initPosition = function(feature) {
                     if (feature.location) {
-                        // TODO: Strand information
-                        var positionString = feature.location.fmin + " - " + feature.location.fmax;
+                        var start = parseInt(feature.location.fmin) + 1;
+                        var positionString = start + " - " + feature.location.fmax;
                         positionField.set("value", positionString);
                     }
                 };
