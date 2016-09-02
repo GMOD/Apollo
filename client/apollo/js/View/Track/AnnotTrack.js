@@ -3937,26 +3937,44 @@ define([
                     });
 
                     dojo.connect(altAlleleTable, "onCancelEdit", function(inRowIndex) {
-                        altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", oldBases);
+                        altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", oldAltBases);
                         altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", oldAltAlleleFrequency);
                         dirty = false;
                     });
 
                     dojo.connect(altAlleleTable, "onApplyEdit", function(inRowIndex) {
-                        var newAltBases = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "bases");
+                        var newAltBases = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "bases").toUpperCase();
                         var newAltAlleleFrequency = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "allele_frequency");
-                        console.log (oldAltBases, " vs. ", newAltBases, " || ", oldAltAlleleFrequency, " vs. ", newAltAlleleFrequency);
-                        if (!newAltBases || !newAltAlleleFrequency) {
-                        }
-                        else if (!oldAltBases || !oldAltAlleleFrequency) {
-                            addAltAlleles(newAltBases, newAltAlleleFrequency);
+                        var altFreq = parseFloat(newAltAlleleFrequency);
+                        if (altFreq < 0 || altFreq > 1.0) {
+                            // sanity check for frequency value
+                            new ConfirmDialog({
+                                title: 'Improper value for AF field',
+                                message: "The value for AF field should be within the range of 0.0 - 1.0",
+                                confirmLabel: 'OK',
+                                denyLabel: 'Cancel'
+                            }).show(function (confirmed) {
+                                if (confirmed) {
+                                }
+                            });
+                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
+                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", "");
                         }
                         else {
-                            if (newAltBases != oldAltBases || newAltAlleleFrequency != oldAltAlleleFrequency) {
-                                updateAltAlleles(oldAltBases, oldAltAlleleFrequency, newAltBases, newAltAlleleFrequency);
+                            console.log (oldAltBases, " vs. ", newAltBases, " || ", oldAltAlleleFrequency, " vs. ", newAltAlleleFrequency);
+                            if (!newAltBases || !newAltAlleleFrequency) {
                             }
+                            else if (!oldAltBases || !oldAltAlleleFrequency) {
+                                addAltAlleles(newAltBases, newAltAlleleFrequency);
+                            }
+                            else {
+                                if (newAltBases != oldAltBases || newAltAlleleFrequency != oldAltAlleleFrequency) {
+                                    updateAltAlleles(oldAltBases, oldAltAlleleFrequency, newAltBases, newAltAlleleFrequency);
+                                }
+                            }
+                            dirty = false;
+                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
                         }
-                        dirty = false;
                     });
 
                     dojo.connect(addAltAlleleButton, "onclick", function() {
