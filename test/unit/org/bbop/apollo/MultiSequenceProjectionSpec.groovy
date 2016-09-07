@@ -1197,8 +1197,14 @@ class MultiSequenceProjectionSpec extends Specification {
 //        multiSequenceProjection.addLocation(location3)
         multiSequenceProjection.addLocation(location4)
         multiSequenceProjection.calculateOffsets()
+        ProjectionSequence projectionSequence1 = multiSequenceProjection.getProjectionSequence(10)
+        ProjectionSequence projectionSequence2 = multiSequenceProjection.getProjectionSequence(22)
+        ProjectionSequence projectionSequence3 = multiSequenceProjection.getProjectionSequence(60)
 
         then: "we should be able to get out the proper projection sequence"
+        assert projectionSequence1==multiSequenceProjection.getProjectionSequence(12)
+        assert projectionSequence2==multiSequenceProjection.getProjectionSequence(25)
+        assert projectionSequence3==multiSequenceProjection.getProjectionSequence(63)
         multiSequenceProjection.getProjectionSequence(10).order == 1
         multiSequenceProjection.getProjectionSequence(12).order == 1
         multiSequenceProjection.getProjectionSequence(10).name == "Sequence1"
@@ -1212,6 +1218,19 @@ class MultiSequenceProjectionSpec extends Specification {
         multiSequenceProjection.getProjectionSequence(60).name == "Sequence1"
         multiSequenceProjection.getProjectionSequence(63).name == "Sequence1"
 
+        // we should be able to project the proper value as well
+        assert 0 == projectionSequence3.offset
+        assert 0 == projectionSequence3.originalOffset
+        assert 3 == projectionSequence1.offset
+        assert 0 == projectionSequence1.originalOffset
+        assert 5 == projectionSequence2.offset
+        assert 0 == projectionSequence2.originalOffset
+        assert 0==multiSequenceProjection.projectValue(60)
+        assert 3==multiSequenceProjection.projectValue(63)
+        assert 3==multiSequenceProjection.projectValue(10)
+        assert 5==multiSequenceProjection.projectValue(12)
+        assert 5==multiSequenceProjection.projectValue(22)
+        assert 8==multiSequenceProjection.projectValue(25)
 
     }
 }
