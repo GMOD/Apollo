@@ -386,7 +386,7 @@ jbrowse {
         alwaysPull = true
         alwaysRecheck = true
 //        url= "https://github.com/gmod/jbrowse"
-		tag = "1.12.2-apollo"
+//        tag = "1.12.2-apollo"
 //        branch = "master"
         alwaysPull = false
         alwaysRecheck = false
