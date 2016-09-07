@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.NotTransactional
 import liquibase.util.file.FilenameUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.MultiSequenceProjection
@@ -29,6 +28,7 @@ class JbrowseController {
     def trackService
     def refSeqProjectorService
     def sequenceCacheService
+    def bookmarkService
 
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
@@ -52,18 +52,18 @@ class JbrowseController {
             Organism organism = preferenceService.getOrganismForToken(clientToken)
             organism = organism ?: preferenceService.getOrganismFromPreferences(clientToken)
             def availableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
-            if(!availableOrganisms){
+            if (!availableOrganisms) {
                 String urlString = "/jbrowse/index.html?${paramList.join("&")}"
                 String username = permissionService.currentUser.username
                 org.apache.shiro.SecurityUtils.subject.logout()
                 forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "User '${username}' lacks permissions to view or edit the annotations of any organism."])
                 return
             }
-            if(!availableOrganisms.contains(organism)){
+            if (!availableOrganisms.contains(organism)) {
                 log.warn "Organism '${organism?.commonName}' is not viewable by this user so viewing ${availableOrganisms.first().commonName} instead."
                 organism = availableOrganisms.first()
             }
-            if(organism && clientToken){
+            if (organism && clientToken) {
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
             }
             File file = new File(servletContext.getRealPath("/jbrowse/index.html"))
@@ -144,16 +144,17 @@ class JbrowseController {
                 if (organism.sequences) {
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
-                    Sequence sequence = organism?.sequences?.first()
+                    Bookmark bookmark = bookmarkService.getBookmarksForUserAndOrganism(permissionService.currentUser, organism)
+//                    Sequence sequence = organism?.sequences?.first()
+                    JSONArray sequenceArray = new JSONArray()
                     if (userOrganismPreference == null) {
 //                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
-//                    List<Sequence> sequences = organism?.sequences
-//                    JSONArray sequenceArray = new JSONArray()
-//                    sequences.each {
-//                        JSONObject jsonObject = new JSONObject()
-//                        jsonObject.name = it.name
-//                        sequenceArray.add(jsonObject)
-//                    }
+                        List<Sequence> sequences = organism?.sequences
+                        sequences.each {
+                            JSONObject jsonObject = new JSONObject()
+                            jsonObject.name = it.name
+                            sequenceArray.add(jsonObject)
+                        }
 //
 //                    if (userOrganismPreference == null) {
 //                        Bookmark bookmark = new Bookmark(
@@ -186,7 +187,7 @@ class JbrowseController {
     }
 
     def getSeqBoundaries() {
-        JSONObject inputObject = permissionService.handleInput(request,params)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         try {
             String dataDirectory = getJBrowseDirectoryForSession(clientToken)
@@ -195,8 +196,8 @@ class JbrowseController {
             String refererLoc = trackService.extractLocation(referer)
 
             MultiSequenceProjection projection = null
-            if(BookmarkService.isProjectionString(refererLoc)){
-                Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+            if (BookmarkService.isProjectionString(refererLoc)) {
+                Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken) ?: preferenceService.inferOrganismFromReference(refererLoc)
                 projection = projectionService.getProjection(refererLoc, currentOrganism)
             }
 
@@ -221,14 +222,15 @@ class JbrowseController {
 
 
             int offset = 0
+            int projectedOffset = 0
             for (int i = 0; sequenceList && i < sequenceList.size(); i++) {
                 JSONObject thisSeq = sequenceList.get(i)
                 JSONObject regionObject = new JSONObject(thisSeq.toString())
                 regionObject.refseq = generateRefSeqLabel(thisSeq)
                 // TODO: factor in projected offset
-                int currentPosition =  thisSeq.start ?: 0
+                int currentPosition = thisSeq.start ?: 0
                 regionObject.originalPosition = currentPosition
-                currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
+                currentPosition = projection ? projection.projectValue(currentPosition,0,projectedOffset) : currentPosition
                 regionObject.start = currentPosition + offset
                 // TODO: if it has an end use that . . otherwise use the sequence value
 //                regionObject.end = projection ? projection.projectValue(thisSeq.end) : Sequence.findByName(thisSeq.name)?.end
@@ -278,6 +280,7 @@ class JbrowseController {
 //                displayArray.add(rightObject)
                 displayArray.add(regionObject)
                 offset = currentPosition
+                projectedOffset = thisSeq.end - thisSeq.start
             }
             JSONObject returnObject = new JSONObject()
             returnObject.features = displayArray
@@ -292,18 +295,18 @@ class JbrowseController {
 
     def generateRefSeqLabel(JSONObject refSeqObject) {
         String returnLabel = ""
-        if(refSeqObject.feature){
+        if (refSeqObject.feature) {
             returnLabel += refSeqObject.feature.name + " ("
         }
         returnLabel += refSeqObject.name
-        if(refSeqObject.feature){
+        if (refSeqObject.feature) {
             returnLabel += ")"
         }
         return returnLabel
     }
 /**
-     * Handles data directory serving for jbrowse
-     */
+ * Handles data directory serving for jbrowse
+ */
     def data() {
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
         String dataDirectory = getJBrowseDirectoryForSession(params.get(clientToken).toString())
@@ -318,12 +321,11 @@ class JbrowseController {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
 
                 SequenceCache cache = SequenceCache.findByKey(dataFileName)
-                if(cache){
-                    if(cache.value==String.valueOf(HttpServletResponse.SC_NOT_FOUND)){
+                if (cache) {
+                    if (cache.value == String.valueOf(HttpServletResponse.SC_NOT_FOUND)) {
                         response.setStatus(HttpServletResponse.SC_NOT_FOUND)
-                    }
-                    else{
-                        sequenceCacheService.generateCacheTags(response,cache,dataFileName,cache.value.bytes.length)
+                    } else {
+                        sequenceCacheService.generateCacheTags(response, cache, dataFileName, cache.value.bytes.length)
                         response.outputStream << cache.value
                     }
                     return
@@ -341,11 +343,11 @@ class JbrowseController {
 
                     JSONObject trackObject = trackService.projectTrackData(sequenceArray, dataFileName, refererLoc, currentOrganism)
                     if (trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value).size() == 0) {
-                        cache = new SequenceCache(key:dataFileName,value:HttpServletResponse.SC_NOT_FOUND).save(insert: true)
+                        cache = new SequenceCache(key: dataFileName, value: HttpServletResponse.SC_NOT_FOUND).save(insert: true)
                         response.setStatus(HttpServletResponse.SC_NOT_FOUND)
                     } else {
-                        cache = new SequenceCache(key:dataFileName,value:trackObject.toString()).save(insert: true)
-                        sequenceCacheService.generateCacheTags(response,cache,dataFileName,cache.value.bytes.length)
+                        cache = new SequenceCache(key: dataFileName, value: trackObject.toString()).save(insert: true)
+                        sequenceCacheService.generateCacheTags(response, cache, dataFileName, cache.value.bytes.length)
                         response.outputStream << trackObject.toString()
                     }
                     return
@@ -353,32 +355,30 @@ class JbrowseController {
                     String trackName = projectionService.getTrackName(dataFileName)
                     JSONArray trackArray = trackService.projectTrackChunk(fileName, dataFileName, refererLoc, currentOrganism, trackName)
                     if (trackArray.size() == 0) {
-                        cache = new SequenceCache(key:dataFileName,value:HttpServletResponse.SC_NOT_FOUND).save(insert: true)
+                        cache = new SequenceCache(key: dataFileName, value: HttpServletResponse.SC_NOT_FOUND).save(insert: true)
                         response.setStatus(HttpServletResponse.SC_NOT_FOUND)
                     } else {
-                        cache = new SequenceCache(key:dataFileName,value:trackArray.toString()).save(insert: true)
-                        sequenceCacheService.generateCacheTags(response,cache,dataFileName,cache.value.bytes.length)
+                        cache = new SequenceCache(key: dataFileName, value: trackArray.toString()).save(insert: true)
+                        sequenceCacheService.generateCacheTags(response, cache, dataFileName, cache.value.bytes.length)
                         response.outputStream << trackArray.toString()
                     }
                     return
                 }
 
-            } else
-            if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+            } else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
                 String sequencePath = sequenceService.calculatePath(params.path)
 
                 SequenceCache cache = SequenceCache.findByKey(sequencePath)
                 String returnSequence
-                if(cache){
+                if (cache) {
                     returnSequence = cache.value
-                }
-                else{
+                } else {
                     returnSequence = refSeqProjectorService.projectSequence(dataFileName, currentOrganism)
-                    cache = new SequenceCache(key:sequencePath,value:returnSequence).save(insert: true)
+                    cache = new SequenceCache(key: sequencePath, value: returnSequence).save(insert: true)
                 }
                 Date lastModifiedDate = cache.lastUpdated
                 String dateString = SimpleDateFormat.getDateInstance().format(lastModifiedDate)
-                String eTag = sequenceCacheService.createHash(sequencePath,(long) returnSequence.bytes.length, (long) lastModifiedDate.time);
+                String eTag = sequenceCacheService.createHash(sequencePath, (long) returnSequence.bytes.length, (long) lastModifiedDate.time);
                 response.setHeader("ETag", eTag);
                 response.setHeader("Last-Modified", dateString);
 
@@ -425,7 +425,7 @@ class JbrowseController {
 
 
         if (isCacheableFile(fileName)) {
-            sequenceCacheService.cacheFile(response,file)
+            sequenceCacheService.cacheFile(response, file)
         }
 
         String range = request.getHeader("range");
@@ -487,25 +487,22 @@ class JbrowseController {
                     JSONObject refererObject
                     String results
 
-                    if(BookmarkService.isProjectionString(refererLoc)){
+                    if (BookmarkService.isProjectionString(refererLoc)) {
                         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
                         Integer lastIndex = refererLoc.lastIndexOf("}:")
-                        String sequenceString = refererLoc.substring(0,lastIndex+1)
+                        String sequenceString = refererLoc.substring(0, lastIndex + 1)
                         refererObject = new JSONObject(sequenceString)
                         refererObject.seqChunkSize = 20000
                         sequenceArray.add(refererObject)
                         results = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
-                    }
-                    else
-                    if(BookmarkService.isProjectionReferer(refererLoc)){
+                    } else if (BookmarkService.isProjectionReferer(refererLoc)) {
                         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
                         // NOTE: not sure if this is the correct object
                         refererObject = new JSONObject(refererLoc)
                         sequenceArray.add(refererObject)
                         results = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
-                    }
-                    else{
+                    } else {
                         // get the sequence
                         String sequenceName = refererLoc.split(":")[0]
                         Sequence sequence = Sequence.findByName(sequenceName)
@@ -522,15 +519,14 @@ class JbrowseController {
 //                    if (projectionService.hasProjection(preferenceService.currentOrganismForCurrentUser,projectionService.getTrackName(file.absolutePath))) {
 //                    println "refseq size ${refSeqJsonObject.size()}"
 
-
                     // returns projection to a string of some sort
                 } else {
                     // Set content size
                     response.setContentLength((int) file.length());
 
-            // Open the file and output streams
-            FileInputStream inputStream = new FileInputStream(file);
-            OutputStream out = response.getOutputStream();
+                    // Open the file and output streams
+                    FileInputStream inputStream = new FileInputStream(file);
+                    OutputStream out = response.getOutputStream();
 
                     // Copy the contents of the file to the output stream
                     byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
@@ -699,7 +695,7 @@ class JbrowseController {
             String url = "javascript:window.top.location.href = '../../annotator/loadLink?"
             url += "organism=" + organism.getId();
             url += "&highlight=0";
-            url += "&clientToken="+clientToken;
+            url += "&clientToken=" + clientToken;
             url += "&tracks='";
             organismObject.put("url", url)
             organismObjectContainer.put(organism.id, organismObject)
@@ -715,7 +711,7 @@ class JbrowseController {
 
         jsonObject.put("datasets", organismObjectContainer)
 
-        if (jsonObject.include == null){
+        if (jsonObject.include == null) {
             jsonObject.put("include", new JSONArray())
         }
         jsonObject.include.add("../plugins/WebApollo/json/annot.json")
@@ -728,11 +724,9 @@ class JbrowseController {
                 jsonObject.plugins = new JSONArray()
             } else {
                 for (int i = 0; i < jsonObject.plugins.size(); i++) {
-                    if(jsonObject.plugins[i] instanceof JSONObject){
+                    if (jsonObject.plugins[i] instanceof JSONObject) {
                         pluginKeys.add(jsonObject.plugins[i].name)
-                    }
-                    else
-                    if(jsonObject.plugins[i] instanceof String){
+                    } else if (jsonObject.plugins[i] instanceof String) {
                         pluginKeys.add(jsonObject.plugins[i])
                     }
                 }
@@ -756,7 +750,7 @@ class JbrowseController {
         response.outputStream.close()
     }
 
-    def annotInclude(){
+    def annotInclude() {
         String realPath = servletContext.getRealPath("/jbrowse/plugins/WebApollo/json/annot.json")
         File file = new File(realPath)
         String returnString = file.text
@@ -768,8 +762,8 @@ class JbrowseController {
     // TODO: can optimize and get fancier if have to add more stuff to our filter replacment code
     def filterObject(String returnString) {
 
-        String currentUrl = createLink(absolute: true,uri:"/")
-        returnString = returnString.replaceAll("@SERVER@",currentUrl)
+        String currentUrl = createLink(absolute: true, uri: "/")
+        returnString = returnString.replaceAll("@SERVER@", currentUrl)
 
         return returnString
     }
@@ -805,7 +799,7 @@ class JbrowseController {
         String dataFileName = params.prefix + "/" + params.path
         String fileName = FilenameUtils.getName(params.path)
         // have to prefix with a "/"
-        if(!dataFileName.startsWith("/")){
+        if (!dataFileName.startsWith("/")) {
             dataFileName = "/" + dataFileName
         }
         File file = new File(servletContext.getRealPath(dataFileName))
@@ -819,7 +813,7 @@ class JbrowseController {
         String mimeType = getServletContext().getMimeType(fileName);
 
         // TODO: refactor to use existing methods in cache service
-        sequenceCacheService.cacheFile(response,file)
+        sequenceCacheService.cacheFile(response, file)
 
         response.setContentType(mimeType);
 //        // Set content size

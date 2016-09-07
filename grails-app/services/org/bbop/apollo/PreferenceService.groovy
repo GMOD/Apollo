@@ -326,4 +326,16 @@ class PreferenceService {
     UserOrganismPreference getCurrentOrganismPreference(String token) {
         getCurrentOrganismPreference(permissionService.currentUser, null, token)
     }
+
+    /**
+     * Looks at sequences to infer organism from
+     * @param jsonString
+     * @return
+     */
+    Organism inferOrganismFromReference(String jsonString) {
+        JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+        String firstSequenceName = jsonObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value).get(0).name
+        Sequence sequence = Sequence.findByName(firstSequenceName)
+        return sequence?.organism
+    }
 }
