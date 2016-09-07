@@ -150,7 +150,7 @@ class ProjectionGridTrackController {
                     name: projectionSequence.name,
                     label: projectionSequence.name,
                     color: ColorGenerator.getColorForIndex(index),
-                    uniqueID: projectionSequence.name + sequenceObject.toString(),
+                    uniqueID: projectionSequence.name + sequenceObject.toString()+index,
                     sequence: projectionSequence.toJSONObject()
             )
             jsonObject.features.add(region)
@@ -161,7 +161,7 @@ class ProjectionGridTrackController {
                     name: projectionSequence.name,
                     label: projectionSequence.name,
                     color: ColorGenerator.getColorForIndex(index),
-                    uniqueID: projectionSequence.name + sequenceObject.toString(),
+                    uniqueID: projectionSequence.name + sequenceObject.toString()+index,
 //                    data: sequenceObject,
                     sequence: projectionSequence.toJSONObject()
             )
