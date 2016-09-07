@@ -252,28 +252,38 @@ class MultiSequenceProjection extends AbstractProjection {
         def projectionSequences = sequenceDiscontinuousProjectionMap.keySet().sort() { a, b ->
             a.order <=> b.order
         }
-        String lastSequenceName = projectionSequences.first().name
+
+        // generate set of projection sequences
+        // they may have different offsets, but different originalOffset
+        Map<String,Integer> originalOffsetMap = generateOriginalOffsetsForSequences(projectionSequences)
 
         for (ProjectionSequence projectionSequence in projectionSequences) {
             DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
-//            if (currentOrder > 0) {
-
-            // only update the unprojected length when changing
-            if (lastSequenceName != projectionSequence.name) {
-                originalLength += projectionSequence.unprojectedLength
-                projectionSequence.originalOffset = originalLength
-            }
 
             projectionSequence.offset = lastLength
+            projectionSequence.originalOffset = originalOffsetMap.get(projectionSequence.name)
 
             assert projectionSequence.unprojectedLength != null
             assert projectionSequence.unprojectedLength > 0
             lastLength += discontinuousProjection.bufferedLength
-            lastSequenceName = projectionSequence.name
             ++currentOrder
         }
 
         return projectionSequences
+    }
+
+    private static  Map<String, Integer> generateOriginalOffsetsForSequences(List<ProjectionSequence> projectionSequences) {
+        Map<String,Integer> returnMap = new HashMap<>()
+        int originalOffset = 0
+
+        projectionSequences.each {
+            if(!returnMap.containsKey(it.name)){
+                returnMap.put(it.name,originalOffset)
+                originalOffset += it.unprojectedLength
+            }
+        }
+
+        return returnMap
     }
 
     ProjectionSequence getProjectionSequence(String sequenceName, Organism organism) {

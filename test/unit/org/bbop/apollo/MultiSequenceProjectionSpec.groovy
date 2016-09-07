@@ -868,6 +868,8 @@ class MultiSequenceProjectionSpec extends Specification {
         List<Coordinate> coordinateCollection = multiSequenceProjection.listCoordinates()
         List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.sequenceDiscontinuousProjectionMap.keySet() as List<ProjectionSequence>
         Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
+        ProjectionSequence projectionSequence1 = multiSequenceProjection.getProjectionSequence(10)
+        ProjectionSequence projectionSequence2 = multiSequenceProjection.getProjectionSequence(60 + offset)
 
         then: "we should get a single projection of size 4"
         assert multiSequenceProjection.size() == 4
@@ -883,8 +885,12 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 6 == multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(0)).bufferedLength
         assert 6 == projectionSequenceList.get(1).offset
         assert 8 == multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(1)).bufferedLength
-        assert "Sequence1" == multiSequenceProjection.getProjectionSequence(10).name
-        assert "Sequence2" == multiSequenceProjection.getProjectionSequence(60 + offset).name
+        assert "Sequence1" == projectionSequence1.name
+        assert "Sequence2" == projectionSequence2.name
+        assert 0 == projectionSequence1.offset
+        assert 6 == projectionSequence2.offset
+        assert 0 == projectionSequence1.originalOffset
+        assert 100 == projectionSequence2.originalOffset
         assert 6 == multiSequenceProjection.getProjectionSequence(60 + offset).offset
 
         assert 0 == multiSequenceProjection.projectValue(10)
@@ -901,10 +907,6 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 12 == multiSequenceProjection.projectReverseValue(2)
         assert 22 == multiSequenceProjection.projectReverseValue(3)
         assert 25 == multiSequenceProjection.projectReverseValue(6)
-//        assert 25+23==multiSequenceProjection.projectReverseValue(7)
-//        assert 25+27==multiSequenceProjection.projectReverseValue(11)
-//        assert 25+60==multiSequenceProjection.projectReverseValue(12)
-//        assert 25+63==multiSequenceProjection.projectReverseValue(15)
         assert 24 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(7)
         assert 27 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(10)
         assert 60 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(11)
@@ -930,10 +932,7 @@ class MultiSequenceProjectionSpec extends Specification {
 //        Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
 
         then: "we should confirm that both the input and retrieved sequence are correct"
-//        assert 200==inputSequence.length()
         assert 100 == offset
-//        assert inputSequence.substring(10,12)==projectedSequence.substring(0,2)
-//        assert inputSequence.substring(22,25)==projectedSequence.substring(3,6)
         assert 5 == projectedSequence.length()
         assert inputSequence.substring(23 + offset, 27 + offset) == projectedSequence.substring(0, 4)
     }
@@ -1061,22 +1060,32 @@ class MultiSequenceProjectionSpec extends Specification {
                 , unprojectedLength: 200
                 , start: 60
                 , end: 63
-        ) // from 100-200
+        ) // from 100-300
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2,sequence3])
         Location location1 = new Location(min: 10, max: 12, sequence: sequence1)
         Location location2 = new Location(min: 22, max: 25, sequence: sequence2)
         Location location4 = new Location(min: 60, max: 63, sequence: sequence3)
-//        Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )
 
         when: "we add the locations"
         multiSequenceProjection.addLocation(location1)
         multiSequenceProjection.addLocation(location2)
-//        multiSequenceProjection.addLocation(location3)
         multiSequenceProjection.addLocation(location4)
         multiSequenceProjection.calculateOffsets()
+        ProjectionSequence projectionSequence1 = multiSequenceProjection.getProjectionSequence(10)
+        ProjectionSequence projectionSequence2 = multiSequenceProjection.getProjectionSequence(22)
+        ProjectionSequence projectionSequence3 = multiSequenceProjection.getProjectionSequence(60+sequence1.unprojectedLength)
 
         then: "we should be able to get out the proper projection sequence"
+        assert "Sequence1" == projectionSequence1.name
+        assert "Sequence1" == projectionSequence2.name
+        assert "Sequence2" == projectionSequence3.name
+        assert 0 == projectionSequence1.offset
+        assert 2 == projectionSequence2.offset
+        assert 2+3 == projectionSequence3.offset
+        assert 0 == projectionSequence1.originalOffset
+        assert 0 == projectionSequence2.originalOffset
+        assert projectionSequence1.unprojectedLength == projectionSequence3.originalOffset
         multiSequenceProjection.getProjectionSequence(10).order == 0
         multiSequenceProjection.getProjectionSequence(12).order == 0
         multiSequenceProjection.getProjectionSequence(10).name == "Sequence1"
