@@ -546,8 +546,10 @@ class TrackService {
         for (int i = 0; i < secondNcListArray.size(); i++) {
             def ncListArray = secondNcListArray.get(i)
             if (ncListArray instanceof JSONArray) {
-                nudgeNcListArray(ncListArray, endSize, nudgeIndex,organismName,trackName)
-                firstNcListArray.add(ncListArray)
+                if(firstNcListArray!=secondNcListArray){
+                    nudgeNcListArray(ncListArray, endSize, nudgeIndex,organismName,trackName)
+                    firstNcListArray.add(ncListArray)
+                }
             }
         }
         return firstNcListArray
