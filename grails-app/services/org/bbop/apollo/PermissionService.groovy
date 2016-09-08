@@ -257,11 +257,15 @@ class PermissionService {
      * @return
      */
     @NotTransactional
-    public List<String> getSequenceNameFromInput(JSONObject inputObject) {
-        def sequences = []
+    public Map<String,Integer> getSequenceNameFromInput(JSONObject inputObject) {
+        Map<String,Integer> sequenceMap = new HashMap<>()
+        int counter = 0
         if (inputObject.has(FeatureStringEnum.SEQUENCE_LIST.value)) {
             inputObject.sequenceList.each { it ->
-                sequences << it.name
+                if(!sequenceMap.containsKey(it.name)){
+                    sequenceMap.put(it.name,counter)
+                    ++counter
+                }
             }
         }
         else if (inputObject.has(FeatureStringEnum.TRACK.value)) {
@@ -282,18 +286,20 @@ class PermissionService {
                     track.sequenceList  = JSON.parse(track.sequenceList) as JSONArray
                 }
                 track.sequenceList.each { it ->
-                    sequences << it.name
+                    sequenceMap.put(it.name,counter)
+                    ++counter
                 }
             } else if (inputObject.track.contains(FeatureStringEnum.SEQUENCE_LIST.value)) {
                 JSONObject sequenceObject = JSON.parse(inputObject.track) as JSONObject
                 sequenceObject.sequenceList.each { it ->
-                    sequences << it.name
+                    sequenceMap.put(it.name,counter)
+                    ++counter
                 }
             } else {
-                sequences << inputObject.track
+                sequenceMap.put(inputObject.track,counter)
             }
         }
-        return sequences
+        return sequenceMap
     }
 
     // get current user from session or input object
@@ -347,10 +353,10 @@ class PermissionService {
     Bookmark checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
 
-        List<String> sequenceStrings = getSequenceNameFromInput(inputObject)
+        Map<String,Integer> sequenceStrings = getSequenceNameFromInput(inputObject)
         String trackName = null
         if (sequenceStrings) {
-            trackName = sequenceStrings.first()
+            trackName = sequenceStrings.keySet().first()
         }
 
 
@@ -361,16 +367,16 @@ class PermissionService {
             organism = preferenceService.getOrganismFromPreferences(user, trackName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         }
 
-        List<Sequence> sequences = Sequence.findAllByNameInListAndOrganism(sequenceStrings, organism)
+//        List<Sequence> sequences = Sequence.findAllByNameInListAndOrganism(sequenceStrings.keySet() as List, organism)
         // re-order sequences by original input
-        List<Sequence> foundSequences = new ArrayList<>(sequences.size())
-        sequences.each {
-            foundSequences.add(it)
-        }
-        sequences.each {
-            Integer index = sequenceStrings.indexOf(it.name)
-            foundSequences.set(index, it)
-        }
+//        List<Sequence> orderedSequences = new ArrayList<>(sequences.size())
+////        sequences.each {
+////            foundSequences.add(it)
+////        }
+//        sequences.each {
+//            Integer index = sequenceStrings.(it.name)
+//            orderedSequences.set(index, it)
+//        }
         Sequence sequence
         if (!trackName) {
             sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
@@ -393,7 +399,7 @@ class PermissionService {
             throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
 
-        if (foundSequences) {
+//        if (orderedSequences) {
             Bookmark bookmark = null
             if (inputObject.track instanceof String) {
                 if (inputObject.track.startsWith("{") || inputObject.track.startsWith("[")) {
@@ -453,8 +459,8 @@ class PermissionService {
                 user.addToBookmarks(bookmark)
             }
             return bookmark
-        }
-        return null
+//        }
+//        return null
     }
 
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {

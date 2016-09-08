@@ -144,12 +144,27 @@ class PermissionServiceSpec extends Specification {
 
         when: "it gets processed"
         JSONObject inputObject = new JSONObject(inputString)
-        def sequenceNames = service.getSequenceNameFromInput(inputObject)
+        Map<String,Integer> orderedSequenceNames = service.getSequenceNameFromInput(inputObject)
 
         then: "we should have a few sequence names "
-        assert 2==sequenceNames.size()
-        assert "Group5.7" in sequenceNames
-        assert "Group9.2" in sequenceNames
+        assert 2==orderedSequenceNames.size()
+        assert orderedSequenceNames.get("Group5.7")==0
+        assert orderedSequenceNames.get("Group9.2")==1
+
+    }
+
+    void "extract sequence names from JSON when duplicates"(){
+        given:"a JSON string"
+        String inputString = '{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group5.7"},{"name":"Group5.7"},{"name":"Group9.2"},{"name":"Group9.2"}]}'
+
+        when: "it gets processed"
+        JSONObject inputObject = new JSONObject(inputString)
+        Map<String,Integer> orderedSequenceNames = service.getSequenceNameFromInput(inputObject)
+
+        then: "we should have a few sequence names "
+        assert 2==orderedSequenceNames.size()
+        assert orderedSequenceNames.get("Group5.7")==0
+        assert orderedSequenceNames.get("Group9.2")==1
 
     }
 }

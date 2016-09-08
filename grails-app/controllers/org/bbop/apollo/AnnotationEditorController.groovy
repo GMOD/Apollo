@@ -420,7 +420,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             render requestHandlingService.getFeatures(returnObject)
         } catch (e) {
-            def error = [error: 'Oroblem getting genomic features: ' + e.fillInStackTrace()]
+            def error = [error: 'Problem getting genomic features: ' + e.fillInStackTrace()]
             render error as JSON
             log.error(error.error)
         }
