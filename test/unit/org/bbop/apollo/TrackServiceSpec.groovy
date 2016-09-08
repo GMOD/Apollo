@@ -136,4 +136,19 @@ class TrackServiceSpec extends Specification {
     }
 
 
+    void "get more complicated track names"(){
+        given: "a complex projection string"
+        String inputNameString = "/opt/apollo/honeybee/data/tracks/Official Gene Set v3.2/{\"id\":39403, \"name\":\"Group3.9\", \"padding\":0, \"start\":0, \"end\":2515291, \"sequenceList\":[{\"name\":\"Group3.9\", \"start\":0, \"end\":2515291}]}:0..2515291/lf-1.json"
+        String sequenceNameString = '{"start":0,"name":"Group3.9","end":2515291}'
+        String resultString = "/opt/apollo/honeybee/data/tracks/Official Gene Set v3.2/Group3.9/lf-1.json"
+
+        when: "we generate a track name for sequence"
+        String sequenceName = service.generateTrackNameForSequence(inputNameString,sequenceNameString)
+
+        then: "make sure it is correct "
+        assert resultString==sequenceName
+
+    }
+
+
 }

@@ -186,17 +186,33 @@ class TrackService {
         return null
     }
 
+
     // replace index - 2 with sequenceName
+    @NotTransactional
     String generateTrackNameForSequence(String inputName, String sequenceName) {
         if (inputName.contains("/")) {
             String[] tokens = inputName.split("/")
             // the sequenceString path should be the second to the last one
             if (tokens.length >= 2) {
+                if(sequenceName.contains("{")){
+                    sequenceName = getSequenceNameFromJsonString(sequenceName)
+                }
                 tokens[tokens.length - 2] = sequenceName
                 return tokens.join("/")
             }
         }
         return null
+    }
+
+    @NotTransactional
+    String getSequenceNameFromJsonString(String inputString) {
+        if(inputString.contains("{")){
+            JSONObject jsonObject = JSON.parse(inputString) as JSONObject
+            return jsonObject.name
+        }
+        else{
+            return inputString
+        }
     }
 
     def String getTrackPathName(String inputName) {
@@ -723,7 +739,8 @@ class TrackService {
         // this loads PROJECTED
         JSONArray coordinateArray = loadChunkData(sequencePathName, refererLoc, currentOrganism, sequenceOffset, trackName)
         trackArrayList.add(coordinateArray)
-        Sequence sequence = Sequence.findByNameAndOrganism(sequenceString, currentOrganism)
+        String sequenceName = getSequenceNameFromJsonString(sequenceString)
+        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, currentOrganism)
         sequenceLengths << sequence.end
 
         JSONArray trackArray = mergeCoordinateArray(trackArrayList, sequenceLengths,currentOrganism.commonName,trackName)

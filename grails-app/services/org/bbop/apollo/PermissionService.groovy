@@ -3,12 +3,10 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import grails.util.Environment
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
-import org.bbop.apollo.authenticator.AuthenticatorService
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -257,46 +255,41 @@ class PermissionService {
      * @return
      */
     @NotTransactional
-    public Map<String,Integer> getSequenceNameFromInput(JSONObject inputObject) {
-        Map<String,Integer> sequenceMap = new HashMap<>()
+    public Map<String, Integer> getSequenceNameFromInput(JSONObject inputObject) {
+        Map<String, Integer> sequenceMap = new HashMap<>()
         int counter = 0
         if (inputObject.has(FeatureStringEnum.SEQUENCE_LIST.value)) {
             inputObject.sequenceList.each { it ->
-                if(!sequenceMap.containsKey(it.name)){
-                    sequenceMap.put(it.name,counter)
+                if (!sequenceMap.containsKey(it.name)) {
+                    sequenceMap.put(it.name, counter)
                     ++counter
                 }
             }
-        }
-        else if (inputObject.has(FeatureStringEnum.TRACK.value)) {
+        } else if (inputObject.has(FeatureStringEnum.TRACK.value)) {
             if (BookmarkService.isProjectionString(inputObject.track.toString())) {
 //                JSONObject sequenceObject = inputObject.track
                 def track = inputObject.track
                 if (track instanceof String && track.startsWith("{")) {
                     track = JSON.parse(inputObject.track) as JSONObject
-                }
-                else
-                if (track instanceof String && track.startsWith("[")) {
+                } else if (track instanceof String && track.startsWith("[")) {
                     track = new JSONObject()
                     track.sequenceList = JSON.parse(inputObject.track as String) as JSONArray
-                }
-                else
-                if (track.sequenceList instanceof String) {
+                } else if (track.sequenceList instanceof String) {
                     track = (JSONObject) track
-                    track.sequenceList  = JSON.parse(track.sequenceList) as JSONArray
+                    track.sequenceList = JSON.parse(track.sequenceList) as JSONArray
                 }
                 track.sequenceList.each { it ->
-                    sequenceMap.put(it.name,counter)
+                    sequenceMap.put(it.name, counter)
                     ++counter
                 }
             } else if (inputObject.track.contains(FeatureStringEnum.SEQUENCE_LIST.value)) {
                 JSONObject sequenceObject = JSON.parse(inputObject.track) as JSONObject
                 sequenceObject.sequenceList.each { it ->
-                    sequenceMap.put(it.name,counter)
+                    sequenceMap.put(it.name, counter)
                     ++counter
                 }
             } else {
-                sequenceMap.put(inputObject.track,counter)
+                sequenceMap.put(inputObject.track, counter)
             }
         }
         return sequenceMap
@@ -353,7 +346,7 @@ class PermissionService {
     Bookmark checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
 
-        Map<String,Integer> sequenceStrings = getSequenceNameFromInput(inputObject)
+        Map<String, Integer> sequenceStrings = getSequenceNameFromInput(inputObject)
         String trackName = null
         if (sequenceStrings) {
             trackName = sequenceStrings.keySet().first()
@@ -400,54 +393,52 @@ class PermissionService {
         }
 
 //        if (orderedSequences) {
-            Bookmark bookmark = null
-            if (inputObject.track instanceof String) {
-                if (inputObject.track.startsWith("{") || inputObject.track.startsWith("[")) {
-                    JSONArray sequenceListArray = inputObject.track.startsWith("{") ? (JSON.parse(inputObject.track) as JSONObject).sequenceList : (JSON.parse(inputObject.track) as JSONArray)
-                    List<String> sequenceList = []
-                    for (int i = 0; i < sequenceListArray.size(); i++) {
-                        sequenceList << sequenceListArray.getJSONObject(i).name
-                    }
-                    if (sequenceList) {
-                        def sequenceObjects = Sequence.findAllByNameInList(sequenceList)
-                        bookmark = bookmarkService.generateBookmarkForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
-                    }
-                    println "bookmark sequence list ${bookmark} vs ${sequenceList} and ${inputObject as JSON}"
+        Bookmark bookmark = null
+        if (inputObject.track instanceof String) {
+            if (inputObject.track.startsWith("{") || inputObject.track.startsWith("[")) {
+                JSONArray sequenceListArray = inputObject.track.startsWith("{") ? (JSON.parse(inputObject.track) as JSONObject).sequenceList : (JSON.parse(inputObject.track) as JSONArray)
+                List<String> sequenceList = []
+                for (int i = 0; i < sequenceListArray.size(); i++) {
+                    sequenceList << sequenceListArray.getJSONObject(i).name
                 }
-                if (inputObject.track.startsWith("[")) {
-                    JSONArray sequenceListArray = (JSON.parse(inputObject.track) as JSONArray)
-                    List<String> sequenceList = []
-                    for (int i = 0; i < sequenceListArray.size(); i++) {
-                        sequenceList << sequenceListArray.getJSONObject(i).name
-                    }
-                    if (sequenceList) {
-                        def sequenceObjects = Sequence.findAllByNameInList(sequenceList)
-                        bookmark = bookmarkService.generateBookmarkForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
-                    }
-                    println "bookmark sequence list ${bookmark} vs ${sequenceList} and ${inputObject as JSON}"
+                if (sequenceList) {
+                    def sequenceObjects = Sequence.findAllByNameInList(sequenceList)
+                    bookmark = bookmarkService.generateBookmarkForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
                 }
-                else {
-                    sequence = Sequence.findByName(inputObject.track)
-                    if (sequence) {
-                        bookmark = bookmarkService.generateBookmarkForSequence(sequence)
-                    }
-                    println "has a sequence: ${sequence} for ${inputObject.track}"
-                }
-                if (!bookmark) {
-                    log.error("Invalid sequence name: " + inputObject.track)
-                }
+                println "bookmark sequence list ${bookmark} vs ${sequenceList} and ${inputObject as JSON}"
             }
-            else
-            if (inputObject.track instanceof JSONObject) {
-                println "NO Track bookmark ${bookmark} and ${inputObject.track as JSON}"
-                if(!inputObject.containsValue(FeatureStringEnum.ORGANISM.value)){
-                    inputObject.put(FeatureStringEnum.ORGANISM.value,organism.id)
+            if (inputObject.track.startsWith("[")) {
+                JSONArray sequenceListArray = (JSON.parse(inputObject.track) as JSONArray)
+                List<String> sequenceList = []
+                for (int i = 0; i < sequenceListArray.size(); i++) {
+                    sequenceList << sequenceListArray.getJSONObject(i).name
                 }
-                copyRequestValues(inputObject,inputObject.track)
-                bookmark = bookmarkService.convertJsonToBookmark(inputObject.getJSONObject(FeatureStringEnum.TRACK.value))
+                if (sequenceList) {
+                    def sequenceObjects = Sequence.findAllByNameInList(sequenceList)
+                    bookmark = bookmarkService.generateBookmarkForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
+                }
+                println "bookmark sequence list ${bookmark} vs ${sequenceList} and ${inputObject as JSON}"
+            } else {
+                sequence = Sequence.findByName(inputObject.track)
+                if (sequence) {
+                    bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+                }
+                println "has a sequence: ${sequence} for ${inputObject.track}"
             }
-            String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-            preferenceService.setCurrentBookmark(user, bookmark,clientToken)
+            if (!bookmark) {
+                log.error("Invalid sequence name: " + inputObject.track)
+            }
+        } else if (inputObject.track instanceof JSONObject) {
+            println "NO Track bookmark ${bookmark} and ${inputObject.track as JSON}"
+            if (!inputObject.containsValue(FeatureStringEnum.ORGANISM.value)) {
+                inputObject.put(FeatureStringEnum.ORGANISM.value, organism.id)
+            }
+            copyRequestValues(inputObject, inputObject.track)
+            bookmark = bookmarkService.convertJsonToBookmark(inputObject.getJSONObject(FeatureStringEnum.TRACK.value))
+        }
+        String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+        if (bookmark) {
+            preferenceService.setCurrentBookmark(user, bookmark, clientToken)
             if ((inputObject.track instanceof JSONObject) && inputObject?.track?.projection) {
                 bookmark.projection = inputObject.track.projection
                 bookmark.padding = inputObject.track?.padding
@@ -455,10 +446,11 @@ class PermissionService {
                 println "save here?"
                 bookmark.save(flush: true)
             }
-            if(user && bookmark){
+            if (user) {
                 user.addToBookmarks(bookmark)
             }
-            return bookmark
+        }
+        return bookmark
 //        }
 //        return null
     }
@@ -527,7 +519,7 @@ class PermissionService {
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
-            if(!jsonObject.username){
+            if (!jsonObject.username) {
                 log.debug "Username not supplied so can not authenticate."
                 return false
             }
@@ -650,26 +642,22 @@ class PermissionService {
             if (auth.active) {
                 log.info "Authenticating with ${auth.className}"
                 def authenticationService
-                if("remoteUserAuthenticatorService" == auth.className ){
+                if ("remoteUserAuthenticatorService" == auth.className) {
                     authenticationService = remoteUserAuthenticatorService
-                }
-                else
-                if("usernamePasswordAuthenticatorService" == auth.className ){
+                } else if ("usernamePasswordAuthenticatorService" == auth.className) {
                     authenticationService = usernamePasswordAuthenticatorService
-                }
-                else{
+                } else {
                     log.error("No authentication service for ${auth.className}")
                     // better to return false if mis-configured
                     return false
                 }
 
-                if(usernamePasswordToken){
+                if (usernamePasswordToken) {
                     if (authenticationService.authenticate(usernamePasswordToken, request)) {
                         log.info "Authenticated user ${usernamePasswordToken.username} using ${auth.name}"
                         return true
                     }
-                }
-                else{
+                } else {
                     if (authenticationService.authenticate(request)) {
                         log.info "Authenticated user ${auth.name}"
                         return true
@@ -720,7 +708,7 @@ class PermissionService {
         if (params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
             dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value, params.get(FeatureStringEnum.CLIENT_TOKEN.value))
         } else {
-            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,ClientTokenGenerator.generateRandomString())
+            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value, ClientTokenGenerator.generateRandomString())
         }
         return dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
     }
