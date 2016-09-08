@@ -1063,12 +1063,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
             if (feature instanceof SequenceAlteration && feature.class.name in RequestHandlingService.variantAnnotationList) {
                 newFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(feature.featureLocation));
-                newFeature.put("referenceBases", feature.referenceBases);
+                newFeature.put(FeatureStringEnum.REFERENCE_BASES.value, feature.referenceBases);
                 JSONArray alternateAllelesArray = new JSONArray()
                 for (Allele allele : feature.alternateAlleles) {
                     JSONObject alternateAlleleObject = new JSONObject()
-                    alternateAlleleObject.put("bases", allele.bases)
-                    alternateAlleleObject.put("alleleFrequency", String.valueOf(allele.alleleFrequency))
+                    alternateAlleleObject.put(FeatureStringEnum.BASES.value, allele.bases)
+                    alternateAlleleObject.put(FeatureStringEnum.ALLELE_FREQUENCY.value, String.valueOf(allele.alleleFrequency))
                     if (allele.alleleInfo) {
                         JSONArray alleleInfoArray = new JSONArray()
                         allele.alleleInfo.each { alleleInfo ->
@@ -1077,11 +1077,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                             alleleInfoObject.put(FeatureStringEnum.VALUE.value, alleleInfo.value)
                             alleleInfoArray.add(alleleInfoObject)
                         }
-                        alternateAlleleObject.put("info", alleleInfoArray)
+                        alternateAlleleObject.put(FeatureStringEnum.ALLELE_INFO.value, alleleInfoArray)
                     }
                     alternateAllelesArray.add(alternateAlleleObject)
                 }
-                newFeature.put("alternateAlleles", alternateAllelesArray);
+                newFeature.put(FeatureStringEnum.ALTERNATE_ALLELES.value, alternateAllelesArray);
             }
 
             if (feature.featureLocation) {

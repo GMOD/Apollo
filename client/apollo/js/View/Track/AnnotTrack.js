@@ -3742,8 +3742,8 @@ define([
 
                 // initialize REF field
                 var initRefBases = function(feature) {
-                    if (feature.referenceBases) {
-                        refBasesField.set("value", feature.referenceBases);
+                    if (feature.reference_bases) {
+                        refBasesField.set("value", feature.reference_bases);
                     }
                 };
 
@@ -3876,8 +3876,8 @@ define([
                         }
                     });
 
-                    for (var i = 0; i < feature.alternateAlleles.length; ++i) {
-                        var alternateAllele = feature.alternateAlleles[i];
+                    for (var i = 0; i < feature.alternate_alleles.length; ++i) {
+                        var alternateAllele = feature.alternate_alleles[i];
                         altAlleles.newItem({bases: alternateAllele.bases, allele_frequency: alternateAllele.alleleFrequency || '' });
                     }
                     var altAlleleTableLayout = [{
@@ -4722,7 +4722,7 @@ define([
 
                 var addAltAlleles = function(altBases, alleleFrequency) {
                     console.log("@addAltAlleles: " + altBases);
-                    var features = [{ uniquename: uniqueName, alternateAlleles: [{bases: altBases, AF: alleleFrequency}] }];
+                    var features = [{ uniquename: uniqueName, alternate_alleles: [{bases: altBases, allele_info: [{tag: "AF", value: alleleFrequency}]}] }];
                     var operation = "add_alternate_alleles";
                     var postData = { track: trackName, features: features, operation: operation };
                     track.executeUpdateOperation(JSON.stringify(postData));
@@ -4732,9 +4732,25 @@ define([
 
                 var updateAltAlleles = function(oldBases, oldAlleleFrequency, newBases, newAlleleFrequency) {
                     console.log("@updateAltAlleles: " + newBases);
-                    var features = [{ uniquename: uniqueName, oldAlternateAlleles: [{bases: oldBases, AF: oldAlleleFrequency}], newAlternateAlleles: [{bases: newBases, AF: newAlleleFrequency}] }];
+                    var feature = { uniquename: uniqueName };
+
+                    if (oldAlleleFrequency != "null") {
+                        feature[0].old_alternate_alleles = [{bases: oldBases, allele_info: [{tag: "AF", value: oldAlleleFrequency}]}];
+                    }
+                    else {
+                        feature.old_alternate_alleles = [{bases: oldBases}];
+                    }
+
+                    if (newAlleleFrequency != "null") {
+                        feature.new_alternate_alleles = [{bases: newBases, allele_info: [{tag: "AF", value: newAlleleFrequency}]}];
+                    }
+                    else {
+                        feature.new_alternate_alleles = [{bases: newBases}];
+                    }
+
                     var operation = "update_alternate_alleles";
-                    var postData = { track: trackName, features: features, operation: operation };
+                    var postData = { track: trackName, features: [feature], operation: operation };
+                    console.log("postdata: ", postData);
                     track.executeUpdateOperation(JSON.stringify(postData));
                     updateTimeLastUpdated();
                 };
@@ -4745,11 +4761,11 @@ define([
                     for (var i = 0; i < altAlleles.length; ++i) {
                         var alternateAllele = {};
                         alternateAllele.bases = altAlleles[i].bases;
-                        alternateAlleles.AF = altAlleles[i].alleleFrequency;
+                        alternateAlleles.allele_info = [{ tag: "AF", value: altAlleles[i].alleleFrequency }];
                         alternateAlleles.push(alternateAllele);
                     }
 
-                    var features = [{ uniquename: uniqueName, alternateAlleles: alternateAlleles }];
+                    var features = [{ uniquename: uniqueName, alternate_alleles: alternateAlleles }];
                     var operation = "delete_alternate_alleles";
                     var postData = {track: trackName, features: features, operation: operation};
                     console.log("PostData: ", postData);
@@ -4828,7 +4844,7 @@ define([
                 var addVariantInfo = function(tag, value) {
                     tag = escapeString(tag);
                     value = escapeString(value);
-                    var features = [ { uniquename: uniqueName, info:  [ { tag: tag, value: value } ] } ];
+                    var features = [ { uniquename: uniqueName, variant_info:  [ { tag: tag, value: value } ] } ];
                     var operation = "add_variant_info";
                     var postData =  { track: trackName, features: features, operation: operation };
                     track.executeUpdateOperation(JSON.stringify(postData));
@@ -4840,7 +4856,7 @@ define([
                         variantInfos[i].tag = escapeString(variantInfos[i].tag);
                         variantInfos[i].value = escapeString(variantInfos[i].value);
                     }
-                    var features = [ { uniquename: uniqueName, info: variantInfos } ];
+                    var features = [ { uniquename: uniqueName, variant_info: variantInfos } ];
                     var operation = "delete_variant_info";
                     var postData = {
                         track: trackName,
@@ -4856,7 +4872,7 @@ define([
                     oldValue = escapeString(oldValue);
                     newTag = escapeString(newTag);
                     newValue = escapeString(newValue);
-                    var features = [ {uniquename: uniqueName, old_info: [{tag: oldTag, value: oldValue}], new_info: [{tag: newTag, value: newValue}] } ];
+                    var features = [ {uniquename: uniqueName, old_variant_info: [{tag: oldTag, value: oldValue}], new_variant_info: [{tag: newTag, value: newValue}] } ];
                     var operation= "update_variant_info";
                     var postData = {
                         track: trackName,

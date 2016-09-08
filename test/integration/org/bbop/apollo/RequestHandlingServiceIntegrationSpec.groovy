@@ -3329,7 +3329,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     void "adding a simple SNV"() {
         given: "a SNV"
-        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"referenceBases\": \"A\", \"alternateAlleles\": [{\"bases\": \"G\"}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"reference_bases\": \"A\", \"alternate_alleles\": [{\"bases\": \"G\"}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
 
         when: "we add a SNV"
         requestHandlingService.addVariantAnnotation(JSON.parse(addVariantString) as JSONObject)
@@ -3341,7 +3341,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     void "adding a multi-alleleic SNV"() {
         given: "a SNV that has 3 alternate alleles"
-        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"referenceBases\": \"A\", \"alternateAlleles\": [{\"bases\": \"G\"}, {\"bases\": \"C\"}, {\"bases\": \"T\"}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"reference_bases\": \"A\", \"alternate_alleles\": [{\"bases\": \"G\"}, {\"bases\": \"C\"}, {\"bases\": \"T\"}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
 
         when: "we add a SNV"
         requestHandlingService.addVariantAnnotation(JSON.parse(addVariantString) as JSONObject)
@@ -3356,7 +3356,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     void "adding a multi-allelic SNV and adding additional properties"() {
         given: "a SNV that has 3 alternate alleles and additional properties that describe the SNV and its alleles"
-        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"referenceBases\": \"A\", \"alternateAlleles\": [{\"bases\": \"G\", \"info\": [{\"tag\": \"AF\", \"value\": 0.0321}, {\"tag\": \"AC\", \"value\": 32}]}, {\"bases\": \"C\", \"info\": [{\"tag\": \"AF\", \"value\": 0.00123}, {\"tag\": \"AC\", \"value\": 7}]}, {\"bases\": \"T\", \"info\": [{\"tag\": \"AF\", \"value\": 0.00111}, {\"tag\": \"AC\", \"value\": 3}]}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"reference_bases\": \"A\", \"alternate_alleles\": [{\"bases\": \"G\", \"allele_info\": [{\"tag\": \"AF\", \"value\": 0.0321}, {\"tag\": \"AC\", \"value\": 32}]}, {\"bases\": \"C\", \"allele_info\": [{\"tag\": \"AF\", \"value\": 0.00123}, {\"tag\": \"AC\", \"value\": 7}]}, {\"bases\": \"T\", \"allele_info\": [{\"tag\": \"AF\", \"value\": 0.00111}, {\"tag\": \"AC\", \"value\": 3}]}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
 
         when: "we add a SNV"
         requestHandlingService.addVariantAnnotation(JSON.parse(addVariantString) as JSONObject)
@@ -3392,10 +3392,10 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     void "adding a variant and managing additional alternate alleles"() {
         given: "a SNV"
-        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"referenceBases\": \"A\", \"alternateAlleles\": [{\"bases\": \"G\"}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
-        String addAlternateAllelesString = "{ ${testCredentials} \"operation\":\"add_alternate_alleles\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"alternateAlleles\":[{\"bases\":\"@BASES@\", \"AF\": \"@ALLELE_FREQUENCY@\"}]}],\"track\":\"Group1.10\"}"
-        String updateAlternateAllelesString = "{ ${testCredentials} \"operation\":\"update_alternate_alleles\",\"features\":[{\"newAlternateAlleles\":[{\"AF\":\"@NEW_ALLELE_FREQUENCY@\",\"bases\":\"@NEW_BASES@\"}],\"uniquename\":\"@UNIQUENAME@\",\"oldAlternateAlleles\":[{\"AF\":\"@OLD_ALLELE_FREQUENCY@\",\"bases\":\"@OLD_BASES@\"}]}],\"track\":\"Group1.10\"}"
-        String deleteAlternateAllelesString = "{ ${testCredentials} \"operation\":\"delete_alternate_alleles\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"alternateAlleles\":[{\"bases\":\"@BASES@\"}]}],\"track\":\"Group1.10\"}"
+        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"reference_bases\": \"A\", \"alternate_alleles\": [{\"bases\": \"G\"}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addAlternateAllelesString = "{ ${testCredentials} \"operation\":\"add_alternate_alleles\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"alternate_alleles\":[{\"bases\":\"@BASES@\", \"allele_info\": [{\"tag\": \"AF\", \"value\": @ALLELE_FREQUENCY@}]}]}],\"track\":\"Group1.10\"}"
+        String updateAlternateAllelesString = "{ ${testCredentials} \"operation\":\"update_alternate_alleles\",\"features\":[{\"new_alternate_alleles\":[{\"bases\":\"@NEW_BASES@\", \"allele_info\":[{\"tag\": \"AF\", \"value\": \"@NEW_ALLELE_FREQUENCY@\"}]}],\"uniquename\":\"@UNIQUENAME@\",\"old_alternate_alleles\":[{\"bases\":\"@OLD_BASES@\", \"allele_info\":[{\"tag\": \"AF\", \"value\": \"@OLD_ALLELE_FREQUENCY@\"}]}]}],\"track\":\"Group1.10\"}"
+        String deleteAlternateAllelesString = "{ ${testCredentials} \"operation\":\"delete_alternate_alleles\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"alternate_alleles\":[{\"bases\":\"@BASES@\"}]}],\"track\":\"Group1.10\"}"
 
         when: "we add a SNV"
         requestHandlingService.addVariantAnnotation(JSON.parse(addVariantString) as JSONObject)

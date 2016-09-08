@@ -128,6 +128,17 @@ public enum FeatureStringEnum {
         HISTORY,
         DOCK_OPEN("dockOpen"),
         DOCK_WIDTH("dockWidth"),
+        REFERENCE_BASES,
+        ALTERNATE_ALLELES,
+        BASES,
+        OLD_ALTERNATE_ALLELES,
+        NEW_ALTERNATE_ALLELES,
+        ALLELE_FREQUENCY("alleleFrequency"),
+        ALLELE_FREQUENCY_TAG("AF"),
+        ALLELE_INFO,
+        VARIANT_INFO,
+        OLD_VARIANT_INFO,
+        NEW_VARIANT_INFO,
         ;
 
 

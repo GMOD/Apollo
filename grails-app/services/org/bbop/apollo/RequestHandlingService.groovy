@@ -2335,25 +2335,30 @@ class RequestHandlingService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            JSONArray alternateAllelesArray = jsonFeature.getJSONArray("alternateAlleles")
-            println "ALTERNATE ALLELES ARRAY: ${alternateAllelesArray.toString()}"
+            JSONArray alternateAllelesArray = jsonFeature.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
 
             for (int j = 0; j < alternateAllelesArray.size(); j++) {
                 JSONObject alternateAlleleObject = alternateAllelesArray.getJSONObject(j)
-                String bases = alternateAlleleObject.getString("bases").toUpperCase()
+                String bases = alternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
                 Allele allele = new Allele(bases: bases)
                 String alleleFrequencyString
-                if (alternateAlleleObject.getString("AF")) {
-                    alleleFrequencyString = alternateAlleleObject.getString("AF")
-                    Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
-                    println "Allele: ${bases} with AF ${alleleFrequency}"
-                    if (alleleFrequency >= 0 && alleleFrequency <= 1.0) {
-                        allele.alleleFrequency = alleleFrequency
-                    }
-                    else {
-                        log.error "Unexpected Alternate Allele Frequency value of ${alleleFrequencyString}"
+                if (alternateAlleleObject.has(FeatureStringEnum.ALLELE_INFO.value)) {
+                    JSONArray alleleInfoArray = alternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
+                    for (JSONObject alleleInfoObject : alleleInfoArray) {
+                        if (alleleInfoObject.getString(FeatureStringEnum.TAG.value) == FeatureStringEnum.ALLELE_FREQUENCY_TAG.value) {
+                            alleleFrequencyString = alleleInfoObject.getString(FeatureStringEnum.VALUE.value)
+                            Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
+                            println "Allele: ${bases} with AF ${alleleFrequency}"
+                            if (alleleFrequency >= 0 && alleleFrequency <= 1.0) {
+                                allele.alleleFrequency = alleleFrequency
+                            }
+                            else {
+                                log.error "Unexpected Alternate Allele Frequency value of ${alleleFrequencyString}"
+                            }
+                        }
                     }
                 }
+
                 allele.variant = (SequenceAlteration) feature
                 allele.save()
                 feature.addToAlternateAlleles(allele)
@@ -2384,11 +2389,11 @@ class RequestHandlingService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            JSONArray alternateAllelesArray = jsonFeature.getJSONArray("alternateAlleles")
+            JSONArray alternateAllelesArray = jsonFeature.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
 
             for (int j = 0; j < alternateAllelesArray.size(); j++) {
                 JSONObject alternateAlleleObject = alternateAllelesArray.getJSONObject(j)
-                String bases = alternateAlleleObject.getString("bases").toUpperCase()
+                String bases = alternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
                 def alternateAlleles = feature.alternateAlleles
                 for (def allele : alternateAlleles) {
                     if (allele.bases == bases) {
@@ -2426,19 +2431,37 @@ class RequestHandlingService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            JSONObject oldAlternateAlleleObject = jsonFeature.getJSONArray("oldAlternateAlleles").getJSONObject(0)
-            JSONObject newAlternateAlleleObject = jsonFeature.getJSONArray("newAlternateAlleles").getJSONObject(0)
+            JSONObject oldAlternateAlleleObject = jsonFeature.getJSONArray(FeatureStringEnum.OLD_ALTERNATE_ALLELES.value).getJSONObject(0)
+            JSONObject newAlternateAlleleObject = jsonFeature.getJSONArray(FeatureStringEnum.NEW_ALTERNATE_ALLELES.value).getJSONObject(0)
 
-            String oldAltAlleleBases = oldAlternateAlleleObject.getString("bases").toUpperCase()
-            String newAltAlleleBases = newAlternateAlleleObject.getString("bases").toUpperCase()
+            String oldAltAlleleBases = oldAlternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
+            String newAltAlleleBases = newAlternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
+
             Float oldAltAlleleFrequency
-            if (oldAlternateAlleleObject.has("AF") && oldAlternateAlleleObject.getString("AF") != "") {
-                oldAltAlleleFrequency = Float.parseFloat(oldAlternateAlleleObject.getString("AF"))
+            if (oldAlternateAlleleObject.has(FeatureStringEnum.ALLELE_INFO.value)) {
+                JSONArray oldAlternateAlleleInfoArray = oldAlternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
+                for (JSONObject alleleInfoObject : oldAlternateAlleleInfoArray) {
+                    if (alleleInfoObject.get(FeatureStringEnum.TAG.value) == FeatureStringEnum.ALLELE_FREQUENCY_TAG.value && alleleInfoObject.get(FeatureStringEnum.VALUE.value) != null) {
+                        if (alleleInfoObject.getString(FeatureStringEnum.VALUE.value) != "") {
+                            oldAltAlleleFrequency = Float.parseFloat(alleleInfoObject.getString(FeatureStringEnum.VALUE.value))
+                        }
+                    }
+                }
             }
+
             Float newAltAlleleFrequency
-            if (newAlternateAlleleObject.has("AF") && newAlternateAlleleObject.getString("AF") != "") {
-                newAltAlleleFrequency = Float.parseFloat(newAlternateAlleleObject.getString("AF"))
+            if (newAlternateAlleleObject.has(FeatureStringEnum.ALLELE_INFO.value)) {
+                JSONArray newAlternateAlleleInfoArray = newAlternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
+                //var features  for (JSONObject alleleInfoObject : newAlternateAlleleInfoArray) {
+                    if (alleleInfoObject.get(FeatureStringEnum.TAG.value) == FeatureStringEnum.ALLELE_FREQUENCY_TAG.value && alleleInfoObject.get(FeatureStringEnum.VALUE.value) != null) {
+                        if (alleleInfoObject.getString(FeatureStringEnum.VALUE.value) != "") {
+                            newAltAlleleFrequency = Float.parseFloat(alleleInfoObject.getString(FeatureStringEnum.VALUE.value))
+                        }
+                    }
+                }
             }
+
+            // TODO: improve
             def alternateAlleles = feature.alternateAlleles
             for (def allele : alternateAlleles) {
                 if (allele.bases == oldAltAlleleBases) {
@@ -2480,7 +2503,7 @@ class RequestHandlingService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            JSONArray variantInfosArray = jsonFeature.getJSONArray("info")
+            JSONArray variantInfosArray = jsonFeature.getJSONArray(FeatureStringEnum.VARIANT_INFO.value)
             println "Variant Info: ${variantInfosArray.toString()}"
 
             for (int j = 0; j < variantInfosArray.size(); j++){
@@ -2503,10 +2526,10 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); i++) {
             JSONObject jsonFeature = features.getJSONObject(i)
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
-            JSONArray properties = jsonFeature.getJSONArray("info")
+            JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.VARIANT_INFO.value)
 
             for (int j = 0; j < properties.length(); j++) {
-                JSONObject property = properties.get(j)
+                JSONObject property = properties.getJSONObject(j)
                 String tag = property.get(FeatureStringEnum.TAG.value)
                 String value = property.get(FeatureStringEnum.VALUE.value)
                 FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(tag, value, feature)
@@ -2533,8 +2556,8 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); i++) {
             JSONObject jsonFeature = features.getJSONObject(i)
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
-            JSONArray oldProperties = jsonFeature.getJSONArray("old_info")
-            JSONArray newProperties = jsonFeature.getJSONArray("new_info")
+            JSONArray oldProperties = jsonFeature.getJSONArray(FeatureStringEnum.OLD_VARIANT_INFO.value)
+            JSONArray newProperties = jsonFeature.getJSONArray(FeatureStringEnum.NEW_VARIANT_INFO.value)
             for (int j = 0; j < oldProperties.length(); j++) {
                 JSONObject oldProperty = oldProperties.getJSONObject(i)
                 JSONObject newProperty = newProperties.getJSONObject(i)

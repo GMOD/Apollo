@@ -1147,20 +1147,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             if (gsolFeature instanceof SequenceAlteration && type.name in RequestHandlingService.variantAnnotationTypes) {
-                gsolFeature.referenceBases = jsonFeature.getString("referenceBases")
+                gsolFeature.referenceBases = jsonFeature.getString(FeatureStringEnum.REFERENCE_BASES.value)
                 gsolFeature.save()
-                JSONArray alternateAllelesArray = jsonFeature.getJSONArray("alternateAlleles")
+                JSONArray alternateAllelesArray = jsonFeature.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
                 for (int i = 0; i < alternateAllelesArray.length(); i++) {
-                    Allele allele = new Allele( bases: alternateAllelesArray.getJSONObject(i).getString("bases") )
+                    Allele allele = new Allele( bases: alternateAllelesArray.getJSONObject(i).getString(FeatureStringEnum.BASES.value) )
                     allele.variant = gsolFeature
                     allele.save()
 
                     // Processing properties of an Allele
-                    if (alternateAllelesArray.getJSONObject(i).has("info")) {
-                        JSONArray alleleInfoArray = alternateAllelesArray.getJSONObject(i).getJSONArray("info")
+                    if (alternateAllelesArray.getJSONObject(i).has(FeatureStringEnum.ALLELE_INFO.value)) {
+                        JSONArray alleleInfoArray = alternateAllelesArray.getJSONObject(i).getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
                         for (int j = 0; j < alleleInfoArray.length(); j++) {
                             JSONObject info = alleleInfoArray.getJSONObject(j)
-                            if (info.getString(FeatureStringEnum.TAG.value) == "AF") {
+                            if (info.getString(FeatureStringEnum.TAG.value) == FeatureStringEnum.ALLELE_FREQUENCY_TAG.value) {
                                 // Alelle Frequency
                                 allele.alleleFrequency = Float.parseFloat(info.getString(FeatureStringEnum.VALUE.value))
                             }
@@ -1590,14 +1590,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
         if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantAnnotationList) {
-            jsonFeature.put("referenceBases", gsolFeature.referenceBases)
+            jsonFeature.put(FeatureStringEnum.REFERENCE_BASES.value, gsolFeature.referenceBases)
             JSONArray alternateAllelesArray = new JSONArray()
             gsolFeature.alternateAlleles.each {
                 JSONObject alternateAlleleObject = new JSONObject()
-                alternateAlleleObject.put("bases", it.bases)
+                alternateAlleleObject.put(FeatureStringEnum.BASES.value, it.bases)
                 alternateAllelesArray.add(alternateAlleleObject)
             }
-            jsonFeature.put("alternateAlleles", alternateAllelesArray)
+            jsonFeature.put(FeatureStringEnum.ALTERNATE_ALLELES.value, alternateAllelesArray)
             // TODO: Packaging additional metadata
         }
 
@@ -1756,12 +1756,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         //log.debug "featloc ${durationInMilliseconds}"
 
         if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantAnnotationList) {
-            jsonFeature.put("referenceBases", gsolFeature.referenceBases)
+            jsonFeature.put(FeatureStringEnum.REFERENCE_BASES.value, gsolFeature.referenceBases)
             JSONArray alternateAllelesArray = new JSONArray()
             gsolFeature.alternateAlleles.each { allele ->
                 JSONObject alternateAlleleObject = new JSONObject()
-                alternateAlleleObject.put("bases", allele.bases)
-                alternateAlleleObject.put("alleleFrequency", String.valueOf(allele.alleleFrequency))
+                alternateAlleleObject.put(FeatureStringEnum.BASES.value, allele.bases)
+                alternateAlleleObject.put(FeatureStringEnum.ALLELE_FREQUENCY.value, String.valueOf(allele.alleleFrequency))
                 if (allele.alleleInfo) {
                     JSONArray alleleInfoArray = new JSONArray()
                     allele.alleleInfo.each { alleleInfo ->
@@ -1770,11 +1770,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         alleleInfoObject.put(FeatureStringEnum.VALUE.value, alleleInfo.value)
                         alleleInfoArray.add(alleleInfoObject)
                     }
-                    alternateAlleleObject.put("info", alleleInfoArray)
+                    alternateAlleleObject.put(FeatureStringEnum.ALLELE_INFO.value, alleleInfoArray)
                 }
                 alternateAllelesArray.add(alternateAlleleObject)
             }
-            jsonFeature.put("alternateAlleles", alternateAllelesArray)
+            jsonFeature.put(FeatureStringEnum.ALTERNATE_ALLELES.value, alternateAllelesArray)
         }
 
         if (gsolFeature.class.name in assemblyErrorCorrectionTypes) {
