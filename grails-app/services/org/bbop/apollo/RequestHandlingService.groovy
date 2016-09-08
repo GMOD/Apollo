@@ -2470,4 +2470,90 @@ class RequestHandlingService {
         return updateFeatureContainer
     }
 
+    def addVariantInfo(JSONObject inputObject) {
+        println "@addVariantInfo: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < featuresArray.length(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            JSONArray variantInfosArray = jsonFeature.getJSONArray("info")
+            println "Variant Info: ${variantInfosArray.toString()}"
+
+            for (int j = 0; j < variantInfosArray.size(); j++){
+                JSONObject variantInfoObject = variantInfosArray.getJSONObject(j)
+                String tag = variantInfoObject.get(FeatureStringEnum.TAG.value)
+                String value = variantInfoObject.get(FeatureStringEnum.VALUE.value)
+                featureService.addNonReservedProperties(feature, tag, value)
+            }
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+        }
+        return updateFeatureContainer
+    }
+
+    def deleteVariantInfo(JSONObject inputObject) {
+        println "@deleteVariantInfo: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < features.length(); i++) {
+            JSONObject jsonFeature = features.getJSONObject(i)
+            Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+            JSONArray properties = jsonFeature.getJSONArray("info")
+
+            for (int j = 0; j < properties.length(); j++) {
+                JSONObject property = properties.get(j)
+                String tag = property.get(FeatureStringEnum.TAG.value)
+                String value = property.get(FeatureStringEnum.VALUE.value)
+                FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(tag, value, feature)
+                if (featureProperty) {
+                    feature.removeFromFeatureProperties(featureProperty)
+                    feature.save()
+                    featureProperty.delete(flush: true)
+                }
+                else {
+                    log.error "Could not find feature property ${property.toString()} to delete for variant: ${feature}"
+                }
+            }
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+        }
+        return updateFeatureContainer
+    }
+
+    def updateVariantInfo(JSONObject inputObject) {
+        println "@updateVariantInfo: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < features.length(); i++) {
+            JSONObject jsonFeature = features.getJSONObject(i)
+            Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+            JSONArray oldProperties = jsonFeature.getJSONArray("old_info")
+            JSONArray newProperties = jsonFeature.getJSONArray("new_info")
+            for (int j = 0; j < oldProperties.length(); j++) {
+                JSONObject oldProperty = oldProperties.getJSONObject(i)
+                JSONObject newProperty = newProperties.getJSONObject(i)
+                String oldTag = oldProperty.getString(FeatureStringEnum.TAG.value)
+                String oldValue = oldProperty.getString(FeatureStringEnum.VALUE.value)
+                String newTag = newProperty.getString(FeatureStringEnum.TAG.value)
+                String newValue = newProperty.getString(FeatureStringEnum.VALUE.value)
+
+                FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(oldTag, oldValue, feature)
+                if (feature) {
+                    featureProperty.tag = newTag
+                    featureProperty.value = newValue
+                    featureProperty.save()
+                }
+                else {
+                    log.error "Could not find feature property ${oldProperty.toString()} to update for variant: ${feature}"
+                }
+            }
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+        }
+    }
 }

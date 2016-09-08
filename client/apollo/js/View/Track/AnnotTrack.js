@@ -3480,7 +3480,7 @@ define([
                     innerHTML: "Alternate Alleles"
                 }, altAllelesDiv);
                 var altAllelesTable = dojo.create("div", {
-                    'class': "altAlleles",
+                    'class': "alt_alleles",
                     id: "altalleles_" + (selector ? "child" : "parent")
                 }, altAllelesDiv);
                 var altAlleleButtonsContainer = dojo.create("div", {style: "text-align: center;"}, altAllelesDiv);
@@ -3500,6 +3500,27 @@ define([
                 //    position: ["above"],
                 //    showDelay: 600
                 //});
+
+                // Info field
+                var variantInfoDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var variantInfoLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "INFO"
+                }, variantInfoDiv);
+                var variantInfosTable = dojo.create("div", {
+                    'class': "variant_info",
+                    id: "info_" + (selector ? "child" : "parent")
+                }, variantInfoDiv);
+                var variantInfoButtonsContainer = dojo.create("div", {style: "text-align: center;"}, variantInfoDiv);
+                var variantInfoButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, variantInfoButtonsContainer);
+                var addVariantInfoButton = dojo.create("button", {
+                    innerHTML: "Add",
+                    'class': "annotation_info_editor_button"
+                }, variantInfoButtons);
+                var deleteVariantInfoButton = dojo.create("button", {
+                    innerHTML: "Delete",
+                    'class': "annotation_info_editor_button"
+                }, variantInfoButtons);
 
                 // Dbxref field
                 var dbxrefsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
@@ -3528,27 +3549,6 @@ define([
                     position: ["above"],
                     showDelay: 600
                 });
-
-                // Attributes field
-                var attributesDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
-                var attributesLabel = dojo.create("div", {
-                    'class': "annotation_info_editor_section_header",
-                    innerHTML: "INFO"
-                }, attributesDiv);
-                var attributesTable = dojo.create("div", {
-                    'class': "attributes",
-                    id: "attributes_" + (selector ? "child" : "parent")
-                }, attributesDiv);
-                var attributeButtonsContainer = dojo.create("div", {style: "text-align: center;"}, attributesDiv);
-                var attributeButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, attributeButtonsContainer);
-                var addAttributeButton = dojo.create("button", {
-                    innerHTML: "Add",
-                    'class': "annotation_info_editor_button"
-                }, attributeButtons);
-                var deleteAttributeButton = dojo.create("button", {
-                    innerHTML: "Delete",
-                    'class': "annotation_info_editor_button"
-                }, attributeButtons);
 
                 // PubMed field
                 var pubmedIdsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
@@ -3677,14 +3677,12 @@ define([
                             initName(feature);
                             initPosition(feature);
                             initRefBases(feature);
-                            //initAltBases(feature);
-                            //initMinorAlleleFrequency(feature);
                             initDescription(feature);
                             initDates(feature);
                             initStatus(feature, config);
                             initAltAlleles(feature);
                             initDbxrefs(feature, config);
-                            initAttributes(feature, config);
+                            initVariantInfo(feature);
                             initPubmedIds(feature, config);
                             //initGoIds(feature, config);
                             initComments(feature, config);
@@ -4112,127 +4110,244 @@ define([
                 };
 
                 // initialize Attributes
-                var initAttributes = function (feature, config) {
-                    if (config.hasAttributes) {
-                        cannedKeys = feature.canned_keys;
-                        cannedValues = feature.canned_values;
-                        var oldTag;
-                        var oldValue;
-                        var attributes = new dojoItemFileWriteStore({
-                            data: {
-                                items: []
-                            }
-                        });
-                        for (var i = 0; i < feature.non_reserved_properties.length; ++i) {
-                            var attribute = feature.non_reserved_properties[i];
-                            attributes.newItem({tag: attribute.tag, value: attribute.value});
+                //var initAttributes = function (feature, config) {
+                //    if (config.hasAttributes) {
+                //        cannedKeys = feature.canned_keys;
+                //        cannedValues = feature.canned_values;
+                //        var oldTag;
+                //        var oldValue;
+                //        var attributes = new dojoItemFileWriteStore({
+                //            data: {
+                //                items: []
+                //            }
+                //        });
+                //        for (var i = 0; i < feature.non_reserved_properties.length; ++i) {
+                //            var attribute = feature.non_reserved_properties[i];
+                //            attributes.newItem({tag: attribute.tag, value: attribute.value});
+                //        }
+                //
+                //
+                //        var attributeTableLayout = [{
+                //            cells: [
+                //                {
+                //                    name: 'Tag',
+                //                    field: 'tag',
+                //                    width: '40%',
+                //                    type: dojox.grid.cells.ComboBox,
+                //                    //type: dojox.grid.cells.Select,
+                //                    options: cannedKeys,
+                //                    formatter: function (tag) {
+                //                        if (!tag) {
+                //                            return "Enter new tag";
+                //                        }
+                //                        return tag;
+                //                    },
+                //                    editable: hasWritePermission
+                //                },
+                //                {
+                //                    name: 'Value',
+                //                    field: 'value',
+                //                    width: '60%',
+                //                    type: dojox.grid.cells.ComboBox,
+                //                    //type: dojox.grid.cells.Select,
+                //                    options: cannedValues,
+                //                    formatter: function (value) {
+                //                        if (!value) {
+                //                            return "Enter new value";
+                //                        }
+                //                        return value;
+                //                    },
+                //                    editable: hasWritePermission
+                //                }
+                //            ]
+                //        }];
+                //
+                //        var attributeTable = new dojoxDataGrid({
+                //            singleClickEdit: true,
+                //            store: attributes,
+                //            updateDelay: 0,
+                //            structure: attributeTableLayout
+                //        });
+                //
+                //        var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
+                //            initTable(attributeTable.domNode, attributesTable, attributeTable);
+                //            dojo.disconnect(handle);
+                //        });
+                //        if (reload) {
+                //            initTable(attributeTable.domNode, attributesTable, attributeTable, timeout);
+                //        }
+                //
+                //        var dirty = false;
+                //
+                //        dojo.connect(attributeTable, "onStartEdit", function (inCell, inRowIndex) {
+                //            if (!dirty) {
+                //                oldTag = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "tag");
+                //                oldValue = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "value");
+                //                dirty = true;
+                //            }
+                //        });
+                //
+                //        dojo.connect(attributeTable, "onCancelEdit", function (inRowIndex) {
+                //            attributeTable.store.setValue(attributeTable.getItem(inRowIndex), "tag", oldTag);
+                //            attributeTable.store.setValue(attributeTable.getItem(inRowIndex), "value", oldValue);
+                //            dirty = false;
+                //        });
+                //
+                //        dojo.connect(attributeTable, "onApplyEdit", function (inRowIndex) {
+                //            var newTag = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "tag");
+                //            var newValue = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "value");
+                //            if (!newTag || !newValue) {
+                //            }
+                //            else if (!oldTag || !oldValue) {
+                //                addAttribute(newTag, newValue);
+                //            }
+                //            else {
+                //                if (newTag != oldTag || newValue != oldValue) {
+                //                    updateAttribute(oldTag, oldValue, newTag, newValue);
+                //                }
+                //            }
+                //            dirty = false;
+                //        });
+                //
+                //        dojo.connect(addAttributeButton, "onclick", function () {
+                //            attributeTable.store.newItem({tag: "", value: ""});
+                //            attributeTable.scrollToRow(attributeTable.rowCount);
+                //        });
+                //
+                //        dojo.connect(deleteAttributeButton, "onclick", function () {
+                //            var toBeDeleted = new Array();
+                //            var selected = attributeTable.selection.getSelected();
+                //            for (var i = 0; i < selected.length; ++i) {
+                //                var item = selected[i];
+                //                var tag = attributeTable.store.getValue(item, "tag");
+                //                var value = attributeTable.store.getValue(item, "value");
+                //                toBeDeleted.push({tag: tag, value: value});
+                //            }
+                //            attributeTable.removeSelectedRows();
+                //            deleteAttributes(toBeDeleted);
+                //        });
+                //    }
+                //    else {
+                //        dojo.style(attributesDiv, "display", "none");
+                //    }
+                //
+                //};
+
+                // initialize Variant Info
+                var initVariantInfo = function (feature) {
+                    //cannedKeys = feature.canned_keys;
+                    //cannedValues = feature.canned_values;
+                    var oldTag;
+                    var oldValue;
+                    var variantInfoStore = new dojoItemFileWriteStore({
+                        data: {
+                            items: []
                         }
+                    });
+                    if (feature.info) {
+                        for (var i = 0; i < feature.info.length; ++i) {
+                            var variantInfo = feature.info[i];
+                            variantInfoStore.newItem({tag: variantInfo.tag, value: variantInfo.value});
+                        }
+                    }
 
-
-                        var attributeTableLayout = [{
-                            cells: [
-                                {
-                                    name: 'Tag',
-                                    field: 'tag',
-                                    width: '40%',
-                                    type: dojox.grid.cells.ComboBox,
-                                    //type: dojox.grid.cells.Select,
-                                    options: cannedKeys,
-                                    formatter: function (tag) {
-                                        if (!tag) {
-                                            return "Enter new tag";
-                                        }
-                                        return tag;
-                                    },
-                                    editable: hasWritePermission
+                    var attributeTableLayout = [{
+                        cells: [
+                            {
+                                name: 'Tag',
+                                field: 'tag',
+                                width: '40%',
+                                type: dojox.grid.cells.ComboBox,
+                                //options: cannedKeys,
+                                formatter: function(tag) {
+                                    if (!tag) {
+                                        return "Enter new tag";
+                                    }
+                                    return tag;
                                 },
-                                {
-                                    name: 'Value',
-                                    field: 'value',
-                                    width: '60%',
-                                    type: dojox.grid.cells.ComboBox,
-                                    //type: dojox.grid.cells.Select,
-                                    options: cannedValues,
-                                    formatter: function (value) {
-                                        if (!value) {
-                                            return "Enter new value";
-                                        }
-                                        return value;
-                                    },
-                                    editable: hasWritePermission
-                                }
-                            ]
-                        }];
+                                editable: hasWritePermission
+                            },
+                            {
+                                name: 'Value',
+                                field: 'value',
+                                width: '60%',
+                                type: dojox.grid.cells.ComboBox,
+                                //options: cannedValues,
+                                formatter: function(value) {
+                                    if (!value) {
+                                        return "Enter new value";
+                                    }
+                                    return value;
+                                },
+                                editable: hasWritePermission
+                            }
+                        ]
+                    }];
 
-                        var attributeTable = new dojoxDataGrid({
-                            singleClickEdit: true,
-                            store: attributes,
-                            updateDelay: 0,
-                            structure: attributeTableLayout
-                        });
+                    var variantInfoTable = new dojoxDataGrid({
+                        singleClickEdit: true,
+                        store: variantInfoStore,
+                        updateDelay: 0,
+                        structure: attributeTableLayout
+                    });
 
-                        var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
-                            initTable(attributeTable.domNode, attributesTable, attributeTable);
-                            dojo.disconnect(handle);
-                        });
-                        if (reload) {
-                            initTable(attributeTable.domNode, attributesTable, attributeTable, timeout);
+                    var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
+                        initTable(variantInfoTable.domNode, variantInfosTable, variantInfoTable);
+                        dojo.disconnect(handle);
+                    });
+                    if (reload) {
+                        initTable(variantInfoTable.domNode, variantInfosTable, variantInfoTable, timeout);
+                    }
+
+                    var dirty = false;
+
+                    dojo.connect(variantInfoTable, "onStartEdit", function(inCell, inRowIndex) {
+                        if (!dirty) {
+                            oldTag = variantInfoTable.store.getValue(variantInfoTable.getItem(inRowIndex), "tag");
+                            oldValue = variantInfoTable.store.getValue(variantInfoTable.getItem(inRowIndex), "value");
+                            dirty = true;
                         }
+                    });
 
-                        var dirty = false;
+                    dojo.connect(variantInfoTable, "onCancelEdit", function(inRowIndex) {
+                        variantInfoTable.store.setValue(variantInfoTable.getItem(inRowIndex), "tag", oldTag);
+                        variantInfoTable.store.setValue(variantInfoTable.getItem(inRowIndex), "value", oldValue);
+                        dirty = false;
+                    });
 
-                        dojo.connect(attributeTable, "onStartEdit", function (inCell, inRowIndex) {
-                            if (!dirty) {
-                                oldTag = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "tag");
-                                oldValue = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "value");
-                                dirty = true;
+                    dojo.connect(variantInfoTable, "onApplyEdit", function(inRowIndex) {
+                        var newTag = variantInfoTable.store.getValue(variantInfoTable.getItem(inRowIndex), "tag");
+                        var newValue = variantInfoTable.store.getValue(variantInfoTable.getItem(inRowIndex), "value");
+                        if (!newTag || !newValue) {
+                        }
+                        else if (!oldTag || !oldValue) {
+                            addVariantInfo(newTag, newValue);
+                        }
+                        else {
+                            if (newTag != oldTag || newValue != oldValue) {
+                                updateVariantInfo(oldTag, oldValue, newTag, newValue);
                             }
-                        });
+                        }
+                        dirty = false;
+                    });
 
-                        dojo.connect(attributeTable, "onCancelEdit", function (inRowIndex) {
-                            attributeTable.store.setValue(attributeTable.getItem(inRowIndex), "tag", oldTag);
-                            attributeTable.store.setValue(attributeTable.getItem(inRowIndex), "value", oldValue);
-                            dirty = false;
-                        });
+                    dojo.connect(addVariantInfoButton, "onclick", function() {
+                        variantInfoTable.store.newItem({tag: "", value: ""});
+                        variantInfoTable.scrollToRow(variantInfoTable.rowCount);
+                    });
 
-                        dojo.connect(attributeTable, "onApplyEdit", function (inRowIndex) {
-                            var newTag = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "tag");
-                            var newValue = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "value");
-                            if (!newTag || !newValue) {
-                            }
-                            else if (!oldTag || !oldValue) {
-                                addAttribute(newTag, newValue);
-                            }
-                            else {
-                                if (newTag != oldTag || newValue != oldValue) {
-                                    updateAttribute(oldTag, oldValue, newTag, newValue);
-                                }
-                            }
-                            dirty = false;
-                        });
-
-                        dojo.connect(addAttributeButton, "onclick", function () {
-                            attributeTable.store.newItem({tag: "", value: ""});
-                            attributeTable.scrollToRow(attributeTable.rowCount);
-                        });
-
-                        dojo.connect(deleteAttributeButton, "onclick", function () {
-                            var toBeDeleted = new Array();
-                            var selected = attributeTable.selection.getSelected();
-                            for (var i = 0; i < selected.length; ++i) {
-                                var item = selected[i];
-                                var tag = attributeTable.store.getValue(item, "tag");
-                                var value = attributeTable.store.getValue(item, "value");
-                                toBeDeleted.push({tag: tag, value: value});
-                            }
-                            attributeTable.removeSelectedRows();
-                            deleteAttributes(toBeDeleted);
-                        });
-                    }
-                    else {
-                        dojo.style(attributesDiv, "display", "none");
-                    }
-
+                    dojo.connect(deleteVariantInfoButton, "onclick", function() {
+                        var toBeDeleted = new Array();
+                        var selected = variantInfoTable.selection.getSelected();
+                        for (var i = 0; i < selected.length; ++i) {
+                            var item = selected[i];
+                            var tag = variantInfoTable.store.getValue(item, "tag");
+                            var value = variantInfoTable.store.getValue(item, "value");
+                            toBeDeleted.push({tag: tag, value: value});
+                        }
+                        variantInfoTable.removeSelectedRows();
+                        deleteVariantInfo(toBeDeleted);
+                    });
                 };
 
                 // initialize PubMed
@@ -4676,37 +4791,79 @@ define([
                     updateTimeLastUpdated();
                 };
 
-                var addAttribute = function (tag, value) {
+                //var addAttribute = function (tag, value) {
+                //    tag = escapeString(tag);
+                //    value = escapeString(value);
+                //    var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": [ { "tag": "' + tag + '", "value": "' + value + '" } ] } ]';
+                //    var operation = "add_non_reserved_properties";
+                //    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                //    track.executeUpdateOperation(postData);
+                //    updateTimeLastUpdated();
+                //};
+                //
+                //var deleteAttributes = function (attributes) {
+                //    for (var i = 0; i < attributes.length; ++i) {
+                //        attributes[i].tag = escapeString(attributes[i].tag);
+                //        attributes[i].value = escapeString(attributes[i].value);
+                //    }
+                //    var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": ' + JSON.stringify(attributes) + ' } ]';
+                //    var operation = "delete_non_reserved_properties";
+                //    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                //    track.executeUpdateOperation(postData);
+                //    updateTimeLastUpdated();
+                //};
+                //
+                //var updateAttribute = function (oldTag, oldValue, newTag, newValue) {
+                //    oldTag = escapeString(oldTag);
+                //    oldValue = escapeString(oldValue);
+                //    newTag = escapeString(newTag);
+                //    newValue = escapeString(newValue);
+                //    var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_non_reserved_properties": [ { "tag": "' + oldTag + '", "value": "' + oldValue + '" } ], "new_non_reserved_properties": [ { "tag": "' + newTag + '", "value": "' + newValue + '" } ] } ]';
+                //    var operation = "update_non_reserved_properties";
+                //    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                //    track.executeUpdateOperation(postData);
+                //    updateTimeLastUpdated();
+                //};
+
+                var addVariantInfo = function(tag, value) {
                     tag = escapeString(tag);
                     value = escapeString(value);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": [ { "tag": "' + tag + '", "value": "' + value + '" } ] } ]';
-                    var operation = "add_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-                    track.executeUpdateOperation(postData);
+                    var features = [ { uniquename: uniqueName, info:  [ { tag: tag, value: value } ] } ];
+                    var operation = "add_variant_info";
+                    var postData =  { track: trackName, features: features, operation: operation };
+                    track.executeUpdateOperation(JSON.stringify(postData));
                     updateTimeLastUpdated();
                 };
 
-                var deleteAttributes = function (attributes) {
-                    for (var i = 0; i < attributes.length; ++i) {
-                        attributes[i].tag = escapeString(attributes[i].tag);
-                        attributes[i].value = escapeString(attributes[i].value);
+                var deleteVariantInfo = function(variantInfos) {
+                    for (var i = 0; i < variantInfos.length; i++) {
+                        variantInfos[i].tag = escapeString(variantInfos[i].tag);
+                        variantInfos[i].value = escapeString(variantInfos[i].value);
                     }
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": ' + JSON.stringify(attributes) + ' } ]';
-                    var operation = "delete_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-                    track.executeUpdateOperation(postData);
+                    var features = [ { uniquename: uniqueName, info: variantInfos } ];
+                    var operation = "delete_variant_info";
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: operation
+                    };
+                    track.executeUpdateOperation(JSON.stringify(postData));
                     updateTimeLastUpdated();
                 };
 
-                var updateAttribute = function (oldTag, oldValue, newTag, newValue) {
+                var updateVariantInfo = function(oldTag, oldValue, newTag, newValue) {
                     oldTag = escapeString(oldTag);
                     oldValue = escapeString(oldValue);
                     newTag = escapeString(newTag);
                     newValue = escapeString(newValue);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_non_reserved_properties": [ { "tag": "' + oldTag + '", "value": "' + oldValue + '" } ], "new_non_reserved_properties": [ { "tag": "' + newTag + '", "value": "' + newValue + '" } ] } ]';
-                    var operation = "update_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-                    track.executeUpdateOperation(postData);
+                    var features = [ {uniquename: uniqueName, old_info: [{tag: oldTag, value: oldValue}], new_info: [{tag: newTag, value: newValue}] } ];
+                    var operation= "update_variant_info";
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: operation
+                    };
+                    track.executeUpdateOperation(JSON.stringify(postData));
                     updateTimeLastUpdated();
                 };
 

@@ -34,6 +34,22 @@
 	border-color: lightgray;
 }
 
+.alt_alleles {
+    min-width: 100%;
+    min-height: 7em;
+    border: solid;
+    border-width: 1px;
+    border-color: lightgray;
+}
+
+.variant_info {
+    min-width: 100%;
+    min-height: 7em;
+    border: solid;
+    border-width: 1px;
+    border-color: lightgray;
+}
+
 .attributes {
 	min-width: 100%;
 	min-height: 7em;
