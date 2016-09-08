@@ -2452,7 +2452,7 @@ class RequestHandlingService {
             Float newAltAlleleFrequency
             if (newAlternateAlleleObject.has(FeatureStringEnum.ALLELE_INFO.value)) {
                 JSONArray newAlternateAlleleInfoArray = newAlternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
-                //var features  for (JSONObject alleleInfoObject : newAlternateAlleleInfoArray) {
+                for (JSONObject alleleInfoObject : newAlternateAlleleInfoArray) {
                     if (alleleInfoObject.get(FeatureStringEnum.TAG.value) == FeatureStringEnum.ALLELE_FREQUENCY_TAG.value && alleleInfoObject.get(FeatureStringEnum.VALUE.value) != null) {
                         if (alleleInfoObject.getString(FeatureStringEnum.VALUE.value) != "") {
                             newAltAlleleFrequency = Float.parseFloat(alleleInfoObject.getString(FeatureStringEnum.VALUE.value))
