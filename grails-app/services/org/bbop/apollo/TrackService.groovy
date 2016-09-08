@@ -402,8 +402,8 @@ class TrackService {
         JSONObject finalObject = null
         int endSize = 0
         multiSequenceProjection.projectionChunkList.projectionChunkList.each { chunk ->
-//        for (def track in trackList) {
-            JSONObject jsonObject = trackList.get(chunk.sequence)
+            String chunkSequenceName = chunk.sequence.contains("{") ? JSON.parse(chunk.sequence).name : chunk.sequence
+            JSONObject jsonObject = trackList.get(chunkSequenceName)
             if (finalObject == null) {
                 finalObject = jsonObject
                 // get endSize  6
@@ -595,39 +595,49 @@ class TrackService {
         Integer priorChunkArrayOffset = 0
         String trackName = null
 
-        List<String> sequenceStrings = new ArrayList<>()
-        for (int i = 0; i < sequenceArray.size(); i++) {
-            JSONObject sequenceObject = sequenceArray.getJSONObject(i)
-            sequenceStrings.add(sequenceObject.name)
-        }
+//        List<JSONObject> sequenceStrings = new ArrayList<>()
+//        for (int i = 0; i < sequenceArray.size(); i++) {
+//            JSONObject sequenceObject = sequenceArray.getJSONObject(i)
+//            sequenceStrings.add(sequenceObject.name)
+//        }
 
         // a sequence name
-        Map<String,Sequence> sequenceEntryMaps = Sequence.findAllByNameInListAndOrganism(sequenceStrings,currentOrganism).collectEntries(){
+        Map<String,Sequence> sequenceEntryMaps = Sequence.findAllByNameInListAndOrganism(sequenceArray.name as List,currentOrganism).collectEntries(){
             [it.name,it]
         }
 
         int calculatedEnd = 0
-        Map<String,Integer> sequenceMap = new HashMap<>()
+        Map<JSONObject,Integer> sequenceMap = new HashMap<>()
         if(refererLoc.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
             for(int i = 0 ; i < sequenceArray.size() ; i++){
                 def sequenceObject = sequenceArray.getJSONObject(i)
                 sequenceObject.start = sequenceObject.start ?: sequenceEntryMaps.get(sequenceObject.name).start
                 sequenceObject.end = sequenceObject.end ?: sequenceEntryMaps.get(sequenceObject.name).end
                 calculatedEnd += multiSequenceProjection.projectValue(sequenceObject.end,0,0)
-                sequenceMap.put(sequenceObject.name,multiSequenceProjection.projectValue(sequenceObject.end,0,0))
+                JSONObject storeObject = new JSONObject(
+                        start:sequenceObject.start
+                        ,end:sequenceObject.end
+                        ,name:sequenceObject.name
+                )
+                sequenceMap.put(storeObject,multiSequenceProjection.projectValue(sequenceObject.end,0,0))
             }
         }
         else{
             for(Sequence sequence in sequenceEntryMaps.values()){
-                sequenceMap.put(sequence.name,sequence.length)
+                JSONObject storeObject = new JSONObject(
+                        start:sequence.start
+                        ,end:sequence.end
+                        ,name:sequence.name
+                )
+                sequenceMap.put(storeObject,sequence.length)
             }
         }
 
-        for (sequenceString in sequenceStrings) {
+        for (JSONObject sequenceArrayObject in sequenceArray) {
             ProjectionChunk projectionChunk = new ProjectionChunk(
-                    sequence: sequenceString
+                    sequence: sequenceArrayObject
             )
-            String sequencePathName = generateTrackNameForSequence(dataFileName, sequenceString)
+            String sequencePathName = generateTrackNameForSequence(dataFileName, sequenceArrayObject.name)
             trackName = getTrackPathName(sequencePathName)
 
             // this loads PROJECTED
@@ -637,14 +647,17 @@ class TrackService {
             trackMapperService.storeTrack(currentOrganism.commonName,trackName,intervalsObject.getJSONArray("classes"))
             Integer lastLength = 0
             Integer lastChunkArrayOffset = 0
-            Integer sequenceLength= sequenceMap.get(sequenceString)
+            JSONObject sequenceKey= sequenceMap.keySet().find(){
+                it.name == sequenceArrayObject.name && it.start == sequenceArrayObject.start && it.end == sequenceArrayObject.end
+            }
+            Integer sequenceLength= sequenceMap.get(sequenceKey)
             for (int i = 0; i < ncListArray.size(); i++) {
                 JSONArray internalArray = ncListArray.getJSONArray(i)
                 TrackIndex trackIndex = trackMapperService.getIndices(currentOrganism.commonName, trackName, internalArray.getInt(0))
                 if (trackIndex.hasChunk()) {
                     projectionChunk.addChunk()
                 }
-                    lastLength = sequenceLength
+                lastLength = sequenceLength
 
                 ++lastChunkArrayOffset
             }
@@ -657,9 +670,8 @@ class TrackService {
 
             projectionChunkList.addChunk(projectionChunk)
 
-            trackObjectList.put(sequenceString, trackObject)
+            trackObjectList.put(sequenceArrayObject.name, trackObject)
         }
-
 
         multiSequenceProjection.projectionChunkList = projectionChunkList
         projectionService.cacheProjection(refererLoc, multiSequenceProjection)

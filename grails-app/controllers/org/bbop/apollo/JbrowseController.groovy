@@ -321,7 +321,7 @@ class JbrowseController {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
 
                 SequenceCache cache = SequenceCache.findByKey(dataFileName)
-                if (cache) {
+                if (cache && false ) {
                     if (cache.value == String.valueOf(HttpServletResponse.SC_NOT_FOUND)) {
                         response.setStatus(HttpServletResponse.SC_NOT_FOUND)
                     } else {

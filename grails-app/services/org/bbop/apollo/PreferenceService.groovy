@@ -85,8 +85,6 @@ class PreferenceService {
         return sequenceList
     }
 
-//    def setCurrentOrganism(User user, Organism organism) {
-//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
     def setCurrentOrganism(User user, Organism organism, String clientToken) {
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientToken(user, organism, clientToken,[sort: "lastUpdated", order: "desc"])
         if(userOrganismPreferences.size()>1){
@@ -101,7 +99,6 @@ class PreferenceService {
                     , organism: organism
                     , currentOrganism: true
                     , bookmark: Bookmark.findByOrganism(organism)
-//                    , sequence: Sequence.findByOrganism(organism)
                     , clientToken: clientToken
             ).save(flush: true,insert:true)
         } else if (!userOrganismPreference.currentOrganism) {
@@ -122,7 +119,6 @@ class PreferenceService {
     def setCurrentBookmark(User user, Bookmark bookmark,String clientToken) {
         Organism organism = bookmark.organism
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
-//        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user
