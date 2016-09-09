@@ -3356,7 +3356,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     void "adding a multi-allelic SNV and adding additional properties"() {
         given: "a SNV that has 3 alternate alleles and additional properties that describe the SNV and its alleles"
-        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"reference_bases\": \"A\", \"alternate_alleles\": [{\"bases\": \"G\", \"allele_info\": [{\"tag\": \"AF\", \"value\": 0.0321}, {\"tag\": \"AC\", \"value\": 32}]}, {\"bases\": \"C\", \"allele_info\": [{\"tag\": \"AF\", \"value\": 0.00123}, {\"tag\": \"AC\", \"value\": 7}]}, {\"bases\": \"T\", \"allele_info\": [{\"tag\": \"AF\", \"value\": 0.00111}, {\"tag\": \"AC\", \"value\": 3}]}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"reference_bases\": \"A\", \"alternate_alleles\": [{\"bases\": \"G\", \"allele_info\": [{\"tag\": \"AF\", \"value\": 0.0321, \"provenance\": \"PMID:0000001\"}, {\"tag\": \"AC\", \"value\": 32}]}, {\"bases\": \"C\", \"allele_info\": [{\"tag\": \"AF\", \"value\": 0.00123, \"provenance\": \"Variant Calling Pipeline v1.2b\"}, {\"tag\": \"AC\", \"value\": 7}]}, {\"bases\": \"T\", \"allele_info\": [{\"tag\": \"AF\", \"value\": 0.00111, \"provenance\": \"http://datarepository.org/id213141\"}, {\"tag\": \"AC\", \"value\": 3}]}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
 
         when: "we add a SNV"
         requestHandlingService.addVariantAnnotation(JSON.parse(addVariantString) as JSONObject)
@@ -3393,9 +3393,9 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
     void "adding a variant and managing additional alternate alleles"() {
         given: "a SNV"
         String addVariantString = "{ ${testCredentials} \"operation\":\"add_variant_annotation\",\"features\":[{\"location\":{\"fmin\":1296556,\"strand\":1,\"fmax\":1296557},\"name\":\"rs0000000\",\"reference_bases\": \"A\", \"alternate_alleles\": [{\"bases\": \"G\"}], \"type\":{\"name\":\"SNV\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
-        String addAlternateAllelesString = "{ ${testCredentials} \"operation\":\"add_alternate_alleles\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"alternate_alleles\":[{\"bases\":\"@BASES@\", \"allele_info\": [{\"tag\": \"AF\", \"value\": @ALLELE_FREQUENCY@}]}]}],\"track\":\"Group1.10\"}"
-        String updateAlternateAllelesString = "{ ${testCredentials} \"operation\":\"update_alternate_alleles\",\"features\":[{\"new_alternate_alleles\":[{\"bases\":\"@NEW_BASES@\", \"allele_info\":[{\"tag\": \"AF\", \"value\": \"@NEW_ALLELE_FREQUENCY@\"}]}],\"uniquename\":\"@UNIQUENAME@\",\"old_alternate_alleles\":[{\"bases\":\"@OLD_BASES@\", \"allele_info\":[{\"tag\": \"AF\", \"value\": \"@OLD_ALLELE_FREQUENCY@\"}]}]}],\"track\":\"Group1.10\"}"
-        String deleteAlternateAllelesString = "{ ${testCredentials} \"operation\":\"delete_alternate_alleles\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"alternate_alleles\":[{\"bases\":\"@BASES@\"}]}],\"track\":\"Group1.10\"}"
+        String addAlternateAllelesString = "{ ${testCredentials} \"operation\":\"add_alternate_alleles\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"alternate_alleles\":[{\"bases\":\"@BASES@\", \"allele_info\": [{\"tag\": \"AF\", \"value\": \"@ALLELE_FREQUENCY@\", \"provenance\": \"@PROVENANCE@\"}]}]}],\"track\":\"Group1.10\"}"
+        String updateAlternateAllelesString = "{ ${testCredentials} \"operation\":\"update_alternate_alleles\",\"features\":[{\"new_alternate_alleles\":[{\"bases\":\"@NEW_BASES@\", \"allele_info\":[{\"tag\": \"AF\", \"value\": \"@NEW_ALLELE_FREQUENCY@\", \"provenance\": \"@NEW_PROVENANCE@\"}]}],\"uniquename\":\"@UNIQUENAME@\",\"old_alternate_alleles\":[{\"bases\":\"@OLD_BASES@\", \"allele_info\":[{\"tag\": \"AF\", \"value\": \"@OLD_ALLELE_FREQUENCY@\", \"provenance\": \"@NEW_PROVENANCE\"}]}]}],\"track\":\"Group1.10\"}"
+        String deleteAlternateAllelesString = "{ ${testCredentials} \"operation\":\"delete_alternate_alleles\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"alternate_alleles\":[{\"bases\":\"@BASES@\", \"allele_info\": [{\"tag\": \"AF\", \"value\": \"@ALLELE_FREQUENCY@\", \"provenance\": \"@PROVENANCE@\"}]}]}],\"track\":\"Group1.10\"}"
 
         when: "we add a SNV"
         requestHandlingService.addVariantAnnotation(JSON.parse(addVariantString) as JSONObject)
@@ -3406,14 +3406,14 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         when: "we add an alternate allele"
         SNV snv = SNV.all.get(0)
-        String addAlternateAllelesForSnv1 = addAlternateAllelesString.replace("@UNIQUENAME@", snv.uniqueName).replace("@BASES@", "T").replace("@ALLELE_FREQUENCY@", "0.0145")
+        String addAlternateAllelesForSnv1 = addAlternateAllelesString.replace("@UNIQUENAME@", snv.uniqueName).replace("@BASES@", "T").replace("@ALLELE_FREQUENCY@", "0.0145").replace("@PROVENANCE@", "PMID:0000001")
         requestHandlingService.addAlternateAlleles(JSON.parse(addAlternateAllelesForSnv1) as JSONObject)
 
         then: "we should see 2 alternate alleles"
         assert snv.alternateAlleles.size() == 2
 
         when: "we modify a SNV's alternate allele by changing its allele frequency"
-        String updateAlternateAllelesForSnv1 = updateAlternateAllelesString.replace("@UNIQUENAME@", snv.uniqueName).replace("@OLD_BASES@", "G").replace("@OLD_ALLELE_FREQUENCY@", "").replace("@NEW_BASES@", "G").replace("@NEW_ALLELE_FREQUENCY@", "0.565")
+        String updateAlternateAllelesForSnv1 = updateAlternateAllelesString.replace("@UNIQUENAME@", snv.uniqueName).replace("@OLD_BASES@", "G").replace("@OLD_ALLELE_FREQUENCY@", "").replace("@OLD_PROVENANCE@", "").replace("@NEW_BASES@", "G").replace("@NEW_ALLELE_FREQUENCY@", "0.565").replace("@NEW_PROVENANCE@", "Test dataset 1")
         requestHandlingService.updateAlternateAlleles(JSON.parse(updateAlternateAllelesForSnv1) as JSONObject)
 
         then: "we should have an alternate allele with the newly added allele frequency"
@@ -3425,7 +3425,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         }
 
         when: "we delete a SNV's alternate allele"
-        String deleteAlternateAllelesSnv1 = deleteAlternateAllelesString.replace("@UNIQUENAME@", snv.uniqueName).replace("@BASES@", "G")
+        String deleteAlternateAllelesSnv1 = deleteAlternateAllelesString.replace("@UNIQUENAME@", snv.uniqueName).replace("@BASES@", "G").replace("@ALLELE_FREQUENCY@", "0.565").replace("@PROVENANCE@", "Test dataset 1")
         requestHandlingService.deleteAlternateAlleles(JSON.parse(deleteAlternateAllelesSnv1) as JSONObject)
 
         then: "SNV should have only one alternate allele, T"
@@ -3434,5 +3434,19 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         def newAlternateAlleles = snv.alternateAlleles
         assert newAlternateAlleles[0].bases == "T"
         assert newAlternateAlleles[0].alleleFrequency == Float.parseFloat("0.0145")
+
+        when: "we add another alternate allele, C"
+        String addAlternateAllelesForSnv2 = addAlternateAllelesString.replace("@UNIQUENAME@", snv.uniqueName).replace("@BASES@", "C").replace("@ALLELE_FREQUENCY@", "").replace("@PROVENANCE@", "")
+        requestHandlingService.addAlternateAlleles(JSON.parse(addAlternateAllelesForSnv2) as JSONObject)
+
+        then: "the alternate allele should be part of the SNV"
+        assert Allele.all.size() == 2
+
+        when: "we delete this newly added allele by providing just the base information"
+        String deleteAlternateAllelesSnv2 = deleteAlternateAllelesString.replace("@UNIQUENAME@", snv.uniqueName).replace("@BASES@","C").replace("@ALLELE_FREQUENCY@", "").replace("@PROVENANCE@","")
+        requestHandlingService.deleteAlternateAlleles(JSON.parse(deleteAlternateAllelesSnv2) as JSONObject)
+
+        then: "the alternate allele, C, should be removed"
+        assert Allele.all.size() == 1
     }
 }

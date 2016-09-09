@@ -1068,7 +1068,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 for (Allele allele : feature.alternateAlleles) {
                     JSONObject alternateAlleleObject = new JSONObject()
                     alternateAlleleObject.put(FeatureStringEnum.BASES.value, allele.bases)
-                    alternateAlleleObject.put(FeatureStringEnum.ALLELE_FREQUENCY.value, String.valueOf(allele.alleleFrequency))
+                    if (allele.alleleFrequency) {
+                        alternateAlleleObject.put(FeatureStringEnum.ALLELE_FREQUENCY.value, String.valueOf(allele.alleleFrequency))
+                    }
+                    if (allele.provenance) {
+                        alternateAlleleObject.put(FeatureStringEnum.PROVENANCE.value, allele.provenance)
+                    }
                     if (allele.alleleInfo) {
                         JSONArray alleleInfoArray = new JSONArray()
                         allele.alleleInfo.each { alleleInfo ->

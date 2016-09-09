@@ -3869,6 +3869,7 @@ define([
                     console.log("feature: ", feature);
                     var oldAltBases;
                     var oldAltAlleleFrequency;
+                    var oldProvenance;
 
                     var altAlleles = new dojoItemFileWriteStore({
                         data: {
@@ -3878,14 +3879,14 @@ define([
 
                     for (var i = 0; i < feature.alternate_alleles.length; ++i) {
                         var alternateAllele = feature.alternate_alleles[i];
-                        altAlleles.newItem({bases: alternateAllele.bases, allele_frequency: alternateAllele.alleleFrequency || '' });
+                        altAlleles.newItem({bases: alternateAllele.bases, allele_frequency: alternateAllele.alleleFrequency || '', provenance: alternateAllele.provenance || '' });
                     }
                     var altAlleleTableLayout = [{
                         cells: [
                             {
                                 name: 'ALT',
                                 field: 'bases',
-                                width: '50%',
+                                width: '20%',
                                 formatter: function (alt) {
                                     if (!alt) {
                                         return "Enter new ALT allele";
@@ -3895,14 +3896,26 @@ define([
                                 editable: hasWritePermission
                             },
                             {
-                                name: 'Allele Frequency (AF)',
+                                name: 'AF',
                                 field: 'allele_frequency',
-                                width: '50%',
+                                width: '20%',
                                 formatter: function (af) {
                                     if (!af) {
-                                        return "Enter new allele frequency";
+                                        return "Enter new AF";
                                     }
                                     return af;
+                                },
+                                editable: hasWritePermission
+                            },
+                            {
+                                name: 'Provenance',
+                                field: 'provenance',
+                                width: '60%',
+                                formatter: function (p) {
+                                    if (!p) {
+                                        return "Enter a URL/PMID/text as supporting evidence";
+                                    }
+                                    return p;
                                 },
                                 editable: hasWritePermission
                             }
@@ -3927,22 +3940,28 @@ define([
 
                     var dirty = false;
                     dojo.connect(altAlleleTable, "onStartEdit", function (inCell, inRowIndex) {
+                        console.log("onStartEdit");
                         if (!dirty) {
                             oldAltBases = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "bases");
                             oldAltAlleleFrequency = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "allele_frequency");
+                            oldProvenance = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "provenance");
                             dirty = true;
                         }
                     });
 
                     dojo.connect(altAlleleTable, "onCancelEdit", function(inRowIndex) {
+                        console.log("onCancelEdit");
                         altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", oldAltBases);
                         altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", oldAltAlleleFrequency);
+                        altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", oldProvenance);
                         dirty = false;
                     });
 
                     dojo.connect(altAlleleTable, "onApplyEdit", function(inRowIndex) {
                         var newAltBases = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "bases").toUpperCase();
                         var newAltAlleleFrequency = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "allele_frequency");
+                        var newProvenance = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "provenance");
+
                         var altFreq = parseFloat(newAltAlleleFrequency);
                         if (altFreq < 0 || altFreq > 1.0) {
                             // sanity check for frequency value
@@ -3951,32 +3970,44 @@ define([
                                 message: "The value for AF field should be within the range of 0.0 - 1.0",
                                 confirmLabel: 'OK',
                                 denyLabel: 'Cancel'
-                            }).show(function (confirmed) {
-                                if (confirmed) {
-                                }
-                            });
+                            }).show(function(confirmed) {});
                             altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
                             altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", "");
+                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", newProvenance);
                         }
                         else {
-                            console.log (oldAltBases, " vs. ", newAltBases, " || ", oldAltAlleleFrequency, " vs. ", newAltAlleleFrequency);
-                            if (!newAltBases || !newAltAlleleFrequency) {
-                            }
-                            else if (!oldAltBases || !oldAltAlleleFrequency) {
-                                addAltAlleles(newAltBases, newAltAlleleFrequency);
+                            if (newProvenance === undefined || newProvenance == "undefined" || newProvenance == "") {
+                                console.log("provenance not provided");
+                                // frequency must always be associated with a provenance
+                                new ConfirmDialog({
+                                    title: 'No provenance provided',
+                                    message: 'No provenance provided to support the entered AF value',
+                                    confirmLabel: 'OK',
+                                    denyLabel: 'Cancel'
+                                }).show(function(confirmed) {});
+                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
+                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", newAltAlleleFrequency);
+                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", "");
                             }
                             else {
-                                if (newAltBases != oldAltBases || newAltAlleleFrequency != oldAltAlleleFrequency) {
-                                    updateAltAlleles(oldAltBases, oldAltAlleleFrequency, newAltBases, newAltAlleleFrequency);
+                                if (!newAltBases || !newAltAlleleFrequency || !newProvenance) {
+                                    // no changes
                                 }
+                                else if (!oldAltBases) {
+                                    addAltAlleles(newAltBases, newAltAlleleFrequency, newProvenance);
+                                }
+                                else {
+                                    if (newAltBases != oldAltBases || newAltAlleleFrequency != oldAltAlleleFrequency || newProvenance != oldProvenance) {
+                                        updateAltAlleles(oldAltBases, oldAltAlleleFrequency, oldProvenance, newAltBases, newAltAlleleFrequency, newProvenance);
+                                    }
+                                }
+                                dirty = false;
                             }
-                            dirty = false;
-                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
                         }
                     });
 
                     dojo.connect(addAltAlleleButton, "onclick", function() {
-                        altAlleleTable.store.newItem({bases: "", allele_frequency: ""});
+                        altAlleleTable.store.newItem({bases: "", allele_frequency: "", provenance: ""});
                         altAlleleTable.scrollToRow(altAlleleTable.rowCount);
                     });
 
@@ -3987,7 +4018,8 @@ define([
                             var item = selected[i];
                             var altBases = altAlleleTable.store.getValue(item, "bases");
                             var altAlleleFrequency = altAlleleTable.store.getValue(item, "allele_frequency");
-                            toBeDeleted.push({bases: altBases, allele_frequency: altAlleleFrequency});
+                            var provenance = altAlleleTable.store.getValue(item, "provenance");
+                            toBeDeleted.push({bases: altBases, allele_frequency: altAlleleFrequency, provenance: provenance});
                         }
                         altAlleleTable.removeSelectedRows();
                         deleteAltAlleles(toBeDeleted);
@@ -4720,9 +4752,9 @@ define([
                     updateTimeLastUpdated();
                 };
 
-                var addAltAlleles = function(altBases, alleleFrequency) {
+                var addAltAlleles = function(altBases, alleleFrequency, provenance) {
                     console.log("@addAltAlleles: " + altBases);
-                    var features = [{ uniquename: uniqueName, alternate_alleles: [{bases: altBases, allele_info: [{tag: "AF", value: alleleFrequency}]}] }];
+                    var features = [{ uniquename: uniqueName, alternate_alleles: [{bases: altBases, allele_info: [{tag: "AF", value: alleleFrequency, provenance: provenance}]}] }];
                     var operation = "add_alternate_alleles";
                     var postData = { track: trackName, features: features, operation: operation };
                     track.executeUpdateOperation(JSON.stringify(postData));
@@ -4730,19 +4762,19 @@ define([
 
                 };
 
-                var updateAltAlleles = function(oldBases, oldAlleleFrequency, newBases, newAlleleFrequency) {
+                var updateAltAlleles = function(oldBases, oldAlleleFrequency, oldProvenance, newBases, newAlleleFrequency, newProvenance) {
                     console.log("@updateAltAlleles: " + newBases);
                     var feature = { uniquename: uniqueName };
 
                     if (oldAlleleFrequency != "null") {
-                        feature[0].old_alternate_alleles = [{bases: oldBases, allele_info: [{tag: "AF", value: oldAlleleFrequency}]}];
+                        feature.old_alternate_alleles = [{bases: oldBases, allele_info: [{tag: "AF", value: oldAlleleFrequency, provenance: oldProvenance}]}];
                     }
                     else {
                         feature.old_alternate_alleles = [{bases: oldBases}];
                     }
 
                     if (newAlleleFrequency != "null") {
-                        feature.new_alternate_alleles = [{bases: newBases, allele_info: [{tag: "AF", value: newAlleleFrequency}]}];
+                        feature.new_alternate_alleles = [{bases: newBases, allele_info: [{tag: "AF", value: newAlleleFrequency, provenance: newProvenance}]}];
                     }
                     else {
                         feature.new_alternate_alleles = [{bases: newBases}];
@@ -4750,18 +4782,18 @@ define([
 
                     var operation = "update_alternate_alleles";
                     var postData = { track: trackName, features: [feature], operation: operation };
-                    console.log("postdata: ", postData);
+                    console.log("PostData: ", postData);
                     track.executeUpdateOperation(JSON.stringify(postData));
                     updateTimeLastUpdated();
                 };
 
-                var deleteAltAlleles = function(altAlleles) {
-                    console.log("@deleteAltAlleles: " + altAlleles);
+                var deleteAltAlleles = function(altAllelesToBeDeleted) {
+                    console.log("@deleteAltAlleles");
                     var alternateAlleles = [];
-                    for (var i = 0; i < altAlleles.length; ++i) {
+                    for (var i = 0; i < altAllelesToBeDeleted.length; ++i) {
                         var alternateAllele = {};
-                        alternateAllele.bases = altAlleles[i].bases;
-                        alternateAlleles.allele_info = [{ tag: "AF", value: altAlleles[i].alleleFrequency }];
+                        alternateAllele.bases = altAllelesToBeDeleted[i].bases;
+                        alternateAllele.allele_info = [{tag: "AF", value: altAllelesToBeDeleted[i].allele_frequency, provenance: altAllelesToBeDeleted[i].provenance}];
                         alternateAlleles.push(alternateAllele);
                     }
 

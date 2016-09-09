@@ -135,6 +135,7 @@ public enum FeatureStringEnum {
         NEW_ALTERNATE_ALLELES,
         ALLELE_FREQUENCY("alleleFrequency"),
         ALLELE_FREQUENCY_TAG("AF"),
+        PROVENANCE,
         ALLELE_INFO,
         VARIANT_INFO,
         OLD_VARIANT_INFO,
