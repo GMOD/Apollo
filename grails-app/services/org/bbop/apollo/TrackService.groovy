@@ -424,7 +424,9 @@ class TrackService {
                 finalObject = jsonObject
                 // get endSize  6
                 endSize = jsonObject.intervals.maxEnd
-            } else {
+            }
+            else
+            if ( ! hasOverlappingNcList(finalObject,jsonObject ,organism.commonName,trackName)) {
                 // ignore formatVersion
                 // add featureCount
                 finalObject.featureCount = finalObject.featureCount + jsonObject.featureCount
@@ -445,6 +447,41 @@ class TrackService {
     }
 
     /**
+     * Indicates whether the objects have overlapping nclist objects based on name.
+     *
+     *
+     * Any overlap indicates true.
+     *
+     * @param intervalsObjectA
+     * @param intervalsObjectB
+     * @return
+     */
+    @NotTransactional
+    Boolean hasOverlappingNcList(JSONObject intervalsObjectA, JSONObject intervalsObjectB,String organismName,String trackName) {
+        JSONArray nclistA = intervalsObjectA.intervals.nclist
+        JSONArray nclistB = intervalsObjectB.intervals.nclist
+
+        for(JSONArray ncListEntryA in nclistA){
+            for(JSONArray ncListEntryB in nclistB){
+                if(ncListEntryA.getInt(0)==ncListEntryB.getInt(0)){
+                    int classIndex = ncListEntryA.getInt(0)
+                    TrackIndex trackIndex = trackMapperService.getIndices(organismName, trackName, classIndex)
+                    if(ncListEntryA.getString(trackIndex.id)==ncListEntryB.getString(trackIndex.id)){
+                        return true
+                    }
+                }
+            }
+        }
+
+
+//        for(a in nclistA){
+//
+//        }
+
+        return false
+
+    }
+/**
      * "histograms": * {* "stats":
      * [{"max": 4,
      "basesPerBin": "200000",
@@ -481,6 +518,7 @@ class TrackService {
         return first
     }
 
+    @NotTransactional
     JSONArray nudgeNcListArray(JSONArray coordinate, Integer nudgeAmount, Integer nudgeIndex,String organismName,String trackName) {
         // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
         for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
@@ -580,14 +618,6 @@ class TrackService {
             mergeCoordinateArray(firstNcListArray, secondArray, endSizes.get(i - 1),organismName,trackName)
         }
 
-//        for (int i = 0; i < secondNcListArray.size(); i++) {
-//            def ncListArray = secondNcListArray.get(i)
-//            if (ncListArray instanceof JSONArray) {
-//                nudgeNcListArray(ncListArray, endSize)
-//                firstNcListArray.add(ncListArray)
-//            }
-//        }
-
         return firstNcListArray
 
     }
@@ -610,12 +640,6 @@ class TrackService {
         Integer priorSequenceLength = 0
         Integer priorChunkArrayOffset = 0
         String trackName = null
-
-//        List<JSONObject> sequenceStrings = new ArrayList<>()
-//        for (int i = 0; i < sequenceArray.size(); i++) {
-//            JSONObject sequenceObject = sequenceArray.getJSONObject(i)
-//            sequenceStrings.add(sequenceObject.name)
-//        }
 
         // a sequence name
         Map<String,Sequence> sequenceEntryMaps = Sequence.findAllByNameInListAndOrganism(sequenceArray.name as List,currentOrganism).collectEntries(){
