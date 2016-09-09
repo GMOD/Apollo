@@ -94,7 +94,6 @@ class MultiSequenceProjection extends AbstractProjection {
             map.put(order, projectList)
         }
 
-
         return map
     }
 
@@ -106,11 +105,10 @@ class MultiSequenceProjection extends AbstractProjection {
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
         // TODO: buffer for scaffolds is currently 1 . . the order
         Integer returnValue = discontinuousProjection.projectValue(input - inputOffset)
-        if (returnValue == UNMAPPED_VALUE) {
-            return UNMAPPED_VALUE
-        } else {
-            return returnValue + outputOffset
+        if (projectionSequence.reverse && returnValue != UNMAPPED_VALUE) {
+            returnValue = projectionSequence.length - returnValue
         }
+        return returnValue == UNMAPPED_VALUE ? returnValue : returnValue + outputOffset
     }
 
     Integer projectValue(Integer input) {
@@ -124,8 +122,14 @@ class MultiSequenceProjection extends AbstractProjection {
 
     Integer projectReverseValue(Integer input) {
         ProjectionSequence projectionSequence = getReverseProjectionSequence(input)
-        if (!projectionSequence) return -1
-        return sequenceDiscontinuousProjectionMap.get(projectionSequence).projectReverseValue(input - projectionSequence.offset) + projectionSequence.originalOffset
+        if (!projectionSequence) {
+            return -1
+        }
+        Integer reverseValue = sequenceDiscontinuousProjectionMap.get(projectionSequence).projectReverseValue(input - projectionSequence.offset) + projectionSequence.originalOffset
+        if(projectionSequence.reverse){
+            reverseValue  = projectionSequence.length - reverseValue
+        }
+        return reverseValue
     }
 
     Integer getLength() {
@@ -255,7 +259,7 @@ class MultiSequenceProjection extends AbstractProjection {
 
         // generate set of projection sequences
         // they may have different offsets, but different originalOffset
-        Map<String,Integer> originalOffsetMap = generateOriginalOffsetsForSequences(projectionSequences)
+        Map<String, Integer> originalOffsetMap = generateOriginalOffsetsForSequences(projectionSequences)
 
         for (ProjectionSequence projectionSequence in projectionSequences) {
             DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
@@ -272,13 +276,14 @@ class MultiSequenceProjection extends AbstractProjection {
         return projectionSequences
     }
 
-    private static  Map<String, Integer> generateOriginalOffsetsForSequences(List<ProjectionSequence> projectionSequences) {
-        Map<String,Integer> returnMap = new HashMap<>()
+    private
+    static Map<String, Integer> generateOriginalOffsetsForSequences(List<ProjectionSequence> projectionSequences) {
+        Map<String, Integer> returnMap = new HashMap<>()
         int originalOffset = 0
 
         projectionSequences.each {
-            if(!returnMap.containsKey(it.name)){
-                returnMap.put(it.name,originalOffset)
+            if (!returnMap.containsKey(it.name)) {
+                returnMap.put(it.name, originalOffset)
                 originalOffset += it.unprojectedLength
             }
         }
@@ -410,5 +415,9 @@ class MultiSequenceProjection extends AbstractProjection {
         theseProjectionSequences.each {
             sequenceDiscontinuousProjectionMap.put(it, null)
         }
+    }
+
+    Boolean isValid() {
+        return true
     }
 }
