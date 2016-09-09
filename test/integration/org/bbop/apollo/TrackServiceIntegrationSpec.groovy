@@ -485,4 +485,45 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert payloadFourArray.size() == payloadFourReturnArray.size()
     }
 
+    void "project tracks A1, A2, B1"(){
+
+//        http://localhost:8080/apollo/13613931728748474941974472985/jbrowse/data/tracks/Official%20Gene%20Set%20v3.2/%7B%22name%22:%22GB52236-RA%20(Group11.4)::GB52238-RA%20(Group11.4)::GB53497-RA%20(GroupUn87)%22,%20%22padding%22:0,%20%22start%22:52853,%20%22end%22:104277,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:52653,%20%22end%22:59162,%20%22feature%22:%7B%22name%22:%22GB52236-RA%22%7D%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:10057,%20%22end%22:18796,%20%22feature%22:%7B%22name%22:%22GB52238-RA%22%7D%7D,%7B%22name%22:%22GroupUn87%22,%20%22start%22:10311,%20%22end%22:26919,%20%22feature%22:%7B%22name%22:%22GB53497-RA%22%7D%7D]%7D:52853..104277/trackData.json
+
+        given: "proper inputs"
+        String sequenceList = '[{"name":"Group11.4", "start":52653, "end":59162, "feature":{"name":"GB52236-RA"}},{"name":"Group11.4", "start":10057, "end":18796, "feature":{"name":"GB52238-RA"}},{"name":"GroupUn87", "start":10311, "end":26919, "feature":{"name":"GB53497-RA"}}]'
+        String refererLoc = "{\"name\":\"GB52236-RA (Group11.4)::GB52238-RA (Group11.4)::GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":52853, \"end\":104277, \"sequenceList\":${sequenceList}}:52853..104277"
+        String location = ":52853..104277"
+        JSONArray sequenceStrings = new JSONArray(sequenceList)
+        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${refererLoc}${location}/trackData.json"
+
+        when: "we get the projected track data "
+        JSONObject trackObject = trackService.projectTrackData(sequenceStrings, dataFileName, refererLoc, Organism.first())
+//
+        then: "we expect to get sane results"
+        assert trackObject.featureCount == 16
+        assert trackObject.intervals.nclist.size() == 3
+        assert trackObject.intervals.nclist.getJSONArray(0).getInt(1)==6709
+        assert trackObject.intervals.nclist.getJSONArray(0).getInt(2)==15048
+        assert trackObject.intervals.nclist.getJSONArray(1).getInt(1)==200
+        assert trackObject.intervals.nclist.getJSONArray(1).getInt(2)==6309
+        assert trackObject.intervals.nclist.getJSONArray(2).getInt(1)==15448
+        assert trackObject.intervals.nclist.getJSONArray(2).getInt(2)==31656
+
+    }
+
+//    void "project tracks B1, A1, A2"(){
+//
+////        given: "proper inputs"
+////        JSONArray sequenceStrings = new JSONArray('[{name:"Group11.4"}]')
+////        Integer padding = 20
+////        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/{\"padding\": ${padding}, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1/trackData.json"
+////        String refererLoc = "{\"padding\":${padding}, \"projection\":\"Exon\", \"referenceTrack\":\"Official Gene Set v3.2\", \"sequenceList\":[{\"name\":\"Group11.4\"}], \"label\":\"Group11.4\"}:-1..-1:1..16607"
+////
+////        when: "we get the projected track data "
+////        JSONObject trackObject = trackService.projectTrackData(sequenceStrings, dataFileName, refererLoc, Organism.first())
+////
+////        then: "we expect to get sane results"
+////        assert trackObject.featureCount == 6
+//
+//    }
 }
