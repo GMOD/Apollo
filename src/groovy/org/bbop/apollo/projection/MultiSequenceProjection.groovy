@@ -72,6 +72,7 @@ class MultiSequenceProjection extends AbstractProjection {
                     return projectionSequence
                 }
             }
+            // this is if the projectionsequences belong to the same sequence
             offset += projectionSequenceList.first().unprojectedLength
         }
 
