@@ -8,7 +8,7 @@ import org.bbop.apollo.Organism
  * Within that view, there are multiple ordered sequences (scaffolds).
  * Each sequence can represent the entire sequence, or a portion thereof.
  * Each sequence can have a reverse complement.
- * Each sequence can be repeated.
+ * Each sequence can be repeated with a different portion.  An overlap should be merged.
  * This allows an entire sequence region to be visualized.
  *
  * Within each sequence, only a portion thereof may shown due to a variety of folding.
@@ -21,6 +21,7 @@ import org.bbop.apollo.Organism
 class MultiSequenceProjection extends AbstractProjection {
 
     // if a projection includes multiple sequences, this will include greater than one
+
     TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>()
 
     List<String> chunks = new ArrayList<>()

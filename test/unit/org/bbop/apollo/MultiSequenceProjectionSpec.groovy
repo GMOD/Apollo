@@ -1300,9 +1300,9 @@ class MultiSequenceProjectionSpec extends Specification {
                 , name: "Sequence2"
                 , organism: "Human"
                 , order: 1
-                , unprojectedLength: 100
+                , unprojectedLength: 50
                 , start: 0
-                , end: 99
+                , end: 49
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection1 = new MultiSequenceProjection()
         multiSequenceProjection1.addProjectionSequences([sequence1,sequence2])
