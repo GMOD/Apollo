@@ -1261,6 +1261,7 @@ class MultiSequenceProjectionSpec extends Specification {
 
         when: "we add a location "
         multiSequenceProjection1.addLocation(location1)
+        multiSequenceProjection1.calculateOffsets()
 
         then: "if we retrieve the projection it should be fine"
         assert 10 == multiSequenceProjection1.projectValue(10)

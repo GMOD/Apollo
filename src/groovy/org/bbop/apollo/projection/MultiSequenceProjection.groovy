@@ -126,9 +126,13 @@ class MultiSequenceProjection extends AbstractProjection {
         if (!projectionSequence) {
             return -1
         }
-        Integer reverseValue = sequenceDiscontinuousProjectionMap.get(projectionSequence).projectReverseValue(input - projectionSequence.offset) + projectionSequence.originalOffset
+        DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
+        Integer reverseValue = discontinuousProjection.projectReverseValue(input - projectionSequence.offset)
         if(projectionSequence.reverse){
-            reverseValue  = projectionSequence.length - reverseValue
+            reverseValue  = projectionSequence.originalOffset + projectionSequence.length - reverseValue
+        }
+        else{
+            reverseValue += projectionSequence.originalOffset
         }
         return reverseValue
     }
