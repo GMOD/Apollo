@@ -434,7 +434,12 @@ JSONUtils.createApolloVariant = function( jfeature, useName ) {
     var fmin = jfeature.get('start');
     var fmax = jfeature.get('end');
     var referenceBases = jfeature.get('reference_allele');
-    var alternateAlleles = jfeature.get('alternative_alleles').values.split(',');
+    var alternateAllelesArray = jfeature.get('alternative_alleles').values.split(',');
+    var alternateAlleles = [];
+    for (var i = 0; i < alternateAllelesArray.length; ++i) {
+        var allele = {bases: alternateAllelesArray[i]};
+        alternateAlleles.push(allele);
+    }
 
     afeature.location = {
         fmin: fmin,
@@ -476,7 +481,7 @@ JSONUtils.classifyVariant = function( refAllele, altAlleles, fmin, fmax ) {
     var type;
     var altAllele = altAlleles[0]; // type defaults to type of the first occuring alt allele
     var refLength = refAllele.length;
-    var altLength = altAllele.length;
+    var altLength = altAllele.bases.length;
 
     if (refLength - altLength == 0) {
         if (refLength == 1 && refAllele != altAllele) {
