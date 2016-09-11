@@ -532,7 +532,7 @@ var draggableTrack = declare( HTMLVariantTrack,
             onClick: dojo.hitch(this, function() {
                 var selection = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
-                atrack.createVariantAnnotations(selection);
+                atrack.createVariant(selection);
             })
         } );
         this.contextMenuItems["create_annotation"] = createAnnotationMenuItem;

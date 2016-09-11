@@ -3,7 +3,6 @@ package org.bbop.apollo
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.PermissionEnum
-import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
 import org.grails.plugins.metrics.groovy.Timed
 import org.restapidoc.annotation.RestApi
@@ -17,7 +16,7 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.Principal
-import java.text.DateFormat
+
 import static grails.async.Promises.*
 import grails.converters.JSON
 import org.bbop.apollo.event.AnnotationEvent
@@ -977,7 +976,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    @RestApiMethod(description = "Add a variant", path = "/annotationEditor/addVariantAnnotation", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Add a variant", path = "/annotationEditor/addVariant", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY),
             @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY),
@@ -985,10 +984,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism ID or common name"),
             @RestApiParam(name = "features", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "JSONArray with variant feature objects, as described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/")
     ])
-    def addVariantAnotation() {
+    def addVariant() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-            render requestHandlingService.addVariantAnnotation(inputObject)
+            render requestHandlingService.addVariant(inputObject)
         } else {
             render status: HttpStatus.UNAUTHORIZED
         }
@@ -1061,7 +1060,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             newFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
             newFeature.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(feature.ontologyId));
 
-            if (feature instanceof SequenceAlteration && feature.class.name in RequestHandlingService.variantAnnotationList) {
+            if (feature instanceof SequenceAlteration && feature.class.name in RequestHandlingService.variantList) {
                 newFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(feature.featureLocation));
                 newFeature.put(FeatureStringEnum.REFERENCE_BASES.value, feature.referenceBases);
                 JSONArray alternateAllelesArray = new JSONArray()

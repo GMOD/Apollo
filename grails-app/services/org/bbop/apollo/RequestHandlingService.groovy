@@ -32,6 +32,7 @@ class RequestHandlingService {
     def transcriptService
     def cdsService
     def exonService
+    def variantService
     def nonCanonicalSplitSiteService
     def configWrapperService
     def nameService
@@ -75,7 +76,7 @@ class RequestHandlingService {
             Substitution.class.name,
     ]
 
-    public static final List<String> variantAnnotationList = [
+    public static final List<String> variantList = [
             SNV.class.name,
             SNP.class.name,
             MNV.class.name,
@@ -83,7 +84,7 @@ class RequestHandlingService {
             Indel.class.name
     ]
 
-    public static final List<String> variantAnnotationTypes = [ SNV.cvTerm, SNP.cvTerm, MNV.cvTerm, MNP.cvTerm, Indel.cvTerm ]
+    public static final List<String> variantTypes = [SNV.cvTerm, SNP.cvTerm, MNV.cvTerm, MNP.cvTerm, Indel.cvTerm ]
 
     public static final List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
 
@@ -2290,39 +2291,47 @@ class RequestHandlingService {
         return featureContainer
     }
 
-    def addVariantAnnotation(JSONObject inputObject) {
-        println "@addVariantAnnotation: ${inputObject.toString()}"
-        JSONObject addFeatureContainer = createJSONFeatureContainer();
+    def addVariant(JSONObject inputObject) {
+        println "@addVariant: ${inputObject.toString()}"
+        JSONObject returnObject = createJSONFeatureContainer();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-        User activeUser = permissionService.getCurrentUser(inputObject)
+        boolean suppressHistory = false
+        boolean suppressEvents = false
+
+        if (inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
+            suppressHistory = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value)
+        }
+        if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {
+            suppressEvents = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_EVENTS.value)
+        }
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i)
-            def variant = featureService.convertJSONToFeature(jsonFeature, sequence)
+            jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
+            Feature variant = variantService.createVariant(jsonFeature, sequence, suppressHistory)
 
-            if (activeUser) {
-                featureService.setOwner(variant, activeUser)
-            } else {
-                log.error "Unable to find valid user to set on variant: " + inputObject.toString()
-            }
-            variant.save()
-            featureService.updateNewGsolFeatureAttributes(variant, sequence)
-            if (variant.getFmin() < 0 || variant.getFmax() < 0) {
+            if (variant.fmin < 0 || variant.fmax < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
-            variant.save(flush: true)
-            addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(variant, true))
+
+            if (!suppressHistory) {
+                // TODO: History tracking
+            }
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(variant, true))
         }
 
-        AnnotationEvent addAnnotationEvent = new AnnotationEvent(
-                features: addFeatureContainer,
-                sequence: sequence,
-                operation: AnnotationEvent.Operation.ADD,
-                sequenceAlterationEvent: false
-        )
-        fireAnnotationEvent(addAnnotationEvent)
-        return addFeatureContainer
+        if (!suppressEvents) {
+            AnnotationEvent addAnnotationEvent = new AnnotationEvent(
+                    features: returnObject,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.ADD,
+                    sequenceAlterationEvent: false
+            )
+            fireAnnotationEvent(addAnnotationEvent)
+        }
+
+        return returnObject
     }
 
     def addAlternateAlleles(JSONObject inputObject) {
@@ -2333,50 +2342,7 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.length(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = Feature.findByUniqueName(uniqueName)
-            JSONArray alternateAllelesArray = jsonFeature.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
-
-            for (int j = 0; j < alternateAllelesArray.size(); j++) {
-                JSONObject alternateAlleleObject = alternateAllelesArray.getJSONObject(j)
-                String bases = alternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
-                Allele allele = new Allele(bases: bases)
-                String alleleFrequencyString
-                if (alternateAlleleObject.has(FeatureStringEnum.ALLELE_INFO.value)) {
-                    JSONArray alleleInfoArray = alternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
-                    for (JSONObject alleleInfoObject : alleleInfoArray) {
-                        if (alleleInfoObject.getString(FeatureStringEnum.TAG.value) == FeatureStringEnum.ALLELE_FREQUENCY_TAG.value) {
-                            if (alleleInfoObject.getString(FeatureStringEnum.VALUE.value)) {
-                                alleleFrequencyString = alleleInfoObject.getString(FeatureStringEnum.VALUE.value)
-                                Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
-                                String provenance
-                                if (alleleInfoObject.has(FeatureStringEnum.PROVENANCE.value)) {
-                                    provenance = alleleInfoObject.getString(FeatureStringEnum.PROVENANCE.value)
-                                }
-
-                                println "Allele: ${bases} with AF ${alleleFrequency}"
-                                if (alleleFrequency >= 0 && alleleFrequency <= 1.0) {
-                                    if (provenance) {
-                                        allele.alleleFrequency = alleleFrequency
-                                        allele.provenance = provenance
-                                    }
-                                    else {
-                                        log.error "Rejecting alleleFrequency for Allele: ${bases} as no provenance is provided"
-                                    }
-                                }
-                                else {
-                                    log.error "Unexpected Alternate Allele Frequency value of ${alleleFrequencyString}"
-                                }
-                            }
-                        }
-                    }
-                }
-
-                allele.variant = (SequenceAlteration) feature
-                allele.save()
-                feature.addToAlternateAlleles(allele)
-            }
-            feature.save(flush:true, failOnError: true)
+            Feature feature = variantService.addAlternateAlleles(jsonFeature)
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
@@ -2400,41 +2366,7 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.length(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = Feature.findByUniqueName(uniqueName)
-            JSONArray alternateAllelesArray = jsonFeature.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
-
-            for (int j = 0; j < alternateAllelesArray.size(); j++) {
-                JSONObject alternateAlleleObject = alternateAllelesArray.getJSONObject(j)
-                String bases = alternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
-                def alternateAlleles = Allele.executeQuery("SELECT DISTINCT a FROM Allele AS a WHERE a.bases = :queryBases", [queryBases: bases])
-                if (alternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value).getJSONObject(0).getString(FeatureStringEnum.VALUE.value)) {
-                    String alleleFrequencyString = alternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value).getJSONObject(0).getString(FeatureStringEnum.VALUE.value)
-                    Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
-                    String provenance = alternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value).getJSONObject(0).getString(FeatureStringEnum.PROVENANCE.value)
-                    // get all alleles that match the given bases
-                    for (def allele : alternateAlleles) {
-                        if (allele.alleleFrequency == alleleFrequency && allele.provenance == provenance) {
-                            feature.removeFromAlternateAlleles(allele)
-                            allele.delete(flush: true)
-                            println "Allele removed from feature: ${feature}"
-                            break;
-                        }
-                    }
-                }
-                else {
-                    if (alternateAlleles.size() == 1) {
-                        Allele allele = alternateAlleles.iterator().next()
-                        feature.removeFromAlternateAlleles(allele)
-                        allele.delete(flush: true)
-                    }
-                    else {
-                        log.error "Cannot delete as more than one result matches the given bases: ${bases}"
-                    }
-                }
-            }
-
-            feature.save(flush: true, failOnError: true)
+            Feature feature = variantService.deleteAlternateAlleles(jsonFeature)
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
@@ -2458,70 +2390,7 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.length(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = Feature.findByUniqueName(uniqueName)
-            JSONObject oldAlternateAlleleObject = jsonFeature.getJSONArray(FeatureStringEnum.OLD_ALTERNATE_ALLELES.value).getJSONObject(0)
-            JSONObject newAlternateAlleleObject = jsonFeature.getJSONArray(FeatureStringEnum.NEW_ALTERNATE_ALLELES.value).getJSONObject(0)
-
-            String oldAltAlleleBases = oldAlternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
-            String newAltAlleleBases = newAlternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
-
-            Float oldAltAlleleFrequency
-            String oldProvenance
-            if (oldAlternateAlleleObject.has(FeatureStringEnum.ALLELE_INFO.value)) {
-                JSONArray oldAlternateAlleleInfoArray = oldAlternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
-                for (JSONObject alleleInfoObject : oldAlternateAlleleInfoArray) {
-                    if (alleleInfoObject.get(FeatureStringEnum.TAG.value) == FeatureStringEnum.ALLELE_FREQUENCY_TAG.value && alleleInfoObject.get(FeatureStringEnum.VALUE.value) != null) {
-                        if (alleleInfoObject.getString(FeatureStringEnum.VALUE.value)) {
-                            oldAltAlleleFrequency = Float.parseFloat(alleleInfoObject.getString(FeatureStringEnum.VALUE.value))
-                            if (alleleInfoObject.has(FeatureStringEnum.PROVENANCE.value)) {
-                                oldProvenance = alleleInfoObject.getString(FeatureStringEnum.PROVENANCE.value)
-                            }
-                        }
-                    }
-                }
-            }
-
-            Float newAltAlleleFrequency
-            String newProvenance
-            if (newAlternateAlleleObject.has(FeatureStringEnum.ALLELE_INFO.value)) {
-                JSONArray newAlternateAlleleInfoArray = newAlternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
-                for (JSONObject alleleInfoObject : newAlternateAlleleInfoArray) {
-                    if (alleleInfoObject.get(FeatureStringEnum.TAG.value) == FeatureStringEnum.ALLELE_FREQUENCY_TAG.value && alleleInfoObject.get(FeatureStringEnum.VALUE.value) != null) {
-                        if (alleleInfoObject.getString(FeatureStringEnum.VALUE.value)) {
-                            newAltAlleleFrequency = Float.parseFloat(alleleInfoObject.getString(FeatureStringEnum.VALUE.value))
-                            if (alleleInfoObject.has(FeatureStringEnum.PROVENANCE.value)) {
-                                newProvenance = alleleInfoObject.getString(FeatureStringEnum.PROVENANCE.value)
-                            }
-                        }
-                    }
-                }
-            }
-
-            // TODO: improve
-            def alternateAlleles = feature.alternateAlleles
-            for (Allele allele : alternateAlleles) {
-                if (allele.bases == oldAltAlleleBases && allele.alleleFrequency == oldAltAlleleFrequency && allele.provenance == oldProvenance) {
-                    allele.bases = newAltAlleleBases
-                    if (newAltAlleleFrequency) {
-                        if (newAltAlleleFrequency >= 0 && newAltAlleleFrequency <= 1) {
-                            if (newProvenance) {
-                                allele.alleleFrequency = newAltAlleleFrequency
-                                allele.provenance = newProvenance
-                            }
-                            else {
-                                log.error "Rejecting alleleFrequency for Allele: ${newAltAlleleBases} as no provenance is provided"
-                            }
-
-                        }
-                        else {
-                            log.error "Unexpected Alternate Allele Frequency value of ${newAltAlleleFrequency} with provenance: ${newProvenance}"
-                        }
-                    }
-                    allele.save(flush:true, failOnError: true)
-                }
-            }
-
+            Feature feature = variantService.updateAlternateAlleles(jsonFeature)
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
@@ -2545,17 +2414,7 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.length(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = Feature.findByUniqueName(uniqueName)
-            JSONArray variantInfosArray = jsonFeature.getJSONArray(FeatureStringEnum.VARIANT_INFO.value)
-            println "Variant Info: ${variantInfosArray.toString()}"
-
-            for (int j = 0; j < variantInfosArray.size(); j++){
-                JSONObject variantInfoObject = variantInfosArray.getJSONObject(j)
-                String tag = variantInfoObject.get(FeatureStringEnum.TAG.value)
-                String value = variantInfoObject.get(FeatureStringEnum.VALUE.value)
-                featureService.addNonReservedProperties(feature, tag, value)
-            }
+            Feature feature = variantService.addVariantInfo(jsonFeature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
         }
         return updateFeatureContainer
@@ -2569,23 +2428,7 @@ class RequestHandlingService {
 
         for (int i = 0; i < features.length(); i++) {
             JSONObject jsonFeature = features.getJSONObject(i)
-            Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
-            JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.VARIANT_INFO.value)
-
-            for (int j = 0; j < properties.length(); j++) {
-                JSONObject property = properties.getJSONObject(j)
-                String tag = property.get(FeatureStringEnum.TAG.value)
-                String value = property.get(FeatureStringEnum.VALUE.value)
-                FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(tag, value, feature)
-                if (featureProperty) {
-                    feature.removeFromFeatureProperties(featureProperty)
-                    feature.save()
-                    featureProperty.delete(flush: true)
-                }
-                else {
-                    log.error "Could not find feature property ${property.toString()} to delete for variant: ${feature}"
-                }
-            }
+            Feature feature = variantService.deleteVariantInfo(jsonFeature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
         }
         return updateFeatureContainer
@@ -2599,28 +2442,9 @@ class RequestHandlingService {
 
         for (int i = 0; i < features.length(); i++) {
             JSONObject jsonFeature = features.getJSONObject(i)
-            Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
-            JSONArray oldProperties = jsonFeature.getJSONArray(FeatureStringEnum.OLD_VARIANT_INFO.value)
-            JSONArray newProperties = jsonFeature.getJSONArray(FeatureStringEnum.NEW_VARIANT_INFO.value)
-            for (int j = 0; j < oldProperties.length(); j++) {
-                JSONObject oldProperty = oldProperties.getJSONObject(i)
-                JSONObject newProperty = newProperties.getJSONObject(i)
-                String oldTag = oldProperty.getString(FeatureStringEnum.TAG.value)
-                String oldValue = oldProperty.getString(FeatureStringEnum.VALUE.value)
-                String newTag = newProperty.getString(FeatureStringEnum.TAG.value)
-                String newValue = newProperty.getString(FeatureStringEnum.VALUE.value)
-
-                FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(oldTag, oldValue, feature)
-                if (feature) {
-                    featureProperty.tag = newTag
-                    featureProperty.value = newValue
-                    featureProperty.save()
-                }
-                else {
-                    log.error "Could not find feature property ${oldProperty.toString()} to update for variant: ${feature}"
-                }
-            }
+            Feature feature = variantService.updateVariantInfo(jsonFeature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
         }
+        return updateFeatureContainer
     }
 }

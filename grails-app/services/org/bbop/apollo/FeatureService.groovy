@@ -1146,7 +1146,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.deletionLength = deletionLength
             }
 
-            if (gsolFeature instanceof SequenceAlteration && type.name in RequestHandlingService.variantAnnotationTypes) {
+            if (gsolFeature instanceof SequenceAlteration && type.name in RequestHandlingService.variantTypes) {
                 gsolFeature.referenceBases = jsonFeature.getString(FeatureStringEnum.REFERENCE_BASES.value)
                 gsolFeature.save()
                 JSONArray alternateAllelesArray = jsonFeature.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
@@ -1608,7 +1608,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
 
-        if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantAnnotationList) {
+        if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantList) {
             jsonFeature.put(FeatureStringEnum.REFERENCE_BASES.value, gsolFeature.referenceBases)
             JSONArray alternateAllelesArray = new JSONArray()
             gsolFeature.alternateAlleles.each {
@@ -1774,7 +1774,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         durationInMilliseconds = System.currentTimeMillis() - start;
         //log.debug "featloc ${durationInMilliseconds}"
 
-        if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantAnnotationList) {
+        if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantList) {
             jsonFeature.put(FeatureStringEnum.REFERENCE_BASES.value, gsolFeature.referenceBases)
             JSONArray alternateAllelesArray = new JSONArray()
             gsolFeature.alternateAlleles.each { allele ->
@@ -1881,7 +1881,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         def feature = generateFeatureForType(ontologyId)
 
         String cvTerm
-        if (feature.class.name in RequestHandlingService.variantAnnotationList) {
+        if (feature.class.name in RequestHandlingService.variantList) {
             cvTerm = feature.cvTerm
         }
         else {

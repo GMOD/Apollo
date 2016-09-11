@@ -55,8 +55,8 @@ public class VariantDetailPanel extends Composite {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
-    public void updateData(AnnotationInfo variantAnnotationInfo) {
-        this.internalAnnotationInfo = variantAnnotationInfo;
+    public void updateData(AnnotationInfo annotationInfo) {
+        this.internalAnnotationInfo = annotationInfo;
         nameField.setText(internalAnnotationInfo.getName());
         referenceBasesField.setText(internalAnnotationInfo.getReferenceBases());
         alternateBasesField.setText(internalAnnotationInfo.getAlternateBases());

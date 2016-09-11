@@ -763,7 +763,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     label: "Create Variant Annotation",
                     onClick: function(event) {
                         thisObj.freezeHighlightedBases = true;
-                        thisObj.createVariantAnnotation();
+                        thisObj.createVariant();
                     }
                 } ));
                 thisObj.residuesMenuItems["create_variant_annotation"] = index++;
@@ -818,9 +818,9 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         this.annotTrack.openDialog("Add Substitution", content);
     },
 
-    createVariantAnnotation: function() {
+    createVariant: function() {
         var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
-        var content = this.createVariantAnnotationPanel(gcoord);
+        var content = this.createVariantPanel(gcoord);
         this.annotTrack.openDialog("Create Variant Annotation", content);
     },
 
@@ -1110,7 +1110,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         return content;
     },
 
-    createVariantAnnotationPanel: function(gcoord) {
+    createVariantPanel: function(gcoord) {
         var track = this;
         var content = dojo.create("div");
         var referenceBasesDiv = dojo.create("div", {}, content);
@@ -1141,7 +1141,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         var buttonDiv = dojo.create("div", { className: "add_variant_button_div" }, content);
         var addButton = dojo.create("button", { innerHTML: "Add", className: "add_variant_button" }, buttonDiv);
 
-        var addVariantAnnotation = function() {
+        var addVariant = function() {
             var ok = true;
             var referenceBases = referenceBasesField.value;
             var alternateBases = alternateBasesField.value;
@@ -1181,7 +1181,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                 var postData = {
                     track: track.annotTrack.getUniqueTrackName(),
                     features: features,
-                    operation: "add_variant_annotation"
+                    operation: "add_variant"
                 };
                 track.annotTrack.executeUpdateOperation(JSON.stringify(postData));
                 track.annotTrack.closeDialog();
@@ -1189,7 +1189,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         };
 
         dojo.connect(addButton, "onclick", null, function() {
-            addVariantAnnotation();
+            addVariant();
         });
 
         return content;

@@ -981,7 +981,7 @@ define([
                 }
 
                 if (variantSelectionRecords.length > 0) {
-                    target_track.createVariantAnnotations(variantSelectionRecords);
+                    target_track.createVariant(variantSelectionRecords);
                 }
             },
 
@@ -1138,7 +1138,7 @@ define([
 
             },
 
-            createVariantAnnotations: function(selection_records) {
+            createVariant: function(selection_records) {
                 var target_track = this;
                 var featuresToAdd = new Array();
 
@@ -1152,7 +1152,7 @@ define([
                 var postData = {
                     track: target_track.getUniqueTrackName(),
                     features: featuresToAdd,
-                    operation: "add_variant_annotation"
+                    operation: "add_variant"
                 };
                 console.log("PostData: ", postData);
                 target_track.executeUpdateOperation(JSON.stringify(postData));
