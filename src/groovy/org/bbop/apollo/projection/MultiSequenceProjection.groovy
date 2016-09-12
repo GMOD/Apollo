@@ -108,7 +108,7 @@ class MultiSequenceProjection extends AbstractProjection {
         // TODO: buffer for scaffolds is currently 1 . . the order
         Integer returnValue = discontinuousProjection.projectValue(input - inputOffset)
         if (projectionSequence.reverse && returnValue != UNMAPPED_VALUE) {
-            returnValue = projectionSequence.length - returnValue
+            returnValue = discontinuousProjection.length - returnValue
         }
         return returnValue == UNMAPPED_VALUE ? returnValue : returnValue + outputOffset
     }
@@ -133,7 +133,7 @@ class MultiSequenceProjection extends AbstractProjection {
             reverseValue  = projectionSequence.originalOffset + projectionSequence.length - reverseValue
         }
         else{
-            reverseValue += projectionSequence.originalOffset
+            reverseValue = projectionSequence.originalOffset + reverseValue
         }
         return reverseValue
     }
