@@ -1575,10 +1575,6 @@ class MultiSequenceProjectionSpec extends Specification {
 
     }
 
-//    @Ignore
-//    void "project reverse projection with two exons / discontinuous regions"(){
-//
-//    }
 
     void "simple forward and reverse projection for multiple sequences with discontinuous projection"() {
 
@@ -1731,5 +1727,52 @@ class MultiSequenceProjectionSpec extends Specification {
         assert (59) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(23+1)
         assert (40) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(43)
         assert (41) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(42)
+    }
+
+
+//    @Ignore
+    void "project reverse projection with two exons / discontinuous regions"(){
+
+        given: "a single projection sequence with two exons as discontinuous projections(A1A2, B1B2)"
+
+        when: "it should render normally"
+
+        then: "it should render forward in a familiar manner"
+
+
+        when: "we reverse it"
+
+        then: "we expect the projections coordinates to reverse B2B1A2A1"
+        assert false
+
+
+
+    }
+
+
+//    @Ignore
+    void "project reverse projection with two exons / discontinuous regions over two projeciton sequences"(){
+
+        given: "given two projection sequence with two exons each (A1A2B1B2) and (C1C2D1D2)"
+
+        when: "it should render normally"
+
+        then: "it should render forward in a familiar manner"
+
+        when: "we reverse the first one "
+
+        then: "we expect the projections coordinates to reverse B2B1A2A1,C1C2D1D2"
+
+        when: "we reverse the second one and not the first one"
+
+        then: "we expect the projections coordinates to reverse A1A2B1B2,D2D1C2C1"
+
+        when: "we reverse them both "
+
+        then: "we expect the projections coordinates to reverse B2B1A2A1,D2D1C2C1"
+        assert false
+
+
+
     }
 }
