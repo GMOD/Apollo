@@ -6,6 +6,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import org.bbop.apollo.gwt.client.VariantDetailPanel;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,39 +33,36 @@ public class AnnotationInfoConverter {
 
     private static AnnotationInfo convertFromJsonArray(JSONObject object, boolean processChildren) {
         AnnotationInfo annotationInfo = new AnnotationInfo();
-        annotationInfo.setName(object.get("name").isString().stringValue());
-        annotationInfo.setType(object.get("type").isObject().get("name").isString().stringValue());
-        if (object.get("symbol") != null) {
-            annotationInfo.setSymbol(object.get("symbol").isString().stringValue());
+        annotationInfo.setName(object.get(FeatureStringEnum.NAME.getValue()).isString().stringValue());
+        annotationInfo.setType(object.get(FeatureStringEnum.TYPE.getValue()).isObject().get(FeatureStringEnum.NAME.getValue()).isString().stringValue());
+        if (object.get(FeatureStringEnum.SYMBOL.getValue()) != null) {
+            annotationInfo.setSymbol(object.get(FeatureStringEnum.SYMBOL.getValue()).isString().stringValue());
         }
-        if (object.get("description") != null) {
-            annotationInfo.setDescription(object.get("description").isString().stringValue());
+        if (object.get(FeatureStringEnum.DESCRIPTION.getValue()) != null) {
+            annotationInfo.setDescription(object.get(FeatureStringEnum.DESCRIPTION.getValue()).isString().stringValue());
         }
         if (VariantDetailPanel.variantTypes.contains(annotationInfo.getType())) {
             // If annotation is a variant annotation
-            if (object.get("referenceBases") != null) {
-                annotationInfo.setReferenceBases(object.get("referenceBases").isString().stringValue());
+            if (object.get(FeatureStringEnum.REFERENCE_BASES.getValue()) != null) {
+                annotationInfo.setReferenceBases(object.get(FeatureStringEnum.REFERENCE_BASES.getValue()).isString().stringValue());
             }
-            if (object.get("alternateBases") != null) {
-                annotationInfo.setAlternateBases(object.get("alternateBases").isArray());
-            }
-            if (object.get("minor_allele_frequency") != null) {
-                annotationInfo.setMinorAlleleFrequency(object.get("minor_allele_frequency").isString().stringValue());
+            if (object.get(FeatureStringEnum.ALTERNATE_ALLELES.getValue()) != null) {
+                annotationInfo.setAlternateAlleles(object.get(FeatureStringEnum.ALTERNATE_ALLELES.getValue()).isArray());
             }
         }
 
-        annotationInfo.setMin((int) object.get("location").isObject().get("fmin").isNumber().doubleValue());
-        annotationInfo.setMax((int) object.get("location").isObject().get("fmax").isNumber().doubleValue());
-        annotationInfo.setStrand((int) object.get("location").isObject().get("strand").isNumber().doubleValue());
-        annotationInfo.setUniqueName(object.get("uniquename").isString().stringValue());
-        annotationInfo.setSequence(object.get("sequence").isString().stringValue());
-        if (object.get("owner") != null) {
-            annotationInfo.setOwner(object.get("owner").isString().stringValue());
+        annotationInfo.setMin((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue());
+        annotationInfo.setMax((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue());
+        annotationInfo.setStrand((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.STRAND.getValue()).isNumber().doubleValue());
+        annotationInfo.setUniqueName(object.get(FeatureStringEnum.UNIQUENAME.getValue()).isString().stringValue());
+        annotationInfo.setSequence(object.get(FeatureStringEnum.SEQUENCE.getValue()).isString().stringValue());
+        if (object.get(FeatureStringEnum.OWNER.getValue()) != null) {
+            annotationInfo.setOwner(object.get(FeatureStringEnum.OWNER.getValue()).isString().stringValue());
         }
-        annotationInfo.setDate(object.get("date_last_modified").toString());
+        annotationInfo.setDate(object.get(FeatureStringEnum.DATE_LAST_MODIFIED.getValue()).toString());
         List<String> noteList = new ArrayList<>();
-        if (object.get("notes") != null) {
-            JSONArray jsonArray = object.get("notes").isArray();
+        if (object.get(FeatureStringEnum.NOTES.getValue()) != null) {
+            JSONArray jsonArray = object.get(FeatureStringEnum.NOTES.getValue()).isArray();
             for (int i = 0; i < jsonArray.size(); i++) {
                 String note = jsonArray.get(i).isString().stringValue();
                 noteList.add(note);
@@ -72,8 +70,8 @@ public class AnnotationInfoConverter {
         }
         annotationInfo.setNoteList(noteList);
 
-        if (processChildren && object.get("children") != null) {
-            JSONArray jsonArray = object.get("children").isArray();
+        if (processChildren && object.get(FeatureStringEnum.CHILDREN.getValue()) != null) {
+            JSONArray jsonArray = object.get(FeatureStringEnum.CHILDREN.getValue()).isArray();
             for (int i = 0; i < jsonArray.size(); i++) {
                 AnnotationInfo childAnnotation = convertFromJsonArray(jsonArray.get(i).isObject(), true);
                 annotationInfo.addChildAnnotation(childAnnotation);

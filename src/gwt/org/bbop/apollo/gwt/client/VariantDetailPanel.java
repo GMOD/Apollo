@@ -46,10 +46,6 @@ public class VariantDetailPanel extends Composite {
     TextBox userField;
     @UiField
     TextBox referenceBasesField;
-    @UiField
-    TextBox alternateBasesField;
-    @UiField
-    TextBox minorAlleleFrequencyField;
 
     public VariantDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -59,11 +55,6 @@ public class VariantDetailPanel extends Composite {
         this.internalAnnotationInfo = annotationInfo;
         nameField.setText(internalAnnotationInfo.getName());
         referenceBasesField.setText(internalAnnotationInfo.getReferenceBases());
-        alternateBasesField.setText(internalAnnotationInfo.getAlternateBases());
-        if (internalAnnotationInfo.getMinorAlleleFrequency() != null) {
-            minorAlleleFrequencyField.setText(internalAnnotationInfo.getMinorAlleleFrequency().toString());
-        }
-
         descriptionField.setText(internalAnnotationInfo.getDescription());
         sequenceField.setText(internalAnnotationInfo.getSequence());
         userField.setText(internalAnnotationInfo.getOwner());
@@ -98,56 +89,21 @@ public class VariantDetailPanel extends Composite {
         updateVariant();
     }
 
-    @UiHandler("referenceBasesField")
-    void handleReferenceBasesChange(ChangeEvent e) {
-        String updatedReferenceBases = referenceBasesField.getText().toUpperCase();
-        if (isValidDNA(updatedReferenceBases)) {
-            internalAnnotationInfo.setReferenceBases(updatedReferenceBases);
-            updateVariant();
-        }
-        else {
-            Bootbox.alert("Nucleotides should be A, T, C, G or N");
-            referenceBasesField.clear();
-        }
-    }
-
-    @UiHandler("alternateBasesField")
-    void handleAlternateNucleotideChange(ChangeEvent e) {
-        String updatedAlternateBases = alternateBasesField.getText().toUpperCase();
-        if (isValidDNA(updatedAlternateBases)) {
-            internalAnnotationInfo.setAlternateBases(updatedAlternateBases);
-            updateVariant();
-        }
-        else {
-            Bootbox.alert("Nucleotides should be A, T, C, G or N");
-            alternateBasesField.clear();
-        }
-    }
-
-    @UiHandler("minorAlleleFrequencyField")
-    void handleMinorAlleleFrequencyChange(ChangeEvent e) {
-        Float updatedMinorAlleleFrequency;
-        try {
-            updatedMinorAlleleFrequency = Float.parseFloat(minorAlleleFrequencyField.getText());
-            if (updatedMinorAlleleFrequency < 0.0F || updatedMinorAlleleFrequency > 1.0F) {
-                Bootbox.alert("MAF should be within the range of 0.0 - 1.0");
-                minorAlleleFrequencyField.clear();
-            }
-            else {
-                internalAnnotationInfo.setMinorAlleleFrequency(updatedMinorAlleleFrequency.toString());
-                updateVariant();
-            }
-        } catch (NumberFormatException n) {
-            minorAlleleFrequencyField.clear();
-        }
-
-    }
+//    @UiHandler("referenceBasesField")
+//    void handleReferenceBasesChange(ChangeEvent e) {
+//        String updatedReferenceBases = referenceBasesField.getText().toUpperCase();
+//        if (isValidDNA(updatedReferenceBases)) {
+//            internalAnnotationInfo.setReferenceBases(updatedReferenceBases);
+//            updateVariant();
+//        }
+//        else {
+//            Bootbox.alert("Nucleotides should be A, T, C, G or N");
+//            referenceBasesField.clear();
+//        }
+//    }
 
     private void enableFields(boolean enabled) {
         nameField.setEnabled(enabled);
-        referenceBasesField.setEnabled(enabled);
-        alternateBasesField.setEnabled(enabled);
-        minorAlleleFrequencyField.setEnabled(enabled);
         descriptionField.setEnabled(enabled);
     }
 

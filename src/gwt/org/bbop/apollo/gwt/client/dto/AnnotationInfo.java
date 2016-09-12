@@ -1,9 +1,11 @@
 package org.bbop.apollo.gwt.client.dto;
 
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.*;
 
@@ -26,8 +28,7 @@ public class AnnotationInfo {
     private String owner;
     private String date;
     private String referenceBases;
-    private List<String> alternateBases = new ArrayList<>();
-    private Float minorAlleleFrequency;
+    private ArrayList<HashMap<String, String>> alternateAlleles = new ArrayList<HashMap<String, String>>();
 
     public String getOwner() {
         return owner;
@@ -159,35 +160,63 @@ public class AnnotationInfo {
 
     public void setReferenceBases(String referenceBasesString) { this.referenceBases = referenceBasesString; }
 
-    public String getAlternateBases() {
-        String alternateBasesString = "";
-        for (String alt : alternateBases) {
-            if (alternateBasesString.equals("")) {
-                alternateBasesString = alt;
-            }
-            else {
-                alternateBasesString += "," + alt;
+    public void setAlternateAlleles(JSONArray alternateAllelesArray) {
+        ArrayList<HashMap<String, String>> alternateAlleles = new ArrayList<HashMap<String, String>>();
+        for (int i = 0; i < alternateAllelesArray.size(); i++) {
+            JSONObject alternateAlleleJsonObject = alternateAllelesArray.get(0).isObject();
+            String bases = alternateAlleleJsonObject.get(FeatureStringEnum.BASES.getValue()).toString();
+            if (alternateAlleleJsonObject.containsKey(FeatureStringEnum.ALLELE_INFO.getValue())) {
+                JSONArray alleleInfoJsonArray = alternateAlleleJsonObject.get(FeatureStringEnum.ALLELE_INFO.getValue()).isArray();
+                for (int j = 0; j < alleleInfoJsonArray.size(); j++) {
+                    JSONObject alleleInfoJsonObject = alleleInfoJsonArray.get(j).isObject();
+                    String tag = alleleInfoJsonObject.get(FeatureStringEnum.TAG.getValue()).toString();
+                    String value = alleleInfoJsonObject.get(FeatureStringEnum.VALUE.getValue()).toString();
+                    HashMap<String, String> alternateAlleleEntity = new HashMap<String, String>();
+                    alternateAlleleEntity.put(FeatureStringEnum.BASES.getValue(), bases);
+                    alternateAlleleEntity.put(tag, value);
+                    if (tag.equals(FeatureStringEnum.ALLELE_FREQUENCY_TAG.getValue())) {
+                        String provenance = alleleInfoJsonObject.get(FeatureStringEnum.PROVENANCE.getValue()).toString();
+                        alternateAlleleEntity.put(provenance, value);
+                    }
+                    alternateAlleles.add(alternateAlleleEntity);
+                }
             }
         }
-        return alternateBasesString;
+        this.alternateAlleles = alternateAlleles;
     }
 
-    public void setAlternateBases(String alternateBasesString) {
-        this.alternateBases = Arrays.asList(alternateBasesString.split(","));
+    public ArrayList<?> getAlternateAlleles() {
+        return this.alternateAlleles;
     }
 
-    public void setAlternateBases(ArrayList<String> alternateBases) {
-        this.alternateBases = alternateBases;
-    }
+    public JSONArray getAlternateAllelesAsJsonArray() {
+        JSONArray alternateAllelesJsonArray = new JSONArray();
+        int alternateAllelesJsonArrayIndex = 0;
+        for(HashMap<String, String> alternateAllele : this.alternateAlleles) {
+            JSONObject alternateAlleleJsonObject = new JSONObject();
+            alternateAlleleJsonObject.put(FeatureStringEnum.BASES.getValue(), new JSONString(alternateAllele.get(FeatureStringEnum.BASES.getValue())));
+            if (alternateAllele.containsKey(FeatureStringEnum.ALLELE_FREQUENCY_TAG.getValue())) {
+                alternateAlleleJsonObject.put(FeatureStringEnum.ALLELE_FREQUENCY_TAG.getValue(), new JSONString(alternateAllele.get(FeatureStringEnum.ALLELE_FREQUENCY_TAG.getValue())));
+                alternateAlleleJsonObject.put(FeatureStringEnum.PROVENANCE.getValue(), new JSONString(alternateAllele.get(FeatureStringEnum.PROVENANCE.getValue())));
+            }
 
-    public void setAlternateBases(JSONArray array) {
-        // TODO: a better way of handling this
-        for (int i = 0; i < array.size(); i++) {
-            this.alternateBases.add(array.get(i).toString().replaceAll("\"", ""));
+            JSONArray alleleInfoJsonArray = new JSONArray();
+            int alleleInfoJsonArrayIndex = 0;
+            for (String key : alternateAllele.keySet()) {
+                if (key.equals(FeatureStringEnum.BASES.getValue()) || key.equals(FeatureStringEnum.ALLELE_FREQUENCY_TAG.getValue())) {
+                    continue;
+                }
+                else {
+                    JSONObject alleleInfoJsonObject = new JSONObject();
+                    alleleInfoJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(key));
+                    alleleInfoJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(alternateAllele.get(key)));
+                    alleleInfoJsonArray.set(alleleInfoJsonArrayIndex, alleleInfoJsonObject);
+                }
+            }
+            alternateAllelesJsonArray.set(alternateAllelesJsonArrayIndex, alternateAlleleJsonObject);
+
         }
+
+        return alternateAllelesJsonArray;
     }
-
-    public Float getMinorAlleleFrequency() { return minorAlleleFrequency; }
-
-    public void setMinorAlleleFrequency(String minorAlleleFrequency) { this.minorAlleleFrequency = Float.parseFloat(minorAlleleFrequency); }
 }

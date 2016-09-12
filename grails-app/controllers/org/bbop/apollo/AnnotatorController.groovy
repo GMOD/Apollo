@@ -151,7 +151,7 @@ class AnnotatorController {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
         }
 
-        if (feature instanceof SequenceAlteration && feature.type) {
+        if (feature instanceof SequenceAlteration && feature.class.name in RequestHandlingService.variantList) {
             feature.referenceBases = data.get(FeatureStringEnum.REFERENCE_BASES.value)
             JSONArray alternateAllelesArray = data.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
             for (int i = 0; i < alternateAllelesArray.length(); i++) {
