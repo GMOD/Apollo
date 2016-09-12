@@ -27,14 +27,21 @@ class MultiSequenceProjection extends AbstractProjection {
     List<String> chunks = new ArrayList<>()
     ProjectionChunkList projectionChunkList = new ProjectionChunkList()
 
+//    static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 1
+    static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 0
+
     ProjectionSequence getReverseProjectionSequence(Integer input) {
+        def projectionSequenceList = []
         for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
             Integer bufferedLength = sequenceDiscontinuousProjectionMap.get(projectionSequence).bufferedLength
             if (input >= projectionSequence.offset && input <= projectionSequence.offset + bufferedLength) {
-                return projectionSequence
+                projectionSequenceList << projectionSequence
             }
         }
-        return null
+        if(projectionSequenceList?.size()>1){
+            println "overlapping projeciton sequences ${projectionSequenceList.size()}, choosing first"
+        }
+        return projectionSequenceList ? projectionSequenceList.first() : null
     }
 
     List<ProjectionSequence> getReverseProjectionSequences(Integer minInput, Integer maxInput) {
@@ -121,32 +128,43 @@ class MultiSequenceProjection extends AbstractProjection {
         return projectValue(input, projectionSequence.originalOffset, projectionSequence.offset)
     }
 
-
     Integer projectReverseValue(Integer input) {
+        ProjectionSequence projectionSequence = getReverseProjectionSequence(input)
+        if (!projectionSequence) {
+            return UNMAPPED_VALUE
+        }
+        return projectReverseValue(input, projectionSequence.offset, projectionSequence.originalOffset)
+    }
+
+    Integer projectReverseValue(Integer input, Integer inputOffset, Integer outputOffset) {
         println "processing reverse valu ${input}"
         ProjectionSequence projectionSequence = getReverseProjectionSequence(input)
         if (!projectionSequence) {
             return -1
         }
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
-        Integer actualInput
-        if(false && projectionSequence.reverse){
-            actualInput = discontinuousProjection.length - input -  projectionSequence.offset
+//        Integer actualInput
+//        if(false && projectionSequence.reverse){
+//            actualInput = discontinuousProjection.length - input -  projectionSequence.offset
+////            actualInput = input - projectionSequence.offset
+//        }
+//        else{
 //            actualInput = input - projectionSequence.offset
-        }
-        else{
-            actualInput = input - projectionSequence.offset
-        }
-        Integer reverseValue = discontinuousProjection.projectReverseValue(actualInput)
-        println "reverse input ${reverseValue} from ${actualInput}"
-        if(projectionSequence.reverse){
+//        }
+        Integer reverseValue = discontinuousProjection.projectReverseValue(input - inputOffset)
+//        println "reverse input ${reverseValue} from ${actualInput}"
+        if (projectionSequence.reverse) {
 //            println "doing reverse is ${projectionSequence.originalOffset} + ${projectionSequence.length} - ${reverseValue}"
-            reverseValue  = projectionSequence.originalOffset + projectionSequence.length - reverseValue
-            println "trying to offset input: ${input}, reverse ${reverseValue}, inputOffset: ${projectionSequence.originalOffset}, outputOffset: ${projectionSequence.offset}"
-//            reverseValue  = projectionSequence.originalOffset + reverseValue + (discontinuousProjection.minMap.firstKey() - reverseValue)
-        }
-        else{
-            reverseValue = projectionSequence.originalOffset + reverseValue
+            println "trying to offset input: ${input}, reverse ${reverseValue}, inputOffset: ${inputOffset}, outputOffset: ${outputOffset}"
+            println "disc projection length ${discontinuousProjection.length}"
+
+            // need to flip the reverse value in the context of the projection sequence
+            // length - ( i- offset ) + offset
+            // length - i + 2 * offset
+
+            reverseValue = discontinuousProjection.length - reverseValue + 2*discontinuousProjection.minMap.firstKey() + outputOffset
+        } else {
+            reverseValue = outputOffset + reverseValue
         }
         return reverseValue
     }
@@ -289,6 +307,7 @@ class MultiSequenceProjection extends AbstractProjection {
             assert projectionSequence.unprojectedLength != null
             assert projectionSequence.unprojectedLength > 0
             lastLength += discontinuousProjection.bufferedLength
+            lastLength += DEFAULT_SCAFFOLD_BORDER_LENGTH
             ++currentOrder
         }
 
@@ -436,6 +455,13 @@ class MultiSequenceProjection extends AbstractProjection {
         }
     }
 
+    /**
+     * - No overlap (just merge)
+     * - Discontinuous projection must be contained within the ProjectionSequence
+     * - Projection Sequence must be sequentially ordered
+     *
+     * @return
+     */
     Boolean isValid() {
         return true
     }
