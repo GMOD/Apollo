@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import org.bbop.apollo.projection.*
+import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 /**
@@ -1733,7 +1734,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert (41) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(42)
     }
 
-//    @Ignore
+//    @IgnoreRest
     void "project reverse projection with two exons / discontinuous regions"() {
 
         given: "a single projection sequence with two exons as discontinuous projections(A1A2, B1B2)"
@@ -1753,6 +1754,7 @@ class MultiSequenceProjectionSpec extends Specification {
         sequence1.reverse = false
         multiSequenceProjection.addLocation(new Location(min: 10, max: 12, sequence: sequence1))
         multiSequenceProjection.addLocation(new Location(min: 15, max: 20, sequence: sequence1))
+        multiSequenceProjection.calculateOffsets()
 
         then: "it should render forward in a familiar manner"
         assert 0 == multiSequenceProjection.projectValue(10)
@@ -1769,18 +1771,26 @@ class MultiSequenceProjectionSpec extends Specification {
 
         when: "we reverse it"
         sequence1.reverse = true
+        println multiSequenceProjection.projectReverseValue(8)
+        println multiSequenceProjection.projectReverseValue(7)
+        println multiSequenceProjection.projectReverseValue(6)
+        println multiSequenceProjection.projectReverseValue(5)
+        println multiSequenceProjection.projectReverseValue(4)
+        println multiSequenceProjection.projectReverseValue(0)
 
         then: "we expect the projections coordinates to reverse B2B1A2A1"
-        assert 0 == multiSequenceProjection.projectValue(10)
-        assert 2 == multiSequenceProjection.projectValue(12)
+        assert 8 == multiSequenceProjection.projectValue(10)
+        assert 7 == multiSequenceProjection.projectValue(11)
+        assert 6 == multiSequenceProjection.projectValue(12)
         assert multiSequenceProjection.isValid()
-        assert 10 == multiSequenceProjection.projectReverseValue(0)
-        assert 12 == multiSequenceProjection.projectReverseValue(2)
-        assert 3 == multiSequenceProjection.projectValue(15)
-        assert 8 == multiSequenceProjection.projectValue(20)
-        assert multiSequenceProjection.isValid()
-        assert 15 == multiSequenceProjection.projectReverseValue(3)
-        assert 20 == multiSequenceProjection.projectReverseValue(8)
+        assert 5 == multiSequenceProjection.projectValue(15)
+        assert 0 == multiSequenceProjection.projectValue(20)
+
+        assert 10 == multiSequenceProjection.projectReverseValue(8)
+        assert 11 == multiSequenceProjection.projectReverseValue(7)
+        assert 12 == multiSequenceProjection.projectReverseValue(6)
+        assert 15 == multiSequenceProjection.projectReverseValue(5)
+        assert 20 == multiSequenceProjection.projectReverseValue(0)
 
 
     }

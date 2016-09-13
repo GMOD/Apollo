@@ -38,9 +38,9 @@ class MultiSequenceProjection extends AbstractProjection {
                 projectionSequenceList << projectionSequence
             }
         }
-        if(projectionSequenceList?.size()>1){
-            println "overlapping projeciton sequences ${projectionSequenceList.size()}, choosing first"
-        }
+//        if (projectionSequenceList?.size() > 1) {
+//            println "overlapping projection sequences ${projectionSequenceList.size()}, choosing last as fmax is exclusive and fmin is inclusive"
+//        }
         // because the end-point is exclusive, we should always use the second sequence if there is an overlap
         return projectionSequenceList ? projectionSequenceList.last() : null
     }
@@ -116,7 +116,7 @@ class MultiSequenceProjection extends AbstractProjection {
         // TODO: buffer for scaffolds is currently 1 . . the order
         Integer returnValue = discontinuousProjection.projectValue(input - inputOffset)
         if (projectionSequence.reverse && returnValue != UNMAPPED_VALUE) {
-            returnValue = discontinuousProjection.length - returnValue
+            returnValue = discontinuousProjection.length + (discontinuousProjection.size() - 1) - returnValue
         }
         return returnValue == UNMAPPED_VALUE ? returnValue : returnValue + outputOffset
     }
@@ -144,26 +144,18 @@ class MultiSequenceProjection extends AbstractProjection {
             return -1
         }
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
-//        Integer actualInput
-//        if(false && projectionSequence.reverse){
-//            actualInput = discontinuousProjection.length - input -  projectionSequence.offset
-////            actualInput = input - projectionSequence.offset
-//        }
-//        else{
-//            actualInput = input - projectionSequence.offset
-//        }
+//        Integer reverseValue = discontinuousProjection.projectReverseValue(input - inputOffset)
+//        int actualInput = projectionSequence.reverse ? discontinuousProjection.length - input - inputOffset : input - inputOffset
+
         Integer reverseValue = discontinuousProjection.projectReverseValue(input - inputOffset)
-//        println "reverse input ${reverseValue} from ${actualInput}"
         if (projectionSequence.reverse) {
-//            println "doing reverse is ${projectionSequence.originalOffset} + ${projectionSequence.length} - ${reverseValue}"
             println "trying to offset input: ${input}, reverse ${reverseValue}, inputOffset: ${inputOffset}, outputOffset: ${outputOffset}"
             println "disc projection length ${discontinuousProjection.length}"
 
             // need to flip the reverse value in the context of the projection sequence
-            // length - ( i- offset ) + offset
-            // length - i + 2 * offset
-
-            reverseValue = discontinuousProjection.length - reverseValue + 2*discontinuousProjection.minMap.firstKey() + outputOffset
+            // length - ( i - offset ) + offset
+            // length - i + (2 * offset)
+            reverseValue = discontinuousProjection.length - reverseValue + 2 * discontinuousProjection.minMap.firstKey() + outputOffset
         } else {
             reverseValue = outputOffset + reverseValue
         }
