@@ -1787,29 +1787,130 @@ class MultiSequenceProjectionSpec extends Specification {
 
     }
 
-    @Ignore
     void "project reverse projection with two exons / discontinuous regions over two projection sequences"() {
 
         given: "given two projection sequence with two exons each (A1A2B1B2) and (C1C2D1D2)"
+        ProjectionSequence sequence1 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
+                , unprojectedLength: 20
+                , start: 0
+                , end: 20
+        )
+        ProjectionSequence sequence2 = new ProjectionSequence(
+                id: 2
+                , name: "Sequence2"
+                , organism: "Human"
+                , order: 1
+                , unprojectedLength: 10
+                , start: 0
+                , end: 10
+        )
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+        multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
+
 
         when: "it should render normally"
+        multiSequenceProjection.addLocation(new Location(min: 10,max: 12,sequence: sequence1))
+        multiSequenceProjection.addLocation(new Location(min: 14,max: 18,sequence: sequence1))
+        multiSequenceProjection.addLocation(new Location(min: 2,max: 4,sequence: sequence2))
+        multiSequenceProjection.addLocation(new Location(min: 6,max: 9,sequence: sequence2))
+        multiSequenceProjection.calculateOffsets()
 
         then: "it should render forward in a familiar manner"
+        assert multiSequenceProjection.isValid()
+        assert 0 == multiSequenceProjection.projectValue(10)
+        assert 2 == multiSequenceProjection.projectValue(12)
+        assert 3 == multiSequenceProjection.projectValue(14)
+        assert 7 == multiSequenceProjection.projectValue(18)
+        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 9 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+
+        assert 10 == multiSequenceProjection.projectReverseValue(0)
+        assert 12 == multiSequenceProjection.projectReverseValue(2)
+        assert 14 == multiSequenceProjection.projectReverseValue(3)
+        assert 17 == multiSequenceProjection.projectReverseValue(6)
+//        assert 18 == multiSequenceProjection.projectReverseValue(7) // projected to the second one
+        assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(7)
+        assert sequence1.unprojectedLength + 4 == multiSequenceProjection.projectReverseValue(9)
+        assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(10)
+        assert sequence1.unprojectedLength + 9 == multiSequenceProjection.projectReverseValue(13)
 
         when: "we reverse the first one "
+        sequence1.reverse = true
+        sequence2.reverse = false
 
         then: "we expect the projections coordinates to reverse B2B1A2A1,C1C2D1D2"
+        assert multiSequenceProjection.isValid()
+        assert 7 == multiSequenceProjection.projectValue(10)
+        assert 5 == multiSequenceProjection.projectValue(12)
+        assert 4 == multiSequenceProjection.projectValue(14)
+        assert 0 == multiSequenceProjection.projectValue(18)
+        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 9 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+
+        assert 18 == multiSequenceProjection.projectReverseValue(0)
+        assert 16 == multiSequenceProjection.projectReverseValue(2)
+        assert 15 == multiSequenceProjection.projectReverseValue(3)
+        assert 14 == multiSequenceProjection.projectReverseValue(4)
+        assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(7)
+        assert sequence1.unprojectedLength + 4 == multiSequenceProjection.projectReverseValue(9)
+        assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(10)
+        assert sequence1.unprojectedLength + 9 == multiSequenceProjection.projectReverseValue(13)
 
         when: "we reverse the second one and not the first one"
+        sequence1.reverse = false
+        sequence2.reverse = true
 
         then: "we expect the projections coordinates to reverse A1A2B1B2,D2D1C2C1"
+        assert 0 == multiSequenceProjection.projectValue(10)
+        assert 2 == multiSequenceProjection.projectValue(12)
+        assert 3 == multiSequenceProjection.projectValue(14)
+        assert 7 == multiSequenceProjection.projectValue(18)
+        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 11 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+
+        assert 10 == multiSequenceProjection.projectReverseValue(0)
+        assert 12 == multiSequenceProjection.projectReverseValue(2)
+        assert 14 == multiSequenceProjection.projectReverseValue(3)
+        assert 17 == multiSequenceProjection.projectReverseValue(6)
+//        assert 18 == multiSequenceProjection.projectReverseValue(7) // projected to the second one
+        assert sequence1.unprojectedLength + 9 == multiSequenceProjection.projectReverseValue(7)
+        assert sequence1.unprojectedLength + 7 == multiSequenceProjection.projectReverseValue(9)
+        assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(10)
+        assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(13)
 
         when: "we reverse them both "
+        sequence1.reverse = true
+        sequence2.reverse = true
 
         then: "we expect the projections coordinates to reverse B2B1A2A1,D2D1C2C1"
-        assert false
+        assert 7 == multiSequenceProjection.projectValue(10)
+        assert 5 == multiSequenceProjection.projectValue(12)
+        assert 4 == multiSequenceProjection.projectValue(14)
+        assert 0 == multiSequenceProjection.projectValue(18)
+        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 11 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
 
+        assert 18 == multiSequenceProjection.projectReverseValue(0)
+        assert 16 == multiSequenceProjection.projectReverseValue(2)
+        assert 15 == multiSequenceProjection.projectReverseValue(3)
+        assert 14 == multiSequenceProjection.projectReverseValue(4)
 
+        assert sequence1.unprojectedLength + 9 == multiSequenceProjection.projectReverseValue(7)
+        assert sequence1.unprojectedLength + 7 == multiSequenceProjection.projectReverseValue(9)
+        assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(10)
+        assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(13)
     }
 
     @Ignore

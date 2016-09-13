@@ -138,16 +138,11 @@ class MultiSequenceProjection extends AbstractProjection {
     }
 
     Integer projectReverseValue(Integer input, Integer inputOffset, Integer outputOffset) {
-        println "processing reverse valu ${input}"
         ProjectionSequence projectionSequence = getReverseProjectionSequence(input)
         if (!projectionSequence) {
             return -1
         }
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
-//        int actualInput = projectionSequence.reverse ? (discontinuousProjection.size() -1) + discontinuousProjection.length - input - inputOffset : input - inputOffset
-//        println "atuaal Input is ${actualInput}"
-//        Integer reverseValue = discontinuousProjection.projectReverseValue(actualInput)
-
 
         if (projectionSequence.reverse) {
             // need to flip the reverse value in the context of the projection sequence
