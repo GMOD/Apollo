@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import org.bbop.apollo.projection.*
-import spock.lang.Ignore
 import spock.lang.Specification
 
 /**
@@ -906,7 +905,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 10 == multiSequenceProjection.projectReverseValue(0)
         assert 12 == multiSequenceProjection.projectReverseValue(2)
         assert 22 == multiSequenceProjection.projectReverseValue(3)
-        assert 25 == multiSequenceProjection.projectReverseValue(6)
+        assert 23 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(6)
         assert 24 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(7)
         assert 27 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(10)
         assert 60 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(11)
@@ -1349,8 +1348,8 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 10 + sequence1.end == multiSequenceProjection.projectValue(10 + sequence1.unprojectedLength)
         assert 12 + sequence1.end == multiSequenceProjection.projectValue(12 + sequence1.unprojectedLength)
         assert multiSequenceProjection.isValid()
-        assert 10 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(10 + sequence1.end )
-        assert 12 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(12 + sequence1.end )
+        assert 10 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(10 + sequence1.end)
+        assert 12 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(12 + sequence1.end)
 
         // add 2 for offset
         assert 10 + sequence1.end + sequence2.end == multiSequenceProjection.projectValue(10 + sequence1.unprojectedLength + sequence2.unprojectedLength)
@@ -1374,14 +1373,14 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 10 + sequence1.end + 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == multiSequenceProjection.projectValue(10 + sequence1.unprojectedLength)
         assert 12 + sequence1.end + 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == multiSequenceProjection.projectValue(12 + sequence1.unprojectedLength)
         assert multiSequenceProjection.isValid()
-        assert 10 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(10 + sequence1.end+ 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH)
-        assert 12 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(12 + sequence1.end+ 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH)
+        assert 10 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(10 + sequence1.end + 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH)
+        assert 12 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(12 + sequence1.end + 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH)
 
-        assert 10 + sequence1.end + sequence2.end + 2 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH== multiSequenceProjection.projectValue(10 + sequence1.unprojectedLength + sequence2.unprojectedLength)
-        assert 12 + sequence1.end + sequence2.end + 2 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH== multiSequenceProjection.projectValue(12 + sequence1.unprojectedLength + sequence2.unprojectedLength)
+        assert 10 + sequence1.end + sequence2.end + 2 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == multiSequenceProjection.projectValue(10 + sequence1.unprojectedLength + sequence2.unprojectedLength)
+        assert 12 + sequence1.end + sequence2.end + 2 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == multiSequenceProjection.projectValue(12 + sequence1.unprojectedLength + sequence2.unprojectedLength)
         assert multiSequenceProjection.isValid()
-        assert 10 + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(10 + sequence1.end + sequence2.end+ 2 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH)
-        assert 12 + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(12 + sequence1.end + sequence2.end+ 2 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH)
+        assert 10 + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(10 + sequence1.end + sequence2.end + 2 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH)
+        assert 12 + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(12 + sequence1.end + sequence2.end + 2 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH)
 
         when: "we set both to reverse projection "
         sequence1.reverse = true
@@ -1395,11 +1394,11 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 10 == multiSequenceProjection.projectReverseValue(sequence1.length - 10)
         assert 12 == multiSequenceProjection.projectReverseValue(sequence1.length - 12)
 
-        assert (sequence2.length - 10) + sequence1.end + 1*MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == multiSequenceProjection.projectValue(10 + sequence1.unprojectedLength)
-        assert (sequence2.length - 12) + sequence1.end + 1*MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH== multiSequenceProjection.projectValue(12 + sequence1.unprojectedLength)
+        assert (sequence2.length - 10) + sequence1.end + 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == multiSequenceProjection.projectValue(10 + sequence1.unprojectedLength)
+        assert (sequence2.length - 12) + sequence1.end + 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == multiSequenceProjection.projectValue(12 + sequence1.unprojectedLength)
         assert multiSequenceProjection.isValid()
-        assert 10 + sequence1.unprojectedLength+ 1*MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == multiSequenceProjection.projectReverseValue((sequence2.length - 10) + sequence1.end)
-        assert 12 + sequence1.unprojectedLength + 1*MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH== multiSequenceProjection.projectReverseValue((sequence2.length - 12) + sequence1.end)
+        assert 10 + sequence1.unprojectedLength + 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == multiSequenceProjection.projectReverseValue((sequence2.length - 10) + sequence1.end)
+        assert 12 + sequence1.unprojectedLength + 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == multiSequenceProjection.projectReverseValue((sequence2.length - 12) + sequence1.end)
 
         assert 10 + sequence1.end + sequence2.end == multiSequenceProjection.projectValue(10 + sequence1.unprojectedLength + sequence2.unprojectedLength)
         assert 12 + sequence1.end + sequence2.end == multiSequenceProjection.projectValue(12 + sequence1.unprojectedLength + sequence2.unprojectedLength)
@@ -1527,7 +1526,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert multiSequenceProjection.isValid()
         assert 10 == multiSequenceProjection.projectReverseValue(0)
         assert 11 == multiSequenceProjection.projectReverseValue(1)
-        assert 12 == multiSequenceProjection.projectReverseValue(2)
+        assert sequence1.unprojectedLength + 5 == multiSequenceProjection.projectReverseValue(2)
         // shadows one, both are at two
         assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(3)
         assert sequence1.unprojectedLength + 7 == multiSequenceProjection.projectReverseValue(4)
@@ -1545,9 +1544,9 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 3 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
         assert 4 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 7)
         assert multiSequenceProjection.isValid()
-        assert 10 == multiSequenceProjection.projectReverseValue(2)
         assert 11 == multiSequenceProjection.projectReverseValue(1)
         assert 12 == multiSequenceProjection.projectReverseValue(0)
+        assert sequence1.unprojectedLength + 5 == multiSequenceProjection.projectReverseValue(2)
         assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(3)
         assert sequence1.unprojectedLength + 7 == multiSequenceProjection.projectReverseValue(4)
 //        assert sequence1.unprojectedLength + 8 == multiSequenceProjection.projectReverseValue(5)
@@ -1566,11 +1565,11 @@ class MultiSequenceProjectionSpec extends Specification {
         assert multiSequenceProjection.isValid()
         assert 10 == multiSequenceProjection.projectReverseValue(0)
         assert 11 == multiSequenceProjection.projectReverseValue(1)
-        assert 12 == multiSequenceProjection.projectReverseValue(2)
-        assert multiSequenceProjection.projectReverseValue(4)>0
-        assert multiSequenceProjection.projectReverseValue(3)>0
+        assert multiSequenceProjection.projectReverseValue(4) > 0
+        assert multiSequenceProjection.projectReverseValue(3) > 0
         assert sequence1.unprojectedLength + 5 == multiSequenceProjection.projectReverseValue(4)
         assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(3)
+        assert sequence1.unprojectedLength + 7 == multiSequenceProjection.projectReverseValue(2)
 //        assert sequence1.unprojectedLength + 8 == multiSequenceProjection.projectReverseValue(5)
 
     }
@@ -1628,16 +1627,16 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 2 == multiSequenceProjection.projectValue(12)
         assert multiSequenceProjection.isValid()
         assert 10 == multiSequenceProjection.projectReverseValue(0)
-        assert 12 == multiSequenceProjection.projectReverseValue(2)
+        assert sequence1.unprojectedLength + 4 == multiSequenceProjection.projectReverseValue(2)
 
         // sequence 2
         assert 0 + 2 + 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == multiSequenceProjection.projectValue(4 + sequence1.unprojectedLength)
         assert (15 - 4) + 2 + 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == multiSequenceProjection.projectValue(15 + sequence1.unprojectedLength)
         assert multiSequenceProjection.isValid()
         // it is choosing the first projection sequence as this is overlapping
-        assert 12 == multiSequenceProjection.projectReverseValue(0 + 2 )
-        assert 4 + 1 + sequence1.unprojectedLength  == multiSequenceProjection.projectReverseValue(0 + 2 + 1)
-        assert 15 +  sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue((15 - 4) + 2 + 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH)
+        assert sequence1.unprojectedLength + 4 == multiSequenceProjection.projectReverseValue(2)
+        assert sequence1.unprojectedLength + 5 == multiSequenceProjection.projectReverseValue(3)
+        assert 15 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue((15 - 4) + 2 + 1 * MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH)
 
         // sequence 3
         assert (12 - 10) + (25 - 4) == multiSequenceProjection.projectValue(40 + sequence1.unprojectedLength + sequence2.unprojectedLength)
@@ -1654,10 +1653,13 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "it should be reversed in the first"
         // sequence 1
         assert 0 == multiSequenceProjection.projectValue(12)
+        assert 1 == multiSequenceProjection.projectValue(11)
         assert 2 == multiSequenceProjection.projectValue(10)
         assert multiSequenceProjection.isValid()
         assert 12 == multiSequenceProjection.projectReverseValue(0)
-        assert 10 == multiSequenceProjection.projectReverseValue(2)
+        assert 11 == multiSequenceProjection.projectReverseValue(1)
+        // now we are the second sequence region
+        assert sequence1.unprojectedLength + 4 == multiSequenceProjection.projectReverseValue(2)
 
         // sequence 2
         assert 0 + 2 == multiSequenceProjection.projectValue(4 + sequence1.unprojectedLength)
@@ -1680,9 +1682,11 @@ class MultiSequenceProjectionSpec extends Specification {
 
         then: "we should get both reversed"
         assert 2 == multiSequenceProjection.projectValue(10)
+        assert 1 == multiSequenceProjection.projectValue(11)
         assert 0 == multiSequenceProjection.projectValue(12)
         assert multiSequenceProjection.isValid()
-        assert 10 == multiSequenceProjection.projectReverseValue(2)
+        assert sequence1.unprojectedLength + 25 == multiSequenceProjection.projectReverseValue(2)
+        assert 11 == multiSequenceProjection.projectReverseValue(1)
         assert 12 == multiSequenceProjection.projectReverseValue(0)
 
         // reverse 10 or 12 in second sequence and add first sequence
@@ -1696,8 +1700,8 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 23 == multiSequenceProjection.projectValue(40 + sequence1.unprojectedLength + sequence2.unprojectedLength)
         assert 43 == multiSequenceProjection.projectValue(60 + sequence1.unprojectedLength + sequence2.unprojectedLength)
         assert multiSequenceProjection.isValid()
-        assert (4) + sequence1.unprojectedLength  == multiSequenceProjection.projectReverseValue(23)
-        assert (41) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(23+1)
+        assert (40) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(23)
+        assert (41) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(23 + 1)
         assert (60) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(43)
 
         when: "we set only the second to the reverse projection "
@@ -1710,7 +1714,7 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 2 == multiSequenceProjection.projectValue(12)
         assert multiSequenceProjection.isValid()
         assert 10 == multiSequenceProjection.projectReverseValue(0)
-        assert 12 == multiSequenceProjection.projectReverseValue(2)
+        assert 25 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(2)
 
         assert ((25 - 4) - (10 - 4) + 2) == multiSequenceProjection.projectValue(10 + sequence1.unprojectedLength)
         assert ((25 - 4) - (12 - 4) + 2) == multiSequenceProjection.projectValue(12 + sequence1.unprojectedLength)
@@ -1723,35 +1727,66 @@ class MultiSequenceProjectionSpec extends Specification {
         assert 23 == multiSequenceProjection.projectValue(60 + sequence1.unprojectedLength + sequence2.unprojectedLength)
         assert multiSequenceProjection.isValid()
         // projects into the wrong spot
-        assert (4) + sequence1.unprojectedLength  == multiSequenceProjection.projectReverseValue(23)
-        assert (59) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(23+1)
+        assert (60) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(23)
+        assert (59) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(23 + 1)
         assert (40) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(43)
         assert (41) + sequence1.unprojectedLength + sequence2.unprojectedLength == multiSequenceProjection.projectReverseValue(42)
     }
 
-
 //    @Ignore
-    void "project reverse projection with two exons / discontinuous regions"(){
+    void "project reverse projection with two exons / discontinuous regions"() {
 
         given: "a single projection sequence with two exons as discontinuous projections(A1A2, B1B2)"
+        ProjectionSequence sequence1 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
+                , unprojectedLength: 100
+                , start: 0
+                , end: 100
+        )// from 0-99
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
 
         when: "it should render normally"
+        multiSequenceProjection.addProjectionSequences([sequence1])
+        sequence1.reverse = false
+        multiSequenceProjection.addLocation(new Location(min: 10, max: 12, sequence: sequence1))
+        multiSequenceProjection.addLocation(new Location(min: 15, max: 20, sequence: sequence1))
 
         then: "it should render forward in a familiar manner"
+        assert 0 == multiSequenceProjection.projectValue(10)
+        assert 2 == multiSequenceProjection.projectValue(12)
+        assert multiSequenceProjection.isValid()
+        assert 10 == multiSequenceProjection.projectReverseValue(0)
+        assert 12 == multiSequenceProjection.projectReverseValue(2)
+        assert 3 == multiSequenceProjection.projectValue(15)
+        assert 8 == multiSequenceProjection.projectValue(20)
+        assert multiSequenceProjection.isValid()
+        assert 15 == multiSequenceProjection.projectReverseValue(3)
+        assert 20 == multiSequenceProjection.projectReverseValue(8)
 
 
         when: "we reverse it"
+        sequence1.reverse = true
 
         then: "we expect the projections coordinates to reverse B2B1A2A1"
-        assert false
-
+        assert 0 == multiSequenceProjection.projectValue(10)
+        assert 2 == multiSequenceProjection.projectValue(12)
+        assert multiSequenceProjection.isValid()
+        assert 10 == multiSequenceProjection.projectReverseValue(0)
+        assert 12 == multiSequenceProjection.projectReverseValue(2)
+        assert 3 == multiSequenceProjection.projectValue(15)
+        assert 8 == multiSequenceProjection.projectValue(20)
+        assert multiSequenceProjection.isValid()
+        assert 15 == multiSequenceProjection.projectReverseValue(3)
+        assert 20 == multiSequenceProjection.projectReverseValue(8)
 
 
     }
 
-
 //    @Ignore
-    void "project reverse projection with two exons / discontinuous regions over two projeciton sequences"(){
+    void "project reverse projection with two exons / discontinuous regions over two projection sequences"() {
 
         given: "given two projection sequence with two exons each (A1A2B1B2) and (C1C2D1D2)"
 
@@ -1773,6 +1808,95 @@ class MultiSequenceProjectionSpec extends Specification {
         assert false
 
 
+    }
 
+    void "single feature projected in limited range (projecting a gene)"() {
+        given: "a single projection sequence"
+        ProjectionSequence sequence1 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
+                , unprojectedLength: 100
+                , start: 30
+                , end: 70
+        )// from 0-99
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+        multiSequenceProjection.addProjectionSequences([sequence1])
+        Location location1 = new Location(min: 0, max: 100, sequence: sequence1)
+
+        when: "we add a location"
+        multiSequenceProjection.addLocation(location1)
+        multiSequenceProjection.calculateOffsets()
+
+        then: "we should see only the limited range"
+        assert false
+    }
+
+
+    void "multiple feature projected in limited range (projecting two genes)"() {
+        given: ""
+        ProjectionSequence sequence1 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
+                , unprojectedLength: 100
+                , start: 30
+                , end: 70
+        )// from 0-99
+        ProjectionSequence sequence2 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence2"
+                , organism: "Human"
+                , order: 1
+                , unprojectedLength: 50
+                , start: 20
+                , end: 30
+        )// from 0-99
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+        multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
+        Location location1 = new Location(min: 0, max: 100, sequence: sequence1)
+        Location location2 = new Location(min: 0, max: 50, sequence: sequence2)
+
+        when: "we add both locations"
+        multiSequenceProjection.addLocation(location1)
+        multiSequenceProjection.addLocation(location2)
+        multiSequenceProjection.calculateOffsets()
+
+        then: ""
+        assert false
+    }
+
+    void "multiple feature projected in limited range with intron folding "() {
+        given: ""
+        ProjectionSequence sequence1 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
+                , unprojectedLength: 100
+                , start: 30
+                , end: 70
+        )// from 0-99
+        ProjectionSequence sequence2 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence2"
+                , organism: "Human"
+                , order: 1
+                , unprojectedLength: 50
+                , start: 20
+                , end: 30
+        )// from 0-99
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+        multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
+        when: ""
+        multiSequenceProjection.addLocation(new Location(min: 31, max: 34, sequence: sequence1))
+        multiSequenceProjection.addLocation(new Location(min: 40, max: 45, sequence: sequence1))
+        multiSequenceProjection.addLocation(new Location(min: 20, max: 22, sequence: sequence2))
+        multiSequenceProjection.addLocation(new Location(min: 25, max: 28, sequence: sequence2))
+
+        then: ""
+        assert false
     }
 }

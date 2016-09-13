@@ -41,7 +41,8 @@ class MultiSequenceProjection extends AbstractProjection {
         if(projectionSequenceList?.size()>1){
             println "overlapping projeciton sequences ${projectionSequenceList.size()}, choosing first"
         }
-        return projectionSequenceList ? projectionSequenceList.first() : null
+        // because the end-point is exclusive, we should always use the second sequence if there is an overlap
+        return projectionSequenceList ? projectionSequenceList.last() : null
     }
 
     List<ProjectionSequence> getReverseProjectionSequences(Integer minInput, Integer maxInput) {
