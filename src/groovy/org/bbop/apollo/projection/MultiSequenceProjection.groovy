@@ -144,22 +144,21 @@ class MultiSequenceProjection extends AbstractProjection {
             return -1
         }
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
-//        Integer reverseValue = discontinuousProjection.projectReverseValue(input - inputOffset)
-//        int actualInput = projectionSequence.reverse ? discontinuousProjection.length - input - inputOffset : input - inputOffset
+//        int actualInput = projectionSequence.reverse ? (discontinuousProjection.size() -1) + discontinuousProjection.length - input - inputOffset : input - inputOffset
+//        println "atuaal Input is ${actualInput}"
+//        Integer reverseValue = discontinuousProjection.projectReverseValue(actualInput)
 
-        Integer reverseValue = discontinuousProjection.projectReverseValue(input - inputOffset)
+
         if (projectionSequence.reverse) {
-            println "trying to offset input: ${input}, reverse ${reverseValue}, inputOffset: ${inputOffset}, outputOffset: ${outputOffset}"
-            println "disc projection length ${discontinuousProjection.length}"
-
             // need to flip the reverse value in the context of the projection sequence
             // length - ( i - offset ) + offset
             // length - i + (2 * offset)
-            reverseValue = discontinuousProjection.length - reverseValue + 2 * discontinuousProjection.minMap.firstKey() + outputOffset
-        } else {
-            reverseValue = outputOffset + reverseValue
+            int alteredInput = discontinuousProjection.getBufferedLength(1) - input + projectionSequence.offset
+            return  discontinuousProjection.projectReverseValue(alteredInput) + outputOffset
         }
-        return reverseValue
+        else{
+            return discontinuousProjection.projectReverseValue(input - inputOffset) + outputOffset
+        }
     }
 
     Integer getLength() {
