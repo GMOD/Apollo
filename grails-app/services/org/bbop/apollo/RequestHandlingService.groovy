@@ -1805,6 +1805,9 @@ class RequestHandlingService {
                             )
 
                             fireAnnotationEvent(annotationEvent)
+                            if (!suppressHistory) {
+                                featureEventService.addNewFeatureEvent(FeatureOperation.DELETE_TRANSCRIPT, feature.name, feature.uniqueName, inputObject, new JSONObject().put(FeatureStringEnum.FEATURES.value, oldJsonObjectsArray), new JSONObject(), permissionService.getCurrentUser(inputObject))
+                            }
                         }
                     } else {
                         featureRelationshipService.removeFeatureRelationship(gene, transcript)
@@ -1849,6 +1852,9 @@ class RequestHandlingService {
                         )
 
                         fireAnnotationEvent(annotationEvent)
+                        if (!suppressHistory) {
+                            featureEventService.addNewFeatureEvent(FeatureOperation.DELETE_FEATURE, feature.name, feature.uniqueName, inputObject, new JSONObject().put(FeatureStringEnum.FEATURES.value, oldJsonObjectsArray), new JSONObject(), permissionService.getCurrentUser(inputObject))
+                        }
                     }
                 }
             } else {
@@ -1889,7 +1895,7 @@ class RequestHandlingService {
                 featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
 
 
-                if (!suppressEvents) {
+                if (!suppressEvents && !suppressHistory) {
                     featureEventService.addNewFeatureEvent(featureOperation, featureName, feature.uniqueName, inputObject, new JSONObject().put(FeatureStringEnum.FEATURES.value, oldJsonObjectsArray), newJsonObject, permissionService.getCurrentUser(inputObject))
                 }
             }
