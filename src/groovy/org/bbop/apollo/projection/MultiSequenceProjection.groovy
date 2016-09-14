@@ -149,9 +149,8 @@ class MultiSequenceProjection extends AbstractProjection {
             // length - ( i - offset ) + offset
             // length - i + (2 * offset)
             int alteredInput = discontinuousProjection.getBufferedLength(1) - input + projectionSequence.offset
-            return  discontinuousProjection.projectReverseValue(alteredInput) + outputOffset
-        }
-        else{
+            return discontinuousProjection.projectReverseValue(alteredInput) + outputOffset
+        } else {
             return discontinuousProjection.projectReverseValue(input - inputOffset) + outputOffset
         }
     }
@@ -436,9 +435,60 @@ class MultiSequenceProjection extends AbstractProjection {
         return returnMap
     }
 
+    Boolean overlaps(ProjectionSequence projectionSequenceA, ProjectionSequence projectionSequenceB) {
+        assert projectionSequenceA.name==projectionSequenceB.name
+        if (projectionSequenceA.start <= projectionSequenceB.start && projectionSequenceA.end >= projectionSequenceB.start) {
+            return true
+        }
+        if (projectionSequenceA.start <= projectionSequenceB.end && projectionSequenceA.start >= projectionSequenceB.end) {
+            return true
+        }
+        return false
+    }
+
+    ProjectionSequence overlaps(ProjectionSequence projectionSequence) {
+        for (ProjectionSequence aProjSequence in getProjectedSequences()) {
+            if (aProjSequence.name == projectionSequence.name) {
+                if (overlaps(aProjSequence, projectionSequence)) {
+                    return aProjSequence
+                }
+            }
+        }
+        return null
+    }
+
+    /**
+     * Merge ProjectionSequenceA with ProjectionSequenceB
+     *
+     * We assume that they are overlapped and belong to the same one.
+     *
+     * Return ProjectionSequenceA
+     *
+     * @param projectionSequenceA
+     * @param projectionSequenceB
+     * @return
+     */
+    ProjectionSequence merge(ProjectionSequence projectionSequenceA, ProjectionSequence projectionSequenceB) {
+        if(projectionSequenceB.start < projectionSequenceA.start){
+            projectionSequenceA.start = projectionSequenceB.start
+        }
+        if(projectionSequenceB.end > projectionSequenceA.end){
+            projectionSequenceA.end = projectionSequenceB.end
+        }
+
+        return projectionSequenceA
+    }
+
     def addProjectionSequences(List<ProjectionSequence> theseProjectionSequences) {
         theseProjectionSequences.each {
-            sequenceDiscontinuousProjectionMap.put(it, null)
+            ProjectionSequence overlappingProjectionSequence = overlaps(it)
+            if (overlappingProjectionSequence) {
+                sequenceDiscontinuousProjectionMap.remove(overlappingProjectionSequence)
+                overlappingProjectionSequence = merge(overlappingProjectionSequence, it)
+                sequenceDiscontinuousProjectionMap.put(overlappingProjectionSequence, null)
+            } else {
+                sequenceDiscontinuousProjectionMap.put(it, null)
+            }
         }
     }
 
@@ -450,6 +500,18 @@ class MultiSequenceProjection extends AbstractProjection {
      * @return
      */
     Boolean isValid() {
+
+        Map<String, Boolean> reverseMap = new HashMap<>()
+
+        for (ProjectionSequence projectionSequence in getProjectedSequences()) {
+            if (reverseMap.containsKey(projectionSequence.name)) {
+                if (reverseMap.get(projectionSequence.name) != projectionSequence.reverse) {
+                    return false
+                }
+            } else {
+                reverseMap.put(projectionSequence.name, projectionSequence.reverse)
+            }
+        }
         return true
     }
 }

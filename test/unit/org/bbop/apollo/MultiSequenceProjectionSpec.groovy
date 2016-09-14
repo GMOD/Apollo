@@ -2129,4 +2129,98 @@ class MultiSequenceProjectionSpec extends Specification {
         assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(10)
         assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(13)
     }
+
+    void "test non-overlap and validity"(){
+        given: "two non-overlapping projection sequences for different regions"
+        ProjectionSequence sequence1 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
+                , unprojectedLength: 20
+                , start: 5
+                , end: 10
+        )
+        ProjectionSequence sequence2 = new ProjectionSequence(
+                id: 2
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 1
+                , unprojectedLength: 20
+                , start:12
+                , end: 14
+        )
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+
+        when: "when we set the same projections"
+        multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
+        multiSequenceProjection.addLocation(new Location(min: 5,max:10,sequence:sequence1))
+        multiSequenceProjection.addLocation(new Location(min: 12,max:14,sequence:sequence2))
+        multiSequenceProjection.calculateOffsets()
+
+
+        then: "it is still valid and we have two projection sequences"
+        assert multiSequenceProjection.isValid()
+        assert multiSequenceProjection.getProjectedSequences().size()==2
+        assert multiSequenceProjection.getProjectedSequences().first().start==5
+        assert multiSequenceProjection.getProjectedSequences().first().end==10
+        assert multiSequenceProjection.getProjectedSequences().last().start==12
+        assert multiSequenceProjection.getProjectedSequences().last().end==14
+
+        when: "we change the reverse of one"
+        sequence1.reverse = true
+
+        then: "should not be valid "
+        assert !multiSequenceProjection.isValid()
+
+        when: "we change the reverse of one"
+        sequence2.reverse = true
+
+        then: "should be valid "
+        assert multiSequenceProjection.isValid()
+    }
+
+
+    void "test overlap"(){
+        given: "two non-overlapping projection sequences for different regions"
+        ProjectionSequence sequence1 = new ProjectionSequence(
+                id: 1
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 0
+                , unprojectedLength: 20
+                , start: 5
+                , end: 10
+        )
+        ProjectionSequence sequence2 = new ProjectionSequence(
+                id: 2
+                , name: "Sequence1"
+                , organism: "Human"
+                , order: 1
+                , unprojectedLength: 20
+                , start:8
+                , end: 15
+        )
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+
+        when: "when we set the same projections"
+        multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
+        multiSequenceProjection.addLocation(new Location(min: 5,max:10,sequence:sequence1))
+        multiSequenceProjection.addLocation(new Location(min: 8,max:15,sequence:sequence2))
+        multiSequenceProjection.calculateOffsets()
+
+
+        then: "it is still valid and we have two projection sequences"
+        assert multiSequenceProjection.isValid()
+        assert multiSequenceProjection.getProjectedSequences().size()==1
+        assert multiSequenceProjection.getProjectedSequences().first().start==5
+        assert multiSequenceProjection.getProjectedSequences().first().end==15
+
+        when: "we change the reverse of one"
+        sequence1.reverse = true
+
+        then: "should be valid "
+        assert multiSequenceProjection.isValid()
+    }
+
 }
