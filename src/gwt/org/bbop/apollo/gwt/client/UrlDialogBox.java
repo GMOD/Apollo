@@ -5,7 +5,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
 
 /**
- * Created by ndunn on 4/8/15.
+ * Created by Nathan Dunn on 4/8/15.
  */
 public class UrlDialogBox extends DialogBox{
 

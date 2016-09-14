@@ -13,6 +13,9 @@ class NonCanonicalSplitSiteService {
     def exonService
     def featureService
     def sequenceService
+    def transcriptService
+    def bookmarkService
+    def projectionService
 
     /** Delete an non canonical 5' splice site.  Deletes both the transcript -> non canonical 5' splice site and
      *  non canonical 5' splice site -> transcript relationships.
@@ -74,22 +77,24 @@ class NonCanonicalSplitSiteService {
         }
     }
 
+
     @Timed
-    public void findNonCanonicalAcceptorDonorSpliceSites(Transcript transcript) {
+    public void findNonCanonicalAcceptorDonorSpliceSites(Transcript transcript,Bookmark bookmark) {
 
         transcript.attach()
 
         deleteAllNonCanonicalFivePrimeSpliceSites(transcript)
         deleteAllNonCanonicalThreePrimeSpliceSites(transcript)
 
-        List<Exon> exons = exonService.getSortedExons(transcript)
-        int fmin=transcript.getFeatureLocation().fmin
-        int fmax=transcript.getFeatureLocation().fmax
-        Sequence sequence=transcript.getFeatureLocation().sequence
-        Strand strand=transcript.getFeatureLocation().strand==-1?Strand.NEGATIVE:Strand.POSITIVE
+        List<Exon> exons = transcriptService.getSortedExons(transcript,false,bookmark)
+        int fmin = bookmarkService.getMinForFeatureFullScaffold(transcript,bookmark)
+        int fmax = bookmarkService.getMaxForFeatureFullScaffold(transcript,bookmark)
+        Strand strand=transcript.isNegativeStrand()?Strand.NEGATIVE:Strand.POSITIVE
 
-        String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,fmin,fmax,strand);
-        if(transcript.getStrand()==-1)residues=residues.reverse()
+        String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(bookmark,fmin,fmax,strand);
+        if(transcript.getStrand()==-1){
+            residues=residues.reverse()
+        }
 
         List<SequenceAlteration> sequenceAlterationList = new ArrayList<>()
         sequenceAlterationList.addAll(featureService.getAllSequenceAlterationsForFeature(transcript))
@@ -112,7 +117,7 @@ class NonCanonicalSplitSiteService {
                     int local4=featureService.convertSourceToModifiedLocalCoordinate(transcript,local44,sequenceAlterationList)
 
 
-                    if (exon.featureLocation.getStrand() == -1) {
+                    if (exon.isNegativeStrand()) {
                         int tmp1=local1
                         int tmp2=local2
                         local1=local3
@@ -167,6 +172,7 @@ class NonCanonicalSplitSiteService {
         }
     }
 
+
     /** Add a non canonical 5' splice site.  Sets the splice site's transcript to this transcript object.
      *
      * @param nonCanonicalFivePrimeSpliceSite - Non canonical 5' splice site to be added
@@ -202,7 +208,13 @@ class NonCanonicalSplitSiteService {
         nonCanonicalThreePrimeSpliceSite.addToChildFeatureRelationships(fr);
     }
 
-    private NonCanonicalFivePrimeSpliceSite createNonCanonicalFivePrimeSpliceSite(Transcript transcript, int position) {
+    /**
+     * The position is relative to fmin, of the min location so we grab the corresponding position based on that
+     * @param transcript
+     * @param position
+     * @return
+     */
+    private static NonCanonicalFivePrimeSpliceSite createNonCanonicalFivePrimeSpliceSite(Transcript transcript, int position) {
         String uniqueName = transcript.getUniqueName() + "-non_canonical_five_prime_splice_site-" + position;
         NonCanonicalFivePrimeSpliceSite spliceSite = new NonCanonicalFivePrimeSpliceSite(
                 uniqueName: uniqueName
@@ -210,9 +222,11 @@ class NonCanonicalSplitSiteService {
                 ,isObsolete: transcript.isObsolete
                 ,name: uniqueName
                 ).save()
+
+        FeatureLocation featureLocation = transcript.getFeatureLocationForPosition(position)
         spliceSite.addToFeatureLocations(new FeatureLocation(
                 strand: transcript.strand
-                ,sequence: transcript.featureLocation.sequence
+                ,sequence: featureLocation.sequence
                 ,fmin: position
                 ,fmax: position
                 ,feature: spliceSite
@@ -221,60 +235,23 @@ class NonCanonicalSplitSiteService {
     }
 
 
-    private NonCanonicalThreePrimeSpliceSite createNonCanonicalThreePrimeSpliceSite(Transcript transcript, int position) {
+    private static NonCanonicalThreePrimeSpliceSite createNonCanonicalThreePrimeSpliceSite(Transcript transcript, int position) {
         String uniqueName = transcript.getUniqueName() + "-non_canonical_three_prime_splice_site-" + position;
         NonCanonicalThreePrimeSpliceSite spliceSite = new NonCanonicalThreePrimeSpliceSite(
                 uniqueName: uniqueName
                 ,name: uniqueName
                 ,isAnalysis: transcript.isAnalysis
                 ,isObsolete: transcript.isObsolete
-//                ,timeAccessioned: new Date()
         ).save()
+        FeatureLocation featureLocation = transcript.getFeatureLocationForPosition(position)
         spliceSite.addToFeatureLocations(new FeatureLocation(
                 strand: transcript.strand
-                ,sequence: transcript.featureLocation.sequence
+                ,sequence: featureLocation.sequence
                 ,fmin: position
                 ,fmax: position
                 ,feature: spliceSite
         ).save());
-//        spliceSite.setFeatureLocation(new FeatureLocation());
-//        spliceSite.featureLocation.setStrand(transcript.getStrand());
-//        spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
-//        spliceSite.featureLocation.setFmin(position);
-//        spliceSite.featureLocation.setFmax(position);
-//        spliceSite.setLastUpdated(new Date());
         return spliceSite;
     }
 
-    private static FlankingRegion createFlankingRegion(Sequence sequence, int fmin, int fmax,Strand strand) {
-//        FlankingRegion flankingRegion = new FlankingRegion();
-//        flankingRegion.setIsAnalysis(false)
-//        flankingRegion.setIsObsolete(false)
-//        flankingRegion.setName(nameService.generateUniqueName())
-//        flankingRegion.setUniqueName(flankingRegion.name)
-//        flankingRegion.save()
-
-//        flankingRegion.addToFeatureLocations(new FeatureLocation(
-//                strand: feature.strand
-//                ,sequence: feature.featureLocation.sequence
-//                ,fmin: fmin
-//                ,fmax: fmax
-//                ,feature: flankingRegion
-//        ).save());
-
-//        flankingRegion.add(new FeatureLocation());
-//        flankingRegion.getFeatureLocation().setSourceFeature(feature.getFeatureLocation().getSourceFeature());
-//        flankingRegion.featureLocation.setStrand(feature.getStrand());
-//        flankingRegion.featureLocation.setFmin(fmin);
-//        flankingRegion.featureLocation.setFmax(fmax);
-        FlankingRegion flankingRegion = new FlankingRegion(
-                sequence: sequence
-                ,fmin: fmin
-                ,fmax: fmax
-                ,strand: strand
-        )
-
-
-        return flankingRegion;
-    }
 }

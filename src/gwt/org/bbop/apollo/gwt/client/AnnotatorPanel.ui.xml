@@ -40,23 +40,32 @@
         }
     </ui:style>
     <gwt:DockLayoutPanel ui:field="splitPanel">
-        <gwt:north size="100">
+        <gwt:north size="120">
             <b:Container fluid="true" styleName="{style.northPanel}" ui:field="northPanelContainer">
                 <b:Row styleName="{style.rowPadding}">
                     <b:Column size="MD_6">
                         <b:TextBox placeholder="Annotation Name"
                                    ui:field="nameSearchBox" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                    <b:Column size="MD_5">
+                    <b:Column size="MD_3">
                         <b:ListBox ui:field="typeList"  addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                    <b:Column size="MD_6">
+                </b:Row>
+                <b:Row styleName="{style.rowPadding}">
+                    <b:Column size="MD_5">
                         <b:SuggestBox ui:field="sequenceList" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                <!--</b:Row>-->
-                <!--<b:Row styleName="{style.rowPadding}">-->
-                    <b:Column size="MD_5">
+                    <b:Column size="MD_1">
+                        <b:Button text="All" ui:field="showAllSequences" styleName="{style.widgetBox}"/>
+                    </b:Column>
+                    <b:Column size="MD_3">
                         <b:ListBox ui:field="userField" addStyleNames="{style.widgetBox}"/>
+                    </b:Column>
+                    <b:Column size="MD_4">
+                        <!--<gwt:SuggestBox ui:field="sequenceList" width="200px"/>-->
+                        <b:Button type="PRIMARY" icon="BOOKMARK" text="+" size="EXTRA_SMALL" title="Add new bookmark" ui:field="addNewBookmark" enabled="false" addStyleNames="right-space bookmark-buttons"/>
+                        <b:Button type="PRIMARY" icon="EYE" text="+" size="EXTRA_SMALL" title="Add to view" ui:field="addToView" enabled="false" addStyleNames="bookmark-buttons"/>
+                        <b:Button type="PRIMARY" icon="EYE" title="View" size="EXTRA_SMALL" ui:field="viewAnnotation" enabled="false" addStyleNames="bookmark-buttons"/>
                     </b:Column>
                 </b:Row>
             </b:Container>
@@ -67,9 +76,9 @@
                     <gwt:HTMLPanel>
                         <table style="width:100%">
                             <tr>
-                                <td style="width:20%">
+                                <td style="width:20%"/>
                                     <!--<b:Button ui:field="selectSelectedButton" size="EXTRA_SMALL" enabled="false" icon="CHECK_CIRCLE" marginLeft="10"/>-->
-                                </td>
+                                <!--</td>-->
                                 <td align="center">
                                     <apollo:WebApolloSimplePager ui:field="pager" styleName="{style.pager}"/>
                                 </td>

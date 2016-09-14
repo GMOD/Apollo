@@ -76,6 +76,16 @@ grails.project.dependency.resolution = {
         //compile 'asm:asm:3.1'
         //compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
         //compile 'org.biojava:biojava3-core:3.1.0'
+        compile 'com.github.samtools:htsjdk:1.138'
+        compile 'org.utgenome.thirdparty:picard:1.86.0'
+
+
+        // for SamTools
+        compile 'org.apache.commons:commons-lang3:3.0'
+        compile 'org.apache.commons:commons-math3:3.0'
+//        compile 'org.utgenome.thirdparty:picard:1.86.0'
+//        compile 'org.seqdoop:htsjdk:1.118'
+
 
         test "org.grails:grails-datastore-test-support:1.0.2-grails-2.4"
         runtime 'org.grails:grails-datastore-gorm:3.1.5.RELEASE'
@@ -142,11 +152,7 @@ grails.project.dependency.resolution = {
         //compile ":joda-time:1.4"
         // TODO: re-add when ready to install functional tests
 //        test    ":geb:$gebVersion"
-//        grails.plugin.location.'chado-grails' = "../chado-grails"
-//        grails.plugin.location.'test-plugin' = "../test-plugin"
-//        runtime ":chado:0.1"
-//        compile ":test-plugin:0.1"
-//        compile ":chado-plugin:0.1"
+//        runtime ":typescript:0.3.9"
 
         // remember to sync rest
         runtime ":rest-client-builder:2.1.1"

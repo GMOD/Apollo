@@ -9,6 +9,7 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
@@ -129,6 +130,11 @@ public class Annotator implements EntryPoint {
         $wnd.setPreference = $entry(@org.bbop.apollo.gwt.client.Annotator::setPreference(Ljava/lang/String;Ljava/lang/Object;));
         $wnd.getPreference = $entry(@org.bbop.apollo.gwt.client.Annotator::getPreference(Ljava/lang/String;));
         $wnd.getClientToken = $entry(@org.bbop.apollo.gwt.client.Annotator::getClientToken());
+        $wnd.getEmbeddedVersion = $entry(
+            function apolloEmbeddedVersion() {
+                return 'ApolloGwt-2.0';
+            }
+        );
     }-*/;
 
     public static void setPreference(String key, Object value) {

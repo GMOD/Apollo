@@ -39,8 +39,8 @@
             </classpath>
             <arg line="-war"/>
             <arg value="web-app"/>
-<!--            <arg line="-style"/>-->
-<!--            <arg value="PRETTY"/>-->
+            <arg line="-style"/>
+            <arg value="PRETTY"/>
             <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
             <arg line="${gwt.args}"/>
             <arg value="org.bbop.apollo.gwt.Annotator"/>
@@ -75,6 +75,7 @@
     <property name="apollo.webapp.directory" location="web-app" relative="true" basedir="."/>
     <property name="apollo.jbrowse.directory" location="${apollo.webapp.directory}/jbrowse"/>
     <property name="apollo.client.directory" location="${basedir}/client/apollo" basedir="." relative="true"/>
+    <property name="apollo.label.client.directory" location="${basedir}/client/ApolloLabelProc" basedir="." relative="true"/>
     <property name="apollo.plugin.directory" location="${apollo.jbrowse.directory}/plugins/WebApollo"/>
     <property name="jbrowse.download.directory" location="jbrowse-download"/>
     <property name="jbrowse.webapp.test.file" location="${apollo.jbrowse.directory}/src/dojo/dojo.js"/>
@@ -83,11 +84,13 @@
               location="${apollo.plugin.directory}/js/main.js.uncompressed.js"/>
     <property name="scripts.directory" location="scripts"/>
     <property name="jbrowse.git.test.file" location="${jbrowse.download.directory}/src/dojo/dojo.js"/>
-    <property name="jbrowse.github" value="https://github.com/gmod/jbrowse"/>
+<!--    <property name="jbrowse.github" value="https://github.com/gmod/jbrowse"/>-->
+    <property name="jbrowse.github" value="https://github.com/nathandunn/jbrowse"/>
     <property name="jbrowse.version" value="dev"/>
     <property name="jbrowse.perl.dependency.test.file" value="bin/flatfile-to-json.pl"/>
 
-    <property name="jbrowse.release.version" value="1.11.6-release"/>
+<!--    <property name="jbrowse.release.version" value="1.11.6-release"/>-->
+    <property name="jbrowse.release.version" value="multiple_highlights"/>
 
     <available file=".git" type="dir" property="git.present"/>
     <available file="${jbrowse.git.test.file}" type="file" property="jbrowse.git.present"/>
@@ -162,7 +165,11 @@
         </exec>
         <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
             <arg value="checkout"/>
-            <arg value="tags/${jbrowse.release.version}"/>
+            <!--<arg value="tags/${jbrowse.release.version}"/>-->
+			<!--<arg value="master"/>-->
+<!--            <arg value="multiple_highlights"/>-->
+<!--            <arg value="apollo2_build"/>-->
+                <arg value="projection_v2_server"/>
         </exec>
     </target>
 
@@ -195,6 +202,7 @@
     </target>
 
 
+
     <target name="setup-jbrowse" unless="jbrowse.webapp.installed">
         <antcall target="cloneJBrowse"/>
         <antcall target="copy.apollo.plugin.jbrowse"/>
@@ -203,29 +211,29 @@
         <echo>Will be setting up jbrowse</echo>
         <delete dir="${apollo.jbrowse.directory}"/>
 
-        <copy todir="${apollo.jbrowse.directory}">
-            <fileset dir="${jbrowse.download.directory}">
-                <not>
-                    <filename name="sample_data/**"/>
-                </not>
-            </fileset>
-        </copy>
+        <antcall target="copy-jbrowse-into-webapp"/>
         <antcall target="install.jbrowse.perl"/>
 
     </target>
 
     <target name="copy.apollo.plugin.jbrowse">
         <echo>copying plugin to jbrowse git ...</echo>
-        <copy todir="${jbrowse.download.directory}/plugins/WebApollo" failonerror="true">
+        <copy todir="${jbrowse.download.directory}/plugins/WebApollo" failonerror="true" overwrite="true">
             <fileset dir="${apollo.client.directory}"/>
+        </copy>
+        <copy todir="${jbrowse.download.directory}/plugins/ApolloLabelProc" failonerror="true" overwrite="true">
+            <fileset dir="${apollo.label.client.directory}"/>
         </copy>
     </target>
 
     <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed"
             description="Copy client into webapp plugin directory.">
         <echo>Copying WebApollo plugin to jbrowse webapp ...</echo>
-        <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
+        <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true" overwrite="true">
             <fileset dir="${apollo.client.directory}"/>
+        </copy>
+        <copy todir="${apollo.jbrowse.directory}/plugins/ApolloLabelProc" failonerror="true" overwrite="true">
+            <fileset dir="${apollo.label.client.directory}"/>
         </copy>
     </target>
 
@@ -246,7 +254,6 @@
 
     </target>
 	
-
 
     <target name="copy-resources"
             depends="copy.apollo.plugin.webapp,setup-jbrowse"

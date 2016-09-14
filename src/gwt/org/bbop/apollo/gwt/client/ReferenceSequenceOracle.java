@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by ndunn on 4/24/15.
+ * Created by Nathan Dunn on 4/24/15.
  */
 public class ReferenceSequenceOracle extends MultiWordSuggestOracle{
 

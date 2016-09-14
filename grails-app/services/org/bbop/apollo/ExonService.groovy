@@ -1,11 +1,7 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import grails.transaction.Transactional
-import grails.transaction.NotTransactional
-
-//import grails.compiler.GrailsCompileStatic
+import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 
@@ -20,6 +16,8 @@ class ExonService {
     def sequenceService
     def overlapperService
     def nameService
+    def bookmarkService
+    def projectionService
 
     /** Retrieve the transcript that this exon is associated with.  Uses the configuration to
      * determine which parent is a transcript.  The transcript object is generated on the fly.  Returns
@@ -48,31 +46,22 @@ class ExonService {
 //        }
         // both exons must be in the same strand
         Transcript transcript = getTranscript(exon1);
-        if (!exon1?.featureLocation?.getStrand()?.equals(exon2?.featureLocation?.getStrand())) {
+        Bookmark transcriptBookmark = bookmarkService.generateBookmarkForFeature(transcript)
+        if (!exon1?.getStrand()?.equals(exon2?.getStrand())) {
             throw new AnnotationException("mergeExons(): Exons must be in the same strand ${exon1} ${exon2}");
         }
         if (exon1.getFmin() > exon2.getFmin()) {
-            setFmin(exon1, exon2.getFmin())
-//            exon1.setFmin(exon2.getFmin());
+            setFmin(exon1, exon2.getFmin(),transcriptBookmark)
         }
         if (exon1.getFmax() < exon2.getFmax()) {
-            setFmax(exon1, exon2.fmax)
-//            exon1.setFmax(exon2.getFmax());
+            setFmax(exon1, exon2.fmax,transcriptBookmark)
         }
         // need to delete exon2 from transcript
         if (getTranscript(exon2) != null) {
             deleteExon(getTranscript(exon2), exon2);
         }
         
-//        setLongestORF(getTranscript(exon1));
-        featureService.removeExonOverlapsAndAdjacencies(transcript);
-
-//        Date date = new Date();
-//        exon1.setTimeLastModified(date);
-//        transcript.setTimeLastModified(date);
-
-        // TODO: event fire
-//        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
+        featureService.removeExonOverlapsAndAdjacencies(transcript,transcriptBookmark);
 
     }
 
@@ -89,41 +78,35 @@ class ExonService {
         featureRelationshipService.removeFeatureRelationship(transcript,exon)
 
 
-        // an empty transcript should be removed from gene,  TODO??
-//        if (transcript.getNumberOfExons() == 0) {
-//            if (transcript.getGene() != null) {
-//                deleteTranscript(transcript.getGene(), transcript);
-//            }
-//            else {
-//                deleteFeature(transcript);
-//            }
-//        }
-//        else {
-//            setLongestORF(transcript);
-//        }
+        int fmin = Integer.MAX_VALUE;
+        int fmax = Integer.MIN_VALUE;
+
         // update transcript boundaries if necessary
         if (exon.getFmin().equals(transcript.getFmin())) {
-            int fmin = Integer.MAX_VALUE;
             for (Exon e : transcriptService.getExons(transcript)) {
                 if (e.getFmin() < fmin) {
                     fmin = e.getFmin();
                 }
             }
-            transcriptService.setFmin(transcript,fmin);
+            if(fmin!=Integer.MAX_VALUE){
+                transcriptService.setFmin(transcript,fmin);
+            }
         }
         if (exon.getFmax().equals(transcript.getFmax())) {
-            int fmax = Integer.MIN_VALUE;
             for (Exon e : transcriptService.getExons(transcript)) {
                 if (e.getFmax() > fmax) {
                     fmax = e.getFmax();
                 }
             }
-            transcriptService.setFmax(transcript,fmax);
+            if(fmax!=Integer.MIN_VALUE) {
+                transcriptService.setFmax(transcript, fmax);
+            }
         }
         // update gene boundaries if necessary
-        transcriptService.updateGeneBoundaries(transcript);
+        if(fmax > fmin){
+            transcriptService.updateGeneBoundaries(transcript);
+        }
 
-//        FeatureLocation.deleteAll(exon.featureLocations)
         exon.save(flush: true)
         exon.featureLocations.clear()
         exon.parentFeatureRelationships?.clear()
@@ -137,37 +120,45 @@ class ExonService {
             }
         }
 
-//        FeatureProperty.executeUpdate("delete from FeatureProperty fp where fp.feature.id = :exonId",[exonId:exon.id])
-//        Exon.executeUpdate("delete from Exon e where e.id = :exonId",[exonId:exon.id])
         exon.delete(flush: true)
-//        Exon.deleteAll(exon)
         transcript.save(flush: true)
 
 
     }
 
-
+    /**
+     * Need to provide a bookmark to do this
+     * @param exon
+     * @param fmin
+     */
     @Transactional
-    public void setFmin(Exon exon, Integer fmin) {
-        exon.getFeatureLocation().setFmin(fmin);
+    public void setFmin(Exon exon, Integer fmin,Bookmark bookmark) {
+        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(bookmark)
+        featureService.setFmin(exon,fmin,projection)
         Transcript transcript = getTranscript(exon)
         if (transcript != null && fmin < transcript.getFmin()) {
-            transcriptService.setFmin(transcript, fmin);
+            featureService.setFmin(transcript, fmin,projection);
         }
     }
 
+    /**
+     * Need to provide a bookmark to do this
+     * @param exon
+     * @param fmax
+     */
     @Transactional
-    public void setFmax(Exon exon, Integer fmax) {
-        exon.getFeatureLocation().setFmax(fmax);
+    public void setFmax(Exon exon, Integer fmax,Bookmark bookmark) {
+        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(bookmark)
+        featureService.setFmax(exon,fmax,projection)
         Transcript transcript = getTranscript(exon)
         if (transcript != null && fmax > transcript.getFmax()) {
-            transcriptService.setFmax(transcript, fmax)
+            featureService.setFmax(transcript, fmax,projection)
         }
     }
 
 
     @Transactional
-    public Exon makeIntron(Exon exon, int genomicPosition, int minimumIntronSize) {
+    public Exon makeIntron(Exon exon, int genomicPosition, int minimumIntronSize,Bookmark bookmark) {
         String sequence = sequenceService.getResiduesFromFeature(exon)
         int exonPosition = featureService.convertSourceCoordinateToLocalCoordinate(exon,genomicPosition);
 //        // find donor coordinate
@@ -196,15 +187,14 @@ class ExonService {
             return null;
         }
         acceptorCoordinate += exonPosition + minimumIntronSize;
-        FeatureLocation exonFeatureLocation = exon.featureLocation
-        if (exonFeatureLocation.getStrand().equals(-1)) {
+        if (exon.isNegativeStrand()) {
             int tmp = acceptorCoordinate;
             acceptorCoordinate = donorCoordinate + 1 - donorSite.length();
             donorCoordinate = tmp + 1;
         } else {
             acceptorCoordinate += acceptorSite.length();
         }
-        Exon splitExon = splitExon(exon, featureService.convertLocalCoordinateToSourceCoordinate(exon,donorCoordinate) , featureService.convertLocalCoordinateToSourceCoordinate(exon,acceptorCoordinate));
+        Exon splitExon = splitExon(exon, featureService.convertLocalCoordinateToSourceCoordinate(exon,donorCoordinate) , featureService.convertLocalCoordinateToSourceCoordinate(exon,acceptorCoordinate),bookmark);
 
         exon.save()
         splitExon.save()
@@ -212,12 +202,6 @@ class ExonService {
         return splitExon;
     }
 //
-
-    List<Exon> getSortedExons(Transcript transcript,boolean sortByStrand = true ) {
-        List<Exon> sortedExons= new LinkedList<Exon>(transcriptService.getExons(transcript));
-        Collections.sort(sortedExons,new FeaturePositionComparator<Exon>(sortByStrand))
-        return sortedExons
-    }
 
     /**
      * Set exon boundaries.
@@ -230,10 +214,11 @@ class ExonService {
     public void setExonBoundaries(Exon exon, int fmin, int fmax) {
 
         Transcript transcript = getTranscript(exon)
-//        Transcript transcript = exon.getTranscript();
-        exon.getFeatureLocation().fmin = fmin;
-        exon.getFeatureLocation().fmax = fmax;
-        featureService.removeExonOverlapsAndAdjacencies(transcript);
+        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(exon)
+        setFmin(exon,fmin,bookmark)
+        setFmax(exon,fmax,bookmark)
+
+        featureService.removeExonOverlapsAndAdjacencies(transcript,bookmark);
 
         featureService.updateGeneBoundaries(transcriptService.getGene(transcript));
     }
@@ -243,7 +228,7 @@ class ExonService {
         Transcript transcript = getTranscript(exon)
         Gene gene = transcriptService.getGene(transcript)
 
-        List<Exon> exons = getSortedExons(transcript,true)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
 
         Integer nextExonFmin = null;
         Integer nextExonFmax = null;
@@ -252,8 +237,8 @@ class ExonService {
             if (e.getUniqueName().equals(exon.getUniqueName())) {
                 if (iter.hasNext()) {
                     Exon e2 = iter.next();
-                    nextExonFmin = e2.getFeatureLocation().getFmin();
-                    nextExonFmax = e2.getFeatureLocation().getFmax();
+                    nextExonFmin = e2.fmin
+                    nextExonFmax = e2.fmax
                     break;
                 }
             }
@@ -269,10 +254,10 @@ class ExonService {
             String seq = residues.substring(coordinate, coordinate + 2);
 
             if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq)) {
-                if (exon.getFeatureLocation().getStrand() == -1) {
-                    setExonBoundaries(exon,featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate)+1,exon.getFeatureLocation().getFmax())
+                if (exon.isNegativeStrand()) {
+                    setExonBoundaries(exon,featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate)+1,exon.getFmax())
                 } else {
-                    setExonBoundaries(exon,exon.getFeatureLocation().getFmin(),featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate))
+                    setExonBoundaries(exon,exon.getFmin(),featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate))
                 }
                 return;
             }
@@ -314,7 +299,7 @@ class ExonService {
         Transcript transcript = getTranscript(exon);
         Gene gene = transcriptService.getGene(transcript);
 
-        List<Exon> exons = getSortedExons(transcript,true)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
         Integer prevExonFmin = null;
         Integer prevExonFmax = null;
         for (ListIterator<Exon> iter = exons.listIterator(); iter.hasNext(); ) {
@@ -331,7 +316,7 @@ class ExonService {
                 break;
             }
         }
-        int coordinate = exon.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax() + 2) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin() - 3);
+        int coordinate = exon.isNegativeStrand() ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax() + 2) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin() - 3);
         String residues = sequenceService.getResiduesFromFeature(gene)
         while (coordinate >= 0) {
             int c = featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate);
@@ -357,8 +342,8 @@ class ExonService {
         log.debug "setting downstream acceptor: ${exon}"
         Transcript transcript = getTranscript(exon);
         Gene gene = transcriptService.getGene(transcript);
-        int coordinate = exon.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin());
-        int exonEnd = exon.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin()) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) - 1;
+        int coordinate = exon.isNegativeStrand() ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin());
+        int exonEnd = exon.isNegativeStrand() ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin()) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) - 1;
         String residues = sequenceService.getResiduesFromFeature(gene);
         while (coordinate < residues.length()) {
             if (coordinate >= exonEnd) {
@@ -379,11 +364,22 @@ class ExonService {
     }
 
     @Transactional
-    Exon splitExon(Exon exon, int newLeftMax, int newRightMin) {
-        Exon leftExon = exon;
-        FeatureLocation leftFeatureLocation = leftExon.getFeatureLocation()
+    Exon splitExon(Exon leftExon, int newLeftMax, int newRightMin,Bookmark bookmark) {
 
-        String uniqueName = nameService.generateUniqueName(exon)
+        // we want to get the right-most permissible feature Location
+        FeatureLocation leftFeatureLocation
+//        = leftExon.getFeatureLocation()
+        leftExon.featureLocations.sort(){it.rank}.each {
+            if(newLeftMax < it.fmax && newLeftMax > it.fmin){
+                leftFeatureLocation = it
+            }
+        }
+
+        if(leftFeatureLocation==null){
+            throw new AnnotationException("Unable to find an existing feature location to split ${leftExon} at ${newLeftMax}.")
+        }
+
+        String uniqueName = nameService.generateUniqueName(leftExon)
         Exon rightExon = new Exon(
                 uniqueName: uniqueName
                 ,name: uniqueName
@@ -414,7 +410,7 @@ class ExonService {
         rightFeatureLocation.save()
 
         Transcript transcript = getTranscript(leftExon)
-        transcriptService.addExon(transcript,rightExon)
+        transcriptService.addExon(transcript,rightExon,true,bookmark)
 
         transcript.save()
         rightExon.save()
@@ -431,13 +427,13 @@ class ExonService {
         }
 
         String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(
-                exon.featureLocation.sequence
+                bookmarkService.generateBookmarkForFeature(exon)
                 ,exon.fmin < cds.fmin ? cds.fmin : exon.fmin
                 ,exon.fmax > cds.fmax ? cds.fmax : exon.fmax
-                ,Strand.getStrandForValue(exon.featureLocation.strand)
+                ,Strand.getStrandForValue(exon.strand)
         )
 
-        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript)
+        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript,false)
         if (exon.strand == Strand.NEGATIVE.value) {
             Collections.reverse(exons)
         }
@@ -458,7 +454,7 @@ class ExonService {
             return phase
         }
 
-        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript)
+        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript,false)
         if (exon.strand == Strand.NEGATIVE.value) {
             Collections.reverse(exons)
         }

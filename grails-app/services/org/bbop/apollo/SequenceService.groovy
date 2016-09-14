@@ -25,7 +25,9 @@ class SequenceService {
     def cdsService
     def gff3HandlerService
     def overlapperService
-
+    def sessionFactory
+    def bookmarkService
+    def projectionService
 
 
     List<FeatureLocation> getFeatureLocations(Sequence sequence){
@@ -39,15 +41,18 @@ class SequenceService {
      */
     String getResiduesFromFeature(Feature feature) {
         String returnResidues = ""
-        def orderedFeatureLocations = feature.featureLocations.sort { it.fmin }
+        def orderedFeatureLocations = feature.featureLocations.sort { it.rank }
         for(FeatureLocation featureLocation in orderedFeatureLocations) {
-            String residues = getResidueFromFeatureLocation(featureLocation)
-            if(featureLocation.strand == Strand.NEGATIVE.value) {
-                returnResidues += SequenceTranslationHandler.reverseComplementSequence(residues)
-            }
-            else returnResidues += residues
+            returnResidues = getResidueFromFeatureLocation(featureLocation)
         }
 
+        if(feature.isNegativeStrand()){
+            returnResidues = SequenceTranslationHandler.reverseComplementSequence(returnResidues)
+        }
+//        if(featureLocation.strand == Strand.NEGATIVE.value) {
+//            returnResidues += SequenceTranslationHandler.reverseComplementSequence(residues)
+//        }
+//        else returnResidues += residues
 
         return returnResidues
     }
@@ -57,8 +62,64 @@ class SequenceService {
     }
 
 
-    String getGenomicResiduesFromSequenceWithAlterations(FlankingRegion flankingRegion) {
-        return getGenomicResiduesFromSequenceWithAlterations(flankingRegion.sequence,flankingRegion.fmin,flankingRegion.fmax,flankingRegion.strand)
+    /**
+     * This wraps the individual sequence fetch code.
+     *
+     * Here, we iterate over the sequences, where fmin and fmax are in context of the ordered sequence lengths.
+     *
+     * @param bookmark
+     * @param fmin
+     * @param fmax
+     * @param strand
+     * @return
+     */
+    String getGenomicResiduesFromSequenceWithAlterations(Bookmark bookmark, int fmin, int fmax,Strand strand) {
+        Integer currentCounter = 0
+        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+        StringBuilder stringBuilder = new StringBuilder()
+        for(int i = 0 ; i < sequenceList.size() && currentCounter < fmax ; i++){
+            Sequence sequence = sequenceList.get(i)
+            Integer calculatedFmin = -1
+            Integer calculatedFmax = -1
+
+            // 3 fmin cases
+            // 1. fmin starts after this sequence and is ignored
+            if(fmin > sequence.end + currentCounter){
+                calculatedFmin = -1
+            }
+            // 2. fmin started on the prior sequence, and so we start at 0
+            if(fmin <  currentCounter){
+                calculatedFmin = 0
+            }
+            // 3. fmin is in the current sequence
+            if(fmin >  currentCounter && fmin < sequence.end + currentCounter){
+                calculatedFmin  = fmin - currentCounter
+            }
+
+//            3 fmax cases
+            // 1. we've already gone by fmax, so we ignore
+            if(currentCounter > fmax ){
+                calculatedFmax = -1
+            }
+            // 2. fmax ends on the a further sequence
+            if(fmax > currentCounter + sequence.end  ){
+                calculatedFmax = currentCounter + sequence.end
+            }
+            // 3. fmax ends in this sequence
+            if(fmax < currentCounter + sequence.end && fmax > currentCounter){
+                calculatedFmax = fmax - currentCounter
+            }
+
+            if(calculatedFmin >= 0 && calculatedFmax >= 0){
+                println "getting fmin and fmax: ${calculatedFmin} -> ${calculatedFmax}"
+                stringBuilder.append(getGenomicResiduesFromSequenceWithAlterations(sequence,calculatedFmin,calculatedFmax,strand))
+            }
+
+            currentCounter += sequence.end
+        }
+
+
+        return stringBuilder.toString()
     }
 
     /**
@@ -196,6 +257,10 @@ class SequenceService {
         return residues.toString()
     }
 
+    String getRawResiduesFromSequence(Sequence sequence, int fmin) {
+        return getRawResiduesFromSequence(sequence,fmin,sequence.length)
+    }
+
     String getRawResiduesFromSequence(Sequence sequence, int fmin, int fmax) {
         StringBuilder sequenceString = new StringBuilder()
 
@@ -269,17 +334,17 @@ class SequenceService {
     }
 
     def setResiduesForFeatureFromLocation(Deletion deletion) {
-        FeatureLocation featureLocation = deletion.featureLocation
+        FeatureLocation featureLocation = deletion.firstFeatureLocation
         deletion.alterationResidue = getResidueFromFeatureLocation(featureLocation)
     }
-    
-    
+
+
     def getSequenceForFeature(Feature gbolFeature, String type, int flank = 0) {
         // Method returns the sequence for a single feature
         // Directly called for FASTA Export
         String featureResidues = null
         StandardTranslationTable standardTranslationTable = new StandardTranslationTable()
-        
+
         if (type.equals(FeatureStringEnum.TYPE_PEPTIDE.value)) {
             if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
                 CDS cds = transcriptService.getCDS((Transcript) gbolFeature)
@@ -363,18 +428,18 @@ class SequenceService {
                 if (fmin < 0) {
                     fmin = 0
                 }
-                if (fmin < gbolFeature.getFeatureLocation().sequence.start) {
-                    fmin = gbolFeature.getFeatureLocation().sequence.start
+                if (fmin < gbolFeature.firstSequence.start) {
+                    fmin = gbolFeature.firstSequence.start
                 }
-                if (fmax > gbolFeature.getFeatureLocation().sequence.length) {
-                    fmax = gbolFeature.getFeatureLocation().sequence.length
+                if (fmax > gbolFeature.lastSequence.length) {
+                    fmax = gbolFeature.lastSequence.length
                 }
-                if (fmax > gbolFeature.getFeatureLocation().sequence.end) {
-                    fmax = gbolFeature.getFeatureLocation().sequence.end
+                if (fmax > gbolFeature.lastSequence.end) {
+                    fmax = gbolFeature.lastSequence.end
                 }
 
             }
-            featureResidues = getGenomicResiduesFromSequenceWithAlterations(gbolFeature.featureLocation.sequence,fmin,fmax,Strand.getStrandForValue(gbolFeature.strand))
+            featureResidues = getGenomicResiduesFromSequenceWithAlterations(bookmarkService.generateBookmarkForFeature(gbolFeature),fmin,fmax,Strand.getStrandForValue(gbolFeature.strand))
         }
         return featureResidues
     }
@@ -402,7 +467,7 @@ class SequenceService {
     }
 
     def getSequenceForFeatures(JSONObject inputObject, File outputFile=null) {
-        // Method returns a JSONObject 
+        // Method returns a JSONObject
         // Suitable for 'get sequence' operation from AEC
         log.debug "input at getSequenceForFeature: ${inputObject}"
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -427,7 +492,7 @@ class SequenceService {
             return outFeature
         }
     }
-    
+
     def getGff3ForFeature(JSONObject inputObject, File outputFile) {
         List<Feature> featuresToWrite = new ArrayList<>();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -441,12 +506,42 @@ class SequenceService {
             int fmin = gbolFeature.fmin
             int fmax = gbolFeature.fmax
 
-            Sequence sequence = gbolFeature.featureLocation.sequence
-
             // TODO: does strand and alteration length matter here?
-            List<Feature> listOfSequenceAlterations = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes and fl.fmin >= :fmin and fl.fmax <= :fmax ", [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations,fmin:fmin,fmax:fmax])
-            featuresToWrite += listOfSequenceAlterations
+            gbolFeature.featureLocations.sequence.each { sequence ->
+                List<Feature> listOfSequenceAlterations = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes and fl.fmin >= :fmin and fl.fmax <= :fmax ", [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations,fmin:fmin,fmax:fmax])
+                featuresToWrite += listOfSequenceAlterations
+            }
         }
         gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
+    }
+
+    /**
+     * /opt/apollo/honeybee/data/seq/50e/b7a/08/{"padding":0, "projection":"None", "referenceTrack":"Official Gene Set v3.2", "sequenceList":[{"name":"Group1.1"}], "label":"Group1.1"}:-1..-1-7.txt
+     * @param inputSequence
+     * @return  return from first { to last }
+     */
+    String getSequencePathName(String inputSequence) {
+        return inputSequence.substring(inputSequence.indexOf("{"),inputSequence.lastIndexOf("}")+1)
+    }
+
+    String getSequencePrefixPath(String inputFileName) {
+        return inputFileName.substring(0,inputFileName.indexOf("{"))
+    }
+
+    String getChunkSuffix(String inputFileName) {
+        return inputFileName.substring(inputFileName.lastIndexOf("-"))
+    }
+
+    String calculatePath(String input) {
+        String jbrowseSequencePrefix = "/jbrowse/data/"
+        Integer startIndex = input.indexOf(jbrowseSequencePrefix)
+        if(startIndex>5){
+            Integer length = jbrowseSequencePrefix.length()
+            String returnString = input.substring(startIndex+length)
+            return returnString
+        }
+        else{
+            return input
+        }
     }
 }

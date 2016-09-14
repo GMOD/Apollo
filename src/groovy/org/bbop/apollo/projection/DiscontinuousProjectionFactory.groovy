@@ -2,7 +2,9 @@ package org.bbop.apollo.projection
 
 /**
  * Created by nathandunn on 8/14/15.
+ * Used only for testing
  */
+@Deprecated
 @Singleton
 class DiscontinuousProjectionFactory {
 
@@ -12,12 +14,11 @@ class DiscontinuousProjectionFactory {
      * @param padding
      * @return
      */
-    Projection createProjection(Track inputTrack,Integer padding=0){
+    DiscontinuousProjection createProjection(Track inputTrack,Integer padding=0){
        DiscontinuousProjection projection= new DiscontinuousProjection()
 
         inputTrack.coordinateList.each {
-//            projection.addInterval(Math.max(it.min-padding,0),Math.min(it.max+padding,inputTrack.length))
-            projection.addInterval(it.min-padding,it.max+padding)
+            projection.addInterval(it.min,it.max,padding)
         }
 
         return projection

@@ -21,6 +21,7 @@ class FeatureEventService {
     def transcriptService
     def featureService
     def requestHandlingService
+    def bookmarkService
 
     /**
      *
@@ -487,17 +488,15 @@ class FeatureEventService {
             return
         }
 
+        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(Feature.findByUniqueName(uniqueName))
+        log.debug "bookmark: ${bookmark}"
+
         def newUniqueNames = history[count].collect() {
             it.uniqueName
         }
 
-        Sequence sequence = Feature.findByUniqueNameInList(newUniqueNames).featureLocation.sequence
-        log.debug "sequence: ${sequence}"
 
-
-
-
-        deleteCurrentState(inputObject, newUniqueNames, sequence)
+        deleteCurrentState(inputObject, newUniqueNames, bookmark)
 
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 
@@ -556,13 +555,13 @@ class FeatureEventService {
             JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
             transcriptsToUpdate.each {
                 Transcript transcript = Transcript.findByUniqueName(it)
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false,bookmark))
             }
-            if (sequence) {
+            if (bookmark) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: updateFeatureContainer,
-                        sequence: sequence,
-                        operation: AnnotationEvent.Operation.UPDATE
+                        features: updateFeatureContainer
+                        , bookmark: bookmark
+                        , operation: AnnotationEvent.Operation.UPDATE
                 )
                 requestHandlingService.fireAnnotationEvent(annotationEvent)
             }
@@ -572,14 +571,14 @@ class FeatureEventService {
 
     }
 
-    def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Sequence sequence) {
+    def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Bookmark bookmark) {
         for (uniqueName in newUniqueNames) {
-            deleteCurrentState(inputObject, uniqueName, sequence)
+            deleteCurrentState(inputObject, uniqueName, bookmark)
         }
     }
 
 
-    def deleteCurrentState(JSONObject inputObject, String uniqueName, Sequence sequence) {
+    def deleteCurrentState(JSONObject inputObject, String uniqueName, Bookmark bookmark) {
 
         Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
 
@@ -597,7 +596,7 @@ class FeatureEventService {
             log.debug "deleteCommandObject ${deleteCommandObject as JSON}"
 
             if (!deleteCommandObject.containsKey(FeatureStringEnum.TRACK.value)) {
-                deleteCommandObject.put(FeatureStringEnum.TRACK.value, sequence.name)
+                deleteCommandObject.put(FeatureStringEnum.TRACK.value, bookmark.sequenceList)
             }
             deleteCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY, true)
             log.debug "final deleteCommandObject ${deleteCommandObject as JSON}"
@@ -628,11 +627,6 @@ class FeatureEventService {
         }
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
-//        Set<String> uniqueNames = extractFeatureEventGroup(uniqueName).keySet()
-//        assert uniqueNames.remove(uniqueName)
-//        uniqueNames.each {
-//            currentIndex = Math.max(getCurrentFeatureEventIndex(it), currentIndex)
-//        }
         int count = currentIndex + countForward
         log.info "current Index ${currentIndex}"
         log.info "${count} = ${currentIndex}-${countForward}"

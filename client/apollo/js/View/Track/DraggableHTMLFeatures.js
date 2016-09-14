@@ -12,7 +12,7 @@ define( [
             'jquery',
             'jqueryui/draggable',
             'JBrowse/Util', 
-            'JBrowse/Model/SimpleFeature', 
+            'JBrowse/Model/SimpleFeature',
             'WebApollo/SequenceOntologyUtils'
         ],
     function( declare,
@@ -29,7 +29,8 @@ define( [
         draggable,
         Util, 
         SimpleFeature,
-        SeqOnto ) {
+        SeqOnto
+    ) {
 
 var debugFrame = false;
 
@@ -84,6 +85,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
     },
 
     constructor: function( args ) {
+        //var coordinate = new Coordinate(3,2,)
+        //Coordinate.spitOutSomething;
         this.gview = this.browser.view;
         // get a handle to on the main WA object
         this.browser.getPlugin( 'WebApollo', dojo.hitch( this, function(p) {
@@ -313,8 +316,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var featdiv = this.inherited( arguments );
         if( featdiv )  {  // just in case featDiv doesn't actually get created
 
-        var $featdiv = $(featdiv);
-        $featdiv.bind("mousedown", dojo.hitch( this, 'onFeatureMouseDown') );
+            var $featdiv = $(featdiv);
+            $featdiv.bind("mousedown", dojo.hitch( this, 'onFeatureMouseDown') );
             $featdiv.bind("dblclick",  dojo.hitch( this, 'onFeatureDoubleClick') );
             if (this.feature_context_menu  && (! this.has_custom_context_menu)) {
                 this.feature_context_menu.bindDomNode(featdiv);

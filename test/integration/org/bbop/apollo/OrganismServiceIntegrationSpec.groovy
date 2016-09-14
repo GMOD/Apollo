@@ -3,11 +3,10 @@ package org.bbop.apollo
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-class OrganismServiceIntegrationSpec extends AbstractIntegrationSpec{
+class OrganismServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     def organismService
     def requestHandlingService
-
 
     void "deleteAllFeaturesFromOrganism"() {
 

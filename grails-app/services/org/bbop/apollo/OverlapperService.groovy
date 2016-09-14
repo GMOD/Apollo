@@ -48,8 +48,8 @@ class OverlapperService implements Overlapper{
             CDS cds = transcriptService.getCDS(transcript1);
 
             if (overlaps(cds,transcriptService.getCDS(transcript2)) &&  (overlaps(transcriptService.getCDS(transcript2),cds)))  {
-                List<Exon> exons1 = exonService.getSortedExons(transcript1);
-                List<Exon> exons2 = exonService.getSortedExons(transcript2);
+                List<Exon> exons1 = transcriptService.getSortedExons(transcript1,true);
+                List<Exon> exons2 = transcriptService.getSortedExons(transcript2,true);
                 return cdsOverlap(exons1, exons2, true);
             }
         }
@@ -90,7 +90,7 @@ class OverlapperService implements Overlapper{
             cdsEntity.length = cdsEntityLength;
             cdsEntity.name = cds.name;
             cdsEntity.uniqueName = cds.uniqueName + "-cds-entity"
-            cdsEntity.sequence = cds.featureLocation.sequence
+//            cdsEntity.sequence = cds.featureLocation.sequence
             cdsEntity.strand = cds.strand
             cdsEntities.add(cdsEntity);
         }
@@ -153,7 +153,17 @@ class OverlapperService implements Overlapper{
     
     boolean overlaps(Feature leftFeature, Feature rightFeature, boolean compareStrands = true) {
         //log.debug("overlaps(Feature leftFeature, Feature rightFeature, boolean compareStrands)")
-        return overlaps(leftFeature.featureLocation, rightFeature.featureLocation, compareStrands)
+        // if any feature location of a feature overlaps than return true
+
+        for(FeatureLocation leftFeatureLocation in leftFeature.featureLocations){
+            for(FeatureLocation rightFeatureLocation in rightFeature.featureLocations){
+                if(overlaps(leftFeatureLocation,rightFeatureLocation,compareStrands)){
+                    return true
+                }
+            }
+        }
+
+        return false
     }
 
     boolean overlaps(FeatureLocation leftFeatureLocation, FeatureLocation rightFeatureLocation, boolean compareStrands = true) {

@@ -11,6 +11,7 @@ class DbRealm {
 
     def credentialMatcher
     def shiroPermissionResolver
+    def permissionService
 
     def authenticate(authToken) {
         log.info "Attempting to authenticate ${authToken.username} in DB realm..."
@@ -71,30 +72,32 @@ class DbRealm {
         // First find all the permissions that the user has that match
         // the required permission's type and project code.
         def user = User.findByUsername(principal)
-        def permissions = user.permissions
+//        def permissions = user.permissions
 
         // Try each of the permissions found and see whether any of
         // them confer the required permission.
-        def retval = permissions?.find { permString ->
-            // Create a real permission instance from the database
-            // permission.
-            def perm = shiroPermissionResolver.resolvePermission(permString)
+//        def retval = permissions?.find { permString ->
+//            // Create a real permission instance from the database
+//            // permission.
+//            def perm = shiroPermissionResolver.resolvePermission(permString)
+//
+//            // Now check whether this permission implies the required
+//            // one.
+//            if (perm.implies(requiredPermission)) {
+//                // User has the permission!
+//                return true
+//            }
+//            else {
+//                return false
+//            }
+//        }
+//
+//        if (retval != null) {
+//            // Found a matching permission!
+//            return true
+//        }
 
-            // Now check whether this permission implies the required
-            // one.
-            if (perm.implies(requiredPermission)) {
-                // User has the permission!
-                return true
-            }
-            else {
-                return false
-            }
-        }
-
-        if (retval != null) {
-            // Found a matching permission!
-            return true
-        }
+        boolean retval = true
 
         // If not, does he gain it through a role?
         //

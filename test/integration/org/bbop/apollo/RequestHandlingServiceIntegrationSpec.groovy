@@ -12,11 +12,9 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
     def featureService
     def featureRelationshipService
     def transcriptService
-    def exonService
     def cdsService
     def sequenceService
     def gff3HandlerService
-    def projectionService
 
 
     void "add transcript with UTR"() {
@@ -548,14 +546,14 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         }
 
         when: "we get the sorted exons"
-        List<Exon> sortedExons = exonService.getSortedExons(MRNA.first())
+        List<Exon> sortedExons = transcriptService.getSortedExons(MRNA.first(),true)
 
         then: "there should be 2 and in the right order"
         assert sortedExons.size() == 2
-        assert sortedExons.get(0).featureLocation.fmax < sortedExons.get(1).featureLocation.fmin
+        assert sortedExons.get(0).fmax < sortedExons.get(1).fmin
         String exonToSplitUniqueName = sortedExons.get(1).uniqueName
-        assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
-        assert CDS.first().featureLocation.fmax == MRNA.first().featureLocation.fmax
+        assert CDS.first().fmin == MRNA.first().fmin
+        assert CDS.first().fmax == MRNA.first().fmax
 
 
 
@@ -566,7 +564,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnMRNA = returnFeaturesArray.getJSONObject(0)
         JSONArray returnedChildren = returnMRNA.getJSONArray(FeatureStringEnum.CHILDREN.value)
-        List<Exon> finalSortedExons = exonService.getSortedExons(MRNA.first())
+        List<Exon> finalSortedExons = transcriptService.getSortedExons(MRNA.first(),true)
         Exon lastExon = finalSortedExons.get(2)
 
         then: "we should see that it is removed"
@@ -590,13 +588,13 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
             assert locationObject != null
         }
         assert finalSortedExons.size() == 3
-        assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
-        assert CDS.first().featureLocation.fmax < MRNA.first().featureLocation.fmax
-        assert CDS.first().featureLocation.fmax < MRNA.first().featureLocation.fmax
+        assert CDS.first().fmin == MRNA.first().fmin
+        assert CDS.first().fmax < MRNA.first().fmax
+        assert CDS.first().fmax < MRNA.first().fmax
 
         // the end of the CDS should be on the last exon
-        assert CDS.first().featureLocation.fmax < lastExon.featureLocation.fmax
-        assert CDS.first().featureLocation.fmax > lastExon.featureLocation.fmin
+        assert CDS.first().fmax < lastExon.fmax
+        assert CDS.first().fmax > lastExon.fmin
 
 
     }
@@ -633,14 +631,14 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         }
 
         when: "we get the sorted exons"
-        List<Exon> sortedExons = exonService.getSortedExons(MRNA.first())
+        List<Exon> sortedExons = transcriptService.getSortedExons(MRNA.first(),true)
 
         then: "there should be 2 and in the right order"
         assert sortedExons.size() == 2
-        assert sortedExons.get(0).featureLocation.fmax < sortedExons.get(1).featureLocation.fmin
+        assert sortedExons.get(0).fmax < sortedExons.get(1).fmin
 //        String exonToSplitUniqueName = sortedExons.get(1).uniqueName
-        assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
-        assert CDS.first().featureLocation.fmax == MRNA.first().featureLocation.fmax
+        assert CDS.first().fmin == MRNA.first().fmin
+        assert CDS.first().fmax == MRNA.first().fmax
 
 
 
@@ -771,8 +769,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         then: "this one should be long-gone"
         assert undisturbedMRNA != null
         assert bigMRNA != null
-        assert undisturbedMRNA.featureLocation.fmax > undisturbedMRNA.featureLocation.fmin
-        assert undisturbedMRNA.featureLocation.fmax - undisturbedMRNA.featureLocation.fmin > 0
+        assert undisturbedMRNA.fmax > undisturbedMRNA.fmin
+        assert undisturbedMRNA.fmax - undisturbedMRNA.fmin > 0
         assert 0 == MRNA.countByName("GB40788-RA-00001")
         assert undisturbedMRNA.parentFeatureRelationships.size() == 2 + 1 + 0
         assert bigMRNA.parentFeatureRelationships.size() == 5 + 1 + 2
@@ -1793,7 +1791,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert MRNA.count == 1
         assert Exon.count == 4
         MRNA transcript = MRNA.findByName("GB40843-RA-00001")
-        List<Exon> exonList = exonService.getSortedExons(transcript, true)
+        List<Exon> exonList = transcriptService.getSortedExons(transcript, true)
 
         when: "we add a deletion at position 1094156"
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletionString) as JSONObject)
@@ -1947,7 +1945,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert knownTranscriptCdsSequence == cdsSequence
 
         when: "we export the peptide sequence and CDS sequence from exon 6 of the transcript"
-        def exons = exonService.getSortedExons(mrna, true)
+        def exons = transcriptService.getSortedExons(mrna, true)
         String exon6PeptideSequence = sequenceService.getSequenceForFeature(exons.get(5), FeatureStringEnum.TYPE_PEPTIDE.value)
         String exon6CdsSequence = sequenceService.getSequenceForFeature(exons.get(5), FeatureStringEnum.TYPE_CDS.value)
 
@@ -1981,7 +1979,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert cdsService.getStopCodonReadThrough(cds).size() == 1
 
         when: "we get the CDS and peptide sequence of the exon 2 and exon 3"
-        def exons = transcriptService.getSortedExons(mrna)
+        def exons = transcriptService.getSortedExons(mrna,false)
         String exon2CdsSequence = sequenceService.getSequenceForFeature(exons.get(1), FeatureStringEnum.TYPE_CDS.value)
         String exon3CdsSequence = sequenceService.getSequenceForFeature(exons.get(2), FeatureStringEnum.TYPE_CDS.value)
 
@@ -2011,7 +2009,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         when: "we add the positive transcript"
         requestHandlingService.addTranscript(JSON.parse(postiveStrandedTranscript) as JSONObject)
-        List<Exon> exonList = exonService.getSortedExons(MRNA.first(), true)
+        List<Exon> exonList = transcriptService.getSortedExons(MRNA.first(), true)
         String exonUniqueName = exonList.get(1).uniqueName
         setExonBoundaryCommand = setExonBoundaryCommand.replace("@EXON_UNIQUENAME@",exonUniqueName)
         setUpstreamSpliceAcceptorCommand = setUpstreamSpliceAcceptorCommand.replace("@EXON_UNIQUENAME@",exonUniqueName)
@@ -2083,7 +2081,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert SequenceAlteration.count == 1
         assert Insertion.count == 1
 
-        when: "we add an overalapping negative sequence alteration"
+        when: "we add an overlapping negative sequence alteration"
         requestHandlingService.addSequenceAlteration(JSON.parse(negativeStrandedSequenceInsertion) as JSONObject)
 
         then: "we should only have the insertion exist"
@@ -2114,7 +2112,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert MRNA.count == 1
         String transcript1UniqueName = addTranscript1ReturnObject.uniquename
         CDS initialCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
-        int initialCDSLength = initialCDS.featureLocation.fmax - initialCDS.featureLocation.fmin
+        int initialCDSLength = initialCDS.getLength()
         
         when: "we set translation start for transcript1"
         setTranslationStartForTranscript1 = setTranslationStartForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
@@ -2122,7 +2120,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         
         then: "we should see a difference in CDS length for transcript1"
         CDS alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
-        int alteredCDSLength = alteredCDS.featureLocation.fmax - alteredCDS.featureLocation.fmin
+        int alteredCDSLength = alteredCDS.fmax - alteredCDS.fmin
         assert initialCDSLength != alteredCDSLength
         
         when: "we add transcript2"
@@ -2134,7 +2132,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcript2Name = addTranscript2ReturnObject.name
         String transcript2UniqueName = addTranscript2ReturnObject.uniquename
         CDS initialCDS2 = transcriptService.getCDS(MRNA.findByUniqueName(transcript2UniqueName))
-        int initialCDSLength2 = initialCDS2.featureLocation.fmax - initialCDS2.featureLocation.fmin
+        int initialCDSLength2 = initialCDS2.fmax - initialCDS2.fmin
         
         when: "we set translation start for transcript2"
         setTranslationStartForTranscript2 = setTranslationStartForTranscript2.replace("@UNIQUENAME@", transcript2UniqueName)
@@ -2177,7 +2175,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert MRNA.count == 1
         String transcript1UniqueName = addTranscript1ReturnObject.uniquename
         CDS initialCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
-        int initialCDSLength = initialCDS.featureLocation.fmax - initialCDS.featureLocation.fmin
+        int initialCDSLength = initialCDS.fmax - initialCDS.fmin
         
         when: "we set translation start and end for transcript1"
         setTranslationStartForTranscript1 = setTranslationStartForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
@@ -2187,7 +2185,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         
         then: "we should see a difference in CDS length for transcript 1"
         CDS alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
-        int alteredCDSLength = alteredCDS.featureLocation.fmax - alteredCDS.featureLocation.fmin
+        int alteredCDSLength = alteredCDS.fmax - alteredCDS.fmin
         assert initialCDSLength != alteredCDSLength
         
         when: "we add transcript2"
@@ -2199,7 +2197,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcript2Name = addTranscript2ReturnObject.name
         String transcript2UniqueName = addTranscript2ReturnObject.uniquename
         CDS transcript2InitialCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript2UniqueName))
-        int transcript2InitialCDSLength = transcript2InitialCDS.featureLocation.fmax - transcript2InitialCDS.featureLocation.fmin
+        int transcript2InitialCDSLength = transcript2InitialCDS.fmax - transcript2InitialCDS.fmin
         
         when: "we set translation start and end for transcript2"
         setTranslationStartForTranscript2 = setTranslationStartForTranscript2.replace("@UNIQUENAME@", transcript2UniqueName)
@@ -2247,7 +2245,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcript2UniqueName = addTranscript2ReturnObject.uniquename
         
         when: "we set exon boundary of transcript2"
-        Exon exon = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0]
+        Exon exon = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName),true)[0]
         setExonBoundary1ForTranscript2 = setExonBoundary1ForTranscript2.replace("@UNIQUENAME@", exon.uniqueName)
         JSONObject setExonBoundary1ForTranscript2ReturnObject = requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary1ForTranscript2) as JSONObject).get("features")
         
@@ -2337,13 +2335,13 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcript1UniqueName = addTranscript1ReturnObject.uniquename
         
         when: "we merge exon 1 with exon2 of transcript1"
-        String exon1UniqueName = exonService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName))[0].uniqueName
-        String exon2UniqueName = exonService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName))[1].uniqueName
+        String exon1UniqueName = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName),true)[0].uniqueName
+        String exon2UniqueName = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName),true)[1].uniqueName
         String mergeExonsForTranscript1 = mergeExons.replace("@UNIQUENAME1@", exon1UniqueName).replace("@UNIQUENAME2@", exon2UniqueName)
         JSONObject mergeExonsForTranscript1ReturnObject = requestHandlingService.mergeExons(JSON.parse(mergeExonsForTranscript1) as JSONObject)
         
         then: "we have a transcript that has only 1 exon"
-        assert exonService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName)).size() == 1
+        assert transcriptService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName),true).size() == 1
         
         when: "now we add transcript2"
         JSONObject addTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript) as JSONObject).get("features")
@@ -2360,8 +2358,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert transcript1Gene.uniqueName != transcript2Gene.uniqueName
         
         when: "we merge exon 1 with exon2 of transcript2"
-        exon1UniqueName = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0].uniqueName
-        exon2UniqueName = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[1].uniqueName
+        exon1UniqueName = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName),true)[0].uniqueName
+        exon2UniqueName = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName),true)[1].uniqueName
         String mergeExonsForTranscript2 = mergeExons.replace("@UNIQUENAME1@", exon1UniqueName).replace("@UNIQUENAME2@", exon2UniqueName)
         JSONObject mergeExonsForTranscript2ReturnObject = requestHandlingService.mergeExons(JSON.parse(mergeExonsForTranscript2) as JSONObject).get("features")
         
@@ -2391,7 +2389,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcript2UniqueName = addTranscript2ReturnObject.uniquename
 
         when: "we delete the first exon of transcript2"
-        Exon firstExonOfTranscript2 = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0]
+        Exon firstExonOfTranscript2 = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName),true)[0]
         String deleteExonOfTranscript2 = deleteExon.replace("@UNIQUENAME@", firstExonOfTranscript2.uniqueName)
         JSONObject deleteExonOfTranscript2ReturnObject = requestHandlingService.deleteFeature(JSON.parse(deleteExonOfTranscript2) as JSONObject).get("features")
         
@@ -2518,7 +2516,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         def mrnas = MRNA.all.sort{ a,b -> a.name <=> b.name }
         Transcript transcript1 = mrnas[0]
         Transcript transcript2 = mrnas[1]
-        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2)
+        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2,false)
         String exon1UniqueName = exonList.get(0).uniqueName
         String exon2UniqueName = exonList.get(1).uniqueName
 
@@ -2566,7 +2564,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we split the transcript"
         Transcript transcript1 = MRNA.all[0]
         Transcript transcript2 = MRNA.all[1]
-        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2)
+        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2,false)
         String exon1UniqueName = exonList.get(0).uniqueName
         String exon2UniqueName = exonList.get(1).uniqueName
 
@@ -2627,7 +2625,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we split the transcript"
         Transcript transcript1 = MRNA.all[0]
         Transcript transcript2 = MRNA.all[1]
-        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2)
+        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2,false)
         String exon1UniqueName = exonList.get(0).uniqueName
         String exon2UniqueName = exonList.get(1).uniqueName
 
@@ -3325,4 +3323,5 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert mrna.featureDBXrefs.size() == 2
         assert mrna.featureProperties.size() == 4
     }
+
 }

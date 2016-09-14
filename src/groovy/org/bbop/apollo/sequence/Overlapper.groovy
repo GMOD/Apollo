@@ -4,7 +4,7 @@ import org.bbop.apollo.Gene
 import org.bbop.apollo.Transcript
 
 /**
- * Created by ndunn on 10/29/14.
+ * Created by Nathan Dunn on 10/29/14.
  */
 interface Overlapper {
     public boolean overlaps(Transcript transcript, Gene gene);

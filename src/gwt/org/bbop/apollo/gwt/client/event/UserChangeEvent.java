@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by ndunn on 1/19/15.
+ * Created by Nathan Dunn on 1/19/15.
  */
 public class UserChangeEvent extends GwtEvent<UserChangeEventHandler>{
 

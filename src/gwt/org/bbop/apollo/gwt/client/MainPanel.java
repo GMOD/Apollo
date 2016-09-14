@@ -6,7 +6,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -19,19 +18,21 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.*;
+import org.bbop.apollo.gwt.client.dto.bookmark.*;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
+import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.shared.ColorGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Anchor;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.SuggestBox;
 import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -57,9 +58,9 @@ public class MainPanel extends Composite {
     static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
-    private static SequenceInfo currentSequence;
-    private static Integer currentStartBp; // start base pair
-    private static Integer currentEndBp; // end base pair
+    private static BookmarkInfo currentBookmark;
+    private static Long currentStartBp; // list of organisms for user
+    private static Long currentEndBp; // list of organisms for user
     private static Map<String,List<String>> currentQueryParams ; // list of organisms for user
     public static boolean useNativeTracklist; // list native tracks
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
@@ -77,7 +78,7 @@ public class MainPanel extends Composite {
 
     @UiField
     Button dockOpenClose;
-    @UiField(provided = false)
+    @UiField
     static NamedFrame frame;
     @UiField
     static AnnotatorPanel annotatorPanel;
@@ -85,6 +86,8 @@ public class MainPanel extends Composite {
     static TrackPanel trackPanel;
     @UiField
     static SequencePanel sequencePanel;
+    @UiField
+    static BookmarkPanel bookmarkPanel;
     @UiField
     static OrganismPanel organismPanel;
     @UiField
@@ -110,7 +113,7 @@ public class MainPanel extends Composite {
     @UiField
     ListBox organismListBox;
     @UiField(provided = true)
-    static SuggestBox sequenceSuggestBox;
+    static HTML currentSequenceLabel;
     @UiField
     Modal notificationModal;
     @UiField
@@ -149,7 +152,8 @@ public class MainPanel extends Composite {
 
     MainPanel() {
         instance = this;
-        sequenceSuggestBox = new SuggestBox(new ReferenceSequenceOracle());
+        currentSequenceLabel = new HTML();
+        currentSequenceLabel.setHTML("<H3>Loading...</H3>");
 
         mainSplitPanel = new SplitLayoutPanel() {
             @Override
@@ -169,24 +173,24 @@ public class MainPanel extends Composite {
                 switch (annotationInfoChangeEvent.getAction()) {
                     case SET_FOCUS:
                         AnnotationInfo annotationInfo = annotationInfoChangeEvent.getAnnotationInfo();
-                        int start = annotationInfo.getMin();
-                        int end = annotationInfo.getMax();
-                        int newLength = end - start;
+                        long start = annotationInfo.getMin();
+                        long end = annotationInfo.getMax();
+                        long newLength = end - start;
                         start -= newLength * GENE_VIEW_BUFFER;
                         end += newLength * GENE_VIEW_BUFFER;
                         start = start < 0 ? 0 : start;
-                        updateGenomicViewerForLocation(annotationInfo.getSequence(), start, end);
+                        updateGenomicViewerForBookmark(annotationInfo.getSequence(), start, end);
                         break;
                 }
             }
         });
 
-        sequenceSuggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
-            @Override
-            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
-                setCurrentSequence(sequenceSuggestBox.getText().trim(), null, null, true, false);
-            }
-        });
+//        currentSequenceLabel.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+//            @Override
+//            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
+//                setCurrentSequence(currentSequenceLabel.getText().trim(), null, null, true, false);
+//            }
+//        });
 
 
         try {
@@ -235,11 +239,11 @@ public class MainPanel extends Composite {
         loginUser();
     }
 
-    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
-        setCurrentSequence(sequenceNameString, start, end, false, false);
-    }
+//    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
+//        setCurrentSequence(sequenceNameString, start, end, false, false);
+//    }
 
-    private static void sendCurrentSequenceLocation(String sequenceNameString, final Integer start, final Integer end) {
+    private static void sendCurrentSequenceLocation(String sequenceNameString, final Long start, final Long end) {
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -261,7 +265,28 @@ public class MainPanel extends Composite {
 
     }
 
-    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end, final boolean updateViewer, final boolean blocking) {
+    private static void setLabelForCurrentBookmark() {
+//        currentSequenceLabel.setText(currentBookmark.getName());
+        String labelHtml = "";
+        BookmarkSequenceList bookmarkSequenceList = currentBookmark.getSequenceList();
+        for (int i = 0; i < bookmarkSequenceList.size(); ++i) {
+            BookmarkSequence bookmarkSequence = bookmarkSequenceList.getSequence(i);
+            labelHtml += "<div class=\"individual-label\" style=\"background-color: " + ColorGenerator.getColorForIndex(i) + ";\">";
+            SequenceFeatureInfo sequenceFeatureInfo = bookmarkSequence.getFeature();
+            if (sequenceFeatureInfo != null) {
+                labelHtml += sequenceFeatureInfo.getName();
+                labelHtml += " (";
+            }
+            labelHtml += bookmarkSequence.getName();
+            if (sequenceFeatureInfo != null) {
+                labelHtml += ")";
+            }
+            labelHtml += "</div>";
+        }
+        currentSequenceLabel.setHTML(labelHtml);
+    }
+
+    private static void setCurrentSequence(String sequenceNameString, final Long start, final Long end, final boolean updateViewer, final boolean blocking) {
 
         final LoadingDialog loadingDialog = new LoadingDialog(false);
         if (blocking) {
@@ -273,13 +298,13 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 handlingNavEvent = false;
                 JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
-                currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
+                currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(sequenceInfoJson);
                 currentStartBp = start != null ? start : 0;
-                currentEndBp = end != null ? end : currentSequence.getEnd();
-                sequenceSuggestBox.setText(currentSequence.getName());
+                currentEndBp = end != null ? end : currentBookmark.getEnd().intValue();
+                setLabelForCurrentBookmark();
 
 
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName()));
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentBookmark.getName()));
 
                 if (updateViewer) {
                     updateGenomicViewer();
@@ -417,19 +442,50 @@ public class MainPanel extends Composite {
                 displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
     }
 
-    public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
-        updateGenomicViewerForLocation(selectedSequence, minRegion, maxRegion, false);
+    public static void updateGenomicViewerForBookmark(String selectedSequence, Long minRegion, Long maxRegion) {
+        updateGenomicViewerForBookmark(selectedSequence, minRegion, maxRegion, false);
     }
 
     /**
-     * @param selectedSequence
+     * TODO: remove?
+     * <p/>
+     * Need to preserver the order
+     *
+     * @param bookmarkInfo
+     */
+    public static void updateGenomicViewerForBookmark(BookmarkInfo bookmarkInfo) {
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
+                currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(returnValue);
+                updateGenomicViewer(true);
+
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Problem viewing bookmarks: " + exception);
+            }
+        };
+
+        BookmarkRestService.getBookmarks(requestCallback, bookmarkInfo);
+
+//        List<UserBookmark> bookmarks = UserBookmark.findById(bookmarkList);
+        // create an orderd list of features / sequences
+
+    }
+
+    /**
+     * @param bookmarkInfo
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion, boolean forceReload) {
+    public static void updateGenomicViewerForBookmark(BookmarkInfo bookmarkInfo, Long minRegion, Long maxRegion, Boolean forceReload) {
 
-        if (!forceReload && currentSequence != null && currentSequence.getName().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
-            int oldLength = maxRegion - minRegion;
+        if (!forceReload && currentBookmark != null && currentBookmark.getName().equals(bookmarkInfo.getName()) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
+            long oldLength = maxRegion - minRegion;
             double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
             double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) oldLength;
             if (diff1 < UPDATE_DIFFERENCE_BUFFER && diff2 < UPDATE_DIFFERENCE_BUFFER) {
@@ -441,10 +497,12 @@ public class MainPanel extends Composite {
         currentEndBp = maxRegion;
 
 
-        String trackListString = Annotator.getRootUrl() ;
-        trackListString +=  Annotator.getClientToken() +"/";
-        trackListString += "jbrowse/index.html?loc=";
-        trackListString += selectedSequence;
+        String trackListString = Annotator.getRootUrl() + Annotator.getClientToken() + "/jbrowse/index.html?loc=";
+        currentBookmark = bookmarkInfo;
+//            currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
+        minRegion = currentBookmark.getStart() != null ? currentBookmark.getStart() : -1;
+        maxRegion = currentBookmark.getEnd() != null ? currentBookmark.getEnd() : -1;
+        trackListString += URL.encodeQueryString(BookmarkInfoConverter.convertBookmarkInfoToJSONObject(currentBookmark).toString());
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
 
         trackListString += getCurrentQueryParamsAsString();
@@ -476,6 +534,29 @@ public class MainPanel extends Composite {
     }
 
 
+    /**
+     * @param selectedSequence
+     * @param minRegion
+     * @param maxRegion
+     */
+    public static void updateGenomicViewerForBookmark(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload) {
+
+        BookmarkInfo bookmarkInfo ;
+        if (selectedSequence.startsWith("{")) {
+            GWT.log("calling string instead of bookmark for selected sequence");
+            bookmarkInfo = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
+        } else {
+            bookmarkInfo = new BookmarkInfo();
+            BookmarkSequenceList bookmarkSequenceList = new BookmarkSequenceList();
+            BookmarkSequence bookmarkSequence = new BookmarkSequence();
+            bookmarkSequence.setName(selectedSequence);
+            bookmarkSequenceList.addSequence(bookmarkSequence);
+            bookmarkInfo.setSequenceList(bookmarkSequenceList);
+        }
+        updateGenomicViewerForBookmark(bookmarkInfo,minRegion,maxRegion,forceReload);
+    }
+
+
     private static String getCurrentQueryParamsAsString() {
         String returnString = "";
         if(currentQueryParams==null){
@@ -492,11 +573,12 @@ public class MainPanel extends Composite {
         return returnString;
     }
 
+
     public static void updateGenomicViewer(boolean forceReload) {
         if (currentStartBp != null && currentEndBp != null) {
-            updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp, forceReload);
+            updateGenomicViewerForBookmark(currentBookmark, currentStartBp, currentEndBp, forceReload);
         } else {
-            updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStart(), currentSequence.getEnd(), forceReload);
+            updateGenomicViewerForBookmark(currentBookmark, currentBookmark.getStart(), currentBookmark.getEnd(), forceReload);
         }
     }
 
@@ -506,13 +588,14 @@ public class MainPanel extends Composite {
 
     public void setAppState(AppStateInfo appStateInfo) {
         organismInfoList = appStateInfo.getOrganismList();
-        currentSequence = appStateInfo.getCurrentSequence();
+        currentBookmark = appStateInfo.getCurrentBookmark();
         currentOrganism = appStateInfo.getCurrentOrganism();
         currentStartBp = appStateInfo.getCurrentStartBp();
         currentEndBp = appStateInfo.getCurrentEndBp();
 
-        if (currentSequence != null) {
-            sequenceSuggestBox.setText(currentSequence.getName());
+        if (currentBookmark != null) {
+            setLabelForCurrentBookmark();
+//            currentSequenceLabel.setText(currentBookmark.getName());
         }
 
 
@@ -670,15 +753,18 @@ public class MainPanel extends Composite {
                 sequencePanel.reload();
                 break;
             case 3:
-                organismPanel.reload();
+                bookmarkPanel.reload();
                 break;
             case 4:
-                userPanel.reload();
+                organismPanel.reload();
                 break;
             case 5:
-                userGroupPanel.reload();
+                userPanel.reload();
                 break;
             case 6:
+                userGroupPanel.reload();
+                break;
+            case 7:
                 preferencePanel.reload();
                 break;
             default:
@@ -719,7 +805,6 @@ public class MainPanel extends Composite {
         Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
     }
 
-
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
         annotrackFunctionMap.put(name, javaScriptObject);
     }
@@ -748,9 +833,9 @@ public class MainPanel extends Composite {
         url2 += currentOrganism.getId()+"/";
         url2 += "jbrowse/index.html";
         if (currentStartBp != null) {
-            url2 += "?loc=" + currentSequence.getName() + ":" + currentStartBp + ".." + currentEndBp;
+            url2 += "?loc=" + currentBookmark.getName() + ":" + currentStartBp + ".." + currentEndBp;
         } else {
-            url2 += "?loc=" + currentSequence.getName() + ":" + currentSequence.getStart() + ".." + currentSequence.getEnd();
+            url2 += "?loc=" + currentBookmark.getName() + ":" + currentBookmark.getStart() + ".." + currentBookmark.getEnd();
         }
 //        url2 += "&organism=" + currentOrganism.getId();
         url2 += "&tracks=";
@@ -769,9 +854,9 @@ public class MainPanel extends Composite {
         String url = Annotator.getRootUrl();
         url += "annotator/loadLink";
         if (currentStartBp != null) {
-            url += "?loc=" + currentSequence.getName() + ":" + currentStartBp + ".." + currentEndBp;
+            url += "?loc=" + currentBookmark.getSequenceList() + ":" + currentStartBp + ".." + currentEndBp;
         } else {
-            url += "?loc=" + currentSequence.getName() + ":" + currentSequence.getStart() + ".." + currentSequence.getEnd();
+            url += "?loc=" + currentBookmark.getName() + ":" + currentBookmark.getStart() + ".." + currentBookmark.getEnd();
         }
         url += "&organism=" + currentOrganism.getId();
         url += "&tracks=";
@@ -848,12 +933,13 @@ public class MainPanel extends Composite {
         handlingNavEvent = true;
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
 
-        final Integer start = (int) navEvent.get("start").isNumber().doubleValue();
-        final Integer end = (int) navEvent.get("end").isNumber().doubleValue();
+        final Long start = (long) navEvent.get("start").isNumber().doubleValue();
+        final Long end = (long) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
 
-        if (!sequenceNameString.equals(currentSequence.getName())) {
-            setCurrentSequence(sequenceNameString, start, end, false, true);
+        if (!sequenceNameString.equals(currentBookmark.getName())) {
+//            setCurrentSequence(sequenceNameString, start, end, false, true);
+            setCurrentSequence(sequenceNameString, start, end, false, false);
             Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
                 @Override
                 public boolean execute() {
@@ -907,11 +993,11 @@ public class MainPanel extends Composite {
     }
 
 
-    public static String getCurrentSequenceAsJson() {
-        if (currentSequence == null) {
+    public static String getCurrentBookmarkAsJson() {
+        if (currentBookmark == null) {
             return "{}";
         }
-        return currentSequence.toJSON().toString();
+        return BookmarkInfoConverter.convertBookmarkInfoToJSONObject(currentBookmark).toString();
     }
 
     public static boolean hasCurrentUser() {
@@ -945,12 +1031,7 @@ public class MainPanel extends Composite {
         $wnd.handleFeatureUpdated = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureUpdated(Ljava/lang/String;));
         $wnd.getCurrentOrganism = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentOrganismAsJson());
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
-        $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
-        $wnd.getEmbeddedVersion = $entry(
-            function apolloEmbeddedVersion() {
-                return 'ApolloGwt-2.0';
-            }
-        );
+        $wnd.getCurrentBookmark = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentBookmarkAsJson());
     }-*/;
 
     private enum TabPanelIndex {
@@ -998,5 +1079,20 @@ public class MainPanel extends Composite {
         this.organismInfoList = organismInfoList;
     }
 
+    public void addBookmark(RequestCallback requestCallback, BookmarkInfo bookmarkInfo) {
+        bookmarkPanel.addBookmark(requestCallback, bookmarkInfo);
+    }
 
+    public BookmarkInfo getCurrentBookmark() {
+        return currentBookmark;
+    }
+
+    public void setCurrentBookmark(BookmarkInfo bookmark) {
+        currentBookmark = bookmark;
+    }
+
+    public void setCurrentBookmarkAndView(BookmarkInfo bookmarkInfo) {
+        setCurrentBookmark(bookmarkInfo);
+        updateGenomicViewerForBookmark(bookmarkInfo);
+    }
 }

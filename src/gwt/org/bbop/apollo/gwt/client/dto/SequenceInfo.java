@@ -6,7 +6,8 @@ import com.google.gwt.json.client.JSONString;
 import org.bbop.apollo.gwt.client.comparators.AlphanumericSorter;
 
 /**
- * Created by ndunn on 12/18/14.
+ * Created by Nathan Dunn on 12/18/14.
+ * TODO: add OrganismInfo
  */
 public class SequenceInfo implements Comparable<SequenceInfo>,HasJSON{
 
@@ -14,9 +15,9 @@ public class SequenceInfo implements Comparable<SequenceInfo>,HasJSON{
 
     private Long id ;
     private String name ;
-    private Integer length ;
-    private Integer start ;
-    private Integer end ;
+    private Long length ;
+    private Long start ;
+    private Long end ;
     private Integer count ;
     private Boolean selected = false ;
     private Boolean aDefault = false ;
@@ -36,14 +37,14 @@ public class SequenceInfo implements Comparable<SequenceInfo>,HasJSON{
         this.name = name;
     }
 
-    public Integer getLength() {
+    public Long getLength() {
         if(end!=null && start!=null){
             return end-start;
         }
         if(length!=null){
             return length ;
         }
-        return -1 ;
+        return -1L ;
     }
 
     public Long getId() {
@@ -70,24 +71,24 @@ public class SequenceInfo implements Comparable<SequenceInfo>,HasJSON{
         this.selected = selected;
     }
 
-    public Integer getStart() {
+    public void setLength(Long length) {
+        this.length = length;
+    }
+
+    public Long getStart() {
         return start;
     }
 
-    public void setStart(Integer start) {
+    public void setStart(Long start) {
         this.start = start;
     }
 
-    public Integer getEnd() {
+    public Long getEnd() {
         return end;
     }
 
-    public void setEnd(Integer end) {
+    public void setEnd(Long end) {
         this.end = end;
-    }
-
-    public void setLength(Integer length) {
-        this.length = length;
     }
 
     @Override

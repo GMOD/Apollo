@@ -178,6 +178,8 @@ log4j.main = {
     //debug 'grails.app.services.org.bbop.apollo.FeatureService'
     info 'grails.app.controllers.org.bbop.apollo.GroupController'
     info 'grails.app.controllers.org.bbop.apollo.UserController'
+//    debug 'grails.app.services.org.bbop.apollo.FeatureService'
+//    debug 'grails.app.services.org.bbop.apollo.ProjectionService'
     //info 'grails.app.services'
     //debug 'grails.app.jobs'
     //debug 'grails.app.taglib'
@@ -375,11 +377,16 @@ auditLog {
 
 
 
-// Default JBrowse configuration 
+// Default JBrowse configuration
 jbrowse {
     git {
-        url= "https://github.com/gmod/jbrowse"
-		tag = "1.12.2-apollo"
+        url= "https://github.com/nathandunn/jbrowse"
+//        tag = "1.12.2-apollo"
+		branch = "projection_v2_server"
+        alwaysPull = true
+        alwaysRecheck = true
+//        url= "https://github.com/gmod/jbrowse"
+//        tag = "1.12.2-apollo"
 //        branch = "master"
         alwaysPull = false
         alwaysRecheck = false

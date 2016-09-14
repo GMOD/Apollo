@@ -45,7 +45,13 @@ class FeatureLocation {
         if (getClass() != other.class) return false
         FeatureLocation castOther = (FeatureLocation) other;
 
-        return ((this.getFeature() == castOther.getFeature()) || (this.getFeature() != null && castOther.getFeature() != null && this.getFeature().equals(castOther.getFeature()))) && (this.getLocgroup() == castOther.getLocgroup()) && (this.getRank() == castOther.getRank());
+//        return ((this.getFeature() == castOther.getFeature()) || (this.getFeature() != null && castOther.getFeature() != null && this.getFeature().equals(castOther.getFeature()))) && (this.getLocgroup() == castOther.getLocgroup()) && (this.getRank() == castOther.getRank());
+//        return
+//        ( (this.getFeature() == castOther.getFeature()) || (this.getFeature() != null && castOther.getFeature() != null && this.getFeature().equals(castOther.getFeature())))
+//        &&
+//        return (this.sequence == castOther.sequence) && (this.getRank() == castOther.getRank()) && this.getLocgroup() == castOther.getLocgroup()) ;
+        return  (this.getRank() == castOther.getRank())
+//        && this.getLocgroup() == castOther.getLocgroup() ;
     }
 
     public int hashCode() {
@@ -57,6 +63,10 @@ class FeatureLocation {
         result = 37 * result + this.getRank();
 
         return result;
+    }
+
+    public int getRank(){
+        rank ?: 0
     }
 
     /**

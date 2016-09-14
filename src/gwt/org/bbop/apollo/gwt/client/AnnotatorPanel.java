@@ -5,6 +5,7 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.builder.shared.DivBuilder;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
@@ -13,6 +14,7 @@ import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -33,15 +35,19 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.*;
+import org.bbop.apollo.gwt.client.dto.bookmark.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -50,7 +56,7 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import java.util.*;
 
 /**
- * Created by ndunn on 12/17/14.
+ * Created by Nathan Dunn on 12/17/14.
  */
 public class AnnotatorPanel extends Composite {
 
@@ -59,9 +65,6 @@ public class AnnotatorPanel extends Composite {
 
     private static AnnotatorPanelUiBinder ourUiBinder = GWT.create(AnnotatorPanelUiBinder.class);
     // Tue Jan 05 09:51:38 GMT-800 2016
-//    DateTimeFormat inputFormat = DateTimeFormat.getFormat("EEE dd MM YYYY");
-//    DateTimeFormat inputFormat = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_FULL);
-//    DateTimeFormat outputFormat = DateTimeFormat.getFormat("dd MMM yyyy");
     DateTimeFormat outputFormat = DateTimeFormat.getFormat("MMM dd, yyyy");
     private Column<AnnotationInfo, String> nameColumn;
     private TextColumn<AnnotationInfo> typeColumn;
@@ -71,8 +74,10 @@ public class AnnotatorPanel extends Composite {
     long requestIndex = 0;
 
     @UiField
+    static
     TextBox nameSearchBox;
     @UiField(provided = true)
+    static
     org.gwtbootstrap3.client.ui.SuggestBox sequenceList;
 
     static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
@@ -100,10 +105,19 @@ public class AnnotatorPanel extends Composite {
     DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
+    @UiField
+    static Button addNewBookmark;
+    @UiField
+    static Button addToView;
+    @UiField
+    static Button viewAnnotation;
+    @UiField
+    Button showAllSequences;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private static AsyncDataProvider<AnnotationInfo> dataProvider;
+    private static AnnotationInfo currentAnnotationInfo = null;
     private final Set<String> showingTranscripts = new HashSet<String>();
 
     public AnnotatorPanel() {
@@ -190,6 +204,7 @@ public class AnnotatorPanel extends Composite {
                             returnValue = JSONParser.parseStrict(response.getText());
                         } catch (Exception e) {
                             Bootbox.alert(e.getMessage());
+                            return ;
                         }
                         JSONValue localRequestObject = returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue());
                         if (localRequestObject != null) {
@@ -320,6 +335,90 @@ public class AnnotatorPanel extends Composite {
 
     }
 
+    @UiHandler("addToView")
+    void addToView(ClickEvent clickEvent) {
+        BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
+        BookmarkInfo currentBookmark = MainPanel.getInstance().getCurrentBookmark();
+        currentBookmark = currentBookmark.addBookmarkToEnd(bookmarkInfo);
+        BookmarkRestService.addBoorkmarkAndView(currentBookmark);
+    }
+
+    @UiHandler("viewAnnotation")
+    void viewAnnotation(ClickEvent clickEvent) {
+        BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
+        expandBookmark(bookmarkInfo,2d);
+        BookmarkRestService.addBoorkmarkAndView(bookmarkInfo);
+    }
+
+    static BookmarkInfo collectBookmarkFromSelectedFeature(AnnotationInfo annotationInfo){
+
+        BookmarkInfo bookmarkInfo = new BookmarkInfo();
+        BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
+
+        bookmarkInfo.setPadding(50);
+        bookmarkInfo.setType("Exon");
+
+        SequenceFeatureInfo sequenceObject = new SequenceFeatureInfo();
+//        sequenceObject.setReverseComplement(false);
+        sequenceObject.setName(annotationInfo.getSequence());
+        sequenceObject.setStart(annotationInfo.getMin());
+        sequenceObject.setEnd(annotationInfo.getMax());
+
+        SequenceFeatureInfo featuresObject = new SequenceFeatureInfo() ;
+        featuresObject.setName(annotationInfo.getName());
+
+        sequenceObject.setFeature(featuresObject);
+        sequenceArray.set(sequenceArray.size(), sequenceObject);
+
+        bookmarkInfo.setSequenceList(sequenceArray);
+        bookmarkInfo.setStart(annotationInfo.getMin());
+        bookmarkInfo.setEnd(annotationInfo.getMax());
+
+        return bookmarkInfo;
+    }
+
+    void expandBookmark(BookmarkInfo bookmarkInfo,Double expansionFactor){
+        BookmarkSequenceList bookmarkSequenceList = bookmarkInfo.getSequenceList();
+        BookmarkSequence bookmarkSequence = bookmarkSequenceList.getSequence(0);
+        Long start = bookmarkSequence.getStart();
+        Long end = bookmarkSequence.getEnd();
+//        Long width = end - start ;
+        // we must now double the size
+//        Double desiredWidth = width * expansionFactor ;
+//        Long desiredStart = start - (long) (desiredWidth / 2.0) ;
+//        Long desiredEnd = end + (long) (desiredWidth / 2.0) ;
+        Long buffer = 200L ;
+        Long desiredStart = start - (long) (buffer ) ;
+        Long desiredEnd = end + (long) (buffer) ;
+        start = desiredStart < 0 ? 0 : desiredStart ;
+        end = desiredEnd ;  // can we maximize this?
+        bookmarkSequence.setStart(start);
+        bookmarkSequence.setEnd(end);
+        bookmarkSequenceList.set(0,bookmarkSequence);
+        bookmarkInfo.setSequenceList(bookmarkSequenceList);
+    }
+
+    @UiHandler("addNewBookmark")
+    void addNewBookmark(ClickEvent clickEvent) {
+        BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
+        expandBookmark(bookmarkInfo,2d);
+
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                new InfoDialog("Added Bookmark", "Added bookmark for " + currentAnnotationInfo.getName(), true);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error adding bookmark: "+exception);
+            }
+        };
+
+        MainPanel.getInstance().addBookmark(requestCallback,bookmarkInfo);
+    }
+
 
     private void initializeUsers() {
         userField.clear();
@@ -357,6 +456,14 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
+        currentAnnotationInfo = annotationInfo;
+        addNewBookmark.setEnabled(currentAnnotationInfo != null);
+        viewAnnotation.setEnabled(currentAnnotationInfo != null);
+        addToView.setEnabled(currentAnnotationInfo != null);
+        if (currentAnnotationInfo == null) {
+            return;
+        }
+
         String type = annotationInfo.getType();
         GWT.log("annotation type: " + type);
         geneDetailPanel.setVisible(false);
@@ -368,6 +475,7 @@ public class AnnotatorPanel extends Composite {
                 geneDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.selectTab(0);
+                break;
             case "Transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
@@ -466,7 +574,7 @@ public class AnnotatorPanel extends Composite {
 
         lengthColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
-            public Integer getValue(AnnotationInfo annotationInfo) {
+            public Long getValue(AnnotationInfo annotationInfo) {
                 return annotationInfo.getLength();
             }
         };
@@ -501,8 +609,9 @@ public class AnnotatorPanel extends Composite {
         return internalData.get("type").isObject().get("name").isString().stringValue();
     }
 
-    public void reload() {
-        pager.setPageStart(0);
+    public static void reload() {
+        updateAnnotationInfo(null);
+//        pager.setPageStart(0);
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 
@@ -517,24 +626,43 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
+    @UiHandler("showAllSequences")
+    public void setShowAllSequences(ClickEvent clickEvent){
+        sequenceList.setText("");
+        reload();
+    }
+    public static void showInAnnotatorPanel(String featureName,String scaffold){
+        Window.alert(featureName + " " + scaffold);
+
+        sequenceList.setText(scaffold);
+        nameSearchBox.setText(featureName);
+        reload();
+    }
 
     // TODO: need to cache these or retrieve from the backend
-    public static void displayTranscript(int geneIndex, String uniqueName) {
-        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
-        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
+    public static void displayTranscript(String geneIndex, String uniqueName,String displayString) {
+        int geneInt = Integer.parseInt(geneIndex);
+        boolean display = Boolean.parseBoolean(displayString);
+        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneInt));
+//        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
 
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
             if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
                 exonDetailPanel.updateData(childAnnotation);
                 updateAnnotationInfo(childAnnotation);
-                Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
+//                if(display){
+//                    BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
+//                    BookmarkRestService.addBoorkmarkAndView(bookmarkInfo);
+//                    Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
+//                }
                 return;
             }
         }
     }
 
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
-        $wnd.displayTranscript = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;));
+        $wnd.displayTranscript = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
+        $wnd.showInAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::showInAnnotatorPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
     private class CustomTableBuilder extends AbstractCellTableBuilder<AnnotationInfo> {
@@ -568,9 +696,10 @@ public class AnnotatorPanel extends Composite {
             if (showTranscripts) {
                 // TODO: this is ugly, but it works
                 // a custom cell rendering might work as well, but not sure
-
+                String viewString = "<a href='' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "',true);\"><i class='fa fa-eye'></i></a>";
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
-                HTML html = new HTML("<a style='" + transcriptStyle + "' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
+                String linkString = "<a style='" + transcriptStyle + "' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "',false);\">" + rowValue.getName() + "</a>";
+                HTML html = new HTML(linkString);
                 SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
                 td.html(htmlString);
             } else {

@@ -9,6 +9,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     def featureService
+    def bookmarkService
     def transcriptService
     def requestHandlingService
     def featureRelationshipService
@@ -21,6 +22,7 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         when: "we parse it"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(Sequence.first())
 
         then: "is is a valid object"
         assert jsonObject != null
@@ -31,7 +33,7 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert childArray.size() == 7
 
         when: "we convert it to a feature"
-        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject, Sequence.first())
+        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject,bookmark)
 
         then: "it should convert it to the same feature"
         assert feature != null
@@ -106,7 +108,8 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we delete the gene and transcript and try to add the feature via the JSONObject"
         featureRelationshipService.deleteFeatureAndChildren(gene)
         Sequence sequence = Sequence.all.get(0)
-        featureService.convertJSONToFeature(geneFeatureJsonObject, sequence)
+        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+        featureService.convertJSONToFeature(geneFeatureJsonObject, bookmark)
 
         then: "convertJSONToFeature() should interpret the JSONObject properly and we should see all the properties that we added above"
         assert Gene.count == 1
@@ -184,11 +187,11 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         Transcript transcript = transcriptService.getTranscripts(gene).iterator().next()
         def exonList = transcriptService.getExons(transcript)
 
-        assert gene.featureLocation.strand == Strand.POSITIVE.value
-        assert transcript.featureLocation.strand == Strand.POSITIVE.value
+        assert gene.isPositiveStrand()
+        assert transcript.isPositiveStrand()
 
         exonList.each {
-            it.featureLocation.strand == Strand.POSITIVE.value
+            it.isPositiveStrand()
         }
     }
 }

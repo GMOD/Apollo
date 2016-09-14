@@ -31,6 +31,7 @@ define([
            'WebApollo/FeatureSelectionManager',
            'WebApollo/TrackConfigTransformer',
            'WebApollo/View/Track/AnnotTrack',
+           'WebApollo/View/Track/LegendTrack',
            'WebApollo/View/TrackList/Hierarchical',
            'WebApollo/View/TrackList/Faceted',
            'WebApollo/InformationEditor',
@@ -39,7 +40,8 @@ define([
            'JBrowse/CodonTable',
            'dojo/io-query',
            'jquery/jquery',
-           'lazyload/lazyload'
+           'lazyload/lazyload',
+            'JBrowse/Util'
        ],
     function( declare,
             lang,
@@ -62,6 +64,7 @@ define([
             FeatureSelectionManager,
             TrackConfigTransformer,
             AnnotTrack,
+            LegendTrack,
             Hierarchical,
             Faceted,
             InformationEditor,
@@ -70,7 +73,9 @@ define([
             CodonTable,
             ioQuery,
             $,
-            LazyLoad ) {
+            LazyLoad,
+            Util
+    ) {
 
 return declare( [JBPlugin, HelpMixin],
 {
@@ -79,6 +84,7 @@ return declare( [JBPlugin, HelpMixin],
         console.log("loaded WebApollo plugin");
         var thisB = this;
         this.searchMenuInitialized = false;
+        this.replaceSearchBox = false;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
         [
           'plugins/WebApollo/jslib/bbop/bbop.js',
@@ -144,7 +150,7 @@ return declare( [JBPlugin, HelpMixin],
                 "title": "Apollo Help",
                 "content": this.defaultHelp()
             }
-        };
+        }
 
         // register the WebApollo track types with the browser, so
         // that the open-file dialog and other things will have them
@@ -193,6 +199,8 @@ return declare( [JBPlugin, HelpMixin],
         if(browser.config.show_nav&&browser.config.show_menu) {
             this.createMenus();
         }
+
+        this.replaceSearchBoxes();
 
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
@@ -702,8 +710,83 @@ return declare( [JBPlugin, HelpMixin],
                 })
         );
         this.updateLabels();
-    }
+    },
 
+    replaceSearchBoxes: function () {
+        var thisB = this ;
+        var currentBookmark ;
+        // integrate ApolloLabelProc fix
+        // this traps the event that happens directly after onCoarseMove function, where the label gets updates.
+        dojo.subscribe("/jbrowse/v1/n/navigate", function(currRegion){
+            var locationStr = Util.assembleLocStringWithLength( currRegion );
+            //console.log("locationStr="+locationStr);
+
+            // is locationStr JSON?
+            if (locationStr.charAt(0)=='{') {
+                locationStr = locationStr.substring(0,locationStr.lastIndexOf('}')+1);
+                var obj = JSON.parse(locationStr);
+
+                // look for the "sequenceList" property
+                if(obj.hasOwnProperty('sequenceList')) {
+                    //console.log("label="+obj.label);
+                    var counter = 0 ;
+                    currentBookmark = obj ;
+
+
+                    //if( thisB.browser.locationBox ){
+                    //    thisB.browser.locationBox.set('value',obj.label, false);
+                    //}
+
+                    //if( thisB.browser.locationBox ){
+                    //    thisB.browser.locationBox.set('style','width: 34ex;');
+                    //    thisB.browser.locationBox.set('value',obj.name, false);
+                    //    thisB.browser.locationBox.set('value',obj.name, false);
+                    //}
+
+                    // update the id=location-box if it exists
+                    //var node = dojo.byId("location-info");
+                    //if (node) {
+                    //    //node.html.set(node, "<h3>BIG</h3>");
+                    //    thisB.browser.locationBox.set('value',"", false);
+                    //}
+
+                    dojo.addOnLoad(function() {
+                        if(!thisB.replaceSearchBox){
+                            //dojo.style(dojo.byId('search-refseq'), "display", "none");
+                            var searchBox = dojo.byId('search-box');
+                            dojo.style(searchBox, "display", "none");
+                            var borderContainer = dijit.byId('GenomeBrowser');
+                            borderContainer.resize();
+                            thisB.replaceSearchBox = true ;
+                        }
+                    });
+
+                    //dojo.addOnLoad(function() {
+                    //    // console.log(borderContainer);
+                    //
+                    //    if(counter==0){
+                    //        var searchBox = dojo.byId('search-box');
+                    //        dojo.style(searchBox, "display", "none");
+                    //        if(obj.hasOwnProperty("name")){
+                    //            // TODO: add something next to search-box that displays something slightly different
+                    //            // bookmark name + location . . . pasting it in should call browser "GO" function
+                    //            // should call Browser.navigateTo . . with the browser location stuff
+                    //            // we cann actually store the bookmark data here
+                    //        }
+                    //        var borderContainer = dijit.byId('GenomeBrowser');
+                    //        borderContainer.resize();
+                    //    }
+                    //    counter = 1 ;
+                    //
+                    //    // dojo.style(dojo.byId('search-refseq'), "display", "none");
+                    //});
+                }
+                else{
+                    currentBookmark = null ;
+                }
+            }
+        });
+    }
 
 });
 

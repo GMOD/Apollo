@@ -25,6 +25,8 @@
     <inherits name="org.gwtbootstrap3.extras.bootbox.Bootbox"/>
     <inherits name="org.gwtbootstrap3.extras.select.Select"/>
 
+    <inherits name="com.allen_sauer.gwt.dnd.gwt-dnd"/>
+
 
     <!-- Specify the app entry point class.                         -->
     <entry-point class='org.bbop.apollo.gwt.client.Annotator'/>

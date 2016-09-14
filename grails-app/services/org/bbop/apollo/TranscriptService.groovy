@@ -1,14 +1,8 @@
 package org.bbop.apollo
 
-import grails.converters.JSON
 import grails.transaction.Transactional
-import grails.util.CollectionUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.codehaus.groovy.grails.web.json.JSONException
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.grails.plugins.metrics.groovy.Timed
-
+import org.bbop.apollo.projection.MultiSequenceProjection
 
 //@GrailsCompileStatic
 @Transactional(readOnly = true)
@@ -18,12 +12,14 @@ class TranscriptService {
 
     // services
     def featureService
+    def projectionService
     def featureRelationshipService
     def exonService
     def nameService
     def nonCanonicalSplitSiteService
     def sequenceService
-    def featureEventService
+    def featureProjectionService
+    def bookmarkService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
      *  which child is a CDS.  The CDS object is generated on the fly.  Returns <code>null</code>
@@ -43,13 +39,17 @@ class TranscriptService {
      * @return Collection of exons associated with this transcript
      */
     public Collection<Exon> getExons(Transcript transcript) {
-        return (Collection<Exon>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript, Exon.ontologyId)
+        return featureRelationshipService.getChildrenForFeatureAndTypes(transcript, Exon.ontologyId)
     }
 
-    public Collection<Exon> getSortedExons(Transcript transcript) {
+
+    public Collection<Exon> getSortedExons(Transcript transcript,boolean sortByStrand, Bookmark bookmark = null) {
         Collection<Exon> exons = getExons(transcript)
         List<Exon> sortedExons = new LinkedList<Exon>(exons);
-        Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(false))
+        if(!bookmark){
+            bookmark = bookmarkService.generateBookmarkForFeature(transcript)
+        }
+        Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(sortByStrand,bookmarkService.getSequencesFromBookmark(bookmark)))
         return sortedExons
     }
 
@@ -86,16 +86,20 @@ class TranscriptService {
                 , name: uniqueName
         ).save(failOnError: true)
 
-        FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
+        List<FeatureLocation> transcriptFeatureLocationList = FeatureLocation.findAllByFeature(transcript)
 
-        FeatureLocation featureLocation = new FeatureLocation(
-                strand: transcriptFeatureLocation.strand
-                , sequence: transcriptFeatureLocation.sequence
-                , fmin: transcriptFeatureLocation.fmin
-                , fmax: transcriptFeatureLocation.fmax
-                , feature: cds
-        ).save(insert: true, failOnError: true)
-        cds.addToFeatureLocations(featureLocation);
+
+        for (transcriptFeatureLocation in transcriptFeatureLocationList) {
+            FeatureLocation featureLocation = new FeatureLocation(
+                    strand: transcriptFeatureLocation.strand
+                    , sequence: transcriptFeatureLocation.sequence
+                    , fmin: transcriptFeatureLocation.fmin
+                    , fmax: transcriptFeatureLocation.fmax
+                    , rank: transcriptFeatureLocation.rank
+                    , feature: cds
+            ).save(insert: true, failOnError: true)
+            cds.addToFeatureLocations(featureLocation);
+        }
         cds.save(flush: true, insert: true)
         return cds;
     }
@@ -113,11 +117,11 @@ class TranscriptService {
         Integer fmin = null;
         Integer fmax = null;
         for (Transcript t : getTranscripts(gene)) {
-            if (fmin == null || t.getFeatureLocation().getFmin() < fmin) {
-                fmin = t.getFeatureLocation().getFmin();
+            if (fmin == null || t.fmin < fmin) {
+                fmin = t.fmin
             }
-            if (fmax == null || t.getFeatureLocation().getFmax() > fmax) {
-                fmax = t.getFeatureLocation().getFmax();
+            if (fmax == null || t.getFmax() > fmax) {
+                fmax = t.getFmax();
             }
         }
         if (fmin != null) {
@@ -138,22 +142,26 @@ class TranscriptService {
         return (Collection<Transcript>) featureRelationshipService.getChildrenForFeatureAndTypes(gene, ontologyIds as String[])
     }
 
-    List<Transcript> getTranscriptsSortedByFeatureLocation(Gene gene, boolean sortByStrand) {
-        return getTranscripts(gene).sort(true, new FeaturePositionComparator<Transcript>(sortByStrand))
-    }
-
+    /**
+     * @param transcript
+     * @param fmin
+     */
     @Transactional
     public void setFmin(Transcript transcript, Integer fmin) {
-        transcript.getFeatureLocation().setFmin(fmin);
+        featureService.setFmin(transcript,fmin)
         Gene gene = getGene(transcript)
         if (gene != null && fmin < gene.getFmin()) {
             featureService.setFmin(gene, fmin)
         }
     }
 
+    /**
+     * @param transcript
+     * @param fmax
+     */
     @Transactional
     public void setFmax(Transcript transcript, Integer fmax) {
-        transcript.getFeatureLocation().setFmax(fmax);
+        featureService.setFmax(transcript,fmax)
         Gene gene = getGene(transcript)
         if (gene != null && fmax > gene.getFmax()) {
             featureService.setFmax(gene, fmax);
@@ -161,26 +169,44 @@ class TranscriptService {
     }
 
     @Transactional
-    def updateGeneBoundaries(Transcript transcript) {
+    def updateGeneBoundaries(Transcript transcript, Bookmark bookmark) {
         Gene gene = getGene(transcript)
         if (gene == null) {
             return;
         }
-        int geneFmax = Integer.MIN_VALUE;
-        int geneFmin = Integer.MAX_VALUE;
+
+        // we set it here to handle either expansion or contraction of the gene / transcripts
+        Integer geneFmin = Integer.MAX_VALUE
+        Integer geneFmax = Integer.MIN_VALUE
+
+        MultiSequenceProjection  multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
+
+        println "INIT ${geneFmin}-${geneFmax}"
+
         for (Transcript t : getTranscripts(gene)) {
-            if (t.getFmin() < geneFmin) {
-                geneFmin = t.getFmin();
+            Integer transcriptFmin = projectionService.getMinForFeatureInProjection(t,multiSequenceProjection)
+            Integer transcriptFmax = projectionService.getMaxForFeatureInProjection(t,multiSequenceProjection)
+            if (transcriptFmin < geneFmin) {
+                geneFmin = transcriptFmin;
             }
-            if (t.getFmax() > geneFmax) {
-                geneFmax = t.getFmax();
+            if (transcriptFmax > geneFmax) {
+                geneFmax = transcriptFmax;
             }
         }
-        featureService.setFmin(gene, geneFmin)
-        featureService.setFmax(gene, geneFmax)
 
-        // not sure if we want this if not actually saved
-//        gene.setLastUpdated(new Date());
+        println "FINAL ${geneFmin}-${geneFmax}"
+
+
+        featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection, gene, geneFmin, geneFmax)
+    }
+
+    /**
+     * @param transcript
+     * @return
+     */
+    @Transactional
+    def updateGeneBoundaries(Transcript transcript) {
+        updateGeneBoundaries(transcript,bookmarkService.generateBookmarkForFeature(transcript))
     }
 
     List<String> getFrameShiftOntologyIds() {
@@ -232,30 +258,60 @@ class TranscriptService {
         feature.save(flush: true)
     }
 
+    /**
+     * Add an exon to this transcript in the context of this bookmark.
+     *
+     * @param transcript
+     * @param exon
+     * @param fixTranscript
+     * @param bookmark
+     * @return
+     */
     @Transactional
-    def addExon(Transcript transcript, Exon exon, Boolean fixTranscript = true) {
+    def addExon(Transcript transcript, Exon exon, Boolean fixTranscript, Bookmark bookmark ) {
 
-        log.debug "exon feature locations ${exon.featureLocation}"
-        log.debug "transcript feature locations ${transcript.featureLocation}"
-        FeatureLocation exonFeatureLocation = exon.featureLocation
-        FeatureLocation transcriptFeatureLocation = transcript.featureLocation
-        if (exonFeatureLocation.fmin < transcriptFeatureLocation.fmin) {
-            transcriptFeatureLocation.setFmin(exonFeatureLocation.fmin);
+        // TODO: this method REALLY needs to be multisequence aware
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
+
+        int transcriptFmin = projectionService.getMinForFeatureInProjection(transcript,multiSequenceProjection)
+        int transcriptFmax = projectionService.getMaxForFeatureInProjection(transcript,multiSequenceProjection)
+        int exonFmin = projectionService.getMinForFeatureInProjection(exon,multiSequenceProjection)
+        int exonFmax = projectionService.getMaxForFeatureInProjection(exon,multiSequenceProjection)
+
+        boolean updateTransriptBoundaries = false
+
+        if (exonFmin < transcriptFmin) {
+            transcriptFmin = exonFmin
+            updateTransriptBoundaries = true
         }
-        if (exonFeatureLocation.fmax > transcriptFeatureLocation.fmax) {
-            transcriptFeatureLocation.setFmax(exonFeatureLocation.fmax);
+        if (exonFmax > transcriptFmax) {
+            transcriptFmax = exonFmax
+            updateTransriptBoundaries = true
         }
+
+        if(updateTransriptBoundaries){
+            featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,transcript,transcriptFmin,transcriptFmax)
+        }
+
         transcript.save()
 
         // if the transcript's bounds are beyond the gene's bounds, need to adjust the gene's bounds
         Gene gene = getGene(transcript)
         if (gene) {
-            FeatureLocation geneFeatureLocation = gene.featureLocation
-            if (transcriptFeatureLocation.fmin < geneFeatureLocation.fmin) {
-                geneFeatureLocation.setFmin(transcriptFeatureLocation.fmin);
+            boolean updateGeneBoundaries = false
+            int geneFmin = gene.fmin
+            int geneFmax = gene.fmax
+            if (transcriptFmin < geneFmin) {
+                geneFmin = transcriptFmin
+                updateGeneBoundaries = true
             }
-            if (transcriptFeatureLocation.fmax > geneFeatureLocation.fmax) {
-                geneFeatureLocation.setFmax(transcriptFeatureLocation.fmax);
+            if (transcriptFmax  > geneFmax) {
+                geneFmax = transcriptFmax
+                updateGeneBoundaries = true
+            }
+
+            if(updateGeneBoundaries){
+                featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,gene,geneFmin,geneFmax)
             }
         }
         gene.save()
@@ -268,11 +324,11 @@ class TranscriptService {
 
 
         if (fixTranscript) {
-            featureService.removeExonOverlapsAndAdjacencies(transcript)
+            featureService.removeExonOverlapsAndAdjacencies(transcript, bookmark)
             log.debug "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
 //
 //        // if the exon is removed during a merge, then we will get a null-pointer
-            updateGeneBoundaries(transcript);  // 6, moved transcript fmin, fmax
+            updateGeneBoundaries(transcript,bookmark);  // 6, moved transcript fmin, fmax
             log.debug "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
         }
     }
@@ -281,15 +337,24 @@ class TranscriptService {
         return (Transcript) featureRelationshipService.getParentForFeature(feature, ontologyIds as String[])
     }
 
+    /**
+     * Splits transcripts between two exons.
+     * @param transcript
+     * @param leftExon
+     * @param rightExon
+     * @param bookmark
+     * @return
+     */
     @Transactional
-    Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon) {
-        List<Exon> exons = exonService.getSortedExons(transcript)
+    Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon,Bookmark bookmark) {
+        List<Exon> exons = getSortedExons(transcript,true,bookmark)
         Transcript splitTranscript = (Transcript) transcript.getClass().newInstance()
         splitTranscript.uniqueName = nameService.generateUniqueName()
         splitTranscript.name = nameService.generateUniqueName(transcript)
         splitTranscript.save()
 
         // copying featureLocation of transcript to splitTranscript
+        // if they are to the RIGHT of leftExon
         transcript.featureLocations.each { featureLocation ->
             FeatureLocation newFeatureLocation = new FeatureLocation(
                     fmin: featureLocation.fmin
@@ -315,47 +380,42 @@ class TranscriptService {
             splitTranscriptGene.addToOwners(it)
         }
 
-        FeatureLocation splitTranscriptGeneFeatureLocation = new FeatureLocation(
-                feature: splitTranscriptGene,
-                fmin: splitTranscript.fmin,
-                fmax: splitTranscript.fmax,
-                strand: splitTranscript.strand,
-                sequence: splitTranscript.featureLocation.sequence,
-                residueInfo: splitTranscript.featureLocation.residueInfo,
-                locgroup: splitTranscript.featureLocation.locgroup,
-                rank: splitTranscript.featureLocation.rank
-        ).save(flush: true)
+        splitTranscript.featureLocations.each { featureLocation ->
+            FeatureLocation splitTranscriptGeneFeatureLocation = new FeatureLocation(
+                    feature: splitTranscriptGene,
+                    fmin: splitTranscript.fmin,
+                    fmax: splitTranscript.fmax,
+                    strand: splitTranscript.strand,
+                    sequence: featureLocation.sequence,
+                    residueInfo: featureLocation.residueInfo,
+                    locgroup: featureLocation.locgroup,
+                    rank: featureLocation.rank
+            ).save(flush: true)
 
-        splitTranscriptGene.addToFeatureLocations(splitTranscriptGeneFeatureLocation)
+            splitTranscriptGene.addToFeatureLocations(splitTranscriptGeneFeatureLocation)
+        }
+
         splitTranscript.name = nameService.generateUniqueName(splitTranscript, splitTranscriptGene.name)
-        featureService.addTranscriptToGene(splitTranscriptGene, splitTranscript)
+        featureService.addTranscriptToGene(splitTranscriptGene, splitTranscript,bookmark)
 
-        FeatureLocation transcriptFeatureLocation = transcript.featureLocation
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
 
         // changing feature location of transcript to the fmax of the left exon
-        transcriptFeatureLocation.fmax = leftExon.fmax
-        FeatureLocation splitFeatureLocation = splitTranscript.featureLocation
-        log.debug "right1: ${rightExon.featureLocation}"
+        featureService.setFmax(transcript,leftExon.fmax,multiSequenceProjection)
 
         // changing feature location of splitTranscript to the fmin of the right exon
-        splitFeatureLocation.fmin = rightExon.featureLocation.fmin
-        log.debug "right2: ${rightExon.featureLocation}"
+        featureService.setFmin(splitTranscript,rightExon.fmin,multiSequenceProjection)
         for (Exon exon : exons) {
             // starting with rightExon and all right flanking exons to splitTranscript
-            FeatureLocation exonFeatureLocation = exon.featureLocation
-            FeatureLocation leftFeatureLocation = leftExon.featureLocation
-            if (exonFeatureLocation.fmin > leftFeatureLocation.getFmin()) {
-                log.debug "right3: ${rightExon.featureLocation}"
-//                featureRelationshipService.removeFeatureRelationship()
-//                exonService.deleteExon(transcript, exon);
-                if (exon.equals(rightExon)) {
-                    featureRelationshipService.removeFeatureRelationship(transcript, rightExon)
-                    log.debug "right4: ${rightExon.featureLocation}"
-                    addExon(splitTranscript, rightExon);
-                } else {
-                    featureRelationshipService.removeFeatureRelationship(transcript, exon)
-                    log.debug "right5: ${rightExon.featureLocation}"
-                    addExon(splitTranscript, exon);
+            exon.featureLocations.each { exonFeatureLocation ->
+                if (exonFeatureLocation.fmin > leftExon.getFmin()) {
+                    if (exon.equals(rightExon)) {
+                        featureRelationshipService.removeFeatureRelationship(transcript, rightExon)
+                        addExon(splitTranscript, rightExon, true,bookmark);
+                    } else {
+                        featureRelationshipService.removeFeatureRelationship(transcript, exon)
+                        addExon(splitTranscript, exon, true,bookmark);
+                    }
                 }
             }
         }
@@ -371,14 +431,14 @@ class TranscriptService {
      * @param transcript - Transcript to be duplicated
      */
     @Transactional
-    public Transcript duplicateTranscript(Transcript transcript) {
+    public Transcript duplicateTranscript(Transcript transcript,Bookmark bookmark) {
         Transcript duplicate = (Transcript) transcript.generateClone();
         duplicate.name = transcript.name + "-copy"
         duplicate.uniqueName = nameService.generateUniqueName(transcript)
 
         Gene gene = getGene(transcript)
         if (gene) {
-            featureService.addTranscriptToGene(gene, duplicate)
+            featureService.addTranscriptToGene(gene, duplicate,bookmark)
             gene.save()
         }
         // copy exons
@@ -386,7 +446,7 @@ class TranscriptService {
             Exon duplicateExon = (Exon) exon.generateClone()
             duplicateExon.name = exon.name + "-copy"
             duplicateExon.uniqueName = nameService.generateUniqueName(duplicateExon)
-            addExon(duplicate, duplicateExon)
+            addExon(duplicate, duplicateExon, true,bookmark)
         }
         // copy CDS
         CDS cds = getCDS(transcript)
@@ -404,16 +464,16 @@ class TranscriptService {
     }
 
     @Transactional
-    def mergeTranscripts(Transcript transcript1, Transcript transcript2) {
+    def mergeTranscripts(Transcript transcript1, Transcript transcript2, Bookmark bookmark) {
         // Merging transcripts basically boils down to moving all exons from one transcript to the other
 
         // moving all exons from transcript2 to transcript1
         for (Exon exon : getExons(transcript2)) {
             featureRelationshipService.removeFeatureRelationship(transcript2, exon)
-            addExon(transcript1, exon)
+            addExon(transcript1, exon, true,bookmark)
         }
         // we have to do this here to calculate overlaps later
-        featureService.calculateCDS(transcript1)
+        featureService.calculateCDS(transcript1, false,bookmark)
         featureService.handleDynamicIsoformOverlap(transcript1)
         transcript1.save(flush: true)
 
@@ -442,7 +502,7 @@ class TranscriptService {
                         // only move if it overlapps.
                         if (transcript != transcript2) {
                             deleteTranscript(gene2, transcript)
-                            featureService.addTranscriptToGene(gene1, transcript)
+                            featureService.addTranscriptToGene(gene1, transcript,bookmark)
                         }
                     }
                 }
@@ -468,57 +528,22 @@ class TranscriptService {
             // no outstanding relationships that need to be deleted
             featureService.deleteFeature(transcript2);
         }
-        featureService.removeExonOverlapsAndAdjacencies(transcript1);
+        featureService.removeExonOverlapsAndAdjacencies(transcript1,bookmark);
     }
 
     @Transactional
-    Transcript flipTranscriptStrand(Transcript oldTranscript) {
-        Gene oldGene = getGene(oldTranscript)
-        boolean isPseudogene = oldGene instanceof Pseudogene
-//        featureRelationshipService.removeFeatureRelationship(oldGene, oldTranscript)
-
-//        if (getTranscripts(oldGene)?.size() == 0) {
-//            featureService.deleteFeature(oldGene)
-//        }
-        oldTranscript = featureService.flipStrand(oldTranscript)
+    Transcript flipTranscriptStrand(Transcript oldTranscript,Bookmark bookmark) {
+        oldTranscript = (Transcript) featureService.flipStrand(oldTranscript)
         oldTranscript.save()
-        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(oldTranscript)
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(oldTranscript,bookmark)
         oldTranscript.save()
-
-//        String oldGeneName = oldGene.name
-//        String oldTranscriptName = oldTranscript.name
-//        JSONObject jsonTranscript = featureService.convertFeatureToJSON(oldTranscript, false)
-//        JSONObject requestJSONObject = requestHandlingService.createJSONFeatureContainer(jsonTranscript)
-//        requestJSONObject.put(FeatureStringEnum.TRACK.value,oldTranscript.featureLocation.sequence.name)
-
-//        String sequenceName = oldTranscript.featureLocation.sequence.name
-//        Transcript newTranscript = featureService.generateTranscript(jsonTranscript,sequenceName)
-//        newTranscript.name = oldTranscriptName
-//        newTranscript.save()
-
-//        JSONObject newJsonTranscript = requestHandlingService.addTranscript(requestJSONObject)
-//        if (getTranscripts(oldGene).size() == 0) {
-//            oldGene.delete(flush: true)
-//        } else {
-//            oldGene.save(flush: true )
-//        }
-//        deleteTranscript(oldGene,oldTranscript)
-//        oldTranscript.delete(flush: true )
-//        writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(newTranscript), track);
-//        if (historyStore != null) {
-//            Transaction transaction = new Transaction(Transaction.Operation.FLIP_STRAND, newTranscript.getUniqueName(), username);
-//            transaction.addNewFeature(newTranscript);
-//            writeHistoryToStore(historyStore, transaction);
-//        }
-//        JSONArray features = newJsonTranscript.getJSONArray(FeatureStringEnum.FEATURES.value)
-//        String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value)
-//        Transcript newTranscript = Transcript.findByUniqueName(uniqueName)
 
         return oldTranscript;
     }
 
     String getResiduesFromTranscript(Transcript transcript) {
-        def exons = exonService.getSortedExons(transcript)
+        Bookmark bookmark =  bookmarkService.generateBookmarkForFeature(transcript)
+        def exons = getSortedExons(transcript,true,bookmark)
         if (!exons) {
             return null
         }

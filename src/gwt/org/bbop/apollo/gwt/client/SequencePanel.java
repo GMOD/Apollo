@@ -1,12 +1,15 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.dom.client.*;
-import com.google.gwt.http.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -14,35 +17,41 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfoConverter;
-import org.bbop.apollo.gwt.client.event.*;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequence;
+import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequenceList;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
+import org.bbop.apollo.gwt.client.event.UserChangeEvent;
+import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
-import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Alert;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
-import org.gwtbootstrap3.client.ui.html.Paragraph;
-import org.gwtbootstrap3.client.ui.html.Span;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.select.client.ui.Option;
 import org.gwtbootstrap3.extras.select.client.ui.Select;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
- * Created by ndunn on 12/17/14.
+ * Created by Nathan Dunn on 12/17/14.
  */
 public class SequencePanel extends Composite {
 
@@ -84,6 +93,14 @@ public class SequencePanel extends Composite {
     Button selectSelectedButton;
     @UiField
     Button exportChadoButton;
+    @UiField
+    Button bookmarkButton;
+    @UiField
+    Alert panelMessage;
+    @UiField
+    Button addToView;
+    @UiField
+    Button viewSequence;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -107,7 +124,7 @@ public class SequencePanel extends Composite {
 
         Column<SequenceInfo, Number> lengthColumn = new Column<SequenceInfo, Number>(new NumberCell()) {
             @Override
-            public Integer getValue(SequenceInfo object) {
+            public Long getValue(SequenceInfo object) {
                 return object.getLength();
             }
         };
@@ -140,8 +157,10 @@ public class SequencePanel extends Composite {
                 }
                 if (selectedSequenceInfo.size() > 0) {
                     exportSelectedButton.setText("Selected (" + selectedSequenceInfo.size() + ")");
+                    enableBookmarks(true);
                 } else {
                     exportSelectedButton.setText("Selected");
+                    enableBookmarks(false);
                 }
                 exportSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
                 selectSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
@@ -163,7 +182,7 @@ public class SequencePanel extends Composite {
                     public void onResponseReceived(Request request, Response response) {
                         JSONArray jsonArray = JSONParser.parseLenient(response.getText()).isArray();
                         Integer sequenceCount = 0;
-                        if (jsonArray!=null && jsonArray.size() > 0) {
+                        if (jsonArray != null && jsonArray.size() > 0) {
                             JSONObject jsonObject = jsonArray.get(0).isObject();
                             sequenceCount = (int) jsonObject.get("sequenceCount").isNumber().doubleValue();
                         }
@@ -173,7 +192,7 @@ public class SequencePanel extends Composite {
 
                     @Override
                     public void onError(Request request, Throwable exception) {
-                        Bootbox.alert("error getting sequence info: " + exception);
+                        Bootbox.alert("Error getting sequence info: " + exception);
                     }
                 };
 
@@ -203,26 +222,8 @@ public class SequencePanel extends Composite {
         dataGrid.addDomHandler(new DoubleClickHandler() {
             @Override
             public void onDoubleClick(DoubleClickEvent event) {
-                Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
-                if (sequenceInfoSet.size() == 1) {
-                    final SequenceInfo sequenceInfo = sequenceInfoSet.iterator().next();
-
-                    RequestCallback requestCallback = new RequestCallback() {
-                        @Override
-                        public void onResponseReceived(Request request, Response response) {
-                            if (sequenceInfo != null) {
-                                OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
-                            }
-                        }
-
-                        @Override
-                        public void onError(Request request, Throwable exception) {
-                            Bootbox.alert("Error setting current sequence: " + exception);
-                        }
-                    };
-                    SequenceRestService.setCurrentSequence(requestCallback, sequenceInfo);
-
-                }
+                // can only double-click on a single one really
+                viewSingleSequence();
             }
         }, DoubleClickEvent.getType());
 
@@ -276,6 +277,101 @@ public class SequencePanel extends Composite {
 
     }
 
+    private void viewSingleSequence(){
+        final SequenceInfo sequenceInfo = multiSelectionModel.getSelectedSet().iterator().next();
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                if (sequenceInfo != null) {
+                    OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error setting current sequence: " + exception);
+            }
+        };
+        SequenceRestService.setCurrentSequence(requestCallback, sequenceInfo);
+    }
+
+
+    private void enableBookmarks(boolean b) {
+        bookmarkButton.setEnabled(b);
+        addToView.setEnabled(b);
+        viewSequence.setEnabled(b);
+    }
+
+    @UiHandler("addToView")
+    void addSequenceToView(ClickEvent clickEvent) {
+        Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
+        // send sequences and current bookmark and return a new current bookmark to view
+        BookmarkInfo newBookmark = MainPanel.getInstance().getCurrentBookmark().addSequenceInfoSet(sequenceInfoSet);
+        BookmarkRestService.addBoorkmarkAndView(newBookmark);
+    }
+
+    @UiHandler("viewSequence")
+    void viewSequence(ClickEvent clickEvent) {
+        if(multiSelectionModel.getSelectedSet().size()==1){
+            viewSingleSequence();
+        }
+        else{
+            BookmarkInfo newBookmark = new BookmarkInfo();
+            newBookmark.addSequenceInfoSet(multiSelectionModel.getSelectedSet());
+            BookmarkRestService.addBoorkmarkAndView(newBookmark);
+        }
+    }
+
+
+    @UiHandler("bookmarkButton")
+    void addNewBookmark(ClickEvent clickEvent) {
+        BookmarkInfo bookmarkInfo = new BookmarkInfo();
+        BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
+        StringBuilder nameBuffer = new StringBuilder();
+        long start = 0;
+        long end = 0;
+        for (SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()) {
+            bookmarkInfo.setPadding(50);
+            bookmarkInfo.setType("Exon");
+            BookmarkSequence sequenceObject = new BookmarkSequence();
+            sequenceObject.setName(sequenceInfo.getName());
+            sequenceObject.setStart(sequenceInfo.getStart());
+            sequenceObject.setEnd(sequenceInfo.getEnd());
+//            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getName()));
+            sequenceArray.addSequence(sequenceObject);
+//            sequenceArray.set(sequenceArray.size(),sequenceObject);
+            nameBuffer.append(sequenceInfo.getName() + ",");
+            if (start == 0) {
+                start = sequenceInfo.getStart();
+            }
+            end += sequenceInfo.getEnd();
+        }
+//        name = name.substring(0,name.length()-1);
+        bookmarkInfo.setStart(start);
+        bookmarkInfo.setEnd(end);
+        bookmarkInfo.setSequenceList(sequenceArray);
+
+        final String name = nameBuffer.toString();
+
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                new InfoDialog("Added Bookmark", "Added bookmark: " + name.substring(0, name.length() - 1), true);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error adding bookmark: " + exception);
+            }
+        };
+
+        MainPanel.getInstance().addBookmark(requestCallback, bookmarkInfo);
+
+
+    }
+
     private void updatedExportSelectedButton() {
         if (selectedCount > 0) {
             exportSelectedButton.setEnabled(true);
@@ -303,7 +399,7 @@ public class SequencePanel extends Composite {
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 
-    @UiHandler(value = {"exportGff3Button", "exportFastaButton","exportChadoButton"})
+    @UiHandler(value = {"exportGff3Button", "exportFastaButton", "exportChadoButton"})
     public void handleExportTypeChanged(ClickEvent clickEvent) {
         exportGff3Button.setType(ButtonType.DEFAULT);
         exportFastaButton.setType(ButtonType.DEFAULT);
@@ -359,16 +455,14 @@ public class SequencePanel extends Composite {
         String type = null;
         if (exportGff3Button.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportGff3Button.getText();
-        }
-        else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+        } else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportFastaButton.getText();
-        }
-        else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+        } else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportChadoButton.getText();
         }
 //        GWT.log("Type selected is " + type);
 
-        ExportPanel exportPanel = new ExportPanel(organismInfo,type,exportAll,sequenceInfoList);
+        ExportPanel exportPanel = new ExportPanel(organismInfo, type, exportAll, sequenceInfoList);
         exportPanel.show();
     }
 

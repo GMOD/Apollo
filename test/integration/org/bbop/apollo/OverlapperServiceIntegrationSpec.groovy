@@ -7,7 +7,6 @@ class OverlapperServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     def requestHandlingService
 
-
     void "isoform overlap test for GB40772-RA loci"() {
 
         given: "A set of isoforms at GB40772-RA loci"

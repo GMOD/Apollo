@@ -46,7 +46,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by ndunn on 12/17/14.
+ * Created by Nathan Dunn on 12/17/14.
  */
 public class GroupPanel extends Composite {
     interface UserGroupBrowserPanelUiBinder extends UiBinder<Widget, GroupPanel> {

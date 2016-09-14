@@ -1,6 +1,8 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import grails.converters.JSON
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -11,6 +13,7 @@ class AnnotatorService {
     def permissionService
     def preferenceService
     def requestHandlingService
+    def bookmarkService
 
     def getAppState(String token) {
         JSONObject appStateObject = new JSONObject()
@@ -49,12 +52,21 @@ class AnnotatorService {
                 appStateObject.put("currentOrganism", currentOrganism )
 
 
-                if (!currentUserOrganismPreference.sequence) {
-                    Sequence sequence = Sequence.findByOrganism(currentUserOrganismPreference.organism)
-                    currentUserOrganismPreference.sequence = sequence
-                    currentUserOrganismPreference.save()
+                if (!currentUserOrganismPreference.bookmark) {
+                    User currentUser = currentUserOrganismPreference.user
+                    // find the first bookmark with a matching organism
+                    def bookmarks = bookmarkService.getBookmarksForUserAndOrganism(currentUser,currentOrganism)
+                    Bookmark bookmark = bookmarks.size()>0 ? bookmarks.first() : null
+//                    Bookmark bookmark = Bookmark.findByOrganism(currentOrganism,currentUserOrganismPreference.user)
+                    if (!bookmark) {
+                        // just need the first random one
+                        Sequence sequence = Sequence.findByOrganism(currentOrganism)
+                        bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+                    }
+                    currentUserOrganismPreference.bookmark = bookmark
+                    currentUserOrganismPreference.save(flush: true)
                 }
-                appStateObject.put("currentSequence", currentUserOrganismPreference.sequence)
+                appStateObject.put(FeatureStringEnum.CURRENT_BOOKMARK.getValue(), bookmarkService.convertBookmarkToJson(currentUserOrganismPreference.bookmark))
 
 
                 if (currentUserOrganismPreference.startbp && currentUserOrganismPreference.endbp) {

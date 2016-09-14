@@ -16,7 +16,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
- * Created by ndunn on 1/14/15.
+ * Created by Nathan Dunn on 1/14/15.
  */
 public class SequenceRestService {
 
@@ -91,11 +91,11 @@ public class SequenceRestService {
         }
     }
 
-    public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Integer start, Integer end) {
+    public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Long start, Long end) {
         setCurrentSequenceAndLocation(requestCallback,sequenceNameString,start,end,false) ;
     }
 
-    public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Integer start, Integer end,boolean suppressOutput) {
+    public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Long start, Long end,boolean suppressOutput) {
         String url = "sequence/setCurrentSequenceLocation/?name=" + sequenceNameString + "&start=" + start + "&end=" + end;
         if(suppressOutput){
             url += "&suppressOutput=true";

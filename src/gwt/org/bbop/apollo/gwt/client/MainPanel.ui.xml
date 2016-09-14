@@ -5,7 +5,6 @@
         >
     <ui:style>
 
-
         .details-header {
             background-color: #cccccc;
             width: 100%;
@@ -40,6 +39,7 @@
         .dropdown-display:focus {
             background-color: gray;
         }
+
         .dropdown-display {
             margin-left: 5px;
             margin-right: 5px;
@@ -54,6 +54,7 @@
         .lookup-display:focus {
             background-color: gray;
         }
+
         .lookup-display {
             margin-left: 5px;
             margin-right: 5px;
@@ -80,6 +81,15 @@
         .buffer {
             margin-top: 5px;
         }
+
+        .position-label {
+            /*background-color: white;*/
+            padding: 5px;
+            margin: 5px;
+            border-radius: 5px;
+            display: inline;
+            font-size: smaller;
+        }
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
@@ -93,7 +103,9 @@
                                   styleName="{style.details-button}"/>
                         <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
                         <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
-                        <gwt:SuggestBox ui:field="sequenceSuggestBox" stylePrimaryName="{style.lookup-display}"/>
+                        <!--<gwt:SuggestBox ui:field="currentSequenceLabel" stylePrimaryName="{style.lookup-display}"/>-->
+                        <gwt:HTML ui:field="currentSequenceLabel" visible="true" styleName="{style.position-label}"/>
+                        <!--<b:Label text="Test label" styleName="{style.lookup-display}"/>-->
                         <b:Panel styleName="pull-right">
                             <b:Button ui:field="userName" icon="USER"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT" title="Logout"/>
@@ -155,6 +167,10 @@
                         <gwt:tab>
                             <gwt:header>Ref Sequence</gwt:header>
                             <apollo:SequencePanel ui:field="sequencePanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
+                            <gwt:header>Bookmark</gwt:header>
+                            <apollo:BookmarkPanel ui:field="bookmarkPanel"/>
                         </gwt:tab>
                         <gwt:tab>
                             <gwt:header>Organism</gwt:header>

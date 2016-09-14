@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Created by ndunn on 3/30/15.
+ * Created by Nathan Dunn on 3/30/15.
  */
 public class GroupRestService {
 
