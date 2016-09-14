@@ -1913,7 +1913,6 @@ class MultiSequenceProjectionSpec extends Specification {
         assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(13)
     }
 
-    @Ignore
     void "single feature projected in limited range (projecting a gene)"() {
         given: "a single projection sequence"
         ProjectionSequence sequence1 = new ProjectionSequence(
@@ -1927,18 +1926,27 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1])
-        Location location1 = new Location(min: 0, max: 100, sequence: sequence1)
+        Location location1 = new Location(min: 30, max: 70, sequence: sequence1)
 
         when: "we add a location"
         multiSequenceProjection.addLocation(location1)
         multiSequenceProjection.calculateOffsets()
 
         then: "we should see only the limited range"
-        assert false
+        assert multiSequenceProjection.isValid()
+        assert 0==multiSequenceProjection.projectValue(30)
+        assert 40==multiSequenceProjection.projectValue(70)
+
+        when: "we reverse the sequence"
+        sequence1.reverse = true
+
+        then: "we should see only the reversed range"
+        assert multiSequenceProjection.isValid()
+        assert 40==multiSequenceProjection.projectValue(30)
+        assert 0==multiSequenceProjection.projectValue(70)
     }
 
 
-    @Ignore
     void "multiple feature projected in limited range (projecting two genes)"() {
         given: ""
         ProjectionSequence sequence1 = new ProjectionSequence(
@@ -1961,48 +1969,164 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
-        Location location1 = new Location(min: 0, max: 100, sequence: sequence1)
-        Location location2 = new Location(min: 0, max: 50, sequence: sequence2)
+        Location location1 = new Location(min: 30, max: 70, sequence: sequence1)
+        Location location2 = new Location(min: 20, max: 30, sequence: sequence2)
 
         when: "we add both locations"
         multiSequenceProjection.addLocation(location1)
         multiSequenceProjection.addLocation(location2)
         multiSequenceProjection.calculateOffsets()
 
-        then: ""
-        assert false
+        then: "we should see everyting in the right order"
+        assert 0==multiSequenceProjection.projectValue(30)
+        assert 40==multiSequenceProjection.projectValue(70)
+        assert 40==multiSequenceProjection.projectValue(20+sequence1.unprojectedLength)
+        assert 50==multiSequenceProjection.projectValue(30+sequence1.unprojectedLength)
+
+        when: "we reverse the first one"
+        sequence1.reverse = true
+        sequence2.reverse = false
+
+        then: "we should see everyting in the right order"
+        assert 40==multiSequenceProjection.projectValue(30)
+        assert 0==multiSequenceProjection.projectValue(70)
+        assert 40==multiSequenceProjection.projectValue(20+sequence1.unprojectedLength)
+        assert 50==multiSequenceProjection.projectValue(30+sequence1.unprojectedLength)
+
+        when: "we reverse the second one"
+        sequence1.reverse = false
+        sequence2.reverse = true
+
+        then: "we should see everyting in the right order"
+        assert 0==multiSequenceProjection.projectValue(30)
+        assert 40==multiSequenceProjection.projectValue(70)
+        assert 50==multiSequenceProjection.projectValue(20+sequence1.unprojectedLength)
+        assert 40==multiSequenceProjection.projectValue(30+sequence1.unprojectedLength)
     }
 
-    @Ignore
-    void "multiple feature projected in limited range with intron folding "() {
-        given: ""
+    void "limited range project reverse projection with two exons / discontinuous regions over two projection sequences"() {
+
+        given: "given two projection sequence with two exons each (A1A2B1B2) and (C1C2D1D2)"
         ProjectionSequence sequence1 = new ProjectionSequence(
                 id: 1
                 , name: "Sequence1"
                 , organism: "Human"
                 , order: 0
-                , unprojectedLength: 100
-                , start: 30
-                , end: 70
-        )// from 0-99
+                , unprojectedLength: 20
+                , start: 5
+                , end: 20
+        )
         ProjectionSequence sequence2 = new ProjectionSequence(
-                id: 1
+                id: 2
                 , name: "Sequence2"
                 , organism: "Human"
                 , order: 1
-                , unprojectedLength: 50
-                , start: 20
-                , end: 30
-        )// from 0-99
+                , unprojectedLength: 10
+                , start: 1
+                , end: 10
+        )
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
-        when: ""
-        multiSequenceProjection.addLocation(new Location(min: 31, max: 34, sequence: sequence1))
-        multiSequenceProjection.addLocation(new Location(min: 40, max: 45, sequence: sequence1))
-        multiSequenceProjection.addLocation(new Location(min: 20, max: 22, sequence: sequence2))
-        multiSequenceProjection.addLocation(new Location(min: 25, max: 28, sequence: sequence2))
 
-        then: ""
-        assert false
+
+        when: "it should render normally"
+        multiSequenceProjection.addLocation(new Location(min: 10,max: 12,sequence: sequence1))
+        multiSequenceProjection.addLocation(new Location(min: 14,max: 18,sequence: sequence1))
+        multiSequenceProjection.addLocation(new Location(min: 2,max: 4,sequence: sequence2))
+        multiSequenceProjection.addLocation(new Location(min: 6,max: 9,sequence: sequence2))
+        multiSequenceProjection.calculateOffsets()
+
+        then: "it should render forward in a familiar manner"
+        assert multiSequenceProjection.isValid()
+        assert 0 == multiSequenceProjection.projectValue(10)
+        assert 2 == multiSequenceProjection.projectValue(12)
+        assert 3 == multiSequenceProjection.projectValue(14)
+        assert 7 == multiSequenceProjection.projectValue(18)
+        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 9 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+
+        assert 10 == multiSequenceProjection.projectReverseValue(0)
+        assert 12 == multiSequenceProjection.projectReverseValue(2)
+        assert 14 == multiSequenceProjection.projectReverseValue(3)
+        assert 17 == multiSequenceProjection.projectReverseValue(6)
+//        assert 18 == multiSequenceProjection.projectReverseValue(7) // projected to the second one
+        assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(7)
+        assert sequence1.unprojectedLength + 4 == multiSequenceProjection.projectReverseValue(9)
+        assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(10)
+        assert sequence1.unprojectedLength + 9 == multiSequenceProjection.projectReverseValue(13)
+
+        when: "we reverse the first one "
+        sequence1.reverse = true
+        sequence2.reverse = false
+
+        then: "we expect the projections coordinates to reverse B2B1A2A1,C1C2D1D2"
+        assert multiSequenceProjection.isValid()
+        assert 7 == multiSequenceProjection.projectValue(10)
+        assert 5 == multiSequenceProjection.projectValue(12)
+        assert 4 == multiSequenceProjection.projectValue(14)
+        assert 0 == multiSequenceProjection.projectValue(18)
+        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 9 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+
+        assert 18 == multiSequenceProjection.projectReverseValue(0)
+        assert 16 == multiSequenceProjection.projectReverseValue(2)
+        assert 15 == multiSequenceProjection.projectReverseValue(3)
+        assert 14 == multiSequenceProjection.projectReverseValue(4)
+        assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(7)
+        assert sequence1.unprojectedLength + 4 == multiSequenceProjection.projectReverseValue(9)
+        assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(10)
+        assert sequence1.unprojectedLength + 9 == multiSequenceProjection.projectReverseValue(13)
+
+        when: "we reverse the second one and not the first one"
+        sequence1.reverse = false
+        sequence2.reverse = true
+
+        then: "we expect the projections coordinates to reverse A1A2B1B2,D2D1C2C1"
+        assert 0 == multiSequenceProjection.projectValue(10)
+        assert 2 == multiSequenceProjection.projectValue(12)
+        assert 3 == multiSequenceProjection.projectValue(14)
+        assert 7 == multiSequenceProjection.projectValue(18)
+        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 11 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+
+        assert 10 == multiSequenceProjection.projectReverseValue(0)
+        assert 12 == multiSequenceProjection.projectReverseValue(2)
+        assert 14 == multiSequenceProjection.projectReverseValue(3)
+        assert 17 == multiSequenceProjection.projectReverseValue(6)
+//        assert 18 == multiSequenceProjection.projectReverseValue(7) // projected to the second one
+        assert sequence1.unprojectedLength + 9 == multiSequenceProjection.projectReverseValue(7)
+        assert sequence1.unprojectedLength + 7 == multiSequenceProjection.projectReverseValue(9)
+        assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(10)
+        assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(13)
+
+        when: "we reverse them both "
+        sequence1.reverse = true
+        sequence2.reverse = true
+
+        then: "we expect the projections coordinates to reverse B2B1A2A1,D2D1C2C1"
+        assert 7 == multiSequenceProjection.projectValue(10)
+        assert 5 == multiSequenceProjection.projectValue(12)
+        assert 4 == multiSequenceProjection.projectValue(14)
+        assert 0 == multiSequenceProjection.projectValue(18)
+        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 11 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+
+        assert 18 == multiSequenceProjection.projectReverseValue(0)
+        assert 16 == multiSequenceProjection.projectReverseValue(2)
+        assert 15 == multiSequenceProjection.projectReverseValue(3)
+        assert 14 == multiSequenceProjection.projectReverseValue(4)
+
+        assert sequence1.unprojectedLength + 9 == multiSequenceProjection.projectReverseValue(7)
+        assert sequence1.unprojectedLength + 7 == multiSequenceProjection.projectReverseValue(9)
+        assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(10)
+        assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(13)
     }
 }
