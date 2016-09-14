@@ -133,7 +133,7 @@ public enum FeatureStringEnum {
         BASES,
         OLD_ALTERNATE_ALLELES,
         NEW_ALTERNATE_ALLELES,
-        ALLELE_FREQUENCY("alleleFrequency"),
+        ALLELE_FREQUENCY("allele_frequency"),
         ALLELE_FREQUENCY_TAG("AF"),
         PROVENANCE,
         ALLELE_INFO,
