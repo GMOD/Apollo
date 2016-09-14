@@ -481,7 +481,7 @@ JSONUtils.classifyVariant = function( refAllele, altAlleles, fmin, fmax ) {
     var type;
     var altAllele = altAlleles[0]; // type defaults to type of the first occuring alt allele
     var refLength = refAllele.length;
-    var altLength = altAllele.bases.length;
+    var altLength = altAllele.length;
 
     if (refLength - altLength == 0) {
         if (refLength == 1 && refAllele != altAllele) {
