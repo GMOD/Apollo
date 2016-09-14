@@ -39,43 +39,36 @@ class VariantService {
         for (int i = 0; i < alternateAllelesArray.size(); i++) {
             JSONObject alternateAlleleObject = alternateAllelesArray.getJSONObject(i)
             String bases = alternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
-            String alleleFrequencyString
-            String provenance
             Allele allele = new Allele(bases: bases)
+            String provenance
+            if (alternateAlleleObject.has(FeatureStringEnum.PROVENANCE.value) && alternateAlleleObject.getString(FeatureStringEnum.PROVENANCE.value)) {
+                provenance = alternateAlleleObject.getString(FeatureStringEnum.PROVENANCE.value)
+                allele.provenance = provenance
+            }
+            if (alternateAlleleObject.has(FeatureStringEnum.ALLELE_FREQUENCY.value) && alternateAlleleObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value)){
+                Float alleleFrequency = getAlleleFrequencyFromJsonObject(alternateAlleleObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value))
+                if (provenance){
+                    allele.alleleFrequency = alleleFrequency
+                }
+                else {
+                    log.error "Rejecting Allele Frequency of ${alleleFrequency} for Allele ${bases} as no provenance is provided"
+                }
+            }
+            allele.variant = (SequenceAlteration) feature
+            allele.save()
+            feature.addToAlternateAlleles(allele)
 
+            // allele_info
             if (alternateAlleleObject.has(FeatureStringEnum.ALLELE_INFO.value)) {
                 JSONArray alleleInfoArray = alternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
                 for (int j = 0; j < alleleInfoArray.size(); j++) {
                     JSONObject alleleInfoObject = alleleInfoArray.getJSONObject(j)
-                    if (alleleInfoObject.getString(FeatureStringEnum.TAG.value) == FeatureStringEnum.ALLELE_FREQUENCY_TAG.value) {
-                        if (alleleInfoObject.getString(FeatureStringEnum.VALUE.value)) {
-                            alleleFrequencyString = alleleInfoObject.getString(FeatureStringEnum.VALUE.value)
-                            Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
-                            if (alleleInfoObject.has(FeatureStringEnum.PROVENANCE.value)) {
-                                provenance = alleleInfoObject.getString(FeatureStringEnum.PROVENANCE.value)
-                            }
-
-                            if (alleleFrequency >= 0 && alleleFrequency <= 1.0) {
-                                if (provenance) {
-                                    log.debug "Adding Alternate Allele ${bases} with AF: ${alleleFrequency} and provenance: ${provenance}"
-                                    allele.alleleFrequency = alleleFrequency
-                                    allele.provenance = provenance
-                                }
-                                else {
-                                    log.error "Rejecting alleleFrequency for Allele: ${bases} as no provenance is provided"
-                                }
-                            }
-                            else {
-                                log.error "Unexpected Alternate Allele Frequency value of ${alleleFrequencyString}"
-                            }
-                        }
-                    }
+                    String tag = alleleInfoObject.getString(FeatureStringEnum.TAG.value)
+                    String value = alleleInfoObject.getString(FeatureStringEnum.VALUE.value)
+                    AlleleInfo alleleInfo = new AlleleInfo(tag: tag, value: value, allele: allele).save()
+                    allele.addToAlleleInfo(alleleInfo)
                 }
             }
-
-            allele.variant = (SequenceAlteration) feature
-            allele.save()
-            feature.addToAlternateAlleles(allele)
         }
 
         feature.save(flush: true, failOnError: true)
@@ -91,12 +84,13 @@ class VariantService {
             JSONObject alternateAlleleObject = alternateAllelesArray.getJSONObject(j)
             String bases = alternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
             def alternateAlleles = Allele.executeQuery("SELECT DISTINCT a FROM Allele AS a WHERE a.bases = :queryBases", [queryBases: bases])
-            JSONObject alleleInfoObject = (JSONObject) alternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value).iterator().next()
-            if (alleleInfoObject.getString(FeatureStringEnum.VALUE.value)) {
-                String alleleFrequencyString = alleleInfoObject.getString(FeatureStringEnum.VALUE.value)
-                Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
-                String provenance = alternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value).getJSONObject(0).getString(FeatureStringEnum.PROVENANCE.value)
-                // get all alleles that match the given bases
+            if (alternateAlleleObject.has(FeatureStringEnum.ALLELE_FREQUENCY.value) && alternateAlleleObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value)) {
+                String alleleFrequencyString = alternateAlleleObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value)
+                Float alleleFrequency = getAlleleFrequencyFromJsonObject(alleleFrequencyString)
+                String provenance
+                if (alternateAlleleObject.has(FeatureStringEnum.PROVENANCE.value) && alternateAlleleObject.getString(FeatureStringEnum.PROVENANCE.value)) {
+                    provenance = alternateAlleleObject.getString(FeatureStringEnum.PROVENANCE.value)
+                }
                 for (Allele allele : alternateAlleles) {
                     if (allele.alleleFrequency == alleleFrequency && allele.provenance == provenance) {
                         feature.removeFromAlternateAlleles(allele)
@@ -134,31 +128,20 @@ class VariantService {
             String newAltAlleleBases = newAlternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
             Float oldAltAlleleFrequency
             Float newAltAlleleFrequency
-            String oldProvenance
-            String newProvenance
-
-            if (oldAlternateAlleleObject.has(FeatureStringEnum.ALLELE_INFO.value)) {
-                JSONObject alleleInfoObject = (JSONObject) oldAlternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value).iterator().next()
-                if (alleleInfoObject.get(FeatureStringEnum.TAG.value) == FeatureStringEnum.ALLELE_FREQUENCY_TAG.value && alleleInfoObject.get(FeatureStringEnum.VALUE.value) != null) {
-                    if (alleleInfoObject.getString(FeatureStringEnum.VALUE.value)) {
-                        oldAltAlleleFrequency = Float.parseFloat(alleleInfoObject.getString(FeatureStringEnum.VALUE.value))
-                        if (alleleInfoObject.has(FeatureStringEnum.PROVENANCE.value)) {
-                            oldProvenance = alleleInfoObject.getString(FeatureStringEnum.PROVENANCE.value)
-                        }
-                    }
-                }
+            if (oldAlternateAlleleObject.has(FeatureStringEnum.ALLELE_FREQUENCY.value) && oldAlternateAlleleObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value)){
+                oldAltAlleleFrequency = Float.parseFloat(oldAlternateAlleleObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value))
+            }
+            if (newAlternateAlleleObject.has(FeatureStringEnum.ALLELE_FREQUENCY.value) && newAlternateAlleleObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value)) {
+                newAltAlleleFrequency = Float.parseFloat(newAlternateAlleleObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value))
             }
 
-            if (newAlternateAlleleObject.has(FeatureStringEnum.ALLELE_INFO.value)) {
-                JSONObject alleleInfoObject = (JSONObject) newAlternateAlleleObject.getJSONArray(FeatureStringEnum.ALLELE_INFO.value).iterator().next()
-                if (alleleInfoObject.get(FeatureStringEnum.TAG.value) == FeatureStringEnum.ALLELE_FREQUENCY_TAG.value && alleleInfoObject.get(FeatureStringEnum.VALUE.value) != null) {
-                    if (alleleInfoObject.getString(FeatureStringEnum.VALUE.value)) {
-                        newAltAlleleFrequency = Float.parseFloat(alleleInfoObject.getString(FeatureStringEnum.VALUE.value))
-                        if (alleleInfoObject.has(FeatureStringEnum.PROVENANCE.value)) {
-                            newProvenance = alleleInfoObject.getString(FeatureStringEnum.PROVENANCE.value)
-                        }
-                    }
-                }
+            String oldProvenance
+            String newProvenance
+            if (oldAlternateAlleleObject.has(FeatureStringEnum.PROVENANCE.value) && oldAlternateAlleleObject.getString(FeatureStringEnum.PROVENANCE.value)) {
+                oldProvenance = oldAlternateAlleleObject.get(FeatureStringEnum.PROVENANCE.value)
+            }
+            if (newAlternateAlleleObject.has(FeatureStringEnum.PROVENANCE.value) && newAlternateAlleleObject.getString(FeatureStringEnum.PROVENANCE.value)) {
+                newProvenance = newAlternateAlleleObject.get(FeatureStringEnum.PROVENANCE.value)
             }
 
             def alternateAlleles
@@ -270,5 +253,19 @@ class VariantService {
         }
         feature.save(flush: true, failOnError: true)
         return feature
+    }
+
+    def getAlleleFrequencyFromJsonObject(String alleleFrequencyString) {
+        try {
+            Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
+            if (alleleFrequency >= 0.0 && alleleFrequency <= 1.0) {
+                return alleleFrequency
+            }
+            else {
+                log.error "Allele Frequency ${alleleFrequency} value must be within the range 0.0 - 1.0"
+            }
+        } catch (NumberFormatException e){
+            log.error "Unexpected Allele Frequency value of ${alleleFrequencyString} with exception: ${e.stackTrace}"
+        }
     }
 }

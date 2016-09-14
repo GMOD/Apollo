@@ -20,6 +20,7 @@ class FeatureService {
     def nameService
     def configWrapperService
     def featureService
+    def variantService
     def transcriptService
     def exonService
     def cdsService
@@ -1151,45 +1152,37 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.save()
                 JSONArray alternateAllelesArray = jsonFeature.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
                 for (int i = 0; i < alternateAllelesArray.length(); i++) {
-                    String bases = alternateAllelesArray.getJSONObject(i).getString(FeatureStringEnum.BASES.value)
+                    JSONObject alternateAlleleJsonObject = alternateAllelesArray.getJSONObject(i)
+                    String bases = alternateAlleleJsonObject.getString(FeatureStringEnum.BASES.value)
                     Allele allele = new Allele(bases: bases)
+
+                    String provenance
+                    if (alternateAlleleJsonObject.has(FeatureStringEnum.PROVENANCE.value) && alternateAlleleJsonObject.getString(FeatureStringEnum.PROVENANCE.value)) {
+                        provenance = alternateAlleleJsonObject.getString(FeatureStringEnum.PROVENANCE.value)
+                        allele.provenance = provenance
+                    }
+                    if (alternateAlleleJsonObject.has(FeatureStringEnum.ALLELE_FREQUENCY.value) && alternateAlleleJsonObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value)) {
+                        Float alleleFrequency = variantService.getAlleleFrequencyFromJsonObject(alternateAlleleJsonObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value))
+                        if (provenance){
+                            allele.alleleFrequency = alleleFrequency
+                        }
+                        else {
+                            log.error "Rejecting Allele Frequency of ${alleleFrequency} for Allele ${bases} as no provenance is provided"
+                        }
+                    }
+
                     allele.variant = gsolFeature
-                    allele.save()
+                    allele.save(flush: true)
 
                     // Processing properties of an Allele
                     if (alternateAllelesArray.getJSONObject(i).has(FeatureStringEnum.ALLELE_INFO.value)) {
                         JSONArray alleleInfoArray = alternateAllelesArray.getJSONObject(i).getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
                         for (int j = 0; j < alleleInfoArray.length(); j++) {
                             JSONObject info = alleleInfoArray.getJSONObject(j)
-                            if (info.getString(FeatureStringEnum.TAG.value) == FeatureStringEnum.ALLELE_FREQUENCY_TAG.value) {
-                                // Alelle Frequency
-                                if (info.getString(FeatureStringEnum.VALUE.value)) {
-                                    Float alleleFrequency =  Float.parseFloat(info.getString(FeatureStringEnum.VALUE.value))
-                                    String provenance
-                                    if (info.has(FeatureStringEnum.PROVENANCE.value)) {
-                                        provenance = info.getString(FeatureStringEnum.PROVENANCE.value)
-                                    }
-                                    if (alleleFrequency >= 0.0 || alleleFrequency <= 1.0) {
-                                        if (provenance) {
-                                            allele.alleleFrequency = alleleFrequency
-                                            allele.provenance = provenance
-                                        }
-                                        else {
-                                            log.error "Rejecting alleleFrequency for Allele: ${bases} as no provenance is provided"
-                                        }
-                                    }
-                                    else {
-                                        log.error "Unexpected Alternate Allele Frequency value of ${alleleFrequencyString}"
-                                    }
-                                }
-                            }
-                            else {
-                                // Treating all other properties of an allele as a AlleleInfo accessible via allele.alleleInfo
-                                String tag = info.getString(FeatureStringEnum.TAG.value)
-                                String value = info.getString(FeatureStringEnum.VALUE.value)
-                                AlleleInfo alleleInfo = new AlleleInfo(tag: tag, value: value, allele: allele).save()
-                                allele.addToAlleleInfo(alleleInfo)
-                            }
+                            String tag = info.getString(FeatureStringEnum.TAG.value)
+                            String value = info.getString(FeatureStringEnum.VALUE.value)
+                            AlleleInfo alleleInfo = new AlleleInfo(tag: tag, value: value, allele: allele).save()
+                            allele.addToAlleleInfo(alleleInfo)
                         }
                     }
                     gsolFeature.addToAlternateAlleles(allele);
@@ -1610,14 +1603,29 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantList) {
             jsonFeature.put(FeatureStringEnum.REFERENCE_BASES.value, gsolFeature.referenceBases)
+
+            // TODO: optimize
             JSONArray alternateAllelesArray = new JSONArray()
-            gsolFeature.alternateAlleles.each {
+            gsolFeature.getAlternateAlleles().each { allele ->
                 JSONObject alternateAlleleObject = new JSONObject()
-                alternateAlleleObject.put(FeatureStringEnum.BASES.value, it.bases)
+                alternateAlleleObject.put(FeatureStringEnum.BASES.value, allele.bases)
+                if (allele.alleleFrequency) alternateAlleleObject.put(FeatureStringEnum.ALLELE_FREQUENCY.value, String.valueOf(allele.alleleFrequency))
+                if (allele.provenance) alternateAlleleObject.put(FeatureStringEnum.PROVENANCE.value, allele.provenance)
+
+                // allele_info
+                if (allele.getAlleleInfo()) {
+                    JSONArray alleleInfoArray = new JSONArray()
+                    JSONObject alleleInfoObject = new JSONObject()
+                    gsolFeature.alleleInfo.each { alleleInfo ->
+                        alleleInfoObject.put(FeatureStringEnum.TAG.value, alleleInfo.tag)
+                        alleleInfoObject.put(FeatureStringEnum.VALUE.value, alleleInfo.value)
+                        alleleInfoArray.add(alleleInfoObject)
+                    }
+                    alternateAlleleObject.put(FeatureStringEnum.ALLELE_INFO.value, alleleInfoArray)
+                }
                 alternateAllelesArray.add(alternateAlleleObject)
             }
             jsonFeature.put(FeatureStringEnum.ALTERNATE_ALLELES.value, alternateAllelesArray)
-            // TODO: Packaging additional metadata
         }
 
         long start = System.currentTimeMillis();

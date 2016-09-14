@@ -3884,7 +3884,7 @@ define([
 
                     for (var i = 0; i < feature.alternate_alleles.length; ++i) {
                         var alternateAllele = feature.alternate_alleles[i];
-                        altAlleles.newItem({bases: alternateAllele.bases, allele_frequency: alternateAllele.alleleFrequency || '', provenance: alternateAllele.provenance || '' });
+                        altAlleles.newItem({bases: alternateAllele.bases, allele_frequency: alternateAllele.allele_frequency || '', provenance: alternateAllele.provenance || '' });
                     }
                     var altAlleleTableLayout = [{
                         cells: [
@@ -4759,7 +4759,11 @@ define([
 
                 var addAltAlleles = function(altBases, alleleFrequency, provenance) {
                     console.log("@addAltAlleles: " + altBases);
-                    var features = [{ uniquename: uniqueName, alternate_alleles: [{bases: altBases, allele_info: [{tag: "AF", value: alleleFrequency, provenance: provenance}]}] }];
+                    var features = [{ uniquename: uniqueName }];
+                    var alternateAllele = {bases: altBases};
+                    if (alleleFrequency) alternateAllele.allele_frequency = alleleFrequency;
+                    if (provenance) alternateAllele.provenance = provenance;
+                    features[0].alternate_alleles = [alternateAllele];
                     var operation = "add_alternate_alleles";
                     var postData = { track: trackName, features: features, operation: operation };
                     track.executeUpdateOperation(JSON.stringify(postData));
@@ -4770,20 +4774,16 @@ define([
                 var updateAltAlleles = function(oldBases, oldAlleleFrequency, oldProvenance, newBases, newAlleleFrequency, newProvenance) {
                     console.log("@updateAltAlleles: " + newBases);
                     var feature = { uniquename: uniqueName };
-
-                    if (oldAlleleFrequency != "null") {
-                        feature.old_alternate_alleles = [{bases: oldBases, allele_info: [{tag: "AF", value: oldAlleleFrequency, provenance: oldProvenance}]}];
-                    }
-                    else {
-                        feature.old_alternate_alleles = [{bases: oldBases}];
-                    }
-
-                    if (newAlleleFrequency != "null") {
-                        feature.new_alternate_alleles = [{bases: newBases, allele_info: [{tag: "AF", value: newAlleleFrequency, provenance: newProvenance}]}];
-                    }
-                    else {
-                        feature.new_alternate_alleles = [{bases: newBases}];
-                    }
+                    var oldAlternateAllele = {};
+                    oldAlternateAllele.bases = oldBases;
+                    if (oldAlleleFrequency) oldAlternateAllele.allele_frequency = oldAlleleFrequency;
+                    if (oldProvenance) oldAlternateAllele.provenance = oldProvenance;
+                    feature.old_alternate_alleles = [oldAlternateAllele];
+                    var newAlternateAllele = {};
+                    newAlternateAllele.bases = newBases;
+                    if (newAlleleFrequency) newAlternateAllele.allele_frequency = newAlleleFrequency;
+                    if (newProvenance) newAlternateAllele.provenance = newProvenance;
+                    feature.new_alternate_alleles = [newAlternateAllele];
 
                     var operation = "update_alternate_alleles";
                     var postData = { track: trackName, features: [feature], operation: operation };
@@ -4798,7 +4798,8 @@ define([
                     for (var i = 0; i < altAllelesToBeDeleted.length; ++i) {
                         var alternateAllele = {};
                         alternateAllele.bases = altAllelesToBeDeleted[i].bases;
-                        alternateAllele.allele_info = [{tag: "AF", value: altAllelesToBeDeleted[i].allele_frequency, provenance: altAllelesToBeDeleted[i].provenance}];
+                        if (altAllelesToBeDeleted[i].allele_frequency) alternateAllele.allele_frequency = altAllelesToBeDeleted[i].allele_frequency;
+                        if (altAllelesToBeDeleted[i].provenance) alternateAllele.provenance = altAllelesToBeDeleted[i].provenance;
                         alternateAlleles.push(alternateAllele);
                     }
 
