@@ -24,6 +24,7 @@ import org.hibernate.FetchMode
 class AnnotatorController {
 
     def featureService
+    def variantService
     def requestHandlingService
     def permissionService
     def annotatorService
@@ -370,6 +371,26 @@ class AnnotatorController {
             render error as JSON
         }
 
+    }
+
+    def updateAlternateAlleles() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+
+        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            Feature feature = variantService.updateAlternateAlleles(jsonFeature)
+            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
+        }
+
+        render updateFeatureContainer
     }
 
     /**

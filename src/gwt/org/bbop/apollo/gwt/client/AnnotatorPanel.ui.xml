@@ -102,6 +102,10 @@
                     <gwt:header>Coding</gwt:header>
                     <apollo:ExonDetailPanel ui:field="exonDetailPanel"/>
                 </gwt:tab>
+                <gwt:tab>
+                    <gwt:header>Alternate Alleles</gwt:header>
+                    <apollo:VariantAllelesPanel ui:field="variantAllelesPanel"/>
+                </gwt:tab>
 
                 <!--TODO: 2.1-->
                 <!--<gwt:tab>-->

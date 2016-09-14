@@ -140,7 +140,7 @@ public class VariantDetailPanel extends Composite {
         }
     }
 
-    private boolean isValidDNA(String bases) {
+    public static boolean isValidDNA(String bases) {
         return bases.matches("^[ATCGN]+$");
     }
 }
