@@ -52,12 +52,18 @@ class JbrowseController {
                 }
                 clientToken = org.bbop.apollo.gwt.shared.ClientTokenGenerator.generateRandomString()
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
-                redirect(uri:  "/${clientToken}/jbrowse/index.html?${paramList.join('&')}")
+                String paramString = ""
+                paramList.each {
+                    if(!it.toString().startsWith("addTracks")){
+                        paramString += URLEncoder.encode(it.toString(),"UTF-8")+"&"
+                    }
+                    else{
+                        paramString += it + "&"
+                    }
+                }
+                String targetUri = "/${clientToken}/jbrowse/index.html?"+paramString
+                redirect(uri: targetUri)
                 return
-//                String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-//                String username = permissionService.currentUser.username
-//                org.apache.shiro.SecurityUtils.subject.logout()
-//                forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "User '${username}' lacks permissions to view or edit the annotations of any organism."])
             }
             else{
                 organism = preferenceService.getOrganismFromPreferences(clientToken)
