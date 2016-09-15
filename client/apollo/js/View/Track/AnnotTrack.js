@@ -3636,8 +3636,8 @@ define([
                     dateLastModifiedField.set("disabled", true);
                     dojo.attr(addDbxrefButton, "disabled", true);
                     dojo.attr(deleteDbxrefButton, "disabled", true);
-                    dojo.attr(addAttributeButton, "disabled", true);
-                    dojo.attr(deleteAttributeButton, "disabled", true);
+                    dojo.attr(addAltAlleleButton, "disabled", true);
+                    dojo.attr(deleteAltAlleleButton, "disabled", true);
                     dojo.attr(addPubmedIdButton, "disabled", true);
                     dojo.attr(deletePubmedIdButton, "disabled", true);
                     //dojo.attr(addGoIdButton, "disabled", true);
