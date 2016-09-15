@@ -53,13 +53,12 @@ class GroupController {
     def loadGroups() {
         try {
             log.debug "loadGroups"
-            JSONArray returnArray = new JSONArray()
-            JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data ?: "{}"))) as JSONObject
-            permissionService.handleToken(params,dataObject)
+            JSONObject dataObject = permissionService.handleInput(request,params)
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
+            JSONArray returnArray = new JSONArray()
             def allowableOrganisms = permissionService.getOrganisms((User) permissionService.currentUser)
 
             Map<String, List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
@@ -240,14 +239,14 @@ class GroupController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to modify permissions for")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to modify permissions for")
+            , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to modify permissions for (must provide this or 'name')")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to modify permissions for (must provide this or 'groupId')")
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name")
 
-            , @RestApiParam(name = "administrate", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has administrative (including user/group) privileges for the organism")
-            , @RestApiParam(name = "write", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has write privileges for the organism")
-            , @RestApiParam(name = "export", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has export privileges for the organism")
-            , @RestApiParam(name = "read", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has read privileges for the organism")
+            , @RestApiParam(name = "ADMINISTRATE", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has administrative and all lesser (including user/group) privileges for the organism")
+            , @RestApiParam(name = "WRITE", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has write and all lesser privileges for the organism")
+            , @RestApiParam(name = "EXPORT", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has export and all lesser privileges for the organism")
+            , @RestApiParam(name = "READ", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has read and all lesser privileges for the organism")
     ]
     )
     @Transactional

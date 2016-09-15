@@ -29,12 +29,11 @@ class UserController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId")
+            , @RestApiParam(name = "userId", type = "long / string", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId as an integer database id or a username string")
     ])
     def loadUsers() {
         try {
-            JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data ?: "{}"))) as JSONObject
-            permissionService.handleToken(params,dataObject)
+            JSONObject dataObject = permissionService.handleInput(request,params)
             JSONArray returnArray = new JSONArray()
             if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
@@ -421,7 +420,7 @@ class UserController {
             , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "User ID to fetch")
     ])
     def getOrganismPermissionsForUser() {
-        JSONObject dataObject = JSON.parse(params.data)
+        JSONObject dataObject = permissionService.handleInput(request, params)
         User user = User.findById(dataObject.userId)
 
         List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByUser(user)
@@ -443,10 +442,10 @@ class UserController {
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Name of organism to update")
             , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Permission ID to update (can get from userId/organism instead)")
 
-            , @RestApiParam(name = "administrate", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has administrative (including user/group) privileges for the organism")
-            , @RestApiParam(name = "write", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has write privileges for the organism")
-            , @RestApiParam(name = "export", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has export privileges for the organism")
-            , @RestApiParam(name = "read", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has read privileges for the organism")
+            , @RestApiParam(name = "ADMINISTRATE", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has administrative and all lesser (including user/group) privileges for the organism")
+            , @RestApiParam(name = "WRITE", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has write and all lesser privileges for the organism")
+            , @RestApiParam(name = "EXPORT", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has export and all lesser privileges for the organism")
+            , @RestApiParam(name = "READ", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has read and all lesser privileges for the organism")
     ])
     @Transactional
     def updateOrganismPermission() {
