@@ -1,7 +1,7 @@
 package org.bbop.apollo.gwt.client.dto;
 
 import com.google.gwt.json.client.JSONObject;
-import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfoConverter;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfoConverter;
 
 /**
  * Created by Nathan Dunn on 3/31/15.
@@ -15,9 +15,8 @@ public class AppInfoConverter {
             appStateInfo.setCurrentOrganism(OrganismInfoConverter.convertFromJson(object.isObject().get("currentOrganism").isObject()));
         }
 
-        if(object.get("currentBookmark")!=null ){
-//            appStateInfo.setCurrentSequence(SequenceInfoConverter.convertFromJson(object.isObject().get("currentSequence").isObject()));
-            appStateInfo.setCurrentBookmark(BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(object.isObject().get("currentBookmark").isObject()));
+        if(object.get("currentAssemblage")!=null ){
+            appStateInfo.setCurrentAssemblage(AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(object.isObject().get("currentAssemblage").isObject()));
         }
         appStateInfo.setOrganismList(OrganismInfoConverter.convertFromJsonArray(object.get("organismList").isArray()));
         if(object.containsKey("currentStartBp")){

@@ -2,14 +2,13 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     def featureService
-    def bookmarkService
+    def assemblageService
     def transcriptService
     def requestHandlingService
     def featureRelationshipService
@@ -22,7 +21,7 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         when: "we parse it"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
-        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(Sequence.first())
+        Assemblage assemblage = assemblageService.generateAssemblageForSequence(Sequence.first())
 
         then: "is is a valid object"
         assert jsonObject != null
@@ -33,7 +32,7 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert childArray.size() == 7
 
         when: "we convert it to a feature"
-        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject,bookmark)
+        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject,assemblage)
 
         then: "it should convert it to the same feature"
         assert feature != null
@@ -108,8 +107,8 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we delete the gene and transcript and try to add the feature via the JSONObject"
         featureRelationshipService.deleteFeatureAndChildren(gene)
         Sequence sequence = Sequence.all.get(0)
-        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
-        featureService.convertJSONToFeature(geneFeatureJsonObject, bookmark)
+        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequence)
+        featureService.convertJSONToFeature(geneFeatureJsonObject, assemblage)
 
         then: "convertJSONToFeature() should interpret the JSONObject properly and we should see all the properties that we added above"
         assert Gene.count == 1

@@ -10,5 +10,5 @@ fi
 echo "Deleting features from $DBARG"
 
 psql $DBARG -c  "delete from preference";
-psql $DBARG -c  "delete from bookmark";
+psql $DBARG -c  "delete from assemblage";
 

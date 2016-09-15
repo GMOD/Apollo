@@ -28,7 +28,7 @@ class JbrowseController {
     def trackService
     def refSeqProjectorService
     def sequenceCacheService
-    def bookmarkService
+    def assemblageService
 
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
@@ -144,7 +144,7 @@ class JbrowseController {
                 if (organism.sequences) {
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
-                    Bookmark bookmark = bookmarkService.getBookmarksForUserAndOrganism(permissionService.currentUser, organism)
+                    Assemblage assemblage = assemblageService.getAssemblagesForUserAndOrganism(permissionService.currentUser, organism)
 //                    Sequence sequence = organism?.sequences?.first()
                     JSONArray sequenceArray = new JSONArray()
                     if (userOrganismPreference == null) {
@@ -157,7 +157,7 @@ class JbrowseController {
                         }
 //
 //                    if (userOrganismPreference == null) {
-//                        Bookmark bookmark = new Bookmark(
+//                        Assemblage assemblage = new Assemblage(
 //                                organism: organism
 //                                , sequenceList: sequenceArray.toString()
 //                                , user: user
@@ -165,11 +165,11 @@ class JbrowseController {
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
                                 , organism: organism
-                                , bookmark: bookmark
+                                , assemblage: assemblage
                                 , currentOrganism: true
                         ).save(insert: true, flush: true)
                     } else {
-                        userOrganismPreference.bookmark = userOrganismPreference.bookmark
+                        userOrganismPreference.assemblage = userOrganismPreference.assemblage
                         userOrganismPreference.currentOrganism = true
                         userOrganismPreference.save()
                     }
@@ -196,7 +196,7 @@ class JbrowseController {
             String refererLoc = trackService.extractLocation(referer)
 
             MultiSequenceProjection projection = null
-            if (BookmarkService.isProjectionString(refererLoc)) {
+            if (AssemblageService.isProjectionString(refererLoc)) {
                 Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken) ?: preferenceService.inferOrganismFromReference(refererLoc)
                 projection = projectionService.getProjection(refererLoc, currentOrganism)
             }
@@ -487,7 +487,7 @@ class JbrowseController {
                     JSONObject refererObject
                     String results
 
-                    if (BookmarkService.isProjectionString(refererLoc)) {
+                    if (AssemblageService.isProjectionString(refererLoc)) {
                         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
                         Integer lastIndex = refererLoc.lastIndexOf("}:")
                         String sequenceString = refererLoc.substring(0, lastIndex + 1)
@@ -495,7 +495,7 @@ class JbrowseController {
                         refererObject.seqChunkSize = 20000
                         sequenceArray.add(refererObject)
                         results = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
-                    } else if (BookmarkService.isProjectionReferer(refererLoc)) {
+                    } else if (AssemblageService.isProjectionReferer(refererLoc)) {
                         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
                         // NOTE: not sure if this is the correct object

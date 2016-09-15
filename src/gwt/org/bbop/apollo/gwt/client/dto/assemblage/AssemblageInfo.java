@@ -1,4 +1,4 @@
-package org.bbop.apollo.gwt.client.dto.bookmark;
+package org.bbop.apollo.gwt.client.dto.assemblage;
 
 import com.google.gwt.json.client.JSONObject;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
@@ -8,9 +8,9 @@ import java.util.Set;
 /**
  * Created by Nathan Dunn on 12/18/14.
  */
-public class BookmarkInfo implements Comparable<BookmarkInfo> {
+public class AssemblageInfo implements Comparable<AssemblageInfo> {
 
-    private BookmarkSequenceList sequenceList;
+    private AssemblageSequenceList sequenceList;
 
     private String type;
     private Integer padding;
@@ -21,7 +21,7 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
     private Long end;
 
     @Override
-    public int compareTo(BookmarkInfo o) {
+    public int compareTo(AssemblageInfo o) {
         return getName().compareTo(o.getName());
     }
 
@@ -29,7 +29,7 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
     public String getName() {
         String name = "";
         for (int i = 0; i < sequenceList.size(); i++) {
-            BookmarkSequence sequenceObject = sequenceList.getSequence(i);
+            AssemblageSequence sequenceObject = sequenceList.getSequence(i);
 
             SequenceFeatureInfo sequenceFeatureInfo = sequenceObject.getFeature();
             if (sequenceFeatureInfo != null) {
@@ -78,11 +78,11 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         this.payload = payload;
     }
 
-    public BookmarkSequenceList getSequenceList() {
+    public AssemblageSequenceList getSequenceList() {
         return sequenceList;
     }
 
-    public void setSequenceList(BookmarkSequenceList sequenceList) {
+    public void setSequenceList(AssemblageSequenceList sequenceList) {
         this.sequenceList = sequenceList;
     }
 
@@ -104,14 +104,14 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         this.padding = padding;
     }
 
-    public BookmarkInfo copy() {
-        BookmarkInfo bookmarkInfo = new BookmarkInfo();
-        bookmarkInfo.setPadding(padding);
-        bookmarkInfo.setPayload(payload);
-        bookmarkInfo.setSequenceList(sequenceList);
-        bookmarkInfo.setType(type);
-        bookmarkInfo.setOrganismName(organismName);
-        return bookmarkInfo;
+    public AssemblageInfo copy() {
+        AssemblageInfo assemblageInfo = new AssemblageInfo();
+        assemblageInfo.setPadding(padding);
+        assemblageInfo.setPayload(payload);
+        assemblageInfo.setSequenceList(sequenceList);
+        assemblageInfo.setType(type);
+        assemblageInfo.setOrganismName(organismName);
+        return assemblageInfo;
     }
 
     public void setId(Long id) {
@@ -122,29 +122,29 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         return id;
     }
 
-    public BookmarkInfo merge(BookmarkInfo bookmarkInfo) {
-        BookmarkInfo bookmarkInfoReturn = this.copy();
+    public AssemblageInfo merge(AssemblageInfo assemblageInfo) {
+        AssemblageInfo assemblageInfoReturn = this.copy();
 
-        bookmarkInfoReturn.setPadding(bookmarkInfo.getPadding() > bookmarkInfoReturn.getPadding() ? bookmarkInfo.getPadding() : bookmarkInfoReturn.getPadding());
+        assemblageInfoReturn.setPadding(assemblageInfo.getPadding() > assemblageInfoReturn.getPadding() ? assemblageInfo.getPadding() : assemblageInfoReturn.getPadding());
         // TODO: set payload when we have that
-        if (bookmarkInfoReturn.getPayload() == null) {
-            bookmarkInfoReturn.setPayload(bookmarkInfo.getPayload());
-        } else if (bookmarkInfo.getPayload() == null) {
-//            bookmarkInfoReturn.setPayload(bookmarkInfo.getPayload());
+        if (assemblageInfoReturn.getPayload() == null) {
+            assemblageInfoReturn.setPayload(assemblageInfo.getPayload());
+        } else if (assemblageInfo.getPayload() == null) {
+//            assemblageInfoReturn.setPayload(assemblageInfo.getPayload());
         }
         // if neither is null
         else {
             // TODO: merge teh payload
         }
         // organism should be the same . . .
-//        bookmarkInfoReturn.setPayload();
-//        bookmarkInfo.setType(); // just take the one I guess
-        BookmarkSequenceList bookmarkSequenceList = bookmarkInfo.getSequenceList();
-        for (int i = 0; i < bookmarkSequenceList.size(); i++) {
-            bookmarkInfoReturn.getSequenceList().addSequence(bookmarkSequenceList.getSequence(i));
+//        assemblageInfoReturn.setPayload();
+//        assemblageInfo.setType(); // just take the one I guess
+        AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
+        for (int i = 0; i < assemblageSequenceList.size(); i++) {
+            assemblageInfoReturn.getSequenceList().addSequence(assemblageSequenceList.getSequence(i));
         }
 
-        return bookmarkInfoReturn;
+        return assemblageInfoReturn;
     }
 
     public Long getStart() {
@@ -163,26 +163,26 @@ public class BookmarkInfo implements Comparable<BookmarkInfo> {
         this.end = end;
     }
 
-    public BookmarkInfo addSequenceInfoSet(Set<SequenceInfo> sequenceInfoSet) {
+    public AssemblageInfo addSequenceInfoSet(Set<SequenceInfo> sequenceInfoSet) {
         if(sequenceList==null){
-            sequenceList = new BookmarkSequenceList();
+            sequenceList = new AssemblageSequenceList();
         }
         for(SequenceInfo sequenceInfo: sequenceInfoSet){
-            BookmarkSequence bookmarkSequence = new BookmarkSequence(sequenceInfo);
-            sequenceList.addSequence(bookmarkSequence);
+            AssemblageSequence assemblageSequence = new AssemblageSequence(sequenceInfo);
+            sequenceList.addSequence(assemblageSequence);
         }
         return this;
     }
 
     /**
      * Basically merge the sequenceInfoSet
-     * @param bookmarkInfo
+     * @param assemblageInfo
      * @return
      */
-    public BookmarkInfo addBookmarkToEnd(BookmarkInfo bookmarkInfo) {
-        BookmarkSequenceList bookmarkSequenceList = bookmarkInfo.getSequenceList();
-        for(int i = 0 ; i < bookmarkSequenceList.size() ;i++){
-            this.getSequenceList().addSequence(bookmarkSequenceList.getSequence(i));
+    public AssemblageInfo addAssemblageToEnd(AssemblageInfo assemblageInfo) {
+        AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
+        for(int i = 0; i < assemblageSequenceList.size() ; i++){
+            this.getSequenceList().addSequence(assemblageSequenceList.getSequence(i));
         }
 
         return this;

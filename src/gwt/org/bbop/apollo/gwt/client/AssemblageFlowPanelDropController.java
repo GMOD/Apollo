@@ -10,9 +10,9 @@ import com.google.gwt.user.client.ui.Widget;
 /**
  * Created by nathandunn on 4/29/16.
  */
-public class BookmarkFlowPanelDropController extends FlowPanelDropController{
+public class AssemblageFlowPanelDropController extends FlowPanelDropController{
 
-    public BookmarkFlowPanelDropController(FlowPanel dropTarget){
+    public AssemblageFlowPanelDropController(FlowPanel dropTarget){
         super(dropTarget);
     }
 

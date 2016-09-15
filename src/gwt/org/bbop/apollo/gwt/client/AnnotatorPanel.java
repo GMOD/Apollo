@@ -5,7 +5,6 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.builder.shared.DivBuilder;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
@@ -39,10 +38,10 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.*;
-import org.bbop.apollo.gwt.client.dto.bookmark.*;
+import org.bbop.apollo.gwt.client.dto.assemblage.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
+import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
@@ -106,7 +105,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     Container northPanelContainer;
     @UiField
-    static Button addNewBookmark;
+    static Button addNewAssemblage;
     @UiField
     static Button addToView;
     @UiField
@@ -337,26 +336,26 @@ public class AnnotatorPanel extends Composite {
 
     @UiHandler("addToView")
     void addToView(ClickEvent clickEvent) {
-        BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
-        BookmarkInfo currentBookmark = MainPanel.getInstance().getCurrentBookmark();
-        currentBookmark = currentBookmark.addBookmarkToEnd(bookmarkInfo);
-        BookmarkRestService.addBoorkmarkAndView(currentBookmark);
+        AssemblageInfo assemblageInfo = collectAssemblageFromSelectedFeature(currentAnnotationInfo);
+        AssemblageInfo currentAssemblage = MainPanel.getInstance().getCurrentAssemblage();
+        currentAssemblage = currentAssemblage.addAssemblageToEnd(assemblageInfo);
+        AssemblageRestService.addAssemblageAndView(currentAssemblage);
     }
 
     @UiHandler("viewAnnotation")
     void viewAnnotation(ClickEvent clickEvent) {
-        BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
-        expandBookmark(bookmarkInfo,2d);
-        BookmarkRestService.addBoorkmarkAndView(bookmarkInfo);
+        AssemblageInfo assemblageInfo = collectAssemblageFromSelectedFeature(currentAnnotationInfo);
+        expandAssemblage(assemblageInfo,2d);
+        AssemblageRestService.addAssemblageAndView(assemblageInfo);
     }
 
-    static BookmarkInfo collectBookmarkFromSelectedFeature(AnnotationInfo annotationInfo){
+    static AssemblageInfo collectAssemblageFromSelectedFeature(AnnotationInfo annotationInfo){
 
-        BookmarkInfo bookmarkInfo = new BookmarkInfo();
-        BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
+        AssemblageInfo assemblageInfo = new AssemblageInfo();
+        AssemblageSequenceList sequenceArray = new AssemblageSequenceList();
 
-        bookmarkInfo.setPadding(50);
-        bookmarkInfo.setType("Exon");
+        assemblageInfo.setPadding(50);
+        assemblageInfo.setType("Exon");
 
         SequenceFeatureInfo sequenceObject = new SequenceFeatureInfo();
 //        sequenceObject.setReverseComplement(false);
@@ -370,18 +369,18 @@ public class AnnotatorPanel extends Composite {
         sequenceObject.setFeature(featuresObject);
         sequenceArray.set(sequenceArray.size(), sequenceObject);
 
-        bookmarkInfo.setSequenceList(sequenceArray);
-        bookmarkInfo.setStart(annotationInfo.getMin());
-        bookmarkInfo.setEnd(annotationInfo.getMax());
+        assemblageInfo.setSequenceList(sequenceArray);
+        assemblageInfo.setStart(annotationInfo.getMin());
+        assemblageInfo.setEnd(annotationInfo.getMax());
 
-        return bookmarkInfo;
+        return assemblageInfo;
     }
 
-    void expandBookmark(BookmarkInfo bookmarkInfo,Double expansionFactor){
-        BookmarkSequenceList bookmarkSequenceList = bookmarkInfo.getSequenceList();
-        BookmarkSequence bookmarkSequence = bookmarkSequenceList.getSequence(0);
-        Long start = bookmarkSequence.getStart();
-        Long end = bookmarkSequence.getEnd();
+    void expandAssemblage(AssemblageInfo assemblageInfo, Double expansionFactor){
+        AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
+        AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(0);
+        Long start = assemblageSequence.getStart();
+        Long end = assemblageSequence.getEnd();
 //        Long width = end - start ;
         // we must now double the size
 //        Double desiredWidth = width * expansionFactor ;
@@ -392,31 +391,31 @@ public class AnnotatorPanel extends Composite {
         Long desiredEnd = end + (long) (buffer) ;
         start = desiredStart < 0 ? 0 : desiredStart ;
         end = desiredEnd ;  // can we maximize this?
-        bookmarkSequence.setStart(start);
-        bookmarkSequence.setEnd(end);
-        bookmarkSequenceList.set(0,bookmarkSequence);
-        bookmarkInfo.setSequenceList(bookmarkSequenceList);
+        assemblageSequence.setStart(start);
+        assemblageSequence.setEnd(end);
+        assemblageSequenceList.set(0, assemblageSequence);
+        assemblageInfo.setSequenceList(assemblageSequenceList);
     }
 
-    @UiHandler("addNewBookmark")
-    void addNewBookmark(ClickEvent clickEvent) {
-        BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
-        expandBookmark(bookmarkInfo,2d);
+    @UiHandler("addNewAssemblage")
+    void addNewAssemblage(ClickEvent clickEvent) {
+        AssemblageInfo assemblageInfo = collectAssemblageFromSelectedFeature(currentAnnotationInfo);
+        expandAssemblage(assemblageInfo,2d);
 
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                new InfoDialog("Added Bookmark", "Added bookmark for " + currentAnnotationInfo.getName(), true);
+                new InfoDialog("Added Assemblage", "Added assemblage for " + currentAnnotationInfo.getName(), true);
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error adding bookmark: "+exception);
+                Window.alert("Error adding assemblage: "+exception);
             }
         };
 
-        MainPanel.getInstance().addBookmark(requestCallback,bookmarkInfo);
+        MainPanel.getInstance().addAssemblage(requestCallback, assemblageInfo);
     }
 
 
@@ -457,7 +456,7 @@ public class AnnotatorPanel extends Composite {
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
         currentAnnotationInfo = annotationInfo;
-        addNewBookmark.setEnabled(currentAnnotationInfo != null);
+        addNewAssemblage.setEnabled(currentAnnotationInfo != null);
         viewAnnotation.setEnabled(currentAnnotationInfo != null);
         addToView.setEnabled(currentAnnotationInfo != null);
         if (currentAnnotationInfo == null) {
@@ -642,19 +641,12 @@ public class AnnotatorPanel extends Composite {
     // TODO: need to cache these or retrieve from the backend
     public static void displayTranscript(String geneIndex, String uniqueName,String displayString) {
         int geneInt = Integer.parseInt(geneIndex);
-        boolean display = Boolean.parseBoolean(displayString);
         AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneInt));
-//        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
 
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
             if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
                 exonDetailPanel.updateData(childAnnotation);
                 updateAnnotationInfo(childAnnotation);
-//                if(display){
-//                    BookmarkInfo bookmarkInfo = collectBookmarkFromSelectedFeature(currentAnnotationInfo);
-//                    BookmarkRestService.addBoorkmarkAndView(bookmarkInfo);
-//                    Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
-//                }
                 return;
             }
         }

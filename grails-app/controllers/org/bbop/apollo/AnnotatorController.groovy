@@ -2,8 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import org.apache.shiro.SecurityUtils
-import org.apache.shiro.session.Session
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -31,7 +29,7 @@ class AnnotatorController {
     def annotatorService
     def preferenceService
     def reportService
-    def bookmarkService
+    def assemblageService
     def featureRelationshipService
 
     private List<String> reservedList = ["loc",
@@ -158,9 +156,9 @@ class AnnotatorController {
     def updateFeature() {
         log.debug "updateFeature ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
-        Bookmark bookmark
+        Assemblage assemblage
         try {
-            bookmark = permissionService.checkPermissions(data,PermissionEnum.WRITE)
+            assemblage = permissionService.checkPermissions(data,PermissionEnum.WRITE)
         } catch (e) {
             log.error("Unauthorized: "+e)
             render status: HttpStatus.UNAUTHORIZED
@@ -178,17 +176,17 @@ class AnnotatorController {
         if (feature instanceof Gene) {
             List<Feature> childFeatures = feature.parentFeatureRelationships*.childFeature
             for (childFeature in childFeatures) {
-                JSONObject jsonFeature = featureService.convertFeatureToJSON(childFeature, false,bookmark)
+                JSONObject jsonFeature = featureService.convertFeatureToJSON(childFeature, false,assemblage)
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
             }
         } else {
-            JSONObject jsonFeature = featureService.convertFeatureToJSON(feature, false,bookmark)
+            JSONObject jsonFeature = featureService.convertFeatureToJSON(feature, false,assemblage)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
         }
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
-                , bookmark: bookmarkService.generateBookmarkForFeature(feature)
+                , assemblage: assemblageService.generateAssemblageForFeature(feature)
                 , operation: AnnotationEvent.Operation.UPDATE
                 , sequenceAlterationEvent: false
         )
@@ -211,10 +209,10 @@ class AnnotatorController {
     def updateFeatureLocation() {
         log.info "updateFeatureLocation ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
-        Bookmark bookmark
+        Assemblage assemblage
 
         try {
-            bookmark = permissionService.checkPermissions(data,PermissionEnum.WRITE)
+            assemblage = permissionService.checkPermissions(data,PermissionEnum.WRITE)
         } catch (e) {
             log.error("Failed to authorize: "+e)
             render status: HttpStatus.UNAUTHORIZED
@@ -232,13 +230,13 @@ class AnnotatorController {
         // need to grant the parent feature to force a redraw
         Feature parentFeature = featureRelationshipService.getParentForFeature(feature)
 
-        JSONObject jsonFeature = featureService.convertFeatureToJSON(parentFeature, false,bookmark)
+        JSONObject jsonFeature = featureService.convertFeatureToJSON(parentFeature, false,assemblage)
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
-                , bookmark: bookmarkService.generateBookmarkForFeature(feature)
+                , assemblage: assemblageService.generateAssemblageForFeature(feature)
                 , operation: AnnotationEvent.Operation.UPDATE
                 , sequenceAlterationEvent: false
         )
@@ -285,25 +283,25 @@ class AnnotatorController {
 //                render returnObject as JSON
 //              return
             } else {
-                Bookmark generatedBookmark = bookmarkService.generateBookmarkForSequence(sequences as Sequence[])
-                String bookmarkString = bookmarkService.convertBookmarkToJson(generatedBookmark).toString()
+                Assemblage generatedAssemblage = assemblageService.generateAssemblageForSequence(sequences as Sequence[])
+                String s = assemblageService.convertAssemblageToJson(generatedAssemblage).toString()
 
                 if (sequenceName) {
-                    returnObject.track = bookmarkString
+                    returnObject.track = s
                 }
             }
 
 //            Sequence sequenceObj = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
 //            Organism organism = sequenceObj.organism
-            Bookmark bookmark
+            Assemblage assemblage
 //            Organism organism = permissionService.currentOrganismPreference.organism
             Organism organism = preferenceService.getCurrentOrganismPreference(clientToken)?.organism
 
             returnObject.organism = organism?.id
             if (returnObject.has("track")) {
-                bookmark = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+                assemblage = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             } else {
-                bookmark = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
+                assemblage = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
             }
             Integer index = Integer.parseInt(request)
 
@@ -333,8 +331,8 @@ class AnnotatorController {
             log.debug "${sort} ${sortorder}"
 
             List<Sequence> sequenceList
-            if (bookmark) {
-                sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+            if (assemblage) {
+                sequenceList = assemblageService.getSequencesFromAssemblage(assemblage)
             }
 //            else{
 //
@@ -342,8 +340,7 @@ class AnnotatorController {
             //use two step query. step 1 gets genes in a page
             def pagination = Feature.createCriteria().list(max: max, offset: offset) {
                 featureLocations {
-//                    if(sequences && !BookmarkService.isProjectionString(sequenceName) && !BookmarkService.isProjectionReferer(bookmark)) {
-                    if(sequences && !BookmarkService.isProjectionString(sequenceName)) {
+                    if(sequences && !AssemblageService.isProjectionString(sequenceName)) {
                         'in'('sequence',sequences)
                     }
                     if (sort == "length") {
@@ -407,7 +404,7 @@ class AnnotatorController {
 
             start = System.currentTimeMillis();
             for (Feature feature in features) {
-                JSONObject featureObject = featureService.convertFeatureToJSONLite(feature, false, 0,bookmark)
+                JSONObject featureObject = featureService.convertFeatureToJSONLite(feature, false, 0,assemblage)
                 returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureObject)
             }
             durationInMilliseconds = System.currentTimeMillis() - start;

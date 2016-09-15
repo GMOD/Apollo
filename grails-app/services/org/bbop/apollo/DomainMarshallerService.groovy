@@ -50,7 +50,7 @@ class DomainMarshallerService {
             return returnArray
         }
 
-        JSON.registerObjectMarshaller(Bookmark) {
+        JSON.registerObjectMarshaller(Assemblage) {
             def returnArray = [:]
             returnArray['id'] = it?.id
             returnArray['projection'] = it?.projection ?: "NONE"

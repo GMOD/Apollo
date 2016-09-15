@@ -19,7 +19,7 @@ class TranscriptService {
     def nonCanonicalSplitSiteService
     def sequenceService
     def featureProjectionService
-    def bookmarkService
+    def assemblageService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
      *  which child is a CDS.  The CDS object is generated on the fly.  Returns <code>null</code>
@@ -43,13 +43,13 @@ class TranscriptService {
     }
 
 
-    public Collection<Exon> getSortedExons(Transcript transcript,boolean sortByStrand, Bookmark bookmark = null) {
+    public Collection<Exon> getSortedExons(Transcript transcript, boolean sortByStrand, Assemblage assemblage = null) {
         Collection<Exon> exons = getExons(transcript)
         List<Exon> sortedExons = new LinkedList<Exon>(exons);
-        if(!bookmark){
-            bookmark = bookmarkService.generateBookmarkForFeature(transcript)
+        if(!assemblage){
+            assemblage = assemblageService.generateAssemblageForFeature(transcript)
         }
-        Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(sortByStrand,bookmarkService.getSequencesFromBookmark(bookmark)))
+        Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(sortByStrand,assemblageService.getSequencesFromAssemblage(assemblage)))
         return sortedExons
     }
 
@@ -169,7 +169,7 @@ class TranscriptService {
     }
 
     @Transactional
-    def updateGeneBoundaries(Transcript transcript, Bookmark bookmark) {
+    def updateGeneBoundaries(Transcript transcript, Assemblage assemblage) {
         Gene gene = getGene(transcript)
         if (gene == null) {
             return;
@@ -179,7 +179,7 @@ class TranscriptService {
         Integer geneFmin = Integer.MAX_VALUE
         Integer geneFmax = Integer.MIN_VALUE
 
-        MultiSequenceProjection  multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
+        MultiSequenceProjection  multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
 
         println "INIT ${geneFmin}-${geneFmax}"
 
@@ -206,7 +206,7 @@ class TranscriptService {
      */
     @Transactional
     def updateGeneBoundaries(Transcript transcript) {
-        updateGeneBoundaries(transcript,bookmarkService.generateBookmarkForFeature(transcript))
+        updateGeneBoundaries(transcript,assemblageService.generateAssemblageForFeature(transcript))
     }
 
     List<String> getFrameShiftOntologyIds() {
@@ -259,19 +259,19 @@ class TranscriptService {
     }
 
     /**
-     * Add an exon to this transcript in the context of this bookmark.
+     * Add an exon to this transcript in the context of this assemblage.
      *
      * @param transcript
      * @param exon
      * @param fixTranscript
-     * @param bookmark
+     * @param assemblage
      * @return
      */
     @Transactional
-    def addExon(Transcript transcript, Exon exon, Boolean fixTranscript, Bookmark bookmark ) {
+    def addExon(Transcript transcript, Exon exon, Boolean fixTranscript, Assemblage assemblage ) {
 
         // TODO: this method REALLY needs to be multisequence aware
-        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
 
         int transcriptFmin = projectionService.getMinForFeatureInProjection(transcript,multiSequenceProjection)
         int transcriptFmax = projectionService.getMaxForFeatureInProjection(transcript,multiSequenceProjection)
@@ -324,11 +324,11 @@ class TranscriptService {
 
 
         if (fixTranscript) {
-            featureService.removeExonOverlapsAndAdjacencies(transcript, bookmark)
+            featureService.removeExonOverlapsAndAdjacencies(transcript, assemblage)
             log.debug "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
 //
 //        // if the exon is removed during a merge, then we will get a null-pointer
-            updateGeneBoundaries(transcript,bookmark);  // 6, moved transcript fmin, fmax
+            updateGeneBoundaries(transcript,assemblage);  // 6, moved transcript fmin, fmax
             log.debug "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
         }
     }
@@ -342,12 +342,12 @@ class TranscriptService {
      * @param transcript
      * @param leftExon
      * @param rightExon
-     * @param bookmark
+     * @param assemblage
      * @return
      */
     @Transactional
-    Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon,Bookmark bookmark) {
-        List<Exon> exons = getSortedExons(transcript,true,bookmark)
+    Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon, Assemblage assemblage) {
+        List<Exon> exons = getSortedExons(transcript,true,assemblage)
         Transcript splitTranscript = (Transcript) transcript.getClass().newInstance()
         splitTranscript.uniqueName = nameService.generateUniqueName()
         splitTranscript.name = nameService.generateUniqueName(transcript)
@@ -396,9 +396,9 @@ class TranscriptService {
         }
 
         splitTranscript.name = nameService.generateUniqueName(splitTranscript, splitTranscriptGene.name)
-        featureService.addTranscriptToGene(splitTranscriptGene, splitTranscript,bookmark)
+        featureService.addTranscriptToGene(splitTranscriptGene, splitTranscript,assemblage)
 
-        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
 
         // changing feature location of transcript to the fmax of the left exon
         featureService.setFmax(transcript,leftExon.fmax,multiSequenceProjection)
@@ -411,10 +411,10 @@ class TranscriptService {
                 if (exonFeatureLocation.fmin > leftExon.getFmin()) {
                     if (exon.equals(rightExon)) {
                         featureRelationshipService.removeFeatureRelationship(transcript, rightExon)
-                        addExon(splitTranscript, rightExon, true,bookmark);
+                        addExon(splitTranscript, rightExon, true,assemblage);
                     } else {
                         featureRelationshipService.removeFeatureRelationship(transcript, exon)
-                        addExon(splitTranscript, exon, true,bookmark);
+                        addExon(splitTranscript, exon, true,assemblage);
                     }
                 }
             }
@@ -431,14 +431,14 @@ class TranscriptService {
      * @param transcript - Transcript to be duplicated
      */
     @Transactional
-    public Transcript duplicateTranscript(Transcript transcript,Bookmark bookmark) {
+    public Transcript duplicateTranscript(Transcript transcript, Assemblage assemblage) {
         Transcript duplicate = (Transcript) transcript.generateClone();
         duplicate.name = transcript.name + "-copy"
         duplicate.uniqueName = nameService.generateUniqueName(transcript)
 
         Gene gene = getGene(transcript)
         if (gene) {
-            featureService.addTranscriptToGene(gene, duplicate,bookmark)
+            featureService.addTranscriptToGene(gene, duplicate,assemblage)
             gene.save()
         }
         // copy exons
@@ -446,7 +446,7 @@ class TranscriptService {
             Exon duplicateExon = (Exon) exon.generateClone()
             duplicateExon.name = exon.name + "-copy"
             duplicateExon.uniqueName = nameService.generateUniqueName(duplicateExon)
-            addExon(duplicate, duplicateExon, true,bookmark)
+            addExon(duplicate, duplicateExon, true,assemblage)
         }
         // copy CDS
         CDS cds = getCDS(transcript)
@@ -464,16 +464,16 @@ class TranscriptService {
     }
 
     @Transactional
-    def mergeTranscripts(Transcript transcript1, Transcript transcript2, Bookmark bookmark) {
+    def mergeTranscripts(Transcript transcript1, Transcript transcript2, Assemblage assemblage) {
         // Merging transcripts basically boils down to moving all exons from one transcript to the other
 
         // moving all exons from transcript2 to transcript1
         for (Exon exon : getExons(transcript2)) {
             featureRelationshipService.removeFeatureRelationship(transcript2, exon)
-            addExon(transcript1, exon, true,bookmark)
+            addExon(transcript1, exon, true,assemblage)
         }
         // we have to do this here to calculate overlaps later
-        featureService.calculateCDS(transcript1, false,bookmark)
+        featureService.calculateCDS(transcript1, false,assemblage)
         featureService.handleDynamicIsoformOverlap(transcript1)
         transcript1.save(flush: true)
 
@@ -502,7 +502,7 @@ class TranscriptService {
                         // only move if it overlapps.
                         if (transcript != transcript2) {
                             deleteTranscript(gene2, transcript)
-                            featureService.addTranscriptToGene(gene1, transcript,bookmark)
+                            featureService.addTranscriptToGene(gene1, transcript,assemblage)
                         }
                     }
                 }
@@ -528,22 +528,22 @@ class TranscriptService {
             // no outstanding relationships that need to be deleted
             featureService.deleteFeature(transcript2);
         }
-        featureService.removeExonOverlapsAndAdjacencies(transcript1,bookmark);
+        featureService.removeExonOverlapsAndAdjacencies(transcript1,assemblage);
     }
 
     @Transactional
-    Transcript flipTranscriptStrand(Transcript oldTranscript,Bookmark bookmark) {
+    Transcript flipTranscriptStrand(Transcript oldTranscript, Assemblage assemblage) {
         oldTranscript = (Transcript) featureService.flipStrand(oldTranscript)
         oldTranscript.save()
-        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(oldTranscript,bookmark)
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(oldTranscript,assemblage)
         oldTranscript.save()
 
         return oldTranscript;
     }
 
     String getResiduesFromTranscript(Transcript transcript) {
-        Bookmark bookmark =  bookmarkService.generateBookmarkForFeature(transcript)
-        def exons = getSortedExons(transcript,true,bookmark)
+        Assemblage assemblage =  assemblageService.generateAssemblageForFeature(transcript)
+        def exons = getSortedExons(transcript,true,assemblage)
         if (!exons) {
             return null
         }

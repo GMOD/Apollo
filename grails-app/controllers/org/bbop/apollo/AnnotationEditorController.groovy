@@ -3,7 +3,6 @@ package org.bbop.apollo
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.PermissionEnum
-import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
 import org.grails.plugins.metrics.groovy.Timed
 import org.restapidoc.annotation.RestApi
@@ -17,7 +16,7 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.Principal
-import java.text.DateFormat
+
 import static grails.async.Promises.*
 import grails.converters.JSON
 import org.bbop.apollo.event.AnnotationEvent
@@ -50,7 +49,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def preferenceService
     def sequenceSearchService
     def featureEventService
-    def bookmarkService
+    def assemblageService
 
 
     def index() {
@@ -475,16 +474,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @Timed
     def getSequenceAlterations() {
         JSONObject returnObject = permissionService.handleInput(request, params)
-        Bookmark bookmark = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+        Assemblage assemblage = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
 
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
 
-        List<Sequence> sequences = bookmarkService.getSequencesFromBookmark(bookmark)
+        List<Sequence> sequences = assemblageService.getSequencesFromAssemblage(assemblage)
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in (:sequence) and f.class in :sequenceTypes"
                 , [sequence: sequences, sequenceTypes: requestHandlingService.viewableAlterations])
         for (SequenceAlteration alteration : sequenceAlterationList) {
-            jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true,bookmark));
+            jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true,assemblage));
         }
 
         render returnObject

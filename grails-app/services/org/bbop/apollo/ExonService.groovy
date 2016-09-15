@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 
@@ -16,7 +15,7 @@ class ExonService {
     def sequenceService
     def overlapperService
     def nameService
-    def bookmarkService
+    def assemblageService
     def projectionService
 
     /** Retrieve the transcript that this exon is associated with.  Uses the configuration to
@@ -46,22 +45,22 @@ class ExonService {
 //        }
         // both exons must be in the same strand
         Transcript transcript = getTranscript(exon1);
-        Bookmark transcriptBookmark = bookmarkService.generateBookmarkForFeature(transcript)
+        Assemblage transcriptAssemblage = assemblageService.generateAssemblageForFeature(transcript)
         if (!exon1?.getStrand()?.equals(exon2?.getStrand())) {
             throw new AnnotationException("mergeExons(): Exons must be in the same strand ${exon1} ${exon2}");
         }
         if (exon1.getFmin() > exon2.getFmin()) {
-            setFmin(exon1, exon2.getFmin(),transcriptBookmark)
+            setFmin(exon1, exon2.getFmin(),transcriptAssemblage)
         }
         if (exon1.getFmax() < exon2.getFmax()) {
-            setFmax(exon1, exon2.fmax,transcriptBookmark)
+            setFmax(exon1, exon2.fmax,transcriptAssemblage)
         }
         // need to delete exon2 from transcript
         if (getTranscript(exon2) != null) {
             deleteExon(getTranscript(exon2), exon2);
         }
         
-        featureService.removeExonOverlapsAndAdjacencies(transcript,transcriptBookmark);
+        featureService.removeExonOverlapsAndAdjacencies(transcript,transcriptAssemblage);
 
     }
 
@@ -127,13 +126,13 @@ class ExonService {
     }
 
     /**
-     * Need to provide a bookmark to do this
+     * Need to provide a assemblage to do this
      * @param exon
      * @param fmin
      */
     @Transactional
-    public void setFmin(Exon exon, Integer fmin,Bookmark bookmark) {
-        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(bookmark)
+    public void setFmin(Exon exon, Integer fmin, Assemblage assemblage) {
+        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
         featureService.setFmin(exon,fmin,projection)
         Transcript transcript = getTranscript(exon)
         if (transcript != null && fmin < transcript.getFmin()) {
@@ -142,13 +141,13 @@ class ExonService {
     }
 
     /**
-     * Need to provide a bookmark to do this
+     * Need to provide a assemblage to do this
      * @param exon
      * @param fmax
      */
     @Transactional
-    public void setFmax(Exon exon, Integer fmax,Bookmark bookmark) {
-        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(bookmark)
+    public void setFmax(Exon exon, Integer fmax, Assemblage assemblage) {
+        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
         featureService.setFmax(exon,fmax,projection)
         Transcript transcript = getTranscript(exon)
         if (transcript != null && fmax > transcript.getFmax()) {
@@ -158,7 +157,7 @@ class ExonService {
 
 
     @Transactional
-    public Exon makeIntron(Exon exon, int genomicPosition, int minimumIntronSize,Bookmark bookmark) {
+    public Exon makeIntron(Exon exon, int genomicPosition, int minimumIntronSize, Assemblage assemblage) {
         String sequence = sequenceService.getResiduesFromFeature(exon)
         int exonPosition = featureService.convertSourceCoordinateToLocalCoordinate(exon,genomicPosition);
 //        // find donor coordinate
@@ -194,7 +193,7 @@ class ExonService {
         } else {
             acceptorCoordinate += acceptorSite.length();
         }
-        Exon splitExon = splitExon(exon, featureService.convertLocalCoordinateToSourceCoordinate(exon,donorCoordinate) , featureService.convertLocalCoordinateToSourceCoordinate(exon,acceptorCoordinate),bookmark);
+        Exon splitExon = splitExon(exon, featureService.convertLocalCoordinateToSourceCoordinate(exon,donorCoordinate) , featureService.convertLocalCoordinateToSourceCoordinate(exon,acceptorCoordinate),assemblage);
 
         exon.save()
         splitExon.save()
@@ -214,11 +213,11 @@ class ExonService {
     public void setExonBoundaries(Exon exon, int fmin, int fmax) {
 
         Transcript transcript = getTranscript(exon)
-        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(exon)
-        setFmin(exon,fmin,bookmark)
-        setFmax(exon,fmax,bookmark)
+        Assemblage assemblage = assemblageService.generateAssemblageForFeature(exon)
+        setFmin(exon,fmin,assemblage)
+        setFmax(exon,fmax,assemblage)
 
-        featureService.removeExonOverlapsAndAdjacencies(transcript,bookmark);
+        featureService.removeExonOverlapsAndAdjacencies(transcript,assemblage);
 
         featureService.updateGeneBoundaries(transcriptService.getGene(transcript));
     }
@@ -364,7 +363,7 @@ class ExonService {
     }
 
     @Transactional
-    Exon splitExon(Exon leftExon, int newLeftMax, int newRightMin,Bookmark bookmark) {
+    Exon splitExon(Exon leftExon, int newLeftMax, int newRightMin, Assemblage assemblage) {
 
         // we want to get the right-most permissible feature Location
         FeatureLocation leftFeatureLocation
@@ -410,7 +409,7 @@ class ExonService {
         rightFeatureLocation.save()
 
         Transcript transcript = getTranscript(leftExon)
-        transcriptService.addExon(transcript,rightExon,true,bookmark)
+        transcriptService.addExon(transcript,rightExon,true,assemblage)
 
         transcript.save()
         rightExon.save()
@@ -427,7 +426,7 @@ class ExonService {
         }
 
         String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(
-                bookmarkService.generateBookmarkForFeature(exon)
+                assemblageService.generateAssemblageForFeature(exon)
                 ,exon.fmin < cds.fmin ? cds.fmin : exon.fmin
                 ,exon.fmax > cds.fmax ? cds.fmax : exon.fmax
                 ,Strand.getStrandForValue(exon.strand)

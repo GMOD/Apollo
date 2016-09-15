@@ -42,7 +42,7 @@ abstract class AbstractApolloController {
             String key = p.key
             if (key.contains("operation")) {
 //                {"track":"Group9.10","operation":"get_translation_table"}
-                if(BookmarkService.isProjectionString(key)){
+                if(AssemblageService.isProjectionString(key)){
                     key = fixProjectionJson(key)
                 }
 //                { "track": "{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group11.18"},{"name":"Group9.10"}]}", "operation": "get_user_permission" }

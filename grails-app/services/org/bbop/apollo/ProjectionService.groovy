@@ -11,7 +11,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 @Transactional(readOnly = true)
 class ProjectionService {
 
-    def bookmarkService
+    def assemblageService
     def trackMapperService
     def permissionService
 
@@ -294,9 +294,9 @@ class ProjectionService {
         return inputFeature
     }
 
-    MultiSequenceProjection createMultiSequenceProjection(Bookmark bookmark) {
-        List<Location> locationList = getLocationsFromBookmark(bookmark)
-        return createMultiSequenceProjection(bookmark,locationList)
+    MultiSequenceProjection createMultiSequenceProjection(Assemblage assemblage) {
+        List<Location> locationList = getLocationsFromAssemblage(assemblage)
+        return createMultiSequenceProjection(assemblage,locationList)
     }
 
 //    @NotTransactional
@@ -416,7 +416,7 @@ class ProjectionService {
 //        return returnArray
 //    }
 
-    ProjectionSequence convertJsonToProjectionSequence(JSONObject jSONObject,int index,Bookmark bookmark){
+    ProjectionSequence convertJsonToProjectionSequence(JSONObject jSONObject, int index, Assemblage assemblage){
         ProjectionSequence projectionSequence = new ProjectionSequence()
         if(jSONObject.start==null){
             Sequence sequence = Sequence.findByName(jSONObject.name)
@@ -431,7 +431,7 @@ class ProjectionService {
         }
         projectionSequence.order = index
         projectionSequence.name = jSONObject.name
-        projectionSequence.organism = bookmark.organism.commonName
+        projectionSequence.organism = assemblage.organism.commonName
 
         JSONArray featureArray = jSONObject.features
         List<String> features = new ArrayList<>()
@@ -443,14 +443,14 @@ class ProjectionService {
         return projectionSequence
     }
 
-    List<Location> getLocationsFromBookmark(Bookmark bookmark) {
+    List<Location> getLocationsFromAssemblage(Assemblage assemblage) {
         List<Location> locationList = new ArrayList<>()
 
 
-        JSONArray sequencListArray = JSON.parse(bookmark.sequenceList) as JSONArray
+        JSONArray sequencListArray = JSON.parse(assemblage.sequenceList) as JSONArray
 
         sequencListArray.eachWithIndex { JSONObject it , int i ->
-            ProjectionSequence projectionSequence = convertJsonToProjectionSequence(it,i,bookmark)
+            ProjectionSequence projectionSequence = convertJsonToProjectionSequence(it,i,assemblage)
             locationList.add(new Location(min: it.start, max: it.end, sequence: projectionSequence))
         }
 
@@ -539,11 +539,11 @@ class ProjectionService {
 
 //    @NotTransactional
 
-    MultiSequenceProjection createMultiSequenceProjection(Bookmark bookmark,List<Location> locationList) {
+    MultiSequenceProjection createMultiSequenceProjection(Assemblage assemblage, List<Location> locationList) {
 
         List<ProjectionSequence> projectionSequenceList = new ArrayList<>()
-        (JSON.parse(bookmark.sequenceList) as JSONArray).eachWithIndex { JSONObject it, int i ->
-            ProjectionSequence projectionSequence = convertJsonToProjectionSequence(it,i,bookmark)
+        (JSON.parse(assemblage.sequenceList) as JSONArray).eachWithIndex { JSONObject it, int i ->
+            ProjectionSequence projectionSequence = convertJsonToProjectionSequence(it,i,assemblage)
 
             projectionSequenceList.add(projectionSequence)
         }
@@ -647,24 +647,24 @@ class ProjectionService {
         return locationList
     }
 
-    JSONObject convertProjectionToBookmarkJsonObject(String putativeProjectionLoc, Organism organism) {
-        JSONObject bookmarkJsonObject = JSON.parse(putativeProjectionLoc) as JSONObject
-        bookmarkJsonObject.organism = organism.commonName
-        return bookmarkJsonObject
+    JSONObject convertProjectionToAssemblageJsonObject(String putativeProjectionLoc, Organism organism) {
+        JSONObject assemblageJsonObject = JSON.parse(putativeProjectionLoc) as JSONObject
+        assemblageJsonObject.organism = organism.commonName
+        return assemblageJsonObject
     }
 
 
     /**
-     * Has to be transactional as it might create a bookmark.
+     * Has to be transactional as it might create a assemblage.
      * @param putativeProjectionLoc
      * @param organism
      * @return
      */
     @Transactional
     def getProjection(String putativeProjectionLoc, Organism organism) {
-        if (BookmarkService.isProjectionString(putativeProjectionLoc)) {
-            JSONObject bookmarkJsonObject = convertProjectionToBookmarkJsonObject(putativeProjectionLoc, organism)
-            return getProjection(bookmarkJsonObject)
+        if (AssemblageService.isProjectionString(putativeProjectionLoc)) {
+            JSONObject assemblageJsonObject = convertProjectionToAssemblageJsonObject(putativeProjectionLoc, organism)
+            return getProjection(assemblageJsonObject)
         }
         return null
     }
@@ -682,16 +682,16 @@ class ProjectionService {
 
     /**
      * @deprecated  Use the createMultisequenceProjection method instead
-     * @param bookmark
+     * @param assemblage
      * @return
      */
-    MultiSequenceProjection getProjection(Bookmark bookmark) {
-        JSONObject jsonObject = bookmarkService.convertBookmarkToJson(bookmark)
+    MultiSequenceProjection getProjection(Assemblage assemblage) {
+        JSONObject jsonObject = assemblageService.convertAssemblageToJson(assemblage)
         return getProjection(jsonObject)
     }
 /**
  * TODO:
- * looks up bookmarks based on Ids'
+ * looks up assemblages based on Ids'
  * Creates a "Projection Description" based on Id's . . .
  * And caches it locally . . .
  *
@@ -700,13 +700,13 @@ class ProjectionService {
  *
  *{{projection:None},{padding:50},{sequenceLists:[{name:'Group1.1',features:[GB42145-RA]}]}%3A-1..-1
  *
- * @param bookmarkArray
+ * @param assemblageArray
  * @return
  */
     @Transactional
-    MultiSequenceProjection getProjection(JSONObject bookmarkObject) {
-        Bookmark bookmark = bookmarkService.convertJsonToBookmark(bookmarkObject)
-        return createMultiSequenceProjection(bookmark)
+    MultiSequenceProjection getProjection(JSONObject assemblageObject) {
+        Assemblage assemblage = assemblageService.convertJsonToAssemblage(assemblageObject)
+        return createMultiSequenceProjection(assemblage)
     }
 
 
@@ -715,7 +715,7 @@ class ProjectionService {
      *
      * So should be fmin + offset (all previous lengths) - start
      * @param feature
-     * @param bookmark
+     * @param assemblage
      * @return
      */
     Integer getMinForFeatureInProjection(Feature feature, MultiSequenceProjection multiSequenceProjection) {
@@ -735,7 +735,7 @@ class ProjectionService {
      *
      * So should be fmax (of the last sequence) + offset (all previous lengths) - start
      * @param feature
-     * @param bookmark
+     * @param assemblage
      * @return
      */
 

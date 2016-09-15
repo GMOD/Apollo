@@ -26,7 +26,7 @@ class PermissionService {
 
     def remoteUserAuthenticatorService
     def usernamePasswordAuthenticatorService
-    def bookmarkService
+    def assemblageService
 
     boolean isUserAdmin(User user) {
         if (user != null) {
@@ -266,7 +266,7 @@ class PermissionService {
                 }
             }
         } else if (inputObject.has(FeatureStringEnum.TRACK.value)) {
-            if (BookmarkService.isProjectionString(inputObject.track.toString())) {
+            if (AssemblageService.isProjectionString(inputObject.track.toString())) {
 //                JSONObject sequenceObject = inputObject.track
                 def track = inputObject.track
                 if (track instanceof String && track.startsWith("{")) {
@@ -343,7 +343,7 @@ class PermissionService {
      * @param requiredPermissionEnum
      * @return
      */
-    Bookmark checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
+    Assemblage checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
 
         Map<String, Integer> sequenceStrings = getSequenceNameFromInput(inputObject)
@@ -393,7 +393,7 @@ class PermissionService {
         }
 
 //        if (orderedSequences) {
-        Bookmark bookmark = null
+        Assemblage assemblage = null
         if (inputObject.track instanceof String) {
             if (inputObject.track.startsWith("{") || inputObject.track.startsWith("[")) {
                 JSONArray sequenceListArray = inputObject.track.startsWith("{") ? (JSON.parse(inputObject.track) as JSONObject).sequenceList : (JSON.parse(inputObject.track) as JSONArray)
@@ -403,9 +403,9 @@ class PermissionService {
                 }
                 if (sequenceList) {
                     def sequenceObjects = Sequence.findAllByNameInList(sequenceList)
-                    bookmark = bookmarkService.generateBookmarkForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
+                    assemblage = assemblageService.generateAssemblageForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
                 }
-                println "bookmark sequence list ${bookmark} vs ${sequenceList} and ${inputObject as JSON}"
+                println "assemblage sequence list ${assemblage} vs ${sequenceList} and ${inputObject as JSON}"
             }
             if (inputObject.track.startsWith("[")) {
                 JSONArray sequenceListArray = (JSON.parse(inputObject.track) as JSONArray)
@@ -415,42 +415,42 @@ class PermissionService {
                 }
                 if (sequenceList) {
                     def sequenceObjects = Sequence.findAllByNameInList(sequenceList)
-                    bookmark = bookmarkService.generateBookmarkForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
+                    assemblage = assemblageService.generateAssemblageForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
                 }
-                println "bookmark sequence list ${bookmark} vs ${sequenceList} and ${inputObject as JSON}"
+                println "assemblage sequence list ${assemblage} vs ${sequenceList} and ${inputObject as JSON}"
             } else {
                 sequence = Sequence.findByName(inputObject.track)
                 if (sequence) {
-                    bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+                    assemblage = assemblageService.generateAssemblageForSequence(sequence)
                 }
                 println "has a sequence: ${sequence} for ${inputObject.track}"
             }
-            if (!bookmark) {
+            if (!assemblage) {
                 log.error("Invalid sequence name: " + inputObject.track)
             }
         } else if (inputObject.track instanceof JSONObject) {
-            println "NO Track bookmark ${bookmark} and ${inputObject.track as JSON}"
+            println "NO Track assemblage ${assemblage} and ${inputObject.track as JSON}"
             if (!inputObject.containsValue(FeatureStringEnum.ORGANISM.value)) {
                 inputObject.put(FeatureStringEnum.ORGANISM.value, organism.id)
             }
             copyRequestValues(inputObject, inputObject.track)
-            bookmark = bookmarkService.convertJsonToBookmark(inputObject.getJSONObject(FeatureStringEnum.TRACK.value))
+            assemblage = assemblageService.convertJsonToAssemblage(inputObject.getJSONObject(FeatureStringEnum.TRACK.value))
         }
         String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-        if (bookmark) {
-            preferenceService.setCurrentBookmark(user, bookmark, clientToken)
+        if (assemblage) {
+            preferenceService.setCurrentAssemblage(user, assemblage, clientToken)
             if ((inputObject.track instanceof JSONObject) && inputObject?.track?.projection) {
-                bookmark.projection = inputObject.track.projection
-                bookmark.padding = inputObject.track?.padding
-//                bookmark.referenceTrack = inputObject.track?.referenceTrack
+                assemblage.projection = inputObject.track.projection
+                assemblage.padding = inputObject.track?.padding
+//                assemblage.referenceTrack = inputObject.track?.referenceTrack
                 println "save here?"
-                bookmark.save(flush: true)
+                assemblage.save(flush: true)
             }
             if (user) {
-                user.addToBookmarks(bookmark)
+                user.addToAssemblages(assemblage)
             }
         }
-        return bookmark
+        return assemblage
 //        }
 //        return null
     }

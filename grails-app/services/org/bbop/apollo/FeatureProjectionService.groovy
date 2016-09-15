@@ -11,11 +11,11 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class FeatureProjectionService {
 
     def projectionService
-    def bookmarkService
+    def assemblageService
 
 
-    JSONArray projectTrack(JSONArray inputFeaturesArray, Bookmark bookmark, Boolean reverseProjection = false) {
-        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(bookmark)
+    JSONArray projectTrack(JSONArray inputFeaturesArray, Assemblage assemblage, Boolean reverseProjection = false) {
+        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
         return projectFeaturesArray(inputFeaturesArray, projection, reverseProjection,0)
     }
 

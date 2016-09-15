@@ -18,12 +18,12 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.*;
-import org.bbop.apollo.gwt.client.dto.bookmark.*;
+import org.bbop.apollo.gwt.client.dto.assemblage.*;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
-import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
+import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
@@ -58,7 +58,7 @@ public class MainPanel extends Composite {
     static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
-    private static BookmarkInfo currentBookmark;
+    private static AssemblageInfo currentAssemblage;
     private static Long currentStartBp; // list of organisms for user
     private static Long currentEndBp; // list of organisms for user
     private static Map<String,List<String>> currentQueryParams ; // list of organisms for user
@@ -87,7 +87,7 @@ public class MainPanel extends Composite {
     @UiField
     static SequencePanel sequencePanel;
     @UiField
-    static BookmarkPanel bookmarkPanel;
+    static AssemblagePanel assemblagePanel;
     @UiField
     static OrganismPanel organismPanel;
     @UiField
@@ -179,7 +179,7 @@ public class MainPanel extends Composite {
                         start -= newLength * GENE_VIEW_BUFFER;
                         end += newLength * GENE_VIEW_BUFFER;
                         start = start < 0 ? 0 : start;
-                        updateGenomicViewerForBookmark(annotationInfo.getSequence(), start, end);
+                        updateGenomicViewerForAssemblage(annotationInfo.getSequence(), start, end);
                         break;
                 }
             }
@@ -265,19 +265,19 @@ public class MainPanel extends Composite {
 
     }
 
-    private static void setLabelForCurrentBookmark() {
-//        currentSequenceLabel.setText(currentBookmark.getName());
+    private static void setLabelForcurrentAssemblage() {
+//        currentSequenceLabel.setText(currentAssemblage.getName());
         String labelHtml = "";
-        BookmarkSequenceList bookmarkSequenceList = currentBookmark.getSequenceList();
-        for (int i = 0; i < bookmarkSequenceList.size(); ++i) {
-            BookmarkSequence bookmarkSequence = bookmarkSequenceList.getSequence(i);
+        AssemblageSequenceList assemblageSequenceList = currentAssemblage.getSequenceList();
+        for (int i = 0; i < assemblageSequenceList.size(); ++i) {
+            AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(i);
             labelHtml += "<div class=\"individual-label\" style=\"background-color: " + ColorGenerator.getColorForIndex(i) + ";\">";
-            SequenceFeatureInfo sequenceFeatureInfo = bookmarkSequence.getFeature();
+            SequenceFeatureInfo sequenceFeatureInfo = assemblageSequence.getFeature();
             if (sequenceFeatureInfo != null) {
                 labelHtml += sequenceFeatureInfo.getName();
                 labelHtml += " (";
             }
-            labelHtml += bookmarkSequence.getName();
+            labelHtml += assemblageSequence.getName();
             if (sequenceFeatureInfo != null) {
                 labelHtml += ")";
             }
@@ -298,13 +298,13 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 handlingNavEvent = false;
                 JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
-                currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(sequenceInfoJson);
+                currentAssemblage = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(sequenceInfoJson);
                 currentStartBp = start != null ? start : 0;
-                currentEndBp = end != null ? end : currentBookmark.getEnd().intValue();
-                setLabelForCurrentBookmark();
+                currentEndBp = end != null ? end : currentAssemblage.getEnd().intValue();
+                setLabelForcurrentAssemblage();
 
 
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentBookmark.getName()));
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getName()));
 
                 if (updateViewer) {
                     updateGenomicViewer();
@@ -442,8 +442,8 @@ public class MainPanel extends Composite {
                 displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
     }
 
-    public static void updateGenomicViewerForBookmark(String selectedSequence, Long minRegion, Long maxRegion) {
-        updateGenomicViewerForBookmark(selectedSequence, minRegion, maxRegion, false);
+    public static void updateGenomicViewerForAssemblage(String selectedSequence, Long minRegion, Long maxRegion) {
+        updateGenomicViewerForAssemblage(selectedSequence, minRegion, maxRegion, false);
     }
 
     /**
@@ -451,40 +451,40 @@ public class MainPanel extends Composite {
      * <p/>
      * Need to preserver the order
      *
-     * @param bookmarkInfo
+     * @param assemblageInfo
      */
-    public static void updateGenomicViewerForBookmark(BookmarkInfo bookmarkInfo) {
+    public static void updateGenomicViewerForAssemblage(AssemblageInfo assemblageInfo) {
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
-                currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(returnValue);
+                currentAssemblage = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(returnValue);
                 updateGenomicViewer(true);
 
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Problem viewing bookmarks: " + exception);
+                Bootbox.alert("Problem viewing assemblages: " + exception);
             }
         };
 
-        BookmarkRestService.getBookmarks(requestCallback, bookmarkInfo);
+        AssemblageRestService.getAssemblage(requestCallback, assemblageInfo);
 
-//        List<UserBookmark> bookmarks = UserBookmark.findById(bookmarkList);
+//        List<UserAssemblage> assemblages = UserAssemblage.findById(assemblageList);
         // create an orderd list of features / sequences
 
     }
 
     /**
-     * @param bookmarkInfo
+     * @param assemblageInfo
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForBookmark(BookmarkInfo bookmarkInfo, Long minRegion, Long maxRegion, Boolean forceReload) {
+    public static void updateGenomicViewerForAssemblage(AssemblageInfo assemblageInfo, Long minRegion, Long maxRegion, Boolean forceReload) {
 
-        if (!forceReload && currentBookmark != null && currentBookmark.getName().equals(bookmarkInfo.getName()) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
+        if (!forceReload && currentAssemblage != null && currentAssemblage.getName().equals(assemblageInfo.getName()) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
             long oldLength = maxRegion - minRegion;
             double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
             double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) oldLength;
@@ -498,11 +498,11 @@ public class MainPanel extends Composite {
 
 
         String trackListString = Annotator.getRootUrl() + Annotator.getClientToken() + "/jbrowse/index.html?loc=";
-        currentBookmark = bookmarkInfo;
-//            currentBookmark = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
-        minRegion = currentBookmark.getStart() != null ? currentBookmark.getStart() : -1;
-        maxRegion = currentBookmark.getEnd() != null ? currentBookmark.getEnd() : -1;
-        trackListString += URL.encodeQueryString(BookmarkInfoConverter.convertBookmarkInfoToJSONObject(currentBookmark).toString());
+        currentAssemblage = assemblageInfo;
+//            currentAssemblage = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(selectedSequence).isObject());
+        minRegion = currentAssemblage.getStart() != null ? currentAssemblage.getStart() : -1;
+        maxRegion = currentAssemblage.getEnd() != null ? currentAssemblage.getEnd() : -1;
+        trackListString += URL.encodeQueryString(AssemblageInfoConverter.convertAssemblageInfoToJSONObject(currentAssemblage).toString());
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
 
         trackListString += getCurrentQueryParamsAsString();
@@ -539,21 +539,21 @@ public class MainPanel extends Composite {
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForBookmark(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload) {
+    public static void updateGenomicViewerForAssemblage(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload) {
 
-        BookmarkInfo bookmarkInfo ;
+        AssemblageInfo assemblageInfo;
         if (selectedSequence.startsWith("{")) {
-            GWT.log("calling string instead of bookmark for selected sequence");
-            bookmarkInfo = BookmarkInfoConverter.convertJSONObjectToBookmarkInfo(JSONParser.parseStrict(selectedSequence).isObject());
+            GWT.log("calling string instead of assemblage for selected sequence");
+            assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(selectedSequence).isObject());
         } else {
-            bookmarkInfo = new BookmarkInfo();
-            BookmarkSequenceList bookmarkSequenceList = new BookmarkSequenceList();
-            BookmarkSequence bookmarkSequence = new BookmarkSequence();
-            bookmarkSequence.setName(selectedSequence);
-            bookmarkSequenceList.addSequence(bookmarkSequence);
-            bookmarkInfo.setSequenceList(bookmarkSequenceList);
+            assemblageInfo = new AssemblageInfo();
+            AssemblageSequenceList assemblageSequenceList = new AssemblageSequenceList();
+            AssemblageSequence assemblageSequence = new AssemblageSequence();
+            assemblageSequence.setName(selectedSequence);
+            assemblageSequenceList.addSequence(assemblageSequence);
+            assemblageInfo.setSequenceList(assemblageSequenceList);
         }
-        updateGenomicViewerForBookmark(bookmarkInfo,minRegion,maxRegion,forceReload);
+        updateGenomicViewerForAssemblage(assemblageInfo,minRegion,maxRegion,forceReload);
     }
 
 
@@ -576,9 +576,9 @@ public class MainPanel extends Composite {
 
     public static void updateGenomicViewer(boolean forceReload) {
         if (currentStartBp != null && currentEndBp != null) {
-            updateGenomicViewerForBookmark(currentBookmark, currentStartBp, currentEndBp, forceReload);
+            updateGenomicViewerForAssemblage(currentAssemblage, currentStartBp, currentEndBp, forceReload);
         } else {
-            updateGenomicViewerForBookmark(currentBookmark, currentBookmark.getStart(), currentBookmark.getEnd(), forceReload);
+            updateGenomicViewerForAssemblage(currentAssemblage, currentAssemblage.getStart(), currentAssemblage.getEnd(), forceReload);
         }
     }
 
@@ -588,14 +588,14 @@ public class MainPanel extends Composite {
 
     public void setAppState(AppStateInfo appStateInfo) {
         organismInfoList = appStateInfo.getOrganismList();
-        currentBookmark = appStateInfo.getCurrentBookmark();
+        currentAssemblage = appStateInfo.getCurrentAssemblage();
         currentOrganism = appStateInfo.getCurrentOrganism();
         currentStartBp = appStateInfo.getCurrentStartBp();
         currentEndBp = appStateInfo.getCurrentEndBp();
 
-        if (currentBookmark != null) {
-            setLabelForCurrentBookmark();
-//            currentSequenceLabel.setText(currentBookmark.getName());
+        if (currentAssemblage != null) {
+            setLabelForcurrentAssemblage();
+//            currentSequenceLabel.setText(currentAssemblage.getName());
         }
 
 
@@ -753,7 +753,7 @@ public class MainPanel extends Composite {
                 sequencePanel.reload();
                 break;
             case 3:
-                bookmarkPanel.reload();
+                assemblagePanel.reload();
                 break;
             case 4:
                 organismPanel.reload();
@@ -833,9 +833,9 @@ public class MainPanel extends Composite {
         url2 += currentOrganism.getId()+"/";
         url2 += "jbrowse/index.html";
         if (currentStartBp != null) {
-            url2 += "?loc=" + currentBookmark.getName() + ":" + currentStartBp + ".." + currentEndBp;
+            url2 += "?loc=" + currentAssemblage.getName() + ":" + currentStartBp + ".." + currentEndBp;
         } else {
-            url2 += "?loc=" + currentBookmark.getName() + ":" + currentBookmark.getStart() + ".." + currentBookmark.getEnd();
+            url2 += "?loc=" + currentAssemblage.getName() + ":" + currentAssemblage.getStart() + ".." + currentAssemblage.getEnd();
         }
 //        url2 += "&organism=" + currentOrganism.getId();
         url2 += "&tracks=";
@@ -854,9 +854,9 @@ public class MainPanel extends Composite {
         String url = Annotator.getRootUrl();
         url += "annotator/loadLink";
         if (currentStartBp != null) {
-            url += "?loc=" + currentBookmark.getSequenceList() + ":" + currentStartBp + ".." + currentEndBp;
+            url += "?loc=" + currentAssemblage.getSequenceList() + ":" + currentStartBp + ".." + currentEndBp;
         } else {
-            url += "?loc=" + currentBookmark.getName() + ":" + currentBookmark.getStart() + ".." + currentBookmark.getEnd();
+            url += "?loc=" + currentAssemblage.getName() + ":" + currentAssemblage.getStart() + ".." + currentAssemblage.getEnd();
         }
         url += "&organism=" + currentOrganism.getId();
         url += "&tracks=";
@@ -937,7 +937,7 @@ public class MainPanel extends Composite {
         final Long end = (long) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
 
-        if (!sequenceNameString.equals(currentBookmark.getName())) {
+        if (!sequenceNameString.equals(currentAssemblage.getName())) {
 //            setCurrentSequence(sequenceNameString, start, end, false, true);
             setCurrentSequence(sequenceNameString, start, end, false, false);
             Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
@@ -993,11 +993,11 @@ public class MainPanel extends Composite {
     }
 
 
-    public static String getCurrentBookmarkAsJson() {
-        if (currentBookmark == null) {
+    public static String getCurrentAssemblageAsJson() {
+        if (currentAssemblage == null) {
             return "{}";
         }
-        return BookmarkInfoConverter.convertBookmarkInfoToJSONObject(currentBookmark).toString();
+        return AssemblageInfoConverter.convertAssemblageInfoToJSONObject(currentAssemblage).toString();
     }
 
     public static boolean hasCurrentUser() {
@@ -1031,7 +1031,7 @@ public class MainPanel extends Composite {
         $wnd.handleFeatureUpdated = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureUpdated(Ljava/lang/String;));
         $wnd.getCurrentOrganism = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentOrganismAsJson());
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
-        $wnd.getCurrentBookmark = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentBookmarkAsJson());
+        $wnd.getCurrentAssemblage = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentAssemblageAsJson());
     }-*/;
 
     private enum TabPanelIndex {
@@ -1079,20 +1079,20 @@ public class MainPanel extends Composite {
         this.organismInfoList = organismInfoList;
     }
 
-    public void addBookmark(RequestCallback requestCallback, BookmarkInfo bookmarkInfo) {
-        bookmarkPanel.addBookmark(requestCallback, bookmarkInfo);
+    public void addAssemblage(RequestCallback requestCallback, AssemblageInfo assemblageInfo) {
+        assemblagePanel.addAssemblage(requestCallback, assemblageInfo);
     }
 
-    public BookmarkInfo getCurrentBookmark() {
-        return currentBookmark;
+    public AssemblageInfo getCurrentAssemblage() {
+        return currentAssemblage;
     }
 
-    public void setCurrentBookmark(BookmarkInfo bookmark) {
-        currentBookmark = bookmark;
+    public void setcurrentAssemblage(AssemblageInfo assemblage) {
+        currentAssemblage = assemblage;
     }
 
-    public void setCurrentBookmarkAndView(BookmarkInfo bookmarkInfo) {
-        setCurrentBookmark(bookmarkInfo);
-        updateGenomicViewerForBookmark(bookmarkInfo);
+    public void setCurrentAssemblageAndView(AssemblageInfo assemblageInfo) {
+        setcurrentAssemblage(assemblageInfo);
+        updateGenomicViewerForAssemblage(assemblageInfo);
     }
 }

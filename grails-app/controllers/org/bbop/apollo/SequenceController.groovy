@@ -5,7 +5,6 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.SequenceSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -24,7 +23,7 @@ class SequenceController {
     def permissionService
     def preferenceService
     def reportService
-    def bookmarkService
+    def assemblageService
 
     def permissions() {  }
 
@@ -40,7 +39,7 @@ class SequenceController {
                 render new JSONObject() as JSON
             }
             else{
-                render userOrganismPreference.bookmark as JSON
+                render userOrganismPreference.assemblage as JSON
             }
         } catch (NumberFormatException e) {
             //  we can ignore this specific exception as null is an acceptable value for start / end
@@ -71,18 +70,18 @@ class SequenceController {
         User currentUser = permissionService.currentUser
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token,[max: 1, sort: "lastUpdated", order: "desc"])
 
-//        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(currentUser,sequenceInstance)
-        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequenceInstance)
+//        Assemblage assemblage = assemblageService.generateAssemblageForSequence(currentUser,sequenceInstance)
+        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequenceInstance)
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: currentUser
                     , organism: organism
-                    , bookmark: bookmark
+                    , assemblage: assemblage
                     , currentOrganism: true
                     , token: token
             ).save(insert: true, flush: true, failOnError: true)
         } else {
-            userOrganismPreference.bookmark = bookmark
+            userOrganismPreference.assemblage = assemblage
             userOrganismPreference.currentOrganism = true
             userOrganismPreference.save(flush: true, failOnError: true)
         }
@@ -91,12 +90,12 @@ class SequenceController {
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
 //        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceInstance.name)
-        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, bookmark.sequenceList.toString())
+        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, assemblage.sequenceList.toString())
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
         session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequenceInstance.organismId)
 
 
-        render userOrganismPreference.bookmark.sequenceList
+        render userOrganismPreference.assemblage.sequenceList
     }
 
 
@@ -108,16 +107,16 @@ class SequenceController {
 
         User currentUser = permissionService.currentUser
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser, organism)
-        if (userOrganismPreference?.bookmark) {
+        if (userOrganismPreference?.assemblage) {
             userOrganismPreference.currentOrganism = true
-            request.session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, userOrganismPreference.bookmark.sequenceList.toString())
+            request.session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, userOrganismPreference.assemblage.sequenceList.toString())
             userOrganismPreference.save(flush: true)
         } else {
             userOrganismPreference = new UserOrganismPreference(
                     user: currentUser
                     , organism: organism
                     , currentOrganism: true
-                    , bookmark: Bookmark.findByOrganism(organism)
+                    , assemblage: Assemblage.findByOrganism(organism)
             ).save(insert: true, flush: true)
         }
         UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ", [prefId: userOrganismPreference.id])

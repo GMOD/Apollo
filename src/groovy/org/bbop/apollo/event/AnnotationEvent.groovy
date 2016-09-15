@@ -1,9 +1,8 @@
 package org.bbop.apollo.event
 
 import grails.validation.Validateable
-import org.bbop.apollo.Bookmark
+import org.bbop.apollo.Assemblage
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.bbop.apollo.Sequence
 
 /**
  * Created by Nathan Dunn on 10/29/14.
@@ -12,7 +11,7 @@ import org.bbop.apollo.Sequence
 class AnnotationEvent {
 
     JSONObject features
-    Bookmark bookmark
+    Assemblage assemblage
     Operation operation
     boolean sequenceAlterationEvent
     // toplevel feature?

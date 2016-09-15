@@ -14,7 +14,7 @@ class NonCanonicalSplitSiteService {
     def featureService
     def sequenceService
     def transcriptService
-    def bookmarkService
+    def assemblageService
     def projectionService
 
     /** Delete an non canonical 5' splice site.  Deletes both the transcript -> non canonical 5' splice site and
@@ -72,26 +72,25 @@ class NonCanonicalSplitSiteService {
      */
     public void deleteAllNonCanonicalThreePrimeSpliceSites(Transcript transcript) {
         for (NonCanonicalThreePrimeSpliceSite spliceSite : getNonCanonicalThreePrimeSpliceSites(transcript)) {
-//            featureRelationshipService.deleteRelationships(transcript,NonCanonicalThreePrimeSpliceSite.ontologyId,Transcript.ontologyId)
             deleteNonCanonicalThreePrimeSpliceSite(transcript,spliceSite)
         }
     }
 
 
     @Timed
-    public void findNonCanonicalAcceptorDonorSpliceSites(Transcript transcript,Bookmark bookmark) {
+    public void findNonCanonicalAcceptorDonorSpliceSites(Transcript transcript, Assemblage assemblage) {
 
         transcript.attach()
 
         deleteAllNonCanonicalFivePrimeSpliceSites(transcript)
         deleteAllNonCanonicalThreePrimeSpliceSites(transcript)
 
-        List<Exon> exons = transcriptService.getSortedExons(transcript,false,bookmark)
-        int fmin = bookmarkService.getMinForFeatureFullScaffold(transcript,bookmark)
-        int fmax = bookmarkService.getMaxForFeatureFullScaffold(transcript,bookmark)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,false,assemblage)
+        int fmin = assemblageService.getMinForFeatureFullScaffold(transcript,assemblage)
+        int fmax = assemblageService.getMaxForFeatureFullScaffold(transcript,assemblage)
         Strand strand=transcript.isNegativeStrand()?Strand.NEGATIVE:Strand.POSITIVE
 
-        String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(bookmark,fmin,fmax,strand);
+        String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(assemblage,fmin,fmax,strand);
         if(transcript.getStrand()==-1){
             residues=residues.reverse()
         }

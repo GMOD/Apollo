@@ -26,7 +26,7 @@ class SequenceService {
     def gff3HandlerService
     def overlapperService
     def sessionFactory
-    def bookmarkService
+    def assemblageService
     def projectionService
 
 
@@ -67,15 +67,15 @@ class SequenceService {
      *
      * Here, we iterate over the sequences, where fmin and fmax are in context of the ordered sequence lengths.
      *
-     * @param bookmark
+     * @param assemblage
      * @param fmin
      * @param fmax
      * @param strand
      * @return
      */
-    String getGenomicResiduesFromSequenceWithAlterations(Bookmark bookmark, int fmin, int fmax,Strand strand) {
+    String getGenomicResiduesFromSequenceWithAlterations(Assemblage assemblage, int fmin, int fmax, Strand strand) {
         Integer currentCounter = 0
-        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+        List<Sequence> sequenceList = assemblageService.getSequencesFromAssemblage(assemblage)
         StringBuilder stringBuilder = new StringBuilder()
         for(int i = 0 ; i < sequenceList.size() && currentCounter < fmax ; i++){
             Sequence sequence = sequenceList.get(i)
@@ -439,7 +439,7 @@ class SequenceService {
                 }
 
             }
-            featureResidues = getGenomicResiduesFromSequenceWithAlterations(bookmarkService.generateBookmarkForFeature(gbolFeature),fmin,fmax,Strand.getStrandForValue(gbolFeature.strand))
+            featureResidues = getGenomicResiduesFromSequenceWithAlterations(assemblageService.generateAssemblageForFeature(gbolFeature),fmin,fmax,Strand.getStrandForValue(gbolFeature.strand))
         }
         return featureResidues
     }

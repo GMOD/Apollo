@@ -2,7 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import grails.util.Environment
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -21,7 +20,7 @@ class FeatureEventService {
     def transcriptService
     def featureService
     def requestHandlingService
-    def bookmarkService
+    def assemblageService
 
     /**
      *
@@ -488,15 +487,15 @@ class FeatureEventService {
             return
         }
 
-        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(Feature.findByUniqueName(uniqueName))
-        log.debug "bookmark: ${bookmark}"
+        Assemblage assemblage = assemblageService.generateAssemblageForFeature(Feature.findByUniqueName(uniqueName))
+        log.debug "assemblage: ${assemblage}"
 
         def newUniqueNames = history[count].collect() {
             it.uniqueName
         }
 
 
-        deleteCurrentState(inputObject, newUniqueNames, bookmark)
+        deleteCurrentState(inputObject, newUniqueNames, assemblage)
 
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 
@@ -555,12 +554,12 @@ class FeatureEventService {
             JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
             transcriptsToUpdate.each {
                 Transcript transcript = Transcript.findByUniqueName(it)
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false,bookmark))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false,assemblage))
             }
-            if (bookmark) {
+            if (assemblage) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer
-                        , bookmark: bookmark
+                        , assemblage: assemblage
                         , operation: AnnotationEvent.Operation.UPDATE
                 )
                 requestHandlingService.fireAnnotationEvent(annotationEvent)
@@ -571,14 +570,14 @@ class FeatureEventService {
 
     }
 
-    def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Bookmark bookmark) {
+    def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Assemblage assemblage) {
         for (uniqueName in newUniqueNames) {
-            deleteCurrentState(inputObject, uniqueName, bookmark)
+            deleteCurrentState(inputObject, uniqueName, assemblage)
         }
     }
 
 
-    def deleteCurrentState(JSONObject inputObject, String uniqueName, Bookmark bookmark) {
+    def deleteCurrentState(JSONObject inputObject, String uniqueName, Assemblage assemblage) {
 
         Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
 
@@ -596,7 +595,7 @@ class FeatureEventService {
             log.debug "deleteCommandObject ${deleteCommandObject as JSON}"
 
             if (!deleteCommandObject.containsKey(FeatureStringEnum.TRACK.value)) {
-                deleteCommandObject.put(FeatureStringEnum.TRACK.value, bookmark.sequenceList)
+                deleteCommandObject.put(FeatureStringEnum.TRACK.value, assemblage.sequenceList)
             }
             deleteCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY, true)
             log.debug "final deleteCommandObject ${deleteCommandObject as JSON}"

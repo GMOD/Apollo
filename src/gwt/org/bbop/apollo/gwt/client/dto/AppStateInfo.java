@@ -3,8 +3,8 @@ package org.bbop.apollo.gwt.client.dto;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
-import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
-import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfoConverter;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfoConverter;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class AppStateInfo implements HasJSON{
 //    private SequenceInfo currentSequence ;
     private Long currentStartBp;
     private Long currentEndBp;
-    private BookmarkInfo currentBookmark;
+    private AssemblageInfo currentAssemblage;
 
     public OrganismInfo getCurrentOrganism() {
         return currentOrganism;
@@ -54,8 +54,8 @@ public class AppStateInfo implements HasJSON{
             returnObject.put(FeatureStringEnum.CURRENT_ORGANISM.getValue(),currentOrganism.toJSON());
         }
 
-        if(currentBookmark!=null){
-            returnObject.put(FeatureStringEnum.CURRENT_BOOKMARK.getValue(), BookmarkInfoConverter.convertBookmarkInfoToJSONObject(currentBookmark));
+        if(currentAssemblage!=null){
+            returnObject.put(FeatureStringEnum.CURRENT_ASSEMBLAGE.getValue(), AssemblageInfoConverter.convertAssemblageInfoToJSONObject(currentAssemblage));
         }
 //        if(currentSequence!=null){
 //            returnObject.put("currentSequence",currentSequence.toJSON());
@@ -101,11 +101,11 @@ public class AppStateInfo implements HasJSON{
         this.currentEndBp = currentEndBp;
     }
 
-    public void setCurrentBookmark(BookmarkInfo bookmark) {
-        this.currentBookmark = bookmark;
+    public void setCurrentAssemblage(AssemblageInfo assemblage) {
+        this.currentAssemblage = assemblage;
     }
 
-    public BookmarkInfo getCurrentBookmark() {
-        return currentBookmark;
+    public AssemblageInfo getCurrentAssemblage() {
+        return currentAssemblage;
     }
 }

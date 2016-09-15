@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
 
-class Bookmark {
+class Assemblage {
 
 
     String projection
@@ -12,7 +12,7 @@ class Bookmark {
     Organism organism
     Integer start
     Integer end
-    String name // given namve of the bookmark
+    String name // given namve of the assemblage
 
     static constraints = {
         projection nullable: true

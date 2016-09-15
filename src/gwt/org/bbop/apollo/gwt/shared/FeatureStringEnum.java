@@ -40,7 +40,7 @@ public enum FeatureStringEnum {
         CURRENT_TAB,
         COMMENT,
         CURRENT_ORGANISM("currentOrganism"),
-        CURRENT_BOOKMARK("currentBookmark"),
+        CURRENT_ASSEMBLAGE("currentAssemblage"),
         OLD_COMMENTS,
         NEW_COMMENTS,
         TAG_VALUE_DELIMITER("="),

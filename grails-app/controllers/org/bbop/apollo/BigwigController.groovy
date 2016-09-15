@@ -4,7 +4,6 @@ import edu.unc.genomics.io.BigWigFileReader
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.MultiSequenceProjection
-import org.bbop.apollo.projection.ProjectionChunk
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -17,7 +16,7 @@ class BigwigController {
     def preferenceService
     def sequenceService
     def projectionService
-    def bookmarkService
+    def assemblageService
     def trackService
     def bigwigService
 
@@ -138,15 +137,15 @@ class BigwigController {
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
                     Sequence sequence = organism?.sequences?.first()
                     if (userOrganismPreference == null) {
-                        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+                        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequence)
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
                                 , organism: organism
-                                , bookmark: bookmark
+                                , assemblage: assemblage
                                 , currentOrganism: true
                         ).save(insert: true, flush: true)
                     } else {
-//                        userOrganismPreference.bookmark = bo
+//                        userOrganismPreference.assemblage = bo
                         userOrganismPreference.currentOrganism = true
                         userOrganismPreference.save()
                     }

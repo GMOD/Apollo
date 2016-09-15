@@ -523,11 +523,11 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         // with a front-facing GroupUn87
         String transcriptUn87Gb53497 = "{${testCredentials} \"track\":{\"id\":30373, \"name\":\"GroupUn87\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"features\":[{\"location\":{\"fmin\":10511,\"fmax\":26719,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53497-RA\",\"children\":[{\"location\":{\"fmin\":10511,\"fmax\":10539,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":26651,\"fmax\":26719,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":10511,\"fmax\":26719,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
         String getFeaturesStringUn87 = "{ ${testCredentials} \"track\":{\"id\":30373, \"name\":\"GroupUn87\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
-        Integer bookmarkStart = 100
+        Integer assemblageStart = 100
 
-        String getFeaturesStringUn87InProjection = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":${bookmarkStart}, \"end\":43810, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${bookmarkStart}, \"end\":43810, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"operation\":\"get_features\"}"
-//        String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":9682, \"end\":26746, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${bookmarkStart}, \"end\":43810, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":26651,\"fmax\":26884}}],\"operation\":\"set_exon_boundaries\"}"
-        String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":9682, \"end\":26919, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${bookmarkStart}, \"end\":43810, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":26651,\"fmax\":26884}}],\"operation\":\"set_exon_boundaries\"}"
+        String getFeaturesStringUn87InProjection = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":${assemblageStart}, \"end\":43810, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${assemblageStart}, \"end\":43810, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"operation\":\"get_features\"}"
+//        String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":9682, \"end\":26746, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${assemblageStart}, \"end\":43810, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":26651,\"fmax\":26884}}],\"operation\":\"set_exon_boundaries\"}"
+        String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":9682, \"end\":26919, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${assemblageStart}, \"end\":43810, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":26651,\"fmax\":26884}}],\"operation\":\"set_exon_boundaries\"}"
 
 
         when: "we add a transcript"
@@ -535,8 +535,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         Sequence sequenceGroupUn87 = Sequence.findByName("GroupUn87")
         MRNA mrnaGb53497 = MRNA.findByName("GB53497-RA-00001")
         String exonUniqueName = Exon.all.sort() { it.fmin }.last().uniqueName
-        def bookmarks = Bookmark.findAllBySequenceListIlike("%GroupUn87%")
-        Bookmark bookmark = bookmarks.first()
+        def assemblages = Assemblage.findAllBySequenceListIlike("%GroupUn87%")
+        Assemblage assemblage = assemblages.first()
 
         then: "we should have a gene  with NO NonCanonical splice sites when getting features on the full scaffold"
         assert MRNA.count == 1
@@ -550,10 +550,10 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Gene.first().featureLocations.size() == 1
         assert mrnaGb53497.featureLocations[0].sequence == sequenceGroupUn87
         assert Gene.first().firstFeatureLocation.sequence.name == "GroupUn87"
-        assert bookmarks.size() == 1
-        assert bookmark.start == 0
-        assert bookmark.end == 78258
-        assert bookmark.sequenceList.contains("78258")
+        assert assemblages.size() == 1
+        assert assemblage.start == 0
+        assert assemblage.end == 78258
+        assert assemblage.sequenceList.contains("78258")
 
 
         when: "we get features in the full scaffold everything should be the same"
@@ -567,11 +567,11 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "we get features in the partial scaffold everything should be the same"
         retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesStringUn87InProjection) as JSONObject).features
         locationJsonObject = retrievedFeatures.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value)
-        bookmarks = Bookmark.findAllBySequenceListIlike("%GroupUn87%")
-        bookmark = Bookmark.findBySequenceListIlikeAndEnd("%GroupUn87%", 43810)
+        assemblages = Assemblage.findAllBySequenceListIlike("%GroupUn87%")
+        assemblage = Assemblage.findBySequenceListIlikeAndEnd("%GroupUn87%", 43810)
 
         then: "we should get them placed within the same locations"
-        assert bookmark != null
+        assert assemblage != null
         assert MRNA.count == 1
         assert Gene.count == 1
         assert CDS.count == 1
@@ -589,11 +589,11 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         // should be the same for all
         assert Gene.first().firstFeatureLocation.sequence.name == "GroupUn87"
         assert Gene.first().featureLocations.size() == 1
-        assert locationJsonObject.fmin == 10511 - bookmarkStart
-        assert locationJsonObject.fmax == 26719 - bookmarkStart
-        assert Bookmark.countBySequenceListIlike("%GroupUn87%") == 2
-        assert bookmark.start == bookmarkStart
-        assert bookmark.end == 43810
+        assert locationJsonObject.fmin == 10511 - assemblageStart
+        assert locationJsonObject.fmax == 26719 - assemblageStart
+        assert Assemblage.countBySequenceListIlike("%GroupUn87%") == 2
+        assert assemblage.start == assemblageStart
+        assert assemblage.end == 43810
 
 
         when: "we set the exon boundary within the features"
@@ -620,12 +620,12 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         // should be the same for all
         assert Gene.first().firstFeatureLocation.sequence.name == "GroupUn87"
         assert Gene.first().featureLocations.size() == 1
-        assert locationJsonObject.fmin == 10511 - bookmarkStart
-//        assert locationJsonObject.fmax==26884 - bookmarkStart
+        assert locationJsonObject.fmin == 10511 - assemblageStart
+//        assert locationJsonObject.fmax==26884 - assemblageStart
         assert locationJsonObject.fmax == 26884
-        assert Bookmark.countBySequenceListIlike("%GroupUn87%") == 2
-        assert bookmark.start == bookmarkStart
-        assert bookmark.end == 43810
+        assert Assemblage.countBySequenceListIlike("%GroupUn87%") == 2
+        assert assemblage.start == assemblageStart
+        assert assemblage.end == 43810
 
         when: "we retrieve features on one Un87"
         retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesStringUn87) as JSONObject).features
@@ -635,10 +635,10 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we should only see locations on Un87"
         assert retrievedFeatures.size() == 1
         assert locationJsonObject.fmin == 10511
-        assert locationJsonObject.fmax == 26884 + bookmarkStart // we retrieve using a different location
-        assert Bookmark.countBySequenceListIlike("%GroupUn87%") == 2
-        assert bookmark.start == bookmarkStart
-        assert bookmark.end == 43810
+        assert locationJsonObject.fmax == 26884 + assemblageStart // we retrieve using a different location
+        assert Assemblage.countBySequenceListIlike("%GroupUn87%") == 2
+        assert assemblage.start == assemblageStart
+        assert assemblage.end == 43810
 
 
     }
@@ -1591,8 +1591,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
                 length: 200,
                 organism: Organism.first()
         ).save(failOnError: true)
-        Bookmark bookmark = new Bookmark(
-                name: "Bookmark name"
+        Assemblage assemblage = new Assemblage(
+                name: "Assemblage name"
                 , sequenceList: "[{\"name\":\"Chr3\",start:0,end:199,length:200}]"
                 , organism: Organism.first()
                 , start: 0
@@ -1601,7 +1601,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         jsonObject.put(FeatureStringEnum.FMIN.value, 73)
         jsonObject.put(FeatureStringEnum.FMAX.value, 113)
         jsonObject.put(FeatureStringEnum.STRAND.value, org.bbop.apollo.sequence.Strand.POSITIVE.value)
-        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(bookmark)
+        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
         org.bbop.apollo.projection.ProjectionSequence projectionSequence = projection.getProjectionSequence("Chr3", Organism.first())
 
 

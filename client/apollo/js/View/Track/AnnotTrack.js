@@ -376,9 +376,9 @@ define([
                         // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
                         var organism = JSON.parse(window.parent.getCurrentOrganism());
                         //var sequence = JSON.parse(window.parent.getCurrentSequence());
-                        var bookmark = JSON.parse(window.parent.getCurrentBookmark());
+                        var assemblage= JSON.parse(window.parent.getCurrentAssemblage());
                         var user = JSON.parse(window.parent.getCurrentUser());
-                        bookmark.sequenceList.forEach(function(obj){
+                        assemblage.sequenceList.forEach(function(obj){
                             client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + obj.name, dojo.hitch(track, 'annotationNotification'));
                         });
                         //client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));

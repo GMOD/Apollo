@@ -31,7 +31,7 @@ class FeatureService {
     def sequenceService
     def permissionService
     def overlapperService
-    def bookmarkService
+    def assemblageService
     def projectionService
     def preferenceService
     def sessionFactory
@@ -43,7 +43,7 @@ class FeatureService {
     /**
      * If a json feature location extends across two scaffolds, we need a feature locaiton for each
      * @param jsonLocation
-     * @param bookmark
+     * @param assemblage
      * @param projected
      * @param defaultStrand
      * @return
@@ -51,12 +51,12 @@ class FeatureService {
      */
     @Timed
     @Transactional
-    public List<FeatureLocation> convertJSONToFeatureLocations(JSONObject jsonLocation, Bookmark bookmark, int defaultStrand = Strand.POSITIVE.value) throws JSONException {
-        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
+    public List<FeatureLocation> convertJSONToFeatureLocations(JSONObject jsonLocation, Assemblage assemblage, int defaultStrand = Strand.POSITIVE.value) throws JSONException {
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
 
         Integer min = jsonLocation.getInt(FeatureStringEnum.FMIN.value)
         Integer max = jsonLocation.getInt(FeatureStringEnum.FMAX.value)
-        Organism organism = bookmark.organism
+        Organism organism = assemblage.organism
 
         List<String> sequenceListString = []
 
@@ -86,10 +86,10 @@ class FeatureService {
         List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceListString, organism).sort(){ a,b ->
                orderedSequenceMap.get(a.name) <=> orderedSequenceMap.get(b.name)
         }
-        MultiSequenceProjection fullProjection = projectionService.createMultiSequenceProjection(bookmarkService.generateBookmarkForSequence(sequenceList))
+        MultiSequenceProjection fullProjection = projectionService.createMultiSequenceProjection(assemblageService.generateAssemblageForSequence(sequenceList))
         int rank = 0
         sequenceListString.each{ String sequenceNameEntry ->
-            ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(sequenceNameEntry,bookmark.organism)
+            ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(sequenceNameEntry,assemblage.organism)
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, fullProjection, projectionSequence, defaultStrand)
             if(featureLocation){
                 featureLocation.rank = rank
@@ -246,15 +246,15 @@ class FeatureService {
      * If a sequence has multiple feature locations, then use the first one?
      *
      * @param feature
-     * @param bookmark
+     * @param assemblage
      */
     @Transactional
-    void updateNewGsolFeatureAttributes(Feature feature, Bookmark bookmark) {
+    void updateNewGsolFeatureAttributes(Feature feature, Assemblage assemblage) {
 
         feature.setIsAnalysis(false);
         feature.setIsObsolete(false);
-        if (bookmark) {
-            MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
+        if (assemblage) {
+            MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
 
             Organism organism
             feature.featureLocations.each() {
@@ -269,7 +269,7 @@ class FeatureService {
         }
 
         for (FeatureRelationship fr : feature.getParentFeatureRelationships()) {
-            updateNewGsolFeatureAttributes(fr.getChildFeature(), bookmark);
+            updateNewGsolFeatureAttributes(fr.getChildFeature(), assemblage);
         }
 
     }
@@ -292,7 +292,7 @@ class FeatureService {
 
     @Timed
     @Transactional
-    def generateTranscript(JSONObject jsonTranscript, Bookmark bookmark, boolean suppressHistory) {
+    def generateTranscript(JSONObject jsonTranscript, Assemblage assemblage, boolean suppressHistory) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
@@ -301,7 +301,7 @@ class FeatureService {
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
             // Scenario I - if 'parent_id' attribute is given then find the gene
-            transcript = (Transcript) convertJSONToFeature(jsonTranscript, bookmark);
+            transcript = (Transcript) convertJSONToFeature(jsonTranscript, assemblage);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
             }
@@ -309,18 +309,18 @@ class FeatureService {
             setOwner(transcript, owner);
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
-                calculateCDS(transcript, false, bookmark);
+                calculateCDS(transcript, false, assemblage);
             }
 
-            addTranscriptToGene(gene, transcript, bookmark);
-            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript, bookmark);
+            addTranscriptToGene(gene, transcript, assemblage);
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript, assemblage);
             if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
         } else {
             // Scenario II - find an overlapping isoform and if present, add current transcript to its gene
-//            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), bookmark, false)
-            List<FeatureLocation> featureLocationList = convertJSONToFeatureLocations(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), bookmark)
+//            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), assemblage, false)
+            List<FeatureLocation> featureLocationList = convertJSONToFeatureLocations(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), assemblage)
 
             // TODO: this should be the eventual method
 //            Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocationList).findAll() {
@@ -348,8 +348,8 @@ class FeatureService {
                     log.debug "found an overlapping gene ${tmpGene}"
                     // removing name from transcript JSON since its naming will be based off of the overlapping gene
                     jsonTranscript.remove(FeatureStringEnum.NAME.value)
-                    Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, bookmark);
-                    updateNewGsolFeatureAttributes(tmpTranscript, bookmark);
+                    Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, assemblage);
+                    updateNewGsolFeatureAttributes(tmpTranscript, assemblage);
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
@@ -358,7 +358,7 @@ class FeatureService {
                     setOwner(tmpTranscript, owner);
 
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
-                        calculateCDS(tmpTranscript, false, bookmark);
+                        calculateCDS(tmpTranscript, false, assemblage);
                     }
                     if (!suppressHistory) {
                         tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
@@ -368,8 +368,8 @@ class FeatureService {
                         log.debug "There is an overlap, adding to an existing gene"
                         transcript = tmpTranscript;
                         gene = tmpGene;
-                        addTranscriptToGene(gene, transcript, bookmark)
-                        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript, bookmark);
+                        addTranscriptToGene(gene, transcript, assemblage)
+                        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript, assemblage);
                         transcript.save()
 
                         if (jsonTranscript.has(FeatureStringEnum.PARENT.value)) {
@@ -455,11 +455,11 @@ class FeatureService {
             } else if (jsonTranscript.has(FeatureStringEnum.NAME.value)) {
                 geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
             } else {
-                geneName = nameService.makeUniqueGeneName(bookmark.organism, bookmark.sequenceList, false)
+                geneName = nameService.makeUniqueGeneName(assemblage.organism, assemblage.sequenceList, false)
             }
             if (!suppressHistory) {
 //                geneName = nameService.makeUniqueFeatureName(sequence.organism, geneName, new LetterPaddingStrategy(), true)
-                geneName = nameService.makeUniqueGeneName(bookmark.organism, geneName, true)
+                geneName = nameService.makeUniqueGeneName(assemblage.organism, geneName, true)
             }
             // set back to the original gene name
             if (jsonTranscript.has(FeatureStringEnum.GENE_NAME.value)) {
@@ -467,21 +467,21 @@ class FeatureService {
             }
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
-            gene = (Gene) convertJSONToFeature(jsonGene, bookmark);
+            gene = (Gene) convertJSONToFeature(jsonGene, assemblage);
 
-            updateNewGsolFeatureAttributes(gene, bookmark);
+            updateNewGsolFeatureAttributes(gene, assemblage);
             if (gene.getFmin() < 0 || gene.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
             transcript = transcriptService.getTranscripts(gene).iterator().next();
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
-                calculateCDS(transcript, false, bookmark);
+                calculateCDS(transcript, false, assemblage);
             }
-            removeExonOverlapsAndAdjacenciesForFeature(gene, bookmark)
+            removeExonOverlapsAndAdjacenciesForFeature(gene, assemblage)
             if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
-            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript, bookmark);
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript, assemblage);
             gene.save(insert: true)
             transcript.save(flush: true)
 
@@ -522,20 +522,20 @@ class FeatureService {
 
     @Timed
     @Transactional
-    def removeExonOverlapsAndAdjacenciesForFeature(Feature feature, Bookmark bookmark) {
+    def removeExonOverlapsAndAdjacenciesForFeature(Feature feature, Assemblage assemblage) {
         if (feature instanceof Gene) {
             for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
-                removeExonOverlapsAndAdjacencies(transcript, bookmark);
+                removeExonOverlapsAndAdjacencies(transcript, assemblage);
             }
         } else if (feature instanceof Transcript) {
-            removeExonOverlapsAndAdjacencies((Transcript) feature, bookmark);
+            removeExonOverlapsAndAdjacencies((Transcript) feature, assemblage);
         }
     }
 
 
     @Transactional
-    def addTranscriptToGene(Gene gene, Transcript transcript, Bookmark bookmark) {
-        removeExonOverlapsAndAdjacencies(transcript, bookmark);
+    def addTranscriptToGene(Gene gene, Transcript transcript, Assemblage assemblage) {
+        removeExonOverlapsAndAdjacencies(transcript, assemblage);
         // no feature location, set location to transcript's
         if (gene.featureLocations == null) {
             transcript.featureLocations.each { transcriptFeatureLocation ->
@@ -547,7 +547,7 @@ class FeatureService {
             }
         } else {
             // if the transcript's bounds are beyond the gene's bounds, need to adjust the gene's bounds
-            transcriptService.updateGeneBoundaries(transcript, bookmark)
+            transcriptService.updateGeneBoundaries(transcript, assemblage)
 //            if (transcript.fmin < gene.fmin) {
 //                gene.getFeatureLocation().setFmin(transcript.getFeatureLocation().getFmin());
 //            }
@@ -580,12 +580,12 @@ class FeatureService {
      * @return
      */
     @Transactional
-    def removeExonOverlapsAndAdjacencies(Transcript transcript, Bookmark bookmark) throws AnnotationException {
-        List<Exon> sortedExons = transcriptService.getSortedExons(transcript, false, bookmark)
+    def removeExonOverlapsAndAdjacencies(Transcript transcript, Assemblage assemblage) throws AnnotationException {
+        List<Exon> sortedExons = transcriptService.getSortedExons(transcript, false, assemblage)
         if (!sortedExons || sortedExons?.size() <= 1) {
             return;
         }
-        // sort exon if the bookmark is not there
+        // sort exon if the assemblage is not there
         int inc = 1;
         for (int i = 0; i < sortedExons.size() - 1; i += inc) {
             inc = 1;
@@ -595,7 +595,7 @@ class FeatureService {
                 if (overlapperService.overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.lastFeatureLocation, rightExon.firstFeatureLocation)) {
                     try {
                         exonService.mergeExons(leftExon, rightExon);
-                        sortedExons = transcriptService.getSortedExons(transcript, false, bookmark)
+                        sortedExons = transcriptService.getSortedExons(transcript, false, assemblage)
                         // we have to reload the sortedExons again and start over
                         ++inc;
                     } catch (AnnotationException e) {
@@ -638,9 +638,9 @@ class FeatureService {
 
     @Timed
     @Transactional
-    def calculateCDS(Transcript transcript, boolean readThroughStopCodon, Bookmark bookmark) {
+    def calculateCDS(Transcript transcript, boolean readThroughStopCodon, Assemblage assemblage) {
         CDS cds = transcriptService.getCDS(transcript);
-        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
         log.info "calculateCDS"
         if (cds == null) {
             setLongestORF(transcript, readThroughStopCodon, multiSequenceProjection);
@@ -964,9 +964,9 @@ class FeatureService {
         if (cds == null) {
             return frameshifts;
         }
-        // get sequence for transcript region (generate bookmark) and frameshift coordinate
-        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(transcript)
-        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
+        // get sequence for transcript region (generate assemblage) and frameshift coordinate
+        Assemblage assemblage = assemblageService.generateAssemblageForFeature(transcript)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
 //        Sequence sequence = cds.getFeatureLocation().sequence
         Organism organism = transcript.organism
         List<Frameshift> frameshiftList = transcriptService.getFrameshifts(transcript)
@@ -1133,17 +1133,17 @@ class FeatureService {
 
 //    @Timed
 //    @Transactional
-//    public Feature convertJSONToFeature(JSONObject jsonFeature, Bookmark bookmark) {
-//        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
+//    public Feature convertJSONToFeature(JSONObject jsonFeature, Assemblage assemblage) {
+//        List<Sequence> sequenceList = assemblageService.getSequencesFromAssemblage(assemblage)
 //        if(!sequenceList || sequenceList.size()>1){
-//            log.error("trying to convert a feature that has multiple sequences: ${bookmark}")
+//            log.error("trying to convert a feature that has multiple sequences: ${assemblage}")
 //        }
 //        return convertJSONToFeature(jsonFeature,sequenceList.first())
 //    }
 
     @Timed
     @Transactional
-    public Feature convertJSONToFeature(JSONObject jsonFeature, Bookmark bookmark) {
+    public Feature convertJSONToFeature(JSONObject jsonFeature, Assemblage assemblage) {
         Feature gsolFeature
         try {
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
@@ -1186,11 +1186,11 @@ class FeatureService {
                 JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
                 List<FeatureLocation> featureLocationList
                 if (singletonFeatureTypes.contains(type.getString(FeatureStringEnum.NAME.value))) {
-                    featureLocationList = convertJSONToFeatureLocations(jsonLocation, bookmark, Strand.NONE.value)
-//                    featureLocation = convertJSONToFeatureLocation(jsonLocation, bookmark, false, Strand.NONE.value)
+                    featureLocationList = convertJSONToFeatureLocations(jsonLocation, assemblage, Strand.NONE.value)
+//                    featureLocation = convertJSONToFeatureLocation(jsonLocation, assemblage, false, Strand.NONE.value)
                 } else {
-                    featureLocationList = convertJSONToFeatureLocations(jsonLocation, bookmark)
-//                    featureLocation = convertJSONToFeatureLocation(jsonLocation, bookmark, false)
+                    featureLocationList = convertJSONToFeatureLocations(jsonLocation, assemblage)
+//                    featureLocation = convertJSONToFeatureLocation(jsonLocation, assemblage, false)
                 }
 
                 for (FeatureLocation featureLocation in featureLocationList) {
@@ -1211,7 +1211,7 @@ class FeatureService {
                 log.debug "jsonFeature ${jsonFeature} has ${children?.size()} children"
                 for (int i = 0; i < children.length(); ++i) {
                     JSONObject childObject = children.getJSONObject(i)
-                    Feature child = convertJSONToFeature(childObject, bookmark);
+                    Feature child = convertJSONToFeature(childObject, assemblage);
                     // if it retuns null, we ignore it
                     if (child) {
                         child.save(failOnError: true)
@@ -1433,15 +1433,15 @@ class FeatureService {
 
     @Transactional
     def setFmax(Feature feature, int fmax) {
-        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(feature)
-        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
+        Assemblage assemblage = assemblageService.generateAssemblageForFeature(feature)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
         setFmax(feature, fmax, multiSequenceProjection)
     }
 
     @Transactional
     def setFmin(Feature feature, int fmin) {
-        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(feature)
-        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(bookmark)
+        Assemblage assemblage = assemblageService.generateAssemblageForFeature(feature)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
         setFmin(feature, fmin, multiSequenceProjection)
     }
 
@@ -1467,8 +1467,8 @@ class FeatureService {
      */
     @Transactional
     def setFeatureLocations(Feature feature, Integer fmin, Integer fmax) {
-        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(feature)
-        setFeatureLocations(feature, fmin, fmax, projectionService.createMultiSequenceProjection(bookmark))
+        Assemblage assemblage = assemblageService.generateAssemblageForFeature(feature)
+        setFeatureLocations(feature, fmin, fmax, projectionService.createMultiSequenceProjection(assemblage))
     }
 
     /**
@@ -1479,8 +1479,8 @@ class FeatureService {
      */
     @Transactional
     def setFeatureLocations(Feature feature, Integer fmin, Integer fmax, Feature contextFeature) {
-        Bookmark bookmark = bookmarkService.generateBookmarkForFeature(contextFeature)
-        setFeatureLocations(feature, fmin, fmax, projectionService.createMultiSequenceProjection(bookmark))
+        Assemblage assemblage = assemblageService.generateAssemblageForFeature(contextFeature)
+        setFeatureLocations(feature, fmin, fmax, projectionService.createMultiSequenceProjection(assemblage))
     }
 
     /**
@@ -1795,7 +1795,7 @@ class FeatureService {
      * @return
      */
     @Timed
-    JSONObject convertFeatureToJSONLite(Feature gsolFeature, boolean includeSequence, int depth, Bookmark bookmark) {
+    JSONObject convertFeatureToJSONLite(Feature gsolFeature, boolean includeSequence, int depth, Assemblage assemblage) {
         JSONObject jsonFeature = new JSONObject();
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
@@ -1841,8 +1841,8 @@ class FeatureService {
 //            else{
             jsonFeature.put(FeatureStringEnum.SEQUENCE.value, gsolFeature.sequenceNames);
 //            jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(gsolFeature.featureLocation));
-//                bookmark = bookmark ?: bookmarkService.generateBookmarkForFeature(gsolFeature)
-            jsonFeature.put(FeatureStringEnum.LOCATION.value, createFeatureLocationJSONFromBookmark(gsolFeature, bookmark));
+//                assemblage = assemblage ?: assemblageService.generateAssemblageForFeature(gsolFeature)
+            jsonFeature.put(FeatureStringEnum.LOCATION.value, createFeatureLocationJSONFromAssemblage(gsolFeature, assemblage));
 //            }
         }
 
@@ -1854,7 +1854,7 @@ class FeatureService {
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
                 for (Feature f : childFeatures) {
                     Feature childFeature = f
-                    children.put(convertFeatureToJSONLite(childFeature, includeSequence, depth + 1, bookmark));
+                    children.put(convertFeatureToJSONLite(childFeature, includeSequence, depth + 1, assemblage));
                 }
             }
         }
@@ -1864,15 +1864,15 @@ class FeatureService {
         return jsonFeature;
     }
 
-    JSONObject createFeatureLocationJSONFromBookmark(Feature feature, Bookmark bookmark) {
+    JSONObject createFeatureLocationJSONFromAssemblage(Feature feature, Assemblage assemblage) {
         int calculatedFmin = -1
         int calculatedFmax = -1
         Boolean fminPartial = false
         Boolean fmaxPartial = false
 
-        bookmark = bookmark ?: bookmarkService.generateBookmarkForFeature(feature)
-        List<Sequence> sequenceList = bookmarkService.getSequencesFromBookmark(bookmark)
-        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(bookmark)
+        assemblage = assemblage ?: assemblageService.generateAssemblageForFeature(feature)
+        List<Sequence> sequenceList = assemblageService.getSequencesFromAssemblage(assemblage)
+        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
 //        List<ProjectionSequence> projectionSequenceList = projection.getProjectedSequences()
 
         List<FeatureLocation> featureLocations = feature.getFeatureLocations()?.sort() { it.rank };
@@ -1897,7 +1897,7 @@ class FeatureService {
         }
 
 
-        return generateFeatureLocationToJSON(bookmark.sequenceList, feature.strand, calculatedFmin, calculatedFmax, fminPartial, fmaxPartial)
+        return generateFeatureLocationToJSON(assemblage.sequenceList, feature.strand, calculatedFmin, calculatedFmax, fminPartial, fmaxPartial)
     }
 
     String generateOwnerString(Feature feature) {
@@ -1917,7 +1917,7 @@ class FeatureService {
 
 
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
-        return convertFeatureToJSON(gsolFeature, includeSequence, bookmarkService.generateBookmarkForFeature(gsolFeature))
+        return convertFeatureToJSON(gsolFeature, includeSequence, assemblageService.generateAssemblageForFeature(gsolFeature))
     }
 
     /**
@@ -1926,7 +1926,7 @@ class FeatureService {
      * @return
      */
     @Timed
-    JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false, Bookmark bookmark) {
+    JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false, Assemblage assemblage) {
         JSONObject jsonFeature = new JSONObject();
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
@@ -1966,7 +1966,7 @@ class FeatureService {
             jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
             for (Feature f : childFeatures) {
                 Feature childFeature = f
-                children.put(convertFeatureToJSON(childFeature, includeSequence, bookmark));
+                children.put(convertFeatureToJSON(childFeature, includeSequence, assemblage));
             }
         }
 
@@ -1992,8 +1992,8 @@ class FeatureService {
 //            }
 //            else{
             // TODO: should probably move somewhere else, but the important part here is that it calculates a SINGLE location
-            // for the relevant bookmark
-            jsonFeature.put(FeatureStringEnum.LOCATION.value, createFeatureLocationJSONFromBookmark(gsolFeature, bookmark))
+            // for the relevant assemblage
+            jsonFeature.put(FeatureStringEnum.LOCATION.value, createFeatureLocationJSONFromAssemblage(gsolFeature, assemblage))
 //            }
         }
 
@@ -2273,7 +2273,7 @@ class FeatureService {
             for (Transcript eachTranscript in transcriptsToAssociate) {
                 Gene eachTranscriptParent = transcriptService.getGene(eachTranscript)
                 featureRelationshipService.removeFeatureRelationship(eachTranscriptParent, eachTranscript)
-                addTranscriptToGene(mergedGene, eachTranscript, bookmarkService.generateBookmarkForFeatures(mergedGene, eachTranscript))
+                addTranscriptToGene(mergedGene, eachTranscript, assemblageService.generateAssemblageForFeatures(mergedGene, eachTranscript))
                 eachTranscript.name = nameService.generateUniqueName(eachTranscript, mergedGene.name)
                 eachTranscript.save()
                 if (eachTranscriptParent.parentFeatureRelationships.size() == 0) {
@@ -2318,7 +2318,7 @@ class FeatureService {
                         newGene.addToFeatureLocations(newGeneFeatureLocation)
                     }
                     featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(firstTranscript), firstTranscript)
-                    addTranscriptToGene(newGene, firstTranscript, bookmarkService.generateBookmarkForFeatures(newGene, eachTranscript))
+                    addTranscriptToGene(newGene, firstTranscript, assemblageService.generateAssemblageForFeatures(newGene, eachTranscript))
                     firstTranscript.name = nameService.generateUniqueName(firstTranscript, newGene.name)
                     firstTranscript.save(flush: true)
                     continue
@@ -2326,7 +2326,7 @@ class FeatureService {
                 if (overlapperService.overlaps(eachTranscript, firstTranscript)) {
                     featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(eachTranscript), eachTranscript)
                     Gene firstGene = transcriptService.getGene(firstTranscript)
-                    addTranscriptToGene(firstGene, eachTranscript, bookmarkService.generateBookmarkForFeatures(firstGene, eachTranscript))
+                    addTranscriptToGene(firstGene, eachTranscript, assemblageService.generateAssemblageForFeatures(firstGene, eachTranscript))
                     firstTranscript.name = nameService.generateUniqueName(firstTranscript, transcriptService.getGene(firstTranscript).name)
                     firstTranscript.save(flush: true)
                 } else {
@@ -2377,18 +2377,18 @@ class FeatureService {
 
     /**
      * @param features
-     * @param bookmark
+     * @param assemblage
      * @return
      */
-    List<Feature> sortFeatures(Collection<Feature> features, Bookmark bookmark) {
-        // generate a bookmark from the first feature sequence if not defined
-        if (!bookmark) {
-            bookmark = bookmarkService.generateBookmarkForFeature(features.first())
+    List<Feature> sortFeatures(Collection<Feature> features, Assemblage assemblage) {
+        // generate a assemblage from the first feature sequence if not defined
+        if (!assemblage) {
+            assemblage = assemblageService.generateAssemblageForFeature(features.first())
         }
 
         // populate map of sequences to features using the correct order
         Map<Sequence, List<Feature>> firstSequenceFeatureMap = new HashMap<>()
-        List<ProjectionSequence> firstProjectionSequenceList = projectionService.createMultiSequenceProjection(bookmark).getProjectedSequences()
+        List<ProjectionSequence> firstProjectionSequenceList = projectionService.createMultiSequenceProjection(assemblage).getProjectedSequences()
 
         firstProjectionSequenceList.each {
             Organism organism = preferenceService.getOrganismForToken(it.organism)
@@ -2842,10 +2842,10 @@ class FeatureService {
     }
 
 
-    def changeAnnotationType(JSONObject inputObject, Feature feature, Bookmark bookmark, User user, String type) {
+    def changeAnnotationType(JSONObject inputObject, Feature feature, Assemblage assemblage, User user, String type) {
         String uniqueName = feature.uniqueName
         String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
-        JSONObject currentFeatureJsonObject = convertFeatureToJSON(feature, false, bookmark)
+        JSONObject currentFeatureJsonObject = convertFeatureToJSON(feature, false, assemblage)
         Feature newFeature = null
 
         String topLevelFeatureType = null
@@ -2910,12 +2910,12 @@ class FeatureService {
             Transcript transcript = null
             if (type == MRNA.alternateCvTerm) {
                 // *RNA to mRNA
-                transcript = generateTranscript(currentFeatureJsonObject, bookmark, true)
-                setLongestORF(transcript, false, projectionService.createMultiSequenceProjection(bookmark))
+                transcript = generateTranscript(currentFeatureJsonObject, assemblage, true)
+                setLongestORF(transcript, false, projectionService.createMultiSequenceProjection(assemblage))
             } else {
                 // *RNA to *RNA
-                transcript = addFeature(currentFeatureJsonObject, bookmark, user, true)
-                setLongestORF(transcript, false, projectionService.createMultiSequenceProjection(bookmark))
+                transcript = addFeature(currentFeatureJsonObject, assemblage, user, true)
+                setLongestORF(transcript, false, projectionService.createMultiSequenceProjection(assemblage))
             }
 
             Gene newGene = transcriptService.getGene(transcript)
@@ -2961,13 +2961,13 @@ class FeatureService {
             currentFeatureJsonObject.remove(FeatureStringEnum.PARENT_TYPE.value)
             currentFeatureJsonObject.remove(FeatureStringEnum.PARENT_ID.value)
             currentFeatureJsonObject.get(FeatureStringEnum.LOCATION.value).strand = 0
-            Feature singleton = addFeature(currentFeatureJsonObject, bookmark, user, true)
+            Feature singleton = addFeature(currentFeatureJsonObject, assemblage, user, true)
             newFeature = singleton
         } else if (singletonFeatureTypes.contains(originalType) && singletonFeatureTypes.contains(type)) {
             // singleton to singleton
             currentFeatureJsonObject.put(FeatureStringEnum.UNIQUENAME.value, uniqueName)
             featureRelationshipService.deleteFeatureAndChildren(feature)
-            Feature singleton = addFeature(currentFeatureJsonObject, bookmark, user, true)
+            Feature singleton = addFeature(currentFeatureJsonObject, assemblage, user, true)
             newFeature = singleton
         } else {
             log.error "Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
@@ -2978,7 +2978,7 @@ class FeatureService {
         return newFeature
     }
 
-    def addFeature(JSONObject jsonFeature, Bookmark bookmark, User user, boolean suppressHistory) {
+    def addFeature(JSONObject jsonFeature, Assemblage assemblage, User user, boolean suppressHistory) {
         Feature returnFeature = null
 
         if (rnaFeatureTypes.contains(jsonFeature.get(FeatureStringEnum.TYPE.value).name)) {
@@ -2987,14 +2987,14 @@ class FeatureService {
 
             if (gene) {
                 // Scenario I - if 'parent_id' attribute is given then find the gene
-                transcript = (Transcript) convertJSONToFeature(jsonFeature, bookmark)
+                transcript = (Transcript) convertJSONToFeature(jsonFeature, assemblage)
                 if (transcript.fmin < 0 || transcript.fmax < 0) {
                     throw new AnnotationException("Feature cannot have negative coordinates")
                 }
 
                 setOwner(transcript, user)
 
-                addTranscriptToGene(gene, transcript, bookmark)
+                addTranscriptToGene(gene, transcript, assemblage)
                 if (!suppressHistory) {
                     String name = nameService.generateUniqueName(transcript)
                     transcript.name = name + "-" + transcript.alternateCvTerm
@@ -3026,11 +3026,11 @@ class FeatureService {
                 } else if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                     geneName = jsonFeature.getString(FeatureStringEnum.NAME.value)
                 } else {
-                    geneName = nameService.makeUniqueGeneName(bookmark.organism, bookmark.name, false)
+                    geneName = nameService.makeUniqueGeneName(assemblage.organism, assemblage.name, false)
                 }
 
                 if (!suppressHistory) {
-                    geneName = nameService.makeUniqueGeneName(bookmark.organism, geneName, true)
+                    geneName = nameService.makeUniqueGeneName(assemblage.organism, geneName, true)
                 }
 
                 // set back to the original gene name
@@ -3038,14 +3038,14 @@ class FeatureService {
                     geneName = jsonFeature.getString(FeatureStringEnum.GENE_NAME.value)
                 }
                 jsonGene.put(FeatureStringEnum.NAME.value, geneName)
-                gene = (Gene) convertJSONToFeature(jsonGene, bookmark)
-                updateNewGsolFeatureAttributes(gene, bookmark)
+                gene = (Gene) convertJSONToFeature(jsonGene, assemblage)
+                updateNewGsolFeatureAttributes(gene, assemblage)
 
                 if (gene.fmin < 0 || gene.fmax < 0) {
                     throw new AnnotationException("Feature cannot have negative coordinates")
                 }
                 transcript = transcriptService.getTranscripts(gene).iterator().next();
-                removeExonOverlapsAndAdjacenciesForFeature(gene, bookmark)
+                removeExonOverlapsAndAdjacenciesForFeature(gene, assemblage)
                 if (!suppressHistory) {
                     String name = nameService.generateUniqueName(transcript)
                     transcript.name = name + "-" + transcript.alternateCvTerm
@@ -3058,13 +3058,13 @@ class FeatureService {
                 setOwner(transcript, user);
             }
 
-            removeExonOverlapsAndAdjacencies(transcript, bookmark)
+            removeExonOverlapsAndAdjacencies(transcript, assemblage)
             CDS cds = transcriptService.getCDS(transcript)
             if (cds != null) {
                 featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
                 cds.delete()
             }
-            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript, bookmark)
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript, assemblage)
             returnFeature = transcript
         } else {
             if (!jsonFeature.containsKey(FeatureStringEnum.NAME.value) && jsonFeature.containsKey(FeatureStringEnum.CHILDREN.value)) {
@@ -3073,12 +3073,12 @@ class FeatureService {
                     jsonFeature.put(FeatureStringEnum.NAME.value, childArray.getJSONObject(0).getString(FeatureStringEnum.NAME.value))
                 }
             }
-            Feature feature = convertJSONToFeature(jsonFeature, bookmark)
+            Feature feature = convertJSONToFeature(jsonFeature, assemblage)
             if (!suppressHistory) {
                 String name = nameService.generateUniqueName(feature, feature.name)
                 feature.name = name + "-" + feature.alternateCvTerm
             }
-            updateNewGsolFeatureAttributes(feature, bookmark)
+            updateNewGsolFeatureAttributes(feature, assemblage)
 
             setOwner(feature, user);
             feature.save(insert: true, flush: true)
@@ -3086,13 +3086,13 @@ class FeatureService {
                     jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.alternateCvTerm) {
                 Transcript transcript = transcriptService.getTranscripts(feature).iterator().next()
                 setOwner(transcript, user);
-                removeExonOverlapsAndAdjacencies(transcript, bookmark)
+                removeExonOverlapsAndAdjacencies(transcript, assemblage)
                 CDS cds = transcriptService.getCDS(transcript)
                 if (cds != null) {
                     featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
                     cds.delete()
                 }
-                nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript, bookmark)
+                nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript, assemblage)
                 transcript.save(flush: true)
                 returnFeature = transcript
             } else {

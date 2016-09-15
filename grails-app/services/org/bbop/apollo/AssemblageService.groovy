@@ -8,7 +8,7 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
-class BookmarkService {
+class AssemblageService {
 
     def permissionService
     def preferenceService
@@ -20,7 +20,7 @@ class BookmarkService {
      * @param feature
      * @return
      */
-    Bookmark generateBookmarkForFeature(Feature feature) {
+    Assemblage generateAssemblageForFeature(Feature feature) {
         List<Sequence> sequenceList = new ArrayList<>()
         feature.featureLocations.sort(){ a,b ->
             a.rank <=> b.rank ?: a.isFmaxPartial <=> b.isFmaxPartial ?: b.isFminPartial <=> a.isFminPartial ?: a.fmin <=> b.fmin
@@ -29,11 +29,11 @@ class BookmarkService {
                 sequenceList.add(it.sequence)
             }
         }
-        return generateBookmarkForSequence(sequenceList)
+        return generateAssemblageForSequence(sequenceList)
     }
 
 
-    Bookmark generateBookmarkForFeatures(Feature... features) {
+    Assemblage generateAssemblageForFeatures(Feature... features) {
         List<Sequence> sequenceList = new ArrayList<>()
         List<FeatureLocation> featureLocationList = new ArrayList<>()
         features.each { feature ->
@@ -57,7 +57,7 @@ class BookmarkService {
             validateFeatureVsSequenceList(it,sequenceList)
         }
 
-        return generateBookmarkForSequence(sequenceList)
+        return generateAssemblageForSequence(sequenceList)
     }
 
     /**
@@ -79,15 +79,15 @@ class BookmarkService {
         return true
     }
 
-    Bookmark generateBookmarkForSequence(Sequence... sequences) {
+    Assemblage generateAssemblageForSequence(Sequence... sequences) {
         List<Sequence> sequenceList = new ArrayList<>()
         for(s in sequences){
             sequenceList.add(s)
         }
-        return generateBookmarkForSequence(sequenceList)
+        return generateAssemblageForSequence(sequenceList)
     }
 
-    Bookmark generateBookmarkForSequence(List<Sequence> sequences) {
+    Assemblage generateAssemblageForSequence(List<Sequence> sequences) {
         Organism organism = null
         JSONArray sequenceArray = new JSONArray()
         int end = 0;
@@ -98,17 +98,17 @@ class BookmarkService {
             organism = organism ?: seq.organism
             end += seq.end
         }
-        Bookmark bookmark = Bookmark.findByOrganismAndSequenceList(organism, sequenceArray.toString()) ?: new Bookmark(
+        Assemblage assemblage = Assemblage.findByOrganismAndSequenceList(organism, sequenceArray.toString()) ?: new Assemblage(
                 organism: organism
                 , sequenceList: sequenceArray.toString()
                 , start: 0
                 , end: end
         ).save(flush: true, failOnError: true)
 
-        return bookmark
+        return assemblage
     }
 
-    List<Sequence> getSequencesFromBookmark(Organism organism,String sequenceListString) {
+    List<Sequence> getSequencesFromAssemblage(Organism organism, String sequenceListString) {
         JSONArray sequenceArray = JSON.parse(sequenceListString) as JSONArray
         List<Sequence> sequenceList = []
 
@@ -123,27 +123,27 @@ class BookmarkService {
         return sequenceList
     }
 
-    List<Sequence> getSequencesFromBookmark(Bookmark bookmark) {
+    List<Sequence> getSequencesFromAssemblage(Assemblage assemblage) {
 
-        return getSequencesFromBookmark(bookmark.organism,bookmark.sequenceList)
+        return getSequencesFromAssemblage(assemblage.organism,assemblage.sequenceList)
     }
 
     // should match ProjectionDescription
-    JSONObject convertBookmarkToJson(Bookmark bookmark) {
+    JSONObject convertAssemblageToJson(Assemblage assemblage) {
         JSONObject jsonObject = new JSONObject()
-        jsonObject.id = bookmark.id
-        jsonObject.projection = bookmark.projection ?: "NONE"
+        jsonObject.id = assemblage.id
+        jsonObject.projection = assemblage.projection ?: "NONE"
 
 
-        jsonObject.padding = bookmark.padding ?: 0
-//        jsonObject.referenceTrack = bookmark.referenceTrack
+        jsonObject.padding = assemblage.padding ?: 0
+//        jsonObject.referenceTrack = assemblage.referenceTrack
 
-        jsonObject.payload = bookmark.payload ?: "{}"
-        jsonObject.organism = bookmark.organism.commonName
-        jsonObject.start = bookmark.start
-        jsonObject.end = bookmark.end
+        jsonObject.payload = assemblage.payload ?: "{}"
+        jsonObject.organism = assemblage.organism.commonName
+        jsonObject.start = assemblage.start
+        jsonObject.end = assemblage.end
         // in theory these should be the same
-        jsonObject.sequenceList = JSON.parse(bookmark.sequenceList) as JSONArray
+        jsonObject.sequenceList = JSON.parse(assemblage.sequenceList) as JSONArray
 
         return jsonObject
     }
@@ -158,7 +158,7 @@ class BookmarkService {
             UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             organism = userOrganismPreference?.organism
         }
-        List<Sequence> sequences1 = getSequencesFromBookmark(organism,sequenceArray.toString())
+        List<Sequence> sequences1 = getSequencesFromAssemblage(organism,sequenceArray.toString())
         Map<String,Sequence> sequenceMap = sequences1.collectEntries(){
             [it.name,it]
         }
@@ -176,33 +176,33 @@ class BookmarkService {
         return inputObject
     }
 
-    def getBookmarksForUserAndOrganism(User user,Organism organism){
-        def bookmarks = user.bookmarks.findAll(){
+    def getAssemblagesForUserAndOrganism(User user, Organism organism){
+        def assemblages = user.assemblages.findAll(){
             it.organism==organism
         }
-        return bookmarks
+        return assemblages
     }
 
-    Bookmark convertJsonToBookmark(JSONObject jsonObject) {
+    Assemblage convertJsonToAssemblage(JSONObject jsonObject) {
         standardizeSequenceList(jsonObject)
         JSONArray sequenceListArray = JSON.parse(jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
-        Bookmark bookmark = Bookmark.findBySequenceList(sequenceListArray.toString())
-        if(bookmark==null){
-            log.info "creating bookmark from ${jsonObject as JSON} "
-            bookmark = new Bookmark()
-            bookmark.projection = jsonObject.projection
-            bookmark.sequenceList = sequenceListArray.toString()
+        Assemblage assemblage = Assemblage.findBySequenceList(sequenceListArray.toString())
+        if(assemblage==null){
+            log.info "creating assemblage from ${jsonObject as JSON} "
+            assemblage = new Assemblage()
+            assemblage.projection = jsonObject.projection
+            assemblage.sequenceList = sequenceListArray.toString()
 
-            bookmark.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value): sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
-            bookmark.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size()-1).getInt(FeatureStringEnum.END.value)
+            assemblage.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value): sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
+            assemblage.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size()-1).getInt(FeatureStringEnum.END.value)
 
-            bookmark.organism = preferenceService.getOrganismFromInput(jsonObject)
-            if(!bookmark.organism){
-                bookmark.organism = preferenceService.getCurrentOrganismForCurrentUser(jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            assemblage.organism = preferenceService.getOrganismFromInput(jsonObject)
+            if(!assemblage.organism){
+                assemblage.organism = preferenceService.getCurrentOrganismForCurrentUser(jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             }
-            bookmark.save(insert: true,flush:true)
+            assemblage.save(insert: true,flush:true)
         }
-        return bookmark
+        return assemblage
     }
 
     @NotTransactional
@@ -217,14 +217,14 @@ class BookmarkService {
     }
 
     /**
-     * We want the minimimum location of a feature in the context of its bookmark
+     * We want the minimimum location of a feature in the context of its assemblage
      * @param feature
-     * @param bookmark
+     * @param assemblage
      * @return
      */
-    int getMinForFeatureFullScaffold(Feature feature, Bookmark bookmark) {
+    int getMinForFeatureFullScaffold(Feature feature, Assemblage assemblage) {
         Integer calculatedMin = feature.fmin
-        List<Sequence> sequencesList = getSequencesFromBookmark(bookmark)
+        List<Sequence> sequencesList = getSequencesFromAssemblage(assemblage)
 
         Sequence firstSequence = feature.getFirstSequence()
         Integer sequenceOrder = sequencesList.indexOf(firstSequence)
@@ -237,14 +237,14 @@ class BookmarkService {
     }
 
     /**
-     * We want the maximum location of a feature in the context of its bookmark
+     * We want the maximum location of a feature in the context of its assemblage
      * @param feature
-     * @param bookmark
+     * @param assemblage
      * @return
      */
-    int getMaxForFeatureFullScaffold(Feature feature, Bookmark bookmark) {
+    int getMaxForFeatureFullScaffold(Feature feature, Assemblage assemblage) {
         Integer calculatedMax = feature.fmax
-        List<Sequence> sequencesList = getSequencesFromBookmark(bookmark)
+        List<Sequence> sequencesList = getSequencesFromAssemblage(assemblage)
 
         // we use the first sequence here, since fmax uses prior sequences
         Sequence firstSequence = feature.getFirstSequence()
@@ -257,17 +257,17 @@ class BookmarkService {
         return calculatedMax
     }
 
-    def removeBookmarkById(Long id,User user) {
-        def bookmark = Bookmark.findById(id)
-        if(bookmark){
-            def uops = UserOrganismPreference.findAllByBookmark(bookmark)
+    def removeAssemblageById(Long id, User user) {
+        def assemblage = Assemblage.findById(id)
+        if(assemblage){
+            def uops = UserOrganismPreference.findAllByAssemblage(assemblage)
             Boolean canDelete = uops.find(){ it.currentOrganism } == null
             if(canDelete){
-                user.removeFromBookmarks(bookmark)
+                user.removeFromAssemblages(assemblage)
                 uops.each {
                     it.delete()
                 }
-                bookmark.delete(flush: true)
+                assemblage.delete(flush: true)
                 return true
             }
             else{
@@ -276,7 +276,7 @@ class BookmarkService {
             }
         }
         else{
-            log.error("No bookmark found to delete for ${id} and ${user.username}")
+            log.error("No assemblage found to delete for ${id} and ${user.username}")
             return false
         }
     }

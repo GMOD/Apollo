@@ -10,7 +10,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class PreferenceService {
 
     def permissionService
-    def bookmarkService
+    def assemblageService
 
     Organism getCurrentOrganismForCurrentUser(String clientToken) {
         log.debug "PS: getCurrentOrganismForCurrentUser ${clientToken}"
@@ -68,7 +68,7 @@ class PreferenceService {
                     userOrganismPreference = new UserOrganismPreference(
                             user: user
                             , organism: organism
-                            , bookmark: Bookmark.findByOrganism(organism)
+                            , assemblage: Assemblage.findByOrganism(organism)
                             , currentOrganism: true
                     ).save()
                 } else {
@@ -79,8 +79,8 @@ class PreferenceService {
             userOrganismPreference.currentOrganism = true
             userOrganismPreference.save(flush: true)
         }
-        Bookmark bookmark = userOrganismPreference.bookmark
-        String sequenceList = bookmark.sequenceList
+        Assemblage assemblage = userOrganismPreference.assemblage
+        String sequenceList = assemblage.sequenceList
 
         return sequenceList
     }
@@ -98,7 +98,7 @@ class PreferenceService {
                     user: user
                     , organism: organism
                     , currentOrganism: true
-                    , bookmark: Bookmark.findByOrganism(organism)
+                    , assemblage: Assemblage.findByOrganism(organism)
                     , clientToken: clientToken
             ).save(flush: true,insert:true)
         } else if (!userOrganismPreference.currentOrganism) {
@@ -116,15 +116,15 @@ class PreferenceService {
                 [prefId: userOrganismPreference.id, user: user, clientToken: clientToken])
     }
 
-    def setCurrentBookmark(User user, Bookmark bookmark,String clientToken) {
-        Organism organism = bookmark.organism
+    def setCurrentAssemblage(User user, Assemblage assemblage, String clientToken) {
+        Organism organism = assemblage.organism
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
                     , currentOrganism: true
-                    , bookmark: bookmark
+                    , assemblage: assemblage
                     , clientToken: clientToken
             ).save(flush: true)
             setOtherCurrentOrganismsFalse(userOrganismPreference, user,clientToken)
@@ -132,12 +132,12 @@ class PreferenceService {
         else
         if(!userOrganismPreference.currentOrganism) {
             userOrganismPreference.currentOrganism = true;
-            userOrganismPreference.bookmark = bookmark
+            userOrganismPreference.assemblage = assemblage
             userOrganismPreference.save()
             setOtherCurrentOrganismsFalse(userOrganismPreference, user,clientToken)
         }
         else{
-            userOrganismPreference.bookmark = bookmark
+            userOrganismPreference.assemblage = assemblage
             userOrganismPreference.save()
         }
     }
@@ -145,11 +145,11 @@ class PreferenceService {
 //    def setCurrentSequence(User user, Sequence sequence) {
     def setCurrentSequence(User user, Sequence sequence, String clientToken) {
         Organism organism = sequence.organism
-        Bookmark bookmark = bookmarkService.generateBookmarkForSequence(sequence)
-        if(user && bookmark){
-            user.addToBookmarks(bookmark)
+        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequence)
+        if(user && assemblage){
+            user.addToAssemblages(assemblage)
         }
-        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientTokenAndBookmark(user, organism, clientToken, bookmark,[sort: "lastUpdated", order: "desc"])
+        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientTokenAndAssemblage(user, organism, clientToken, assemblage,[sort: "lastUpdated", order: "desc"])
         if(userOrganismPreferences.size()>1){
             log.warn("Multiple preferences for sequence and organism: "+userOrganismPreferences.size())
             setOtherCurrentOrganismsFalse(userOrganismPreferences.first(),user,clientToken)
@@ -158,19 +158,19 @@ class PreferenceService {
         UserOrganismPreference userOrganismPreference  = userOrganismPreferences ? userOrganismPreferences.first() : null
 
 //        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
-//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientTokenAndBookmark(user, organism, clientToken, bookmark,[max: 1, sort: "lastUpdated", order: "desc"])
+//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientTokenAndAssemblage(user, organism, clientToken, assemblage,[max: 1, sort: "lastUpdated", order: "desc"])
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
                     , currentOrganism: true
-                    , bookmark: bookmark
+                    , assemblage: assemblage
 //                    , sequence: sequence
                     , clientToken: clientToken
             ).save(flush: true,insert: true )
         } else if (!userOrganismPreference.currentOrganism) {
             userOrganismPreference.currentOrganism = true;
-            userOrganismPreference.bookmark = bookmark
+            userOrganismPreference.assemblage = assemblage
             userOrganismPreference.save()
             setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
         }
@@ -192,24 +192,24 @@ class PreferenceService {
             throw new AnnotationException("Organism preference is not set for user")
         }
 
-        Bookmark bookmark ;
-        if(BookmarkService.isProjectionString(sequenceName)){
+        Assemblage assemblage ;
+        if(AssemblageService.isProjectionString(sequenceName)){
             JSONObject jsonObject = JSON.parse(sequenceName) as JSONObject
             jsonObject.put(FeatureStringEnum.CLIENT_TOKEN.value,clientToken)
-            bookmark = bookmarkService.convertJsonToBookmark(jsonObject)
+            assemblage = assemblageService.convertJsonToAssemblage(jsonObject)
         }
         else{
             Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
-            bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+            assemblage = assemblageService.generateAssemblageForSequence(sequence)
         }
 
         userOrganismPreference.refresh()
 
         userOrganismPreference.clientToken = clientToken
         userOrganismPreference.currentOrganism = true
-        userOrganismPreference.bookmark = bookmark
+        userOrganismPreference.assemblage = assemblage
         userOrganismPreference.setStartbp(startBp ?: 0)
-        userOrganismPreference.setEndbp(endBp ?: bookmark.end)
+        userOrganismPreference.setEndbp(endBp ?: assemblage.end)
         userOrganismPreference.save(flush: true,insert:false)
     }
 
@@ -257,12 +257,12 @@ class PreferenceService {
         userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndCurrentOrganism(user, false,[max: 1, sort: "lastUpdated", order: "desc"])
         if (userOrganismPreference) {
             Organism organism = userOrganismPreference.organism
-            Bookmark bookmark = trackName ? Bookmark.findByNameAndOrganism(trackName, organism) : userOrganismPreference.bookmark
+            Assemblage assemblage = trackName ? Assemblage.findByNameAndOrganism(trackName, organism) : userOrganismPreference.assemblage
             UserOrganismPreference newPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
                     , currentOrganism: true
-                    , bookmark: bookmark
+                    , assemblage: assemblage
                     , startbp: userOrganismPreference.startbp
                     , endbp: userOrganismPreference.endbp
                     , clientToken: clientToken
@@ -273,9 +273,9 @@ class PreferenceService {
         // 4 - if none at all exist, then we create one
         if (!userOrganismPreference) {
             // find a random organism based on sequence
-            Bookmark bookmark = trackName ? Bookmark.findByName(trackName) : null
+            Assemblage assemblage = trackName ? Assemblage.findByName(trackName) : null
             Set<Organism> organisms = permissionService.getOrganisms(user)
-            Organism organism = bookmark?.organism
+            Organism organism = assemblage?.organism
             if(!organism && organisms){
                 organism = organisms ? organisms.first() : null
             }
@@ -286,9 +286,9 @@ class PreferenceService {
                 throw new PermissionException("User does not have permission for any organisms.")
             }
 
-            if(!bookmark){
+            if(!assemblage){
                 Sequence sequence =  organism.sequences.first()
-                bookmark = bookmarkService.generateBookmarkForSequence(sequence)
+                assemblage = assemblageService.generateAssemblageForSequence(sequence)
             }
 
             if(user){
@@ -296,10 +296,10 @@ class PreferenceService {
                         user: user
                         , organism: organism
                         , currentOrganism: true
-                        , bookmark: bookmark
+                        , assemblage: assemblage
                         , clientToken: clientToken
-                        , startbp: bookmark.start
-                        , endbp: bookmark.end
+                        , startbp: assemblage.start
+                        , endbp: assemblage.end
                 ).save(insert: true, flush: true)
                 return newUserOrganismPreference
             }

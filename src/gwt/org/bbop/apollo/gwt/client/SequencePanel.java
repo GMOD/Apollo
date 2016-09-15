@@ -26,15 +26,15 @@ import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfoConverter;
-import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkInfo;
-import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequence;
-import org.bbop.apollo.gwt.client.dto.bookmark.BookmarkSequenceList;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequenceList;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.rest.BookmarkRestService;
+import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
@@ -94,7 +94,7 @@ public class SequencePanel extends Composite {
     @UiField
     Button exportChadoButton;
     @UiField
-    Button bookmarkButton;
+    Button assemblageButton;
     @UiField
     Alert panelMessage;
     @UiField
@@ -157,10 +157,10 @@ public class SequencePanel extends Composite {
                 }
                 if (selectedSequenceInfo.size() > 0) {
                     exportSelectedButton.setText("Selected (" + selectedSequenceInfo.size() + ")");
-                    enableBookmarks(true);
+                    enableAssemblages(true);
                 } else {
                     exportSelectedButton.setText("Selected");
-                    enableBookmarks(false);
+                    enableAssemblages(false);
                 }
                 exportSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
                 selectSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
@@ -297,8 +297,8 @@ public class SequencePanel extends Composite {
     }
 
 
-    private void enableBookmarks(boolean b) {
-        bookmarkButton.setEnabled(b);
+    private void enableAssemblages(boolean b) {
+        assemblageButton.setEnabled(b);
         addToView.setEnabled(b);
         viewSequence.setEnabled(b);
     }
@@ -306,9 +306,9 @@ public class SequencePanel extends Composite {
     @UiHandler("addToView")
     void addSequenceToView(ClickEvent clickEvent) {
         Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
-        // send sequences and current bookmark and return a new current bookmark to view
-        BookmarkInfo newBookmark = MainPanel.getInstance().getCurrentBookmark().addSequenceInfoSet(sequenceInfoSet);
-        BookmarkRestService.addBoorkmarkAndView(newBookmark);
+        // send sequences and current assemblage and return a new current assemblage to view
+        AssemblageInfo assemblageInfo = MainPanel.getInstance().getCurrentAssemblage().addSequenceInfoSet(sequenceInfoSet);
+        AssemblageRestService.addAssemblageAndView(assemblageInfo);
     }
 
     @UiHandler("viewSequence")
@@ -317,24 +317,24 @@ public class SequencePanel extends Composite {
             viewSingleSequence();
         }
         else{
-            BookmarkInfo newBookmark = new BookmarkInfo();
-            newBookmark.addSequenceInfoSet(multiSelectionModel.getSelectedSet());
-            BookmarkRestService.addBoorkmarkAndView(newBookmark);
+            AssemblageInfo assemblageInfo = new AssemblageInfo();
+            assemblageInfo.addSequenceInfoSet(multiSelectionModel.getSelectedSet());
+            AssemblageRestService.addAssemblageAndView(assemblageInfo);
         }
     }
 
 
-    @UiHandler("bookmarkButton")
-    void addNewBookmark(ClickEvent clickEvent) {
-        BookmarkInfo bookmarkInfo = new BookmarkInfo();
-        BookmarkSequenceList sequenceArray = new BookmarkSequenceList();
+    @UiHandler("assemblageButton")
+    void addNewAssemblage(ClickEvent clickEvent) {
+        AssemblageInfo assemblageInfo = new AssemblageInfo();
+        AssemblageSequenceList sequenceArray = new AssemblageSequenceList();
         StringBuilder nameBuffer = new StringBuilder();
         long start = 0;
         long end = 0;
         for (SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()) {
-            bookmarkInfo.setPadding(50);
-            bookmarkInfo.setType("Exon");
-            BookmarkSequence sequenceObject = new BookmarkSequence();
+            assemblageInfo.setPadding(50);
+            assemblageInfo.setType("Exon");
+            AssemblageSequence sequenceObject = new AssemblageSequence();
             sequenceObject.setName(sequenceInfo.getName());
             sequenceObject.setStart(sequenceInfo.getStart());
             sequenceObject.setEnd(sequenceInfo.getEnd());
@@ -348,9 +348,9 @@ public class SequencePanel extends Composite {
             end += sequenceInfo.getEnd();
         }
 //        name = name.substring(0,name.length()-1);
-        bookmarkInfo.setStart(start);
-        bookmarkInfo.setEnd(end);
-        bookmarkInfo.setSequenceList(sequenceArray);
+        assemblageInfo.setStart(start);
+        assemblageInfo.setEnd(end);
+        assemblageInfo.setSequenceList(sequenceArray);
 
         final String name = nameBuffer.toString();
 
@@ -358,16 +358,16 @@ public class SequencePanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                new InfoDialog("Added Bookmark", "Added bookmark: " + name.substring(0, name.length() - 1), true);
+                new InfoDialog("Added Assemblage", "Added assemblage: " + name.substring(0, name.length() - 1), true);
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error adding bookmark: " + exception);
+                Window.alert("Error adding assemblage: " + exception);
             }
         };
 
-        MainPanel.getInstance().addBookmark(requestCallback, bookmarkInfo);
+        MainPanel.getInstance().addAssemblage(requestCallback, assemblageInfo);
 
 
     }

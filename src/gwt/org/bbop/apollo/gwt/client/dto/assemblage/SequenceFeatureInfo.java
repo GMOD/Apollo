@@ -1,4 +1,4 @@
-package org.bbop.apollo.gwt.client.dto.bookmark;
+package org.bbop.apollo.gwt.client.dto.assemblage;
 
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONNumber;
