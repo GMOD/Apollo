@@ -17,7 +17,7 @@ public class AssemblageInfoConverter {
         if (assemblageInfo.getId() != null) {
             jsonObject.put(FeatureStringEnum.ID.getValue(), new JSONNumber(assemblageInfo.getId()));
         }
-        jsonObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(assemblageInfo.getName()));
+        jsonObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(assemblageInfo.getDescription()));
         if (assemblageInfo.getType() != null) {
             jsonObject.put(FeatureStringEnum.TYPE.getValue(), new JSONString(assemblageInfo.getType()));
         }

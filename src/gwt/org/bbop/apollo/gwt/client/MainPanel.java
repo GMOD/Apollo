@@ -266,7 +266,7 @@ public class MainPanel extends Composite {
     }
 
     private static void setLabelForcurrentAssemblage() {
-//        currentSequenceLabel.setText(currentAssemblage.getName());
+//        currentSequenceLabel.setText(currentAssemblage.getDescription());
         String labelHtml = "";
         AssemblageSequenceList assemblageSequenceList = currentAssemblage.getSequenceList();
         for (int i = 0; i < assemblageSequenceList.size(); ++i) {
@@ -304,7 +304,7 @@ public class MainPanel extends Composite {
                 setLabelForcurrentAssemblage();
 
 
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getName()));
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getDescription()));
 
                 if (updateViewer) {
                     updateGenomicViewer();
@@ -484,7 +484,7 @@ public class MainPanel extends Composite {
      */
     public static void updateGenomicViewerForAssemblage(AssemblageInfo assemblageInfo, Long minRegion, Long maxRegion, Boolean forceReload) {
 
-        if (!forceReload && currentAssemblage != null && currentAssemblage.getName().equals(assemblageInfo.getName()) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
+        if (!forceReload && currentAssemblage != null && currentAssemblage.getDescription().equals(assemblageInfo.getDescription()) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
             long oldLength = maxRegion - minRegion;
             double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
             double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) oldLength;
@@ -595,7 +595,7 @@ public class MainPanel extends Composite {
 
         if (currentAssemblage != null) {
             setLabelForcurrentAssemblage();
-//            currentSequenceLabel.setText(currentAssemblage.getName());
+//            currentSequenceLabel.setText(currentAssemblage.getDescription());
         }
 
 
@@ -833,9 +833,9 @@ public class MainPanel extends Composite {
         url2 += currentOrganism.getId()+"/";
         url2 += "jbrowse/index.html";
         if (currentStartBp != null) {
-            url2 += "?loc=" + currentAssemblage.getName() + ":" + currentStartBp + ".." + currentEndBp;
+            url2 += "?loc=" + currentAssemblage.getDescription() + ":" + currentStartBp + ".." + currentEndBp;
         } else {
-            url2 += "?loc=" + currentAssemblage.getName() + ":" + currentAssemblage.getStart() + ".." + currentAssemblage.getEnd();
+            url2 += "?loc=" + currentAssemblage.getDescription() + ":" + currentAssemblage.getStart() + ".." + currentAssemblage.getEnd();
         }
 //        url2 += "&organism=" + currentOrganism.getId();
         url2 += "&tracks=";
@@ -856,7 +856,7 @@ public class MainPanel extends Composite {
         if (currentStartBp != null) {
             url += "?loc=" + currentAssemblage.getSequenceList() + ":" + currentStartBp + ".." + currentEndBp;
         } else {
-            url += "?loc=" + currentAssemblage.getName() + ":" + currentAssemblage.getStart() + ".." + currentAssemblage.getEnd();
+            url += "?loc=" + currentAssemblage.getDescription() + ":" + currentAssemblage.getStart() + ".." + currentAssemblage.getEnd();
         }
         url += "&organism=" + currentOrganism.getId();
         url += "&tracks=";
@@ -937,7 +937,7 @@ public class MainPanel extends Composite {
         final Long end = (long) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
 
-        if (!sequenceNameString.equals(currentAssemblage.getName())) {
+        if (!sequenceNameString.equals(currentAssemblage.getDescription())) {
 //            setCurrentSequence(sequenceNameString, start, end, false, true);
             setCurrentSequence(sequenceNameString, start, end, false, false);
             Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {

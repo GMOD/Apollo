@@ -12,6 +12,7 @@ public class AssemblageInfo implements Comparable<AssemblageInfo> {
 
     private AssemblageSequenceList sequenceList;
 
+    private String name;
     private String type;
     private Integer padding;
     private JSONObject payload;
@@ -22,44 +23,15 @@ public class AssemblageInfo implements Comparable<AssemblageInfo> {
 
     @Override
     public int compareTo(AssemblageInfo o) {
-        return getName().compareTo(o.getName());
+        return getDescription().compareTo(o.getDescription());
     }
 
-
     public String getName() {
-        String name = "";
-        for (int i = 0; i < sequenceList.size(); i++) {
-            AssemblageSequence sequenceObject = sequenceList.getSequence(i);
-
-            SequenceFeatureInfo sequenceFeatureInfo = sequenceObject.getFeature();
-            if (sequenceFeatureInfo != null) {
-                name += sequenceFeatureInfo.getName();
-                name += " (";
-            }
-            name += sequenceObject.getName();
-
-            if (sequenceFeatureInfo != null) {
-                name += ")";
-            }
-//            SequenceFeatureList sequenceFeatureList = sequenceObject.getFeatures();
-//
-//            if (sequenceFeatureList != null) {
-//                name += "(";
-//                for (int j = 0; j < sequenceFeatureList.size(); j++) {
-//                    SequenceFeatureInfo sequenceFeatureInfo = sequenceFeatureList.getFeature(j);
-//                    name += sequenceFeatureInfo.getName();
-//                    if (j < sequenceFeatureList.size() - 1) {
-//                        name += ",";
-//                    }
-//                }
-//
-//                name += ")";
-//            }
-            if (i < sequenceList.size() - 1) {
-                name += "::";
-            }
-        }
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getType() {
@@ -186,5 +158,35 @@ public class AssemblageInfo implements Comparable<AssemblageInfo> {
         }
 
         return this;
+    }
+
+    public Long getLength(){
+        return sequenceList == null ? null : sequenceList.getLength();
+    }
+
+    public String getSummary() {
+        return sequenceList == null ? "None" : sequenceList.getDescription();
+    }
+
+    public String getDescription() {
+        String name = "";
+        for (int i = 0; i < sequenceList.size(); i++) {
+            AssemblageSequence sequenceObject = sequenceList.getSequence(i);
+
+            SequenceFeatureInfo sequenceFeatureInfo = sequenceObject.getFeature();
+            if (sequenceFeatureInfo != null) {
+                name += sequenceFeatureInfo.getName();
+                name += " (";
+            }
+            name += sequenceObject.getName();
+
+            if (sequenceFeatureInfo != null) {
+                name += ")";
+            }
+            if (i < sequenceList.size() - 1) {
+                name += "::";
+            }
+        }
+        return name;
     }
 }

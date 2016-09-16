@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
+import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -15,6 +16,7 @@ import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -30,7 +32,6 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.shared.ColorGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -68,14 +69,8 @@ public class AssemblagePanel extends Composite {
     Button viewButton;
     @UiField
     org.gwtbootstrap3.client.ui.TextBox searchBox;
-//    @UiField
-    Input paddingForm;
-//    @UiField
-//    Button clearButton;
     @UiField
     Button deleteButton;
-//    @UiField
-//    Button goButton;
 
     final LoadingDialog loadingDialog;
     private PickupDragController dragController;
@@ -102,16 +97,34 @@ public class AssemblagePanel extends Composite {
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
         dataGrid.setEmptyTableWidget(new Label("No assemblages!"));
 
-        TextColumn<AssemblageInfo> nameColumn = new TextColumn<AssemblageInfo>() {
+        Column<AssemblageInfo,String> nameColumn = new Column<AssemblageInfo,String>(new EditTextCell()) {
             @Override
             public String getValue(AssemblageInfo assemblageInfo) {
-                return assemblageInfo.getName();
+                return assemblageInfo.getDescription();
             }
         };
         nameColumn.setSortable(true);
+        TextColumn<AssemblageInfo> lengthColumn = new TextColumn<AssemblageInfo>() {
+            @Override
+            public String getValue(AssemblageInfo assemblageInfo) {
+                Long length = assemblageInfo.getLength();
+                return length == null ? "N/A" : length.toString() ;
+            }
+        };
+        lengthColumn.setSortable(true);
+        TextColumn<AssemblageInfo> descriptionColumn = new TextColumn<AssemblageInfo>() {
+            @Override
+            public String getValue(AssemblageInfo assemblageInfo) {
+                return assemblageInfo.getSummary();
+            }
+        };
+        descriptionColumn.setSortable(false);
 
 
         dataGrid.addColumn(nameColumn, "Name");
+        dataGrid.addColumn(lengthColumn, "Length");
+        dataGrid.addColumn(descriptionColumn, "Description");
+
         dataGrid.setSelectionModel(selectionModel);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
@@ -129,7 +142,13 @@ public class AssemblagePanel extends Composite {
         sortHandler.setComparator(nameColumn, new Comparator<AssemblageInfo>() {
             @Override
             public int compare(AssemblageInfo o1, AssemblageInfo o2) {
-                return o1.getName().compareTo(o2.getName());
+                return o1.getDescription().compareTo(o2.getDescription());
+            }
+        });
+        sortHandler.setComparator(lengthColumn, new Comparator<AssemblageInfo>() {
+            @Override
+            public int compare(AssemblageInfo o1, AssemblageInfo o2) {
+                return o1.getLength().compareTo(o2.getLength());
             }
         });
 
@@ -337,7 +356,7 @@ public class AssemblagePanel extends Composite {
 
     private void addAssemblageLocally(List<AssemblageInfo> assemblageInfos) {
         for(AssemblageInfo assemblageInfo : assemblageInfos){
-            assemblageInfoMap.put(assemblageInfo.getName(), assemblageInfo);
+            assemblageInfoMap.put(assemblageInfo.getDescription(), assemblageInfo);
             assemblageInfoList.add(assemblageInfo);
         }
     }

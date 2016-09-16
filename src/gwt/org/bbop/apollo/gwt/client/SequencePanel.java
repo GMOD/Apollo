@@ -338,7 +338,7 @@ public class SequencePanel extends Composite {
             sequenceObject.setName(sequenceInfo.getName());
             sequenceObject.setStart(sequenceInfo.getStart());
             sequenceObject.setEnd(sequenceInfo.getEnd());
-//            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getName()));
+//            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getDescription()));
             sequenceArray.addSequence(sequenceObject);
 //            sequenceArray.set(sequenceArray.size(),sequenceObject);
             nameBuffer.append(sequenceInfo.getName() + ",");

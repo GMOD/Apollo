@@ -1,6 +1,11 @@
 package org.bbop.apollo.gwt.client.dto.assemblage;
 
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.user.client.Window;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by ndunn on 9/30/15.
@@ -17,8 +22,7 @@ public class AssemblageSequenceList extends JSONArray {
     }
 
     public AssemblageSequence getSequence(int i) {
-        AssemblageSequence assemblageSequence = new AssemblageSequence(get(i).isObject());
-        return assemblageSequence;
+        return new AssemblageSequence(get(i).isObject());
     }
 
     public AssemblageSequenceList merge(AssemblageSequenceList sequence2) {
@@ -31,5 +35,46 @@ public class AssemblageSequenceList extends JSONArray {
 
     public void addSequence(AssemblageSequence assemblageSequence) {
         set(size(), assemblageSequence);
+    }
+
+    public Long getLength() {
+        Long finalLength = 0l ;
+        for(int i = 0 ; i < size() ; i++){
+            finalLength += getSequence(i).getLength() ;
+        }
+        return finalLength ;
+    }
+
+    public String getDescription() {
+        String description = "";
+
+        //
+        Map<String,Integer> scaffoldFeatureMap = new HashMap<>();
+
+        for(int i = 0 ; i < size() ; i++){
+            AssemblageSequence assemblageSequence = getSequence(i);
+            String scaffoldName = assemblageSequence.getName();
+            Integer featureCount = scaffoldFeatureMap.get(scaffoldName);
+
+            SequenceFeatureInfo sequenceFeatureInfo = assemblageSequence.getFeature();
+
+            featureCount = featureCount==null ? 0 : featureCount ;
+            featureCount = sequenceFeatureInfo!=null ? featureCount + 1 : featureCount ;
+            scaffoldFeatureMap.put(scaffoldName,featureCount);
+        }
+
+        Iterator<String> scaffoldIterator = scaffoldFeatureMap.keySet().iterator();
+        while (scaffoldIterator.hasNext()){
+            String scaffoldName = scaffoldIterator.next();
+            description += scaffoldName;
+            Integer featureCount = scaffoldFeatureMap.get(scaffoldName) ;
+            if(featureCount>0){
+                description += " ("+featureCount + ") ";
+            }
+
+            description += scaffoldIterator.hasNext() ? " " : "";
+        }
+
+        return description;
     }
 }

@@ -96,7 +96,7 @@
         <gwt:center>
             <cellview:DataGrid ui:field="dataGrid" styleName="{style.cellTable}"/>
         </gwt:center>
-        <gwt:south size="100">
+        <gwt:south size="200">
             <gwt:DockLayoutPanel>
                 <gwt:north size="35">
                     <b:Container>

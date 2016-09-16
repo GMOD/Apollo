@@ -71,4 +71,8 @@ public class AssemblageSequence extends JSONObject {
     public void setName(String groupName) {
         put(FeatureStringEnum.NAME.getValue(), new JSONString(groupName));
     }
+
+    public Long getLength() {
+        return getEnd() - getStart() ;
+    }
 }
