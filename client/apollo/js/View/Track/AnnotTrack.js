@@ -4281,9 +4281,9 @@ define([
                             items: []
                         }
                     });
-                    if (feature.info) {
-                        for (var i = 0; i < feature.info.length; ++i) {
-                            var variantInfo = feature.info[i];
+                    if (feature.variant_info) {
+                        for (var i = 0; i < feature.variant_info.length; ++i) {
+                            var variantInfo = feature.variant_info[i];
                             variantInfoStore.newItem({tag: variantInfo.tag, value: variantInfo.value});
                         }
                     }
