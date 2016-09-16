@@ -291,7 +291,7 @@ public class VariantAllelesPanel extends Composite {
         if (alternateAlleleInfoList.size() > 0) {
             updateAlleleData(alternateAlleleInfoList.get(0));
         }
-        dataGrid.redraw();
+        redrawTable();
     }
 
     public void updateAlleleData(AlternateAlleleInfo a) {
@@ -308,7 +308,7 @@ public class VariantAllelesPanel extends Composite {
         this.oldProvenance = this.provenance;
         this.provenance = this.internalAlterateAlleleInfo.getProvenance();
 
-        dataGrid.redraw();
+        redrawTable();
         setVisible(true);
     }
 
@@ -395,13 +395,13 @@ public class VariantAllelesPanel extends Composite {
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
                     Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
-                    dataGrid.redraw();
+                    redrawTable();
                 }
 
                 @Override
                 public void onError(Request request, Throwable exception) {
                     Bootbox.alert("Error updating alternate allele: " + exception);
-                    dataGrid.redraw();
+                    redrawTable();
                 }
             };
 
@@ -430,5 +430,9 @@ public class VariantAllelesPanel extends Composite {
         vp.setSpacing(10);
 
         grid.setLoadingIndicator(vp);
+    }
+
+    public void redrawTable() {
+        this.dataGrid.redraw();
     }
 }

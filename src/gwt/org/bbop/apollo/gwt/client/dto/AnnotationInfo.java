@@ -30,6 +30,7 @@ public class AnnotationInfo {
     private String date;
     private String referenceBases;
     private ArrayList<HashMap<String, String>> alternateAlleles = new ArrayList<HashMap<String, String>>();
+    private ArrayList<VariantPropertyInfo> variantProperties = new ArrayList<>();
 
     public String getOwner() {
         return owner;
@@ -232,5 +233,29 @@ public class AnnotationInfo {
             alternateAllelesJsonArrayIndex++;
         }
         return alternateAllelesJsonArray;
+    }
+
+    public void setVariantProperties(JSONArray variantPropertiesJsonArray) {
+        ArrayList<VariantPropertyInfo> variantPropertyInfoArray = new ArrayList<>();
+        int index = 0;
+        for (int i = 0; i < variantPropertiesJsonArray.size(); i++) {
+            JSONObject variantPropertyJsonObject = variantPropertiesJsonArray.get(i).isObject();
+            VariantPropertyInfo variantPropertyInfo = new VariantPropertyInfo(variantPropertyJsonObject);
+            variantPropertyInfoArray.add(variantPropertyInfo);
+        }
+        this.variantProperties = variantPropertyInfoArray;
+    }
+
+    public ArrayList<VariantPropertyInfo> getVariantProperties() { return this.variantProperties; }
+
+    public JSONArray getVariantPropertiesAsJsonArray() {
+        JSONArray variantPropertiesJsonArray = new JSONArray();
+        int index = 0;
+        for (VariantPropertyInfo variantPropertyInfo : this.variantProperties) {
+            JSONObject variantPropertyJsonObject = variantPropertyInfo.convertToJsonObject();
+            variantPropertiesJsonArray.set(0, variantPropertyJsonObject);
+            index++;
+        }
+        return variantPropertiesJsonArray;
     }
 }

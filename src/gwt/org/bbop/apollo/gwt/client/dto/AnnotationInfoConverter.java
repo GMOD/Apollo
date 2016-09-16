@@ -49,6 +49,9 @@ public class AnnotationInfoConverter {
             if (object.get(FeatureStringEnum.ALTERNATE_ALLELES.getValue()) != null) {
                 annotationInfo.setAlternateAlleles(object.get(FeatureStringEnum.ALTERNATE_ALLELES.getValue()).isArray());
             }
+            if (object.get(FeatureStringEnum.VARIANT_INFO.getValue()) != null) {
+                annotationInfo.setVariantProperties(object.get(FeatureStringEnum.VARIANT_INFO.getValue()).isArray());
+            }
         }
 
         annotationInfo.setMin((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue());

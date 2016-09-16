@@ -35,6 +35,7 @@ import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
+import org.bbop.apollo.Variant;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -96,6 +97,8 @@ public class AnnotatorPanel extends Composite {
     static VariantDetailPanel variantDetailPanel;
     @UiField
     static VariantAllelesPanel variantAllelesPanel;
+    @UiField
+    static VariantInfoPanel variantInfoPanel;
     @UiField
     static TabLayoutPanel tabPanel;
     @UiField
@@ -268,7 +271,18 @@ public class AnnotatorPanel extends Composite {
         tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
-                exonDetailPanel.redrawExonTable();
+                switch(event.getSelectedItem()) {
+                    case 0:
+                        break;
+                    case 1:
+                        exonDetailPanel.redrawExonTable();
+                        break;
+                    case 2:
+                        variantAllelesPanel.redrawTable();
+                        break;
+                    case 3:
+                        variantInfoPanel.redrawTable();
+                }
             }
         });
 
@@ -397,6 +411,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
                 exonDetailPanel.updateData(annotationInfo);
                 break;
             case "transposable_element":
@@ -406,6 +421,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
                 break;
             case "SNV":
             case "SNP":
@@ -415,9 +431,11 @@ public class AnnotatorPanel extends Composite {
                 fireAnnotationInfoChangeEvent(annotationInfo);
                 variantDetailPanel.updateData(annotationInfo);
                 variantAllelesPanel.updateData(annotationInfo);
+                variantInfoPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.getTabWidget(2).getParent().setVisible(true);
+                tabPanel.getTabWidget(3).getParent().setVisible(true);
                 break;
             default:
                 GWT.log("not sure what to do with " + type);

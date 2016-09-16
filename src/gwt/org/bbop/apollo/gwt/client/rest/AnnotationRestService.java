@@ -21,9 +21,9 @@ public class AnnotationRestService {
        jsonObject.put(FeatureStringEnum.TYPE.getValue(),new JSONString(annotationInfo.getType()));
 
        if (VariantDetailPanel.variantTypes.contains(annotationInfo.getType())) {
-           jsonObject.put(FeatureStringEnum.REFERENCE_BASES.getValue(), annotationInfo.getReferenceBases() != null ? new JSONString(annotationInfo.getReferenceBases()) : new JSONString(""));
-           jsonObject.put(FeatureStringEnum.ALTERNATE_ALLELES.getValue(), annotationInfo.getAlternateAlleles() != null ? annotationInfo.getAlternateAllelesAsJsonArray() : new JSONString(""));
-
+           if (annotationInfo.getReferenceBases() != null) jsonObject.put(FeatureStringEnum.REFERENCE_BASES.getValue(), new JSONString(annotationInfo.getReferenceBases()));
+           if (annotationInfo.getAlternateAlleles() != null) jsonObject.put(FeatureStringEnum.ALTERNATE_ALLELES.getValue(), annotationInfo.getAlternateAllelesAsJsonArray());
+           if (annotationInfo.getVariantProperties() != null) jsonObject.put(FeatureStringEnum.VARIANT_INFO.getValue(), annotationInfo.getVariantPropertiesAsJsonArray());
        }
        jsonObject.put(FeatureStringEnum.FMIN.getValue(),annotationInfo.getMin()!=null ? new JSONNumber(annotationInfo.getMin()): null);
        jsonObject.put(FeatureStringEnum.FMAX.getValue(),annotationInfo.getMax()!=null ? new JSONNumber(annotationInfo.getMax()): null);
