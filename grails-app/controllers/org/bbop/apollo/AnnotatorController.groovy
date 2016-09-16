@@ -154,14 +154,15 @@ class AnnotatorController {
 
         if (feature instanceof SequenceAlteration && feature.class.name in RequestHandlingService.variantList) {
             feature.referenceBases = data.get(FeatureStringEnum.REFERENCE_BASES.value)
-            JSONArray alternateAllelesArray = data.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
-            for (int i = 0; i < alternateAllelesArray.length(); i++) {
-                Allele allele = new Allele(bases: alternateAllelesArray.getJSONObject(i).getString(FeatureStringEnum.BASES.value))
-                allele.variant = feature
-                allele.save()
-                feature.setAlternateAlleles(allele)
-            }
-            // TODO: set additional metadata
+            // Commenting out since updateFeature() is not responsible for updating alternate alleles of a variant
+//            JSONArray alternateAllelesArray = data.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
+//            for (int i = 0; i < alternateAllelesArray.length(); i++) {
+//                Allele allele = new Allele(bases: alternateAllelesArray.getJSONObject(i).getString(FeatureStringEnum.BASES.value))
+//                allele.variant = feature
+//                allele.save()
+//                feature.setAlternateAlleles(allele)
+//            }
+//            // TODO: set additional metadata
         }
         Sequence sequence = feature?.featureLocation?.sequence
 
