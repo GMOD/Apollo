@@ -15,7 +15,7 @@ public class AlternateAlleleInfo {
     private String bases;
     private Float alleleFrequency;
     private String provenance;
-    private HashMap<String, String> alleleInfo = new HashMap<>();
+    private ArrayList<AllelePropertyInfo> alleleInfo = new ArrayList<>();
 
     public AlternateAlleleInfo(HashMap<String, String> alternateAllele) {
         for (String key : alternateAllele.keySet()) {
@@ -30,7 +30,10 @@ public class AlternateAlleleInfo {
             }
             else {
                 // allele_info
-                this.alleleInfo.put(key, alternateAllele.get(key));
+                AllelePropertyInfo allelePropertyInfo = new AllelePropertyInfo();
+                allelePropertyInfo.setTag(key);
+                allelePropertyInfo.setValue(alternateAllele.get(key));
+                this.alleleInfo.add(allelePropertyInfo);
             }
         }
     }
@@ -63,33 +66,29 @@ public class AlternateAlleleInfo {
         this.provenance = provenance;
     }
 
-    public HashMap getAlleleInfo() {
+    public ArrayList<AllelePropertyInfo> getAlleleInfo() {
         return this.alleleInfo;
     }
 
     public JSONArray getAlleleInfoAsJsonArray() {
         JSONArray alleleInfoJsonArray = new JSONArray();
         int alleleInfoJsonArrayIndex = 0;
-        for (String key : this.alleleInfo.keySet()) {
-            JSONObject alleleInfoJsonObject = new JSONObject();
-            alleleInfoJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(key));
-            alleleInfoJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(this.alleleInfo.get(key)));
+        for (AllelePropertyInfo allelePropertyInfo : this.alleleInfo) {
+            JSONObject alleleInfoJsonObject = allelePropertyInfo.convertToJsonObject();
             alleleInfoJsonArray.set(alleleInfoJsonArrayIndex, alleleInfoJsonObject);
             alleleInfoJsonArrayIndex++;
         }
-
         return alleleInfoJsonArray;
     }
 
     public void setAlleleInfo(JSONArray alleleInfoJsonArray) {
-        HashMap<String, String> alleleInfoMap = new HashMap<>();
+        ArrayList<AllelePropertyInfo> alleleInfoArray = new ArrayList<>();
         for (int i = 0; i < alleleInfoJsonArray.size(); i++) {
             JSONObject alleleInfoJsonObject = alleleInfoJsonArray.get(i).isObject();
-            String tag = alleleInfoJsonObject.get(FeatureStringEnum.TAG.getValue()).isString().stringValue();
-            String value = alleleInfoJsonObject.get(FeatureStringEnum.VALUE.getValue()).isString().stringValue();
-            alleleInfoMap.put(tag, value);
+            AllelePropertyInfo allelePropertyInfo = new AllelePropertyInfo(alleleInfoJsonObject);
+            alleleInfoArray.add(allelePropertyInfo);
         }
-        this.alleleInfo = alleleInfoMap;
+        this.alleleInfo = alleleInfoArray;
     }
 
     public JSONObject convertToJsonObject() {
@@ -104,10 +103,9 @@ public class AlternateAlleleInfo {
             JSONObject alleleInfoObject = new JSONObject();
             int index = 0;
             alleleInfoArray.set(index, alleleInfoObject);
-            for (String key : this.alleleInfo.keySet()) {
-                alleleInfoObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(key));
-                alleleInfoObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(alleleInfo.get(key)));
-                alleleInfoArray.set(index, alleleInfoObject);
+            for (AllelePropertyInfo allelePropertyInfo : this.alleleInfo) {
+                JSONObject allelePropertyInfoJsonObject = allelePropertyInfo.convertToJsonObject();
+                alleleInfoArray.set(index, allelePropertyInfoJsonObject );
                 index++;
             }
             jsonObject.put(FeatureStringEnum.ALLELE_INFO.getValue(), alleleInfoArray);

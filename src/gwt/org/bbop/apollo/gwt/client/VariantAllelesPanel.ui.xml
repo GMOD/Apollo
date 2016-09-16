@@ -23,9 +23,15 @@
         }
     </ui:style>
     <gwt:SplitLayoutPanel>
-        <gwt:west size="250">
+        <gwt:center size="250">
             <cellview:DataGrid ui:field="dataGrid" styleName="{style.dataGrid}"/>
-        </gwt:west>
+        </gwt:center>
+        <!--<gwt:west size="250">-->
+            <!--<cellview:DataGrid ui:field="dataGrid" styleName="{style.dataGrid}"/>-->
+        <!--</gwt:west>-->
+        <!--<gwt:center size="250">-->
+            <!--<cellview:DataGrid ui:field="allelePropertyDataGrid" styleName="{style.dataGrid}"/>-->
+        <!--</gwt:center>-->
     </gwt:SplitLayoutPanel>
 
 
