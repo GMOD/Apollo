@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.rest;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -7,6 +8,7 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.MainPanel;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfoConverter;
@@ -30,6 +32,30 @@ public class AssemblageRestService {
 
     public static void addAssemblageAndReturn(RequestCallback requestCallback, AssemblageInfo... assemblageInfoCollection) {
         RestService.sendRequest(requestCallback, "assemblage/addAssemblageAndReturn", AssemblageInfoConverter.convertAssemblageInfoToJSONArray(assemblageInfoCollection));
+    }
+
+    public static void saveAssemblage(AssemblageInfo assemblageInfo) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                Window.alert("recieved good response: "+ response.getText());
+                GWT.log("Successfully saved assemblage");
+//                resetPanel();
+//                reload();
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("recieved BAD response");
+
+                Bootbox.alert("Failed to save: " + exception.getMessage());
+            }
+        };
+        saveAssemblage(requestCallback,assemblageInfo);
+    }
+
+    public static void saveAssemblage(RequestCallback requestCallback,AssemblageInfo assemblageInfo) {
+        RestService.sendRequest(requestCallback, "assemblage/saveAssemblage", AssemblageInfoConverter.convertAssemblageInfoToJSONObject(assemblageInfo));
     }
 
     public static void removeAssemblage(RequestCallback requestCallback, AssemblageInfo... selectedSet) {
@@ -66,6 +92,7 @@ public class AssemblageRestService {
                 Bootbox.alert(exception.getMessage());
             }
         };
-        AssemblageRestService.addAssemblageAndReturn(requestCallback,assemblageInfo);
+        addAssemblageAndReturn(requestCallback,assemblageInfo);
     }
+
 }

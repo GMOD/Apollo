@@ -22,10 +22,10 @@ class AssemblageService {
      */
     Assemblage generateAssemblageForFeature(Feature feature) {
         List<Sequence> sequenceList = new ArrayList<>()
-        feature.featureLocations.sort(){ a,b ->
+        feature.featureLocations.sort() { a, b ->
             a.rank <=> b.rank ?: a.isFmaxPartial <=> b.isFmaxPartial ?: b.isFminPartial <=> a.isFminPartial ?: a.fmin <=> b.fmin
         }.each {
-            if(!sequenceList.contains(it.sequence)){
+            if (!sequenceList.contains(it.sequence)) {
                 sequenceList.add(it.sequence)
             }
         }
@@ -38,23 +38,23 @@ class AssemblageService {
         List<FeatureLocation> featureLocationList = new ArrayList<>()
         features.each { feature ->
             feature.featureLocations.each { featureLocation ->
-                if(!featureLocationList.contains(featureLocation)){
+                if (!featureLocationList.contains(featureLocation)) {
                     featureLocationList.add(featureLocation)
                 }
             }
         }
 
-        featureLocationList.sort(){ a,b ->
+        featureLocationList.sort() { a, b ->
             a.isFmaxPartial <=> b.isFmaxPartial ?: b.isFminPartial <=> a.isFminPartial ?: a.fmin <=> b.fmin
         }.each {
-            if(!sequenceList.contains(it.sequence)){
+            if (!sequenceList.contains(it.sequence)) {
                 sequenceList.add(it.sequence)
             }
         }
 
         // TODO: validate sequenceList against each feature and their location
         features.each {
-            validateFeatureVsSequenceList(it,sequenceList)
+            validateFeatureVsSequenceList(it, sequenceList)
         }
 
         return generateAssemblageForSequence(sequenceList)
@@ -69,9 +69,9 @@ class AssemblageService {
      */
     def validateFeatureVsSequenceList(Feature feature, List<Sequence> sequences) {
         int lastRank = 0
-        feature.featureLocations.sort(){ it.rank }.each {
+        feature.featureLocations.sort() { it.rank }.each {
             int sequenceIndex = sequences.indexOf(it.sequence)
-            if(sequenceIndex<lastRank || sequenceIndex < 0 ){
+            if (sequenceIndex < lastRank || sequenceIndex < 0) {
                 throw new AnnotationException("Sequence list does not match feature arrangement ${feature.name}")
             }
             lastRank = sequenceIndex
@@ -81,7 +81,7 @@ class AssemblageService {
 
     Assemblage generateAssemblageForSequence(Sequence... sequences) {
         List<Sequence> sequenceList = new ArrayList<>()
-        for(s in sequences){
+        for (s in sequences) {
             sequenceList.add(s)
         }
         return generateAssemblageForSequence(sequenceList)
@@ -93,7 +93,7 @@ class AssemblageService {
         int end = 0;
         for (Sequence seq in sequences) {
             // note this creates the proper JSON string
-            JSONObject sequenceObject = JSON.parse( (seq as JSON).toString()) as JSONObject
+            JSONObject sequenceObject = JSON.parse((seq as JSON).toString()) as JSONObject
             sequenceArray.add(sequenceObject)
             organism = organism ?: seq.organism
             end += seq.end
@@ -125,7 +125,7 @@ class AssemblageService {
 
     List<Sequence> getSequencesFromAssemblage(Assemblage assemblage) {
 
-        return getSequencesFromAssemblage(assemblage.organism,assemblage.sequenceList)
+        return getSequencesFromAssemblage(assemblage.organism, assemblage.sequenceList)
     }
 
     // should match ProjectionDescription
@@ -151,19 +151,19 @@ class AssemblageService {
     JSONObject standardizeSequenceList(JSONObject inputObject) {
         JSONArray sequenceArray = JSON.parse(inputObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
         Organism organism = null
-        if(inputObject.containsKey(FeatureStringEnum.ORGANISM.value)){
+        if (inputObject.containsKey(FeatureStringEnum.ORGANISM.value)) {
             organism = preferenceService.getOrganismForToken(inputObject.getString(FeatureStringEnum.ORGANISM.value))
         }
-        if(!organism){
+        if (!organism) {
             UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             organism = userOrganismPreference?.organism
         }
-        List<Sequence> sequences1 = getSequencesFromAssemblage(organism,sequenceArray.toString())
-        Map<String,Sequence> sequenceMap = sequences1.collectEntries(){
-            [it.name,it]
+        List<Sequence> sequences1 = getSequencesFromAssemblage(organism, sequenceArray.toString())
+        Map<String, Sequence> sequenceMap = sequences1.collectEntries() {
+            [it.name, it]
         }
 
-        for(int i = 0 ; i < sequenceArray.size() ; i++){
+        for (int i = 0; i < sequenceArray.size(); i++) {
             JSONObject sequenceObject = sequenceArray.getJSONObject(i)
             Sequence sequence = sequenceMap.get(sequenceObject.name)
             sequenceObject.id = sequence.id
@@ -171,14 +171,14 @@ class AssemblageService {
             sequenceObject.end = sequenceObject.end ?: sequence.end
             sequenceObject.length = sequenceObject.length ?: sequence.length
         }
-        inputObject.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceArray.toString())
+        inputObject.put(FeatureStringEnum.SEQUENCE_LIST.value, sequenceArray.toString())
 
         return inputObject
     }
 
-    def getAssemblagesForUserAndOrganism(User user, Organism organism){
-        def assemblages = user.assemblages.findAll(){
-            it.organism==organism
+    def getAssemblagesForUserAndOrganism(User user, Organism organism) {
+        def assemblages = user.assemblages.findAll() {
+            it.organism == organism
         }
         return assemblages
     }
@@ -187,32 +187,33 @@ class AssemblageService {
         standardizeSequenceList(jsonObject)
         JSONArray sequenceListArray = JSON.parse(jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
         Assemblage assemblage = Assemblage.findBySequenceList(sequenceListArray.toString())
-        if(assemblage==null){
+        if (assemblage == null) {
             log.info "creating assemblage from ${jsonObject as JSON} "
             assemblage = new Assemblage()
-            assemblage.projection = jsonObject.projection
-            assemblage.sequenceList = sequenceListArray.toString()
-
-            assemblage.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value): sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
-            assemblage.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size()-1).getInt(FeatureStringEnum.END.value)
-
-            assemblage.organism = preferenceService.getOrganismFromInput(jsonObject)
-            if(!assemblage.organism){
-                assemblage.organism = preferenceService.getCurrentOrganismForCurrentUser(jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-            }
-            assemblage.save(insert: true,flush:true)
         }
+        assemblage.projection = jsonObject.projection
+        assemblage.sequenceList = sequenceListArray.toString()
+        assemblage.name = jsonObject.name
+
+        assemblage.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value) : sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
+        assemblage.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size() - 1).getInt(FeatureStringEnum.END.value)
+
+        assemblage.organism = preferenceService.getOrganismFromInput(jsonObject)
+        if (!assemblage.organism) {
+            assemblage.organism = preferenceService.getCurrentOrganismForCurrentUser(jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+        }
+        assemblage.save(insert: true, flush: true)
         return assemblage
     }
 
     @NotTransactional
-    static Boolean isProjectionReferer(String inputString ){
-        return inputString.contains("(")&&inputString.contains("):")&&inputString.contains('..')
+    static Boolean isProjectionReferer(String inputString) {
+        return inputString.contains("(") && inputString.contains("):") && inputString.contains('..')
     }
 
     @NotTransactional
-    static Boolean isProjectionString(String inputString ){
-        return ( (inputString.startsWith("{") && inputString.contains(FeatureStringEnum.SEQUENCE_LIST.value)) || (inputString.startsWith("[") && inputString.endsWith("]")) )
+    static Boolean isProjectionString(String inputString) {
+        return ((inputString.startsWith("{") && inputString.contains(FeatureStringEnum.SEQUENCE_LIST.value)) || (inputString.startsWith("[") && inputString.endsWith("]")))
 
     }
 
@@ -230,7 +231,7 @@ class AssemblageService {
         Integer sequenceOrder = sequencesList.indexOf(firstSequence)
 
         // add the entire length of each sequence in view
-        for(int i = 0 ; i < sequenceOrder ; i++){
+        for (int i = 0; i < sequenceOrder; i++) {
             calculatedMin += sequencesList.get(i).length
         }
         return calculatedMin
@@ -251,7 +252,7 @@ class AssemblageService {
         Integer sequenceOrder = sequencesList.indexOf(firstSequence)
 
         // add the entire length of each sequence in view
-        for(int i = 0 ; i < sequenceOrder ; i++){
+        for (int i = 0; i < sequenceOrder; i++) {
             calculatedMax += sequencesList.get(i).length
         }
         return calculatedMax
@@ -259,23 +260,21 @@ class AssemblageService {
 
     def removeAssemblageById(Long id, User user) {
         def assemblage = Assemblage.findById(id)
-        if(assemblage){
+        if (assemblage) {
             def uops = UserOrganismPreference.findAllByAssemblage(assemblage)
-            Boolean canDelete = uops.find(){ it.currentOrganism } == null
-            if(canDelete){
+            Boolean canDelete = uops.find() { it.currentOrganism } == null
+            if (canDelete) {
                 user.removeFromAssemblages(assemblage)
                 uops.each {
                     it.delete()
                 }
                 assemblage.delete(flush: true)
                 return true
-            }
-            else{
+            } else {
                 log.error("Preference is still current, ignoring ${id}")
                 return false
             }
-        }
-        else{
+        } else {
             log.error("No assemblage found to delete for ${id} and ${user.username}")
             return false
         }

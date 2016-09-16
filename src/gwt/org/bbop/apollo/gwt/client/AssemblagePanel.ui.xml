@@ -111,17 +111,6 @@
                                     <b:Button text="View" icon="EYE" enabled="false" ui:field="viewButton"/>
                                 </b:ButtonGroup>
                             </b:Column>
-                            <!--<b:Column size="MD_2">-->
-                                <!--<b:Input type="NUMBER" b:id="padding" value="padding" ui:field="paddingForm"-->
-                                         <!--placeholder="Padding"/>-->
-                                <!--&lt;!&ndash;&lt;!&ndash;<b:Form>&ndash;&gt;&ndash;&gt;-->
-                                <!--&lt;!&ndash;&lt;!&ndash;<b:Field&ndash;&gt;&ndash;&gt;-->
-                                <!--&lt;!&ndash;&lt;!&ndash;<b:FormGroup>&ndash;&gt;&ndash;&gt;-->
-                                <!--&lt;!&ndash;&lt;!&ndash;<b:FormLabel for="padding">Padding</b:FormLabel>&ndash;&gt;&ndash;&gt;-->
-                                <!--&lt;!&ndash;&lt;!&ndash;<b:TextBox  size="30" b:id="padding" value="padding" ui:field="paddingForm"/>&ndash;&gt;&ndash;&gt;-->
-                                <!--&lt;!&ndash;&lt;!&ndash;</b:FormGroup>&ndash;&gt;&ndash;&gt;-->
-                                <!--&lt;!&ndash;&lt;!&ndash;</b:Form>&ndash;&gt;&ndash;&gt;-->
-                            <!--</b:Column>-->
                         </b:Row>
                     </b:Container>
                 </gwt:north>

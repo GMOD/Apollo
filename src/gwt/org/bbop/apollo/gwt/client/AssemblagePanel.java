@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.cell.client.EditTextCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -20,6 +21,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
@@ -103,6 +105,18 @@ public class AssemblagePanel extends Composite {
                 return assemblageInfo.getDescription();
             }
         };
+        nameColumn.setFieldUpdater(new FieldUpdater<AssemblageInfo, String>() {
+            @Override
+            public void update(int index, AssemblageInfo object, String value) {
+                // Called when the user changes the value.
+                Window.alert("value ["+value + "] original name: ["+object.getName()+"]");
+                if(!value.equals(object.getName())){
+                    object.setName(value);
+                    AssemblageRestService.saveAssemblage(object);
+                }
+            }
+        });
+
         nameColumn.setSortable(true);
         TextColumn<AssemblageInfo> lengthColumn = new TextColumn<AssemblageInfo>() {
             @Override
