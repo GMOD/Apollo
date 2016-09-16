@@ -1,5 +1,7 @@
 package org.bbop.apollo.gwt.client;
 
+import com.google.gwt.cell.client.EditTextCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
@@ -41,8 +43,9 @@ public class VariantAllelesPanel extends Composite {
 
     private AnnotationInfo internalAnnotationInfo = null;
     private AlternateAlleleInfo internalAlterateAlleleInfo = null;
-    private AlternateAlleleInfo selectedVariantAlleleInfo = null;
+    private String oldBases, oldProvenance;
     private String bases, provenance;
+    private Float oldAlleleFrequency;
     private Float alleleFrequency;
 
     interface VariantAllelePanelUiBinder extends UiBinder<Widget, VariantAllelesPanel> {
@@ -54,15 +57,6 @@ public class VariantAllelesPanel extends Composite {
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<AlternateAlleleInfo> dataGrid = new DataGrid<>(10, tablecss);
-
-    @UiField
-    Container alleleEditContainer;
-    @UiField
-    TextBox basesField;
-    @UiField
-    TextBox alleleFrequencyField;
-    @UiField
-    TextBox provenanceField;
 
     private static ListDataProvider<AlternateAlleleInfo> dataProvider = new ListDataProvider<>();
     private static List<AlternateAlleleInfo> alternateAlleleInfoList = dataProvider.getList();
@@ -80,89 +74,100 @@ public class VariantAllelesPanel extends Composite {
             @Override
             public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
                 if (selectionModel.getSelectedSet().isEmpty()) {
-                    alleleEditContainer.setVisible(false);
                 }
                 else {
-                    alleleEditContainer.setVisible(true);
                     updateAlleleData(selectionModel.getSelectedObject());
                 }
             }
         });
         initWidget(ourUiBinder.createAndBindUi(this));
+    }
 
-        basesField.addChangeHandler(new ChangeHandler() {
+    public void initializeTable() {
+        EditTextCell basesCell = new EditTextCell();
+        basesColumn = new Column<AlternateAlleleInfo, String>(basesCell) {
             @Override
-            public void onChange(ChangeEvent changeEvent) {
-                String newBases = basesField.getText().toUpperCase();
-                if (! newBases.equals(bases)) {
-                    bases = newBases;
-                    if (VariantDetailPanel.isValidDNA(newBases)) {
-                        triggerUpdate();
-                    }
-                    else {
-                        Bootbox.alert("Bases should only contain A, T, C, G or N");
-                    }
+            public String getValue(AlternateAlleleInfo object) {
+                if (object.getBases() != null) {
+                    return object.getBases();
+                } else {
+                    return "";
                 }
             }
-        });
-
-        alleleFrequencyField.addChangeHandler(new ChangeHandler() {
+        };
+        basesColumn.setFieldUpdater(new FieldUpdater<AlternateAlleleInfo, String>() {
             @Override
-            public void onChange(ChangeEvent changeEvent) {
-                try {
-                    Float newAlleleFrequency = Float.parseFloat(alleleFrequencyField.getText());
-                    if (! newAlleleFrequency.equals(alleleFrequency)) {
-                        alleleFrequency = newAlleleFrequency;
-                        if (newAlleleFrequency >= 0.0 && newAlleleFrequency <= 1.0) {
-                            triggerUpdate();
-                        }
-                        else {
-                            Bootbox.alert("Allele Frequency for an allele must be within the range 0.0 - 1.0");
-                        }
-                    }
-                }
-                catch (NumberFormatException e) {
-                    Bootbox.alert("The value of Allele Frequency must be a number and within the range 0.0 - 1.0");
-                }
-            }
-        });
-
-        provenanceField.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent changeEvent) {
-                String newProvenance = provenanceField.getText();
-                if (! newProvenance.equals(provenance)) {
-                    provenance = newProvenance;
+            public void update(int i, AlternateAlleleInfo alternateAlleleInfo, String newValue) {
+                if (! alternateAlleleInfo.getBases().equals(newValue.toUpperCase())) {
+                    GWT.log("update event on bases");
+                    alternateAlleleInfo.setBases(newValue);
+                    updateAlleleData(alternateAlleleInfo);
                     triggerUpdate();
                 }
             }
         });
-
-    }
-
-    public void initializeTable() {
-        basesColumn = new Column<AlternateAlleleInfo, String>(new TextCell()) {
-            @Override
-            public String getValue(AlternateAlleleInfo object) {
-                return object.getBases();
-            }
-        };
         basesColumn.setSortable(true);
 
-        alleleFrequencyColumn = new Column<AlternateAlleleInfo, String>(new TextCell()) {
+        EditTextCell frequencyCell = new EditTextCell();
+        alleleFrequencyColumn = new Column<AlternateAlleleInfo, String>(frequencyCell) {
             @Override
             public String getValue(AlternateAlleleInfo object) {
-                return String.valueOf(object.getAlleleFrequency());
+                if (object.getAlleleFrequency() != null) {
+                    return String.valueOf(object.getAlleleFrequency());
+                }
+                else {
+                    return "";
+                }
             }
         };
+        alleleFrequencyColumn.setFieldUpdater(new FieldUpdater<AlternateAlleleInfo, String>() {
+            @Override
+            public void update(int i, AlternateAlleleInfo alternateAlleleInfo, String newValue) {
+                GWT.log(alternateAlleleInfo.getAlleleFrequencyAsString() + " vs " + newValue);
+                if (! String.valueOf(alternateAlleleInfo.getAlleleFrequencyAsString()).equals(newValue)) {
+                    GWT.log("update event on allele frequency");
+                    try {
+                        Float newFrequency = Float.parseFloat(newValue);
+                        if (newFrequency >= 0.0 && newFrequency <= 1.0) {
+                            alternateAlleleInfo.setAlleleFrequency(newFrequency);
+                            updateAlleleData(alternateAlleleInfo);
+                            triggerUpdate();
+                        }
+                        else {
+                            Bootbox.alert("Allele Frequency must be within the range 0.0 - 1.0");
+                        }
+                    } catch (NumberFormatException e) {
+                        Bootbox.alert("Allele Frequency must be a number and within the range 0.0 - 1.0");
+                    }
+                }
+
+            }
+        });
         alleleFrequencyColumn.setSortable(true);
 
-        provenanceColumn = new Column<AlternateAlleleInfo, String>(new TextCell()) {
+        EditTextCell provenanceCell = new EditTextCell();
+        provenanceColumn = new Column<AlternateAlleleInfo, String>(provenanceCell) {
             @Override
             public String getValue(AlternateAlleleInfo object) {
-                return object.getProvenance();
+                if (object.getProvenance() != null) {
+                    return object.getProvenance();
+                }
+                else {
+                    return "";
+                }
             }
         };
+        provenanceColumn.setFieldUpdater(new FieldUpdater<AlternateAlleleInfo, String>() {
+            @Override
+            public void update(int i, AlternateAlleleInfo alternateAlleleInfo, String newValue) {
+                if (! alternateAlleleInfo.getProvenance().equals(newValue)) {
+                    GWT.log("update event on provenance");
+                    alternateAlleleInfo.setProvenance(newValue);
+                    updateAlleleData(alternateAlleleInfo);
+                    triggerUpdate();
+                }
+            }
+        });
         provenanceColumn.setSortable(true);
 
         dataGrid.addColumn(basesColumn, "Bases");
@@ -198,7 +203,6 @@ public class VariantAllelesPanel extends Composite {
         if (annotationInfo == null) { return; }
         this.internalAnnotationInfo = annotationInfo;
         alternateAlleleInfoList.clear();
-        alleleEditContainer.setVisible(false);
         for (HashMap<String, String> alternateAlleles : annotationInfo.getAlternateAlleles()) {
             AlternateAlleleInfo alternateAlleleInfo1 = new AlternateAlleleInfo(alternateAlleles);
             alternateAlleleInfoList.add(alternateAlleleInfo1);
@@ -212,41 +216,63 @@ public class VariantAllelesPanel extends Composite {
 
     public void updateAlleleData(AlternateAlleleInfo a) {
         this.internalAlterateAlleleInfo = a;
+        // bases
+        this.oldBases = this.bases;
         this.bases = this.internalAlterateAlleleInfo.getBases();
+
+        // allele frequency
+        this.oldAlleleFrequency = this.alleleFrequency;
         this.alleleFrequency = this.internalAlterateAlleleInfo.getAlleleFrequency();
+
+        // provenance
+        this.oldProvenance = this.provenance;
         this.provenance = this.internalAlterateAlleleInfo.getProvenance();
-        basesField.setText(this.bases);
-        alleleFrequencyField.setText(String.valueOf(this.alleleFrequency));
-        provenanceField.setText(this.provenance);
+
         dataGrid.redraw();
         setVisible(true);
     }
 
     public void triggerUpdate() {
+        GWT.log("@triggerUpdate");
+        GWT.log("old vs new bases: " + this.oldBases + "|" + this.bases);
+        GWT.log("old vs new AF: " + this.oldAlleleFrequency + "|" + this.alleleFrequency);
+        GWT.log("old vs new provenance: " + this.oldProvenance + "|" + this.provenance);
+
         boolean baseValidated = false;
         boolean alleleFrequencyValidated = false;
         boolean provenanceValidated = false;
-        if (VariantDetailPanel.isValidDNA(bases)) {
-            baseValidated = true;
+
+        if (this.bases != null) {
+            if (VariantDetailPanel.isValidDNA(this.bases)) {
+                baseValidated = true;
+            }
+            else {
+                Bootbox.alert("Bases should only contain A, T, C, G or N");
+                baseValidated = false;
+            }
+        }
+
+        if (alleleFrequency != null) {
+            if (alleleFrequency >= 0.0 && alleleFrequency <= 1.0) {
+                alleleFrequencyValidated = true;
+            }
+            else {
+                Bootbox.alert("Allele Frequency for an allele must be within the range 0.0 - 1.0");
+                alleleFrequencyValidated = false;
+            }
         }
         else {
-            Bootbox.alert("Bases should only contain A, T, C, G or N");
-            baseValidated = false;
-        }
-        if (alleleFrequency >= 0.0 && alleleFrequency <= 1.0) {
             alleleFrequencyValidated = true;
         }
-        else {
-            Bootbox.alert("Allele Frequency for an allele must be within the range 0.0 - 1.0");
-            alleleFrequencyValidated = false;
-        }
-        if (alleleFrequency != null && provenance.isEmpty()) {
+
+        if (alleleFrequency != null && (provenance == null || provenance.isEmpty())) {
             Bootbox.alert("Provenance cannot be empty when Allele Frequency is provided");
             provenanceValidated = false;
         }
         else {
             provenanceValidated = true;
         }
+
         if (baseValidated && alleleFrequencyValidated && provenanceValidated) {
             String url = Annotator.getRootUrl() + "annotator/updateAlternateAlleles";
             RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
@@ -259,15 +285,18 @@ public class VariantAllelesPanel extends Composite {
             featuresObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
 
             JSONArray oldAlternateAllelesJsonArray = new JSONArray();
-            JSONObject oldAlternateAllelesJsonObject = this.internalAlterateAlleleInfo.convertToJsonObject();
+            JSONObject oldAlternateAllelesJsonObject = new JSONObject();
+            oldAlternateAllelesJsonObject.put(FeatureStringEnum.BASES.getValue(), new JSONString(this.oldBases));
+            if (oldAlleleFrequency != null) oldAlternateAllelesJsonObject.put(FeatureStringEnum.ALLELE_FREQUENCY.getValue(), new JSONString(String.valueOf(this.oldAlleleFrequency)));
+            if (provenance != null) oldAlternateAllelesJsonObject.put(FeatureStringEnum.PROVENANCE.getValue(), new JSONString(String.valueOf(this.oldProvenance)));
             oldAlternateAllelesJsonArray.set(0,oldAlternateAllelesJsonObject);
             featuresObject.put(FeatureStringEnum.OLD_ALTERNATE_ALLELES.getValue(), oldAlternateAllelesJsonArray);
 
             JSONArray newAlternateAllelesJsonArray = new JSONArray();
             JSONObject newAlternateAllelesJsonObject = new JSONObject();
-            newAlternateAllelesJsonObject.put(FeatureStringEnum.BASES.getValue(), new JSONString(bases));
-            if (alleleFrequency != null) newAlternateAllelesJsonObject.put(FeatureStringEnum.ALLELE_FREQUENCY.getValue(), new JSONString(String.valueOf(alleleFrequency)));
-            if (provenance != null) newAlternateAllelesJsonObject.put(FeatureStringEnum.PROVENANCE.getValue(), new JSONString(provenance));
+            newAlternateAllelesJsonObject.put(FeatureStringEnum.BASES.getValue(), new JSONString(this.bases));
+            if (alleleFrequency != null) newAlternateAllelesJsonObject.put(FeatureStringEnum.ALLELE_FREQUENCY.getValue(), new JSONString(String.valueOf(this.alleleFrequency)));
+            if (provenance != null) newAlternateAllelesJsonObject.put(FeatureStringEnum.PROVENANCE.getValue(), new JSONString(this.provenance));
             newAlternateAllelesJsonArray.set(0, newAlternateAllelesJsonObject);
             featuresObject.put(FeatureStringEnum.NEW_ALTERNATE_ALLELES.getValue(), newAlternateAllelesJsonArray);
 
@@ -281,20 +310,20 @@ public class VariantAllelesPanel extends Composite {
             sb.append("data=" + requestObject.toString());
             final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
             builder.setRequestData(sb.toString());
-            enableFields(false);
             RequestCallback requestCallback = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
                     Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
-                    enableFields(true);
+                    // TODO: dataGrid.setLoadingIndicator()
                     dataGrid.redraw();
                 }
 
                 @Override
                 public void onError(Request request, Throwable exception) {
                     Bootbox.alert("Error updating alternate allele: " + exception);
-                    enableFields(true);
+                    // TODO: dataGrid.setLoadingIndicator()
+                    dataGrid.setRowCount(0, false);
                 }
             };
 
@@ -306,58 +335,4 @@ public class VariantAllelesPanel extends Composite {
             }
         }
     }
-
-    public void enableFields(boolean value) {
-        this.basesField.setEnabled(value);
-        this.alleleFrequencyField.setEnabled(value);
-        this.provenanceField.setEnabled(value);
-    }
-
-//    @UiHandler("basesField")
-//    public void editBasesField(KeyDownEvent k) {
-//        if (k.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-//            String newBases = basesField.getText().toUpperCase();
-//            if (! newBases.equals(bases)) {
-//                bases = newBases;
-//                if (VariantDetailPanel.isValidDNA(newBases)) {
-//                    triggerUpdate();
-//                }
-//                else {
-//                    Bootbox.alert("Bases should only contain A, T, C, G or N");
-//                }
-//            }
-//        }
-//    }
-//
-//    @UiHandler("alleleFrequencyField")
-//    public void editAlleleFrequencyField(KeyDownEvent k) {
-//        if (k.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-//            try {
-//                Float newAlleleFrequency = Float.parseFloat(alleleFrequencyField.getText());
-//                if (! newAlleleFrequency.equals(alleleFrequency)) {
-//                    alleleFrequency = newAlleleFrequency;
-//                    if (newAlleleFrequency >= 0.0 && newAlleleFrequency <= 1.0) {
-//                        triggerUpdate();
-//                    }
-//                    else {
-//                        Bootbox.alert("Allele Frequency for an allele must be within the range 0.0 - 1.0");
-//                    }
-//                }
-//            }
-//            catch (NumberFormatException e) {
-//                Bootbox.alert("The value of Allele Frequency must be a number and within the range 0.0 - 1.0");
-//            }
-//        }
-//    }
-//
-//    @UiHandler("provenanceField")
-//    public void editProvenanceField(KeyDownEvent k) {
-//        if (k.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-//            String newProvenance = provenanceField.getText();
-//            provenance = newProvenance;
-//            if (! newProvenance.equals(provenance)) {
-//                triggerUpdate();
-//            }
-//        }
-//    }
 }

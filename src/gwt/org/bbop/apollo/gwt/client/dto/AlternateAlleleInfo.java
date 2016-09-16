@@ -47,6 +47,10 @@ public class AlternateAlleleInfo {
         return this.alleleFrequency;
     }
 
+    public String getAlleleFrequencyAsString() {
+        return String.valueOf(this.alleleFrequency);
+    }
+
     public void setAlleleFrequency(Float alleleFrequency) {
         this.alleleFrequency = alleleFrequency;
     }

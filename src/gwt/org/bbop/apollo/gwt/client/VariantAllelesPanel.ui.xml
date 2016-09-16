@@ -26,34 +26,6 @@
         <gwt:west size="250">
             <cellview:DataGrid ui:field="dataGrid" styleName="{style.dataGrid}"/>
         </gwt:west>
-        <gwt:center>
-            <b:Container ui:field="alleleEditContainer" fluid="true" width="100%" styleName="{style.container}" visible="true">
-                <b:Row styleName="{style.row}">
-                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
-                        <b:InputGroup>
-                            <b:InputGroupAddon>Bases</b:InputGroupAddon>
-                            <b:TextBox ui:field="basesField"></b:TextBox>
-                        </b:InputGroup>
-                    </b:Column>
-                </b:Row>
-                <b:Row styleName="{style.row}">
-                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
-                        <b:InputGroup>
-                            <b:InputGroupAddon>Allele Frequency (AF)</b:InputGroupAddon>
-                            <b:TextBox ui:field="alleleFrequencyField"></b:TextBox>
-                        </b:InputGroup>
-                    </b:Column>
-                </b:Row>
-                <b:Row styleName="{style.row}">
-                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
-                        <b:InputGroup>
-                            <b:InputGroupAddon>Provenance</b:InputGroupAddon>
-                            <b:TextBox ui:field="provenanceField"></b:TextBox>
-                        </b:InputGroup>
-                    </b:Column>
-                </b:Row>
-            </b:Container>
-        </gwt:center>
     </gwt:SplitLayoutPanel>
 
 
