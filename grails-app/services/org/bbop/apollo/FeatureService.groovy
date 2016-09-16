@@ -1187,6 +1187,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     }
                     gsolFeature.addToAlternateAlleles(allele);
                 }
+
+                if (jsonFeature.has(FeatureStringEnum.VARIANT_INFO.value)) {
+                    JSONArray variantInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.VARIANT_INFO.value)
+                    for (int i = 0; i < variantInfoArray.size(); i++) {
+                        JSONObject variantInfoObject = variantInfoArray.get(i)
+                        FeatureProperty variantInfo = new FeatureProperty(tag: variantInfoObject.get(FeatureStringEnum.TAG.value), value: variantInfoObject.get(FeatureStringEnum.VALUE.value))
+                        variantInfo.feature = gsolFeature
+                        variantInfo.save()
+                        gsolFeature.addToFeatureProperties(variantInfo)
+                    }
+                }
             }
 
             gsolFeature.save(failOnError: true)
@@ -1605,6 +1616,19 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put(FeatureStringEnum.REFERENCE_BASES.value, gsolFeature.referenceBases)
 
             // TODO: optimize
+            // variant info (properties)
+            if (gsolFeature.getVariantInfo()) {
+                JSONArray variantInfoArray = new JSONArray()
+                gsolFeature.variantInfo.each { variantInfo ->
+                    JSONObject variantInfoObject = new JSONObject()
+                    variantInfoObject.put(FeatureStringEnum.TAG.value, variantInfo.tag)
+                    variantInfoObject.put(FeatureStringEnum.VALUE.value, variantInfo.value)
+                    variantInfoArray.add(variantInfoObject)
+                }
+                jsonFeature.put(FeatureStringEnum.VARIANT_INFO.value, variantInfoArray)
+            }
+
+            // TODO: optimize
             JSONArray alternateAllelesArray = new JSONArray()
             gsolFeature.getAlternateAlleles().each { allele ->
                 JSONObject alternateAlleleObject = new JSONObject()
@@ -1692,7 +1716,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      */
     @Timed
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
-
         JSONObject jsonFeature = new JSONObject();
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
@@ -1784,6 +1807,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantList) {
             jsonFeature.put(FeatureStringEnum.REFERENCE_BASES.value, gsolFeature.referenceBases)
+
             JSONArray alternateAllelesArray = new JSONArray()
             gsolFeature.alternateAlleles.each { allele ->
                 JSONObject alternateAlleleObject = new JSONObject()
@@ -1807,6 +1831,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 alternateAllelesArray.add(alternateAlleleObject)
             }
             jsonFeature.put(FeatureStringEnum.ALTERNATE_ALLELES.value, alternateAllelesArray)
+
+            if (gsolFeature.variantInfo) {
+                JSONArray variantInfoArray = new JSONArray()
+                gsolFeature.variantInfo.each { variantInfo ->
+                    JSONObject variantInfoObject = new JSONObject()
+                    variantInfoObject.put(FeatureStringEnum.TAG.value, variantInfo.tag)
+                    variantInfoObject.put(FeatureStringEnum.VALUE.value, variantInfo.value)
+                    variantInfoArray.add(variantInfoObject)
+                }
+                jsonFeature.put(FeatureStringEnum.VARIANT_INFO.value, variantInfoArray)
+            }
         }
 
         if (gsolFeature.class.name in assemblyErrorCorrectionTypes) {

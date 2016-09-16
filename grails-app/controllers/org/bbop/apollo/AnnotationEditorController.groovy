@@ -1086,6 +1086,18 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     alternateAllelesArray.add(alternateAlleleObject)
                 }
                 newFeature.put(FeatureStringEnum.ALTERNATE_ALLELES.value, alternateAllelesArray);
+
+                if (feature.variantInfo) {
+                    JSONArray variantInfoArray = new JSONArray()
+                    for (FeatureProperty variantInfo : feature.variantInfo) {
+                        JSONObject variantInfoObject = new JSONObject()
+                        variantInfoObject.put(FeatureStringEnum.TAG.value, variantInfo.tag)
+                        variantInfoObject.put(FeatureStringEnum.VALUE.value, variantInfo.value)
+                        variantInfoArray.add(variantInfoObject)
+                    }
+                    newFeature.put(FeatureStringEnum.VARIANT_INFO.value, variantInfoArray)
+                }
+
             }
 
             if (feature.featureLocation) {
