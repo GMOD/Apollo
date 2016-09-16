@@ -165,7 +165,7 @@ public class AssemblageInfo implements Comparable<AssemblageInfo> {
     }
 
     public String getSummary() {
-        return sequenceList == null ? "None" : sequenceList.getDescription();
+        return sequenceList == null ? "None" : sequenceList.getSummary();
     }
 
     public String getDescription() {

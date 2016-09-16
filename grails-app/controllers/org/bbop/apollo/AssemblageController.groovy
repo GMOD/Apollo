@@ -61,11 +61,11 @@ class AssemblageController {
     @Transactional
     def saveAssemblage() {
         JSONObject inputObject = permissionService.handleInput(request, params)
-        Long assemblageId = inputObject.getLong(FeatureStringEnum.ID.value)
-        Assemblage storedAssemblage = Assemblage.findById(assemblageId)
-        storedAssemblage = assemblageService.convertJsonToAssemblage(inputObject) // this will save a new assemblage
+//        Long assemblageId = inputObject.getLong(FeatureStringEnum.ID.value)
+//        Assemblage storedAssemblage = Assemblage.findById(assemblageId)
+        Assemblage storedAssemblage = assemblageService.convertJsonToAssemblage(inputObject) // this will save a new assemblage
 //        thisAssemblage.attach()
-        storedAssemblage.save(flush: true )
+//        storedAssemblage.save(flush: true )
         render assemblageService.convertAssemblageToJson(storedAssemblage) as JSON
     }
 

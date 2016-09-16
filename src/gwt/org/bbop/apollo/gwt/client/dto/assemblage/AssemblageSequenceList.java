@@ -45,7 +45,7 @@ public class AssemblageSequenceList extends JSONArray {
         return finalLength ;
     }
 
-    public String getDescription() {
+    public String getSummary() {
         String description = "";
 
         //

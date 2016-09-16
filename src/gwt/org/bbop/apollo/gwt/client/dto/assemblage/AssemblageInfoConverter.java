@@ -17,7 +17,10 @@ public class AssemblageInfoConverter {
         if (assemblageInfo.getId() != null) {
             jsonObject.put(FeatureStringEnum.ID.getValue(), new JSONNumber(assemblageInfo.getId()));
         }
-        jsonObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(assemblageInfo.getDescription()));
+        if(assemblageInfo.getName() != null){
+            jsonObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(assemblageInfo.getName()));
+        }
+        jsonObject.put(FeatureStringEnum.DESCRIPTION.getValue(), new JSONString(assemblageInfo.getDescription()));
         if (assemblageInfo.getType() != null) {
             jsonObject.put(FeatureStringEnum.TYPE.getValue(), new JSONString(assemblageInfo.getType()));
         }
@@ -44,6 +47,10 @@ public class AssemblageInfoConverter {
         if (jsonObject.containsKey(FeatureStringEnum.ID.getValue())) {
             assemblageInfo.setId((long) jsonObject.get(FeatureStringEnum.ID.getValue()).isNumber().doubleValue());
         }
+        if (jsonObject.containsKey(FeatureStringEnum.NAME.getValue()) && jsonObject.get(FeatureStringEnum.NAME.getValue()).isString()!=null) {
+            assemblageInfo.setName(jsonObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue());
+        }
+
         if (jsonObject.containsKey("padding")) {
             assemblageInfo.setPadding((int) jsonObject.get("padding").isNumber().doubleValue());
         }

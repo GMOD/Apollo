@@ -38,7 +38,6 @@ public class AssemblageRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                Window.alert("recieved good response: "+ response.getText());
                 GWT.log("Successfully saved assemblage");
 //                resetPanel();
 //                reload();
@@ -46,8 +45,6 @@ public class AssemblageRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("recieved BAD response");
-
                 Bootbox.alert("Failed to save: " + exception.getMessage());
             }
         };

@@ -499,7 +499,6 @@ public class MainPanel extends Composite {
 
         String trackListString = Annotator.getRootUrl() + Annotator.getClientToken() + "/jbrowse/index.html?loc=";
         currentAssemblage = assemblageInfo;
-//            currentAssemblage = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(selectedSequence).isObject());
         minRegion = currentAssemblage.getStart() != null ? currentAssemblage.getStart() : -1;
         maxRegion = currentAssemblage.getEnd() != null ? currentAssemblage.getEnd() : -1;
         trackListString += URL.encodeQueryString(AssemblageInfoConverter.convertAssemblageInfoToJSONObject(currentAssemblage).toString());

@@ -88,7 +88,7 @@ class AssemblageService {
     }
 
     Assemblage generateAssemblageForSequence(List<Sequence> sequences) {
-        Organism organism = null
+        Organism organism = sequences.first().organism
         JSONArray sequenceArray = new JSONArray()
         int end = 0;
         for (Sequence seq in sequences) {
@@ -98,10 +98,17 @@ class AssemblageService {
             organism = organism ?: seq.organism
             end += seq.end
         }
-        Assemblage assemblage = Assemblage.findByOrganismAndSequenceList(organism, sequenceArray.toString()) ?: new Assemblage(
+        JSONObject testSequence = new JSONObject()
+        testSequence.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceArray)
+        testSequence.put(FeatureStringEnum.ORGANISM.value,organism.id)
+        testSequence = standardizeSequenceList(testSequence)
+
+        Assemblage assemblage = Assemblage.findByOrganismAndSequenceList(organism, testSequence.get(FeatureStringEnum.SEQUENCE_LIST.value).toString())
+        assemblage = assemblage ?: new Assemblage(
                 organism: organism
                 , sequenceList: sequenceArray.toString()
                 , start: 0
+                , name: "Unnamed ${org.bbop.apollo.gwt.shared.ClientTokenGenerator.generateRandomString(3)}"
                 , end: end
         ).save(flush: true, failOnError: true)
 
@@ -128,6 +135,11 @@ class AssemblageService {
         return getSequencesFromAssemblage(assemblage.organism, assemblage.sequenceList)
     }
 
+    /**
+     * TODO: does the automarshaller already do this?
+     * @param assemblage
+     * @return
+     */
     // should match ProjectionDescription
     JSONObject convertAssemblageToJson(Assemblage assemblage) {
         JSONObject jsonObject = new JSONObject()
@@ -142,6 +154,8 @@ class AssemblageService {
         jsonObject.organism = assemblage.organism.commonName
         jsonObject.start = assemblage.start
         jsonObject.end = assemblage.end
+        jsonObject.name = assemblage.name
+//        jsonObject.name = URLEncoder.encode(assemblage.name,"UTF-8")
         // in theory these should be the same
         jsonObject.sequenceList = JSON.parse(assemblage.sequenceList) as JSONArray
 
@@ -187,10 +201,18 @@ class AssemblageService {
         standardizeSequenceList(jsonObject)
         JSONArray sequenceListArray = JSON.parse(jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
         Assemblage assemblage = Assemblage.findBySequenceList(sequenceListArray.toString())
+        // now let's try it by ID
+        if(assemblage == null && jsonObject.id){
+            assemblage = Assemblage.findById(jsonObject.id)
+        }
+        if(assemblage == null ){
+            assemblage = Assemblage.findBySequenceList(sequenceListArray.toString())
+        }
         if (assemblage == null) {
             log.info "creating assemblage from ${jsonObject as JSON} "
             assemblage = new Assemblage()
         }
+//        assemblage.id = jsonObject.id
         assemblage.projection = jsonObject.projection
         assemblage.sequenceList = sequenceListArray.toString()
         assemblage.name = jsonObject.name
@@ -202,7 +224,6 @@ class AssemblageService {
         if (!assemblage.organism) {
             assemblage.organism = preferenceService.getCurrentOrganismForCurrentUser(jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         }
-        assemblage.save(insert: true, flush: true)
         return assemblage
     }
 

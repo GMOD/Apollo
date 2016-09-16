@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto.assemblage;
 
+import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -16,15 +17,20 @@ public class AssemblageSequence extends JSONObject {
 
     public AssemblageSequence(JSONObject jsonObject) {
         this.put(FeatureStringEnum.NAME.getValue(), new JSONString(jsonObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue()));
-        if(jsonObject.containsKey(FeatureStringEnum.START.getValue())){
+        if (jsonObject.containsKey(FeatureStringEnum.START.getValue())) {
             this.put(FeatureStringEnum.START.getValue(), new JSONNumber(jsonObject.get(FeatureStringEnum.START.getValue()).isNumber().doubleValue()));
             this.put(FeatureStringEnum.END.getValue(), new JSONNumber(jsonObject.get(FeatureStringEnum.END.getValue()).isNumber().doubleValue()));
         }
-        if(jsonObject.containsKey(FeatureStringEnum.FEATURE.getValue())){
+//        if (jsonObject.containsKey(FeatureStringEnum.REVERSE.getValue())) {
+//            this.put(FeatureStringEnum.REVERSE.getValue(), jsonObject.get(FeatureStringEnum.REVERSE.getValue()));
+//        } else {
+//            this.put(FeatureStringEnum.REVERSE.getValue(), JSONBoolean.getInstance(false));
+//        }
+        if (jsonObject.containsKey(FeatureStringEnum.FEATURE.getValue())) {
             SequenceFeatureInfo sequenceFeatureInfo = new SequenceFeatureInfo(jsonObject.get(FeatureStringEnum.FEATURE.getValue()).isObject());
             this.put(
                     FeatureStringEnum.FEATURE.getValue()
-                    ,sequenceFeatureInfo
+                    , sequenceFeatureInfo
             );
         }
 //        if (jsonObject.containsKey(FeatureStringEnum.FEATURES.getValue())) {
@@ -39,20 +45,20 @@ public class AssemblageSequence extends JSONObject {
     }
 
 
-    public Long getStart(){
+    public Long getStart() {
         return (long) get(FeatureStringEnum.START.getValue()).isNumber().doubleValue();
     }
 
-    public void setStart(Long start){
-        put(FeatureStringEnum.START.getValue(),new JSONNumber(start));
+    public void setStart(Long start) {
+        put(FeatureStringEnum.START.getValue(), new JSONNumber(start));
     }
 
-    public Long getEnd(){
+    public Long getEnd() {
         return (long) get(FeatureStringEnum.END.getValue()).isNumber().doubleValue();
     }
 
-    public void setEnd(Long end){
-        put(FeatureStringEnum.END.getValue(),new JSONNumber(end));
+    public void setEnd(Long end) {
+        put(FeatureStringEnum.END.getValue(), new JSONNumber(end));
     }
 
 
@@ -64,7 +70,7 @@ public class AssemblageSequence extends JSONObject {
         if (containsKey(FeatureStringEnum.FEATURE.getValue())) {
             return new SequenceFeatureInfo(get(FeatureStringEnum.FEATURE.getValue()).isObject());
         }
-        return null ;
+        return null;
     }
 
 
@@ -73,6 +79,6 @@ public class AssemblageSequence extends JSONObject {
     }
 
     public Long getLength() {
-        return getEnd() - getStart() ;
+        return getEnd() - getStart();
     }
 }

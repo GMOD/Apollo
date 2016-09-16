@@ -102,14 +102,17 @@ public class AssemblagePanel extends Composite {
         Column<AssemblageInfo,String> nameColumn = new Column<AssemblageInfo,String>(new EditTextCell()) {
             @Override
             public String getValue(AssemblageInfo assemblageInfo) {
-                return assemblageInfo.getDescription();
+                String name = assemblageInfo.getName();
+                if(name == null || name.startsWith("Unnamed")){
+                    return "Unnamed";
+                }
+                return name ;
             }
         };
         nameColumn.setFieldUpdater(new FieldUpdater<AssemblageInfo, String>() {
             @Override
             public void update(int index, AssemblageInfo object, String value) {
                 // Called when the user changes the value.
-                Window.alert("value ["+value + "] original name: ["+object.getName()+"]");
                 if(!value.equals(object.getName())){
                     object.setName(value);
                     AssemblageRestService.saveAssemblage(object);
