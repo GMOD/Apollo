@@ -215,7 +215,7 @@ class AssemblageService {
 //        assemblage.id = jsonObject.id
         assemblage.projection = jsonObject.projection
         assemblage.sequenceList = sequenceListArray.toString()
-        assemblage.name = jsonObject.name
+        assemblage.name = jsonObject.name ?: assemblage.name
 
         assemblage.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value) : sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
         assemblage.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size() - 1).getInt(FeatureStringEnum.END.value)
