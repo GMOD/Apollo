@@ -27,7 +27,8 @@ class Assemblage {
         start nullable: false
         end nullable: false
 //        name nullable: true, blank: false, unique: ['organism','user']
-        name nullable: true, blank: false, unique: ['organism']
+//        name nullable: true, blank: false, unique: ['organism']
+        name nullable: true, blank: false
     }
 
     static mapping = {

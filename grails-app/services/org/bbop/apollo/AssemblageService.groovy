@@ -224,6 +224,7 @@ class AssemblageService {
         if (!assemblage.organism) {
             assemblage.organism = preferenceService.getCurrentOrganismForCurrentUser(jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         }
+        assemblage.save()
         return assemblage
     }
 
