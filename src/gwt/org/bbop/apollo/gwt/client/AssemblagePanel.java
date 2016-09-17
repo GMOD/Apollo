@@ -4,6 +4,7 @@ import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -14,6 +15,8 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.*;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -106,7 +109,7 @@ public class AssemblagePanel extends Composite {
                 if(name == null || name.startsWith("Unnamed")){
                     return "Unnamed";
                 }
-                return name ;
+                return  name ;
             }
         };
         nameColumn.setFieldUpdater(new FieldUpdater<AssemblageInfo, String>() {
@@ -129,12 +132,21 @@ public class AssemblagePanel extends Composite {
             }
         };
         lengthColumn.setSortable(true);
-        TextColumn<AssemblageInfo> descriptionColumn = new TextColumn<AssemblageInfo>() {
+//        TextColumn<AssemblageInfo> descriptionColumn = new TextColumn<AssemblageInfo>() {
+//            @Override
+//            public String getValue(AssemblageInfo assemblageInfo) {
+//                return assemblageInfo.getSummary();
+//            }
+//        };
+
+        Column<AssemblageInfo,SafeHtml> descriptionColumn = new Column<AssemblageInfo,SafeHtml>(new SafeHtmlCell()) {
             @Override
-            public String getValue(AssemblageInfo assemblageInfo) {
-                return assemblageInfo.getSummary();
+            public SafeHtml getValue(AssemblageInfo assemblageInfo) {
+                SafeHtml safeHtml = buildHTML(assemblageInfo);
+                return safeHtml;
             }
         };
+
         descriptionColumn.setSortable(false);
 
 
@@ -194,6 +206,47 @@ public class AssemblagePanel extends Composite {
             }
         });
 
+    }
+
+    private SafeHtml buildHTML(AssemblageInfo assemblageInfo) {
+        SafeHtmlBuilder builder = new SafeHtmlBuilder();
+
+        Map<String,Integer> scaffoldFeatureMap = new HashMap<>();
+        Map<String,Boolean > scaffoldComplementMap = new HashMap<>();
+        AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
+
+        for(int i = 0 ; i < assemblageSequenceList.size() ; i++){
+            AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(i);
+            String scaffoldName = assemblageSequence.getName();
+            Integer featureCount = scaffoldFeatureMap.get(scaffoldName);
+
+            SequenceFeatureInfo sequenceFeatureInfo = assemblageSequence.getFeature();
+
+            featureCount = featureCount==null ? 0 : featureCount ;
+            featureCount = sequenceFeatureInfo!=null ? featureCount + 1 : featureCount ;
+            scaffoldFeatureMap.put(scaffoldName,featureCount);
+            scaffoldComplementMap.put(scaffoldName,assemblageSequence.getReverse());
+        }
+
+        Iterator<String> scaffoldIterator = scaffoldFeatureMap.keySet().iterator();
+        while (scaffoldIterator.hasNext()){
+            String scaffoldName = scaffoldIterator.next();
+            builder.appendEscaped(scaffoldName);
+            Integer featureCount = scaffoldFeatureMap.get(scaffoldName) ;
+            if(featureCount>0){
+                builder.appendEscaped(" ("+featureCount + ") ");
+            }
+            if(scaffoldComplementMap.get(scaffoldName)){
+                builder.appendHtmlConstant("&larr;");
+            }
+            else{
+                builder.appendHtmlConstant("&rarr;");
+            }
+
+            builder.appendEscaped(scaffoldIterator.hasNext() ? " " : "");
+        }
+
+        return builder.toSafeHtml();
     }
 
     @UiHandler("deleteButton")

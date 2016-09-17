@@ -21,11 +21,11 @@ public class AssemblageSequence extends JSONObject {
             this.put(FeatureStringEnum.START.getValue(), new JSONNumber(jsonObject.get(FeatureStringEnum.START.getValue()).isNumber().doubleValue()));
             this.put(FeatureStringEnum.END.getValue(), new JSONNumber(jsonObject.get(FeatureStringEnum.END.getValue()).isNumber().doubleValue()));
         }
-//        if (jsonObject.containsKey(FeatureStringEnum.REVERSE.getValue())) {
-//            this.put(FeatureStringEnum.REVERSE.getValue(), jsonObject.get(FeatureStringEnum.REVERSE.getValue()));
-//        } else {
-//            this.put(FeatureStringEnum.REVERSE.getValue(), JSONBoolean.getInstance(false));
-//        }
+        if (jsonObject.containsKey(FeatureStringEnum.REVERSE.getValue())) {
+            this.put(FeatureStringEnum.REVERSE.getValue(), jsonObject.get(FeatureStringEnum.REVERSE.getValue()));
+        } else {
+            this.put(FeatureStringEnum.REVERSE.getValue(), JSONBoolean.getInstance(false));
+        }
         if (jsonObject.containsKey(FeatureStringEnum.FEATURE.getValue())) {
             SequenceFeatureInfo sequenceFeatureInfo = new SequenceFeatureInfo(jsonObject.get(FeatureStringEnum.FEATURE.getValue()).isObject());
             this.put(
@@ -44,6 +44,16 @@ public class AssemblageSequence extends JSONObject {
         setName(sequenceInfo.getName());
     }
 
+    public Boolean getReverse(){
+        if(containsKey(FeatureStringEnum.REVERSE.getValue()) && get(FeatureStringEnum.REVERSE.getValue()).isBoolean()!=null){
+            return get(FeatureStringEnum.REVERSE.getValue()).isBoolean().booleanValue();
+        }
+        return false ;
+    }
+
+    public void setReverse(Boolean reverse){
+        put(FeatureStringEnum.REVERSE.getValue(),JSONBoolean.getInstance(reverse));
+    }
 
     public Long getStart() {
         return (long) get(FeatureStringEnum.START.getValue()).isNumber().doubleValue();
