@@ -76,84 +76,6 @@ public class AssemblageDetailPanel extends Composite {
 
         horizontalPanel.clear();
 
-        // we have to munge this to Sequence,List<Feature>
-        // assemblageInfo will only have a single feature
-//        Map<String, List<AssemblageSequence>> assemblageSequenceListMap = new HashMap<>();
-//        TreeMap<Integer, String> orderMap = new TreeMap<>();
-//
-//        int counter = 0;
-//        for (AssemblageInfo assemblageInfo : selectedObjects) {
-//            AssemblageSequenceList sequenceArray = assemblageInfo.getSequenceList();
-//            for (int i = 0; i < sequenceArray.size(); i++) {
-//                AssemblageSequence assemblageSequence = sequenceArray.getSequence(i);
-//
-//                List<AssemblageSequence> assemblageInfoList = assemblageSequenceListMap.get(assemblageSequence.getName());
-//                SequenceFeatureInfo sequenceFeatureInfo = assemblageSequence.getFeature();
-////                if (sequenceFeatureInfo != null) {
-//                    if (assemblageInfoList == null) {
-//                        assemblageInfoList = new ArrayList<>();
-//                    }
-//                    assemblageInfoList.add(assemblageSequence);
-////                }
-//                assemblageSequenceListMap.put(assemblageSequence.getName(), assemblageInfoList);
-//                if (!orderMap.containsValue(assemblageSequence.getName())) {
-//                    orderMap.put(counter, assemblageSequence.getName());
-//                }
-//                ++counter;
-//            }
-//        }
-//        GWT.log("assemblies: " + assemblageSequenceListMap.size());
-//
-//
-//        // we simplify the ordering to do it all at once
-//        for (String sequenceName : orderMap.values()) {
-//            GWT.log("trying to "+ sequenceName + " read for: "+orderMap.values());
-//            List<AssemblageSequence> assemblageSequences = assemblageSequenceListMap.get(sequenceName);
-//            GWT.log("assemblies: " + assemblageSequences.size() + " for "+sequenceName);
-//            VerticalPanel sequenceColumnPanel = new VerticalPanel();
-//
-//            VerticalPanel featurePanel = new VerticalPanelWithSpacer();
-//            featurePanel.setSpacing(SPACING);
-//            horizontalPanel.add(sequenceColumnPanel);
-//
-//            VerticalPanelDropController widgetDropController = new VerticalPanelDropController(featurePanel);
-//            widgetDragController.registerDropController(widgetDropController);
-//
-//
-////            HorizontalPanel headingPanel = new HorizontalPanel();
-//            HTML headingHtml = new HTML(sequenceName);
-//
-////            if (sequenceObject.getReverse()) {
-////                headingPanel.add(new Icon(IconType.LONG_ARROW_LEFT));
-////            }
-////            headingPanel.add(headingHtml);
-////            if (!sequenceObject.getReverse()) {
-////                headingPanel.add(new Icon(IconType.LONG_ARROW_RIGHT));
-////            }
-//
-//            sequenceColumnPanel.add(headingHtml);
-////                    sequenceColumnPanel.add(headingPanel);
-//            sequenceColumnPanel.add(featurePanel);
-//
-////                    columnDragController.makeDraggable(sequenceColumnPanel, headingPanel);
-//            columnDragController.makeDraggable(sequenceColumnPanel, headingHtml);
-//
-////            sequenceColumnMap.put(sequenceName, sequenceColumnPanel);
-////                    sequenceFeatureMap.put(sequenceName, featurePanel);
-//
-//            // extract the feature
-//            for(AssemblageSequence assemblageSequence : assemblageSequences){
-//                SequenceFeatureInfo sequenceFeatureInfo = assemblageSequence.getFeature();
-//                if (sequenceFeatureInfo != null) {
-////                    VerticalPanel thisFeaturePanel = sequenceFeatureMap.get(sequenceName);
-//                    String name = sequenceFeatureInfo.getName();
-//                    HTML widget = new HTML(name);
-//                    featurePanel.add(widget);
-//////                // make the widget draggable
-//                    widgetDragController.makeDraggable(widget);
-//                }
-//            }
-//        }
         Map<String, VerticalPanel> sequenceColumnMap = new HashMap<>();
         Map<String, VerticalPanel> sequenceFeatureMap = new HashMap<>();
 
@@ -178,21 +100,19 @@ public class AssemblageDetailPanel extends Composite {
 
 
                     HorizontalPanel headingPanel = new HorizontalPanel();
-                    HTML headingHtml = new HTML(sequenceName);
 
                     if (sequenceObject.getReverse()) {
                         headingPanel.add(new Icon(IconType.LONG_ARROW_LEFT));
                     }
-                    headingPanel.add(headingHtml);
+                    headingPanel.add(new HTML(sequenceName));
                     if (!sequenceObject.getReverse()) {
                         headingPanel.add(new Icon(IconType.LONG_ARROW_RIGHT));
                     }
 
+                    HTML headingHtml = new HTML(headingPanel.getElement().getInnerHTML());
                     sequenceColumnPanel.add(headingHtml);
-//                    sequenceColumnPanel.add(headingPanel);
                     sequenceColumnPanel.add(featurePanel);
 
-//                    columnDragController.makeDraggable(sequenceColumnPanel, headingPanel);
                     columnDragController.makeDraggable(sequenceColumnPanel, headingHtml);
 
                     sequenceColumnMap.put(sequenceName, sequenceColumnPanel);
