@@ -1,0 +1,17 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder' xmlns:gwt="urn:import:com.google.gwt.user.client.ui"
+>
+    <ui:style>
+    </ui:style>
+    <gwt:DockLayoutPanel>
+        <gwt:center>
+            <gwt:AbsolutePanel ui:field="boundaryPanel">
+            </gwt:AbsolutePanel>
+        </gwt:center>
+        <gwt:south size="40">
+            <gwt:ScrollPanel>
+                <gwt:HTML ui:field="logField" />
+            </gwt:ScrollPanel>
+        </gwt:south>
+    </gwt:DockLayoutPanel>
+
+</ui:UiBinder>

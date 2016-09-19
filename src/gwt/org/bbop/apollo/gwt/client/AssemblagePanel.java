@@ -22,12 +22,12 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
+import org.bbop.apollo.gwt.client.assemblage.AssemblageDetailPanel;
 import org.bbop.apollo.gwt.client.dto.assemblage.*;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
@@ -35,11 +35,9 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.shared.ColorGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.RadioButton;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
-import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
@@ -69,10 +67,10 @@ public class AssemblagePanel extends Composite {
     Button removeButton;
     @UiField
     Button saveButton;
-    @UiField
-    FlowPanel dragAndDropPanel;
-    @UiField
-    AbsolutePanel absolutePanel;
+//    @UiField
+//    FlowPanel dragAndDropPanel;
+//    @UiField
+//    AbsolutePanel absolutePanel;
     @UiField
     Button viewButton;
     @UiField
@@ -87,6 +85,8 @@ public class AssemblagePanel extends Composite {
     RadioButton showOnlyCombinedButton;
     @UiField
     RadioButton showOnlyScaffoldButton;
+    @UiField
+    AssemblageDetailPanel assemblageDetailPanel;
 
     final LoadingDialog loadingDialog;
     private PickupDragController dragController;
@@ -106,9 +106,9 @@ public class AssemblagePanel extends Composite {
 
         loadingDialog = new LoadingDialog("Processing ...", null, false);
 
-        dragController = new PickupDragController(absolutePanel, true);
-        FlowPanelDropController flowPanelDropController = new AssemblageFlowPanelDropController(dragAndDropPanel);
-        dragController.registerDropController(flowPanelDropController);
+//        dragController = new PickupDragController(absolutePanel, true);
+//        FlowPanelDropController flowPanelDropController = new AssemblageFlowPanelDropController(dragAndDropPanel);
+//        dragController.registerDropController(flowPanelDropController);
         dataGrid.setWidth("100%");
         // Set the message to display when the table is empty.
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
@@ -230,9 +230,9 @@ public class AssemblagePanel extends Composite {
     }
 
     private void resetPanel() {
-        dragAndDropPanel.clear();
-        absolutePanel.clear();
-        absolutePanel.add(dragAndDropPanel);
+//        dragAndDropPanel.clear();
+//        absolutePanel.clear();
+//        absolutePanel.add(dragAndDropPanel);
     }
 
     /**
@@ -247,48 +247,48 @@ public class AssemblagePanel extends Composite {
     }
 
     private JSONObject getAssemblagePanelAsJson() {
-        JSONArray sequenceList = new JSONArray();
         JSONObject assemblageObject = new JSONObject();
-        long start= 0,end = 0 ;
-        for (int i = 0; i < dragAndDropPanel.getWidgetCount(); i++) {
-            Widget widget = dragAndDropPanel.getWidget(i);
-            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
-            JSONObject sequenceObject = new JSONObject();
-            // map the specific genes
-            if (groupName.contains(" (")) {
-                Integer startIndex = groupName.indexOf(" (");
-                Integer endIndex = groupName.indexOf(")");
-                String sequenceString= groupName.substring(startIndex + 2, endIndex );
-                String featureString = groupName.substring(0, startIndex);
-                JSONObject featureObject = new JSONObject();
-                featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(featureString));
-                sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(sequenceString));
-                sequenceObject.put(FeatureStringEnum.FEATURE.getValue(),featureObject);
-            } else {
-                // map the entire scaffold
-                sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(groupName));
-            }
-            AssemblageInfo selectedAssemblageInfo = assemblageInfoMap.get(groupName);
-            if(selectedAssemblageInfo !=null){
-                sequenceObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(selectedAssemblageInfo.getSequenceList().getSequence(0).getStart()));
-                sequenceObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(selectedAssemblageInfo.getSequenceList().getSequence(0).getEnd()));
-                sequenceList.set(sequenceList.size(), sequenceObject);
-                if(i==0){
-                    start = selectedAssemblageInfo.getStart();
-                }
-                end += selectedAssemblageInfo.getEnd();
-            }
-            else{
-                sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
-                sequenceList.set(sequenceList.size(), sequenceObject);
-            }
-        }
-
-
-        assemblageObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(), sequenceList);
-        assemblageObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(start));
-        assemblageObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(end));
-        assemblageObject.put("label", new JSONString(createLabelFromAssemblage(assemblageObject)));
+//        JSONArray sequenceList = new JSONArray();
+//        long start= 0,end = 0 ;
+//        for (int i = 0; i < dragAndDropPanel.getWidgetCount(); i++) {
+//            Widget widget = dragAndDropPanel.getWidget(i);
+//            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
+//            JSONObject sequenceObject = new JSONObject();
+//            // map the specific genes
+//            if (groupName.contains(" (")) {
+//                Integer startIndex = groupName.indexOf(" (");
+//                Integer endIndex = groupName.indexOf(")");
+//                String sequenceString= groupName.substring(startIndex + 2, endIndex );
+//                String featureString = groupName.substring(0, startIndex);
+//                JSONObject featureObject = new JSONObject();
+//                featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(featureString));
+//                sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(sequenceString));
+//                sequenceObject.put(FeatureStringEnum.FEATURE.getValue(),featureObject);
+//            } else {
+//                // map the entire scaffold
+//                sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(groupName));
+//            }
+//            AssemblageInfo selectedAssemblageInfo = assemblageInfoMap.get(groupName);
+//            if(selectedAssemblageInfo !=null){
+//                sequenceObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(selectedAssemblageInfo.getSequenceList().getSequence(0).getStart()));
+//                sequenceObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(selectedAssemblageInfo.getSequenceList().getSequence(0).getEnd()));
+//                sequenceList.set(sequenceList.size(), sequenceObject);
+//                if(i==0){
+//                    start = selectedAssemblageInfo.getStart();
+//                }
+//                end += selectedAssemblageInfo.getEnd();
+//            }
+//            else{
+//                sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
+//                sequenceList.set(sequenceList.size(), sequenceObject);
+//            }
+//        }
+//
+//
+//        assemblageObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(), sequenceList);
+//        assemblageObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(start));
+//        assemblageObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(end));
+//        assemblageObject.put("label", new JSONString(createLabelFromAssemblage(assemblageObject)));
 
         return assemblageObject;
     }
@@ -442,42 +442,42 @@ public class AssemblagePanel extends Composite {
 
         saveButton.setType(saveButton.isEnabled() ? ButtonType.PRIMARY : ButtonType.DEFAULT);
 
-        dragAndDropPanel.clear();
-
-        for (AssemblageInfo assemblageInfo : selectedObjects) {
-
-            AssemblageSequenceList sequenceArray = assemblageInfo.getSequenceList();
-            for (int i = 0; i < sequenceArray.size(); i++) {
-                AssemblageSequence sequenceObject = sequenceArray.getSequence(i);
-                String name = "";
-                SequenceFeatureInfo sequenceFeatureInfo = sequenceObject.getFeature();
-                if(sequenceFeatureInfo!=null){
-                    name += sequenceFeatureInfo.getName();
-                    name += " (";
-                }
-                name += sequenceObject.getName();
-
-                if(sequenceFeatureInfo!=null){
-                    name += ")";
-                }
-                FocusPanel focusPanel = new FocusPanel();
-                focusPanel.setStyleName("assemblage-FlowPanel-draggable");
-                focusPanel.getElement().getStyle().setBackgroundColor(ColorGenerator.getColorForIndex(i));
-
-                FlowPanel assemblageObjectPanel = new FlowPanel();
-                focusPanel.add(assemblageObjectPanel);
-
-                HTML label = new HTML(name);
-                label.setStyleName("assemblage-FlowPanel-label");
-//                label.getElement().getStyle().setColor(ColorGenerator.getColorForIndex(i));
-                HTML spacer = new HTML(" ");
-                assemblageObjectPanel.add(label);
-                assemblageObjectPanel.add(spacer);
-
-                dragController.makeDraggable(focusPanel);
-                dragAndDropPanel.add(focusPanel);
-            }
-        }
+//        dragAndDropPanel.clear();
+//
+//        for (AssemblageInfo assemblageInfo : selectedObjects) {
+//
+//            AssemblageSequenceList sequenceArray = assemblageInfo.getSequenceList();
+//            for (int i = 0; i < sequenceArray.size(); i++) {
+//                AssemblageSequence sequenceObject = sequenceArray.getSequence(i);
+//                String name = "";
+//                SequenceFeatureInfo sequenceFeatureInfo = sequenceObject.getFeature();
+//                if(sequenceFeatureInfo!=null){
+//                    name += sequenceFeatureInfo.getName();
+//                    name += " (";
+//                }
+//                name += sequenceObject.getName();
+//
+//                if(sequenceFeatureInfo!=null){
+//                    name += ")";
+//                }
+//                FocusPanel focusPanel = new FocusPanel();
+//                focusPanel.setStyleName("assemblage-FlowPanel-draggable");
+//                focusPanel.getElement().getStyle().setBackgroundColor(ColorGenerator.getColorForIndex(i));
+//
+//                FlowPanel assemblageObjectPanel = new FlowPanel();
+//                focusPanel.add(assemblageObjectPanel);
+//
+//                HTML label = new HTML(name);
+//                label.setStyleName("assemblage-FlowPanel-label");
+////                label.getElement().getStyle().setColor(ColorGenerator.getColorForIndex(i));
+//                HTML spacer = new HTML(" ");
+//                assemblageObjectPanel.add(label);
+//                assemblageObjectPanel.add(spacer);
+//
+//                dragController.makeDraggable(focusPanel);
+//                dragAndDropPanel.add(focusPanel);
+//            }
+//        }
 
 
     }
