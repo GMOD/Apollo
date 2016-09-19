@@ -103,9 +103,7 @@
                                   styleName="{style.details-button}"/>
                         <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
                         <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
-                        <!--<gwt:SuggestBox ui:field="currentSequenceLabel" stylePrimaryName="{style.lookup-display}"/>-->
                         <gwt:HTML ui:field="currentSequenceLabel" visible="true" styleName="{style.position-label}"/>
-                        <!--<b:Label text="Test label" styleName="{style.lookup-display}"/>-->
                         <b:Panel styleName="pull-right">
                             <b:Button ui:field="userName" icon="USER"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT" title="Logout"/>

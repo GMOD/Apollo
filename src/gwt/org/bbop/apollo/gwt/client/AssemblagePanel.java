@@ -44,6 +44,8 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
 
+import static org.bbop.apollo.gwt.client.AssemblageInfoService.buildDescriptionWidget;
+
 
 /**
  * Created by Nathan Dunn on 12/16/14.
@@ -142,21 +144,6 @@ public class AssemblagePanel extends Composite {
             }
         };
         lengthColumn.setSortable(true);
-//        TextColumn<AssemblageInfo> descriptionColumn = new TextColumn<AssemblageInfo>() {
-//            @Override
-//            public String getValue(AssemblageInfo assemblageInfo) {
-//                return assemblageInfo.getSummary();
-//            }
-//        };
-
-//        Column<AssemblageInfo,SafeHtmlCell> descriptionColumn = new Column<AssemblageInfo,SafeHtmlCell>(new SafeHtmlCell()) {
-//            @Override
-//            public SafeHtmlCell getValue(AssemblageInfo assemblageInfo) {
-//                Widget widget = buildDescriptionWidget(assemblageInfo);
-//                SafeHtmlCell safeHtmlCell = new SafeHtmlCell();
-//                return SafeHtmlUtils.fromString(widget.getElement().getInnerHTML());
-//            }
-//        };
 
         final Column<AssemblageInfo, SafeHtml> descriptionColumn = new Column<AssemblageInfo, SafeHtml>(new SafeHtmlCell()) {
             @Override
@@ -227,63 +214,6 @@ public class AssemblagePanel extends Composite {
 
     }
 
-    private Widget buildDescriptionWidget(AssemblageInfo assemblageInfo) {
-
-        Map<String,Integer> scaffoldFeatureMap = new HashMap<>();
-        Map<String,Boolean> scaffoldComplementMap = new HashMap<>();
-        AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
-
-        for(int i = 0 ; i < assemblageSequenceList.size() ; i++){
-            AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(i);
-            String scaffoldName = assemblageSequence.getName();
-            Integer featureCount = scaffoldFeatureMap.get(scaffoldName);
-
-            SequenceFeatureInfo sequenceFeatureInfo = assemblageSequence.getFeature();
-
-            featureCount = featureCount==null ? 0 : featureCount ;
-            featureCount = sequenceFeatureInfo!=null ? featureCount + 1 : featureCount ;
-            scaffoldFeatureMap.put(scaffoldName,featureCount);
-            scaffoldComplementMap.put(scaffoldName, assemblageSequence.getReverse());
-//            scaffoldComplementMap.put(scaffoldName,  i%2==0   );// debugging code
-        }
-
-        Iterator<String> scaffoldIterator = scaffoldFeatureMap.keySet().iterator();
-        ButtonGroup buttonGroup = new ButtonGroup() ;
-        while (scaffoldIterator.hasNext()){
-            String scaffoldName = scaffoldIterator.next();
-            Button button = new Button();
-            Integer featureCount = scaffoldFeatureMap.get(scaffoldName) ;
-
-            if(featureCount>0){
-                button.add(new Badge(featureCount+""));
-            }
-            // determine color
-            if(featureCount>0){
-                button.setType(ButtonType.INFO);
-            }
-            else
-            if(scaffoldFeatureMap.size()>1){
-                button.setType(ButtonType.WARNING);
-            }
-            else{
-                button.setType(ButtonType.DEFAULT);
-            }
-            if(scaffoldComplementMap.get(scaffoldName)==null || !scaffoldComplementMap.get(scaffoldName) ){
-                Icon icon = new Icon(IconType.ARROW_RIGHT);
-                icon.addStyleName("pull-right");
-                button.add(icon);
-            }
-            else{
-                Icon icon = new Icon(IconType.ARROW_LEFT);
-                icon.addStyleName("pull-left");
-                button.add(icon);
-            }
-            button.setText(scaffoldName + (featureCount > 0 ? " " : ""));
-            buttonGroup.add(button);
-        }
-
-        return buttonGroup;
-    }
 
 
     @UiHandler("deleteButton")

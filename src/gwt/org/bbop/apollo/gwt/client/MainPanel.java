@@ -10,6 +10,8 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -27,7 +29,6 @@ import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
-import org.bbop.apollo.gwt.shared.ColorGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
@@ -38,6 +39,7 @@ import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
+
 
 /**
  * Created by ndunn on 12/18/14.
@@ -266,23 +268,7 @@ public class MainPanel extends Composite {
     }
 
     private static void setLabelForcurrentAssemblage() {
-//        currentSequenceLabel.setText(currentAssemblage.getDescription());
-        String labelHtml = "";
-        AssemblageSequenceList assemblageSequenceList = currentAssemblage.getSequenceList();
-        for (int i = 0; i < assemblageSequenceList.size(); ++i) {
-            AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(i);
-            labelHtml += "<div class=\"individual-label\" style=\"background-color: " + ColorGenerator.getColorForIndex(i) + ";\">";
-            SequenceFeatureInfo sequenceFeatureInfo = assemblageSequence.getFeature();
-            if (sequenceFeatureInfo != null) {
-                labelHtml += sequenceFeatureInfo.getName();
-                labelHtml += " (";
-            }
-            labelHtml += assemblageSequence.getName();
-            if (sequenceFeatureInfo != null) {
-                labelHtml += ")";
-            }
-            labelHtml += "</div>";
-        }
+        SafeHtml labelHtml = SafeHtmlUtils.fromTrustedString(AssemblageInfoService.buildDescriptionWidget(currentAssemblage).getElement().getInnerHTML());
         currentSequenceLabel.setHTML(labelHtml);
     }
 
@@ -881,6 +867,16 @@ public class MainPanel extends Composite {
         UserRestService.logout();
     }
 
+    @UiHandler("currentSequenceLabel")
+    public void currentSequenceLabelClick(ClickEvent event) {
+        detailTabs.selectTab(TabPanelIndex.ASSEMBLAGE.getIndex());
+        Annotator.setPreference(FeatureStringEnum.CURRENT_TAB.getValue(), TabPanelIndex.ASSEMBLAGE.getIndex());
+        reloadTabPerIndex(TabPanelIndex.ASSEMBLAGE.getIndex());
+
+//        SelectionEvent<Integer> selectionEvent = SelectionEvent.getType();
+//        onSelection(selectionEvent);
+    }
+
 
     public static String executeFunction(String name) {
         return executeFunction(name, JavaScriptObject.createObject());
@@ -1033,14 +1029,15 @@ public class MainPanel extends Composite {
         $wnd.getCurrentAssemblage = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentAssemblageAsJson());
     }-*/;
 
-    private enum TabPanelIndex {
+    public enum TabPanelIndex {
         ANNOTATIONS(0),
         TRACKS(1),
         SEQUENCES(2),
-        ORGANISM(3),
-        USERS(4),
-        GROUPS(5),
-        PREFERENCES(6),;
+        ASSEMBLAGE(3),
+        ORGANISM(4),
+        USERS(5),
+        GROUPS(6),
+        PREFERENCES(7),;
 
         private int index;
 
@@ -1048,6 +1045,9 @@ public class MainPanel extends Composite {
             this.index = index;
         }
 
+        public int getIndex() {
+            return index;
+        }
     }
 
     public boolean isCurrentUserAdmin() {
