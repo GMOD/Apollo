@@ -108,9 +108,6 @@ public class AssemblageInfo implements Comparable<AssemblageInfo> {
         else {
             // TODO: merge teh payload
         }
-        // organism should be the same . . .
-//        assemblageInfoReturn.setPayload();
-//        assemblageInfo.setType(); // just take the one I guess
         AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
         for (int i = 0; i < assemblageSequenceList.size(); i++) {
             assemblageInfoReturn.getSequenceList().addSequence(assemblageSequenceList.getSequence(i));

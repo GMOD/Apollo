@@ -2,9 +2,7 @@ package org.bbop.apollo.gwt.client;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
-import com.google.gwt.cell.client.EditTextCell;
-import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.cell.client.SafeHtmlCell;
+import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -16,7 +14,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.*;
 import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -24,7 +22,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
@@ -37,8 +34,12 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.shared.ColorGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.gwtbootstrap3.client.ui.Badge;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.ButtonGroup;
+import org.gwtbootstrap3.client.ui.Icon;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
+import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
@@ -139,13 +140,22 @@ public class AssemblagePanel extends Composite {
 //            }
 //        };
 
-        Column<AssemblageInfo,SafeHtml> descriptionColumn = new Column<AssemblageInfo,SafeHtml>(new SafeHtmlCell()) {
+//        Column<AssemblageInfo,SafeHtmlCell> descriptionColumn = new Column<AssemblageInfo,SafeHtmlCell>(new SafeHtmlCell()) {
+//            @Override
+//            public SafeHtmlCell getValue(AssemblageInfo assemblageInfo) {
+//                Widget widget = buildDescriptionWidget(assemblageInfo);
+//                SafeHtmlCell safeHtmlCell = new SafeHtmlCell();
+//                return SafeHtmlUtils.fromString(widget.getElement().getInnerHTML());
+//            }
+//        };
+
+        final Column<AssemblageInfo, SafeHtml> descriptionColumn = new Column<AssemblageInfo, SafeHtml>(new SafeHtmlCell()) {
             @Override
             public SafeHtml getValue(AssemblageInfo assemblageInfo) {
-                SafeHtml safeHtml = buildHTML(assemblageInfo);
-                return safeHtml;
+                Widget widget = buildDescriptionWidget(assemblageInfo);
+                return SafeHtmlUtils.fromTrustedString(widget.getElement().getInnerHTML());
             }
-        };
+        } ;
 
         descriptionColumn.setSortable(false);
 
@@ -208,11 +218,10 @@ public class AssemblagePanel extends Composite {
 
     }
 
-    private SafeHtml buildHTML(AssemblageInfo assemblageInfo) {
-        SafeHtmlBuilder builder = new SafeHtmlBuilder();
+    private Widget buildDescriptionWidget(AssemblageInfo assemblageInfo) {
 
         Map<String,Integer> scaffoldFeatureMap = new HashMap<>();
-        Map<String,Boolean > scaffoldComplementMap = new HashMap<>();
+        Map<String,Boolean> scaffoldComplementMap = new HashMap<>();
         AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
 
         for(int i = 0 ; i < assemblageSequenceList.size() ; i++){
@@ -225,29 +234,48 @@ public class AssemblagePanel extends Composite {
             featureCount = featureCount==null ? 0 : featureCount ;
             featureCount = sequenceFeatureInfo!=null ? featureCount + 1 : featureCount ;
             scaffoldFeatureMap.put(scaffoldName,featureCount);
-            scaffoldComplementMap.put(scaffoldName,assemblageSequence.getReverse());
+            scaffoldComplementMap.put(scaffoldName, assemblageSequence.getReverse());
+//            scaffoldComplementMap.put(scaffoldName,  i%2==0   );// debugging code
         }
 
         Iterator<String> scaffoldIterator = scaffoldFeatureMap.keySet().iterator();
+        ButtonGroup buttonGroup = new ButtonGroup() ;
         while (scaffoldIterator.hasNext()){
             String scaffoldName = scaffoldIterator.next();
-            builder.appendEscaped(scaffoldName);
+            Button button = new Button();
             Integer featureCount = scaffoldFeatureMap.get(scaffoldName) ;
+
             if(featureCount>0){
-                builder.appendEscaped(" ("+featureCount + ") ");
+                button.add(new Badge(featureCount+""));
             }
-            if(scaffoldComplementMap.get(scaffoldName)){
-                builder.appendHtmlConstant("&larr;");
+            // determine color
+            if(featureCount>0){
+                button.setType(ButtonType.INFO);
+            }
+            else
+            if(scaffoldFeatureMap.size()>1){
+                button.setType(ButtonType.WARNING);
             }
             else{
-                builder.appendHtmlConstant("&rarr;");
+                button.setType(ButtonType.DEFAULT);
             }
-
-            builder.appendEscaped(scaffoldIterator.hasNext() ? " " : "");
+            if(scaffoldComplementMap.get(scaffoldName)==null || !scaffoldComplementMap.get(scaffoldName) ){
+                Icon icon = new Icon(IconType.ARROW_RIGHT);
+                icon.addStyleName("pull-right");
+                button.add(icon);
+            }
+            else{
+                Icon icon = new Icon(IconType.ARROW_LEFT);
+                icon.addStyleName("pull-left");
+                button.add(icon);
+            }
+            button.setText(scaffoldName + (featureCount > 0 ? " " : ""));
+            buttonGroup.add(button);
         }
 
-        return builder.toSafeHtml();
+        return buttonGroup;
     }
+
 
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent){
