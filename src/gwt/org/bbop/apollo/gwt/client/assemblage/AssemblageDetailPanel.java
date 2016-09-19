@@ -11,7 +11,10 @@ import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequenceList;
 import org.bbop.apollo.gwt.client.dto.assemblage.SequenceFeatureInfo;
+import org.bbop.apollo.gwt.shared.ColorGenerator;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Icon;
+import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.HashMap;
@@ -92,7 +95,7 @@ public class AssemblageDetailPanel extends Composite {
                     sequenceColumnPanel = new VerticalPanel();
 
                     VerticalPanel featurePanel = new VerticalPanelWithSpacer();
-                    featurePanel.setSpacing(SPACING);
+//                    featurePanel.setSpacing(SPACING);
                     horizontalPanel.add(sequenceColumnPanel);
 
                     VerticalPanelDropController widgetDropController = new VerticalPanelDropController(featurePanel);
@@ -100,14 +103,21 @@ public class AssemblageDetailPanel extends Composite {
 
 
                     HorizontalPanel headingPanel = new HorizontalPanel();
+                    Button labelButton = new Button(sequenceName);
+//                    labelButton.setIcon(IconType.ARROW_RIGHT);
+//                    labelButton.setType(ButtonType.INFO);
 
                     if (sequenceObject.getReverse()) {
-                        headingPanel.add(new Icon(IconType.LONG_ARROW_LEFT));
+                        Icon icon = new Icon(IconType.ARROW_LEFT);
+                        icon.addStyleName("pull-left");
+                        labelButton.add(icon);
+                    } else {
+                        Icon icon = new Icon(IconType.ARROW_RIGHT);
+                        icon.addStyleName("pull-right");
+                        labelButton.add(icon);
                     }
-                    headingPanel.add(new HTML(sequenceName));
-                    if (!sequenceObject.getReverse()) {
-                        headingPanel.add(new Icon(IconType.LONG_ARROW_RIGHT));
-                    }
+                    labelButton.setColor(ColorGenerator.getColorForIndex(i));
+                    headingPanel.add(labelButton);
 
                     HTML headingHtml = new HTML(headingPanel.getElement().getInnerHTML());
                     sequenceColumnPanel.add(headingHtml);
@@ -124,7 +134,10 @@ public class AssemblageDetailPanel extends Composite {
                 if (sequenceFeatureInfo != null) {
                     VerticalPanel thisFeaturePanel = sequenceFeatureMap.get(sequenceName);
                     String name = sequenceFeatureInfo.getName();
-                    HTML widget = new HTML(name);
+                    Button featureButton = new Button(name);
+                    featureButton.setType(ButtonType.DANGER);
+//                    HTML widget = new HTML(name);
+                    HTML widget = new HTML(featureButton.getElement().getInnerHTML());
                     thisFeaturePanel.add(widget);
 ////                // make the widget draggable
                     widgetDragController.makeDraggable(widget);
