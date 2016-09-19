@@ -44,9 +44,15 @@
             font-weight: 200;
         }
 
+        .inline-button {
+            margin-right: 0 !important;
+            /*padding: 0 !important;*/
+            /*border: 0 !important;*/
+        }
+
     </ui:style>
     <gwt:DockLayoutPanel ui:field="layoutPanel">
-        <gwt:north size="55">
+        <gwt:north size="80">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <!--<b:Row styleName="{style.rowNorth}">-->
                 <!--<b:Column size="MD_2">-->
@@ -87,8 +93,22 @@
                     <!--<b:Column size="MD_3">-->
                         <!--<b:Button text="Clear Cache" icon="REMOVE" ui:field="clearButton"/>-->
                     <!--</b:Column>-->
+                    <b:Column size="MD_6">
+                        <b:ButtonGroup dataToggle="BUTTONS" addStyleNames="{style.inline-button}">
+                            <!--<b:RadioButton name="AssemblageFilter" text="Scaffold" type="DEFAULT" ui:field="showOnlyScaffoldButton" />-->
+                            <!--<b:RadioButton name="AssemblageFilter" text="Combined" type="WARNING" ui:field="showOnlyCombinedButton"/>-->
+                            <!--<b:RadioButton name="AssemblageFilter" text="Feature" type="INFO" ui:field="showOnlyFeatureButton"/>-->
+                            <!--<b:RadioButton name="AssemblageFilter" text="All" type="DEFAULT" ui:field="showAllAssemblagesButton" />-->
+                            <b:RadioButton name="AssemblageFilter" text="Scaffold" type="DEFAULT" ui:field="showOnlyScaffoldButton" addStyleNames="{style.inline-button}"/>
+                            <b:RadioButton name="AssemblageFilter" text="Combined" type="WARNING" ui:field="showOnlyCombinedButton" addStyleNames="{style.inline-button}"/>
+                            <b:RadioButton name="AssemblageFilter" text="Feature" type="INFO" ui:field="showOnlyFeatureButton" addStyleNames="{style.inline-button}"/>
+                            <b:RadioButton name="AssemblageFilter" text="All" type="SUCCESS" ui:field="showAllAssemblagesButton" addStyleNames="{style.inline-button}"/>
+                        </b:ButtonGroup>
+                    </b:Column>
+                </b:Row>
+                <b:Row styleName="{style.rowNorth}">
                     <b:Column size="MD_3">
-                        <b:Button text="Delete All Bookmarks" icon="TRASH" ui:field="deleteButton"/>
+                    <b:Button text="Delete All Bookmarks" icon="TRASH" ui:field="deleteButton"/>
                     </b:Column>
                 </b:Row>
             </b:Container>

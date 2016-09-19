@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional(readOnly = true)
@@ -61,11 +62,7 @@ class AssemblageController {
     @Transactional
     def saveAssemblage() {
         JSONObject inputObject = permissionService.handleInput(request, params)
-//        Long assemblageId = inputObject.getLong(FeatureStringEnum.ID.value)
-//        Assemblage storedAssemblage = Assemblage.findById(assemblageId)
         Assemblage storedAssemblage = assemblageService.convertJsonToAssemblage(inputObject) // this will save a new assemblage
-//        thisAssemblage.attach()
-//        storedAssemblage.save(flush: true )
         render assemblageService.convertAssemblageToJson(storedAssemblage) as JSON
     }
 
@@ -81,14 +78,45 @@ class AssemblageController {
         render list() as JSON
     }
 
-    def searchAssemblage(String searchQuery) {
+    def searchAssemblage(String searchQuery,String filter) {
         JSONObject inputObject = permissionService.handleInput(request, params)
         User user = permissionService.getCurrentUser(inputObject);
 
         ArrayList<Assemblage> assemblages = new ArrayList<Assemblage>();
         for (Assemblage assemblage : user.assemblages) {
             if (assemblage.sequenceList.toLowerCase().contains(searchQuery)) {
-                assemblages.add(assemblage);
+                if(filter){
+                    JSONArray jsonArray = JSON.parse(assemblage.sequenceList) as JSONArray
+                    Integer numberSequences = jsonArray.size()
+                    Boolean leftEdge
+                    Boolean rightEdge
+
+                    leftEdge = jsonArray.getJSONObject(0).start > 0
+                    rightEdge = jsonArray.getJSONObject(0).end < jsonArray.getJSONObject(0).length
+
+                    switch (filter){
+                        case "Feature":
+                            if(leftEdge || rightEdge){
+                                assemblages.add(assemblage);
+                            }
+                            break
+                        case "Combined":
+                            if(numberSequences>1 && !leftEdge && !rightEdge){
+                                assemblages.add(assemblage);
+                            }
+                            break
+                        case "Scaffold":
+                            if(numberSequences==1 && !leftEdge && !rightEdge){
+                                assemblages.add(assemblage);
+                            }
+                            break
+                        default:
+                            assemblages.add(assemblage);
+                    }
+                }
+                else{
+                    assemblages.add(assemblage);
+                }
             }
         }
 

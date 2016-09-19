@@ -71,8 +71,8 @@ public class AssemblageRestService {
         RestService.sendRequest(requestCallback, "assemblage/getAssemblage", AssemblageInfoConverter.convertAssemblageInfoToJSONObject(assemblageInfo));
     }
 
-    public static void searchAssemblage(RequestCallback requestCallback, String searchString) {
-        String requestString = "assemblage/searchAssemblage/?searchQuery=" + searchString;
+    public static void searchAssemblage(RequestCallback requestCallback, String searchString,String filterString) {
+        String requestString = "assemblage/searchAssemblage/?searchQuery=" + searchString + "&filter="+filterString;
         RestService.sendRequest(requestCallback, requestString);
     }
 

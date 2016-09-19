@@ -22,6 +22,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
@@ -34,10 +35,9 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.shared.ColorGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-import org.gwtbootstrap3.client.ui.Badge;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.ButtonGroup;
-import org.gwtbootstrap3.client.ui.Icon;
+import org.gwtbootstrap3.client.ui.RadioButton;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -77,6 +77,14 @@ public class AssemblagePanel extends Composite {
     org.gwtbootstrap3.client.ui.TextBox searchBox;
     @UiField
     Button deleteButton;
+    @UiField
+    RadioButton showAllAssemblagesButton;
+    @UiField
+    RadioButton showOnlyFeatureButton;
+    @UiField
+    RadioButton showOnlyCombinedButton;
+    @UiField
+    RadioButton showOnlyScaffoldButton;
 
     final LoadingDialog loadingDialog;
     private PickupDragController dragController;
@@ -92,6 +100,7 @@ public class AssemblagePanel extends Composite {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
 
         initWidget(rootElement);
+
 
         loadingDialog = new LoadingDialog("Processing ...", null, false);
 
@@ -569,9 +578,32 @@ public class AssemblagePanel extends Composite {
 
     @UiHandler("searchBox")
     public void searchForAssemblage(KeyUpEvent keyUpEvent) {
-        AssemblageRestService.searchAssemblage(new SearchAndUpdateAssemblagesCallback(), searchBox.getText());
+        AssemblageRestService.searchAssemblage(new SearchAndUpdateAssemblagesCallback(), searchBox.getText(),getFilter());
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
         dataGrid.redraw();
+    }
+
+    private String getFilter() {
+        if(showOnlyScaffoldButton.isActive()){
+            return "Scaffold";
+        }
+        if(showOnlyCombinedButton.isActive()){
+            return "Combined";
+        }
+        if(showOnlyFeatureButton.isActive()){
+            return "Feature";
+        }
+        return "";
+    }
+
+    @UiHandler({"showOnlyScaffoldButton","showOnlyCombinedButton","showOnlyFeatureButton","showAllAssemblagesButton"})
+    public void showOnlyScaffoldButtonClick(ClickEvent event) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                searchForAssemblage(null);
+            }
+        });
     }
 
     private class SearchAndUpdateAssemblagesCallback implements RequestCallback {
