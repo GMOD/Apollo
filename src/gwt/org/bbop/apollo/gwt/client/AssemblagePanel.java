@@ -247,7 +247,11 @@ public class AssemblagePanel extends Composite {
     }
 
     private JSONObject getAssemblagePanelAsJson() {
-        JSONObject assemblageObject = new JSONObject();
+        AssemblageInfo assemblageInfo = assemblageDetailPanel.getAssemblageInfo();
+        JSONObject assemblageObject = AssemblageInfoConverter.convertAssemblageInfoToJSONObject(assemblageInfo);
+
+//        AssemblageInfoConverter.conv
+//        JSONObject assemblageObject = new JSONObject();
 //        JSONArray sequenceList = new JSONArray();
 //        long start= 0,end = 0 ;
 //        for (int i = 0; i < dragAndDropPanel.getWidgetCount(); i++) {
@@ -442,6 +446,7 @@ public class AssemblagePanel extends Composite {
 
         saveButton.setType(saveButton.isEnabled() ? ButtonType.PRIMARY : ButtonType.DEFAULT);
 
+        assemblageDetailPanel.setAssemblageInfo(selectedObjects);
 //        dragAndDropPanel.clear();
 //
 //        for (AssemblageInfo assemblageInfo : selectedObjects) {
