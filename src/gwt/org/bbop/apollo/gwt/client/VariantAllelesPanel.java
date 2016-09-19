@@ -281,12 +281,9 @@ public class VariantAllelesPanel extends Composite {
         this.internalAnnotationInfo = annotationInfo;
         alternateAlleleInfoList.clear();
         //allelePropertyInfoList.clear();
-        for (HashMap<String, String> alternateAlleles : annotationInfo.getAlternateAlleles()) {
-            AlternateAlleleInfo alternateAlleleInfo1 = new AlternateAlleleInfo(alternateAlleles);
-            alternateAlleleInfoList.add(alternateAlleleInfo1);
-            //ArrayList<AllelePropertyInfo> allelePropertyInfoArray = alternateAlleleInfo1.getAlleleInfo();
-            //allelePropertyInfoList.addAll(allelePropertyInfoArray);
-        }
+        alternateAlleleInfoList.addAll(annotationInfo.getAlternateAlleles());
+        //ArrayList<AllelePropertyInfo> allelePropertyInfoArray = alternateAlleleInfo1.getAlleleInfo();
+        //allelePropertyInfoList.addAll(allelePropertyInfoArray);
 
         if (alternateAlleleInfoList.size() > 0) {
             updateAlleleData(alternateAlleleInfoList.get(0));

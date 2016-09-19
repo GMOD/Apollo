@@ -38,6 +38,20 @@ public class AlternateAlleleInfo {
         }
     }
 
+    public AlternateAlleleInfo(JSONObject alternateAlleleJsonObject) {
+        if (alternateAlleleJsonObject.containsKey(FeatureStringEnum.BASES.getValue())) this.bases = alternateAlleleJsonObject.get(FeatureStringEnum.BASES.getValue()).isString().stringValue();
+        if (alternateAlleleJsonObject.containsKey(FeatureStringEnum.ALLELE_FREQUENCY.getValue())) this.alleleFrequency = Float.parseFloat(alternateAlleleJsonObject.get(FeatureStringEnum.ALLELE_FREQUENCY.getValue()).isString().stringValue());
+        if (alternateAlleleJsonObject.containsKey(FeatureStringEnum.PROVENANCE.getValue())) this.provenance = alternateAlleleJsonObject.get(FeatureStringEnum.PROVENANCE.getValue()).isString().stringValue();
+        if (alternateAlleleJsonObject.containsKey(FeatureStringEnum.ALLELE_INFO.getValue())) {
+            JSONArray allelePropertyInfoJsonArray = alternateAlleleJsonObject.get(FeatureStringEnum.ALLELE_INFO.getValue()).isArray();
+            for (int i = 0; i < allelePropertyInfoJsonArray.size(); i++) {
+                JSONObject allelePropertyInfoJsonObject = allelePropertyInfoJsonArray.get(i).isObject();
+                AllelePropertyInfo allelePropertyInfo = new AllelePropertyInfo(allelePropertyInfoJsonObject);
+                this.alleleInfo.add(allelePropertyInfo);
+            }
+        }
+    }
+
     public String getBases() {
         return this.bases;
     }

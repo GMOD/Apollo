@@ -29,7 +29,7 @@ public class AnnotationInfo {
     private String owner;
     private String date;
     private String referenceBases;
-    private ArrayList<HashMap<String, String>> alternateAlleles = new ArrayList<HashMap<String, String>>();
+    private ArrayList<AlternateAlleleInfo> alternateAlleles = new ArrayList<AlternateAlleleInfo>();
     private ArrayList<VariantPropertyInfo> variantProperties = new ArrayList<>();
 
     public String getOwner() {
@@ -163,72 +163,24 @@ public class AnnotationInfo {
     public void setReferenceBases(String referenceBasesString) { this.referenceBases = referenceBasesString; }
 
     public void setAlternateAlleles(JSONArray alternateAllelesArray) {
-        ArrayList<HashMap<String, String>> alternateAlleles = new ArrayList<HashMap<String, String>>();
+        //ArrayList<HashMap<String, String>> alternateAlleles = new ArrayList<HashMap<String, String>>();
+        ArrayList<AlternateAlleleInfo> alternateAllelesInfoArray = new ArrayList<>();
         for (int i = 0; i < alternateAllelesArray.size(); i++) {
             JSONObject alternateAlleleJsonObject = alternateAllelesArray.get(i).isObject();
-            HashMap<String, String> alternateAlleleEntity = new HashMap<>();
-
-            // bases
-            String bases = alternateAlleleJsonObject.get(FeatureStringEnum.BASES.getValue()).isString().stringValue();
-            alternateAlleleEntity.put(FeatureStringEnum.BASES.getValue(), bases);
-
-            // allele_frequency
-            if (alternateAlleleJsonObject.containsKey(FeatureStringEnum.ALLELE_FREQUENCY.getValue())){
-                String alleleFrequencyString = alternateAlleleJsonObject.get(FeatureStringEnum.ALLELE_FREQUENCY.getValue()).isString().stringValue();
-                alternateAlleleEntity.put(FeatureStringEnum.ALLELE_FREQUENCY.getValue(), alleleFrequencyString);
-            }
-
-            // provenance
-            if (alternateAlleleJsonObject.containsKey(FeatureStringEnum.PROVENANCE.getValue())) {
-                String provenance = alternateAlleleJsonObject.get(FeatureStringEnum.PROVENANCE.getValue()).isString().stringValue();
-                alternateAlleleEntity.put(FeatureStringEnum.PROVENANCE.getValue(), provenance);
-            }
-
-            // allele_info
-            if (alternateAlleleJsonObject.containsKey(FeatureStringEnum.ALLELE_INFO.getValue())) {
-                JSONArray alleleInfoJsonArray = alternateAlleleJsonObject.get(FeatureStringEnum.ALLELE_INFO.getValue()).isArray();
-                for (int j = 0; j < alleleInfoJsonArray.size(); j++) {
-                    JSONObject alleleInfoJsonObject = alleleInfoJsonArray.get(j).isObject();
-                    String tag = alleleInfoJsonObject.get(FeatureStringEnum.TAG.getValue()).isString().stringValue();
-                    String value = alleleInfoJsonObject.get(FeatureStringEnum.VALUE.getValue()).isString().stringValue();
-                    alternateAlleleEntity.put(tag, value);
-                }
-            }
-            alternateAlleles.add(alternateAlleleEntity);
+            AlternateAlleleInfo alternateAlleleInfo = new AlternateAlleleInfo(alternateAlleleJsonObject);
+            this.alternateAlleles.add(alternateAlleleInfo);
         }
-        this.alternateAlleles = alternateAlleles;
     }
 
-    public ArrayList<HashMap<String,String>> getAlternateAlleles() {
+    public ArrayList<AlternateAlleleInfo> getAlternateAlleles() {
         return this.alternateAlleles;
     }
 
     public JSONArray getAlternateAllelesAsJsonArray() {
         JSONArray alternateAllelesJsonArray = new JSONArray();
         int alternateAllelesJsonArrayIndex = 0;
-        for (HashMap<String, String> alternateAllele : this.alternateAlleles) {
-            JSONObject alternateAlleleJsonObject = new JSONObject();
-            // bases
-            alternateAlleleJsonObject.put(FeatureStringEnum.BASES.getValue(), new JSONString(alternateAllele.get(FeatureStringEnum.BASES.getValue())));
-            // allele_frequency
-            if (alternateAllele.containsKey(FeatureStringEnum.ALLELE_FREQUENCY.getValue())) {
-                alternateAlleleJsonObject.put(FeatureStringEnum.ALLELE_FREQUENCY.getValue(), new JSONString(alternateAllele.get(FeatureStringEnum.ALLELE_FREQUENCY.getValue())));
-            }
-            // provenance
-            if (alternateAllele.containsKey(FeatureStringEnum.PROVENANCE.getValue())) {
-                alternateAlleleJsonObject.put(FeatureStringEnum.PROVENANCE.getValue(), new JSONString(alternateAllele.get(FeatureStringEnum.PROVENANCE.getValue())));
-            }
-
-            // allele_info
-            JSONArray alleleInfoJsonArray = new JSONArray();
-            int alleleInfoJsonArrayIndex = 0;
-            for (String key : alternateAllele.keySet()) {
-                JSONObject alleleInfoJsonObject = new JSONObject();
-                alleleInfoJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(key));
-                alleleInfoJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(alternateAllele.get(key)));
-                alleleInfoJsonArray.set(alleleInfoJsonArrayIndex, alleleInfoJsonObject);
-                alleleInfoJsonArrayIndex++;
-            }
+        for (AlternateAlleleInfo alternateAllele : this.alternateAlleles) {
+            JSONObject alternateAlleleJsonObject = alternateAllele.convertToJsonObject();
             alternateAllelesJsonArray.set(alternateAllelesJsonArrayIndex, alternateAlleleJsonObject);
             alternateAllelesJsonArrayIndex++;
         }
