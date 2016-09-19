@@ -872,6 +872,7 @@ public class MainPanel extends Composite {
         detailTabs.selectTab(TabPanelIndex.ASSEMBLAGE.getIndex());
         Annotator.setPreference(FeatureStringEnum.CURRENT_TAB.getValue(), TabPanelIndex.ASSEMBLAGE.getIndex());
         reloadTabPerIndex(TabPanelIndex.ASSEMBLAGE.getIndex());
+        assemblagePanel.setAssemableInfo(currentAssemblage);
 
 //        SelectionEvent<Integer> selectionEvent = SelectionEvent.getType();
 //        onSelection(selectionEvent);

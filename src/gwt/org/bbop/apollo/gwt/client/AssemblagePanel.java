@@ -398,6 +398,14 @@ public class AssemblagePanel extends Composite {
         }
     }
 
+    public void setAssemableInfo(AssemblageInfo currentAssemblage) {
+        selectionModel.clear();
+        selectionModel.setSelected(currentAssemblage,true);
+        Set<AssemblageInfo> assemblageInfos = new HashSet<>();
+        assemblageInfos.add(currentAssemblage);
+        setAssemblageInfo(assemblageInfos);
+    }
+
 
     private void setAssemblageInfo(Set<AssemblageInfo> selectedObjects) {
         if (selectedObjects.size() == 0) {
