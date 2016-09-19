@@ -7,7 +7,7 @@
             <gwt:AbsolutePanel ui:field="boundaryPanel">
             </gwt:AbsolutePanel>
         </gwt:center>
-        <gwt:south size="40">
+        <gwt:south size="80">
             <gwt:ScrollPanel>
                 <gwt:HTML ui:field="logField" />
             </gwt:ScrollPanel>
