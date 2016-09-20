@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto.assemblage;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.*;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
@@ -20,7 +21,9 @@ public class AssemblageInfoConverter {
         if(assemblageInfo.getName() != null){
             jsonObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(assemblageInfo.getName()));
         }
-        jsonObject.put(FeatureStringEnum.DESCRIPTION.getValue(), new JSONString(assemblageInfo.getDescription()));
+        if(assemblageInfo.getDescription()!=null){
+            jsonObject.put(FeatureStringEnum.DESCRIPTION.getValue(), new JSONString(assemblageInfo.getDescription()));
+        }
         if (assemblageInfo.getType() != null) {
             jsonObject.put(FeatureStringEnum.TYPE.getValue(), new JSONString(assemblageInfo.getType()));
         }

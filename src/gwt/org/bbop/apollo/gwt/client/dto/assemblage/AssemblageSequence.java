@@ -83,6 +83,11 @@ public class AssemblageSequence extends JSONObject {
         return null;
     }
 
+    public void setFeatureProperties(SequenceFeatureInfo sequenceFeatureInfo) {
+        put(FeatureStringEnum.FEATURE.getValue(),sequenceFeatureInfo);
+        put(FeatureStringEnum.START.getValue(),new JSONNumber(sequenceFeatureInfo.getStart()));
+        put(FeatureStringEnum.END.getValue(),new JSONNumber(sequenceFeatureInfo.getEnd()));
+    }
 
     public void setName(String groupName) {
         put(FeatureStringEnum.NAME.getValue(), new JSONString(groupName));
@@ -90,5 +95,15 @@ public class AssemblageSequence extends JSONObject {
 
     public Long getLength() {
         return getEnd() - getStart();
+    }
+
+    public AssemblageSequence deepCopy() {
+
+        AssemblageSequence assemblageSequence = new AssemblageSequence();
+        for(String key :this.keySet()){
+            assemblageSequence.put(key,this.get(key));
+        }
+
+        return assemblageSequence;
     }
 }
