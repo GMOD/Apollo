@@ -2,7 +2,6 @@ package org.bbop.apollo.gwt.client.assemblage;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.HorizontalPanelDropController;
-import com.allen_sauer.gwt.dnd.client.drop.VerticalPanelDropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -19,7 +18,6 @@ import org.bbop.apollo.gwt.shared.ColorGenerator;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Icon;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
-import org.gwtbootstrap3.client.ui.constants.IconRotate;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.HashMap;
@@ -48,126 +46,122 @@ public class AssemblageDetailPanel extends Composite {
     private static final int SPACING = 0;
 
     private AssemblageDragHandler assemblageDragHandler = new AssemblageDragHandler(logField);
-    private HorizontalPanel horizontalPanel = new HorizontalPanel();
-    private PickupDragController widgetDragController = new PickupDragController(boundaryPanel, false);
-    private PickupDragController columnDragController = new PickupDragController(boundaryPanel, false);
+    private AssemblageWidget assemblageWidget = new AssemblageWidget();
+    private PickupDragController featureDragController = new PickupDragController(boundaryPanel, false);
+    private PickupDragController assemblageSequenceDragController = new PickupDragController(boundaryPanel, false);
 
     public AssemblageDetailPanel() {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
 
         boundaryPanel.setSize("100%", "100%");
-        columnDragController.setBehaviorBoundaryPanelDrop(false);
-        columnDragController.addDragHandler(assemblageDragHandler);
+        assemblageSequenceDragController.setBehaviorBoundaryPanelDrop(false);
+        assemblageSequenceDragController.addDragHandler(assemblageDragHandler);
 
-        widgetDragController.setBehaviorMultipleSelection(false);
-        widgetDragController.addDragHandler(assemblageDragHandler);
+        featureDragController.setBehaviorMultipleSelection(false);
+        featureDragController.addDragHandler(assemblageDragHandler);
 
-        horizontalPanel.addStyleName("assemblage-detail-container");
-        horizontalPanel.setSpacing(SPACING);
-        boundaryPanel.add(horizontalPanel);
+        assemblageWidget.addStyleName("assemblage-detail-container");
+        assemblageWidget.setSpacing(SPACING);
+        boundaryPanel.add(assemblageWidget);
         boundaryPanel.addStyleName("assemblage-detail-root-absolute");
 
         // initialize our column drop controller
         HorizontalPanelDropController columnDropController = new HorizontalPanelDropController(
-                horizontalPanel);
-        columnDragController.registerDropController(columnDropController);
+                assemblageWidget);
+        assemblageSequenceDragController.registerDropController(columnDropController);
     }
 
+    /**
+     * Generate a sequence for each SequenceColumnPanel
+     * @return
+     */
     public AssemblageInfo getAssemblageInfo() {
-        return null;
+        AssemblageInfo assemblageInfo = new AssemblageInfo();
+        AssemblageSequenceList assemblageSequenceList = new AssemblageSequenceList();
+
+        for(int sequenceIndex = 0; sequenceIndex < assemblageWidget.getWidgetCount() ; ++sequenceIndex){
+
+            Widget sequenceWidget = assemblageWidget.getWidget(sequenceIndex);
+            if(sequenceWidget instanceof AssemblageSequenceWidget){
+                AssemblageSequenceWidget assemblageSequenceWidget = ((AssemblageSequenceWidget) sequenceWidget);
+                AssemblageSequence assemblageSequence = assemblageSequenceWidget.getAssemblageSequence();
+                assemblageSequenceList.addSequence(assemblageSequence);
+
+                int addedFeatureCount = 0 ;
+                for(int featureIndex = 0 ; featureIndex < assemblageSequenceWidget.getWidgetCount() ; ++featureIndex){
+                    Widget featureWidget = assemblageSequenceWidget.getWidget(featureIndex);
+                    if(featureWidget instanceof AssemblageFeatureWidget){
+                        AssemblageFeatureWidget assemblageFeatureWidget = (AssemblageFeatureWidget) featureWidget;
+                        // these would be sequences, but with a single feature
+                        if(addedFeatureCount==0){
+                            assemblageSequence.setFeature(assemblageFeatureWidget.getSequenceFeatureInfo());
+                            ++addedFeatureCount;
+                        }
+                        // we have to add a duplicate feature because of the way they are rendered
+                        else{
+                            AssemblageSequence duplicateAssemblageSequence = assemblageSequence.deepCopy();
+                            duplicateAssemblageSequence.setFeature(assemblageFeatureWidget.getSequenceFeatureInfo());
+                            ++addedFeatureCount;
+                            assemblageSequenceList.addSequence(duplicateAssemblageSequence);
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+
+        }
+
+        return assemblageInfo;
     }
 
     public void setAssemblageInfo(Set<AssemblageInfo> selectedObjects) {
 
 
-        widgetDragController.unregisterDropControllers();
+        // we have to deregister before we clear the components, otherwise an error.
+        featureDragController.unregisterDropControllers();
+        assemblageWidget.clear();
 
-        horizontalPanel.clear();
-
-        Map<String, VerticalPanel> sequenceColumnMap = new HashMap<>();
-        Map<String, VerticalPanel> sequenceFeatureMap = new HashMap<>();
+        Map<String, AssemblageSequenceWidget> assemblageSequenceMap = new HashMap<>();
+        Map<String, AssemblageFeatureWidget> assemblageSequenceFeatureMap = new HashMap<>();
 
         for (AssemblageInfo assemblageInfo : selectedObjects) {
 
             AssemblageSequenceList sequenceArray = assemblageInfo.getSequenceList();
             for (int i = 0; i < sequenceArray.size(); i++) {
-                AssemblageSequence sequenceObject = sequenceArray.getSequence(i);
-                String sequenceName = sequenceObject.getName();
-                VerticalPanel sequenceColumnPanel = sequenceColumnMap.get(sequenceName);
+                AssemblageSequence assemblageSequence = sequenceArray.getSequence(i);
+                String sequenceName = assemblageSequence.getName();
+                AssemblageSequenceWidget assemblageSequenceWidget = assemblageSequenceMap.get(sequenceName);
 
                 // add a new sequence column
-                if (sequenceColumnPanel == null) {
-                    sequenceColumnPanel = new VerticalPanel();
-                    sequenceColumnPanel.addStyleName("assemblage-detail-composite");
-
-                    VerticalPanel featurePanel = new VerticalPanelWithSpacer();
-                    featurePanel.setSpacing(SPACING);
-                    featurePanel.addStyleName("assemblage-detail-composite");
-                    horizontalPanel.add(sequenceColumnPanel);
-
-                    VerticalPanelDropController widgetDropController = new VerticalPanelDropController(featurePanel);
-                    widgetDragController.registerDropController(widgetDropController);
+                if (assemblageSequenceWidget == null) {
+                    assemblageSequenceWidget = new AssemblageSequenceWidget();
+                    assemblageSequenceWidget.addStyleName("assemblage-detail-composite");
+                    assemblageSequenceWidget.setAssemblageSequence(assemblageSequence);
+                    assemblageSequenceWidget.render(assemblageSequenceDragController,i);
+                    assemblageWidget.add(assemblageSequenceWidget);
 
 
-                    HorizontalPanel headingPanel = new HorizontalPanel();
-                    Button labelButton = new Button(sequenceName);
-//                    labelButton.setIcon(IconType.ARROW_RIGHT);
-//                    labelButton.setType(ButtonType.INFO);
+                    // stub the feature panel for adding features
+                    AssemblageFeatureWidget featurePanel = new AssemblageFeatureWidget();
+                    featurePanel.registerDropController(featureDragController);
+                    assemblageSequenceWidget.add(featurePanel);
 
-                    Icon leftIcon = new Icon(IconType.ARROW_LEFT);
-                    leftIcon.addStyleName("pull-left");
-                    labelButton.add(leftIcon);
-                    Icon rightIcon = new Icon(IconType.ARROW_RIGHT);
-                    rightIcon.addStyleName("pull-right");
-                    labelButton.add(rightIcon);
-                    if (sequenceObject.getReverse()) {
-                        rightIcon.setColor("#DDD");
-                    } else {
-                        leftIcon.setColor("#DDD");
-                    }
-                    labelButton.setColor(ColorGenerator.getColorForIndex(i));
-                    headingPanel.add(labelButton);
-                    headingPanel.addStyleName("assemblage-detail-heading");
 
-                    HTML headingHtml = new HTML(headingPanel.getElement().getInnerHTML());
-                    headingHtml.addClickHandler(new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            Window.alert("ouch");
-                        }
-                    });
-                    sequenceColumnPanel.add(headingHtml);
-                    sequenceColumnPanel.add(featurePanel);
-
-                    columnDragController.makeDraggable(sequenceColumnPanel, headingHtml);
-
-                    sequenceColumnMap.put(sequenceName, sequenceColumnPanel);
-                    sequenceFeatureMap.put(sequenceName, featurePanel);
+                    assemblageSequenceMap.put(sequenceName, assemblageSequenceWidget);
+                    assemblageSequenceFeatureMap.put(sequenceName, featurePanel);
                 }
 
                 // extract the feature
-                SequenceFeatureInfo sequenceFeatureInfo = sequenceObject.getFeature();
+                SequenceFeatureInfo sequenceFeatureInfo = assemblageSequence.getFeature();
                 if (sequenceFeatureInfo != null) {
-                    VerticalPanel thisFeaturePanel = sequenceFeatureMap.get(sequenceName);
-                    String name = sequenceFeatureInfo.getName();
-                    Button featureButton = new Button(name);
-                    featureButton.setType(ButtonType.DANGER);
-
-                    IconType iconType = Random.nextBoolean() ? IconType.EXPAND : IconType.COMPRESS;
-                    Icon expandIcon = new Icon(iconType);
-                    expandIcon.addStyleName("rotate-icon-45");
-//                    expandIcon.setRotate(IconRotate.fromStyleName("rotate-icon-45"));
-//                    expandIcon.setRotate(IconRotate.ROTATE_90);
-                    expandIcon.addStyleName("pull-right");
-                    featureButton.add(expandIcon);
-
-//                    HTML widget = new HTML(name);
-                    HTML widget = new HTML(featureButton.getElement().getInnerHTML());
-                    thisFeaturePanel.add(widget);
-                    widget.addStyleName("assemblage-detail-widget");
-////                // make the widget draggable
-                    widgetDragController.makeDraggable(widget);
+                    AssemblageFeatureWidget thisFeaturePanel = assemblageSequenceFeatureMap.get(sequenceName);
+                    thisFeaturePanel.setSequenceFeature(sequenceFeatureInfo);
+                    thisFeaturePanel.render(featureDragController);
                 }
                 // else, nothing to do, we have to process the feature isntead
 
