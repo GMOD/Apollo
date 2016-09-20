@@ -58,9 +58,10 @@ public class AssemblageDetailPanel extends Composite {
         widgetDragController.setBehaviorMultipleSelection(false);
         widgetDragController.addDragHandler(assemblageDragHandler);
 
-//        horizontalPanel.addStyleName(CSS_DEMO_INSERT_PANEL_EXAMPLE_CONTAINER);
+        horizontalPanel.addStyleName("assemblage-detail-container");
         horizontalPanel.setSpacing(SPACING);
         boundaryPanel.add(horizontalPanel);
+        boundaryPanel.addStyleName("assemblage-detail-root-absolute");
 
         // initialize our column drop controller
         HorizontalPanelDropController columnDropController = new HorizontalPanelDropController(
@@ -93,9 +94,11 @@ public class AssemblageDetailPanel extends Composite {
                 // add a new sequence column
                 if (sequenceColumnPanel == null) {
                     sequenceColumnPanel = new VerticalPanel();
+                    sequenceColumnPanel.addStyleName("assemblage-detail-composite");
 
                     VerticalPanel featurePanel = new VerticalPanelWithSpacer();
-//                    featurePanel.setSpacing(SPACING);
+                    featurePanel.setSpacing(SPACING);
+                    featurePanel.addStyleName("assemblage-detail-composite");
                     horizontalPanel.add(sequenceColumnPanel);
 
                     VerticalPanelDropController widgetDropController = new VerticalPanelDropController(featurePanel);
@@ -118,6 +121,7 @@ public class AssemblageDetailPanel extends Composite {
                     }
                     labelButton.setColor(ColorGenerator.getColorForIndex(i));
                     headingPanel.add(labelButton);
+                    headingPanel.addStyleName("assemblage-detail-heading");
 
                     HTML headingHtml = new HTML(headingPanel.getElement().getInnerHTML());
                     sequenceColumnPanel.add(headingHtml);
@@ -139,6 +143,7 @@ public class AssemblageDetailPanel extends Composite {
 //                    HTML widget = new HTML(name);
                     HTML widget = new HTML(featureButton.getElement().getInnerHTML());
                     thisFeaturePanel.add(widget);
+                    widget.addStyleName("assemblage-detail-widget");
 ////                // make the widget draggable
                     widgetDragController.makeDraggable(widget);
                 }

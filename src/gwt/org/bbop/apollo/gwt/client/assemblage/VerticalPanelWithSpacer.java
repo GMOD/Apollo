@@ -10,7 +10,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class VerticalPanelWithSpacer extends VerticalPanel{
     public VerticalPanelWithSpacer() {
         Label spacerLabel = new Label("");
-//        spacerLabel.setStylePrimaryName(CSS_DEMO_INSERT_PANEL_EXAMPLE_SPACER);
+        spacerLabel.setStylePrimaryName("assemblage-detail-verticle-spacer");
         super.add(spacerLabel);
     }
 
