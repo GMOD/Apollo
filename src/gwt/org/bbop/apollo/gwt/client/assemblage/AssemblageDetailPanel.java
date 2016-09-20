@@ -5,7 +5,6 @@ import com.allen_sauer.gwt.dnd.client.drop.HorizontalPanelDropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
@@ -83,7 +82,6 @@ public class AssemblageDetailPanel extends Composite {
                 assemblageSequenceList.addSequence(assemblageSequence);
 
                 int addedFeatureCount = 0 ;
-                Window.alert("widget count: "+assemblageSequenceWidget.getWidgetCount());
                 for(int featureAreaIndex = 0 ; featureAreaIndex < assemblageSequenceWidget.getWidgetCount() ; ++featureAreaIndex){
                     Widget featureWidget = assemblageSequenceWidget.getWidget(featureAreaIndex);
                     if(featureWidget instanceof AssemblageFeatureAreaWidget){
@@ -94,18 +92,15 @@ public class AssemblageDetailPanel extends Composite {
                             Widget innerFeatureWidget = assemblageFeatureAreaWidget.getWidget(featureIndex);
                             if(innerFeatureWidget instanceof AssemblageFeatureWidget){
                                 AssemblageFeatureWidget assemblageFeatureWidget = (AssemblageFeatureWidget) innerFeatureWidget;
-
+                                SequenceFeatureInfo sequenceFeatureInfo = assemblageFeatureWidget.getSequenceFeatureInfo();
                                 if(addedFeatureCount==0){
-                                    assemblageSequence.setFeature(assemblageFeatureWidget.getSequenceFeatureInfo());
+                                    assemblageSequence.setFeatureProperties(sequenceFeatureInfo);
                                     ++addedFeatureCount;
                                 }
                                 // we have to add a duplicate feature because of the way they are rendered
                                 else{
                                     AssemblageSequence duplicateAssemblageSequence = assemblageSequence.deepCopy();
-                                    SequenceFeatureInfo sequenceFeatureInfo = assemblageFeatureWidget.getSequenceFeatureInfo();
-                                    duplicateAssemblageSequence.setStart(sequenceFeatureInfo.getStart());
-                                    duplicateAssemblageSequence.setEnd(sequenceFeatureInfo.getEnd());
-                                    duplicateAssemblageSequence.setFeature(sequenceFeatureInfo);
+                                    duplicateAssemblageSequence.setFeatureProperties(sequenceFeatureInfo);
                                     ++addedFeatureCount;
                                     assemblageSequenceList.addSequence(duplicateAssemblageSequence);
                                 }
@@ -144,7 +139,6 @@ public class AssemblageDetailPanel extends Composite {
                 // add a new sequence column
                 if (assemblageSequenceWidget == null) {
                     assemblageSequenceWidget = new AssemblageSequenceWidget();
-                    assemblageSequenceWidget.addStyleName("assemblage-detail-composite");
                     assemblageSequenceWidget.setAssemblageSequence(assemblageSequence);
                     assemblageSequenceWidget.render(assemblageSequenceDragController,i);
                     assemblageWidget.add(assemblageSequenceWidget);

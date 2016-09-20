@@ -44,6 +44,7 @@ public class AssemblageSequenceWidget extends VerticalPanel{
         labelButton.setColor(ColorGenerator.getColorForIndex(i));
         headingPanel.add(labelButton);
         headingPanel.addStyleName("assemblage-detail-heading");
+        addStyleName("assemblage-detail-composite");
 
         HTML headingHtml = new HTML(headingPanel.getElement().getInnerHTML());
         add(headingHtml);
