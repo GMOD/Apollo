@@ -106,9 +106,6 @@ public class AssemblagePanel extends Composite {
 
         loadingDialog = new LoadingDialog("Processing ...", null, false);
 
-//        dragController = new PickupDragController(absolutePanel, true);
-//        FlowPanelDropController flowPanelDropController = new AssemblageFlowPanelDropController(dragAndDropPanel);
-//        dragController.registerDropController(flowPanelDropController);
         dataGrid.setWidth("100%");
         // Set the message to display when the table is empty.
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
@@ -253,74 +250,9 @@ public class AssemblagePanel extends Composite {
         JSONObject assemblageObject = AssemblageInfoConverter.convertAssemblageInfoToJSONObject(assemblageInfo);
         GWT.log("converted assemblage");
 
-//        AssemblageInfoConverter.conv
-//        JSONObject assemblageObject = new JSONObject();
-//        JSONArray sequenceList = new JSONArray();
-//        long start= 0,end = 0 ;
-//        for (int i = 0; i < dragAndDropPanel.getWidgetCount(); i++) {
-//            Widget widget = dragAndDropPanel.getWidget(i);
-//            String groupName = widget.getElement().getChild(1).getChild(0).getChild(0).getNodeValue();
-//            JSONObject sequenceObject = new JSONObject();
-//            // map the specific genes
-//            if (groupName.contains(" (")) {
-//                Integer startIndex = groupName.indexOf(" (");
-//                Integer endIndex = groupName.indexOf(")");
-//                String sequenceString= groupName.substring(startIndex + 2, endIndex );
-//                String featureString = groupName.substring(0, startIndex);
-//                JSONObject featureObject = new JSONObject();
-//                featureObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(featureString));
-//                sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(sequenceString));
-//                sequenceObject.put(FeatureStringEnum.FEATURE.getValue(),featureObject);
-//            } else {
-//                // map the entire scaffold
-//                sequenceObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(groupName));
-//            }
-//            AssemblageInfo selectedAssemblageInfo = assemblageInfoMap.get(groupName);
-//            if(selectedAssemblageInfo !=null){
-//                sequenceObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(selectedAssemblageInfo.getSequenceList().getSequence(0).getStart()));
-//                sequenceObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(selectedAssemblageInfo.getSequenceList().getSequence(0).getEnd()));
-//                sequenceList.set(sequenceList.size(), sequenceObject);
-//                if(i==0){
-//                    start = selectedAssemblageInfo.getStart();
-//                }
-//                end += selectedAssemblageInfo.getEnd();
-//            }
-//            else{
-//                sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(groupName));
-//                sequenceList.set(sequenceList.size(), sequenceObject);
-//            }
-//        }
-//
-//
-//        assemblageObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(), sequenceList);
-//        assemblageObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(start));
-//        assemblageObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(end));
-//        assemblageObject.put("label", new JSONString(createLabelFromAssemblage(assemblageObject)));
-
         return assemblageObject;
     }
 
-    private String createLabelFromAssemblage(JSONObject genomicObject) {
-        String returnString = "";
-        JSONArray sequenceArray = genomicObject.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray();
-        for (int i = 0; i < sequenceArray.size(); i++) {
-            JSONObject sequenceObject = sequenceArray.get(i).isObject();
-            if (sequenceObject.containsKey(FeatureStringEnum.FEATURE.getValue())) {
-                JSONObject featureObject = sequenceObject.get(FeatureStringEnum.FEATURE.getValue()).isObject();
-                returnString += featureObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue() ;
-                returnString += "(";
-            }
-            returnString += sequenceObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
-            if (sequenceObject.containsKey(FeatureStringEnum.FEATURE.getValue())) {
-                returnString += ")";
-            }
-
-            if (i < sequenceArray.size() - 1) {
-                returnString += "::";
-            }
-        }
-        return returnString;
-    }
 
     /**
      * Typically just resaves the proper order
@@ -450,43 +382,6 @@ public class AssemblagePanel extends Composite {
         saveButton.setType(saveButton.isEnabled() ? ButtonType.PRIMARY : ButtonType.DEFAULT);
 
         assemblageDetailPanel.setAssemblageInfo(selectedObjects);
-//        dragAndDropPanel.clear();
-//
-//        for (AssemblageInfo assemblageInfo : selectedObjects) {
-//
-//            AssemblageSequenceList sequenceArray = assemblageInfo.getSequenceList();
-//            for (int i = 0; i < sequenceArray.size(); i++) {
-//                AssemblageSequence sequenceObject = sequenceArray.getSequence(i);
-//                String name = "";
-//                SequenceFeatureInfo sequenceFeatureInfo = sequenceObject.getFeature();
-//                if(sequenceFeatureInfo!=null){
-//                    name += sequenceFeatureInfo.getName();
-//                    name += " (";
-//                }
-//                name += sequenceObject.getName();
-//
-//                if(sequenceFeatureInfo!=null){
-//                    name += ")";
-//                }
-//                FocusPanel focusPanel = new FocusPanel();
-//                focusPanel.setStyleName("assemblage-FlowPanel-draggable");
-//                focusPanel.getElement().getStyle().setBackgroundColor(ColorGenerator.getColorForIndex(i));
-//
-//                FlowPanel assemblageObjectPanel = new FlowPanel();
-//                focusPanel.add(assemblageObjectPanel);
-//
-//                HTML label = new HTML(name);
-//                label.setStyleName("assemblage-FlowPanel-label");
-////                label.getElement().getStyle().setColor(ColorGenerator.getColorForIndex(i));
-//                HTML spacer = new HTML(" ");
-//                assemblageObjectPanel.add(label);
-//                assemblageObjectPanel.add(spacer);
-//
-//                dragController.makeDraggable(focusPanel);
-//                dragAndDropPanel.add(focusPanel);
-//            }
-//        }
-
 
     }
 
