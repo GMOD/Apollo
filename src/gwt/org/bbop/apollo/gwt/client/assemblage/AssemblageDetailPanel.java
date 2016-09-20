@@ -79,6 +79,8 @@ public class AssemblageDetailPanel extends Composite {
     public AssemblageInfo getAssemblageInfo() {
         AssemblageInfo assemblageInfo = new AssemblageInfo();
         AssemblageSequenceList assemblageSequenceList = new AssemblageSequenceList();
+        assemblageInfo.setSequenceList(assemblageSequenceList);
+
 
         for(int sequenceIndex = 0; sequenceIndex < assemblageWidget.getWidgetCount() ; ++sequenceIndex){
 
@@ -110,10 +112,6 @@ public class AssemblageDetailPanel extends Composite {
 
                 }
             }
-
-
-
-
         }
 
         return assemblageInfo;

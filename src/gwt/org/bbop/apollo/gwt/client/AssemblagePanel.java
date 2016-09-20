@@ -247,8 +247,11 @@ public class AssemblagePanel extends Composite {
     }
 
     private JSONObject getAssemblagePanelAsJson() {
+        GWT.log("getting assmblage");
         AssemblageInfo assemblageInfo = assemblageDetailPanel.getAssemblageInfo();
+        GWT.log("GOT assmblage");
         JSONObject assemblageObject = AssemblageInfoConverter.convertAssemblageInfoToJSONObject(assemblageInfo);
+        GWT.log("converted assemblage");
 
 //        AssemblageInfoConverter.conv
 //        JSONObject assemblageObject = new JSONObject();
