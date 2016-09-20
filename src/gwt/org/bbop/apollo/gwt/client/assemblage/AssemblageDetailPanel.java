@@ -4,8 +4,12 @@ import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.HorizontalPanelDropController;
 import com.allen_sauer.gwt.dnd.client.drop.VerticalPanelDropController;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Random;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
@@ -15,6 +19,7 @@ import org.bbop.apollo.gwt.shared.ColorGenerator;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Icon;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
+import org.gwtbootstrap3.client.ui.constants.IconRotate;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.HashMap;
@@ -110,20 +115,28 @@ public class AssemblageDetailPanel extends Composite {
 //                    labelButton.setIcon(IconType.ARROW_RIGHT);
 //                    labelButton.setType(ButtonType.INFO);
 
+                    Icon leftIcon = new Icon(IconType.ARROW_LEFT);
+                    leftIcon.addStyleName("pull-left");
+                    labelButton.add(leftIcon);
+                    Icon rightIcon = new Icon(IconType.ARROW_RIGHT);
+                    rightIcon.addStyleName("pull-right");
+                    labelButton.add(rightIcon);
                     if (sequenceObject.getReverse()) {
-                        Icon icon = new Icon(IconType.ARROW_LEFT);
-                        icon.addStyleName("pull-left");
-                        labelButton.add(icon);
+                        rightIcon.setColor("#DDD");
                     } else {
-                        Icon icon = new Icon(IconType.ARROW_RIGHT);
-                        icon.addStyleName("pull-right");
-                        labelButton.add(icon);
+                        leftIcon.setColor("#DDD");
                     }
                     labelButton.setColor(ColorGenerator.getColorForIndex(i));
                     headingPanel.add(labelButton);
                     headingPanel.addStyleName("assemblage-detail-heading");
 
                     HTML headingHtml = new HTML(headingPanel.getElement().getInnerHTML());
+                    headingHtml.addClickHandler(new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            Window.alert("ouch");
+                        }
+                    });
                     sequenceColumnPanel.add(headingHtml);
                     sequenceColumnPanel.add(featurePanel);
 
@@ -140,6 +153,15 @@ public class AssemblageDetailPanel extends Composite {
                     String name = sequenceFeatureInfo.getName();
                     Button featureButton = new Button(name);
                     featureButton.setType(ButtonType.DANGER);
+
+                    IconType iconType = Random.nextBoolean() ? IconType.EXPAND : IconType.COMPRESS;
+                    Icon expandIcon = new Icon(iconType);
+                    expandIcon.addStyleName("rotate-icon-45");
+//                    expandIcon.setRotate(IconRotate.fromStyleName("rotate-icon-45"));
+//                    expandIcon.setRotate(IconRotate.ROTATE_90);
+                    expandIcon.addStyleName("pull-right");
+                    featureButton.add(expandIcon);
+
 //                    HTML widget = new HTML(name);
                     HTML widget = new HTML(featureButton.getElement().getInnerHTML());
                     thisFeaturePanel.add(widget);

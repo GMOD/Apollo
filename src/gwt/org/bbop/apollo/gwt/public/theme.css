@@ -119,6 +119,11 @@ https://github.com/fredsa/gwt-dnd/blob/master/DragDrop/war/DragDropDemo.css
     font-size: smaller;
 }
 
+.rotate-icon-45{
+    transform: rotate(45deg);
+    padding-right: 5px;
+    /*border: solid 1px darkgray;*/
+}
 /*.dragdrop-dropTarget{*/
 
 /*}*/
