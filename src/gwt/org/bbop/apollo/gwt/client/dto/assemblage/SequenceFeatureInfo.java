@@ -47,4 +47,12 @@ public class SequenceFeatureInfo extends JSONObject {
     public void setReverseComplement(boolean reverseComplement) {
         put(FeatureStringEnum.REVERSE_COMPLEMENT.getValue(), JSONBoolean.getInstance(reverseComplement));
     }
+
+    public Long getStart() {
+        return Math.round(get(FeatureStringEnum.START.getValue()).isNumber().doubleValue());
+    }
+
+    public Long getEnd() {
+        return Math.round(get(FeatureStringEnum.END.getValue()).isNumber().doubleValue());
+    }
 }

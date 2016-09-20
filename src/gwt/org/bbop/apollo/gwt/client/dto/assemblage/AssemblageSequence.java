@@ -99,7 +99,7 @@ public class AssemblageSequence extends JSONObject {
 
         AssemblageSequence assemblageSequence = new AssemblageSequence();
         for(String key :this.keySet()){
-            assemblageSequence.put(key,assemblageSequence.get(key));
+            assemblageSequence.put(key,this.get(key));
         }
 
         return assemblageSequence;
