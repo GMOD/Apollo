@@ -55,21 +55,63 @@ https://github.com/fredsa/gwt-dnd/blob/master/DragDrop/war/DragDropDemo.css
     border: 1px solid lightgrey;
 }
 
-/*.assemblage-detail-root-absolute {*/
-
-/*}*/
+.assemblage-detail-root-absolute {
+    /*border: 1px solid crimson;*/
+}
 
 .assemblage-detail-root-absolute .assemblage-detail-heading {
     background-color: #87B3FF; /* bright blue */
+    /*border: 2px solid yellow;*/
 }
 
-.assemblage-detail-container {
+/*.assemblage-detail-container {*/
+   /*!*border: 2px solid crimson;*!*/
+/*}*/
 
+/*.assemblage-detail-container table:hover{*/
+    /*!*border: 2px solid crimson;*!*/
+/*}*/
+
+/*.assemblage-detail-composite table:hover{*/
+    /*!*background-color: #0a36e9;*!*/
+/*}*/
+
+/*.assemblage-detail-composite tr:hover{*/
+    /*!*background-color: powderblue;*!*/
+/*}*/
+
+.assemblage-detail-root-absolute tr:hover{
+    background-color: transparent;
 }
+
+.assemblage-detail-root-absolute td:hover{
+    /*background-color: #0a36e9;*/
+    background-color: transparent;
+}
+
 
 .assemblage-detail-root-absolute  .assemblage-detail-composite {
     padding: 1px;
 }
+
+.assemblage-detail-composite td{
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+    border: 0 !important;
+}
+
+.assemblage-detail-composite table{
+    border: 0 ;
+}
+
+
+/*.assemblage-detail-root-absolute  .assemblage-detail-composite {*/
+    /*padding: 1px;*/
+    /*!*border: 2px dashed green;*!*/
+    /*!*padding-left: 0 !important;*!*/
+    /*!*margin-left: 0 !important;;*!*/
+/*}*/
+
 
 .assemblage-detail-widget {
     border-radius: 10%;
@@ -77,3 +119,14 @@ https://github.com/fredsa/gwt-dnd/blob/master/DragDrop/war/DragDropDemo.css
     font-size: smaller;
 }
 
+/*.dragdrop-dropTarget{*/
+
+/*}*/
+
+/*.dragdrop-draggable{*/
+
+/*}*/
+
+/*.dragdrop-handle{*/
+
+/*}*/
