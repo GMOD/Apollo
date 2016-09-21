@@ -458,9 +458,6 @@ public class MainPanel extends Composite {
 
         AssemblageRestService.getAssemblage(requestCallback, assemblageInfo);
 
-//        List<UserAssemblage> assemblages = UserAssemblage.findById(assemblageList);
-        // create an orderd list of features / sequences
-
     }
 
     /**

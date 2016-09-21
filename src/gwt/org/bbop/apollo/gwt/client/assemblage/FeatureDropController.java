@@ -26,7 +26,7 @@ public class FeatureDropController extends VerticalPanelDropController {
         AssemblageFeatureWidget assemblageFeatureWidget = (AssemblageFeatureWidget) context.draggable ;
 
         String targetSequenceName =  assemblageFeatureAreaWidget.getAssemblageSequence().getName();
-        String sourceSequenceName = assemblageFeatureWidget.getSequenceFeatureInfo().getParent().getName();
+        String sourceSequenceName = assemblageFeatureWidget.getSequenceFeatureInfo().getParentId();
         if(!targetSequenceName.equals(sourceSequenceName)){
             GWT.log("Source ["+sourceSequenceName+"] and target ["+targetSequenceName+"] are not the same sequence name so rejecting");
             throw new VetoDragException();

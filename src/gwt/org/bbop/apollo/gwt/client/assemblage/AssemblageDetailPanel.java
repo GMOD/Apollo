@@ -178,7 +178,7 @@ public class AssemblageDetailPanel extends Composite {
                 if (sequenceFeatureInfo != null) {
                     sequenceFeatureInfo.setStart(start);
                     sequenceFeatureInfo.setEnd(end);
-                    sequenceFeatureInfo.setParent(assemblageSequence);
+                    sequenceFeatureInfo.setParentId(assemblageSequence.getName());
                     AssemblageFeatureAreaWidget thisFeaturePanel = assemblageSequenceFeatureMap.get(sequenceName);
                     thisFeaturePanel.addSequenceFeature(sequenceFeatureInfo, featureDragController);
                 }

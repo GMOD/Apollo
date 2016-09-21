@@ -69,16 +69,12 @@ public class SequenceFeatureInfo extends JSONObject {
         return collapsed;
     }
 
-    public void setParent(AssemblageSequence assemblageSequence){
-        put(FeatureStringEnum.PARENT.getValue(),assemblageSequence);
+    public void setParentId(String parentId){
+        put(FeatureStringEnum.PARENT_ID.getValue(),new JSONString(parentId));
     }
 
-    public AssemblageSequence getParent(){
-        if(containsKey(FeatureStringEnum.PARENT.getValue()) && get(FeatureStringEnum.PARENT.getValue()).isObject()!=null){
-            JSONObject sequenceObject  = get(FeatureStringEnum.PARENT.getValue()).isObject();
-            AssemblageSequence assemblageSequence = new AssemblageSequence(sequenceObject);
-            return assemblageSequence ;
-        }
-        return null ;
+    public String getParentId(){
+        return get(FeatureStringEnum.PARENT_ID.getValue()).isString().stringValue();
     }
+
 }
