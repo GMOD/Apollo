@@ -4,6 +4,7 @@ import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.dto.assemblage.SequenceFeatureInfo;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Image;
@@ -19,20 +20,9 @@ public class AssemblageFeatureWidget extends HorizontalPanel {
     private SequenceFeatureInfo sequenceFeatureInfo;
 
     private Button featureButton = new Button();
-    //    private Icon actionIcon = new Icon();
     private Image expandImage = new Image();
     private Image collapseImage = new Image();
 
-
-    private void doAction() {
-//        if(actionIcon.getType()==IconType.EXPAND){
-//            actionIcon.setType(IconType.COMPRESS);
-//        }
-//        else
-//        if(actionIcon.getType()==IconType.COMPRESS){
-//            actionIcon.setType(IconType.EXPAND);
-//        }
-    }
 
     private void handleCollapsed() {
         if (sequenceFeatureInfo.isCollapsed()) {
@@ -42,6 +32,7 @@ public class AssemblageFeatureWidget extends HorizontalPanel {
             collapseImage.setVisible(true);
             expandImage.setVisible(false);
         }
+        Annotator.eventBus.fireEvent(new AssemblageViewEvent());
     }
 
     public AssemblageFeatureWidget(final SequenceFeatureInfo sequenceFeatureInfo) {
@@ -50,20 +41,6 @@ public class AssemblageFeatureWidget extends HorizontalPanel {
         String name = sequenceFeatureInfo.getName();
         featureButton.setText(name);
 
-//        IconType iconType = Random.nextBoolean() ? IconType.EXPAND : IconType.COMPRESS;
-//        actionIcon.setPull(Pull.RIGHT);
-//        actionIcon.addStyleName("rotate-icon-45");
-//        actionIcon.setType(iconType);
-//
-//        actionIcon.addClickHandler(new ClickHandler() {
-//            @Override
-//            public void onClick(ClickEvent event) {
-//                doAction();
-//            }
-//        });
-
-
-//        featureButton.add(actionIcon);
         featureButton.addStyleName("assemblage-detail-widget");
 
         collapseImage.setVisible(sequenceFeatureInfo.isCollapsed());

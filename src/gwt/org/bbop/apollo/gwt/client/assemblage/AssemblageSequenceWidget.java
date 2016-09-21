@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
 import org.bbop.apollo.gwt.shared.ColorGenerator;
 import org.gwtbootstrap3.client.ui.Button;
@@ -66,6 +67,7 @@ public class AssemblageSequenceWidget extends VerticalPanel{
             leftIcon.setColor("#DDD");
             rightIcon.setColor("green");
         }
+        Annotator.eventBus.fireEvent(new AssemblageViewEvent());
     }
 
 

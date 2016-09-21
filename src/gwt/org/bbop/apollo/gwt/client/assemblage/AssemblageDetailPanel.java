@@ -6,7 +6,12 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Widget;
+import org.bbop.apollo.gwt.client.Annotator;
+import org.bbop.apollo.gwt.client.MainPanel;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequenceList;
@@ -64,10 +69,22 @@ public class AssemblageDetailPanel extends Composite {
         HorizontalPanelDropController columnDropController = new HorizontalPanelDropController(
                 assemblageWidget);
         assemblageSequenceDragController.registerDropController(columnDropController);
+
+        Annotator.eventBus.addHandler(AssemblageViewEvent.TYPE, new AssemblageViewEventHandler() {
+            @Override
+            public void onAssemblageView(AssemblageViewEvent event) {
+                GWT.log("HANDLING an assemblage event");
+                AssemblageInfo assemblageInfo = getAssemblageInfo();
+                GWT.log("ASSEMBLAGE event");
+                MainPanel.updateGenomicViewerForAssemblage(assemblageInfo);
+                GWT.log("HANDLED an assemblage event");
+            }
+        });
     }
 
     /**
      * Generate a sequence for each SequenceColumnPanel
+     *
      * @return
      */
     public AssemblageInfo getAssemblageInfo() {
@@ -76,32 +93,32 @@ public class AssemblageDetailPanel extends Composite {
         assemblageInfo.setSequenceList(assemblageSequenceList);
 
 
-        for(int sequenceIndex = 0; sequenceIndex < assemblageWidget.getWidgetCount() ; ++sequenceIndex){
+        for (int sequenceIndex = 0; sequenceIndex < assemblageWidget.getWidgetCount(); ++sequenceIndex) {
 
             Widget sequenceWidget = assemblageWidget.getWidget(sequenceIndex);
-            if(sequenceWidget instanceof AssemblageSequenceWidget){
+            if (sequenceWidget instanceof AssemblageSequenceWidget) {
                 AssemblageSequenceWidget assemblageSequenceWidget = ((AssemblageSequenceWidget) sequenceWidget);
                 AssemblageSequence assemblageSequence = assemblageSequenceWidget.getAssemblageSequence();
                 assemblageSequenceList.addSequence(assemblageSequence);
 
-                int addedFeatureCount = 0 ;
-                for(int featureAreaIndex = 0 ; featureAreaIndex < assemblageSequenceWidget.getWidgetCount() ; ++featureAreaIndex){
+                int addedFeatureCount = 0;
+                for (int featureAreaIndex = 0; featureAreaIndex < assemblageSequenceWidget.getWidgetCount(); ++featureAreaIndex) {
                     Widget featureWidget = assemblageSequenceWidget.getWidget(featureAreaIndex);
-                    if(featureWidget instanceof AssemblageFeatureAreaWidget){
+                    if (featureWidget instanceof AssemblageFeatureAreaWidget) {
                         AssemblageFeatureAreaWidget assemblageFeatureAreaWidget = (AssemblageFeatureAreaWidget) featureWidget;
 
-                        for(int featureIndex = 0 ; featureIndex < assemblageFeatureAreaWidget.getWidgetCount() ; ++featureIndex){
+                        for (int featureIndex = 0; featureIndex < assemblageFeatureAreaWidget.getWidgetCount(); ++featureIndex) {
                             // these would be sequences, but with a single feature
                             Widget innerFeatureWidget = assemblageFeatureAreaWidget.getWidget(featureIndex);
-                            if(innerFeatureWidget instanceof AssemblageFeatureWidget){
+                            if (innerFeatureWidget instanceof AssemblageFeatureWidget) {
                                 AssemblageFeatureWidget assemblageFeatureWidget = (AssemblageFeatureWidget) innerFeatureWidget;
                                 SequenceFeatureInfo sequenceFeatureInfo = assemblageFeatureWidget.getSequenceFeatureInfo();
-                                if(addedFeatureCount==0){
+                                if (addedFeatureCount == 0) {
                                     assemblageSequence.setFeatureProperties(sequenceFeatureInfo);
                                     ++addedFeatureCount;
                                 }
                                 // we have to add a duplicate feature because of the way they are rendered
-                                else{
+                                else {
                                     AssemblageSequence duplicateAssemblageSequence = assemblageSequence.deepCopy();
                                     duplicateAssemblageSequence.setFeatureProperties(sequenceFeatureInfo);
                                     ++addedFeatureCount;
@@ -142,7 +159,7 @@ public class AssemblageDetailPanel extends Composite {
                 // add a new sequence column
                 if (assemblageSequenceWidget == null) {
                     assemblageSequenceWidget = new AssemblageSequenceWidget(assemblageSequence);
-                    assemblageSequenceWidget.render(assemblageSequenceDragController,i);
+                    assemblageSequenceWidget.render(assemblageSequenceDragController, i);
                     assemblageWidget.add(assemblageSequenceWidget);
 
 
@@ -163,7 +180,7 @@ public class AssemblageDetailPanel extends Composite {
                     sequenceFeatureInfo.setEnd(end);
                     sequenceFeatureInfo.setParent(assemblageSequence);
                     AssemblageFeatureAreaWidget thisFeaturePanel = assemblageSequenceFeatureMap.get(sequenceName);
-                    thisFeaturePanel.addSequenceFeature(sequenceFeatureInfo,featureDragController);
+                    thisFeaturePanel.addSequenceFeature(sequenceFeatureInfo, featureDragController);
                 }
 
             }
