@@ -5,6 +5,7 @@ import com.allen_sauer.gwt.dnd.client.drop.HorizontalPanelDropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
@@ -146,7 +147,7 @@ public class AssemblageDetailPanel extends Composite {
 
 
                     // stub the feature panel for adding features
-                    AssemblageFeatureAreaWidget featurePanel = new AssemblageFeatureAreaWidget();
+                    AssemblageFeatureAreaWidget featurePanel = new AssemblageFeatureAreaWidget(assemblageSequence);
                     featurePanel.registerDropController(featureDragController);
                     assemblageSequenceWidget.add(featurePanel);
 
@@ -160,6 +161,7 @@ public class AssemblageDetailPanel extends Composite {
                 if (sequenceFeatureInfo != null) {
                     sequenceFeatureInfo.setStart(start);
                     sequenceFeatureInfo.setEnd(end);
+                    sequenceFeatureInfo.setParent(assemblageSequence);
                     AssemblageFeatureAreaWidget thisFeaturePanel = assemblageSequenceFeatureMap.get(sequenceName);
                     thisFeaturePanel.addSequenceFeature(sequenceFeatureInfo,featureDragController);
                 }

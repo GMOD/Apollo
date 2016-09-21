@@ -4,24 +4,28 @@ import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.drop.VerticalPanelDropController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
 import org.bbop.apollo.gwt.client.dto.assemblage.SequenceFeatureInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This creates the area that contains feature widgets.
+ * This creates the area that contains feature widgets for a single sequence.
  *
  * Created by nathandunn on 9/20/16.
  */
 public class AssemblageFeatureAreaWidget extends VerticalPanelWithSpacer{
 
-    public AssemblageFeatureAreaWidget(){
+    private AssemblageSequence assemblageSequence ;
+
+    public AssemblageFeatureAreaWidget(AssemblageSequence assemblageSequence){
         addStyleName("assemblage-detail-composite");
+        this.assemblageSequence = assemblageSequence ;
     }
 
     public void registerDropController(PickupDragController widgetDragController) {
-        VerticalPanelDropController featureDropController = new VerticalPanelDropController(this);
+        FeatureDropController featureDropController = new FeatureDropController(this);
         widgetDragController.registerDropController(featureDropController);
     }
 
@@ -54,4 +58,7 @@ public class AssemblageFeatureAreaWidget extends VerticalPanelWithSpacer{
         return  assemblageFeatureWidgets ;
     }
 
+    public AssemblageSequence getAssemblageSequence() {
+        return assemblageSequence;
+    }
 }
