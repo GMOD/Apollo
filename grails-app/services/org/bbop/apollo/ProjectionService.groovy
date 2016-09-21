@@ -431,6 +431,7 @@ class ProjectionService {
         }
         projectionSequence.order = index
         projectionSequence.name = jSONObject.name
+        projectionSequence.reverse = jSONObject.reverse
         projectionSequence.organism = assemblage.organism.commonName
 
         JSONArray featureArray = jSONObject.features

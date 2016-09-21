@@ -29,7 +29,9 @@ class FeatureProjectionService {
      */
     private
     static JSONObject projectFeature(JSONObject inputFeature, MultiSequenceProjection projection, Boolean reverseProjection, Integer offset) {
-        if (!inputFeature.has(FeatureStringEnum.LOCATION.value)) return inputFeature
+        if (!inputFeature.has(FeatureStringEnum.LOCATION.value)) {
+            return inputFeature
+        }
 
 
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
@@ -163,6 +165,10 @@ class FeatureProjectionService {
 //            int newFmax = calculatedMax + projectionSequence.start - projectionSequence.offset
             int newFmin = calculatedMin
             int newFmax = calculatedMax
+
+            if(projectionSequence.reverse){
+                oldStrand = !oldStrand
+            }
 
             FeatureLocation featureLocation = new FeatureLocation(
                     fmin: newFmin,
