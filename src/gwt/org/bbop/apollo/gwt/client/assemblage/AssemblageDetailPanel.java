@@ -47,9 +47,11 @@ public class AssemblageDetailPanel extends Composite {
 
         boundaryPanel.setSize("100%", "100%");
         assemblageSequenceDragController.setBehaviorBoundaryPanelDrop(false);
+        assemblageSequenceDragController.setBehaviorDragStartSensitivity(5);
         assemblageSequenceDragController.addDragHandler(assemblageDragHandler);
 
         featureDragController.setBehaviorMultipleSelection(false);
+        featureDragController.setBehaviorDragStartSensitivity(5);
         featureDragController.addDragHandler(assemblageDragHandler);
 
         assemblageWidget.addStyleName("assemblage-detail-container");

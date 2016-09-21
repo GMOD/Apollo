@@ -49,9 +49,7 @@ https://github.com/fredsa/gwt-dnd/blob/master/DragDrop/war/DragDropDemo.css
     width: 120px;
 }
 
-.assemblage-detail-root-absolute .assemblage-detail-widget,
-.assemblage-detail-root-absolute .assemblage-detail-heading{
-    /*border: 1px solid blue;*/
+.assemblage-detail-root-absolute .assemblage-detail-widget {
     border: 1px solid lightgrey;
 }
 
@@ -60,7 +58,10 @@ https://github.com/fredsa/gwt-dnd/blob/master/DragDrop/war/DragDropDemo.css
 }
 
 .assemblage-detail-root-absolute .assemblage-detail-heading {
-    background-color: #87B3FF; /* bright blue */
+    /*margin-left: auto;*/
+    /*margin-right: auto;*/
+    /*background-color: #87B3FF; !* bright blue *!*/
+    /*background-color: none;*/
     /*border: 2px solid yellow;*/
 }
 
@@ -101,7 +102,7 @@ https://github.com/fredsa/gwt-dnd/blob/master/DragDrop/war/DragDropDemo.css
 }
 
 .assemblage-detail-composite table{
-    border: 0 ;
+    border: 3px ;
 }
 
 
