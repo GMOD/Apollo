@@ -140,8 +140,7 @@ public class AssemblageDetailPanel extends Composite {
 
                 // add a new sequence column
                 if (assemblageSequenceWidget == null) {
-                    assemblageSequenceWidget = new AssemblageSequenceWidget();
-                    assemblageSequenceWidget.setAssemblageSequence(assemblageSequence);
+                    assemblageSequenceWidget = new AssemblageSequenceWidget(assemblageSequence);
                     assemblageSequenceWidget.render(assemblageSequenceDragController,i);
                     assemblageWidget.add(assemblageSequenceWidget);
 

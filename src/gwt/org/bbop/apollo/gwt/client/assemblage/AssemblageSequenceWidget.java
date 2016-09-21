@@ -21,7 +21,11 @@ public class AssemblageSequenceWidget extends VerticalPanel{
     private Icon rightIcon = new Icon(IconType.ARROW_RIGHT);
     private Button labelButton = new Button("");
 
-    public AssemblageSequenceWidget(){
+    public AssemblageSequenceWidget(final AssemblageSequence assemblageSequence){
+        this.assemblageSequence = assemblageSequence;
+
+        String sequenceName = assemblageSequence.getName();
+        labelButton.setText(sequenceName);
         HorizontalPanel headingPanel = new HorizontalPanel();
         leftIcon.addStyleName("pull-left");
         labelButton.add(leftIcon);
@@ -53,9 +57,6 @@ public class AssemblageSequenceWidget extends VerticalPanel{
         return assemblageSequence;
     }
 
-    public void setAssemblageSequence(AssemblageSequence assemblageSequence) {
-        this.assemblageSequence = assemblageSequence;
-    }
 
     public void handleReverseComplement(){
         if (assemblageSequence.getReverse()) {
@@ -69,9 +70,6 @@ public class AssemblageSequenceWidget extends VerticalPanel{
 
 
     public void render(PickupDragController assemblageSequenceDragController,int i) {
-
-        String sequenceName = assemblageSequence.getName();
-        labelButton.setText(sequenceName);
         labelButton.setColor(ColorGenerator.getColorForIndex(i));
         if (assemblageSequence.getReverse()) {
             rightIcon.setColor("#DDD");
