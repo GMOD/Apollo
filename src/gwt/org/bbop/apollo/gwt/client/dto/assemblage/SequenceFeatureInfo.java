@@ -55,4 +55,15 @@ public class SequenceFeatureInfo extends JSONObject {
     public Long getEnd() {
         return Math.round(get(FeatureStringEnum.END.getValue()).isNumber().doubleValue());
     }
+
+    // TODO: this needs to be set in JSON somewhere
+    private Boolean collapsed = false ;
+
+    public void setCollapsed(boolean collapsed) {
+        this.collapsed = collapsed ;
+    }
+
+    public boolean isCollapsed() {
+        return collapsed;
+    }
 }
