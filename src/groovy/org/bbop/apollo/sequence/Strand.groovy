@@ -35,4 +35,11 @@ enum Strand {
     String getDisplay() {
         return display
     }
+
+    Strand reverse() {
+        if(value==NONE.value){
+          return NONE;
+        }
+        return value==NEGATIVE.value ? POSITIVE : NEGATIVE
+    }
 }

@@ -1,9 +1,11 @@
 package org.bbop.apollo
 
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionSequence
+import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -16,9 +18,8 @@ class FeatureProjectionService {
 
     JSONArray projectTrack(JSONArray inputFeaturesArray, Assemblage assemblage, Boolean reverseProjection = false) {
         MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
-        return projectFeaturesArray(inputFeaturesArray, projection, reverseProjection,0)
+        return projectFeaturesArray(inputFeaturesArray, projection, reverseProjection, 0)
     }
-
 
     /**
      * Anything in this space is assumed to be visible
@@ -27,8 +28,8 @@ class FeatureProjectionService {
      * @param inputFeaturesArray
      * @return
      */
-    private
-    static JSONObject projectFeature(JSONObject inputFeature, MultiSequenceProjection projection, Boolean reverseProjection, Integer offset) {
+    @NotTransactional
+    private JSONObject projectFeature(JSONObject inputFeature, MultiSequenceProjection projection, Boolean reverseProjection, Integer offset) {
         if (!inputFeature.has(FeatureStringEnum.LOCATION.value)) {
             return inputFeature
         }
@@ -38,12 +39,12 @@ class FeatureProjectionService {
 
         Integer fmin = locationObject.has(FeatureStringEnum.FMIN.value) ? locationObject.getInt(FeatureStringEnum.FMIN.value) : null
         Integer fmax = locationObject.has(FeatureStringEnum.FMAX.value) ? locationObject.getInt(FeatureStringEnum.FMAX.value) : null
-        ProjectionSequence projectionSequence1 = reverseProjection ? projection.getReverseProjectionSequence(fmin) : projection.getProjectionSequence(fmin+offset)
-        ProjectionSequence projectionSequence2 = reverseProjection ? projection.getReverseProjectionSequence(fmax) : projection.getProjectionSequence(fmax+offset)
+        ProjectionSequence projectionSequence1 = reverseProjection ? projection.getReverseProjectionSequence(fmin) : projection.getProjectionSequence(fmin + offset)
+        ProjectionSequence projectionSequence2 = reverseProjection ? projection.getReverseProjectionSequence(fmax) : projection.getProjectionSequence(fmax + offset)
 
         if (reverseProjection) {
             // TODO: add reverse offset?
-            fmin = fmin ? projection.projectReverseValue(fmin)  : null
+            fmin = fmin ? projection.projectReverseValue(fmin) : null
 
             // we are projecting a REVERSE, exclusive value
             fmax = fmax ? projection.projectReverseValue(fmax) : null
@@ -61,19 +62,33 @@ class FeatureProjectionService {
             locationObject.put(FeatureStringEnum.FMAX.value, fmax)
         }
         // if we don't have a sequence .. need to assign one
-        if (!locationObject.containsKey(FeatureStringEnum.SEQUENCE.value)) {
-            if(projectionSequence1 && projectionSequence2) {
-                // case 1, projectionSequence1 exists and is equals to projectionSequence2
-                if (projectionSequence1.name == projectionSequence2.name) {
+        if (projectionSequence1 && projectionSequence2) {
+            // case 1, projectionSequence1 exists and is equals to projectionSequence2
+            if (projectionSequence1.name == projectionSequence2.name) {
+                if (!locationObject.sequence) {
                     locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence1.name)
-                } else if (projectionSequence1.name != projectionSequence2.name) {
-                    locationObject.put(FeatureStringEnum.SEQUENCE.value, "[{\"name\":\""+projectionSequence1.name + "\"},{\"name\":\"" + projectionSequence2.name+"\"}]")
                 }
+                projectionService.reverseLocation(projectionSequence1, locationObject)
+            } else if (projectionSequence1.name != projectionSequence2.name) {
+                locationObject.put(FeatureStringEnum.SEQUENCE.value, "[{\"name\":\"" + projectionSequence1.name + "\"},{\"name\":\"" + projectionSequence2.name + "\"}]")
+                // TODO: not sure how to handle this case
+                assert projectionSequence1.reverse == projectionSequence2.reverse
             }
-            else{
-                locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence1 ? projectionSequence1?.name : projectionSequence2?.name)
+        } else if (projectionSequence1) {
+            if (!locationObject.sequence) {
+                locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence1.name)
             }
+            projectionService.reverseLocation(projectionSequence1, locationObject)
+        } else if (projectionSequence2) {
+            if (!locationObject.sequence) {
+                locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence2.name)
+            }
+            projectionService.reverseLocation(projectionSequence2, locationObject)
         }
+        else{
+            throw new AnnotationException("Neither projection sequence seems to be valid")
+        }
+
         return inputFeature
     }
 
@@ -99,17 +114,17 @@ class FeatureProjectionService {
         return inputFeaturesArray
     }
 
-    /**
-     * This method calculates a new set of feature locations based on projection, removes the old one and adds the new one.
-     *
-     * Spefically this method allows us to calculate MULTIPLE project sequences.
-     *
-     * @param multiSequenceProjection Projection context
-     * @param feature Feature to set feature locations on
-     * @param min fmin provided as a PROJECTED coordinate
-     * @param max fmax provided as a PROJECTED coordinate
-     * @return
-     */
+/**
+ * This method calculates a new set of feature locations based on projection, removes the old one and adds the new one.
+ *
+ * Spefically this method allows us to calculate MULTIPLE project sequences.
+ *
+ * @param multiSequenceProjection Projection context
+ * @param feature Feature to set feature locations on
+ * @param min fmin provided as a PROJECTED coordinate
+ * @param max fmax provided as a PROJECTED coordinate
+ * @return
+ */
     def setFeatureLocationsForProjection(MultiSequenceProjection multiSequenceProjection, Feature feature, Integer min, Integer max) {
         // TODO: optimize for feature locations belonging to the same sequence (the most common case)
         def featureLocationList = FeatureLocation.findAllByFeature(feature)
@@ -166,7 +181,7 @@ class FeatureProjectionService {
             int newFmin = calculatedMin
             int newFmax = calculatedMax
 
-            if(projectionSequence.reverse){
+            if (projectionSequence.reverse) {
                 oldStrand = !oldStrand
             }
 

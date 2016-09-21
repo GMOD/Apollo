@@ -5,6 +5,7 @@ import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.*
+import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -767,5 +768,27 @@ class ProjectionService {
     @NotTransactional
     MultiSequenceProjection getCachedProjection(String projectionString) {
         return multiSequenceProjectionMap.get(getSequenceListJSON(projectionString))
+    }
+
+
+/**
+ * This reverses the strand, fmin, and fmax data
+ * @param projectionSequence
+ * @param locationObject
+ * @return
+ */
+    @NotTransactional
+    JSONObject reverseLocation(ProjectionSequence projectionSequence, JSONObject locationObject) {
+        if (projectionSequence.reverse) {
+            if(locationObject.containsKey(FeatureStringEnum.STRAND.value)){
+                Strand strand = Strand.getStrandForValue(locationObject.strand)
+                strand = strand.reverse();
+                locationObject.strand = strand.value
+            }
+            int temp = locationObject.fmin
+            locationObject.fmin = locationObject.fmax
+            locationObject.fmax = temp
+        }
+        return locationObject
     }
 }

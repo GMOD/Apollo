@@ -21,7 +21,7 @@ class ProjectionSequence implements Comparable<ProjectionSequence> {
     Integer unprojectedLength = 0
     Integer start
     Integer end
-    Boolean reverse = false
+    Boolean reverse = false // this is the reverse complement value of the projection sequence
 
     boolean equals(o) {
         if (this.is(o)) return true
