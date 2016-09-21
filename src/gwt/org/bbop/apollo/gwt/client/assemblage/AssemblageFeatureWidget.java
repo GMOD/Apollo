@@ -66,7 +66,7 @@ public class AssemblageFeatureWidget extends HorizontalPanel {
 //        featureButton.add(actionIcon);
         featureButton.addStyleName("assemblage-detail-widget");
 
-        collapseImage.setVisible(!sequenceFeatureInfo.isCollapsed());
+        collapseImage.setVisible(sequenceFeatureInfo.isCollapsed());
         collapseImage.setUrl("../images/fold.png");
         collapseImage.setType(ImageType.DEFAULT);
         collapseImage.setSize("20px", "20px");
@@ -82,7 +82,7 @@ public class AssemblageFeatureWidget extends HorizontalPanel {
 
         });
 
-        expandImage.setVisible(sequenceFeatureInfo.isCollapsed());
+        expandImage.setVisible(!sequenceFeatureInfo.isCollapsed());
         expandImage.setUrl("../images/unfold.png");
         expandImage.setType(ImageType.DEFAULT);
         expandImage.setSize("20px", "20px");
