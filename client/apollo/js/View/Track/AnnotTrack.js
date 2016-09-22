@@ -335,8 +335,12 @@ define([
                         }
 
                         // if for some reason this method is called in the wrong place, we catch the error
-                        if(window.parent){
-                            window.parent.loadTracks(JSON.stringify(filteredTrackList));
+                        try {
+                            if (window.parent) {
+                                window.parent.loadTracks(JSON.stringify(filteredTrackList));
+                            }
+                        } catch (e) {
+                            console.log("window.parent invalid, ignoring");
                         }
                     };
 

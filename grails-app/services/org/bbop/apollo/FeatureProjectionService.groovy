@@ -86,7 +86,8 @@ class FeatureProjectionService {
             projectionService.reverseLocation(projectionSequence2, locationObject)
         }
         else{
-            throw new AnnotationException("Neither projection sequence seems to be valid")
+            log.debug("Neither projection is valid, so ignoring")
+//            throw new AnnotationException("Neither projection sequence seems to be valid")
         }
 
         return inputFeature

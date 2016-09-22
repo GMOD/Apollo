@@ -655,12 +655,14 @@ class TrackService {
         }
 
         int calculatedEnd = 0
+        int calculatedStart = 0
         Map<JSONObject,Integer> sequenceMap = new HashMap<>()
         if(refererLoc.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
             for(int i = 0 ; i < sequenceArray.size() ; i++){
                 def sequenceObject = sequenceArray.getJSONObject(i)
                 sequenceObject.start = sequenceObject.start ?: sequenceEntryMaps.get(sequenceObject.name).start
                 sequenceObject.end = sequenceObject.end ?: sequenceEntryMaps.get(sequenceObject.name).end
+                calculatedStart += multiSequenceProjection.projectValue(sequenceObject.start,0,0)
                 calculatedEnd += multiSequenceProjection.projectValue(sequenceObject.end,0,0)
                 JSONObject storeObject = new JSONObject(
                         start:sequenceObject.start
@@ -726,14 +728,24 @@ class TrackService {
 
         JSONObject trackObject = mergeTrackObject(trackObjectList, multiSequenceProjection,currentOrganism,trackName)
 
+
         if(refererLoc.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
-            trackObject.intervals.minStart = 0
+            trackObject.intervals.minStart = calculatedStart
             trackObject.intervals.maxEnd = calculatedEnd
         }
         else{
             trackObject.intervals.minStart = multiSequenceProjection.projectValue(trackObject.intervals.minStart)
             trackObject.intervals.maxEnd = multiSequenceProjection.projectValue(trackObject.intervals.maxEnd)
         }
+
+        ProjectionSequence projectionSequenceStart = multiSequenceProjection.getProjectionSequence(trackObject.intervals.minStart)
+        ProjectionSequence projectionSequenceEnd = multiSequenceProjection.getProjectionSequence(trackObject.intervals.maxEnd)
+        if(projectionSequenceStart?.reverse == projectionSequenceEnd?.reverse){
+            int temp = trackObject.intervals.minStart
+            trackObject.intervals.minStart = trackObject.intervals.maxEnd
+            trackObject.intervals.maxEnd = temp
+        }
+//        reverseIntervalDimensions(trackObject,multiSequenceProjection)
 
 
         return trackObject
