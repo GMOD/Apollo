@@ -108,11 +108,25 @@ class AssemblageService {
                 organism: organism
                 , sequenceList: sequenceArray.toString()
                 , start: 0
-                , name: "Unnamed ${org.bbop.apollo.gwt.shared.ClientTokenGenerator.generateRandomString(3)}"
+                , name: generateAssemblageName(sequenceArray)
                 , end: end
         ).save(flush: true, failOnError: true)
 
         return assemblage
+    }
+
+    String generateAssemblageName(JSONArray sequenceArray){
+        String name = ""
+
+        for(int i = 0  ; i < sequenceArray.size() ; i++){
+            JSONObject sequenceObject = sequenceArray.getJSONObject(i)
+            name += sequenceObject.name
+            if(sequenceObject.containsKey(FeatureStringEnum.FEATURE.value)){
+                name += sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).name + " " + name
+            }
+        }
+
+        return name
     }
 
     List<Sequence> getSequencesFromAssemblage(Organism organism, String sequenceListString) {
@@ -216,6 +230,9 @@ class AssemblageService {
         assemblage.projection = jsonObject.projection
         assemblage.sequenceList = sequenceListArray.toString()
         assemblage.name = jsonObject.name ?: assemblage.name
+        if(!assemblage.name){
+            assemblage.name = generateAssemblageName(sequenceListArray)
+        }
 
         assemblage.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value) : sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
         assemblage.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size() - 1).getInt(FeatureStringEnum.END.value)
