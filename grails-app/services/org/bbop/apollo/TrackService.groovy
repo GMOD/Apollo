@@ -396,10 +396,12 @@ class TrackService {
                 coordinate.set(trackIndex.end, newCoordinate.max + offset - projectionSequence.offset+1)
                 if(projectionSequence.reverse){
                     int temp = coordinate.get(trackIndex.start)
-                    int tempStrand = org.bbop.apollo.sequence.Strand.getStrandForValue(coordinate.get(trackIndex.strand)).reverse().value
+                    if(trackIndex.strand>0){
+                        int newStrand = org.bbop.apollo.sequence.Strand.getStrandForValue(coordinate.get(trackIndex.strand)).reverse().value
+                        coordinate.set(trackIndex.strand,newStrand)
+                    }
                     coordinate.set(trackIndex.start, coordinate.get(trackIndex.end) )
                     coordinate.set(trackIndex.end, temp )
-                    coordinate.set(trackIndex.strand,tempStrand)
                 }
             } else {
                 // this is valid for very small areas

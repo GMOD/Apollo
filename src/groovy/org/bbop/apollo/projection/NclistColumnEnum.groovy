@@ -26,7 +26,7 @@ enum NclistColumnEnum {
         }
 
         NclistColumnEnum(){
-                this.value = name().toLowerCase().capitalize()
+            this.value = name().toLowerCase().capitalize()
         }
 
         String getValue() {

@@ -4,8 +4,6 @@ import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.Window;
-import org.bbop.apollo.Assemblage;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 /**
