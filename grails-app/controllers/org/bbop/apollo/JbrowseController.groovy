@@ -52,18 +52,19 @@ class JbrowseController {
                 }
                 clientToken = org.bbop.apollo.gwt.shared.ClientTokenGenerator.generateRandomString()
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
-                String paramString = paramList.join('&')
-//                paramList.each {
-//                    if(!it.toString().startsWith("addTracks")){
-//                        paramString += URLEncoder.encode(it.toString(),"UTF-8")+"&"
-//                    }
-//                    else{
-//                        paramString += it + "&"
-//                    }
-//                }
+//                String paramString = paramList.join('&')
+                String paramString = ""
+                paramList.each {
+                    if(it.toString().startsWith("addStore")){
+                        paramString += URLEncoder.encode(it.toString(),"UTF-8")+"&"
+                    }
+                    else{
+                        paramString += it + "&"
+                    }
+                }
 //                String targetUri = "/${clientToken}/jbrowse/index.html?"+paramString
-//                redirect(uri: targetUri)
-                redirect(uri:  "/${clientToken}/jbrowse/index.html?${paramString}")
+                String uriString = createLink(url: "/${clientToken}/jbrowse/index.html?${paramString}")
+                redirect(uri:  uriString)
                 return
             }
             else{
