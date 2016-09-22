@@ -51,7 +51,27 @@ class AuthController {
 //                    targetUri = request.contextPath + targetUri
 //                }
 
+                if(targetUri.contains("loadLink") && targetUri.contains("&addStores") ){
+                    def contextPath = servletContext.contextPath
+                    if(!targetUri.startsWith(contextPath) ){
+                        targetUri = contextPath + (targetUri.startsWith("/")?"":"/") +  targetUri
+                    }
+                }
+//                // remove
+//                int actionIndex = targetUri.indexOf("&action=")
+//                if(actionIndex>=0){
+//                    int secondIndex = targetUri.indexOf("&",actionIndex + 2 )
+//                    targetUri = targetUri.substring(0,actionIndex)+ (secondIndex > 0 ? targetUri.substring(secondIndex-1) : "")
+//                }
+//                Integer controllerIndex = targetUri.indexOf("&controller=")
+//                if(controllerIndex>=0){
+//                    int secondIndex = targetUri.indexOf("&",controllerIndex + 2 )
+//                    targetUri = targetUri.substring(0,controllerIndex)+  ( secondIndex > 0 ? targetUri.substring(secondIndex-1) : "")
+//                }
+
+
                 redirect(uri: targetUri)
+                return
             }
         }
         catch (AuthenticationException ex){
