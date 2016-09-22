@@ -94,6 +94,7 @@ class AssemblageService {
         for (Sequence seq in sequences) {
             // note this creates the proper JSON string
             JSONObject sequenceObject = JSON.parse((seq as JSON).toString()) as JSONObject
+            sequenceObject.reverse = false
             sequenceArray.add(sequenceObject)
             organism = organism ?: seq.organism
             end += seq.end
