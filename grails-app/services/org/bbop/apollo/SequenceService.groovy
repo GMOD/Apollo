@@ -257,9 +257,6 @@ class SequenceService {
         return residues.toString()
     }
 
-    String getRawResiduesFromSequence(Sequence sequence, int fmin) {
-        return getRawResiduesFromSequence(sequence,fmin,sequence.length)
-    }
 
     String getRawResiduesFromSequence(Sequence sequence, int fmin, int fmax) {
         StringBuilder sequenceString = new StringBuilder()

@@ -537,23 +537,30 @@ class JbrowseController {
                     inputStream.close();
                     out.close();
                 }
-            } else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
-//                else {
+            }
+            // handle the sequence text data
+            else
+            if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
                 response.setContentLength((int) file.length());
 
-                // Open the file and output streams
-                FileInputStream inputStream = new FileInputStream(file);
-                OutputStream out = response.getOutputStream();
-
-                // Copy the contents of the file to the output stream
-                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-                int count = 0;
-                while ((count = inputStream.read(buf)) >= 0) {
-                    out.write(buf, 0, count);
+                MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+                if(projection && projection.getLastSequence().reverse){
+                    response.outputStream << file.text.reverse()
+                    response.outputStream.close()
                 }
-                inputStream.close();
-                out.close();
-//                }
+                else{
+                    // Open the file and output streams
+                    FileInputStream inputStream = new FileInputStream(file);
+                    OutputStream out = response.getOutputStream();
+                    // Copy the contents of the file to the output stream
+                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+                    int count = 0;
+                    while ((count = inputStream.read(buf)) >= 0) {
+                        out.write(buf, 0, count);
+                    }
+                    inputStream.close();
+                    out.close();
+                }
             }
 //            else if (fileName.endsWith(".bai")) {
 //                println "processing bai file"

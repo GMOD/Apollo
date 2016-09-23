@@ -727,7 +727,7 @@ public class MainPanel extends Composite {
     private void reloadTabPerIndex(Integer selectedItem) {
         switch (selectedItem) {
             case 0:
-                annotatorPanel.reload();
+                annotatorPanel.reload(true);
                 break;
             case 1:
                 trackPanel.reload();

@@ -159,6 +159,14 @@ class RefSeqProjectorService {
         Integer unprojectedStart = unprojectedCoordinate.min
         Integer unprojectedEnd = unprojectedCoordinate.max
 
+        ProjectionSequence projectionSequenceReverseStart = projection.getReverseProjectionSequence(unprojectedStart)
+        ProjectionSequence projectionSequenceReverseEnd = projection.getReverseProjectionSequence(unprojectedEnd)
+        if(projectionSequenceReverseStart==projectionSequenceReverseEnd && projectionSequenceReverseStart.reverse){
+            int temp = unprojectedStart
+            unprojectedStart = unprojectedEnd
+            unprojectedEnd = temp
+        }
+
         Integer startOffset = unprojectedStart - projectedStart
 
 //        ProjectionSequence startSequence = projection.getReverseProjectionSequence(projectedStart)
