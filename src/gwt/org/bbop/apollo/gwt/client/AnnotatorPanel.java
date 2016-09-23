@@ -502,8 +502,11 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload() {
-        pager.setPageStart(0);
-        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+        if(MainPanel.annotatorPanel.isVisible()){
+//            updateAnnotationInfo(null);
+            pager.setPageStart(0);
+            dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+        }
     }
 
 
