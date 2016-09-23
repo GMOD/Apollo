@@ -290,7 +290,7 @@ public class MainPanel extends Composite {
                 setLabelForcurrentAssemblage();
 
 
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getDescription()));
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getDescription(),MainPanel.currentOrganism.getName()));
 
                 if (updateViewer) {
                     updateGenomicViewer();
@@ -733,7 +733,7 @@ public class MainPanel extends Composite {
                 trackPanel.reload();
                 break;
             case 2:
-                sequencePanel.reload();
+                sequencePanel.reload(true);
                 break;
             case 3:
                 assemblagePanel.reload();
@@ -1092,5 +1092,9 @@ public class MainPanel extends Composite {
     public void setCurrentAssemblageAndView(AssemblageInfo assemblageInfo) {
         setcurrentAssemblage(assemblageInfo);
         updateGenomicViewerForAssemblage(assemblageInfo);
+    }
+
+    public SequencePanel getSequencePanel() {
+        return sequencePanel;
     }
 }

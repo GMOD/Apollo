@@ -15,6 +15,7 @@ public class OrganismChangeEvent extends GwtEvent<OrganismChangeEventHandler>{
     public List<OrganismInfo> organismInfoList;
     private Action action;
     private String currentSequence;
+    private String currentOrganism;
 
     public OrganismChangeEvent(){}
     public OrganismChangeEvent(List<OrganismInfo> organismInfoList){
@@ -25,9 +26,14 @@ public class OrganismChangeEvent extends GwtEvent<OrganismChangeEventHandler>{
         this.action = action;
     }
 
-    public OrganismChangeEvent(Action changedOrganism, String sequenceNameString) {
+    public OrganismChangeEvent(Action changedOrganism, String sequenceNameString,String currentOrganism) {
         this.action = changedOrganism ;
         this.currentSequence = sequenceNameString ;
+        this.currentOrganism = currentOrganism;
+    }
+
+    public String getCurrentOrganism() {
+        return currentOrganism;
     }
 
     public List<OrganismInfo> getOrganismInfoList() {
