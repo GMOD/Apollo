@@ -384,6 +384,24 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we should see the reverse the same"
         // TODO: has to match the first of one and the last of another
         assert false
+
+        // TODO: when one is false and one is true?
+        when: "we reverse the sequence we should see the opposite end"
+        // if 11.4 is false and Un87 is true
+        chunk = 3
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+
+        then: "we should still see the appropriate sequenes"
+        assert false
+
+        // TODO: when one is false and one is true?
+        when: "we reverse the sequence we should see the opposite end"
+        // if 11.4 is true (reverse) and Un87 is false
+        chunk = 3
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+
+        then: "we should still see the appropriate sequenes"
+        assert false
     }
 
     void "get the PROJECTED SINGLE sequence and reverse sequence for ONE feature of 11.4"(){
