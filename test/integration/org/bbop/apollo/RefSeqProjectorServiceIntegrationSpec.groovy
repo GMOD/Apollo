@@ -247,7 +247,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "get unprojected contiguous sequence"(){
 
         given: "the two unprojected groups"
-        String dataFileName = URLDecoder.decode("${Organism.first().directory}/seq/e62/08c/1e/%7B%22name%22:%22GroupUn87::Group11.4%22,%20%22padding%22:0,%20%22start%22:0,%20%22end%22:153343,%20%22sequenceList%22:[%7B%22name%22:%22GroupUn87%22,%20%22start%22:0,%20%22end%22:78258%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:0,%20%22end%22:75085%7D]%7D:0..153343-4.txt","UTF-8")
+        String dataFileName = URLDecoder.decode("${Organism.first().directory}/seq/e62/08c/1e/%7B%22name%22:%22GroupUn87::Group11.4%22,%20%22padding%22:0,%20%22start%22:0,%20%22end%22:153343,%20%22sequenceList%22:[%7B%22name%22:%22GroupUn87%22,%20%22start%22:0,%20%22end%22:78258,%22reverse%22:false%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:0,%20%22end%22:75085,%22reverse%22:false%7D]%7D:0..153343-4.txt","UTF-8")
         String sequence10086 = "ATCTTCTCA"
         String sequence18286= "GGAAGTGGCAC"
 
@@ -307,11 +307,113 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         reverse = true
         chunk = 3
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
-        String forwardedReverseSequence = returnedSequence.reverse()
 
         then: "we should see the start at the other end"
         assert returnedSequence.length()-fivePrimeSequenceStart.length()==returnedSequence.indexOf(fivePrimeSequenceStart.reverse())
 
+    }
+
+    void "get unprojected contiguous sequence and reverse sequence for 11.4 and Un87 contiguously"(){
+
+        given: "a single unprojected sequence for 11.4 and Un87"
+        Boolean reverse = false
+        Integer chunk = 0
+        Integer length11_4 = 75085 // Un87 starts at 75086
+        Integer lengthUn87 = 78258 // Total length is 153343
+        Integer chunkSize = 20000
+        Integer lastChunk = Math.ceil( (length11_4 + lengthUn87) / chunkSize)-1
+        Integer chunk3Length = length11_4 - (chunkSize*3) // this is the chunk offset
+
+//        String sequenceTemplate = URLDecoder.decode("${Organism.first().directory}/seq/f60/9c7/ee/%7B%22description%22:%22Group11.4%22,%20%22padding%22:0,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:0,%20%22end%22:75085,%22reverse%22:@REVERSE@%7D]%7D:-1..-1-@CHUNK@.txt","UTF-8")
+        String sequenceTemplate = URLDecoder.decode("${Organism.first().directory}/seq/051/49c/cb/%7B%22description%22:%22Group11.4::GroupUn87%22,%20%22padding%22:0,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:0,%20%22end%22:75085,%20%22reverse%22:@REVERSE1@%7D,%7B%22name%22:%22GroupUn87%22,%20%22start%22:0,%20%22end%22:78258,%20%22reverse%22:@REVERSE2@%7D]%7D:-1..-1-@CHUNK@.txt","UTF-8")
+        String fivePrimeSequenceStart11_4 = "TGAGAAATAAATATTGAATTGTATTATAACATTAATAATGTAATTAAGTTTTATTTTTGCAA"
+        String threePrimeSequenceEnd11_4 = "ACCAATTTTATCTGAAACAACTTTTCTTATCATCAACATGCAATATTCCTATTATCAAGTGACATATTCAAAGTGGTCAAGTTATTTTTGT"
+        String fivePrimeSequenceStartUn87 = "TCAATTTCGTCGTAAATGTTGGTATAATTTGTGATCTTTTCTTATTAGAAATAGATAACACACAAAAACATATATATG"
+        String threePrimeSequenceEndUn87 = "TATATAGTACTTTATAATTCCTAAGATCAAGTTCCTCGCAGATTTTTAATTGAATTTATATGTAAAAATTGCAAAGAAAGCTATAAAACTTGTATGTAACCGGATAGCAAATAT"
+
+
+        when: "we get the sequence we confirm that the first is 11.4"
+        String returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+
+        then: "affirm that the start starts with the start and the end ends with the end"
+        assert 0==returnedSequence.indexOf(fivePrimeSequenceStart11_4)
+
+        when: "we go to the end of the first sequence"
+        reverse = false
+        chunk = 3
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+
+        then: "we should get the proper end sequence for 11.4 and start sequence for un87"
+        assert chunk3Length-threePrimeSequenceEnd11_4.length()==returnedSequence.indexOf(threePrimeSequenceEnd11_4)
+        assert chunk3Length==returnedSequence.indexOf(fivePrimeSequenceStartUn87)
+
+        when: "we go to the end of the last sequence"
+        reverse = false
+        chunk = lastChunk // this is the last chunk
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+
+        then: "we should get the proper end sequence for Un87"
+        assert length11_4+lengthUn87-threePrimeSequenceEndUn87.length()- (chunkSize * lastChunk)==returnedSequence.indexOf(threePrimeSequenceEndUn87)
+
+
+
+
+        when: "we reverse the sequence we should see the opposite start"
+        reverse = true
+        chunk = 0
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+
+        then: "we should get the proper Un87 end sequence"
+        assert 0==returnedSequence.indexOf(threePrimeSequenceEndUn87.reverse())
+
+        when: "we reverse the sequence we should see the opposite end"
+        reverse = true
+        chunk = 3
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+
+        then: "we should see the start at the other end"
+        assert returnedSequence.length()-fivePrimeSequenceStart11_4.length()==returnedSequence.indexOf(fivePrimeSequenceStart11_4.reverse())
+        // TODO: has to match the first of one and the last of another
+        assert false
+
+        when: "we reverse the sequence we should see the opposite end"
+        reverse = true
+        chunk = 7
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+
+        then: "we should see the reverse the same"
+        // TODO: has to match the first of one and the last of another
+        assert false
+    }
+
+    void "get the PROJECTED SINGLE sequence and reverse sequence for ONE feature of 11.4"(){
+        given: ""
+
+        when:""
+
+        then:""
+        // TODO: should be similar to above tests
+        assert false
+    }
+
+    void "get the PROJECTED SINGLE sequence and reverse sequence for TWO features of 11.4"(){
+        given: ""
+
+        when:""
+
+        then:""
+        // TODO: should be similar to above tests
+        assert false
+    }
+
+    void "get the PROJECTED contiguous sequence and reverse sequence for TWO features of 11.4 and Un87 contiguously"(){
+        given: ""
+
+        when:""
+
+        then:""
+        // TODO: should be similar to above tests
+        assert false
     }
 
     // TODO: add this test for verification
