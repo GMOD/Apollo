@@ -134,7 +134,6 @@ class RefSeqProjectorService {
         MultiSequenceProjection projection = projectionService.getProjection(projectionSequenceObject)
         String chunkFileName = sequenceService.getChunkSuffix(dataFileName)
         Integer chunkNumber = Integer.parseInt(chunkFileName.substring(1, chunkFileName.indexOf(".txt")))
-//                String sequenceDirectory = dataDirectory + "/seq"
 
         // so based on the "chunk" we need to retrieve the appropriate data set and then re-project it.
         // for this sequence that chunk that starts with "7" for that sequence would correspond to (and most likely be more than one file):
@@ -149,7 +148,14 @@ class RefSeqProjectorService {
 
         // if it projects off the edge of known space .  . we just take it to the maximum in the projection realm . . .
         if (unprojectedCoordinate.max < 0) {
-            unprojectedCoordinate.max = projection.getMaxCoordinate().max + 1
+            // let's grab the first reverse projection sequence as we are off on the end
+            ProjectionSequence reverseProjectionSequence = projection.getProjectedSequences().reverse().first()
+            if(reverseProjectionSequence?.reverse){
+                unprojectedCoordinate.max = projection.getMinCoordinate().min
+            }
+            else{
+                unprojectedCoordinate.max = projection.getMaxCoordinate().max + 1
+            }
         }
 
         if (!unprojectedCoordinate.isValid()) {
@@ -161,7 +167,7 @@ class RefSeqProjectorService {
 
         ProjectionSequence projectionSequenceReverseStart = projection.getReverseProjectionSequence(unprojectedStart)
         ProjectionSequence projectionSequenceReverseEnd = projection.getReverseProjectionSequence(unprojectedEnd)
-        if(projectionSequenceReverseStart==projectionSequenceReverseEnd && projectionSequenceReverseStart.reverse){
+        if(projectionSequenceReverseStart==projectionSequenceReverseEnd && projectionSequenceReverseStart?.reverse){
             int temp = unprojectedStart
             unprojectedStart = unprojectedEnd
             unprojectedEnd = temp
@@ -209,7 +215,12 @@ class RefSeqProjectorService {
                 startIndex = projectionSequence.start
                 endIndex = projectionSequence.end
             }
-            stringList << sequenceService.getRawResiduesFromSequence(sequence, startIndex, endIndex)
+            if(projectionSequence.reverse){
+                stringList << sequenceService.getRawResiduesFromSequence(sequence, startIndex+startOffset, endIndex+startOffset).reverse()
+            }
+            else{
+                stringList << sequenceService.getRawResiduesFromSequence(sequence, startIndex, endIndex)
+            }
             ++index
         }
         String unprojectedString = stringList.join("")

@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import spock.lang.Ignore
+import spock.lang.IgnoreRest
 
 
 /**
@@ -246,7 +247,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "get unprojected contiguous sequence"(){
 
         given: "the two unprojected groups"
-        String dataFileName = URLDecoder.decode("${Organism.first().directory}/seq/e62/08c/1e/%7B%22name%22:%22GroupUn87::Group11.4%22,%20%22padding%22:0,%20%22start%22:0,%20%22end%22:153343,%20%22sequenceList%22:[%7B%22name%22:%22GroupUn87%22,%20%22start%22:0,%20%22end%22:78258%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:0,%20%22end%22:75085%7D]%7D:0..153343-4.txt")
+        String dataFileName = URLDecoder.decode("${Organism.first().directory}/seq/e62/08c/1e/%7B%22name%22:%22GroupUn87::Group11.4%22,%20%22padding%22:0,%20%22start%22:0,%20%22end%22:153343,%20%22sequenceList%22:[%7B%22name%22:%22GroupUn87%22,%20%22start%22:0,%20%22end%22:78258%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:0,%20%22end%22:75085%7D]%7D:0..153343-4.txt","UTF-8")
         String sequence10086 = "ATCTTCTCA"
         String sequence18286= "GGAAGTGGCAC"
 
@@ -267,6 +268,49 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "found second one"
         assert returnedSequence.split(sequence18286).length==2
         assert returnedIndex == 16544 - 1 // projected - start // 8749
+
+    }
+
+    void "get unprojected sequence and reverse sequence"(){
+
+        given: "a single unprojected sequence for 11.4"
+        Boolean reverse = false
+        Integer chunk = 0
+        String sequenceTemplate = URLDecoder.decode("${Organism.first().directory}/seq/f60/9c7/ee/%7B%22description%22:%22Group11.4%22,%20%22padding%22:0,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:0,%20%22end%22:75085,%22reverse%22:@REVERSE@%7D]%7D:-1..-1-@CHUNK@.txt","UTF-8")
+        String fivePrimeSequenceStart = "TGAGAAATAAATATTGAATTGTATTATAACATTAATAATGTAATTAAGTTTTATTTTTGCAA"
+        String threePrimeSequenceEnd = "ACCAATTTTATCTGAAACAACTTTTCTTATCATCAACATGCAATATTCCTATTATCAAGTGACATATTCAAAGTGGTCAAGTTATTTTTGT"
+
+
+        when: "we get the sequence we confirm that the first is 11.4"
+        String returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+
+        then: "affirm that the start starts with the start and the end ends with the end"
+        assert 0==returnedSequence.indexOf(fivePrimeSequenceStart)
+
+        when: "we go to the end of the sequence"
+        reverse = false
+        chunk = 3
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+
+        then: "we should get the proper end sequence"
+        assert returnedSequence.length()-threePrimeSequenceEnd.length()==returnedSequence.indexOf(threePrimeSequenceEnd)
+
+        when: "we reverse the sequence we should see the opposite start"
+        reverse = true
+        chunk = 0
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+
+        then: "we should get the proper end sequence"
+        assert 0==returnedSequence.indexOf(threePrimeSequenceEnd.reverse())
+
+        when: "we reverse the sequence we should see the opposite end"
+        reverse = true
+        chunk = 3
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+        String forwardedReverseSequence = returnedSequence.reverse()
+
+        then: "we should see the start at the other end"
+        assert returnedSequence.length()-fivePrimeSequenceStart.length()==returnedSequence.indexOf(fivePrimeSequenceStart.reverse())
 
     }
 

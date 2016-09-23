@@ -397,6 +397,13 @@ class MultiSequenceProjection extends AbstractProjection {
         return sequenceDiscontinuousProjectionMap.get(projectionSequence).maxMap.lastEntry().value
     }
 
+    Coordinate getMinCoordinate(ProjectionSequence projectionSequence = null) {
+        if (projectionSequence == null) {
+            return getMinMap().firstEntry().value
+        }
+        return sequenceDiscontinuousProjectionMap.get(projectionSequence).minMap.firstEntry().value
+    }
+
     Integer getOffsetForSequence(String sequenceName) {
         if (projectionChunkList) {
             ProjectionChunk projectionChunk = projectionChunkList.findProjectChunkForName(sequenceName)
@@ -514,4 +521,5 @@ class MultiSequenceProjection extends AbstractProjection {
         }
         return true
     }
+
 }

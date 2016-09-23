@@ -6,6 +6,7 @@ import org.bbop.apollo.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Ignore
+import spock.lang.IgnoreRest
 
 class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -517,17 +518,18 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert locationJsonObject.fmax == 26719
     }
 
+    @IgnoreRest
     void "I can set the exon boundary when in small feature only view mode"() {
 
         given: "if we create a transcript in the latter half of a combined scaffold it should not have any non-canonical splice sites"
         // with a front-facing GroupUn87
-        String transcriptUn87Gb53497 = "{${testCredentials} \"track\":{\"id\":30373, \"name\":\"GroupUn87\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"features\":[{\"location\":{\"fmin\":10511,\"fmax\":26719,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53497-RA\",\"children\":[{\"location\":{\"fmin\":10511,\"fmax\":10539,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":26651,\"fmax\":26719,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":10511,\"fmax\":26719,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
-        String getFeaturesStringUn87 = "{ ${testCredentials} \"track\":{\"id\":30373, \"name\":\"GroupUn87\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
+        String transcriptUn87Gb53497 = "{${testCredentials} \"track\":{\"id\":30373, \"name\":\"GroupUn87\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258, \"reverse\":false}]},\"features\":[{\"location\":{\"fmin\":10511,\"fmax\":26719,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53497-RA\",\"children\":[{\"location\":{\"fmin\":10511,\"fmax\":10539,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":26651,\"fmax\":26719,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":10511,\"fmax\":26719,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        String getFeaturesStringUn87 = "{ ${testCredentials} \"track\":{\"id\":30373, \"name\":\"GroupUn87\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258, \"reverse\":false}]},\"operation\":\"get_features\"}"
         Integer assemblageStart = 100
 
-        String getFeaturesStringUn87InProjection = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":${assemblageStart}, \"end\":43810, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${assemblageStart}, \"end\":43810, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"operation\":\"get_features\"}"
+        String getFeaturesStringUn87InProjection = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":${assemblageStart}, \"end\":43810, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${assemblageStart}, \"end\":43810, \"reverse\":false, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"operation\":\"get_features\"}"
 //        String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":9682, \"end\":26746, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${assemblageStart}, \"end\":43810, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":26651,\"fmax\":26884}}],\"operation\":\"set_exon_boundaries\"}"
-        String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":9682, \"end\":26919, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${assemblageStart}, \"end\":43810, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":26651,\"fmax\":26884}}],\"operation\":\"set_exon_boundaries\"}"
+        String setExonBoundaryCommand1 = "{ ${testCredentials} \"track\":{\"name\":\"GB53497-RA (GroupUn87)\", \"padding\":0, \"start\":9682, \"end\":26919, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":${assemblageStart}, \"end\":43810, \"reverse\":false, \"feature\":{\"name\":\"GB53497-RA\"}}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":26651,\"fmax\":26884}}],\"operation\":\"set_exon_boundaries\"}"
 
 
         when: "we add a transcript"
