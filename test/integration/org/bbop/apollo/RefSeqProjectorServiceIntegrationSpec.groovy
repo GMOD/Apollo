@@ -363,27 +363,28 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         chunk = 0
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
-        then: "we should get the proper Un87 end sequence"
-        assert 0==returnedSequence.indexOf(threePrimeSequenceEndUn87.reverse())
+        then: "we should get the proper 11.4 end sequence as above"
+        assert 0==returnedSequence.indexOf(threePrimeSequenceEnd11_4.reverse())
 
-        when: "we reverse the sequence we should see the opposite end"
+        when: "we reverse the sequence we should see the opposite start of 11.4 and the end of Un87"
         reverse = true
         chunk = 3
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
         then: "we should see the start at the other end"
-        assert returnedSequence.length()-fivePrimeSequenceStart11_4.length()==returnedSequence.indexOf(fivePrimeSequenceStart11_4.reverse())
+        assert length11_4-fivePrimeSequenceStart11_4.length()==returnedSequence.indexOf(fivePrimeSequenceStart11_4.reverse())
+        assert length11_4==returnedSequence.indexOf(threePrimeSequenceEndUn87.reverse())
         // TODO: has to match the first of one and the last of another
         assert false
 
-        when: "we reverse the sequence we should see the opposite end"
+        when: "we reverse the sequence we should and go to the end, we should see the reverse start of Un87"
         reverse = true
         chunk = 7
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
         then: "we should see the reverse the same"
         // TODO: has to match the first of one and the last of another
-        assert false
+        assert length11_4+lengthUn87- fivePrimeSequenceStartUn87.length()==returnedSequence.indexOf(fivePrimeSequenceStartUn87.reverse())
 
         // TODO: when one is false and one is true?
         when: "we reverse the sequence we should see the opposite end"
