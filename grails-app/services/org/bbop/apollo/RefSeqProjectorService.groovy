@@ -115,9 +115,6 @@ class RefSeqProjectorService {
 
     @Transactional
     String projectSequence(String dataFileName, Organism currentOrganism) {
-        // Set content size
-        // fileName
-//                Group1.22-18.txt
         String putativeSequencePathName = sequenceService.getSequencePathName(dataFileName)
         JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
         if (!projectionSequenceObject.organism) {
@@ -149,11 +146,10 @@ class RefSeqProjectorService {
         // if it projects off the edge of known space .  . we just take it to the maximum in the projection realm . . .
         if (unprojectedCoordinate.max < 0) {
             // let's grab the first reverse projection sequence as we are off on the end
-            ProjectionSequence reverseProjectionSequence = projection.getProjectedSequences().reverse().first()
-            if(reverseProjectionSequence?.reverse){
+            ProjectionSequence reverseProjectionSequence = projection.getProjectedSequences().last()
+            if (reverseProjectionSequence?.reverse) {
                 unprojectedCoordinate.max = projection.getMinCoordinate().min
-            }
-            else{
+            } else {
                 unprojectedCoordinate.max = projection.getMaxCoordinate().max + 1
             }
         }
@@ -165,24 +161,8 @@ class RefSeqProjectorService {
         Integer unprojectedStart = unprojectedCoordinate.min
         Integer unprojectedEnd = unprojectedCoordinate.max
 
-        ProjectionSequence projectionSequenceReverseStart = projection.getReverseProjectionSequence(unprojectedStart)
-        ProjectionSequence projectionSequenceReverseEnd = projection.getReverseProjectionSequence(unprojectedEnd)
-        if(projectionSequenceReverseStart==projectionSequenceReverseEnd && projectionSequenceReverseStart?.reverse
-        || (projectionSequenceReverseStart && projectionSequenceReverseEnd && projectionSequenceReverseStart?.reverse && projectionSequenceReverseEnd?.reverse)
-        ){
-            int temp = unprojectedStart
-            unprojectedStart = unprojectedEnd
-            unprojectedEnd = temp
-//            int tempProjected = projectedStart
-//            projectedStart = projectedEnd
-//            projectedEnd = tempProjected
-        }
-
         Integer startOffset = unprojectedStart - projectedStart
 
-//        ProjectionSequence startSequence = projection.getReverseProjectionSequence(projectedStart)
-//        ProjectionSequence endSequence = projection.getReverseProjectionSequence(projectedEnd)
-//        endSequence = endSequence ?: projection.getLastSequence()
         List<ProjectionSequence> sequences = projection.getReverseProjectionSequences(projectedStart, projectedEnd)
 
         // determine files to read for cu
@@ -193,39 +173,75 @@ class RefSeqProjectorService {
             // start case
             // could be only one, any portion
             Integer startIndex, endIndex
-            if (index == 0) {
-                // this is the only sequence, so just grab the exact amount
-                startIndex = unprojectedStart - projectionSequence.originalOffset - startOffset + projectionSequence.start
-                if (sequences.size() == 1) {
-                    endIndex = unprojectedEnd - projectionSequence.originalOffset - startOffset + projectionSequence.start
+
+            if (projectionSequence.reverse) {
+                startOffset = (projectionSequence.end - startOffset) + projectionSequence.originalOffset
+
+                if (index == 0) {
+                    // this is the only sequence, so just grab the exact amount
+                    startIndex = unprojectedStart - projectionSequence.originalOffset
+                    if (sequences.size() == 1) {
+                        endIndex = unprojectedEnd - projectionSequence.originalOffset
+                    }
+                    // there are more than one sequences and this is the first of possibly several
+                    // we go to the end of the projection then
+                    else {
+                        endIndex = 0 // it imples that it is offset
+                    }
+                }
+                // end case
+                // implied at least 2, so the start will always be 0
+                // ends with the end sequence
+                else
+                if (index == sequences.size() - 1) {
+                    startIndex = projectionSequence.end
+                    endIndex = unprojectedEnd - projectionSequence.originalOffset
+                }
+                // middle case, should just be the start and end of this sequence
+                else {
+                    startIndex = projectionSequence.end
+                    endIndex = projectionSequence.start
+                }
+
+                // now we reverse stuff
+                int tempStart = startIndex
+                int tempEnd = endIndex
+                startIndex = tempEnd
+                endIndex = tempStart
+                startIndex += projectionSequence.start
+                endIndex += projectionSequence.start
+
+                stringList << sequenceService.getRawResiduesFromSequence(sequence, startIndex , endIndex ).reverse()
+            } else {
+                if (index == 0) {
+                    // this is the only sequence, so just grab the exact amount
+                    startIndex = unprojectedStart - projectionSequence.originalOffset - startOffset + projectionSequence.start
+                    if (sequences.size() == 1) {
+                        endIndex = unprojectedEnd - projectionSequence.originalOffset - startOffset + projectionSequence.start
+                    }
+                    // there are more than one sequences and this is the first of possibly several
+                    // we go to the end of the projection then
+                    else {
+                        endIndex = projectionSequence.end
+                    }
                     endIndex = endIndex > sequence.length ? sequence.length : endIndex
                 }
-                // there are more than one sequences and this is the first of possibly several
-                    // we go to the end of the projection then
-                else {
+                // end case
+                // implied at least 2, so the start will always be 0
+                // ends with the end sequence
+                else if (index == sequences.size() - 1) {
+                    startIndex = projectionSequence.start
                     endIndex = projectionSequence.end
                     endIndex = endIndex > sequence.length ? sequence.length : endIndex
                 }
-            }
-            // end case
-            // implied at least 2, so the start will always be 0
-            // ends with the end sequence
-            else if (index == sequences.size() - 1) {
-                startIndex =projectionSequence.start
-                endIndex = projectionSequence.end
-                endIndex = endIndex > sequence.length ? sequence.length : endIndex
-            }
-            // middle case, should just be the start and end of this sequence
-            else {
-                startIndex = projectionSequence.start
-                endIndex = projectionSequence.end
-            }
-            if(projectionSequence.reverse){
-                stringList << sequenceService.getRawResiduesFromSequence(sequence, startIndex+startOffset, endIndex+startOffset).reverse()
-            }
-            else{
+                // middle case, should just be the start and end of this sequence
+                else {
+                    startIndex = projectionSequence.start
+                    endIndex = projectionSequence.end
+                }
                 stringList << sequenceService.getRawResiduesFromSequence(sequence, startIndex, endIndex)
             }
+
             ++index
         }
         String unprojectedString = stringList.join("")

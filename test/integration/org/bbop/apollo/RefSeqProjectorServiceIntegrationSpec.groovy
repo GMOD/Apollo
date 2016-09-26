@@ -313,6 +313,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
+//    @IgnoreRest
     void "get unprojected contiguous sequence and reverse sequence for 11.4 and Un87 contiguously"(){
 
         given: "a single unprojected sequence for 11.4 and Un87"
@@ -362,8 +363,8 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         when: "we reverse the sequence we should see the opposite start"
-        reverse1 = false
-        reverse2 = false
+        reverse1 = true
+        reverse2 = true
         chunk = 0
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse1.toString()).replace("@REVERSE2@",reverse2.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
@@ -377,15 +378,15 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse1.toString()).replace("@REVERSE2@",reverse2.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
         then: "we should see the start at the other end"
-        assert length11_4-fivePrimeSequenceStart11_4.length()==returnedSequence.indexOf(fivePrimeSequenceStart11_4.reverse())
-        assert length11_4==returnedSequence.indexOf(threePrimeSequenceEndUn87.reverse())
+//        assert length11_4-fivePrimeSequenceStart11_4.length()==returnedSequence.indexOf(fivePrimeSequenceStart11_4.reverse())
+        assert length11_4-(chunk*chunkSize)-fivePrimeSequenceStart11_4.length()==returnedSequence.indexOf(fivePrimeSequenceStart11_4.reverse())
+        assert length11_4-(chunk*chunkSize)==returnedSequence.indexOf(threePrimeSequenceEndUn87.reverse())
         // TODO: has to match the first of one and the last of another
-        assert false
 
         when: "we reverse the sequence we should and go to the end, we should see the reverse start of Un87"
         reverse1 = true
         reverse2 = true
-        chunk = 7
+        chunk = lastChunk
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse1.toString()).replace("@REVERSE2@",reverse2.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
         then: "we should see the reverse the same"
@@ -411,6 +412,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert false
     }
 
+    @Ignore
     void "get the PROJECTED SINGLE sequence and reverse sequence for ONE feature of 11.4"(){
         given: ""
 
@@ -421,6 +423,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert false
     }
 
+    @Ignore
     void "get the PROJECTED SINGLE sequence and reverse sequence for TWO features of 11.4"(){
         given: ""
 
@@ -431,6 +434,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert false
     }
 
+    @Ignore
     void "get the PROJECTED contiguous sequence and reverse sequence for TWO features of 11.4 and Un87 contiguously"(){
         given: ""
 
