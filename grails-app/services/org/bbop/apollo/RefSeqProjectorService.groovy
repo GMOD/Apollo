@@ -148,7 +148,7 @@ class RefSeqProjectorService {
             // let's grab the first reverse projection sequence as we are off on the end
             ProjectionSequence reverseProjectionSequence = projection.getProjectedSequences().last()
             if (reverseProjectionSequence?.reverse) {
-                unprojectedCoordinate.max = projection.getMinCoordinate().min
+                unprojectedCoordinate.max = projection.getMinCoordinate().min + reverseProjectionSequence.originalOffset
             } else {
                 unprojectedCoordinate.max = projection.getMaxCoordinate().max + 1
             }
@@ -161,7 +161,6 @@ class RefSeqProjectorService {
         Integer unprojectedStart = unprojectedCoordinate.min
         Integer unprojectedEnd = unprojectedCoordinate.max
 
-        Integer startOffset = unprojectedStart - projectedStart
 
         List<ProjectionSequence> sequences = projection.getReverseProjectionSequences(projectedStart, projectedEnd)
 
@@ -175,8 +174,6 @@ class RefSeqProjectorService {
             Integer startIndex, endIndex
 
             if (projectionSequence.reverse) {
-                startOffset = (projectionSequence.end - startOffset) + projectionSequence.originalOffset
-
                 if (index == 0) {
                     // this is the only sequence, so just grab the exact amount
                     startIndex = unprojectedStart - projectionSequence.originalOffset
@@ -188,6 +185,7 @@ class RefSeqProjectorService {
                     else {
                         endIndex = 0 // it imples that it is offset
                     }
+                    endIndex = endIndex < 0 ? 0 : endIndex
                 }
                 // end case
                 // implied at least 2, so the start will always be 0
@@ -213,6 +211,7 @@ class RefSeqProjectorService {
 
                 stringList << sequenceService.getRawResiduesFromSequence(sequence, startIndex , endIndex ).reverse()
             } else {
+                Integer startOffset = unprojectedStart - projectedStart
                 if (index == 0) {
                     // this is the only sequence, so just grab the exact amount
                     startIndex = unprojectedStart - projectionSequence.originalOffset - startOffset + projectionSequence.start
