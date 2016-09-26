@@ -285,7 +285,7 @@ class SequenceService {
     }
 
     String[] splitStringByNumberOfCharacters(String label, int size) {
-        return label.toList().collate(size)*.join()
+        return label.toList().collate(size)*.join("")
     }
 
 

@@ -206,8 +206,8 @@ class RefSeqProjectorService {
                 int tempEnd = endIndex
                 startIndex = tempEnd
                 endIndex = tempStart
-                startIndex += projectionSequence.start
-                endIndex += projectionSequence.start
+//                startIndex += projectionSequence.start
+//                endIndex += projectionSequence.start
 
                 stringList << sequenceService.getRawResiduesFromSequence(sequence, startIndex , endIndex ).reverse()
             } else {
