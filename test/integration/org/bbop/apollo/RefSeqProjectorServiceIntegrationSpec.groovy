@@ -316,7 +316,8 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "get unprojected contiguous sequence and reverse sequence for 11.4 and Un87 contiguously"(){
 
         given: "a single unprojected sequence for 11.4 and Un87"
-        Boolean reverse = false
+        Boolean reverse1 = false
+        Boolean reverse2 = false
         Integer chunk = 0
         Integer length11_4 = 75085 // Un87 starts at 75086
         Integer lengthUn87 = 78258 // Total length is 153343
@@ -333,24 +334,26 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         when: "we get the sequence we confirm that the first is 11.4"
-        String returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+        String returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse1.toString()).replace("@REVERSE2@",reverse2.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
         then: "affirm that the start starts with the start and the end ends with the end"
         assert 0==returnedSequence.indexOf(fivePrimeSequenceStart11_4)
 
         when: "we go to the end of the first sequence"
-        reverse = false
+        reverse1 = false
+        reverse2 = false
         chunk = 3
-        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse1.toString()).replace("@REVERSE2@",reverse2.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
         then: "we should get the proper end sequence for 11.4 and start sequence for un87"
         assert chunk3Length-threePrimeSequenceEnd11_4.length()==returnedSequence.indexOf(threePrimeSequenceEnd11_4)
         assert chunk3Length==returnedSequence.indexOf(fivePrimeSequenceStartUn87)
 
         when: "we go to the end of the last sequence"
-        reverse = false
+        reverse1 = false
+        reverse2 = false
         chunk = lastChunk // this is the last chunk
-        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse1.toString()).replace("@REVERSE2@",reverse2.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
         then: "we should get the proper end sequence for Un87"
         assert length11_4+lengthUn87-threePrimeSequenceEndUn87.length()- (chunkSize * lastChunk)==returnedSequence.indexOf(threePrimeSequenceEndUn87)
@@ -359,17 +362,19 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         when: "we reverse the sequence we should see the opposite start"
-        reverse = true
+        reverse1 = false
+        reverse2 = false
         chunk = 0
-        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse1.toString()).replace("@REVERSE2@",reverse2.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
         then: "we should get the proper 11.4 end sequence as above"
         assert 0==returnedSequence.indexOf(threePrimeSequenceEnd11_4.reverse())
 
         when: "we reverse the sequence we should see the opposite start of 11.4 and the end of Un87"
-        reverse = true
+        reverse1 = true
+        reverse2 = true
         chunk = 3
-        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse1.toString()).replace("@REVERSE2@",reverse2.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
         then: "we should see the start at the other end"
         assert length11_4-fivePrimeSequenceStart11_4.length()==returnedSequence.indexOf(fivePrimeSequenceStart11_4.reverse())
@@ -378,9 +383,10 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert false
 
         when: "we reverse the sequence we should and go to the end, we should see the reverse start of Un87"
-        reverse = true
+        reverse1 = true
+        reverse2 = true
         chunk = 7
-        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse1.toString()).replace("@REVERSE2@",reverse2.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
         then: "we should see the reverse the same"
         // TODO: has to match the first of one and the last of another
@@ -390,7 +396,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "we reverse the sequence we should see the opposite end"
         // if 11.4 is false and Un87 is true
         chunk = 3
-        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse1.toString()).replace("@REVERSE2@",reverse2.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
         then: "we should still see the appropriate sequenes"
         assert false
@@ -399,7 +405,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "we reverse the sequence we should see the opposite end"
         // if 11.4 is true (reverse) and Un87 is false
         chunk = 3
-        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse.toString()).replace("@REVERSE2@",reverse.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@",reverse1.toString()).replace("@REVERSE2@",reverse2.toString()).replace("@CHUNK@",chunk.toString()),Organism.first())
 
         then: "we should still see the appropriate sequenes"
         assert false
