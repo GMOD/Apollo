@@ -167,10 +167,15 @@ class RefSeqProjectorService {
 
         ProjectionSequence projectionSequenceReverseStart = projection.getReverseProjectionSequence(unprojectedStart)
         ProjectionSequence projectionSequenceReverseEnd = projection.getReverseProjectionSequence(unprojectedEnd)
-        if(projectionSequenceReverseStart==projectionSequenceReverseEnd && projectionSequenceReverseStart?.reverse){
+        if(projectionSequenceReverseStart==projectionSequenceReverseEnd && projectionSequenceReverseStart?.reverse
+        || (projectionSequenceReverseStart && projectionSequenceReverseEnd && projectionSequenceReverseStart?.reverse && projectionSequenceReverseEnd?.reverse)
+        ){
             int temp = unprojectedStart
             unprojectedStart = unprojectedEnd
             unprojectedEnd = temp
+//            int tempProjected = projectedStart
+//            projectedStart = projectedEnd
+//            projectedEnd = tempProjected
         }
 
         Integer startOffset = unprojectedStart - projectedStart
