@@ -1659,18 +1659,20 @@ class RequestHandlingService {
                 // if jsonFeature is of type gene or pseudogene
                 JSONObject jsonGene = JSON.parse(jsonFeature.toString())
                 jsonGene.remove(FeatureStringEnum.CHILDREN.value)
-                for (JSONObject transcriptJsonFeature in jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)) {
-                    // look at its children JSON Array to get the features at the *RNA level
-                    // adding jsonGene to each individual transcript
-                    transcriptJsonFeature.put(FeatureStringEnum.PARENT.value, jsonGene)
-                    Feature newFeature = featureService.addFeature(transcriptJsonFeature, sequence, user, suppressHistory)
-                    JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
-                    JSONObject jsonObject = newFeatureJsonObject
+                if(jsonFeature.containsKey(FeatureStringEnum.CHILDREN.value)){
+                    for (JSONObject transcriptJsonFeature in jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)) {
+                        // look at its children JSON Array to get the features at the *RNA level
+                        // adding jsonGene to each individual transcript
+                        transcriptJsonFeature.put(FeatureStringEnum.PARENT.value, jsonGene)
+                        Feature newFeature = featureService.addFeature(transcriptJsonFeature, sequence, user, suppressHistory)
+                        JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
+                        JSONObject jsonObject = newFeatureJsonObject
 
-                    if (!suppressHistory) {
-                        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, newFeatureJsonObject, user)
+                        if (!suppressHistory) {
+                            featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.name, newFeature.uniqueName, inputObject, newFeatureJsonObject, user)
+                        }
+                        returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
                     }
-                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
                 }
             }
             else {
