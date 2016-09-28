@@ -193,9 +193,9 @@ class RefSeqProjectorService {
                 else
                 if (index == sequences.size() - 1) {
                     startIndex = projectionSequence.end
-                    endIndex = unprojectedEnd - projectionSequence.originalOffset
-
-                    endIndex = endIndex < projectionSequence.start ? projectionSequence.start : endIndex
+//                    endIndex = unprojectedEnd - projectionSequence.originalOffset
+                    endIndex = projectionSequence.start
+//                    endIndex = endIndex < projectionSequence.start ? projectionSequence.start : endIndex
                 }
                 // middle case, should just be the start and end of this sequence
                 else {
