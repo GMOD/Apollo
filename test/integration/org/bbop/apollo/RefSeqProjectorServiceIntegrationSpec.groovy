@@ -505,6 +505,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         String sequenceTemplate = URLDecoder.decode("${Organism.first().directory}/seq/f60/9c7/ee/%7B%22description%22:%22Group11.4%22,%20%22padding%22:0,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:0,%20%22end%22:75085,%20%22reverse%22:@REVERSE@%7D]%7D:-1..-1-@CHUNK@.txt","UTF-8")
         String featureGb52236Template = URLDecoder.decode("${Organism.first().directory}/seq/641/b27/07/%7B%22description%22:%22GB52236-RA%20(Group11.4)%22,%20%22padding%22:0,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:52653,%20%22end%22:59162,%20%22reverse%22:@REVERSE@,%20%22feature%22:%7B%22name%22:%22GB52236-RA%22,%20%22start%22:52653,%20%22end%22:59162,%20%22parent_id%22:%22Group11.4%22%7D%7D]%7D:-1..-1-@CHUNK@.txt","UTF-8")
         String featureGb52238Template = URLDecoder.decode("${Organism.first().directory}/seq/1be/086/a3/%7B%22id%22:42540,%20%22name%22:%22Group11.4GB52238-RA%20Group11.4%22,%20%22description%22:%22GB52238-RA%20(Group11.4)%22,%20%22padding%22:0,%20%22start%22:10057,%20%22end%22:18796,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:10057,%20%22end%22:18796,%20%22reverse%22:@REVERSE@,%20%22feature%22:%7B%22start%22:10057,%20%22name%22:%22GB52238-RA%22,%20%22end%22:18796,%20%22parent_id%22:%22Group11.4%22%7D%7D]%7D:10057..18796-@CHUNK@.txt","UTF-8")
+        String featureGb52236And52238Template = URLDecoder.decode("${Organism.first().directory}/seq/87f/888/1b/%7B%22description%22:%22GB52236-RA%20(Group11.4)::GB52238-RA%20(Group11.4)%22,%20%22padding%22:0,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:52653,%20%22end%22:59162,%20%22reverse%22:@REVERSE1@,%20%22feature%22:%7B%22name%22:%22GB52236-RA%22,%20%22start%22:52653,%20%22end%22:59162,%20%22parent_id%22:%22Group11.4%22%7D%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:10057,%20%22end%22:18796,%20%22reverse%22:@REVERSE2@,%20%22feature%22:%7B%22name%22:%22GB52238-RA%22,%20%22start%22:10057,%20%22end%22:18796,%20%22parent_id%22:%22Group11.4%22%7D%7D]%7D:-1..-1-@CHUNK@.txt","UTF-8")
         Boolean reverse = false
         Integer chunk = 0
 
@@ -532,17 +533,45 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert returnedSequence.indexOf(gb52238_threePrime)>0
 
         when: "we view both project gb52236 gb52238 11.4 forward, we should see all"
+        returnedSequence = refSeqProjectorService.projectSequence(featureGb52236And52238Template.replace("@REVERSE@", reverse.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "we should see the correct sequences"
+        assert returnedSequence.indexOf(gb52236_fivePrime)>0
+        assert returnedSequence.indexOf(gb52236_threePrime)>0
+        assert returnedSequence.indexOf(gb52238_fivePrime)>0
+        assert returnedSequence.indexOf(gb52238_threePrime)>0
+
+        assert returnedSequence.indexOf(gb52236_fivePrime) < returnedSequence.indexOf(gb52236_fivePrime)
 
         when: "we view both reverse projection of gb52236 gb52238 11.4 forward, we should see all"
+        returnedSequence = refSeqProjectorService.projectSequence(featureGb52236And52238Template.replace("@REVERSE1@", reverse.toString()).replace("@REVERSE2@", reverse.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "we should see the correct sequences reversed"
+        assert returnedSequence.indexOf(gb52236_fivePrime.reverse())>0
+        assert returnedSequence.indexOf(gb52236_threePrime.reverse())>0
+        assert returnedSequence.indexOf(gb52238_fivePrime.reverse())>0
+        assert returnedSequence.indexOf(gb52238_threePrime.reverse())>0
+
+        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) > returnedSequence.indexOf(gb52238_fivePrime.reverse())
     }
 
     @Ignore
     void "get the PROJECTED contiguous sequence and reverse sequence for TWO features of 11.4 and Un87 contiguously"() {
-        given: ""
+        given: "two 11.4 and Un87 features"
+
+        // 11.4 strings
+        String gb52236_fivePrime = SequenceUtil.reverseComplement("TAAAGATATCTTCCTTAATGGCGGCTTCGTCGCCTCATTCAAAGTATTATCACTCTTATTATTTAATGAT" +
+                "AATTTCTCATCGTATAGTATCATATATGCAAGATGGCGGAACAGAGCCAACAAGATTTTAATAGAAGTGC" +
+                "GTTGACAGTTCGATATGGACGGGTAATTAACATATACTTTTATTAATATATGTTTAAAGTGTTATTTTAG")
+        String gb52236_threePrime = SequenceUtil.reverseComplement("TAAATGAAAGTGTGACCCCATACTGGTGAACCACCAGATCTGCGTACTACTCCAGTCTTTTGTTTTCCTG" +
+                "AGCGACCTTTGTCAGGTAATAAGTAACTGAAAGTAATACAAATTAATATAAATTTATCTTTTTTCTTTTA" +
+                "TTTCAATTATGATTAGATAATAATAAATAATAAAGATGTGTAAATTTTAGTAGTCTTATTAATCATTCAT" +
+                "ATCATAAATAAATAGTGGA")
+        String gb52238_fivePrime = "ATGTTTGCTTGGGGAACTTGTGTTCTCTATGGATGGAGGTTAAAG"
+        String gb52238_threePrime = "ATCATATCCCCTATATCAAAGAATTAAATAATTAA"
+
+        // Un87 strings
+
 
         when: ""
 
