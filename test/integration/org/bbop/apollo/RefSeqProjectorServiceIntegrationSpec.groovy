@@ -489,7 +489,6 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert returnedSequence.indexOf(gb52236_threePrime.reverse())>0
     }
 
-    @IgnoreRest
     void "get the PROJECTED SINGLE sequence and reverse sequence for TWO features of 11.4"() {
         given: "gene GB52236-RA on 11.4"
         // got these off of the feature, so doing this here
@@ -515,6 +514,16 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we should see the correct sequences"
         assert returnedSequence.indexOf(gb52238_fivePrime)>0
         assert returnedSequence.indexOf(gb52238_threePrime)>0
+        assert returnedSequence.indexOf(gb52236_fivePrime)<0
+        assert returnedSequence.indexOf(gb52236_threePrime)<0
+
+        when: "we view only 11.4 forward, we should see all"
+        chunk = 2
+        returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE@", reverse.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+
+        then: "we should see the correct sequences"
+        assert returnedSequence.indexOf(gb52238_fivePrime)<0
+        assert returnedSequence.indexOf(gb52238_threePrime)<0
         assert returnedSequence.indexOf(gb52236_fivePrime)>0
         assert returnedSequence.indexOf(gb52236_threePrime)>0
 
@@ -555,7 +564,6 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) > returnedSequence.indexOf(gb52238_fivePrime.reverse())
     }
 
-    @Ignore
     void "get the PROJECTED contiguous sequence and reverse sequence for TWO features of 11.4 and Un87 contiguously"() {
         given: "two 11.4 and Un87 features"
 
@@ -571,12 +579,38 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         String gb52238_threePrime = "ATCATATCCCCTATATCAAAGAATTAAATAATTAA"
 
         // Un87 strings
+        String gb53496 = "ATGCACTGTCAACGTACACGGGCAGCCTTAAGATGTCATGCAGAAGCACGACAGTTAACTTTAAAGCAGT" +
+                "TAAATTCTATTCTATCATTTTTTTTATTCTATCAACGTAATGAAACGAAGCAAGAAATTTGGTTACCAGA" +
+                "TATCGGAACTTTCGGTTCTTTTGTATCTAAACGTCAACGTGTATCTAAAAATATAATGGCAGTAAAATAC" +
+                "TAA"
+        String gb53498_fivePrime = "ATGAAAGGTAAGTGAATATCAATATAGAATTCACATCTAGAATTTCTTTTTATGTAAAAACGAAGTAACT"
+        String gb53498_threePrime = "ATACAGAAGTAAGTATTTCTATAATAATTTTATAAAAAATATAATAACAAATAATAAGATAATAGGAATA" +
+                "ATTAAATGAAATAAAAATATTAG"
+        Boolean reverse11_4 = false
+        Boolean reverseUn87 = false
 
 
-        when: ""
+        when: "we project them all contiguously together"
 
-        then: ""
-        // TODO: should be similar to above tests
+        then: "we should see all of the strings"
+
+        when: "we project them all contiguously together, but reverse them all "
+        reverse11_4 = true
+        reverseUn87 = true
+
+        then: "we should see all of the strings"
+
+        when: "we project them all contiguously together, but reverse the first one"
+        reverse11_4 = true
+        reverseUn87 = false
+
+        then: "we should see all of the strings"
+
+        when: "we project them all contiguously together, but reverse the second one"
+        reverse11_4 = false
+        reverseUn87 = true
+
+        then: "we should see all of the strings"
         assert false
     }
 
