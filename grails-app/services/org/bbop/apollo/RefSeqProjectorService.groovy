@@ -183,9 +183,9 @@ class RefSeqProjectorService {
                     // there are more than one sequences and this is the first of possibly several
                     // we go to the end of the projection then
                     else {
-                        endIndex = 0 // it imples that it is offset
+                        endIndex = projectionSequence.start // it imples that it is offset
                     }
-                    endIndex = endIndex < 0 ? 0 : endIndex
+                    endIndex = endIndex < projectionSequence.start ? projectionSequence.start : endIndex
                 }
                 // end case
                 // implied at least 2, so the start will always be 0
@@ -194,6 +194,8 @@ class RefSeqProjectorService {
                 if (index == sequences.size() - 1) {
                     startIndex = projectionSequence.end
                     endIndex = unprojectedEnd - projectionSequence.originalOffset
+
+                    endIndex = endIndex < projectionSequence.start ? projectionSequence.start : endIndex
                 }
                 // middle case, should just be the start and end of this sequence
                 else {

@@ -505,6 +505,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         String featureGb52236Template = URLDecoder.decode("${Organism.first().directory}/seq/641/b27/07/%7B%22description%22:%22GB52236-RA%20(Group11.4)%22,%20%22padding%22:0,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:52653,%20%22end%22:59162,%20%22reverse%22:@REVERSE@,%20%22feature%22:%7B%22name%22:%22GB52236-RA%22,%20%22start%22:52653,%20%22end%22:59162,%20%22parent_id%22:%22Group11.4%22%7D%7D]%7D:-1..-1-@CHUNK@.txt","UTF-8")
         String featureGb52238Template = URLDecoder.decode("${Organism.first().directory}/seq/1be/086/a3/%7B%22id%22:42540,%20%22name%22:%22Group11.4GB52238-RA%20Group11.4%22,%20%22description%22:%22GB52238-RA%20(Group11.4)%22,%20%22padding%22:0,%20%22start%22:10057,%20%22end%22:18796,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:10057,%20%22end%22:18796,%20%22reverse%22:@REVERSE@,%20%22feature%22:%7B%22start%22:10057,%20%22name%22:%22GB52238-RA%22,%20%22end%22:18796,%20%22parent_id%22:%22Group11.4%22%7D%7D]%7D:10057..18796-@CHUNK@.txt","UTF-8")
         String featureGb52236And52238Template = URLDecoder.decode("${Organism.first().directory}/seq/87f/888/1b/%7B%22description%22:%22GB52236-RA%20(Group11.4)::GB52238-RA%20(Group11.4)%22,%20%22padding%22:0,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:52653,%20%22end%22:59162,%20%22reverse%22:@REVERSE1@,%20%22feature%22:%7B%22name%22:%22GB52236-RA%22,%20%22start%22:52653,%20%22end%22:59162,%20%22parent_id%22:%22Group11.4%22%7D%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:10057,%20%22end%22:18796,%20%22reverse%22:@REVERSE2@,%20%22feature%22:%7B%22name%22:%22GB52238-RA%22,%20%22start%22:10057,%20%22end%22:18796,%20%22parent_id%22:%22Group11.4%22%7D%7D]%7D:-1..-1-@CHUNK@.txt","UTF-8")
+        String featureGb52238And52236Template = URLDecoder.decode("${Organism.first().directory}/seq/876/56b/87/%7B%22description%22:%22GB52238-RA%20(Group11.4)::GB52236-RA%20(Group11.4)%22,%20%22padding%22:0,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:10057,%20%22end%22:18796,%20%22reverse%22:@REVERSE1@,%20%22feature%22:%7B%22start%22:10057,%20%22name%22:%22GB52238-RA%22,%20%22end%22:18796,%20%22parent_id%22:%22Group11.4%22%7D%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:52653,%20%22end%22:59162,%20%22reverse%22:@REVERSE2@,%20%22feature%22:%7B%22start%22:52653,%20%22name%22:%22GB52236-RA%22,%20%22end%22:59162,%20%22parent_id%22:%22Group11.4%22%7D%7D]%7D:-1..-1-@CHUNK@.txt","UTF-8")
         Boolean reverse = false
         Integer chunk = 0
 
@@ -528,11 +529,15 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert returnedSequence.indexOf(gb52236_threePrime)>0
 
         when: "we view the projected gb52236 11.4 forward, we should see all"
+        chunk = 0
         returnedSequence = refSeqProjectorService.projectSequence(featureGb52236Template.replace("@REVERSE@", reverse.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "we should see the correct sequences"
         assert returnedSequence.indexOf(gb52236_fivePrime)>0
         assert returnedSequence.indexOf(gb52236_threePrime)>0
+        // should not be there (sanity)
+        assert returnedSequence.indexOf(gb52238_fivePrime)<0
+        assert returnedSequence.indexOf(gb52238_threePrime)<0
 
         when: "we view the projected gb52238 11.4 forward, we should see all"
         returnedSequence = refSeqProjectorService.projectSequence(featureGb52238Template.replace("@REVERSE@", reverse.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
@@ -540,30 +545,159 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we should see the correct sequences"
         assert returnedSequence.indexOf(gb52238_fivePrime)>0
         assert returnedSequence.indexOf(gb52238_threePrime)>0
+        // should not be there (sanity)
+        assert returnedSequence.indexOf(gb52236_fivePrime)<0
+        assert returnedSequence.indexOf(gb52236_threePrime)<0
 
         when: "we view both project gb52236 gb52238 11.4 forward, we should see all"
-        returnedSequence = refSeqProjectorService.projectSequence(featureGb52236And52238Template.replace("@REVERSE@", reverse.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+        Boolean reverse1 = false
+        Boolean reverse2 = false
+        returnedSequence = refSeqProjectorService.projectSequence(featureGb52236And52238Template.replace("@REVERSE1@", reverse1.toString()).replace("@REVERSE2@", reverse2.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+        Integer totalLength = returnedSequence.length()
 
         then: "we should see the correct sequences"
         assert returnedSequence.indexOf(gb52236_fivePrime)>0
         assert returnedSequence.indexOf(gb52236_threePrime)>0
         assert returnedSequence.indexOf(gb52238_fivePrime)>0
         assert returnedSequence.indexOf(gb52238_threePrime)>0
+        assert returnedSequence.length()<20000
 
-        assert returnedSequence.indexOf(gb52236_fivePrime) < returnedSequence.indexOf(gb52236_fivePrime)
+        assert returnedSequence.indexOf(gb52236_threePrime) < returnedSequence.indexOf(gb52238_fivePrime)
+
+        assert returnedSequence.indexOf(gb52236_fivePrime) > returnedSequence.indexOf(gb52236_threePrime)
+        assert returnedSequence.indexOf(gb52238_fivePrime) < returnedSequence.indexOf(gb52238_threePrime)
 
         when: "we view both reverse projection of gb52236 gb52238 11.4 forward, we should see all"
-        returnedSequence = refSeqProjectorService.projectSequence(featureGb52236And52238Template.replace("@REVERSE1@", reverse.toString()).replace("@REVERSE2@", reverse.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+        reverse1 = true
+        reverse2 = true
+        returnedSequence = refSeqProjectorService.projectSequence(featureGb52236And52238Template.replace("@REVERSE1@", reverse1.toString()).replace("@REVERSE2@", reverse2.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "we should see the correct sequences reversed"
         assert returnedSequence.indexOf(gb52236_fivePrime.reverse())>0
         assert returnedSequence.indexOf(gb52236_threePrime.reverse())>0
         assert returnedSequence.indexOf(gb52238_fivePrime.reverse())>0
         assert returnedSequence.indexOf(gb52238_threePrime.reverse())>0
+        assert returnedSequence.length()<20000
+        assert returnedSequence.length()==totalLength
 
-        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) > returnedSequence.indexOf(gb52238_fivePrime.reverse())
+        // it remaines reversed, because the order is not actually reversed here but separately
+        assert returnedSequence.indexOf(gb52236_threePrime.reverse()) < returnedSequence.indexOf(gb52238_fivePrime.reverse())
+
+        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) < returnedSequence.indexOf(gb52236_threePrime.reverse())
+        assert returnedSequence.indexOf(gb52238_fivePrime.reverse()) > returnedSequence.indexOf(gb52238_threePrime.reverse())
+
+        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) < returnedSequence.indexOf(gb52238_fivePrime.reverse())
+
+        when: "we view both reverse the first only of gb52236 gb52238 11.4 forward, we should see all"
+        reverse1 = true
+        reverse2 = false
+        returnedSequence = refSeqProjectorService.projectSequence(featureGb52236And52238Template.replace("@REVERSE1@", reverse1.toString()).replace("@REVERSE2@", reverse2.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+
+        then: "we should see the first sequence reversed"
+        assert returnedSequence.length()==totalLength
+        assert returnedSequence.indexOf(gb52236_fivePrime.reverse())>0
+        assert returnedSequence.indexOf(gb52236_threePrime.reverse())>0
+        assert returnedSequence.indexOf(gb52238_fivePrime)>0
+        assert returnedSequence.indexOf(gb52238_threePrime)>0
+
+        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) < returnedSequence.indexOf(gb52238_fivePrime)
+
+        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) < returnedSequence.indexOf(gb52236_threePrime.reverse())
+        assert returnedSequence.indexOf(gb52238_fivePrime) < returnedSequence.indexOf(gb52238_threePrime)
+
+
+        when: "we view both reverse the first only of gb52236 gb52238 11.4 forward, we should see all"
+        reverse1 = false
+        reverse2 = true
+        returnedSequence = refSeqProjectorService.projectSequence(featureGb52236And52238Template.replace("@REVERSE1@", reverse1.toString()).replace("@REVERSE2@", reverse2.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+
+        then: "we should see the last sequence reversed"
+        assert returnedSequence.length()==totalLength
+        assert returnedSequence.indexOf(gb52236_fivePrime)>0
+        assert returnedSequence.indexOf(gb52236_threePrime)>0
+        assert returnedSequence.indexOf(gb52238_fivePrime.reverse())>0
+        assert returnedSequence.indexOf(gb52238_threePrime.reverse())>0
+
+        assert returnedSequence.indexOf(gb52236_threePrime) < returnedSequence.indexOf(gb52238_fivePrime.reverse())
+
+        assert returnedSequence.indexOf(gb52238_fivePrime.reverse()) > returnedSequence.indexOf(gb52238_threePrime.reverse())
+        assert returnedSequence.indexOf(gb52236_fivePrime) > returnedSequence.indexOf(gb52236_threePrime)
+
+
+
+
+        when: "we flip it (GB52238 and then GB52236) and see what we get"
+        reverse1 = false
+        reverse2 = false
+        returnedSequence = refSeqProjectorService.projectSequence(featureGb52238And52236Template.replace("@REVERSE1@", reverse1.toString()).replace("@REVERSE2@", reverse2.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+
+        then: "we should see the same sequences in the forward order"
+        assert returnedSequence.length()==totalLength
+        assert returnedSequence.indexOf(gb52238_fivePrime)>0
+        assert returnedSequence.indexOf(gb52238_threePrime)>0
+        assert returnedSequence.indexOf(gb52236_fivePrime)>0
+        assert returnedSequence.indexOf(gb52236_threePrime)>0
+
+        assert returnedSequence.indexOf(gb52238_threePrime) < returnedSequence.indexOf(gb52236_fivePrime)
+
+        assert returnedSequence.indexOf(gb52238_fivePrime) < returnedSequence.indexOf(gb52238_threePrime)
+        assert returnedSequence.indexOf(gb52236_fivePrime) > returnedSequence.indexOf(gb52236_threePrime)
+
+        when: "we flip it and reverse both (GB52238 and then GB52236) and see what we get"
+        reverse1 = true
+        reverse2 = true
+        returnedSequence = refSeqProjectorService.projectSequence(featureGb52238And52236Template.replace("@REVERSE1@", reverse1.toString()).replace("@REVERSE2@", reverse2.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+
+        then: "we should see the same sequences in the forward order"
+        assert returnedSequence.length()==totalLength
+        assert returnedSequence.indexOf(gb52238_fivePrime.reverse())>0
+        assert returnedSequence.indexOf(gb52238_threePrime.reverse())>0
+        assert returnedSequence.indexOf(gb52236_fivePrime.reverse())>0
+        assert returnedSequence.indexOf(gb52236_threePrime.reverse())>0
+
+        assert returnedSequence.indexOf(gb52238_threePrime.reverse()) < returnedSequence.indexOf(gb52236_fivePrime.reverse())
+
+        assert returnedSequence.indexOf(gb52238_fivePrime.reverse()) > returnedSequence.indexOf(gb52238_threePrime.reverse())
+        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) < returnedSequence.indexOf(gb52236_threePrime.reverse())
+
+        when: "we flip it and reverse first (GB52238 and then GB52236) and see what we get"
+        reverse1 = true
+        reverse2 = false
+        returnedSequence = refSeqProjectorService.projectSequence(featureGb52238And52236Template.replace("@REVERSE1@", reverse1.toString()).replace("@REVERSE2@", reverse2.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+
+        then: "we should see the same sequences in the forward order"
+        assert returnedSequence.length()==totalLength
+        assert returnedSequence.indexOf(gb52238_fivePrime.reverse())>0
+        assert returnedSequence.indexOf(gb52238_threePrime.reverse())>0
+        assert returnedSequence.indexOf(gb52236_fivePrime)>0
+        assert returnedSequence.indexOf(gb52236_threePrime)>0
+
+        assert returnedSequence.indexOf(gb52238_threePrime.reverse()) < returnedSequence.indexOf(gb52236_fivePrime)
+
+        assert returnedSequence.indexOf(gb52238_fivePrime.reverse()) > returnedSequence.indexOf(gb52238_threePrime.reverse())
+        assert returnedSequence.indexOf(gb52236_fivePrime) > returnedSequence.indexOf(gb52236_threePrime)
+
+
+        when: "we flip it and reverse last (GB52238 and then GB52236) and see what we get"
+        reverse1 = false
+        reverse2 = true
+        returnedSequence = refSeqProjectorService.projectSequence(featureGb52238And52236Template.replace("@REVERSE1@", reverse1.toString()).replace("@REVERSE2@", reverse2.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+
+        then: "we should see the same sequences in the forward order"
+        assert returnedSequence.length()==totalLength
+        assert returnedSequence.indexOf(gb52238_fivePrime)>0
+        assert returnedSequence.indexOf(gb52238_threePrime)>0
+        assert returnedSequence.indexOf(gb52236_fivePrime.reverse())>0
+        assert returnedSequence.indexOf(gb52236_threePrime.reverse())>0
+
+        assert returnedSequence.indexOf(gb52238_threePrime) < returnedSequence.indexOf(gb52236_fivePrime.reverse())
+
+        assert returnedSequence.indexOf(gb52238_fivePrime) < returnedSequence.indexOf(gb52238_threePrime)
+        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) < returnedSequence.indexOf(gb52236_threePrime.reverse())
+
     }
 
+    @Ignore
     void "get the PROJECTED contiguous sequence and reverse sequence for TWO features of 11.4 and Un87 contiguously"() {
         given: "two 11.4 and Un87 features"
 
