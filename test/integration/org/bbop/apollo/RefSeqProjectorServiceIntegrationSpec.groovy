@@ -489,6 +489,10 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert returnedSequence.indexOf(gb52236_threePrime.reverse())>0
     }
 
+    /**
+     * Note, features should only ever be projected in the same direction.
+     * This tests projecting features is separate directions, as well, but the UI disallows this.
+     */
     void "get the PROJECTED SINGLE sequence and reverse sequence for TWO features of 11.4"() {
         given: "gene GB52236-RA on 11.4"
         // got these off of the feature, so doing this here
@@ -697,7 +701,6 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
-    @Ignore
     void "get the PROJECTED contiguous sequence and reverse sequence for TWO features of 11.4 and Un87 contiguously"() {
         given: "two 11.4 and Un87 features"
 
@@ -720,33 +723,174 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         String gb53498_fivePrime = "ATGAAAGGTAAGTGAATATCAATATAGAATTCACATCTAGAATTTCTTTTTATGTAAAAACGAAGTAACT"
         String gb53498_threePrime = "ATACAGAAGTAAGTATTTCTATAATAATTTTATAAAAAATATAATAACAAATAATAAGATAATAGGAATA" +
                 "ATTAAATGAAATAAAAATATTAG"
-        Boolean reverse11_4 = false
-        Boolean reverseUn87 = false
+        Integer chunk
+        Boolean reverse11_4
+        Boolean reverseUn87
+        // 11_4 and then Un87
+        // 55236, 55238, 53498, and 53496 L to R
+        String featureTemplate = URLDecoder.decode("${Organism.first().directory}/seq/b94/197/2b/%7B%22id%22:43685,%20%22name%22:%22Group11.4GB52236-RA%20Group11.4Group11.4GB52238-RA%20Group11.4GB52236-RA%20Group11.4Group11.4GroupUn87GB5%22,%20%22description%22:%22GB52236-RA%20(Group11.4)::GB52238-RA%20(Group11.4)::GB53498-RA%20(GroupUn87)::GB53496-RA%20(GroupUn87)%22,%20%22padding%22:0,%20%22start%22:52653,%20%22end%22:10379,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:52653,%20%22end%22:59162,%20%22reverse%22:@REVERSE1@,%20%22feature%22:%7B%22start%22:52653,%20%22name%22:%22GB52236-RA%22,%20%22end%22:59162,%20%22parent_id%22:%22Group11.4%22%7D%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:10057,%20%22end%22:18796,%20%22reverse%22:@REVERSE1@,%20%22feature%22:%7B%22start%22:10057,%20%22name%22:%22GB52238-RA%22,%20%22end%22:18796,%20%22parent_id%22:%22Group11.4%22%7D%7D,%7B%22name%22:%22GroupUn87%22,%20%22start%22:29196,%20%22end%22:30529,%20%22reverse%22:@REVERSE2@,%20%22feature%22:%7B%22start%22:29196,%20%22name%22:%22GB53498-RA%22,%20%22end%22:30529,%20%22parent_id%22:%22GroupUn87%22%7D%7D,%7B%22name%22:%22GroupUn87%22,%20%22start%22:9766,%20%22end%22:10379,%20%22reverse%22:@REVERSE2@,%20%22feature%22:%7B%22start%22:9766,%20%22name%22:%22GB53496-RA%22,%20%22end%22:10379,%20%22parent_id%22:%22GroupUn87%22%7D%7D]%7D:52653..10379-@CHUNK@.txt","UTF-8")
 
 
-        when: "we project them all contiguously together"
 
-        then: "we should see all of the strings"
-
-        when: "we project them all contiguously together, but reverse them all "
-        reverse11_4 = true
-        reverseUn87 = true
-
-        then: "we should see all of the strings"
-
-        when: "we project them all contiguously together, but reverse the first one"
-        reverse11_4 = true
-        reverseUn87 = false
-
-        then: "we should see all of the strings"
-
-        when: "we project them all contiguously together, but reverse the second one"
+        when: "we just view the features"
         reverse11_4 = false
-        reverseUn87 = true
+        reverseUn87 = false
+        chunk = 0
+        String returnedSequence = refSeqProjectorService.projectSequence(featureTemplate.replace("@REVERSE1@", reverse11_4.toString()).replace("@REVERSE2@", reverseUn87.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+        Integer index52236_fivePrime = returnedSequence.indexOf(gb52236_fivePrime)
+        Integer index52236_threePrime = returnedSequence.indexOf(gb52236_threePrime)
+        Integer index52238_fivePrime = returnedSequence.indexOf(gb52238_fivePrime)
+        Integer index52238_threePrime = returnedSequence.indexOf(gb52238_threePrime)
+        Integer index53498_fivePrime = returnedSequence.indexOf(gb53498_fivePrime)
+        Integer index53498_threePrime = returnedSequence.indexOf(gb53498_threePrime)
+        Integer index53496 = returnedSequence.indexOf(gb53496)
+        Integer totalLength = returnedSequence.length()
 
-        then: "we should see all of the strings"
-        assert false
+        then: "we should see them all still"
+        assert index52236_fivePrime > 0
+        assert index52236_threePrime > 0
+        assert index52238_fivePrime > 0
+        assert index52238_threePrime > 0
+        assert index53498_fivePrime > 0
+        assert index53498_threePrime > 0
+        assert index53496 > 0
+        assert index52236_fivePrime > index52236_threePrime // negative strand
+        assert index52236_threePrime < index52238_fivePrime
+        assert index52238_fivePrime < index52238_threePrime
+        assert index52238_threePrime < index53498_fivePrime
+        assert index53498_fivePrime < index53498_threePrime
+        assert index53498_threePrime < index53496
+        assert totalLength < 20000
+
+
+        when: "we reverse the features view"
+        reverse11_4 = true
+        reverseUn87 = true
+        chunk = 0
+        returnedSequence = refSeqProjectorService.projectSequence(featureTemplate.replace("@REVERSE1@", reverse11_4.toString()).replace("@REVERSE2@", reverseUn87.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+        index52236_fivePrime = returnedSequence.indexOf(gb52236_fivePrime.reverse())
+        index52236_threePrime = returnedSequence.indexOf(gb52236_threePrime.reverse())
+        index52238_fivePrime = returnedSequence.indexOf(gb52238_fivePrime.reverse())
+        index52238_threePrime = returnedSequence.indexOf(gb52238_threePrime.reverse())
+        index53498_fivePrime = returnedSequence.indexOf(gb53498_fivePrime.reverse())
+        index53498_threePrime = returnedSequence.indexOf(gb53498_threePrime.reverse())
+        index53496 = returnedSequence.indexOf(gb53496.reverse())
+        totalLength = returnedSequence.length()
+
+        then: "we should see them all still"
+        assert returnedSequence.length()==totalLength
+        assert totalLength == 17194
+        assert index52236_fivePrime > 0
+        assert index52236_threePrime > 0
+        assert index52238_fivePrime > 0
+        assert index52238_threePrime > 0
+        assert index53498_fivePrime > 0
+        assert index53498_threePrime > 0
+        assert index53496 > 0
+        assert index52236_fivePrime < index52236_threePrime // negative strand
+        assert index52236_threePrime < index52238_fivePrime
+        assert index52238_fivePrime > index52238_threePrime
+        assert index52238_threePrime < index53498_fivePrime
+        assert index53498_fivePrime > index53498_threePrime
+        assert index53498_threePrime < index53496
     }
+
+    // TODO: we can try doing a full sequence case, but I think we've already done this
+//    void "we can calculate multi-scaffold features"(){
+//
+//        given: "two 11.4 and Un87 features"
+//
+//        // 11.4 strings
+//        String gb52236_fivePrime = SequenceUtil.reverseComplement("TAAAGATATCTTCCTTAATGGCGGCTTCGTCGCCTCATTCAAAGTATTATCACTCTTATTATTTAATGAT" +
+//                "AATTTCTCATCGTATAGTATCATATATGCAAGATGGCGGAACAGAGCCAACAAGATTTTAATAGAAGTGC" +
+//                "GTTGACAGTTCGATATGGACGGGTAATTAACATATACTTTTATTAATATATGTTTAAAGTGTTATTTTAG")
+//        String gb52236_threePrime = SequenceUtil.reverseComplement("TAAATGAAAGTGTGACCCCATACTGGTGAACCACCAGATCTGCGTACTACTCCAGTCTTTTGTTTTCCTG" +
+//                "AGCGACCTTTGTCAGGTAATAAGTAACTGAAAGTAATACAAATTAATATAAATTTATCTTTTTTCTTTTA" +
+//                "TTTCAATTATGATTAGATAATAATAAATAATAAAGATGTGTAAATTTTAGTAGTCTTATTAATCATTCAT" +
+//                "ATCATAAATAAATAGTGGA")
+//        String gb52238_fivePrime = "ATGTTTGCTTGGGGAACTTGTGTTCTCTATGGATGGAGGTTAAAG"
+//        String gb52238_threePrime = "ATCATATCCCCTATATCAAAGAATTAAATAATTAA"
+//
+//        // Un87 strings
+//        String gb53496 = "ATGCACTGTCAACGTACACGGGCAGCCTTAAGATGTCATGCAGAAGCACGACAGTTAACTTTAAAGCAGT" +
+//                "TAAATTCTATTCTATCATTTTTTTTATTCTATCAACGTAATGAAACGAAGCAAGAAATTTGGTTACCAGA" +
+//                "TATCGGAACTTTCGGTTCTTTTGTATCTAAACGTCAACGTGTATCTAAAAATATAATGGCAGTAAAATAC" +
+//                "TAA"
+//        String gb53498_fivePrime = "ATGAAAGGTAAGTGAATATCAATATAGAATTCACATCTAGAATTTCTTTTTATGTAAAAACGAAGTAACT"
+//        String gb53498_threePrime = "ATACAGAAGTAAGTATTTCTATAATAATTTTATAAAAAATATAATAACAAATAATAAGATAATAGGAATA" +
+//                "ATTAAATGAAATAAAAATATTAG"
+//        Integer chunk = 0
+//        Boolean reverse11_4
+//        Boolean reverseUn87
+//        // 55236, 55238, 53498, and 53496 L to R
+//        String sequence11_4AndUn87Template = URLDecoder.decode("${Organism.first().directory}/seq/051/49c/cb/%7B%22description%22:%22Group11.4::GroupUn87%22,%20%22padding%22:0,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:0,%20%22end%22:75085,%20%22reverse%22:@REVERSE1@%7D,%7B%22name%22:%22GroupUn87%22,%20%22start%22:0,%20%22end%22:78258,%20%22reverse%22:@REVERSE2@%7D]%7D:-1..-1-@CHUNK@.txt","UTF-8")
+//        String sequenceUn87Andll_4Template = URLDecoder.decode("${Organism.first().directory}/seq/f60/e8f/a2/%7B%22description%22:%22GroupUn87::Group11.4%22,%20%22padding%22:0,%20%22sequenceList%22:[%7B%22name%22:%22GroupUn87%22,%20%22start%22:0,%20%22end%22:78258,%20%22reverse%22:@REVERSE1@%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:0,%20%22end%22:75085,%20%22reverse%22:@REVERSE2@%7D]%7D:-1..-1-@CHUNK@.txt","UTF-8")
+//
+//        // Un87And11_4
+//        String featureTemplate = URLDecoder.decode("${Organism.first().directory}/seq/b94/197/2b/%7B%22id%22:43685,%20%22name%22:%22Group11.4GB52236-RA%20Group11.4Group11.4GB52238-RA%20Group11.4GB52236-RA%20Group11.4Group11.4GroupUn87GB5%22,%20%22description%22:%22GB52236-RA%20(Group11.4)::GB52238-RA%20(Group11.4)::GB53498-RA%20(GroupUn87)::GB53496-RA%20(GroupUn87)%22,%20%22padding%22:0,%20%22start%22:52653,%20%22end%22:10379,%20%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%20%22start%22:52653,%20%22end%22:59162,%20%22reverse%22:@REVERSE1@,%20%22feature%22:%7B%22start%22:52653,%20%22name%22:%22GB52236-RA%22,%20%22end%22:59162,%20%22parent_id%22:%22Group11.4%22%7D%7D,%7B%22name%22:%22Group11.4%22,%20%22start%22:10057,%20%22end%22:18796,%20%22reverse%22:@REVERSE1@,%20%22feature%22:%7B%22start%22:10057,%20%22name%22:%22GB52238-RA%22,%20%22end%22:18796,%20%22parent_id%22:%22Group11.4%22%7D%7D,%7B%22name%22:%22GroupUn87%22,%20%22start%22:29196,%20%22end%22:30529,%20%22reverse%22:@REVERSE2@,%20%22feature%22:%7B%22start%22:29196,%20%22name%22:%22GB53498-RA%22,%20%22end%22:30529,%20%22parent_id%22:%22GroupUn87%22%7D%7D,%7B%22name%22:%22GroupUn87%22,%20%22start%22:9766,%20%22end%22:10379,%20%22reverse%22:@REVERSE2@,%20%22feature%22:%7B%22start%22:9766,%20%22name%22:%22GB53496-RA%22,%20%22end%22:10379,%20%22parent_id%22:%22GroupUn87%22%7D%7D]%7D:52653..10379-@CHUNK@.txt","UTF-8")
+
+//        when: "we project them all contiguously together"
+//        String returnedSequence = refSeqProjectorService.projectSequence(sequence11_4AndUn87Template.replace("@REVERSE1@", reverse11_4.toString()).replace("@REVERSE2@", reverseUn87.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+//        Integer index52236_fivePrime = returnedSequence.indexOf(gb52236_fivePrime)
+//        Integer index52236_threePrime = returnedSequence.indexOf(gb52236_threePrime)
+//        Integer index52238_fivePrime = returnedSequence.indexOf(gb52238_fivePrime)
+//        Integer index52238_threePrime = returnedSequence.indexOf(gb52238_threePrime)
+//        Integer index53498_fivePrime = returnedSequence.indexOf(gb53498_fivePrime)
+//        Integer index53498_threePrime = returnedSequence.indexOf(gb53498_threePrime)
+//        Integer index53496 = returnedSequence.indexOf(gb53496)
+//        Integer totalLength = returnedSequence.length()
+//
+//        then: "we should see all of the strings"
+//        assert index52236_fivePrime > 0
+//        assert index52236_threePrime > 0
+//        assert index52238_fivePrime > 0
+//        assert index52238_threePrime > 0
+//        assert index53498_fivePrime > 0
+//        assert index53498_threePrime > 0
+//        assert index53496 > 0
+//        assert index52236_fivePrime < index52236_threePrime
+//        assert index52236_threePrime < index52238_fivePrime
+//        assert index52238_fivePrime < index52238_threePrime
+//        assert index52238_threePrime < index53498_fivePrime
+//        assert index53498_fivePrime < index52236_threePrime
+//        assert index52236_threePrime < index53496
+//        assert totalLength == 20000
+//
+//        when: "we project them all contiguously together, but reverse them all "
+//        reverse11_4 = true
+//        reverseUn87 = true
+//        returnedSequence = refSeqProjectorService.projectSequence(sequence11_4AndUn87Template.replace("@REVERSE1@", reverse11_4.toString()).replace("@REVERSE2@", reverseUn87.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
+//
+//        then: "we should see all of the strings"
+//
+//        when: "we project them all contiguously together, but reverse the first one"
+//        reverse11_4 = true
+//        reverseUn87 = false
+//
+//        then: "we should see all of the strings"
+//
+//        when: "we project them all contiguously together, but reverse the second one"
+//        reverse11_4 = false
+//        reverseUn87 = true
+//
+//        then: "we should see all of the strings"
+//        assert false
+//
+//        // Un87And11_4
+//        when: "we flip them around"
+//        reverse11_4 = false
+//        reverseUn87 = false
+//
+//        then: "we expect to see them in flipped order "
+//
+//        // Un87And11_4
+//        when: "we flip them around"
+//        reverse11_4 = true
+//        reverseUn87 = true
+//
+//        then: "we expect to see them in flipped order reversed"
+//    }
+//
 
     // TODO: add this test for verification
 //    void "get unprojected contiguous - three sequences"() {

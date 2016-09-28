@@ -234,6 +234,9 @@ class AssemblageService {
         if(!assemblage.name){
             assemblage.name = generateAssemblageName(sequenceListArray)
         }
+        if(assemblage.name?.length()>100){
+            assemblage.name = assemblage.name.substring(0,99)
+        }
 
         assemblage.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value) : sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
         assemblage.end = jsonObject.containsKey(FeatureStringEnum.END.value) ? jsonObject.getLong(FeatureStringEnum.END.value) : sequenceListArray.getJSONObject(sequenceListArray.size() - 1).getInt(FeatureStringEnum.END.value)
