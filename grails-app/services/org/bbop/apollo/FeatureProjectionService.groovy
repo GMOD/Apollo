@@ -182,9 +182,9 @@ class FeatureProjectionService {
             int newFmin = calculatedMin
             int newFmax = calculatedMax
 
-            if (projectionSequence.reverse) {
-                oldStrand = !oldStrand
-            }
+//            if (projectionSequence.reverse) {
+//                oldStrand = Strand.getStrandForValue(oldStrand).reverse().value
+//            }
 
             FeatureLocation featureLocation = new FeatureLocation(
                     fmin: newFmin,

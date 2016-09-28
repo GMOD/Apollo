@@ -518,7 +518,6 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert locationJsonObject.fmax == 26719
     }
 
-    @IgnoreRest
     void "I can set the exon boundary when in small feature only view mode"() {
 
         given: "if we create a transcript in the latter half of a combined scaffold it should not have any non-canonical splice sites"
