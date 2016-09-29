@@ -1021,6 +1021,7 @@ class RequestHandlingService {
             int fmax = jsonLocation.getInt(FeatureStringEnum.FMAX.value);
 
 
+
             if (fmin < 0 || fmax < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
@@ -1038,6 +1039,17 @@ class RequestHandlingService {
             Integer transcriptFmin = projectionService.getMinForFeatureInProjection(transcript,multiSequenceProjection)
             Integer transcriptFmax = projectionService.getMaxForFeatureInProjection(transcript,multiSequenceProjection)
 
+            // TODO: not sure what happens when it crosses over
+            if(multiSequenceProjection.getReverseProjectionSequence(exonFmin).reverse){
+                int tempExon = exonFmin
+                exonFmin = exonFmax
+                exonFmax = tempExon
+                int tempTranscript = transcriptFmin
+                transcriptFmin = transcriptFmax
+                transcriptFmax = tempTranscript
+            }
+
+
             boolean updateTransriptBoundaries = false
             if(exonFmin==transcriptFmin){
                 transcriptFmin=fmin
@@ -1047,6 +1059,7 @@ class RequestHandlingService {
                 transcriptFmax=fmax
                 updateTransriptBoundaries = true
             }
+
             featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,exon,fmin,fmax)
             if(updateTransriptBoundaries){
                 featureProjectionService.setFeatureLocationsForProjection(multiSequenceProjection,transcript,transcriptFmin,transcriptFmax)

@@ -727,8 +727,14 @@ class ProjectionService {
             it.name == firstSequenceName
         }
 
-        Integer calculatedMin = firstProjectionSequence.offset - firstProjectionSequence.start + firstFeatureLocation.fmin
-        return calculatedMin
+        if(firstProjectionSequence.reverse){
+            Integer calculatedMin = firstProjectionSequence.offset - firstProjectionSequence.start + (firstProjectionSequence.end - firstFeatureLocation.fmin)
+            return calculatedMin
+        }
+        else{
+            Integer calculatedMin = firstProjectionSequence.offset - firstProjectionSequence.start + firstFeatureLocation.fmin
+            return calculatedMin
+        }
 
     }
 
@@ -748,8 +754,14 @@ class ProjectionService {
             it.name == lasttSequenceName
         }
 
-        Integer calculatedMax = lastProjectionSequence.offset - lastProjectionSequence.start + lastFeatureLocation.fmax
-        return calculatedMax
+        if(lastProjectionSequence.reverse){
+            Integer calculatedMax = lastProjectionSequence.offset - lastProjectionSequence.start + (lastProjectionSequence.end - lastFeatureLocation.fmax)
+            return calculatedMax
+        }
+        else{
+            Integer calculatedMax = lastProjectionSequence.offset - lastProjectionSequence.start + lastFeatureLocation.fmax
+            return calculatedMax
+        }
     }
 
     @NotTransactional

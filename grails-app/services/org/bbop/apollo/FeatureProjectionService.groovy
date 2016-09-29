@@ -84,8 +84,7 @@ class FeatureProjectionService {
                 locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence2.name)
             }
             projectionService.reverseLocation(projectionSequence2, locationObject)
-        }
-        else{
+        } else {
             log.debug("Neither projection is valid, so ignoring")
 //            throw new AnnotationException("Neither projection sequence seems to be valid")
         }
@@ -141,54 +140,69 @@ class FeatureProjectionService {
         int lastIndex = projectionSequenceList.size() - 1
 //        for(projectionSequence in projectionSequenceList){
         projectionSequenceList.eachWithIndex { ProjectionSequence projectionSequence, int i ->
-            int calculatedMin = projectionSequence.offset  // this is the MINimum within the current scope, since this is the PROJECTED offset
-            int calculatedMax = projectionSequence.length + projectionSequence.offset  // this is the MAXimum within the current scope
+
+            int calculatedMin
+            int calculatedMax
             boolean calculatedMinPartial = true
             boolean calculatedMaxPartial = true
-
-            // if first index, then we calculate the min
-            if (i == firstIndex) {
-//                if(min > calculatedMin){
-                calculatedMin = min + projectionSequence.start - projectionSequence.offset
-                calculatedMinPartial = false
-//                }
-            }
-            // if the min is in the middle, then it must be 0
-            // if the min is the last, then it must be 0
-            else {
-                calculatedMin = 0
-            }
-
-            // if the max if the last, then we calculate it properly
-            if (i == lastIndex) {
-//                if(max < calculatedMax){
-                calculatedMax = max + projectionSequence.start - projectionSequence.offset
-                calculatedMaxPartial = false
-//                }
-            } else {
-                // if the max is in the middle, then it must be the sequence.unprojectedLength
-                // if the max is in the first of many, then it must be sequence.unprojectedLength
-//                if(max > projectionSequence.length - projectionSequence.start ){
-                calculatedMax = projectionSequence.unprojectedLength
-//                }
-            }
-//            if(max > projectionSequence.offset)
 
             Organism organism = Organism.findByCommonName(projectionSequence.organism)
             Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name, organism)
 
-//            int newFmin = calculatedMin + projectionSequence.start - projectionSequence.offset
-//            int newFmax = calculatedMax + projectionSequence.start - projectionSequence.offset
-            int newFmin = calculatedMin
-            int newFmax = calculatedMax
+            if (projectionSequence.reverse) {
+                // if first index, then we calculate the min
+                if (i == firstIndex) {
+                    calculatedMin = projectionSequence.end - min - projectionSequence.offset
+                    calculatedMinPartial = false
+                }
+                // if the min is in the middle, then it must be 0
+                // if the min is the last, then it must be 0
+                else {
+                    calculatedMin = projectionSequence.end
+                }
 
-//            if (projectionSequence.reverse) {
-//                oldStrand = Strand.getStrandForValue(oldStrand).reverse().value
-//            }
+                // if the max if the last, then we calculate it properly
+                if (i == lastIndex) {
+                    calculatedMax = projectionSequence.end - max - projectionSequence.offset
+                    calculatedMaxPartial = false
+                } else {
+                    // if the max is in the middle, then it must be the sequence.unprojectedLength
+                    // if the max is in the first of many, then it must be sequence.unprojectedLength
+//                    calculatedMax = projectionSequence.unprojectedLength
+                    calculatedMax = 0
+                }
+                oldStrand = Strand.getStrandForValue(oldStrand).reverse().value
+
+                int temp = calculatedMin
+                calculatedMin = calculatedMax
+                calculatedMax = temp
+
+            } else {
+                // if first index, then we calculate the min
+                if (i == firstIndex) {
+                    calculatedMin = min + projectionSequence.start - projectionSequence.offset
+                    calculatedMinPartial = false
+                }
+                // if the min is in the middle, then it must be 0
+                // if the min is the last, then it must be 0
+                else {
+                    calculatedMin = 0
+                }
+
+                // if the max if the last, then we calculate it properly
+                if (i == lastIndex) {
+                    calculatedMax = max + projectionSequence.start - projectionSequence.offset
+                    calculatedMaxPartial = false
+                } else {
+                    // if the max is in the middle, then it must be the sequence.unprojectedLength
+                    // if the max is in the first of many, then it must be sequence.unprojectedLength
+                    calculatedMax = projectionSequence.unprojectedLength
+                }
+            }
 
             FeatureLocation featureLocation = new FeatureLocation(
-                    fmin: newFmin,
-                    fmax: newFmax,
+                    fmin: calculatedMin,
+                    fmax: calculatedMax,
                     isFmaxPartial: calculatedMaxPartial,
                     isFminPartial: calculatedMinPartial,
                     sequence: sequence,

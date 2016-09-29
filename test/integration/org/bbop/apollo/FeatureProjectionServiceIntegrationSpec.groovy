@@ -1846,7 +1846,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert CDS.count == 1
 
         when: "we set the exon boundary using a reverse command"
-        def allExons = Exon.all
+        int firstMRNAfmin = MRNA.first().firstFeatureLocation.fmin
         List<Exon> exonList = Exon.all.sort() { a, b ->
             a.firstFeatureLocation.fmin <=> b.firstFeatureLocation.fmin
         }
@@ -1859,9 +1859,11 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we get the features again, we should see it reflected"
         // {\"fmin\":47555,\"fmax\":48331}}    }
         // it is one of these two
-//        assert exonList.last().firstFeatureLocation.fmin == 29396 // unless this is the side that is not moved, but should be obvious
-//        assert exonList.last().firstFeatureLocation.fmax == 29396 + (48331 - 47555)
-        assert exonList.last().firstFeatureLocation.fmin == 30329 // it could be this one instead and we will be subtracting
-        assert exonList.last().firstFeatureLocation.fmax == 30329 - (48331 - 47555)
+        assert exonList.last().firstFeatureLocation.fmin == 29927 // it could be this one instead and we will be subtracting
+        assert exonList.last().firstFeatureLocation.fmax == 29927 + (48331 - 47555) // 30703
+        assert MRNA.first().firstFeatureLocation.fmin == firstMRNAfmin // it could be this one instead and we will be subtracting
+        assert MRNA.first().firstFeatureLocation.fmax == 29927 + (48331 - 47555) // 30703
+
+        // (fmax) 30703 and (fmin0 29396
     }
 }
