@@ -322,4 +322,17 @@ class AssemblageService {
             return false
         }
     }
+
+    /**
+     * 1 - Create a "Discontinuous Projection" for any collapsed features
+     * @param jsonObject
+     * @return
+     */
+    @NotTransactional
+    JSONObject expandAssemblage(JSONObject jsonObject) {
+
+
+
+        return jsonObject
+    }
 }

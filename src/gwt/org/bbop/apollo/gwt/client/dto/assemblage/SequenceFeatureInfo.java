@@ -11,10 +11,6 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
  */
 public class SequenceFeatureInfo extends JSONObject {
 
-    //    private Integer min;
-//    private Integer max;
-//    private SequenceFeatureInfo feature;
-//    private boolean reverseComplement = false ;
     public SequenceFeatureInfo() { }
 
     public SequenceFeatureInfo(JSONObject fromJson){
@@ -44,9 +40,6 @@ public class SequenceFeatureInfo extends JSONObject {
     }
 
 
-    public void setReverseComplement(boolean reverseComplement) {
-        put(FeatureStringEnum.REVERSE_COMPLEMENT.getValue(), JSONBoolean.getInstance(reverseComplement));
-    }
 
     public Long getStart() {
         return Math.round(get(FeatureStringEnum.START.getValue()).isNumber().doubleValue());
@@ -56,15 +49,15 @@ public class SequenceFeatureInfo extends JSONObject {
         return Math.round(get(FeatureStringEnum.END.getValue()).isNumber().doubleValue());
     }
 
-    // TODO: this needs to be set in JSON somewhere
-    private Boolean collapsed = false ;
-
     public void setCollapsed(boolean collapsed) {
-        this.collapsed = collapsed ;
+        put(FeatureStringEnum.COLLAPSED.getValue(),JSONBoolean.getInstance(collapsed));
     }
 
     public boolean isCollapsed() {
-        return collapsed;
+        if(containsKey(FeatureStringEnum.COLLAPSED.getValue())){
+            return get(FeatureStringEnum.COLLAPSED.getValue()).isBoolean().booleanValue();
+        }
+        return false ;
     }
 
     public void setParentId(String parentId){

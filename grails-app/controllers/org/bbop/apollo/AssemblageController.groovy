@@ -31,6 +31,7 @@ class AssemblageController {
 
     def getAssemblage() {
         JSONObject inputObject = permissionService.handleInput(request, params)
+        inputObject = assemblageService.expandAssemblage(inputObject)
         User user = permissionService.currentUser
         Organism organism = preferenceService.getOrganismFromPreferences(user, inputObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value).toString(), inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 

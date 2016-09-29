@@ -19,6 +19,7 @@ public enum FeatureStringEnum {
         PARENT_TYPE,
         PROPERTIES,
         TIMEACCESSION,
+        COLLAPSED,
         DEFAULT,
         TIMELASTMODIFIED,
         RESIDUES,
