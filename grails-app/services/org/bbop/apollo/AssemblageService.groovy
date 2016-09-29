@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -12,6 +13,8 @@ class AssemblageService {
 
     def permissionService
     def preferenceService
+    def featureProjectionService
+    def projectionService
 
     /**
      * Gets the unique feature locations from the feature in order and the corresponding sequences.
@@ -328,9 +331,25 @@ class AssemblageService {
      * @param jsonObject
      * @return
      */
-    @NotTransactional
     JSONObject expandAssemblage(JSONObject jsonObject) {
 
+
+        JSONArray sequenceList = jsonObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
+
+        for(JSONObject sequenceObject in sequenceList){
+            JSONObject featureObject = sequenceObject.feature
+            if(featureObject){
+                // if collapsed, but NO PROJECTION at the sequenceobject level then add one
+                if(featureObject.collapse && !sequenceObject.discontinuousProjection){
+                    // TODO: should use scaffold and organism as well in a criteria query
+                    Feature f = Feature.findByName(featureObject.name)
+                    if(f instanceof Transcript){
+                        sequenceObject.discontinuousProjection = featureProjectionService.generateProjectionForFeature((Transcript) f,jsonObject)
+                    }
+                }
+            }
+
+        }
 
 
         return jsonObject

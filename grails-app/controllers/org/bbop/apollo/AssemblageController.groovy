@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -38,7 +39,6 @@ class AssemblageController {
         // creates a projection based on the Assemblages and caches them
         inputObject.organism = organism.commonName
         // this generates the projection
-        projectionService.getProjection(inputObject)
 
         render inputObject as JSON
     }

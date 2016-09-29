@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Strand
@@ -14,6 +15,7 @@ class FeatureProjectionService {
 
     def projectionService
     def assemblageService
+    def transcriptService
 
 
     JSONArray projectTrack(JSONArray inputFeaturesArray, Assemblage assemblage, Boolean reverseProjection = false) {
@@ -217,4 +219,27 @@ class FeatureProjectionService {
         return feature
     }
 
+    /**
+     * This method generates projections for a feature.
+     *
+     * For each exon in the trancript, add a location to the projection
+     *
+     * @param feature
+     */
+    def generateProjectionForFeature(Transcript transcript,JSONObject inputObject) {
+        MultiSequenceProjection projection = projectionService.getProjection(inputObject)
+
+        for(Exon exon in transcriptService.getExons(transcript)){
+            // TODO: this does not work if we cross th sequence boundary, but good enough for now
+            ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(exon.fmin)
+            Location location = new Location(
+                    min: exon.fmin,
+                    max: exon.fmax,
+                    sequence: projectionSequence
+            )
+            projection.addLocation(location)
+
+        }
+        return inputObject
+    }
 }
