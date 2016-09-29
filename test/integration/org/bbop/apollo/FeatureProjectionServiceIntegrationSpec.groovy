@@ -1830,4 +1830,37 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert 15 == featuresArray.getJSONObject(0).getJSONArray(FeatureStringEnum.CHILDREN.value).size() + featuresArray.getJSONObject(1).getJSONArray(FeatureStringEnum.CHILDREN.value).size()
 
     }
+
+    void "we should be able to set an exon boundary when the scaffold is reversed"() {
+        given: "add transcript and split exon string"
+        String addTranscriptGb53498AddTranscript = "{ ${testCredentials} \"track\":{\"description\":\"GroupUn87\", \"padding\":0, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258, \"reverse\":false}]},\"features\":[{\"location\":{\"fmin\":29396,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53498-RA\",\"children\":[{\"location\":{\"fmin\":30271,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29396,\"fmax\":29403,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29927,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29396,\"fmax\":30271,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        String setReverseExonBoundaryString = "{${testCredentials} \"track\":{\"description\":\"GroupUn87\", \"padding\":0, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258, \"reverse\":true}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\",\"location\":{\"fmin\":47555,\"fmax\":48331}}],\"operation\":\"set_exon_boundaries\"}"
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptGb53498AddTranscript))
+
+        then: "we should see the entire feature"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 2
+        assert CDS.count == 1
+
+        when: "we set the exon boundary using a reverse command"
+        def allExons = Exon.all
+        List<Exon> exonList = Exon.all.sort() { a, b ->
+            a.firstFeatureLocation.fmin <=> b.firstFeatureLocation.fmin
+        }
+        String exonUniqueName = exonList.last().uniqueName
+        requestHandlingService.setExonBoundaries(JSON.parse(setReverseExonBoundaryString.replace("@EXON_UNIQUE_NAME@", exonUniqueName)))
+        exonList = Exon.all.sort() { a, b ->
+            a.firstFeatureLocation.fmin <=> b.firstFeatureLocation.fmin
+        }
+
+        then: "we get the features again, we should see it reflected"
+        // {\"fmin\":47555,\"fmax\":48331}}    }
+        assert exonList.last().firstFeatureLocation.fmin != 47555
+        assert exonList.last().firstFeatureLocation.fmax != 48331
+//        assert exonList.last().firstFeatureLocation.fmin == 47555 // should be about 29K or length (75-8K)- 47555
+//        assert exonList.last().firstFeatureLocation.fmax == 48331 // should be about 29K or length (75-8K)- 483331
+    }
 }
