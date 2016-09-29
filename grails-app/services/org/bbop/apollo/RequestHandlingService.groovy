@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -712,7 +713,7 @@ class RequestHandlingService {
             featureService.calculateCDS(transcript,false,assemblage)
         } else {
             JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
-            int genomicPosition = jsonCDSLocation.getInt(FeatureStringEnum.FMIN.value)
+            int genomicPosition = getGenomicPositionFromLocationObject(jsonCDSLocation,false)
             featureService.setTranslationStart(transcript, genomicPosition , true, configWrapperService.getTranslationTable() , false,projectionService.createMultiSequenceProjection(assemblage));
         }
 
@@ -762,7 +763,7 @@ class RequestHandlingService {
             featureService.calculateCDS(transcript,false,assemblage)
         } else {
             JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
-            int genomicPosition =jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value)
+            Integer genomicPosition = getGenomicPositionFromLocationObject(jsonCDSLocation,true)
             MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
             genomicPosition = genomicPosition - multiSequenceProjection.getProjectionSequence(genomicPosition).originalOffset
             featureService.setTranslationEnd(transcript, genomicPosition ,false,configWrapperService.getTranslationTable(),projectionService.createMultiSequenceProjection(assemblage))
@@ -788,6 +789,16 @@ class RequestHandlingService {
         fireEvent(assemblage, featureContainer, AnnotationEvent.Operation.UPDATE)
 
         return featureContainer
+    }
+
+    @NotTransactional
+    Integer getGenomicPositionFromLocationObject(JSONObject jsonObject, boolean preferFmax= true) {
+         if(preferFmax){
+             return jsonObject.fmax ?: jsonObject.fmin
+         }
+        else {
+             return jsonObject.fmin ?: jsonObject.fmax
+         }
     }
 
     @Timed

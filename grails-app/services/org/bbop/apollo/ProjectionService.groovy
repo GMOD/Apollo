@@ -797,7 +797,7 @@ class ProjectionService {
                 strand = strand.reverse();
                 locationObject.strand = strand.value
             }
-            int temp = locationObject.fmin
+            Integer temp = locationObject.fmin ?: null
             locationObject.fmin = locationObject.fmax
             locationObject.fmax = temp
         }
