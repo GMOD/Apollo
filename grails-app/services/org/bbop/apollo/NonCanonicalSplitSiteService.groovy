@@ -1,6 +1,8 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 import org.grails.plugins.metrics.groovy.Timed
@@ -89,6 +91,16 @@ class NonCanonicalSplitSiteService {
         int fmin = assemblageService.getMinForFeatureFullScaffold(transcript,assemblage)
         int fmax = assemblageService.getMaxForFeatureFullScaffold(transcript,assemblage)
         Strand strand=transcript.isNegativeStrand()?Strand.NEGATIVE:Strand.POSITIVE
+
+        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
+        ProjectionSequence minProjectionSequence = projection.getReverseProjectionSequence(fmin)
+        ProjectionSequence maxProjectionSequence = projection.getReverseProjectionSequence(fmax)
+        if(fmin > fmax && minProjectionSequence.reverse && maxProjectionSequence.reverse){
+            int temp = fmin
+            fmin = fmax
+            fmax = temp
+        }
+
 
         String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(assemblage,fmin,fmax,strand);
         if(transcript.getStrand()==-1){

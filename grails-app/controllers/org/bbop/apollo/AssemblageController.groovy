@@ -83,7 +83,8 @@ class AssemblageController {
         User user = permissionService.getCurrentUser(inputObject);
 
         ArrayList<Assemblage> assemblages = new ArrayList<Assemblage>();
-        for (Assemblage assemblage : user.assemblages) {
+        Organism currentOrganism = preferenceService.getOrganismFromPreferences(user, null, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+        for (Assemblage assemblage : assemblageService.getAssemblagesForUserAndOrganism(user,currentOrganism)) {
             if (assemblage.sequenceList.toLowerCase().contains(searchQuery)) {
                 if(filter){
                     JSONArray jsonArray = JSON.parse(assemblage.sequenceList) as JSONArray

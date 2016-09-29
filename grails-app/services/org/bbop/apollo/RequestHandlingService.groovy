@@ -1994,9 +1994,11 @@ class RequestHandlingService {
         Transcript transcript = exonService.getTranscript(exon)
         JSONObject oldJsonTranscript = featureService.convertFeatureToJSON(transcript,false,assemblage)
         JSONObject exonLocation = jsonExon.getJSONObject(FeatureStringEnum.LOCATION.value)
-        Integer genomicPosition = exonLocation.getInt(FeatureStringEnum.FMIN.value) // already reverse projected
+        // NOTE: exonLocation.get("FMIN") of a null value throws an error if null
+        Integer genomicPosition = exonLocation.fmin ?: exonLocation.fmax
         MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
-        org.bbop.apollo.projection.ProjectionSequence projectionSequence= multiSequenceProjection.getProjectionSequence(genomicPosition)
+        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(genomicPosition)
+        assert (projectionSequence.reverse && exonLocation.fmax) || (!projectionSequence.reverse && exonLocation.fmin)
         genomicPosition = genomicPosition - projectionSequence.originalOffset
 
         Exon splitExon = exonService.makeIntron(

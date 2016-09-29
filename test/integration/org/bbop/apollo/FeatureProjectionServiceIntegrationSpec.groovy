@@ -109,8 +109,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert 30271 + 75085 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == secondLocation.getInt(FeatureStringEnum.FMAX.value)
 
         assert 1 == thirdLocation.getInt(FeatureStringEnum.STRAND.value)
-        assert 29928 + 75085 - 1+ org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == thirdLocation.getInt(FeatureStringEnum.FMIN.value)
-        assert 30329 + 75085 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH== thirdLocation.getInt(FeatureStringEnum.FMAX.value)
+        assert 29928 + 75085 - 1 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == thirdLocation.getInt(FeatureStringEnum.FMIN.value)
+        assert 30329 + 75085 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == thirdLocation.getInt(FeatureStringEnum.FMAX.value)
 
 
         when: "we get the features within the set sequence"
@@ -181,12 +181,12 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert locationObject.sequence.contains("\"name\":\"Group11.4\"")
         assert locationObject.sequence.contains("\"name\":\"GroupUn87\"")
         assert locationObject.sequence.indexOf("\"name\":\"Group11.4\"") < locationObject.sequence.indexOf("\"name\":\"GroupUn87\"")
-        assert MRNA.first().featureLocations.first().fmin == 85051 - Sequence.findByName("Group11.4").length+ org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert MRNA.first().featureLocations.first().fmax == 85264 - Sequence.findByName("Group11.4").length+ org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert MRNA.first().featureLocations.first().fmin == 85051 - Sequence.findByName("Group11.4").length + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert MRNA.first().featureLocations.first().fmax == 85264 - Sequence.findByName("Group11.4").length + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
 
         // the features array should be relative to the contiguous sequences
-        assert locationObject.fmin == 85051+ org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert locationObject.fmax == 85264+ org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert locationObject.fmin == 85051 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert locationObject.fmax == 85264 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
 
     }
 
@@ -336,7 +336,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should only see locations on Group11.4"
         assert locationJsonObject.fmin == 0
-        assert locationJsonObject.fmax + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH== 79565 - 78258
+        assert locationJsonObject.fmax + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == 79565 - 78258
 
 //        when: "we retrieve features on the reverse group"
 //        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesStringReverse) as JSONObject).features
@@ -1871,5 +1871,41 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert mrna.firstFeatureLocation.strand == org.bbop.apollo.sequence.Strand.POSITIVE.value  // it could be this one instead and we will be subtracting
 
         // (fmax) 30703 and (fmin0 29396
+    }
+
+    void "should be able to make an intron in a reversed scaffold"() {
+
+        String addTranscriptGb53498AddTranscript = "{ ${testCredentials} \"track\":{\"description\":\"GroupUn87\", \"padding\":0, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258, \"reverse\":false}]},\"features\":[{\"location\":{\"fmin\":29396,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53498-RA\",\"children\":[{\"location\":{\"fmin\":30271,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29396,\"fmax\":29403,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29927,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29396,\"fmax\":30271,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        String setReverseMakeIntroString = "{${testCredentials} \"track\": {\"id\":43852, \"name\":\"GroupUn87\", \"description\":\"GroupUn87\", \"padding\":0, \"start\":0, \"end\":78258, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258, \"reverse\":true}]}, \"features\": [ { \"uniquename\": \"@EXON_UNIQUE_NAME@\", \"location\": { \"fmin\": 48123 } } ], \"operation\": \"make_intron\"}"
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptGb53498AddTranscript))
+        int firstTranscriptLength = MRNA.first().firstFeatureLocation.calculateLength()
+        int firstGeneLength = Gene.first().firstFeatureLocation.calculateLength()
+        List<Exon> exonList = Exon.all.sort() { a, b ->
+            a.firstFeatureLocation.fmin <=> b.firstFeatureLocation.fmin
+        }
+        int initialStrand = exonList.last().firstFeatureLocation.strand
+        String exonUniqueName = exonList.last().uniqueName
+
+        then: "we should see the entire feature"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 2
+        assert CDS.count == 1
+
+        when: "we make an intron"
+        requestHandlingService.makeIntron(JSON.parse(setReverseMakeIntroString.replace("@EXON_UNIQUE_NAME@",exonUniqueName)))
+
+        then: "we should have some extra exons!"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 3
+        assert CDS.count == 1
+        assert firstTranscriptLength == MRNA.first().firstFeatureLocation.calculateLength()
+        assert initialStrand == exonList.last().firstFeatureLocation.strand
+        assert firstGeneLength == Gene.first().firstFeatureLocation.calculateLength()
+
+
     }
 }

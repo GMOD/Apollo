@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionSequence
 
 //@GrailsCompileStatic
 @Transactional(readOnly = true)
@@ -186,6 +187,14 @@ class TranscriptService {
         for (Transcript t : getTranscripts(gene)) {
             Integer transcriptFmin = projectionService.getMinForFeatureInProjection(t,multiSequenceProjection)
             Integer transcriptFmax = projectionService.getMaxForFeatureInProjection(t,multiSequenceProjection)
+
+            // TODO:
+            if(multiSequenceProjection.getReverseProjectionSequence(transcriptFmin).reverse){
+                int temp = transcriptFmin
+                transcriptFmin = transcriptFmax
+                transcriptFmax = temp
+            }
+
             if (transcriptFmin < geneFmin) {
                 geneFmin = transcriptFmin;
             }
@@ -280,6 +289,17 @@ class TranscriptService {
 
         boolean updateTransriptBoundaries = false
 
+        // TODO: not sure what happens when it crosses over
+        Boolean isRevesered = multiSequenceProjection.getReverseProjectionSequence(exonFmin).reverse
+        if(isRevesered){
+            int tempExon = exonFmin
+            exonFmin = exonFmax
+            exonFmax = tempExon
+            int tempTranscript = transcriptFmin
+            transcriptFmin = transcriptFmax
+            transcriptFmax = tempTranscript
+        }
+
         if (exonFmin < transcriptFmin) {
             transcriptFmin = exonFmin
             updateTransriptBoundaries = true
@@ -299,8 +319,15 @@ class TranscriptService {
         Gene gene = getGene(transcript)
         if (gene) {
             boolean updateGeneBoundaries = false
-            int geneFmin = gene.fmin
-            int geneFmax = gene.fmax
+            int geneFmin = projectionService.getMinForFeatureInProjection(gene,multiSequenceProjection)
+            int geneFmax = projectionService.getMaxForFeatureInProjection(gene,multiSequenceProjection)
+            if(isRevesered){
+                int temp = geneFmin
+                geneFmin = geneFmax
+                geneFmax = temp
+            }
+//            int geneFmin = gene.fmin
+//            int geneFmax = gene.fmax
             if (transcriptFmin < geneFmin) {
                 geneFmin = transcriptFmin
                 updateGeneBoundaries = true
