@@ -1858,9 +1858,10 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we get the features again, we should see it reflected"
         // {\"fmin\":47555,\"fmax\":48331}}    }
-        assert exonList.last().firstFeatureLocation.fmin != 47555
-        assert exonList.last().firstFeatureLocation.fmax != 48331
-//        assert exonList.last().firstFeatureLocation.fmin == 47555 // should be about 29K or length (75-8K)- 47555
-//        assert exonList.last().firstFeatureLocation.fmax == 48331 // should be about 29K or length (75-8K)- 483331
+        // it is one of these two
+//        assert exonList.last().firstFeatureLocation.fmin == 29396 // unless this is the side that is not moved, but should be obvious
+//        assert exonList.last().firstFeatureLocation.fmax == 29396 + (48331 - 47555)
+        assert exonList.last().firstFeatureLocation.fmin == 30329 // it could be this one instead and we will be subtracting
+        assert exonList.last().firstFeatureLocation.fmax == 30329 - (48331 - 47555)
     }
 }
