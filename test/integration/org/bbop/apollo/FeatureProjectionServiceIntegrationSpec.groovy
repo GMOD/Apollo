@@ -1850,19 +1850,25 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         List<Exon> exonList = Exon.all.sort() { a, b ->
             a.firstFeatureLocation.fmin <=> b.firstFeatureLocation.fmin
         }
+        int initialStrand = exonList.last().firstFeatureLocation.strand
         String exonUniqueName = exonList.last().uniqueName
         requestHandlingService.setExonBoundaries(JSON.parse(setReverseExonBoundaryString.replace("@EXON_UNIQUE_NAME@", exonUniqueName)))
         exonList = Exon.all.sort() { a, b ->
             a.firstFeatureLocation.fmin <=> b.firstFeatureLocation.fmin
         }
+        MRNA mrna = MRNA.first()
+        Exon lastExon = exonList.last()
 
         then: "we get the features again, we should see it reflected"
         // {\"fmin\":47555,\"fmax\":48331}}    }
         // it is one of these two
-        assert exonList.last().firstFeatureLocation.fmin == 29927 // it could be this one instead and we will be subtracting
-        assert exonList.last().firstFeatureLocation.fmax == 29927 + (48331 - 47555) // 30703
-        assert MRNA.first().firstFeatureLocation.fmin == firstMRNAfmin // it could be this one instead and we will be subtracting
-        assert MRNA.first().firstFeatureLocation.fmax == 29927 + (48331 - 47555) // 30703
+        assert lastExon.firstFeatureLocation.fmin == 29927 // it could be this one instead and we will be subtracting
+        assert lastExon.firstFeatureLocation.fmax == 29927 + (48331 - 47555) // 30703
+        assert mrna.firstFeatureLocation.fmin == firstMRNAfmin // it could be this one instead and we will be subtracting
+        assert mrna.firstFeatureLocation.fmax == 29927 + (48331 - 47555) // 30703
+        assert initialStrand == org.bbop.apollo.sequence.Strand.POSITIVE.value
+        assert lastExon.firstFeatureLocation.strand == org.bbop.apollo.sequence.Strand.POSITIVE.value
+        assert mrna.firstFeatureLocation.strand == org.bbop.apollo.sequence.Strand.POSITIVE.value  // it could be this one instead and we will be subtracting
 
         // (fmax) 30703 and (fmin0 29396
     }

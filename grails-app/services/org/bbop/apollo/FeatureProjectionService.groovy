@@ -171,8 +171,8 @@ class FeatureProjectionService {
 //                    calculatedMax = projectionSequence.unprojectedLength
                     calculatedMax = 0
                 }
-                oldStrand = Strand.getStrandForValue(oldStrand).reverse().value
 
+                // swap values
                 int temp = calculatedMin
                 calculatedMin = calculatedMax
                 calculatedMax = temp
