@@ -6,7 +6,6 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionSequence
-import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -17,6 +16,8 @@ class FeatureProjectionService {
     def assemblageService
     def transcriptService
 
+    // TODO: make this configurable somehow
+    private final Integer DEFAULT_FOLDING_BUFFER = 20
 
     JSONArray projectTrack(JSONArray inputFeaturesArray, Assemblage assemblage, Boolean reverseProjection = false) {
         MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
@@ -226,20 +227,33 @@ class FeatureProjectionService {
      *
      * @param feature
      */
-    def generateProjectionForFeature(Transcript transcript,JSONObject inputObject) {
-        MultiSequenceProjection projection = projectionService.getProjection(inputObject)
+    def addExonLocationsToProjection(Feature feature, MultiSequenceProjection projection) {
 
-        for(Exon exon in transcriptService.getExons(transcript)){
-            // TODO: this does not work if we cross th sequence boundary, but good enough for now
-            ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(exon.fmin)
+        if(feature instanceof Transcript){
+            Transcript transcript = (Transcript) feature
+            for(Exon exon in transcriptService.getExons(transcript)){
+                // TODO: this does not work if we cross th sequence boundary, but good enough for now
+                ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(exon.fmin)
+                Location location = new Location(
+                        min: exon.fmin-DEFAULT_FOLDING_BUFFER,
+                        max: exon.fmax+DEFAULT_FOLDING_BUFFER,
+                        sequence: projectionSequence
+                )
+                // if it already has this then it won't matter
+                projection.addLocation(location)
+            }
+        }
+        else{
+            ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(feature.fmin)
             Location location = new Location(
-                    min: exon.fmin,
-                    max: exon.fmax,
+                    min: feature.fmin-DEFAULT_FOLDING_BUFFER,
+                    max: feature.fmax+DEFAULT_FOLDING_BUFFER,
                     sequence: projectionSequence
             )
+            // if it already has this then it won't matter
             projection.addLocation(location)
-
         }
-        return inputObject
+
+        return projection
     }
 }

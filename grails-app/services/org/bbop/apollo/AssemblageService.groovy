@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -327,29 +328,40 @@ class AssemblageService {
     }
 
     /**
-     * 1 - Create a "Discontinuous Projection" for any collapsed features
+     * The goal here is to expand the JSONObject passed in by collapsing all of the subfeatures of any features labeled but not actually expanded.
+     *
+     *
+     *
+     * 1 - Create a "Discontinuous Projection" for any collapsed features in the JSONObject
      * @param jsonObject
      * @return
      */
     JSONObject expandAssemblage(JSONObject jsonObject) {
 
-
         JSONArray sequenceList = jsonObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(jsonObject)
 
         for(JSONObject sequenceObject in sequenceList){
             JSONObject featureObject = sequenceObject.feature
             if(featureObject){
                 // if collapsed, but NO PROJECTION at the sequenceobject level then add one
-                if(featureObject.collapse && !sequenceObject.discontinuousProjection){
+                Feature f = Feature.findByName(featureObject.name)
+                if(featureObject.collapse){
                     // TODO: should use scaffold and organism as well in a criteria query
-                    Feature f = Feature.findByName(featureObject.name)
-                    if(f instanceof Transcript){
-                        sequenceObject.discontinuousProjection = featureProjectionService.generateProjectionForFeature((Transcript) f,jsonObject)
-                    }
+                    multiSequenceProjection = featureProjectionService.addExonLocationsToProjection(f,multiSequenceProjection)
+                }
+                    // remove the locations for the
+                else{
+                    // add a location over the whole thing
+                    multiSequenceProjection.addLocation(new Location(
+                            min:f.fmin,
+                            max:f.fmax,
+                            sequence: multiSequenceProjection.getReverseProjectionSequence(f.fmin)
+                    ))
                 }
             }
-
         }
+
 
 
         return jsonObject
