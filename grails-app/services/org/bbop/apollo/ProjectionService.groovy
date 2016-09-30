@@ -682,15 +682,6 @@ class ProjectionService {
         return false;
     }
 
-    /**
-     * @deprecated  Use the createMultisequenceProjection method instead
-     * @param assemblage
-     * @return
-     */
-    MultiSequenceProjection getProjection(Assemblage assemblage) {
-        JSONObject jsonObject = assemblageService.convertAssemblageToJson(assemblage)
-        return getProjection(jsonObject)
-    }
 /**
  * TODO:
  * looks up assemblages based on Ids'
@@ -802,5 +793,33 @@ class ProjectionService {
             locationObject.fmax = temp
         }
         return locationObject
+    }
+
+
+    /**
+     * Genreates a sequence list from a projection object
+     * @param multiSequenceProjection
+     * @return
+     */
+    @NotTransactional
+    JSONArray generateSequenceListFromProjection(MultiSequenceProjection multiSequenceProjection) {
+        JSONArray sequenceList = new JSONArray()
+        for(ProjectionSequence projectionSequence in multiSequenceProjection.projectedSequences){
+            JSONObject sequenceObject = (projectionSequence as JSON) as JSONObject
+
+            // this means we have genome folding here
+            DiscontinuousProjection discontinuousProjection = multiSequenceProjection.getProjectionForSequence(projectionSequence)
+            if(discontinuousProjection){
+                JSONArray foldingArray = new JSONArray()
+                for(Coordinate coordinate in discontinuousProjection.getCoordinates()){
+                    JSONObject coordinateObject = (coordinate as JSON) as JSONObject
+                    foldingArray.add(coordinateObject)
+                }
+
+                sequenceObject.put(FeatureStringEnum.LOCATION.value,foldingArray)
+            }
+
+        }
+        return sequenceList
     }
 }

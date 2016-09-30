@@ -256,4 +256,49 @@ class FeatureProjectionService {
 
         return projection
     }
+
+    /**
+     * The goal here is to expand the JSONObject passed in by collapsing all of the subfeatures of any features labeled but not actually expanded.
+     *
+     *
+     *
+     * 1 - Create a "Discontinuous Projection" for any collapsed features in the JSONObject
+     * @param jsonObject
+     * @return
+     */
+    JSONObject expandProjectionJson(JSONObject jsonObject) {
+
+        JSONArray sequenceList = jsonObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(jsonObject)
+
+        for (JSONObject sequenceObject in sequenceList) {
+            JSONObject featureObject = sequenceObject.feature
+            if (featureObject) {
+                // if collapsed, but NO PROJECTION at the sequenceobject level then add one
+                Feature f = Feature.findByName(featureObject.name)
+                // TODO: should use scaffold and organism as well in a criteria query
+                if (featureObject.collapse) {
+                    multiSequenceProjection = addExonLocationsToProjection(f, multiSequenceProjection)
+                }
+                // remove the locations for that region.  Adding a single overlap will do this automatically.
+                else {
+                    // TODO: we need a proper method for doing this.
+                    multiSequenceProjection.clear()
+//                    Location location = new Location(
+//                            min: f.fmin,
+//                            max: f.fmax,
+//                            sequence: multiSequenceProjection.getReverseProjectionSequence(f.fmin)
+//                    )
+//                    multiSequenceProjection.addLocation(location)
+
+                }
+            }
+        }
+
+        sequenceList = projectionService.generateSequenceListFromProjection(multiSequenceProjection)
+        jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceList)
+
+
+        return jsonObject
+    }
 }

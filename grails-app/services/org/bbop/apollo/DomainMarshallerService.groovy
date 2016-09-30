@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.projection.ProjectionSequence
+import org.bbop.apollo.projection.Coordinate
 
 @Transactional
 class DomainMarshallerService {
@@ -47,6 +48,13 @@ class DomainMarshallerService {
             returnArray['offset'] = it.offset
             returnArray['originalOffset'] = it.originalOffset
             returnArray['features'] = it.features?.join("::")
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(Coordinate) {
+            def returnArray = [:]
+            returnArray['min'] = it.min
+            returnArray['max'] = it.max
             return returnArray
         }
 

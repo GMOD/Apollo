@@ -522,4 +522,8 @@ class MultiSequenceProjection extends AbstractProjection {
         return true
     }
 
+    DiscontinuousProjection getProjectionForSequence(ProjectionSequence projectionSequence){
+        return sequenceDiscontinuousProjectionMap.get(projectionSequence)
+    }
+
 }

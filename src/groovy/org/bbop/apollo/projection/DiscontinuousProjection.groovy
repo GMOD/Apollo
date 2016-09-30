@@ -81,7 +81,6 @@ public class DiscontinuousProjection extends AbstractProjection {
             return input - floorMinKey
         }
 
-
         // if we are at the max border
         if (floorMaxKey == ceilMaxKey) {
             return input - floorMinKey + projectValue(floorMinKey)
@@ -362,7 +361,6 @@ public class DiscontinuousProjection extends AbstractProjection {
         if (newMin < 0 && newMax < 0) return null
     }
 
-
     /**
      * This allows for a space between each coordindate
      * @param buffer
@@ -461,5 +459,10 @@ public class DiscontinuousProjection extends AbstractProjection {
         minMap.clear()
         maxMap.clear()
         return returnValue
+    }
+
+    List<Coordinate> getCoordinates() {
+        assert minMap.size() == maxMap.size()
+        return minMap.values() as List<Coordinate>
     }
 }

@@ -3,7 +3,6 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -16,6 +15,7 @@ class AssemblageController {
     def preferenceService
     def projectionService
     def assemblageService
+    def featureProjectionService
 
     @Transactional
     def list() {
@@ -32,8 +32,8 @@ class AssemblageController {
 
     def getAssemblage() {
         JSONObject inputObject = permissionService.handleInput(request, params)
-        MultiSequenceProjection projection = projectionService.getProjection(inputObject)
-        projection = assemblageService.expandAssemblage(projection)
+//        MultiSequenceProjection projection = projectionService.getProjection(inputObject)
+        inputObject = featureProjectionService.expandProjectionJson(inputObject)
 
 
         User user = permissionService.currentUser

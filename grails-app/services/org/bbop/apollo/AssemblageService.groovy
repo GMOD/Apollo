@@ -4,8 +4,11 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.Coordinate
+import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -104,8 +107,8 @@ class AssemblageService {
             end += seq.end
         }
         JSONObject testSequence = new JSONObject()
-        testSequence.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceArray)
-        testSequence.put(FeatureStringEnum.ORGANISM.value,organism.id)
+        testSequence.put(FeatureStringEnum.SEQUENCE_LIST.value, sequenceArray)
+        testSequence.put(FeatureStringEnum.ORGANISM.value, organism.id)
         testSequence = standardizeSequenceList(testSequence)
 
         Assemblage assemblage = Assemblage.findByOrganismAndSequenceList(organism, testSequence.get(FeatureStringEnum.SEQUENCE_LIST.value).toString())
@@ -120,13 +123,13 @@ class AssemblageService {
         return assemblage
     }
 
-    String generateAssemblageName(JSONArray sequenceArray){
+    String generateAssemblageName(JSONArray sequenceArray) {
         String name = ""
 
-        for(int i = 0  ; i < sequenceArray.size() ; i++){
+        for (int i = 0; i < sequenceArray.size(); i++) {
             JSONObject sequenceObject = sequenceArray.getJSONObject(i)
             name += sequenceObject.name
-            if(sequenceObject.containsKey(FeatureStringEnum.FEATURE.value)){
+            if (sequenceObject.containsKey(FeatureStringEnum.FEATURE.value)) {
                 name += sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).name + " " + name
             }
         }
@@ -221,10 +224,10 @@ class AssemblageService {
         JSONArray sequenceListArray = JSON.parse(jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
         Assemblage assemblage = Assemblage.findBySequenceList(sequenceListArray.toString())
         // now let's try it by ID
-        if(assemblage == null && jsonObject.id){
+        if (assemblage == null && jsonObject.id) {
             assemblage = Assemblage.findById(jsonObject.id)
         }
-        if(assemblage == null ){
+        if (assemblage == null) {
             assemblage = Assemblage.findBySequenceList(sequenceListArray.toString())
         }
         if (assemblage == null) {
@@ -235,11 +238,11 @@ class AssemblageService {
         assemblage.projection = jsonObject.projection
         assemblage.sequenceList = sequenceListArray.toString()
         assemblage.name = jsonObject.name ?: assemblage.name
-        if(!assemblage.name){
+        if (!assemblage.name) {
             assemblage.name = generateAssemblageName(sequenceListArray)
         }
-        if(assemblage.name?.length()>100){
-            assemblage.name = assemblage.name.substring(0,99)
+        if (assemblage.name?.length() > 100) {
+            assemblage.name = assemblage.name.substring(0, 99)
         }
 
         assemblage.start = jsonObject.containsKey(FeatureStringEnum.START.value) ? jsonObject.getLong(FeatureStringEnum.START.value) : sequenceListArray.getJSONObject(0).getInt(FeatureStringEnum.START.value)
@@ -327,43 +330,4 @@ class AssemblageService {
         }
     }
 
-    /**
-     * The goal here is to expand the JSONObject passed in by collapsing all of the subfeatures of any features labeled but not actually expanded.
-     *
-     *
-     *
-     * 1 - Create a "Discontinuous Projection" for any collapsed features in the JSONObject
-     * @param jsonObject
-     * @return
-     */
-    JSONObject expandAssemblage(JSONObject jsonObject) {
-
-        JSONArray sequenceList = jsonObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
-        MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(jsonObject)
-
-        for(JSONObject sequenceObject in sequenceList){
-            JSONObject featureObject = sequenceObject.feature
-            if(featureObject){
-                // if collapsed, but NO PROJECTION at the sequenceobject level then add one
-                Feature f = Feature.findByName(featureObject.name)
-                if(featureObject.collapse){
-                    // TODO: should use scaffold and organism as well in a criteria query
-                    multiSequenceProjection = featureProjectionService.addExonLocationsToProjection(f,multiSequenceProjection)
-                }
-                    // remove the locations for the
-                else{
-                    // add a location over the whole thing
-                    multiSequenceProjection.addLocation(new Location(
-                            min:f.fmin,
-                            max:f.fmax,
-                            sequence: multiSequenceProjection.getReverseProjectionSequence(f.fmin)
-                    ))
-                }
-            }
-        }
-
-
-
-        return jsonObject
-    }
 }
