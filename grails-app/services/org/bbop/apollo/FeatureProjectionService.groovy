@@ -348,7 +348,22 @@ class FeatureProjectionService {
             }
         }
 
-        sequenceList = projectionService.generateSequenceListFromProjection(multiSequenceProjection)
+        JSONArray generatedSequenceArray = projectionService.generateSequenceListFromProjection(multiSequenceProjection)
+
+        // merge the two:
+        for(int i = 0 ; i < sequenceList.size() ; i++){
+            JSONObject sequenceObject = sequenceList.getJSONObject(i)
+            JSONObject generatedSequenceObject = generatedSequenceArray.getJSONObject(i)
+            // copy all non-null, non-empty features from the generate to te non-generated
+            generatedSequenceObject.entrySet().each{
+                if(it.value){
+                    sequenceObject.put(it.key,it.value)
+                }
+            }
+
+        }
+
+
         jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceList)
 
 
