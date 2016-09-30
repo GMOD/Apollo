@@ -445,22 +445,31 @@ class ProjectionService {
         return projectionSequence
     }
 
+    /**
+     * This is used to create locations to be added to a projection.
+     *
+     *
+     *
+     * @param assemblage
+     * @return
+     */
     List<Location> getLocationsFromAssemblage(Assemblage assemblage) {
         List<Location> locationList = new ArrayList<>()
 
 
-        JSONArray sequencListArray = JSON.parse(assemblage.sequenceList) as JSONArray
+        JSONArray sequenceListArray = JSON.parse(assemblage.sequenceList) as JSONArray
 
-        sequencListArray.eachWithIndex { JSONObject it , int i ->
-            ProjectionSequence projectionSequence = convertJsonToProjectionSequence(it,i,assemblage)
-            if(it.location){
-                JSONArray locationArray = it.location
+        for(int i = 0 ; i < sequenceListArray.size() ; i++){
+            JSONObject sequenceObject = sequenceListArray.getJSONObject(i)
+            ProjectionSequence projectionSequence = convertJsonToProjectionSequence(sequenceObject,i,assemblage)
+            if(sequenceObject.location){
+                JSONArray locationArray = sequenceObject.location
                 for(JSONObject locationObject in locationArray){
                     locationList.add(new Location(min: locationObject.start, max: locationObject.end, sequence: projectionSequence))
                 }
             }
             else{
-                locationList.add(new Location(min: it.start, max: it.end, sequence: projectionSequence))
+                locationList.add(new Location(min: sequenceObject.start, max: sequenceObject.end, sequence: projectionSequence))
             }
         }
 
@@ -813,19 +822,20 @@ class ProjectionService {
     JSONArray generateSequenceListFromProjection(MultiSequenceProjection multiSequenceProjection) {
         JSONArray sequenceList = new JSONArray()
         for(ProjectionSequence projectionSequence in multiSequenceProjection.projectedSequences){
-            JSONObject sequenceObject = (projectionSequence as JSON) as JSONObject
+            JSONObject sequenceObject = new JSONObject((projectionSequence as JSON).toString())
 
             // this means we have genome folding here
             DiscontinuousProjection discontinuousProjection = multiSequenceProjection.getProjectionForSequence(projectionSequence)
             if(discontinuousProjection){
                 JSONArray foldingArray = new JSONArray()
                 for(Coordinate coordinate in discontinuousProjection.getCoordinates()){
-                    JSONObject coordinateObject = (coordinate as JSON) as JSONObject
+                    JSONObject coordinateObject = new JSONObject( (coordinate as JSON).toString())
                     foldingArray.add(coordinateObject)
                 }
 
                 sequenceObject.put(FeatureStringEnum.LOCATION.value,foldingArray)
             }
+            sequenceList.add(sequenceObject)
 
         }
         return sequenceList

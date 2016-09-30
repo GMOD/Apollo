@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.DiscontinuousProjection
 import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionSequence
@@ -227,37 +228,94 @@ class FeatureProjectionService {
      *
      * @param feature
      */
-    def addExonLocationsToProjection(Feature feature, MultiSequenceProjection projection) {
+    def addLocationsForFeature(Feature feature, MultiSequenceProjection projection) {
 
+        splitRegionForCoordinates(projection,feature.fmin,feature.fmax)
+
+        if(feature instanceof Gene){
+            addLocationsForGene((Gene) feature,projection)
+        }
+        else
         if(feature instanceof Transcript){
-            Transcript transcript = (Transcript) feature
-            for(Exon exon in transcriptService.getExons(transcript)){
-                // TODO: this does not work if we cross th sequence boundary, but good enough for now
-                ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(exon.fmin)
-                Location location = new Location(
-                        min: exon.fmin-DEFAULT_FOLDING_BUFFER,
-                        max: exon.fmax+DEFAULT_FOLDING_BUFFER,
-                        sequence: projectionSequence
-                )
-                // if it already has this then it won't matter
-                projection.addLocation(location)
-            }
+            addLocationsForTranscript((Transcript) feature,projection)
         }
         else{
-            ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(feature.fmin)
-            Location location = new Location(
-                    min: feature.fmin-DEFAULT_FOLDING_BUFFER,
-                    max: feature.fmax+DEFAULT_FOLDING_BUFFER,
-                    sequence: projectionSequence
-            )
-            // if it already has this then it won't matter
-            projection.addLocation(location)
+            // here, we are essentially clearing it
+            addLocationForCoordinate(projection,feature.fmin,feature.fmax)
         }
 
         return projection
     }
 
     /**
+     * Here, we want to create two regions,
+     * @param feature
+     * @param multiSequenceProjection
+     * @return
+     */
+    @NotTransactional
+    def splitRegionForCoordinates(MultiSequenceProjection projection, int fmin, int fmax) {
+        // TODO: this does not work if we cross the sequence boundary, but good enough for now
+        ProjectionSequence projectionSequence = projection.getProjectionSequence(fmin)
+        // first we have to clear out all of the projections for that region
+        DiscontinuousProjection discontinuousProjection = projection.getSequenceDiscontinuousProjectionMap().get(projectionSequence)
+        discontinuousProjection.clear()
+
+        int count = 0
+        // project on the LHS
+        if(fmin > projectionSequence.start){
+            Location locationLeft = new Location(
+                    min: projectionSequence.start,
+                    max: fmin,
+                    sequence: projectionSequence
+            )
+            // if it already has this then it won't matter
+            projection.addLocation(locationLeft)
+            ++count
+        }
+
+        if(fmax < projectionSequence.end){
+            // project on the RHS
+            Location locationRight = new Location(
+                    min: fmax,
+                    max: projectionSequence.end,
+                    sequence: projectionSequence
+            )
+            // if it already has this then it won't matter
+            projection.addLocation(locationRight)
+            ++count
+        }
+        assert count == discontinuousProjection.size()
+        return projection
+
+    }
+
+    def addLocationsForGene(Gene gene, MultiSequenceProjection projection) {
+        for(Transcript transcript in transcriptService.getTranscripts(gene)){
+            addLocationsForTranscript(transcript,projection)
+        }
+        return projection
+    }
+
+    def addLocationsForTranscript(Transcript transcript, MultiSequenceProjection projection) {
+        for(Exon exon in transcriptService.getExons(transcript)){
+            addLocationForCoordinate(projection,exon.fmin,exon.fmax)
+        }
+    }
+
+    def addLocationForCoordinate(MultiSequenceProjection projection, int fmin, int fmax ) {
+        // TODO: this does not work if we cross th sequence boundary, but good enough for now
+        ProjectionSequence projectionSequence = projection.getProjectionSequence(fmin)
+        Location location = new Location(
+                min: fmin-DEFAULT_FOLDING_BUFFER,
+                max: fmax+DEFAULT_FOLDING_BUFFER,
+                sequence: projectionSequence
+        )
+        // if it already has this then it won't matter
+        projection.addLocation(location)
+        return projection
+    }
+/**
      * The goal here is to expand the JSONObject passed in by collapsing all of the subfeatures of any features labeled but not actually expanded.
      *
      *
@@ -277,19 +335,14 @@ class FeatureProjectionService {
                 // if collapsed, but NO PROJECTION at the sequenceobject level then add one
                 Feature f = Feature.findByName(featureObject.name)
                 // TODO: should use scaffold and organism as well in a criteria query
-                if (featureObject.collapse) {
-                    multiSequenceProjection = addExonLocationsToProjection(f, multiSequenceProjection)
+                if (featureObject.collapsed) {
+                    multiSequenceProjection = addLocationsForFeature(f, multiSequenceProjection)
                 }
                 // remove the locations for that region.  Adding a single overlap will do this automatically.
                 else {
                     // TODO: we need a proper method for doing this.
-                    multiSequenceProjection.clear()
-//                    Location location = new Location(
-//                            min: f.fmin,
-//                            max: f.fmax,
-//                            sequence: multiSequenceProjection.getReverseProjectionSequence(f.fmin)
-//                    )
-//                    multiSequenceProjection.addLocation(location)
+//                    multiSequenceProjection.clear()
+                    clearLocationForCoordinate(multiSequenceProjection,f.fmin,f.fmax)
 
                 }
             }
@@ -300,5 +353,25 @@ class FeatureProjectionService {
 
 
         return jsonObject
+    }
+
+    /**
+     * TODO: use fmax only if we need to cross sequence boundaries.
+     *
+     * @param projection
+     * @param fmin
+     * @param fmax
+     * @return
+     */
+    def clearLocationForCoordinate(MultiSequenceProjection projection, int fmin, int fmax) {
+        ProjectionSequence projectionSequence = projection.getProjectionSequence(fmin)
+
+        Location location = new Location(
+                min: projectionSequence.start,
+                max: projectionSequence.end,
+                sequence: projectionSequence
+        )
+        projection.addLocation(location)
+        return projection
     }
 }
