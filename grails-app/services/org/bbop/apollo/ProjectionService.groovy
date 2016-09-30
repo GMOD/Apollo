@@ -15,6 +15,7 @@ class ProjectionService {
     def assemblageService
     def trackMapperService
     def permissionService
+    def featureProjectionService
 
 //    private Map<String, Map<String, ProjectionInterface>> projectionMap = new HashMap<>()
 
@@ -297,7 +298,11 @@ class ProjectionService {
 
     MultiSequenceProjection createMultiSequenceProjection(Assemblage assemblage) {
         List<Location> locationList = getLocationsFromAssemblage(assemblage)
-        return createMultiSequenceProjection(assemblage,locationList)
+        MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(assemblage,locationList)
+//        featureProjectionService.expandProjectionJson()
+
+
+        return multiSequenceProjection
     }
 
 //    @NotTransactional
@@ -458,6 +463,10 @@ class ProjectionService {
 
 
         JSONArray sequenceListArray = JSON.parse(assemblage.sequenceList) as JSONArray
+
+        JSONObject inputObject = new JSONObject()
+        inputObject.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceListArray)
+//        inputObject = featureProjectionService.expandProjectionJson(inputObject)
 
         for(int i = 0 ; i < sequenceListArray.size() ; i++){
             JSONObject sequenceObject = sequenceListArray.getJSONObject(i)

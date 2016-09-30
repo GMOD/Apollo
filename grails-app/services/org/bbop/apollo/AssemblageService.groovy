@@ -190,7 +190,7 @@ class AssemblageService {
         if (inputObject.containsKey(FeatureStringEnum.ORGANISM.value)) {
             organism = preferenceService.getOrganismForToken(inputObject.getString(FeatureStringEnum.ORGANISM.value))
         }
-        if (!organism) {
+        if (!organism && inputObject.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
             UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             organism = userOrganismPreference?.organism
         }

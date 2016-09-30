@@ -315,7 +315,8 @@ class FeatureProjectionService {
         projection.addLocation(location)
         return projection
     }
-/**
+
+    /**
      * The goal here is to expand the JSONObject passed in by collapsing all of the subfeatures of any features labeled but not actually expanded.
      *
      *
@@ -333,16 +334,16 @@ class FeatureProjectionService {
             JSONObject featureObject = sequenceObject.feature
             if (featureObject) {
                 // if collapsed, but NO PROJECTION at the sequenceobject level then add one
-                Feature f = Feature.findByName(featureObject.name)
+                Feature feature = featureObject.uniquename ? Feature.findByUniqueName(featureObject.uniquename) : Feature.findByName(featureObject.name)
                 // TODO: should use scaffold and organism as well in a criteria query
                 if (featureObject.collapsed) {
-                    multiSequenceProjection = addLocationsForFeature(f, multiSequenceProjection)
+                    multiSequenceProjection = addLocationsForFeature(feature, multiSequenceProjection)
                 }
                 // remove the locations for that region.  Adding a single overlap will do this automatically.
                 else {
                     // TODO: we need a proper method for doing this.
 //                    multiSequenceProjection.clear()
-                    clearLocationForCoordinate(multiSequenceProjection,f.fmin,f.fmax)
+                    clearLocationForCoordinate(multiSequenceProjection,feature.fmin,feature.fmax)
 
                 }
             }
