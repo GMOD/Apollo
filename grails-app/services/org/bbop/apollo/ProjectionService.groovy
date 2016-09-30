@@ -453,7 +453,15 @@ class ProjectionService {
 
         sequencListArray.eachWithIndex { JSONObject it , int i ->
             ProjectionSequence projectionSequence = convertJsonToProjectionSequence(it,i,assemblage)
-            locationList.add(new Location(min: it.start, max: it.end, sequence: projectionSequence))
+            if(it.location){
+                JSONArray locationArray = it.location
+                for(JSONObject locationObject in locationArray){
+                    locationList.add(new Location(min: locationObject.start, max: locationObject.end, sequence: projectionSequence))
+                }
+            }
+            else{
+                locationList.add(new Location(min: it.start, max: it.end, sequence: projectionSequence))
+            }
         }
 
         return locationList
