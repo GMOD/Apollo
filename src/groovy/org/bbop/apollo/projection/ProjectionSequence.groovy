@@ -30,10 +30,11 @@ class ProjectionSequence implements Comparable<ProjectionSequence> {
         ProjectionSequence that = (ProjectionSequence) o
 
         if (end != that.end) return false
-        if (features != that.features) return false
-        if (offset != that.offset) return false
+        if (name != that.name) return false
+//        if (features != that.features) return false
+//        if (offset != that.offset) return false
         if (organism != that.organism) return false
-        if (originalOffset != that.originalOffset) return false
+//        if (originalOffset != that.originalOffset) return false
         if (start != that.start) return false
 
         return true
@@ -51,9 +52,10 @@ class ProjectionSequence implements Comparable<ProjectionSequence> {
         int result
         result = start.hashCode()
         result = 31 * result + end.hashCode()
-        result = 31 * result + (offset != null ? offset.hashCode() : 0)
-        result = 31 * result + (originalOffset != null ? originalOffset.hashCode() : 0)
-        result = 31 * result + (features != null ? features.hashCode() : 0)
+        result = 31 * result + name.hashCode()
+//        result = 31 * result + (offset != null ? offset.hashCode() : 0)
+//        result = 31 * result + (originalOffset != null ? originalOffset.hashCode() : 0)
+//        result = 31 * result + (features != null ? features.hashCode() : 0)
         result = 31 * result + (organism != null ? organism.hashCode() : 0)
         return result
     }

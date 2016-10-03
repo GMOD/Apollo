@@ -80,7 +80,7 @@ class ProjectionService {
     }
 
 
-    ProjectionSequence convertJsonToProjectionSequence(JSONObject jSONObject, int index, Assemblage assemblage){
+    ProjectionSequence convertJsonToProjectionSequence(JSONObject jSONObject, int index, String organismCommonName){
         ProjectionSequence projectionSequence = new ProjectionSequence()
         if(jSONObject.start==null){
             Sequence sequence = Sequence.findByName(jSONObject.name)
@@ -96,7 +96,7 @@ class ProjectionService {
         projectionSequence.order = index
         projectionSequence.name = jSONObject.name
         projectionSequence.reverse = jSONObject.reverse
-        projectionSequence.organism = assemblage.organism.commonName
+        projectionSequence.organism = organismCommonName
 
         JSONArray featureArray = jSONObject.features
         List<String> features = new ArrayList<>()
@@ -106,6 +106,67 @@ class ProjectionService {
         projectionSequence.setFeatures(features)
 
         return projectionSequence
+    }
+
+    @NotTransactional
+    JSONObject convertToJsonFromProjection(MultiSequenceProjection projection){
+        JSONObject jsonObject = new JSONObject()
+
+        jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.value,convertToJsonArrayFromProjection(projection))
+
+        return jsonObject
+    }
+
+    @NotTransactional
+    JSONArray convertToJsonArrayFromProjection(MultiSequenceProjection projection){
+
+        JSONArray projectionJsonArray = new JSONArray()
+        for(ProjectionSequence projectionSequence in projection.getProjectedSequences()){
+            JSONObject sequenceJsonObject = convertToJsonFromSequence(projectionSequence,projection.getProjectionForSequence(projectionSequence))
+            projectionJsonArray.add(sequenceJsonObject)
+        }
+        return projectionJsonArray
+
+    }
+
+    /**
+     * This will the ability to add discontinuous projections as well.
+     * @param projectionSequence
+     * @return
+     */
+    @NotTransactional
+    JSONObject convertToJsonFromSequence(ProjectionSequence projectionSequence, DiscontinuousProjection discontinuousProjection) {
+        JSONObject sequenceJsonObject = new JSONObject()
+
+        org.codehaus.groovy.runtime.InvokerHelper.setProperties(sequenceJsonObject,projectionSequence.properties)
+
+
+        return sequenceJsonObject
+    }
+
+    @NotTransactional
+    MultiSequenceProjection convertToProjectionFromJson(JSONObject projectionObject){
+
+        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
+        List<ProjectionSequence> projectionSequenceList = convertToProjectSequenceFromSequenceJsonObject(multiSequenceProjection,projectionObject)
+        multiSequenceProjection.addProjectionSequences(projectionSequenceList)
+
+        // next we add intervals from our array
+        JSONArray sequenceArray = projectionObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
+//        for(JSONObject sequenceObject in sequenceArray){
+//        }
+
+        return multiSequenceProjection
+
+    }
+
+    @NotTransactional
+    def convertToProjectSequenceFromSequenceJsonObject(MultiSequenceProjection multiSequenceProjection, JSONObject sequenceObject) {
+
+        JSONArray jsonArray = sequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
+        List<ProjectionSequence> projectionSequenceList = convertJsonArrayToSequences(jsonArray)
+        multiSequenceProjection.addProjectionSequences(projectionSequenceList)
+
     }
 
     /**
@@ -127,7 +188,7 @@ class ProjectionService {
 
         for(int i = 0 ; i < sequenceListArray.size() ; i++){
             JSONObject sequenceObject = sequenceListArray.getJSONObject(i)
-            ProjectionSequence projectionSequence = convertJsonToProjectionSequence(sequenceObject,i,assemblage)
+            ProjectionSequence projectionSequence = convertJsonToProjectionSequence(sequenceObject,i,assemblage.organism.commonName)
             if(sequenceObject.location){
                 JSONArray locationArray = sequenceObject.location
                 for(JSONObject locationObject in locationArray){
@@ -144,15 +205,10 @@ class ProjectionService {
 
     MultiSequenceProjection createMultiSequenceProjection(Assemblage assemblage, List<Coordinate> coordinates) {
 
-        List<ProjectionSequence> projectionSequenceList = new ArrayList<>()
-        (JSON.parse(assemblage.sequenceList) as JSONArray).eachWithIndex { JSONObject it, int i ->
-            ProjectionSequence projectionSequence = convertJsonToProjectionSequence(it,i,assemblage)
 
-            projectionSequenceList.add(projectionSequence)
-        }
+        List<ProjectionSequence> projectionSequenceList = convertJsonArrayToSequences((JSON.parse(assemblage.sequenceList) as JSONArray),assemblage.organism.commonName)
 
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
-//        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(sequenceList: projectionSequenceList)
         multiSequenceProjection.addProjectionSequences(projectionSequenceList)
         multiSequenceProjection.addCoordinates(coordinates)
         multiSequenceProjection.calculateOffsets()
@@ -171,6 +227,17 @@ class ProjectionService {
         return multiSequenceProjection
     }
 
+    @NotTransactional
+    List<ProjectionSequence> convertJsonArrayToSequences(JSONArray jsonArray,String organismCommonName= null) {
+        List<ProjectionSequence> projectionSequenceList = new ArrayList<>()
+        jsonArray.eachWithIndex { JSONObject it, int i ->
+            organismCommonName = organismCommonName ?: it.organism
+            ProjectionSequence projectionSequence = convertJsonToProjectionSequence(it,i,organismCommonName)
+
+            projectionSequenceList.add(projectionSequence)
+        }
+        return projectionSequenceList
+    }
 
     List<Coordinate> extractHighLevelCoordinates(JSONArray coordinate, Organism organism, String trackName) {
         TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
