@@ -3,8 +3,8 @@ package org.bbop.apollo
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.DiscontinuousProjection
-import org.bbop.apollo.projection.Location
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -264,25 +264,25 @@ class FeatureProjectionService {
         int count = 0
         // project on the LHS
         if(fmin > projectionSequence.start){
-            Location locationLeft = new Location(
+            Coordinate locationLeft = new Coordinate(
                     min: projectionSequence.start,
                     max: fmin,
                     sequence: projectionSequence
             )
             // if it already has this then it won't matter
-            projection.addLocation(locationLeft)
+            projection.addCoordinate(locationLeft)
             ++count
         }
 
         if(fmax < projectionSequence.end){
             // project on the RHS
-            Location locationRight = new Location(
+            Coordinate locationRight = new Coordinate(
                     min: fmax,
                     max: projectionSequence.end,
                     sequence: projectionSequence
             )
             // if it already has this then it won't matter
-            projection.addLocation(locationRight)
+            projection.addCoordinate(locationRight)
             ++count
         }
         assert count == discontinuousProjection.size()
@@ -306,13 +306,13 @@ class FeatureProjectionService {
     def addLocationForCoordinate(MultiSequenceProjection projection, int fmin, int fmax ) {
         // TODO: this does not work if we cross th sequence boundary, but good enough for now
         ProjectionSequence projectionSequence = projection.getProjectionSequence(fmin)
-        Location location = new Location(
+        Coordinate coordinate = new Coordinate(
                 min: fmin-DEFAULT_FOLDING_BUFFER,
                 max: fmax+DEFAULT_FOLDING_BUFFER,
                 sequence: projectionSequence
         )
         // if it already has this then it won't matter
-        projection.addLocation(location)
+        projection.addCoordinate(coordinate)
         return projection
     }
 
@@ -382,12 +382,12 @@ class FeatureProjectionService {
     def clearLocationForCoordinate(MultiSequenceProjection projection, int fmin, int fmax) {
         ProjectionSequence projectionSequence = projection.getProjectionSequence(fmin)
 
-        Location location = new Location(
+        Coordinate location = new Coordinate(
                 min: projectionSequence.start,
                 max: projectionSequence.end,
                 sequence: projectionSequence
         )
-        projection.addLocation(location)
+        projection.addCoordinate(location)
         return projection
     }
 }

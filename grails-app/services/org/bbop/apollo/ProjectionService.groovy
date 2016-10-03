@@ -74,8 +74,8 @@ class ProjectionService {
     }
 
     MultiSequenceProjection createMultiSequenceProjection(Assemblage assemblage) {
-        List<Location> locationList = getLocationsFromAssemblage(assemblage)
-        MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(assemblage,locationList)
+        List<Coordinate> coordinates = getCoordinatesFromAssemblage(assemblage)
+        MultiSequenceProjection multiSequenceProjection = createMultiSequenceProjection(assemblage,coordinates)
         return multiSequenceProjection
     }
 
@@ -116,8 +116,8 @@ class ProjectionService {
      * @param assemblage
      * @return
      */
-    List<Location> getLocationsFromAssemblage(Assemblage assemblage) {
-        List<Location> locationList = new ArrayList<>()
+    List<Coordinate> getCoordinatesFromAssemblage(Assemblage assemblage) {
+        List<Coordinate> coordinates = new ArrayList<>()
 
 
         JSONArray sequenceListArray = JSON.parse(assemblage.sequenceList) as JSONArray
@@ -131,18 +131,18 @@ class ProjectionService {
             if(sequenceObject.location){
                 JSONArray locationArray = sequenceObject.location
                 for(JSONObject locationObject in locationArray){
-                    locationList.add(new Location(min: locationObject.start, max: locationObject.end, sequence: projectionSequence))
+                    coordinates.add(new Coordinate(min: locationObject.start, max: locationObject.end, sequence: projectionSequence))
                 }
             }
             else{
-                locationList.add(new Location(min: sequenceObject.start, max: sequenceObject.end, sequence: projectionSequence))
+                coordinates.add(new Coordinate(min: sequenceObject.start, max: sequenceObject.end, sequence: projectionSequence))
             }
         }
 
-        return locationList
+        return coordinates
     }
 
-    MultiSequenceProjection createMultiSequenceProjection(Assemblage assemblage, List<Location> locationList) {
+    MultiSequenceProjection createMultiSequenceProjection(Assemblage assemblage, List<Coordinate> coordinates) {
 
         List<ProjectionSequence> projectionSequenceList = new ArrayList<>()
         (JSON.parse(assemblage.sequenceList) as JSONArray).eachWithIndex { JSONObject it, int i ->
@@ -154,7 +154,7 @@ class ProjectionService {
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
 //        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection(sequenceList: projectionSequenceList)
         multiSequenceProjection.addProjectionSequences(projectionSequenceList)
-        multiSequenceProjection.addLocations(locationList)
+        multiSequenceProjection.addCoordinates(coordinates)
         multiSequenceProjection.calculateOffsets()
         Map<String,ProjectionSequence> projectionSequenceMap = [:]
 
@@ -172,21 +172,21 @@ class ProjectionService {
     }
 
 
-    List<Location> extractHighLevelLocations(JSONArray coordinate, Organism organism, String trackName) {
+    List<Coordinate> extractHighLevelCoordinates(JSONArray coordinate, Organism organism, String trackName) {
         TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
 
         log.debug "processing high level array  ${coordinate as JSON}"
         // process array in 10
         if (trackIndex.hasSubFeatures()) {
-            List<Location> localExonArray = extractExonArrayLocations(coordinate.getJSONArray(trackIndex.subFeaturesColumn), organism, trackName)
+            List<Coordinate> localExonArray = extractExonArrayCoordinates(coordinate.getJSONArray(trackIndex.subFeaturesColumn), organism, trackName)
             return localExonArray
         }
-        return new ArrayList<Location>()
+        return new ArrayList<Coordinate>()
 
     }
 
-    List<Location> extractExonArrayLocations(JSONArray coordinate, Organism organism, String trackName) {
-        List<Location> locationList = new ArrayList<>()
+    List<Coordinate> extractExonArrayCoordinates(JSONArray coordinate, Organism organism, String trackName) {
+        List<Coordinate> coordinates = new ArrayList<>()
         log.debug "processing exon array ${coordinate as JSON}"
         def classType = coordinate.get(0)
 
@@ -194,18 +194,18 @@ class ProjectionService {
         if (classType instanceof JSONArray) {
             for (int i = 0; i < coordinate.size(); i++) {
                 log.debug "subarray ${coordinate.get(i) as JSON}"
-                locationList.addAll(extractExonArrayLocations(coordinate.getJSONArray(i), organism, trackName))
+                coordinates.addAll(extractExonArrayCoordinates(coordinate.getJSONArray(i), organism, trackName))
             }
-            return locationList
+            return coordinates
         }
         TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
         String featureType = coordinate.getString(trackIndex.type)
         if (trackIndex.hasSubFeatures()) {
-            locationList.addAll(extractExonArrayLocations(coordinate.getJSONArray(trackIndex.subFeaturesColumn), organism, trackName))
+            coordinates.addAll(extractExonArrayCoordinates(coordinate.getJSONArray(trackIndex.subFeaturesColumn), organism, trackName))
         }
         if (trackIndex.hasChunk()) {
             JSONObject sublist = coordinate.getJSONObject(coordinate.size() - 1)
-            locationList.addAll(extractHighLevelLocations(sublist.getJSONArray("Sublist"), organism, trackName))
+            coordinates.addAll(extractHighLevelCoordinates(sublist.getJSONArray("Sublist"), organism, trackName))
         }
 
         // TODO: or repeat region?
@@ -216,8 +216,8 @@ class ProjectionService {
                     ,organism: organism.commonName
 
             )
-            locationList.add(
-                    new Location(
+            coordinates.add(
+                    new Coordinate(
                             min: coordinate.getInt(trackIndex.start)
                             , max: coordinate.getInt(trackIndex.end)-1 // the end is exclusive from track, we store inclusive
                             , sequence: projectionSequence1
@@ -225,7 +225,7 @@ class ProjectionService {
             )
         }
 
-        return locationList
+        return coordinates
     }
 
     JSONObject convertProjectionToAssemblageJsonObject(String putativeProjectionLoc, Organism organism) {

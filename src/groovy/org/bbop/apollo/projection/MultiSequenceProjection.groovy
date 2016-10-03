@@ -211,8 +211,8 @@ class MultiSequenceProjection extends AbstractProjection {
 
     def addInterval(int min, int max, ProjectionSequence sequence) {
         println "adding interval ${min} ${max} ${sequence}"
-        Location location = new Location(min: min, max: max, sequence: sequence)
-        addLocation(location)
+        Coordinate coordinate = new Coordinate(min: min, max: max, sequence: sequence)
+        addCoordinate(coordinate)
     }
 
 
@@ -225,9 +225,9 @@ class MultiSequenceProjection extends AbstractProjection {
         return count
     }
 
-    def addLocations(List<Location> locationList) {
-        for (Location location in locationList) {
-            addLocation(location)
+    def addCoordinates(List<Coordinate> coordinates) {
+        for (Coordinate coordinate in coordinates) {
+            addCoordinate(coordinate)
         }
     }
 
@@ -239,26 +239,26 @@ class MultiSequenceProjection extends AbstractProjection {
     }
 
 // here we are adding a location to project
-    def addLocation(Location location) {
+    def addCoordinate(Coordinate coordinate) {
         // if a single projection . . the default .. then assert that it is the same sequence / projection
-        ProjectionSequence projectionSequence = getProjectionSequenceForLocation(location)
+        ProjectionSequence projectionSequence = getProjectionSequenceForCoordinate(coordinate)
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence)
         if (discontinuousProjection) {
-            discontinuousProjection.addInterval(location.min, location.max, 0)
+            discontinuousProjection.addInterval(coordinate.min, coordinate.max, 0)
         } else {
             DiscontinuousProjection thisDiscontinuousProjection = new DiscontinuousProjection()
-            thisDiscontinuousProjection.addInterval(location.min, location.max, 0)
+            thisDiscontinuousProjection.addInterval(coordinate.min, coordinate.max, 0)
             sequenceDiscontinuousProjectionMap.put(projectionSequence, thisDiscontinuousProjection)
         }
     }
 
     /**
      * Finds the most appropriate sequence projection for a given location
-     * @param location
+     * @param coordinate
      * @return
      */
-    ProjectionSequence getProjectionSequenceForLocation(Location location) {
-        ProjectionSequence matchSequence = location.sequence
+    ProjectionSequence getProjectionSequenceForCoordinate(Coordinate coordinate) {
+        ProjectionSequence matchSequence = coordinate.sequence
         TreeMap<Integer, ProjectionSequence> projectionSequenceTreeMap = new TreeMap<>()
         sequenceDiscontinuousProjectionMap.keySet().each {
             int score = it.name == matchSequence.name ? 1 : 0

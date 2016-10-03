@@ -9,8 +9,6 @@ class Coordinate implements Comparable<Coordinate>{
     Integer min
     Integer max
     ProjectionSequence sequence
-//    String sequence
-//    String organism
 
 
     @Override

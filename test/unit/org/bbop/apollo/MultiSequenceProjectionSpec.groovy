@@ -1,8 +1,6 @@
 package org.bbop.apollo
 
 import org.bbop.apollo.projection.*
-import spock.lang.Ignore
-import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 /**
@@ -853,18 +851,18 @@ class MultiSequenceProjectionSpec extends Specification {
         ) // from 100-200
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
-        Location location1 = new Location(min: 10, max: 12, sequence: sequence1)
-        Location location2 = new Location(min: 22, max: 25, sequence: sequence1)
-        Location location3 = new Location(min: 23, max: 27, sequence: sequence2)
-        Location location4 = new Location(min: 60, max: 63, sequence: sequence2)
+        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
+        Coordinate location2 = new Coordinate(min: 22, max: 25, sequence: sequence1)
+        Coordinate location3 = new Coordinate(min: 23, max: 27, sequence: sequence2)
+        Coordinate location4 = new Coordinate(min: 60, max: 63, sequence: sequence2)
 
 
 
         when: "we create some intervals for a few scaffolds"
-        multiSequenceProjection.addLocation(location1)
-        multiSequenceProjection.addLocation(location2)
-        multiSequenceProjection.addLocation(location3)
-        multiSequenceProjection.addLocation(location4)
+        multiSequenceProjection.addCoordinate(location1)
+        multiSequenceProjection.addCoordinate(location2)
+        multiSequenceProjection.addCoordinate(location3)
+        multiSequenceProjection.addCoordinate(location4)
         multiSequenceProjection.calculateOffsets()
         List<Coordinate> coordinateCollection = multiSequenceProjection.listCoordinates()
         List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.sequenceDiscontinuousProjectionMap.keySet() as List<ProjectionSequence>
@@ -979,22 +977,22 @@ class MultiSequenceProjectionSpec extends Specification {
         ) // from 150-200
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3, sequence4])
-        Location location1 = new Location(min: 10, max: 12, sequence: sequence1) // 3
-        Location location2 = new Location(min: 22, max: 25, sequence: sequence1) // 4
-        Location location3 = new Location(min: 23, max: 27, sequence: sequence2)  // 5
-        Location location4 = new Location(min: 60, max: 63, sequence: sequence2)  // 4
-        Location location5 = new Location(min: 5, max: 10, sequence: sequence3)   // 6
-        Location location6 = new Location(min: 10, max: 12, sequence: sequence4)  // 3
+        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1) // 3
+        Coordinate location2 = new Coordinate(min: 22, max: 25, sequence: sequence1) // 4
+        Coordinate location3 = new Coordinate(min: 23, max: 27, sequence: sequence2)  // 5
+        Coordinate location4 = new Coordinate(min: 60, max: 63, sequence: sequence2)  // 4
+        Coordinate location5 = new Coordinate(min: 5, max: 10, sequence: sequence3)   // 6
+        Coordinate location6 = new Coordinate(min: 10, max: 12, sequence: sequence4)  // 3
         // total 25
 
 
         when: "we create some intervals for a few scaffolds"
-        multiSequenceProjection.addLocation(location1)
-        multiSequenceProjection.addLocation(location2)
-        multiSequenceProjection.addLocation(location3)
-        multiSequenceProjection.addLocation(location4)
-        multiSequenceProjection.addLocation(location5)
-        multiSequenceProjection.addLocation(location6)
+        multiSequenceProjection.addCoordinate(location1)
+        multiSequenceProjection.addCoordinate(location2)
+        multiSequenceProjection.addCoordinate(location3)
+        multiSequenceProjection.addCoordinate(location4)
+        multiSequenceProjection.addCoordinate(location5)
+        multiSequenceProjection.addCoordinate(location6)
         multiSequenceProjection.calculateOffsets()
         List<Coordinate> coordinateCollection = multiSequenceProjection.listCoordinates()
         List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.sequenceDiscontinuousProjectionMap.keySet() as List<ProjectionSequence>
@@ -1072,14 +1070,14 @@ class MultiSequenceProjectionSpec extends Specification {
         ) // from 100-300
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3])
-        Location location1 = new Location(min: 10, max: 12, sequence: sequence1)
-        Location location2 = new Location(min: 22, max: 25, sequence: sequence2)
-        Location location4 = new Location(min: 60, max: 63, sequence: sequence3)
+        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
+        Coordinate location2 = new Coordinate(min: 22, max: 25, sequence: sequence2)
+        Coordinate location4 = new Coordinate(min: 60, max: 63, sequence: sequence3)
 
         when: "we add the locations"
-        multiSequenceProjection.addLocation(location1)
-        multiSequenceProjection.addLocation(location2)
-        multiSequenceProjection.addLocation(location4)
+        multiSequenceProjection.addCoordinate(location1)
+        multiSequenceProjection.addCoordinate(location2)
+        multiSequenceProjection.addCoordinate(location4)
         multiSequenceProjection.calculateOffsets()
         ProjectionSequence projectionSequence1 = multiSequenceProjection.getProjectionSequence(10)
         ProjectionSequence projectionSequence2 = multiSequenceProjection.getProjectionSequence(22)
@@ -1143,16 +1141,15 @@ class MultiSequenceProjectionSpec extends Specification {
         ) // from 100-200
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3])
-        Location location1 = new Location(min: 10, max: 12, sequence: sequence1)
-        Location location2 = new Location(min: 22, max: 25, sequence: sequence2)
-        Location location4 = new Location(min: 60, max: 63, sequence: sequence3)
-//        Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )
+        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
+        Coordinate location2 = new Coordinate(min: 22, max: 25, sequence: sequence2)
+        Coordinate location4 = new Coordinate(min: 60, max: 63, sequence: sequence3)
 
         when: "we add the locations"
-        multiSequenceProjection.addLocation(location1)
-        multiSequenceProjection.addLocation(location2)
-//        multiSequenceProjection.addLocation(location3)
-        multiSequenceProjection.addLocation(location4)
+        multiSequenceProjection.addCoordinate(location1)
+        multiSequenceProjection.addCoordinate(location2)
+//        multiSequenceProjection.addCoordinate(location3)
+        multiSequenceProjection.addCoordinate(location4)
         multiSequenceProjection.calculateOffsets()
 
         then: "we should be able to get out the proper projection sequence"
@@ -1204,16 +1201,15 @@ class MultiSequenceProjectionSpec extends Specification {
         ) // from 100-200
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3])
-        Location location1 = new Location(min: 10, max: 12, sequence: sequence1)
-        Location location2 = new Location(min: 22, max: 25, sequence: sequence2)
-        Location location4 = new Location(min: 60, max: 63, sequence: sequence3)
-//        Location location3 = new Location( min: 23,max: 27,sequence: sequence2 )
+        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
+        Coordinate location2 = new Coordinate(min: 22, max: 25, sequence: sequence2)
+        Coordinate location4 = new Coordinate(min: 60, max: 63, sequence: sequence3)
 
         when: "we add the locations"
-        multiSequenceProjection.addLocation(location1)
-        multiSequenceProjection.addLocation(location2)
-//        multiSequenceProjection.addLocation(location3)
-        multiSequenceProjection.addLocation(location4)
+        multiSequenceProjection.addCoordinate(location1)
+        multiSequenceProjection.addCoordinate(location2)
+//        multiSequenceProjection.addCoordinate(location3)
+        multiSequenceProjection.addCoordinate(location4)
         multiSequenceProjection.calculateOffsets()
         ProjectionSequence projectionSequence1 = multiSequenceProjection.getProjectionSequence(10)
         ProjectionSequence projectionSequence2 = multiSequenceProjection.getProjectionSequence(22)
@@ -1267,10 +1263,10 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection1 = new MultiSequenceProjection()
         multiSequenceProjection1.addProjectionSequences([sequence1])
-        Location location1 = new Location(min: 0, max: 100, sequence: sequence1)
+        Coordinate location1 = new Coordinate(min: 0, max: 100, sequence: sequence1)
 
         when: "we add a location "
-        multiSequenceProjection1.addLocation(location1)
+        multiSequenceProjection1.addCoordinate(location1)
         multiSequenceProjection1.calculateOffsets()
 
         then: "if we retrieve the projection it should be fine"
@@ -1325,14 +1321,14 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3])
-        Location location1 = new Location(min: 0, max: 100, sequence: sequence1)
-        Location location2 = new Location(min: 0, max: 50, sequence: sequence2)
-        Location location3 = new Location(min: 0, max: 75, sequence: sequence3)
+        Coordinate location1 = new Coordinate(min: 0, max: 100, sequence: sequence1)
+        Coordinate location2 = new Coordinate(min: 0, max: 50, sequence: sequence2)
+        Coordinate location3 = new Coordinate(min: 0, max: 75, sequence: sequence3)
 
         when: "we add a location "
-        multiSequenceProjection.addLocation(location1)
-        multiSequenceProjection.addLocation(location2)
-        multiSequenceProjection.addLocation(location3)
+        multiSequenceProjection.addCoordinate(location1)
+        multiSequenceProjection.addCoordinate(location2)
+        multiSequenceProjection.addCoordinate(location3)
         multiSequenceProjection.calculateOffsets()
         // default setting
         sequence1.reverse = false
@@ -1447,11 +1443,10 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1])
-        Location location1 = new Location(min: 10, max: 12, sequence: sequence1)
-//        Location location2 = new Location(min: 14, max: 16, sequence: sequence1)
+        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
 
         when: "we add a single location "
-        multiSequenceProjection.addLocation(location1)
+        multiSequenceProjection.addCoordinate(location1)
         multiSequenceProjection.calculateOffsets()
         sequence1.reverse = false
 
@@ -1501,12 +1496,12 @@ class MultiSequenceProjectionSpec extends Specification {
         )
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
-        Location location1 = new Location(min: 10, max: 12, sequence: sequence1)
-        Location location2 = new Location(min: 5, max: 7, sequence: sequence2)
+        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
+        Coordinate location2 = new Coordinate(min: 5, max: 7, sequence: sequence2)
 
         when: "we add a single location "
-        multiSequenceProjection.addLocation(location1)
-        multiSequenceProjection.addLocation(location2)
+        multiSequenceProjection.addCoordinate(location1)
+        multiSequenceProjection.addCoordinate(location2)
         multiSequenceProjection.calculateOffsets()
         sequence1.reverse = false
         sequence2.reverse = false
@@ -1601,14 +1596,14 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3])
-        Location location1 = new Location(min: 10, max: 12, sequence: sequence1)
-        Location location2 = new Location(min: 4, max: 25, sequence: sequence2)
-        Location location3 = new Location(min: 40, max: 60, sequence: sequence3)
+        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
+        Coordinate location2 = new Coordinate(min: 4, max: 25, sequence: sequence2)
+        Coordinate location3 = new Coordinate(min: 40, max: 60, sequence: sequence3)
 
         when: "we add a location "
-        multiSequenceProjection.addLocation(location1)
-        multiSequenceProjection.addLocation(location2)
-        multiSequenceProjection.addLocation(location3)
+        multiSequenceProjection.addCoordinate(location1)
+        multiSequenceProjection.addCoordinate(location2)
+        multiSequenceProjection.addCoordinate(location3)
         multiSequenceProjection.calculateOffsets()
         // default setting
         sequence1.reverse = false
@@ -1744,8 +1739,8 @@ class MultiSequenceProjectionSpec extends Specification {
         when: "it should render normally"
         multiSequenceProjection.addProjectionSequences([sequence1])
         sequence1.reverse = false
-        multiSequenceProjection.addLocation(new Location(min: 10, max: 12, sequence: sequence1))
-        multiSequenceProjection.addLocation(new Location(min: 15, max: 20, sequence: sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 10, max: 12, sequence: sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 15, max: 20, sequence: sequence1))
         multiSequenceProjection.calculateOffsets()
 
         then: "it should render forward in a familiar manner"
@@ -1813,10 +1808,10 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "it should render normally"
-        multiSequenceProjection.addLocation(new Location(min: 10,max: 12,sequence: sequence1))
-        multiSequenceProjection.addLocation(new Location(min: 14,max: 18,sequence: sequence1))
-        multiSequenceProjection.addLocation(new Location(min: 2,max: 4,sequence: sequence2))
-        multiSequenceProjection.addLocation(new Location(min: 6,max: 9,sequence: sequence2))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 10,max: 12,sequence: sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 14,max: 18,sequence: sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 2,max: 4,sequence: sequence2))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 6,max: 9,sequence: sequence2))
         multiSequenceProjection.calculateOffsets()
 
         then: "it should render forward in a familiar manner"
@@ -1926,10 +1921,10 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1])
-        Location location1 = new Location(min: 30, max: 70, sequence: sequence1)
+        Coordinate location1 = new Coordinate(min: 30, max: 70, sequence: sequence1)
 
         when: "we add a location"
-        multiSequenceProjection.addLocation(location1)
+        multiSequenceProjection.addCoordinate(location1)
         multiSequenceProjection.calculateOffsets()
 
         then: "we should see only the limited range"
@@ -1969,12 +1964,12 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
-        Location location1 = new Location(min: 30, max: 70, sequence: sequence1)
-        Location location2 = new Location(min: 20, max: 30, sequence: sequence2)
+        Coordinate location1 = new Coordinate(min: 30, max: 70, sequence: sequence1)
+        Coordinate location2 = new Coordinate(min: 20, max: 30, sequence: sequence2)
 
         when: "we add both locations"
-        multiSequenceProjection.addLocation(location1)
-        multiSequenceProjection.addLocation(location2)
+        multiSequenceProjection.addCoordinate(location1)
+        multiSequenceProjection.addCoordinate(location2)
         multiSequenceProjection.calculateOffsets()
 
         then: "we should see everyting in the right order"
@@ -2030,10 +2025,10 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "it should render normally"
-        multiSequenceProjection.addLocation(new Location(min: 10,max: 12,sequence: sequence1))
-        multiSequenceProjection.addLocation(new Location(min: 14,max: 18,sequence: sequence1))
-        multiSequenceProjection.addLocation(new Location(min: 2,max: 4,sequence: sequence2))
-        multiSequenceProjection.addLocation(new Location(min: 6,max: 9,sequence: sequence2))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 10,max: 12,sequence: sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 14,max: 18,sequence: sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 2,max: 4,sequence: sequence2))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 6,max: 9,sequence: sequence2))
         multiSequenceProjection.calculateOffsets()
 
         then: "it should render forward in a familiar manner"
@@ -2154,8 +2149,8 @@ class MultiSequenceProjectionSpec extends Specification {
 
         when: "when we set the same projections"
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
-        multiSequenceProjection.addLocation(new Location(min: 5,max:10,sequence:sequence1))
-        multiSequenceProjection.addLocation(new Location(min: 12,max:14,sequence:sequence2))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 5,max:10,sequence:sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 12,max:14,sequence:sequence2))
         multiSequenceProjection.calculateOffsets()
 
 
@@ -2205,8 +2200,8 @@ class MultiSequenceProjectionSpec extends Specification {
 
         when: "when we set the same projections"
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
-        multiSequenceProjection.addLocation(new Location(min: 5,max:10,sequence:sequence1))
-        multiSequenceProjection.addLocation(new Location(min: 8,max:15,sequence:sequence2))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 5,max:10,sequence:sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(min: 8,max:15,sequence:sequence2))
         multiSequenceProjection.calculateOffsets()
 
 
