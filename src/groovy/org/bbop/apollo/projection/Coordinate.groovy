@@ -8,6 +8,7 @@ class Coordinate implements Comparable<Coordinate>{
 
     Integer min
     Integer max
+    ProjectionSequence sequence
 //    String sequence
 //    String organism
 
@@ -25,6 +26,9 @@ class Coordinate implements Comparable<Coordinate>{
 
         if (max != that.max) return false
         if (min != that.min) return false
+        if(sequence && that.sequence){
+            return sequence == that.sequence
+        }
 
         return true
     }
@@ -33,6 +37,7 @@ class Coordinate implements Comparable<Coordinate>{
         int result
         result = (min != null ? min.hashCode() : 0)
         result = 31 * result + (max != null ? max.hashCode() : 0)
+        result = 31 * result + ( sequence != null ? sequence.hashCode() : 0)
         return result
     }
 
@@ -42,8 +47,7 @@ class Coordinate implements Comparable<Coordinate>{
         return "Coordinate{" +
                 "min=" + min +
                 ", max=" + max +
-//                sequence ? ", sequence=" + sequence : "" +
-//                organism ? ", organism=" + organism : "" +
+                sequence ? ", sequence=" + sequence : "" +
                 '}';
     }
 

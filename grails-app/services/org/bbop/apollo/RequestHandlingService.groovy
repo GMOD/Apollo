@@ -7,7 +7,7 @@ import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
-import org.bbop.apollo.projection.Location
+import org.bbop.apollo.projection.Coordinate
 import org.bbop.apollo.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Strand
@@ -481,7 +481,7 @@ class RequestHandlingService {
         JSONArray sequenceListObject = new JSONArray(assemblage.sequenceList)
 
         Map<String,Sequence> sequenceMap = new HashMap<>()
-        Map<Integer,Location> sequenceOrder = new TreeMap<>()
+        Map<Integer,Coordinate> sequenceOrder = new TreeMap<>()
 
         sequenceList.each {
             sequenceMap.put(it.name,it)
@@ -491,37 +491,37 @@ class RequestHandlingService {
             ProjectionSequence projectionSequence = new ProjectionSequence(
                     name: it.name
             )
-            Location location = new Location(
+            Coordinate coordinate = new Coordinate(
                     min:it.start,
                     max:it.end,
                     sequence: projectionSequence
             )
-            sequenceOrder.put(i,location)
+            sequenceOrder.put(i,coordinate)
         }
 
         def features = Feature.createCriteria().listDistinct {
             or{
                 sequenceOrder.each { sequenceEntry ->
-                    Location location = sequenceEntry.value
-                    Sequence sequence = sequenceMap.get(location.sequence.name)
+                    Coordinate coordinate = sequenceEntry.value
+                    Sequence sequence = sequenceMap.get(coordinate.sequence.name)
                     or {
                         // inbetween the projection
                         featureLocations {
                             'eq'('sequence', sequence)
-                            'ge'('fmin', location.min)
-                            'le'('fmax', location.max)
+                            'ge'('fmin', coordinate.min)
+                            'le'('fmax', coordinate.max)
                         }
                         // overlaps the min edge
                         featureLocations {
                             'eq'('sequence', sequence)
-                            'lt'('fmin', location.min)
-                            'gt'('fmax', location.min)
+                            'lt'('fmin', coordinate.min)
+                            'gt'('fmax', coordinate.min)
                         }
                         // overlaps the max edge
                         featureLocations {
                             'eq'('sequence', sequence)
-                            'lt'('fmin', location.max)
-                            'gt'('fmax', location.max)
+                            'lt'('fmin', coordinate.max)
+                            'gt'('fmax', coordinate.max)
                         }
                     }
                 }
