@@ -12,9 +12,11 @@ class VariantService {
 
     def featureService
     def permissionService
+    def variantAnnotationService
 
     def createVariant(JSONObject jsonFeature, Sequence sequence, Boolean suppressHistory) {
-        Feature variant = featureService.convertJSONToFeature(jsonFeature, sequence)
+        SequenceAlteration variant = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
+        variant.alterationType = FeatureStringEnum.VARIANT.value
         User owner = permissionService.getCurrentUser(jsonFeature)
 
         if (owner) {

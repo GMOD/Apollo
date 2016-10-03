@@ -298,7 +298,7 @@ class SequenceService {
                 if (cdsService.getStopCodonReadThrough(cds).size() > 0) {
                     readThroughStop = true
                 }
-                String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds)
+                String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds, [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
                 featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, readThroughStop)
                 if (featureResidues.charAt(featureResidues.size() - 1) == StandardTranslationTable.STOP.charAt(0)) {
                     featureResidues = featureResidues.substring(0, featureResidues.size() - 1)
@@ -335,7 +335,7 @@ class SequenceService {
             }
         } else if (type.equals(FeatureStringEnum.TYPE_CDS.value)) {
             if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
-                featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
+                featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature), [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
                 boolean hasStopCodonReadThrough = false
                 if (cdsService.getStopCodonReadThrough(transcriptService.getCDS((Transcript) gbolFeature)).size() > 0) {
                     hasStopCodonReadThrough = true
@@ -361,7 +361,7 @@ class SequenceService {
 
         } else if (type.equals(FeatureStringEnum.TYPE_CDNA.value)) {
             if (gbolFeature instanceof Transcript || gbolFeature instanceof Exon) {
-                featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
+                featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature, [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
             } else {
                 featureResidues = ""
             }

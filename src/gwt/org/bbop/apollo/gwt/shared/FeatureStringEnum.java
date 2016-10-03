@@ -140,6 +140,8 @@ public enum FeatureStringEnum {
         VARIANT_INFO,
         OLD_VARIANT_INFO,
         NEW_VARIANT_INFO,
+        ASSEMBLY_ERROR_CORRECTION,
+        VARIANT
         ;
 
 

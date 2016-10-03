@@ -33,6 +33,7 @@ class RequestHandlingService {
     def cdsService
     def exonService
     def variantService
+    def variantAnnotationService
     def nonCanonicalSplitSiteService
     def configWrapperService
     def nameService
@@ -1237,6 +1238,7 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
+            sequenceAlteration.alterationType = FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value
             if (activeUser) {
                 featureService.setOwner(sequenceAlteration, activeUser)
             } else {
@@ -2309,7 +2311,8 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i)
             jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
-            Feature variant = variantService.createVariant(jsonFeature, sequence, suppressHistory)
+            SequenceAlteration variant = variantService.createVariant(jsonFeature, sequence, suppressHistory)
+            variantAnnotationService.calculateVariantEffects(variant)
 
             if (variant.fmin < 0 || variant.fmax < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");

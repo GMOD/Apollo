@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 import org.grails.plugins.metrics.groovy.Timed
@@ -92,7 +93,7 @@ class NonCanonicalSplitSiteService {
         if(transcript.getStrand()==-1)residues=residues.reverse()
 
         List<SequenceAlteration> sequenceAlterationList = new ArrayList<>()
-        sequenceAlterationList.addAll(featureService.getAllSequenceAlterationsForFeature(transcript))
+        sequenceAlterationList.addAll(featureService.getAllSequenceAlterationsForFeature(transcript, [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value]))
 
         for (Exon exon : exons) {
             int fivePrimeSpliceSitePosition = -1;

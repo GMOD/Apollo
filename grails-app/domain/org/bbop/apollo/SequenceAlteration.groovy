@@ -6,9 +6,11 @@ class SequenceAlteration extends SequenceFeature{
 
     static constraints = {
         alterationResidue nullable: true
+        alterationType nullable: true
     }
 
     String alterationResidue
+    String alterationType
 
     static String cvTerm  = "SequenceAlteration"
     static String ontologyId = "SO:0001059"
