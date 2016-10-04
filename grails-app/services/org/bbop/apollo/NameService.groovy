@@ -43,9 +43,6 @@ class NameService {
             }
             if (thisFeature instanceof Exon || thisFeature instanceof NonCanonicalFivePrimeSpliceSite || thisFeature instanceof NonCanonicalThreePrimeSpliceSite || thisFeature instanceof CDS) {
                 log.debug "instance of Exon"
-                if(!principalName){
-                    principalName = ((Exon) thisFeature).name
-                }
                 return generateUniqueName()
             }
             else{
