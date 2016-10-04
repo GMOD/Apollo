@@ -1582,18 +1582,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     String generateOwnerString(Feature feature){
-        String finalOwnerString
+        if(feature.owner){
+          return feature.owner.username
+        }
         if (feature.owners) {
             String ownerString = ""
             for (owner in feature.owners) {
-                ownerString += feature.owner.username + " "
+                ownerString += owner.username + " "
             }
-            finalOwnerString = ownerString?.trim()
-        } else if (feature.owner) {
-            finalOwnerString = feature?.owner?.username
-        } else {
-            finalOwnerString = "None"
+            return ownerString
         }
+        return "None"
     }
 
     /**
