@@ -40,14 +40,12 @@ class NameService {
                     return principalName
                 }
                   return makeUniqueGeneName(organism,principalName.trim())
-//                return makeUniqueFeatureName(organism,principalName.trim(),new LetterPaddingStrategy())
             }
             if (thisFeature instanceof Exon || thisFeature instanceof NonCanonicalFivePrimeSpliceSite || thisFeature instanceof NonCanonicalThreePrimeSpliceSite || thisFeature instanceof CDS) {
                 log.debug "instance of Exon"
                 if(!principalName){
                     principalName = ((Exon) thisFeature).name
                 }
-//                return makeUniqueFeatureName(organism,principalName.trim(),new LeftPaddingStrategy())
                 return generateUniqueName()
             }
             else{
@@ -67,7 +65,7 @@ class NameService {
         if(Gene.countByName(name)==0) {
             return true
         }
-        List results = (Gene.executeQuery("select count(f) from Gene f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name = :name ",[org:organism,name:name]))
+        List results = (Gene.executeQuery("select count(f) from Gene f join f.featureLocations fl join fl.sequence s where s.organism = :org and f.name = :name ",[org:organism,name:name]))
         return 0 == (int) results.get(0)
     }
 
@@ -75,7 +73,7 @@ class NameService {
         if(Feature.countByName(name)==0) {
             return true
         }
-        List results = (Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name = :name ",[org:organism,name:name]))
+        List results = (Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s where s.organism = :org and f.name = :name ",[org:organism,name:name]))
         return 0 == (int) results.get(0)
     }
 
@@ -86,7 +84,7 @@ class NameService {
         if(Transcript.countByName(name)==0){
             return name
         }
-        List results = (Feature.executeQuery("select f.name from Transcript f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name like :name ",[org:organism,name:principalName+'%']))
+        List results = (Feature.executeQuery("select f.name from Transcript f join f.featureLocations fl join fl.sequence s where s.organism = :org and f.name like :name ",[org:organism,name:principalName+'%']))
 
         name = principalName + leftPaddingStrategy.pad(results.size())
         int count = results.size()
@@ -109,7 +107,7 @@ class NameService {
 
         String name = principalName + letterPaddingStrategy.pad(0)
 
-        List results = (Gene.executeQuery("select f.name from Gene f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name like :name ",[org:organism,name:principalName+'%']))
+        List results = (Gene.executeQuery("select f.name from Gene f join f.featureLocations fl join fl.sequence s where s.organism = :org and f.name like :name ",[org:organism,name:principalName+'%']))
         int count = results.size()
         while(results.contains(name)){
             name = principalName + letterPaddingStrategy.pad(count)
