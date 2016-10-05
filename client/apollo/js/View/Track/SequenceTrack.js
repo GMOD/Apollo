@@ -7,7 +7,11 @@ define( [
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
     'dojox/widget/Standby',
-    'jquery/jquery'
+    'jquery/jquery',
+    'dijit/Menu',
+    'dijit/MenuItem',
+    'dijit/PopupMenuItem'
+
      ],
 function( declare,
     xhr,
@@ -17,7 +21,10 @@ function( declare,
     JSONUtils,
     Permission,
     Standby,
-    $
+    $,
+    dijitMenu,
+    dijitMenuItem,
+    dijitPopupMenuItem
 ) {
 
 var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
@@ -729,44 +736,64 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             }
         } ));
 
-
         if (this.annotTrack.permission & Permission.WRITE) {
-
-            thisObj.residues_context_menu.addChild(new dijit.MenuSeparator());
-                thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                    label: "Create Genomic Insertion",
-                    onClick: function() {
+            var assemblyErrorCorrectionMenu = new dijitMenu();
+            assemblyErrorCorrectionMenu.addChild(new dijit.MenuItem( {
+                label: "Create Insertion",
+                onClick: function() {
+                    thisObj.freezeHighlightedBases = true;
+                    thisObj.createGenomicInsertion();
+                }
+            } ));
+            assemblyErrorCorrectionMenu.addChild(new dijit.MenuItem( {
+                label: "Create Deletion",
+                onClick: function(event) {
                         thisObj.freezeHighlightedBases = true;
-                        thisObj.createGenomicInsertion();
-                    }
-                } ));
-                thisObj.residuesMenuItems["create_insertion"] = index++;
-                thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                    label: "Create Genomic Deletion",
-                    onClick: function(event) {
-                            thisObj.freezeHighlightedBases = true;
-                            thisObj.createGenomicDeletion();
-                    }
-                } ));
-                thisObj.residuesMenuItems["create_deletion"] = index++;
+                        thisObj.createGenomicDeletion();
+                }
+            } ));
+            assemblyErrorCorrectionMenu.addChild(new dijit.MenuItem( {
+                label: "Create Substitution",
+                onClick: function(event) {
+                    thisObj.freezeHighlightedBases = true;
+                    thisObj.createGenomicSubstitution();
+                }
+            } ));
+            var addAssemblyErrorCorrectionMenu = new dijitPopupMenuItem( {
+                label: "Create Assembly Error Correction",
+                popup: assemblyErrorCorrectionMenu
+            } );
 
-                thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                    label: "Create Genomic Substitution",
-                    onClick: function(event) {
-                            thisObj.freezeHighlightedBases = true;
-                            thisObj.createGenomicSubstitution();
-                    }
-                } ));
-                thisObj.residuesMenuItems["create_substitution"] = index++;
-
-                thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                    label: "Create Variant Annotation",
-                    onClick: function(event) {
-                        thisObj.freezeHighlightedBases = true;
-                        thisObj.createVariant();
-                    }
-                } ));
-                thisObj.residuesMenuItems["create_variant_annotation"] = index++;
+            var genomicVariantMenu = new dijitMenu();
+            genomicVariantMenu.addChild(new dijit.MenuItem( {
+                label: "Create Insertion",
+                onClick: function() {
+                    thisObj.freezeHighlightedBases = true;
+                    thisObj.createGenomicInsertionVariant();
+                }
+            } ));
+            genomicVariantMenu.addChild(new dijit.MenuItem( {
+                label: "Create Deletion",
+                onClick: function(event) {
+                    thisObj.freezeHighlightedBases = true;
+                    thisObj.createGenomicDeletionVariant();
+                }
+            } ));
+            genomicVariantMenu.addChild(new dijit.MenuItem( {
+                label: "Create Substitution",
+                onClick: function(event) {
+                    thisObj.freezeHighlightedBases = true;
+                    thisObj.createGenomicSubstitutionVariant();
+                }
+            } ));
+            var addGenomicVariantMenu = new dijitPopupMenuItem( {
+                label: "Create Genomic Variant",
+                popup: genomicVariantMenu
+            } );
+            thisObj.residues_context_menu.addChild(addAssemblyErrorCorrectionMenu);
+            thisObj.residuesMenuItems["add_assembly_error_correction"] =index++;
+            thisObj.residues_context_menu.addChild(addGenomicVariantMenu);
+            thisObj.residuesMenuItems["add_genomic_variant"] =index++;
         }
 
         thisObj.residues_context_menu.onOpen = function(event) {
@@ -818,10 +845,25 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         this.annotTrack.openDialog("Add Substitution", content);
     },
 
-    createVariant: function() {
+    createGenomicInsertionVariant: function()  {
         var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
-        var content = this.createVariantPanel(gcoord);
-        this.annotTrack.openDialog("Create Variant Annotation", content);
+
+        var content = this.createVariantPanel("insertion", gcoord);
+        this.annotTrack.openDialog("Add Insertion Variant", content);
+    },
+
+    createGenomicDeletionVariant: function()  {
+        var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
+
+        var content = this.createVariantPanel("deletion", gcoord);
+        this.annotTrack.openDialog("Add Deletion Variant", content);
+
+    },
+
+    createGenomicSubstitutionVariant: function()  {
+        var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
+        var content = this.createVariantPanel("substitution", gcoord);
+        this.annotTrack.openDialog("Add Substitution Variant", content);
     },
 
     deleteSelectedFeatures: function()  {
@@ -1110,81 +1152,160 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         return content;
     },
 
-    createVariantPanel: function(gcoord) {
+    createVariantPanel: function(type, gcoord) {
         var track = this;
         var content = dojo.create("div");
-        var referenceBasesDiv = dojo.create("div", {}, content);
-        var referenceBasesLabel = dojo.create("label", { innerHTML: "Reference Bases ", className: "variant_reference_bases_label" }, referenceBasesDiv);
-        var referenceBasesField = dojo.create("input", { type: "text", size: 15, className: "variant_reference_bases_field"}, referenceBasesDiv);
-        var alternateBasesDiv = dojo.create("div", { }, content);
-        var alternateBasesLabel = dojo.create("label", { innerHTML: "Alternate Bases ", className: "variant_alternate_bases_label"}, alternateBasesDiv);
-        var alternateBasesField = dojo.create("input", { type: "text", size: 15, className: "variant_alternate_bases_field"}, alternateBasesDiv);
+        var charWidth = 15;
+        if (type == "deletion") {
+            var deleteDiv = dojo.create("div", {}, content);
+            var deleteLabel = dojo.create("label", { innerHTML: "Length", className: "variant_input_label" }, deleteDiv);
+            var deleteField = dojo.create("input", { type: "text", size: 10, className: "variant_input_field" }, deleteDiv);
 
-        $(referenceBasesField).keydown(function(e) {
-            var unicode = e.charCode || e.keyCode;
-            var newchar = String.fromCharCode(unicode);
-            var isBackspace = (unicode == 8);
-            if (!newchar.match(/[acgtnACGTN]/) && !isBackspace) {
-                return false;
-            }
-        });
+            $(deleteField).keydown(function(e) {
+                var unicode = e.charCode || e.keyCode;
+                var isBackspace = (unicode == 8);  // 8 = BACKSPACE
+                if (unicode == 13) {  // 13 = ENTER/RETURN
+                    addVariant();
+                }
+                else {
+                    var newchar = String.fromCharCode(unicode);
+                    // only allow numeric chars and backspace
+                    if (! (newchar.match(/[0-9]/) || isBackspace))  {
+                        return false;
+                    }
+                }
+            });
+        }
+        else {
+            var plusDiv = dojo.create("div", { }, content);
+            var minusDiv = dojo.create("div", { }, content);
+            var plusLabel = dojo.create("label", { innerHTML: "+ strand", className: "variant_input_label" }, plusDiv);
+            var plusField = dojo.create("input", { type: "text", size: charWidth, className: "variant_input_field" }, plusDiv);
+            var minusLabel = dojo.create("label", { innerHTML: "- strand", className: "variant_input_label" }, minusDiv);
+            var minusField = dojo.create("input", { type: "text", size: charWidth, className: "variant_input_field" }, minusDiv);
+            var comment = dojo.create("div", { }, content);
 
-        $(alternateBasesField).keydown(function(e) {
-            var unicode = e.charCode || e.keyCode;
-            var newchar = String.fromCharCode(unicode);
-            var isBackspace = (unicode == 8);
-            if (!newchar.match(/[acgtnACGTN]/) && !isBackspace) {
-                return false;
-            }
-        });
+            $(plusField).keydown(function(e) {
+                var unicode = e.charCode || e.keyCode;
+                var isBackspace = (unicode == 8);  // 8 = BACKSPACE
+                if (unicode == 13) {  // 13 = ENTER/RETURN
+                    addVariant();
+                }
+                else {
+                    var curval = e.srcElement.value;
+                    var newchar = String.fromCharCode(unicode);
+                    if (newchar.match(/[acgtnACGTN]/) || isBackspace)  {
+                        if (isBackspace)  {
+                            minusField.value = track.complement(curval.substring(0,curval.length-1));
+                        }
+                        else {
+                            minusField.value = track.complement(curval + newchar);
+                        }
+                        if (curval.length > charWidth) {
+                            $(minusDiv).hide();
+                        }
+                        else {
+                            $(minusDiv).show();  // make sure is showing to bring back from a hide
+                        }
+                    }
+                    else { return false; }  // prevents entering any chars other than ACGTN and backspace
+                }
+            });
 
+            $(minusField).keydown(function(e) {
+                var unicode = e.charCode || e.keyCode;
+                var isBackspace = (unicode == 8);  // 8 = BACKSPACE
+                if (unicode == 13) {  // 13 = ENTER
+                    addVariant();
+                }
+                else {
+                    var curval = e.srcElement.value;
+                    var newchar = String.fromCharCode(unicode);
+                    if (newchar.match(/[acgtnACGTN]/) || isBackspace)  {
+                        if (isBackspace)  {
+                            plusField.value = track.complement(curval.substring(0,curval.length-1));
+                        }
+                        else {
+                            plusField.value = track.complement(curval + newchar);
+                        }
+                        if (curval.length > charWidth) {
+                            $(plusDiv).hide();
+                        }
+                        else {
+                            $(plusDiv).show();  // make sure is showing to bring back from a hide
+                        }
+                    }
+                    else { return false; }  // prevents entering any chars other than ACGTN and backspace
+                }
+            });
+        }
         var buttonDiv = dojo.create("div", { className: "add_variant_button_div" }, content);
         var addButton = dojo.create("button", { innerHTML: "Add", className: "add_variant_button" }, buttonDiv);
 
         var addVariant = function() {
             var ok = true;
-            var referenceBases = referenceBasesField.value;
-            var alternateBases = alternateBasesField.value;
+            var inputField;
+            var inputField = ((type == "deletion") ? deleteField : plusField);
+            // if (type == "deletion") { inputField = deleteField; }
+            // else  { inputField = plusField; }
+            var input = inputField.value.toUpperCase();
 
-            // TODO: replace all alert calls with ConfirmDialog
-            if(referenceBases.length == 0) {
-                alert("Reference Bases field cannot be empty");
+            if (input.length == 0) {
+                alert("Input cannot be empty for " + type);
                 ok = false;
             }
-            if (alternateBases.length == 0) {
-                alert("Alternate Bases field cannot be empty");
-                ok = false;
-            }
-
             if (ok) {
-                var referenceBasesString = referenceBases.toUpperCase();
-                var alternateBasesString = alternateBases.toUpperCase();
-                var fmin = gcoord;
-                var fmax = gcoord + referenceBases.length;
-                var type = JSONUtils.classifyVariant(referenceBasesString, [alternateBasesString], fmin, fmax);
-
-                var features = [{
-                    location: {
-                        fmin: fmin,
-                        fmax: fmax,
-                        strand: 1
-                    },
-                    type: {
-                        name: type,
-                        cv: {
-                            name: "sequence"
+                var input = inputField.value.toUpperCase();
+                if (type == "deletion") {
+                    if (input.match(/\D/)) {
+                        alert("The length must be a number");
+                        ok = false;
+                    }
+                    else {
+                        input = parseInt(input);
+                        if (input <= 0) {
+                            alert("The length must be a positive number");
+                            ok = false;
                         }
-                    },
-                    reference_bases: referenceBasesString,
-                    alternate_alleles: [{ bases: alternateBasesString }]
-                }];
-                var postData = {
-                    track: track.annotTrack.getUniqueTrackName(),
-                    features: features,
-                    operation: "add_variant"
-                };
-                track.annotTrack.executeUpdateOperation(JSON.stringify(postData));
-                track.annotTrack.closeDialog();
+                    }
+                }
+                else {
+                    if (input.match(/[^ACGTN]/)) {
+                        alert("The sequence should only containg A, C, G, T, N");
+                        ok = false;
+                    }
+                }
+            }
+            if (ok) {
+                var fmin = gcoord;
+                var fmax;
+                if (type == "insertion") {
+                    fmax = gcoord;
+                }
+                else if (type == "deletion") {
+                    fmax = gcoord + parseInt(input);
+                }
+                else if (type == "substitution") {
+                    fmax = gcoord + input.length;
+                }
+                if (track.storedFeatureCount(fmin, fmax == fmin ? fmin + 1 : fmax) > 0) {
+                    alert("Cannot create overlapping sequence alterations");
+                }
+                else {
+                    if (type == "substitution") {
+                        input.length == 1 ? type = "SNV" : type = "MNV"
+                    }
+
+                    var feature = { location: { fmin: fmin, fmax: fmax, strand: 1 }, type: { name: type, cv: { name: "sequence" } } };
+                    if (type != "deletion") {
+                        //feature += ', "residues": "' + input + '"';
+                        feature.residues = input;
+                    }
+
+                    var postData = { track: track.annotTrack.getUniqueTrackName(), features: [feature], operation: "add_variant"};
+                    track.annotTrack.executeUpdateOperation(JSON.stringify(postData));
+                    track.annotTrack.closeDialog();
+                }
             }
         };
 
