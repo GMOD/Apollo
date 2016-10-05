@@ -477,8 +477,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
 
-        List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
-                , [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations])
+//        List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
+//                , [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations])
+
+        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery(
+                "select sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence s where s = :sequence and sa.alterationType = :alterationType",
+                [sequence: sequence, alterationType: FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
+
         for (SequenceAlteration alteration : sequenceAlterationList) {
             jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true));
         }
@@ -1060,7 +1065,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             newFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
             newFeature.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(feature.ontologyId));
 
-            if (feature instanceof SequenceAlteration && feature.class.name in RequestHandlingService.variantList) {
+            if (feature instanceof SequenceAlteration && feature.alterationType == FeatureStringEnum.VARIANT.value) {
                 newFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(feature.featureLocation));
                 newFeature.put(FeatureStringEnum.REFERENCE_BASES.value, feature.referenceBases);
                 JSONArray alternateAllelesArray = new JSONArray()

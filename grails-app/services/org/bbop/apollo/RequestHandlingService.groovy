@@ -32,6 +32,7 @@ class RequestHandlingService {
     def transcriptService
     def cdsService
     def exonService
+    def sequenceService
     def variantService
     def variantAnnotationService
     def nonCanonicalSplitSiteService
@@ -51,8 +52,7 @@ class RequestHandlingService {
             SNV.class.name,
             SNP.class.name,
             MNV.class.name,
-            MNP.class.name,
-            Indel.class.name
+            MNP.class.name
     ]
 
     public static final List<String> viewableAnnotationTranscriptParentList = [
@@ -81,8 +81,7 @@ class RequestHandlingService {
             SNV.class.name,
             SNP.class.name,
             MNV.class.name,
-            MNP.class.name,
-            Indel.class.name
+            MNP.class.name
     ]
 
     public static final List<String> variantTypes = [SNV.cvTerm, SNP.cvTerm, MNV.cvTerm, MNP.cvTerm, Indel.cvTerm ]
@@ -557,9 +556,9 @@ class RequestHandlingService {
             fetchMode 'parentFeatureRelationships.childFeature.featureProperties', FetchMode.JOIN
             fetchMode 'parentFeatureRelationships.childFeature.featureDBXrefs', FetchMode.JOIN
             fetchMode 'parentFeatureRelationships.childFeature.owners', FetchMode.JOIN
-            'in'('class', viewableAnnotationTranscriptList+viewableAnnotationFeatureList)
+            'in'('class', viewableAnnotationTranscriptList+viewableAnnotationFeatureList+viewableAlterations)
+            eq("alterationType", FeatureStringEnum.VARIANT.value)
         }
-
 
         JSONArray jsonFeatures = new JSONArray()
         features.each { feature ->
@@ -1239,6 +1238,18 @@ class RequestHandlingService {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
             sequenceAlteration.alterationType = FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value
+
+            // moved to here from convertJSONToFeature
+            if (sequenceAlteration instanceof Deletion) {
+                sequenceService.setResiduesForFeatureFromLocation((Deletion) sequenceAlteration)
+            } else {
+                if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {
+                    if (sequenceAlteration instanceof Insertion || sequenceAlteration instanceof Substitution) {
+                        sequenceService.setResiduesForFeature(sequenceAlteration, jsonFeature.getString(FeatureStringEnum.RESIDUES.value))
+                    }
+                }
+            }
+
             if (activeUser) {
                 featureService.setOwner(sequenceAlteration, activeUser)
             } else {

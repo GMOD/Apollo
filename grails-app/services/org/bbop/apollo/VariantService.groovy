@@ -12,11 +12,93 @@ class VariantService {
 
     def featureService
     def permissionService
+    def sequenceService
     def variantAnnotationService
 
     def createVariant(JSONObject jsonFeature, Sequence sequence, Boolean suppressHistory) {
         SequenceAlteration variant = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
         variant.alterationType = FeatureStringEnum.VARIANT.value
+
+        if (variant.referenceBases == null || variant.alternateAlleles == null) {
+            // This scenario would happen only while creating a de-novo genomic variant
+            log.info "A de-novo variant"
+            if (variant instanceof Deletion) {
+                log.info "variant is instanceof Deletion"
+                String alterationResidue = sequenceService.getResidueFromFeatureLocation(variant.featureLocation)
+                log.info "Alteration Residue for deletion variant: ${alterationResidue}"
+                variant.alterationResidue = alterationResidue
+                // reference base is the upstream base + alterationResidue
+                String upstreamBase = sequenceService.getRawResiduesFromSequence(sequence, variant.fmin - 1, variant.fmin)
+                String referenceBases = upstreamBase + variant.alterationResidue
+                variant.referenceBases = referenceBases
+                log.info "ReferenceBases: ${referenceBases}"
+                // alternate alleles
+                Allele alternateAllele = new Allele(bases: upstreamBase, variant: variant).save()
+                variant.addToAlternateAlleles(alternateAllele)
+                log.info "alternate allele bases: ${alternateAllele.bases}"
+            }
+            else if (variant instanceof Insertion) {
+                log.info "variant is instanceof Insertion"
+                if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {
+                    String alterationResidue = jsonFeature.getString(FeatureStringEnum.RESIDUES.value)
+                    variant.alterationResidue = alterationResidue
+                    // reference base is the upstream base
+                    String upstreamBase = sequenceService.getRawResiduesFromSequence(sequence, variant.fmin, variant.fmin + 1)
+                    variant.referenceBases = upstreamBase
+                    log.info "ReferenceBases: ${upstreamBase}"
+                    // alternate alleles
+                    String alternateBases = upstreamBase + alterationResidue
+                    Allele alternateAllele = new Allele(bases: alternateBases, variant: variant).save()
+                    variant.addToAlternateAlleles(alternateAllele)
+                    log.info "alternate allele bases: ${alternateAllele.bases}"
+                }
+            }
+            else if (variant instanceof Substitution) {
+                log.info "variant is instanceof Substitution"
+                if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {
+                    String alterationResidue = jsonFeature.getString(FeatureStringEnum.RESIDUES.value)
+                    variant.alterationResidue = alterationResidue
+                    // reference base is bases within the range fmin - fmax
+                    String referenceBases = sequenceService.getRawResiduesFromSequence(sequence, variant.fmin, variant.fmax)
+                    variant.referenceBases = referenceBases
+                    log.info "ReferenceBases: ${referenceBases}"
+                    // alternate alleles
+                    String alternateBases = alterationResidue
+                    Allele alternateAllele = new Allele(bases: alternateBases, variant: variant).save()
+                    variant.addToAlternateAlleles(alternateAllele)
+                    log.info "alternate allele bases: ${alternateAllele.bases}"
+                    log.info "${referenceBases.length()} vs. ${alternateAllele.bases.length()}"
+                }
+            }
+            else {
+                log.error "Unexpected type of variant"
+            }
+        }
+        else {
+            // this scenario would happen when a variant is created from an evidence track such as a VCF track
+            log.info "A variant from evidence track"
+            if (variant instanceof Deletion) {
+                log.info "variant is instanceof Deletion"
+                // TODO: Assumption that variant has only one alternate allele
+                String alterationResidue = variant.alternateAlleles[0].bases.substring(1)
+                variant.alterationResidue = alterationResidue
+            }
+            else if (variant instanceof Insertion) {
+                log.info "variant is instanceof Insertion"
+                // TODO: Assumption that variant has only one alternate allele
+                String alterationResidue = variant.referenceBases.substring(1)
+                variant.alterationResidue = alterationResidue
+            }
+            else if (variant instanceof Substitution) {
+                log.info "variant is instanceof Substitution"
+                // TODO: Assumption that variant has only one alternate allele
+                variant.alterationResidue = variant.alternateAlleles[0].bases
+            }
+            else {
+                log.error "Unexpected type of variant"
+            }
+        }
+
         User owner = permissionService.getCurrentUser(jsonFeature)
 
         if (owner) {

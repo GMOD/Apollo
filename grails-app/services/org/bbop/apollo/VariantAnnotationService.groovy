@@ -16,10 +16,10 @@ class VariantAnnotationService {
     def featureRelationshipService
 
     def calculateVariantEffects(SequenceAlteration variant) {
-        println "@calculateVariantEffects"
+        log.info "@calculateVariantEffects"
         Set<Feature> variants = new HashSet<>()
         variants.add(variant)
-        def overlappingTranscripts = featureService.getOverlappingTranscripts(variant.featureLocation)
+        def overlappingTranscripts = featureService.getOverlappingTranscripts(variant.featureLocation, false)
         for (Transcript transcript : overlappingTranscripts) {
             variants.addAll(getOverlappingVariants(transcript))
         }
@@ -34,7 +34,7 @@ class VariantAnnotationService {
         def overlappingFeaturesList = featureService.getOverlappingFeatures(transcript.featureLocation, false)
 
         for (Feature feature : overlappingFeaturesList) {
-            if (feature instanceof Variant) {
+            if (feature instanceof SequenceAlteration && feature.alterationType == FeatureStringEnum.VARIANT.value) {
                 // perform instanceof Variant check to avoid SequenceAlterations that are Assembly Error Corrections
                 variantsList.add(feature)
             }

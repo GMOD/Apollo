@@ -1143,47 +1143,52 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.deletionLength = deletionLength
             }
 
-            if (gsolFeature instanceof SequenceAlteration && type.name in RequestHandlingService.variantTypes) {
-                gsolFeature.referenceBases = jsonFeature.getString(FeatureStringEnum.REFERENCE_BASES.value)
-                gsolFeature.save()
-                JSONArray alternateAllelesArray = jsonFeature.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
-                for (int i = 0; i < alternateAllelesArray.length(); i++) {
-                    JSONObject alternateAlleleJsonObject = alternateAllelesArray.getJSONObject(i)
-                    String bases = alternateAlleleJsonObject.getString(FeatureStringEnum.BASES.value)
-                    Allele allele = new Allele(bases: bases)
+            if (gsolFeature instanceof SequenceAlteration) {
+                if (jsonFeature.has(FeatureStringEnum.REFERENCE_BASES.value)) {
+                    gsolFeature.referenceBases = jsonFeature.getString(FeatureStringEnum.REFERENCE_BASES.value)
+                    gsolFeature.save()
+                }
+                if (jsonFeature.has(FeatureStringEnum.ALTERNATE_ALLELES.value)) {
+                    JSONArray alternateAllelesArray = jsonFeature.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
+                    for (int i = 0; i < alternateAllelesArray.length(); i++) {
+                        JSONObject alternateAlleleJsonObject = alternateAllelesArray.getJSONObject(i)
+                        String bases = alternateAlleleJsonObject.getString(FeatureStringEnum.BASES.value)
+                        Allele allele = new Allele(bases: bases)
 
-                    String provenance
-                    if (alternateAlleleJsonObject.has(FeatureStringEnum.PROVENANCE.value) && alternateAlleleJsonObject.getString(FeatureStringEnum.PROVENANCE.value)) {
-                        provenance = alternateAlleleJsonObject.getString(FeatureStringEnum.PROVENANCE.value)
-                        allele.provenance = provenance
-                    }
-                    if (alternateAlleleJsonObject.has(FeatureStringEnum.ALLELE_FREQUENCY.value) && alternateAlleleJsonObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value)) {
-                        Float alleleFrequency = variantService.getAlleleFrequencyFromJsonObject(alternateAlleleJsonObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value))
-                        if (provenance){
-                            allele.alleleFrequency = alleleFrequency
+                        String provenance
+                        if (alternateAlleleJsonObject.has(FeatureStringEnum.PROVENANCE.value) && alternateAlleleJsonObject.getString(FeatureStringEnum.PROVENANCE.value)) {
+                            provenance = alternateAlleleJsonObject.getString(FeatureStringEnum.PROVENANCE.value)
+                            allele.provenance = provenance
                         }
-                        else {
-                            log.error "Rejecting Allele Frequency of ${alleleFrequency} for Allele ${bases} as no provenance is provided"
+                        if (alternateAlleleJsonObject.has(FeatureStringEnum.ALLELE_FREQUENCY.value) && alternateAlleleJsonObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value)) {
+                            Float alleleFrequency = variantService.getAlleleFrequencyFromJsonObject(alternateAlleleJsonObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value))
+                            if (provenance){
+                                allele.alleleFrequency = alleleFrequency
+                            }
+                            else {
+                                log.error "Rejecting Allele Frequency of ${alleleFrequency} for Allele ${bases} as no provenance is provided"
+                            }
                         }
-                    }
 
-                    allele.variant = gsolFeature
-                    allele.save(flush: true)
+                        allele.variant = gsolFeature
+                        allele.save(flush: true)
 
-                    // Processing properties of an Allele
-                    if (alternateAllelesArray.getJSONObject(i).has(FeatureStringEnum.ALLELE_INFO.value)) {
-                        JSONArray alleleInfoArray = alternateAllelesArray.getJSONObject(i).getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
-                        for (int j = 0; j < alleleInfoArray.length(); j++) {
-                            JSONObject info = alleleInfoArray.getJSONObject(j)
-                            String tag = info.getString(FeatureStringEnum.TAG.value)
-                            String value = info.getString(FeatureStringEnum.VALUE.value)
-                            AlleleInfo alleleInfo = new AlleleInfo(tag: tag, value: value, allele: allele).save()
-                            allele.addToAlleleInfo(alleleInfo)
+                        // Processing properties of an Allele
+                        if (alternateAllelesArray.getJSONObject(i).has(FeatureStringEnum.ALLELE_INFO.value)) {
+                            JSONArray alleleInfoArray = alternateAllelesArray.getJSONObject(i).getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
+                            for (int j = 0; j < alleleInfoArray.length(); j++) {
+                                JSONObject info = alleleInfoArray.getJSONObject(j)
+                                String tag = info.getString(FeatureStringEnum.TAG.value)
+                                String value = info.getString(FeatureStringEnum.VALUE.value)
+                                AlleleInfo alleleInfo = new AlleleInfo(tag: tag, value: value, allele: allele).save()
+                                allele.addToAlleleInfo(alleleInfo)
+                            }
                         }
+                        gsolFeature.addToAlternateAlleles(allele);
                     }
-                    gsolFeature.addToAlternateAlleles(allele);
                 }
 
+                // Processing proerties of a variant
                 if (jsonFeature.has(FeatureStringEnum.VARIANT_INFO.value)) {
                     JSONArray variantInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.VARIANT_INFO.value)
                     for (int i = 0; i < variantInfoArray.size(); i++) {
@@ -1210,12 +1215,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 featureLocation.feature = gsolFeature
                 featureLocation.save()
                 gsolFeature.addToFeatureLocations(featureLocation);
-            }
-
-            if (gsolFeature.class.name == Deletion.class.name) {
-                sequenceService.setResiduesForFeatureFromLocation((Deletion) gsolFeature)
-            } else if (jsonFeature.has(FeatureStringEnum.RESIDUES.value) && gsolFeature.class.name in [Insertion.class.name, Substitution.class.name]) {
-                sequenceService.setResiduesForFeature(gsolFeature, jsonFeature.getString(FeatureStringEnum.RESIDUES.value))
             }
 
             if (jsonFeature.has(FeatureStringEnum.CHILDREN.value)) {
@@ -1608,7 +1607,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
 
-        if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantList) {
+        if (gsolFeature instanceof SequenceAlteration && gsolFeature.alterationType == FeatureStringEnum.VARIANT.value) {
             jsonFeature.put(FeatureStringEnum.REFERENCE_BASES.value, gsolFeature.referenceBases)
 
             // TODO: optimize
@@ -1801,7 +1800,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         durationInMilliseconds = System.currentTimeMillis() - start;
         //log.debug "featloc ${durationInMilliseconds}"
 
-        if (gsolFeature instanceof SequenceAlteration && gsolFeature.class.name in RequestHandlingService.variantList) {
+        if (gsolFeature instanceof SequenceAlteration && gsolFeature.alterationType == FeatureStringEnum.VARIANT.value) {
             jsonFeature.put(FeatureStringEnum.REFERENCE_BASES.value, gsolFeature.referenceBases)
 
             JSONArray alternateAllelesArray = new JSONArray()
@@ -2339,20 +2338,29 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             String sequenceAlterationResidues = sequenceAlteration.alterationResidue
+            log.info "SequenceAlterationResidues: ${sequenceAlterationResidues}"
             if (feature.getFeatureLocation().getStrand() == -1) {
+                log.info "Feature is on reverse strand"
                 sequenceAlterationResidues = SequenceTranslationHandler.reverseComplementSequence(sequenceAlterationResidues);
+                log.info "SequenceAlterationResidues (rev-comp): ${sequenceAlterationResidues}"
             }
+
             // Insertions
             if (sequenceAlteration.instanceOf == Insertion.canonicalName) {
+                log.info "Sequence Alteration is instanceof Insertion with alterationType ${sequenceAlteration.alterationType}"
                 if (feature.getFeatureLocation().getStrand() == -1) {
+                    log.info "Feature is on reverse strand; increasing localcoordinate by 1"
                     ++localCoordinate;
                 }
                 residues.insert(localCoordinate + currentOffset, sequenceAlterationResidues);
                 currentOffset += sequenceAlterationResidues.length();
+                log.info "current offset changed to ${currentOffset}"
             }
             // Deletions
             else if (sequenceAlteration.instanceOf == Deletion.canonicalName) {
+                log.info "Sequence Alteration is instanceof Deletion with alterationType ${sequenceAlteration.alterationType}"
                 if (feature.getFeatureLocation().getStrand() == -1) {
+                    log.info "Feature is on reverse strand"
                     residues.delete(localCoordinate + currentOffset - sequenceAlteration.alterationResidue.length() + 1,
                             localCoordinate + currentOffset + 1);
                 } else {
@@ -2360,12 +2368,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                             localCoordinate + currentOffset + sequenceAlteration.alterationResidue.length());
                 }
                 currentOffset -= sequenceAlterationResidues.length();
+                log.info "current offset changed to ${currentOffset}"
             }
             // Substitions
             else if (sequenceAlteration.instanceOf == Substitution.canonicalName) {
-                log.info "SequenceAlteration is instanceof Substitution"
+                log.info "Sequence Alteration is instanceof Substitution with alterationType ${sequenceAlteration.alterationType}"
                 int start = feature.getStrand() == -1 ? localCoordinate - (sequenceAlteration.alterationResidue.length() - 1) : localCoordinate;
-                log.info "Start to insert: ${start} with current offset: ${currentOffset}"
                 residues.replace(start + currentOffset,
                         start + currentOffset + sequenceAlteration.alterationResidue.length(),
                         sequenceAlterationResidues);
@@ -2376,7 +2384,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     List<SequenceAlteration> getSequenceAlterationsForFeature(Feature feature, def alterationTypes) {
-        log.info "@getSequenceAlterationsForFeature -> alterationTypes: ${alterationTypes}"
+        log.info "@getSequenceAlterationsForFeature with alterationTypes: ${alterationTypes}"
         int fmin = feature.fmin
         int fmax = feature.fmax
         Sequence sequence = feature.featureLocation.sequence
@@ -2389,7 +2397,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         log.info "QueryResults: ${sequenceAlterations}"
         return sequenceAlterations
     }
-
 
     public List<SequenceAlterationInContext> getSequenceAlterationsInContext(Feature feature, Collection<SequenceAlteration> sequenceAlterations) {
         log.info "getting sequence alterations in context for feature: ${feature.uniqueName}"
@@ -2413,57 +2420,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     if (eachSequenceAlteration instanceof Insertion) {
                         log.info "Alteration is instanceof Insertion"
                         sa.instanceOf = Insertion.canonicalName
-                        if (eachSequenceAlteration instanceof Variant) {
-                            log.info "Alteration is instanceof Variant"
-                            // Assumption that each variant will have only one alternate allele
-                            String alternateResidues = eachSequenceAlteration.getAlternateAlleles().iterator().next().bases
-                            sa.alterationResidue = alternateResidues.substring(1)
-                            sa.offset = alternateResidues.length() - 1 // accounting for the 1st reference base
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
-                        else {
-                            log.info "Alteration is not instanceof Variant"
-                            sa.alterationResidue = eachSequenceAlteration.alterationResidue
-                            sa.offset = eachSequenceAlteration.offset
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
                     } else if (eachSequenceAlteration instanceof Deletion) {
                         log.info "Alteration is instanceof Deletion"
                         sa.instanceOf = Deletion.canonicalName
-                        if (eachSequenceAlteration instanceof Variant) {
-                            log.info "Alteration is instanceof Variant"
-                            String alternateResidues = eachSequenceAlteration.referenceBases
-                            sa.alterationResidue = alternateResidues.substring(1)
-                            sa.offset = alternateResidues.length() - 1
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
-                        else {
-                            log.info "Alteration is not instanceof Variant"
-                            sa.alterationResidue = eachSequenceAlteration.alterationResidue
-                            sa.offset = eachSequenceAlteration.offset
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
                     } else if (eachSequenceAlteration instanceof Substitution) {
                         log.info "Alteration is instanceof Substitution"
                         sa.instanceOf = Substitution.canonicalName
-                        if (eachSequenceAlteration instanceof Variant) {
-                            log.info "Alteration is instanceof Variant"
-                            String alternateResidues = eachSequenceAlteration.getAlternateAlleles().iterator().next().bases
-                            sa.alterationResidue = alternateResidues
-                            sa.offset = 0
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
-                        else {
-                            log.info "Alteration is not instanceof Variant"
-                            sa.alterationResidue = eachSequenceAlteration.alterationResidue
-                            sa.offset = eachSequenceAlteration.offset
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
                     }
                     sa.type = 'within'
+                    sa.alterationType = eachSequenceAlteration.alterationType
                     sa.strand = eachSequenceAlteration.strand
                     sa.name = eachSequenceAlteration.name + '-inContext'
                     sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
+                    sa.offset = eachSequenceAlteration.offset
+                    sa.alterationResidue = eachSequenceAlteration.alterationResidue
                     sequenceAlterationInContextList.add(sa)
                 } else if ((alterationFmin >= featureFmin && alterationFmin <= featureFmax) && (alterationFmax >= featureFmin && alterationFmax >= featureFmax)) {
                     // alteration starts in exon but ends in an intron
@@ -2474,57 +2444,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     if (eachSequenceAlteration instanceof Insertion) {
                         log.info "Alteration is instanceof Insertion"
                         sa.instanceOf = Insertion.canonicalName
-                        if (eachSequenceAlteration instanceof Variant) {
-                            log.info "Alteration is instanceof Variant"
-                            // Assumption that each variant will have only one alternate allele
-                            String alternateResidues = eachSequenceAlteration.getAlternateAlleles().iterator().next().bases
-                            sa.alterationResidue = alternateResidues.substring(1, alternateResidues.length() - difference)
-                            sa.offset = (alternateResidues.length() - 1) - difference
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
-                        else {
-                            log.info "Alteration is not instanceof Variant"
-                            sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(0, eachSequenceAlteration.alterationResidue.length() - difference)
-                            sa.offset = eachSequenceAlteration.offset - difference
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
                     } else if (eachSequenceAlteration instanceof Deletion) {
                         log.info "Alteration is instanceof Deletion"
                         sa.instanceOf = Deletion.canonicalName
-                        if (eachSequenceAlteration instanceof Variant) {
-                            log.info "Alteration is instanceof Variant"
-                            String alternateResidues = eachSequenceAlteration.referenceBases
-                            sa.alterationResidue = alternateResidues.substring(1, alternateResidues.length() - difference)
-                            sa.offset = (alternateResidues.length() - 1) - difference
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
-                        else {
-                            log.info "Alteration is not instanceof Variant"
-                            sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(0, eachSequenceAlteration.alterationResidue.length() - difference)
-                            sa.offset = eachSequenceAlteration.offset - difference
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
                     } else if (eachSequenceAlteration instanceof Substitution) {
                         log.info "Alteration is instanceof Substitution"
                         sa.instanceOf = Substitution.canonicalName
-                        if (eachSequenceAlteration instanceof Variant) {
-                            log.info "Alteration is instanceof Variant"
-                            String alternateResidues = eachSequenceAlteration.getAlternateAlleles().iterator().next().bases
-                            sa.alterationResidue = alternateResidues.substring(0, alternateResidues.length() - difference)
-                            sa.offset = 0 - difference
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
-                        else {
-                            log.info "Alteration is not instanceof Variant"
-                            sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(0, eachSequenceAlteration.alterationResidue.length() - difference)
-                            sa.offset = eachSequenceAlteration.offset - difference
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
                     }
                     sa.type = 'exon-to-intron'
+                    sa.alterationType = eachSequenceAlteration.alterationType
                     sa.strand = eachSequenceAlteration.strand
                     sa.name = eachSequenceAlteration.name + '-inContext'
                     sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
+                    sa.offset = eachSequenceAlteration.offset - difference
+                    sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(0, eachSequenceAlteration.alterationResidue.length() - difference)
                     sequenceAlterationInContextList.add(sa)
                 } else if ((alterationFmin <= featureFmin && alterationFmin <= featureFmax) && (alterationFmax >= featureFmin && alterationFmax <= featureFmax)) {
                     // alteration starts within intron but ends in an exon
@@ -2535,57 +2468,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     if (eachSequenceAlteration instanceof Insertion) {
                         log.info "Alteration is instanceof Insertion"
                         sa.instanceOf = Insertion.canonicalName
-                        if (eachSequenceAlteration instanceof Variant) {
-                            log.info "Alteration is instanceof Variant"
-                            // Assumption that each variant will have only one alternate allele
-                            String alternateResidues = eachSequenceAlteration.getAlternateAlleles().iterator().next().bases.substring(1)
-                            sa.alterationResidue = alternateResidues.substring(difference, alternateResidues.length())
-                            sa.offset = alternateResidues.length() - difference
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
-                        else {
-                            log.info "Alteration is not instanceof Variant"
-                            sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(difference, eachSequenceAlteration.alterationResidue.length())
-                            sa.offset = eachSequenceAlteration.offset - difference
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
                     } else if (eachSequenceAlteration instanceof Deletion) {
                         log.info "Alteration is instanceof Deletion"
                         sa.instanceOf = Deletion.canonicalName
-                        if (eachSequenceAlteration instanceof Variant) {
-                            log.info "Alteration is instanceof Variant"
-                            String alternateResidues = eachSequenceAlteration.referenceBases.substring(1)
-                            sa.alterationResidue = alternateResidues.substring(difference, alternateResidues.length())
-                            sa.offset = alternateResidues.length() - difference
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
-                        else {
-                            log.info "Alteration is not instanceof Variant"
-                            sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(difference, eachSequenceAlteration.alterationResidue.length())
-                            sa.offset = eachSequenceAlteration.offset - difference
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
                     } else if (eachSequenceAlteration instanceof Substitution) {
                         log.info "Alteration is instanceof Substitution"
                         sa.instanceOf = Substitution.canonicalName
-                        if (eachSequenceAlteration instanceof Variant) {
-                            log.info "Alteration is instanceof Variant"
-                            String alternateResidues = eachSequenceAlteration.getAlternateAlleles().iterator().next().bases.substring(1)
-                            sa.alterationResidue = alternateResidues.substring(difference, alternateResidues.length())
-                            sa.offset = 0 - difference
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
-                        else {
-                            log.info "Alteration is not instanceof Variant"
-                            sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(difference, eachSequenceAlteration.alterationResidue.length())
-                            sa.offset = eachSequenceAlteration.offset - difference
-                            log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                        }
                     }
                     sa.type = 'intron-to-exon'
+                    sa.alterationType = eachSequenceAlteration.alterationType
                     sa.strand = eachSequenceAlteration.strand
                     sa.name = eachSequenceAlteration.name + '-inContext'
                     sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
+                    sa.offset = eachSequenceAlteration.offset - difference
+                    sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(difference, eachSequenceAlteration.alterationResidue.length())
                     sequenceAlterationInContextList.add(sa)
                 }
             }
@@ -2609,57 +2505,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         if (eachSequenceAlteration instanceof Insertion) {
                             log.info "Alteration is instanceof Insertion"
                             sa.instanceOf = Insertion.canonicalName
-                            if (eachSequenceAlteration instanceof Variant) {
-                                log.info "Alteration is instanceof Variant"
-                                // Assumption that each variant will have only one alternate allele
-                                String alternateResidues = eachSequenceAlteration.getAlternateAlleles().iterator().next().bases
-                                sa.alterationResidue = alternateResidues.substring(1)
-                                sa.offset = alternateResidues.length() - 1 // accounting for the 1st reference base
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
-                            else {
-                                log.info "Alteration is not instanceof Variant"
-                                sa.alterationResidue = eachSequenceAlteration.alterationResidue
-                                sa.offset = eachSequenceAlteration.offset
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
                         } else if (eachSequenceAlteration instanceof Deletion) {
                             log.info "Alteration is instanceof Deletion"
                             sa.instanceOf = Deletion.canonicalName
-                            if (eachSequenceAlteration instanceof Variant) {
-                                log.info "Alteration is instanceof Variant"
-                                String alternateResidues = eachSequenceAlteration.referenceBases
-                                sa.alterationResidue = alternateResidues.substring(1)
-                                sa.offset = alternateResidues.length() - 1
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
-                            else {
-                                log.info "Alteration is not instanceof Variant"
-                                sa.alterationResidue = eachSequenceAlteration.alterationResidue
-                                sa.offset = eachSequenceAlteration.offset
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
                         } else if (eachSequenceAlteration instanceof Substitution) {
                             log.info "Alteration is instanceof Substitution"
                             sa.instanceOf = Substitution.canonicalName
-                            if (eachSequenceAlteration instanceof Variant) {
-                                log.info "Alteration is instanceof Variant"
-                                String alternateResidues = eachSequenceAlteration.getAlternateAlleles().iterator().next().bases
-                                sa.alterationResidue = alternateResidues
-                                sa.offset = 0
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
-                            else {
-                                log.info "Alteration is not instanceof Variant"
-                                sa.alterationResidue = eachSequenceAlteration.alterationResidue
-                                sa.offset = eachSequenceAlteration.offset
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
                         }
                         sa.type = 'within'
+                        sa.alterationType = eachSequenceAlteration.alterationType
                         sa.strand = eachSequenceAlteration.strand
                         sa.name = eachSequenceAlteration.name + '-inContext'
                         sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
+                        sa.offset = eachSequenceAlteration.offset
+                        sa.alterationResidue = eachSequenceAlteration.alterationResidue
                         sequenceAlterationInContextList.add(sa)
                     } else if ((alterationFmin >= exonFmin && alterationFmin <= exonFmax) && (alterationFmax >= exonFmin && alterationFmax >= exonFmax)) {
                         // alteration starts in exon but ends in an intron
@@ -2670,57 +2529,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         if (eachSequenceAlteration instanceof Insertion) {
                             log.info "Alteration is instanceof Insertion"
                             sa.instanceOf = Insertion.canonicalName
-                            if (eachSequenceAlteration instanceof Variant) {
-                                log.info "Alteration is instanceof Variant"
-                                // Assumption that each variant will have only one alternate allele
-                                String alternateResidues = eachSequenceAlteration.getAlternateAlleles().iterator().next().bases
-                                sa.alterationResidue = alternateResidues.substring(1, alternateResidues.length() - difference)
-                                sa.offset = (alternateResidues.length() - 1) - difference
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
-                            else {
-                                log.info "Alteration is not instanceof Variant"
-                                sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(0, eachSequenceAlteration.alterationResidue.length() - difference)
-                                sa.offset = eachSequenceAlteration.offset - difference
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
                         } else if (eachSequenceAlteration instanceof Deletion) {
                             log.info "Alteration is instanceof Deletion"
                             sa.instanceOf = Deletion.canonicalName
-                            if (eachSequenceAlteration instanceof Variant) {
-                                log.info "Alteration is instanceof Variant"
-                                String alternateResidues = eachSequenceAlteration.referenceBases
-                                sa.alterationResidue = alternateResidues.substring(1, alternateResidues.length() - difference)
-                                sa.offset = (alternateResidues.length() - 1) - difference
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
-                            else {
-                                log.info "Alteration is not instanceof Variant"
-                                sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(0, eachSequenceAlteration.alterationResidue.length() - difference)
-                                sa.offset = eachSequenceAlteration.offset - difference
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
                         } else if (eachSequenceAlteration instanceof Substitution) {
                             log.info "Alteration is instanceof Substitution"
                             sa.instanceOf = Substitution.canonicalName
-                            if (eachSequenceAlteration instanceof Variant) {
-                                log.info "Alteration is instanceof Variant"
-                                String alternateResidues = eachSequenceAlteration.getAlternateAlleles().iterator().next().bases
-                                sa.alterationResidue = alternateResidues.substring(0, alternateResidues.length() - difference)
-                                sa.offset = 0 - difference
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
-                            else {
-                                log.info "Alteration is not instanceof Variant"
-                                sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(0, eachSequenceAlteration.alterationResidue.length() - difference)
-                                sa.offset = eachSequenceAlteration.offset - difference
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
                         }
                         sa.type = 'exon-to-intron'
+                        sa.alterationType = eachSequenceAlteration.alterationType
                         sa.strand = eachSequenceAlteration.strand
                         sa.name = eachSequenceAlteration.name + '-inContext'
                         sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
+                        sa.offset = eachSequenceAlteration.offset - difference
+                        sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(0, eachSequenceAlteration.alterationResidue.length() - difference)
                         sequenceAlterationInContextList.add(sa)
                     } else if ((alterationFmin <= exonFmin && alterationFmin <= exonFmax) && (alterationFmax >= exonFmin && alterationFmax <= exonFmax)) {
                         // alteration starts within intron but ends in an exon
@@ -2731,57 +2553,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         if (eachSequenceAlteration instanceof Insertion) {
                             log.info "Alteration is instanceof Insertion"
                             sa.instanceOf = Insertion.canonicalName
-                            if (eachSequenceAlteration instanceof Variant) {
-                                log.info "Alteration is instanceof Variant"
-                                // Assumption that each variant will have only one alternate allele
-                                String alternateResidues = eachSequenceAlteration.getAlternateAlleles().iterator().next().bases.substring(1)
-                                sa.alterationResidue = alternateResidues.substring(difference, alternateResidues.length())
-                                sa.offset = alternateResidues.length() - difference
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
-                            else {
-                                log.info "Alteration is not instanceof Variant"
-                                sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(difference, eachSequenceAlteration.alterationResidue.length())
-                                sa.offset = eachSequenceAlteration.offset - difference
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
                         } else if (eachSequenceAlteration instanceof Deletion) {
                             log.info "Alteration is instanceof Deletion"
                             sa.instanceOf = Deletion.canonicalName
-                            if (eachSequenceAlteration instanceof Variant) {
-                                log.info "Alteration is instanceof Variant"
-                                String alternateResidues = eachSequenceAlteration.referenceBases.substring(1)
-                                sa.alterationResidue = alternateResidues.substring(difference, alternateResidues.length())
-                                sa.offset = alternateResidues.length() - difference
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
-                            else {
-                                log.info "Alteration is not instanceof Variant"
-                                sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(difference, eachSequenceAlteration.alterationResidue.length())
-                                sa.offset = eachSequenceAlteration.offset - difference
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
                         } else if (eachSequenceAlteration instanceof Substitution) {
                             log.info "Alteration is instanceof Substitution"
                             sa.instanceOf = Substitution.canonicalName
-                            if (eachSequenceAlteration instanceof Variant) {
-                                log.info "Alteration is instanceof Variant"
-                                String alternateResidues = eachSequenceAlteration.getAlternateAlleles().iterator().next().bases.substring(1)
-                                sa.alterationResidue = alternateResidues.substring(difference, alternateResidues.length())
-                                sa.offset = 0 - difference
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
-                            else {
-                                log.info "Alteration is not instanceof Variant"
-                                sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(difference, eachSequenceAlteration.alterationResidue.length())
-                                sa.offset = eachSequenceAlteration.offset - difference
-                                log.info "SAIC alteration residues: ${sa.alterationResidue} with offset ${sa.offset}"
-                            }
                         }
                         sa.type = 'intron-to-exon'
+                        sa.alterationType = eachSequenceAlteration.alterationType
                         sa.strand = eachSequenceAlteration.strand
                         sa.name = eachSequenceAlteration.name + '-inContext'
                         sa.originalAlterationUniqueName = eachSequenceAlteration.uniqueName
+                        sa.offset = eachSequenceAlteration.offset - difference
+                        sa.alterationResidue = eachSequenceAlteration.alterationResidue.substring(difference, eachSequenceAlteration.alterationResidue.length())
                         sequenceAlterationInContextList.add(sa)
                     }
                 }
@@ -2789,6 +2574,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         return sequenceAlterationInContextList
     }
+
 
     public int convertModifiedLocalCoordinateToSourceCoordinate(Feature feature, int localCoordinate) {
         Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, Transcript.ontologyId)
