@@ -68,6 +68,8 @@ public class GroupPanel extends Composite {
     //    @UiField
 //    FlexTable userData;
     @UiField(provided = true)
+    WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
+    @UiField(provided = true)
     WebApolloSimplePager organismPager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField(provided = true)
     DataGrid<GroupOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4, tablecss);
@@ -124,6 +126,7 @@ public class GroupPanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
         organismPager.setDisplay(organismPermissionsGrid);
+        pager.setDisplay(dataGrid);
 
 
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {

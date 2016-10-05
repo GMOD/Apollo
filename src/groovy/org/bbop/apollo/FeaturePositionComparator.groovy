@@ -66,22 +66,26 @@ class FeaturePositionComparator<T extends Feature> implements  Comparator<T>{
         if(rankFeature1 > rankFeature2){
             return 1 ;
         }
-        if (feature1.getFmin() < feature2.getFmin()) {
+        FeatureLocation featureLocation1Min = feature1.firstFeatureLocation
+        FeatureLocation featureLocation2Min  = feature2.firstFeatureLocation
+        FeatureLocation featureLocation1Max = feature1.lastFeatureLocation
+        FeatureLocation featureLocation2Max  = feature2.lastFeatureLocation
+        if (featureLocation1Min.fmin < featureLocation2Min.fmin) {
             retVal = -1;
         }
-        else if (feature1.getFmin() > feature2.getFmin()) {
+        else if (featureLocation1Min.getFmin() > featureLocation2Min.getFmin()) {
             retVal = 1;
         }
-        else if (feature1.getFmax() < feature2.getFmax()) {
+        else if (featureLocation1Max.getFmax() < featureLocation2Max.getFmax()) {
             retVal = -1;
         }
-        else if (feature1.getFmax() > feature2.getFmax()) {
+        else if (featureLocation1Max.getFmax() > featureLocation2Max.getFmax()) {
             retVal = 1;
         }
         else if (feature1.getLength() != feature2.getLength()) {
             retVal = feature1.getLength() < feature2.getLength() ? -1 : 1;
         }
-        if (sortByStrand && feature1.getStrand() == -1) {
+        if (sortByStrand && featureLocation1Min.getStrand() == -1) {
             retVal *= -1;
         }
         return retVal;

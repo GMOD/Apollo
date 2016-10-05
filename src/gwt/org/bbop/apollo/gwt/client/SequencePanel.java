@@ -242,9 +242,6 @@ public class SequencePanel extends Composite {
                         }
                     });
                 }
-//                else {
-//                    GWT.log("Ignoring action " + organismChangeEvent.getAction());
-//                }
             }
         });
 

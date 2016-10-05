@@ -364,7 +364,7 @@ class FeatureService {
                         tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
                     }
 
-                    if (overlapperService.overlaps(tmpTranscript, tmpGene)) {
+                    if (tmpTranscript && tmpGene && overlapperService.overlaps(tmpTranscript, tmpGene)) {
                         log.debug "There is an overlap, adding to an existing gene"
                         transcript = tmpTranscript;
                         gene = tmpGene;
@@ -1900,19 +1900,18 @@ class FeatureService {
         return generateFeatureLocationToJSON(assemblage.sequenceList, feature.strand, calculatedFmin, calculatedFmax, fminPartial, fmaxPartial)
     }
 
-    String generateOwnerString(Feature feature) {
-        String finalOwnerString
+    String generateOwnerString(Feature feature){
+        if(feature.owner){
+          return feature.owner.username
+        }
         if (feature.owners) {
             String ownerString = ""
             for (owner in feature.owners) {
-                ownerString += feature.owner.username + " "
+                ownerString += owner.username + " "
             }
-            finalOwnerString = ownerString?.trim()
-        } else if (feature.owner) {
-            finalOwnerString = feature?.owner?.username
-        } else {
-            finalOwnerString = "None"
+            return ownerString
         }
+        return "None"
     }
 
 
@@ -2251,7 +2250,7 @@ class FeatureService {
         ArrayList<Transcript> transcriptsToUpdate = new ArrayList<Transcript>()
 
         for (Transcript eachTranscript : allSortedTranscripts) {
-            if (overlapperService.overlaps(eachTranscript, fivePrimeGene)) {
+            if (eachTranscript && fivePrimeGene && overlapperService.overlaps(eachTranscript, fivePrimeGene)) {
                 if (transcriptService.getGene(eachTranscript).uniqueName != fivePrimeGene.uniqueName) {
                     transcriptsToAssociate.add(eachTranscript)
                     genesToMerge.add(transcriptService.getGene(eachTranscript))
@@ -2323,7 +2322,7 @@ class FeatureService {
                     firstTranscript.save(flush: true)
                     continue
                 }
-                if (overlapperService.overlaps(eachTranscript, firstTranscript)) {
+                if (eachTranscript && firstTranscript && overlapperService.overlaps(eachTranscript, firstTranscript)) {
                     featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(eachTranscript), eachTranscript)
                     Gene firstGene = transcriptService.getGene(firstTranscript)
                     addTranscriptToGene(firstGene, eachTranscript, assemblageService.generateAssemblageForFeatures(firstGene, eachTranscript))
@@ -2342,7 +2341,7 @@ class FeatureService {
         overlappingTranscripts.remove(transcript) // removing itself
         ArrayList<Transcript> transcriptsWithOverlappingOrf = new ArrayList<Transcript>()
         for (Transcript eachTranscript in overlappingTranscripts) {
-            if (overlapperService.overlaps(eachTranscript, transcript)) {
+            if (eachTranscript && transcript && overlapperService.overlaps(eachTranscript, transcript)) {
                 transcriptsWithOverlappingOrf.add(eachTranscript)
             }
         }

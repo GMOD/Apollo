@@ -50,7 +50,31 @@ class JbrowseController {
         // case 3 - validated login (just read from preferences, then
         if (permissionService.currentUser && clientToken) {
             Organism organism = preferenceService.getOrganismForToken(clientToken)
-            organism = organism ?: preferenceService.getOrganismFromPreferences(clientToken)
+            if(organism){
+                // we need to generate a client_token and do a redirection
+                paramList = paramList.findAll(){
+                    !it.startsWith(FeatureStringEnum.CLIENT_TOKEN.value)
+                }
+                clientToken = org.bbop.apollo.gwt.shared.ClientTokenGenerator.generateRandomString()
+                preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
+                String paramString = ""
+                paramList.each {
+                    if(it.toString().startsWith("addStore")){
+                        paramString += URLEncoder.encode(it.toString(),"UTF-8")+"&"
+                    }
+                    else{
+                        paramString += it + "&"
+                    }
+                }
+//                String paramString = paramList.join('&')
+//                String targetUri = "/${clientToken}/jbrowse/index.html?"+paramString
+                String uriString = createLink(url: "/${clientToken}/jbrowse/index.html?${paramString}")
+                redirect(uri:  uriString)
+                return
+            }
+            else{
+                organism = preferenceService.getOrganismFromPreferences(clientToken)
+            }
             def availableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
             if (!availableOrganisms) {
                 String urlString = "/jbrowse/index.html?${paramList.join("&")}"

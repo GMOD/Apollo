@@ -113,9 +113,15 @@ class AnnotatorController {
         }
 
 //        String uri = "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
-        String uri = "/annotator/index?clientToken=" + clientToken + queryParamString
 
-        redirect uri: uri
+//        String uri = "/annotator/index?clientToken=" + clientToken + queryParamString
+        if(queryParamString.contains("addTracks")){
+            redirect uri: "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
+        }
+        else{
+            redirect uri: "/annotator/index?clientToken=" + clientToken + queryParamString
+        }
+
     }
 
     /**

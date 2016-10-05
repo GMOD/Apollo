@@ -41,13 +41,14 @@ class OverlapperService implements Overlapper{
     }
 
     boolean overlapsOrf(Transcript transcript1, Transcript transcript2) {
-//        log.debug("overlapsOrf(Transcript transcript1, Transcript transcript2) ")
         if ((transcriptService.isProteinCoding(transcript1) && transcriptService.isProteinCoding(transcript2))
                 && ((transcriptService.getGene(transcript1) == null || transcriptService.getGene(transcript2) == null) || (!(transcriptService.getGene(transcript1) instanceof Pseudogene) && !(transcriptService.getGene(transcript2) instanceof Pseudogene)))) {
 
             CDS cds = transcriptService.getCDS(transcript1);
+            CDS cds2 = transcriptService.getCDS(transcript2)
 
-            if (overlaps(cds,transcriptService.getCDS(transcript2)) &&  (overlaps(transcriptService.getCDS(transcript2),cds)))  {
+
+            if (cds2 && cds && overlaps(cds,cds2) &&  (overlaps(cds2,cds)))  {
                 List<Exon> exons1 = transcriptService.getSortedExons(transcript1,true);
                 List<Exon> exons2 = transcriptService.getSortedExons(transcript2,true);
                 return cdsOverlap(exons1, exons2, true);

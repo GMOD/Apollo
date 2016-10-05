@@ -290,7 +290,7 @@ public class MainPanel extends Composite {
                 setLabelForcurrentAssemblage();
 
 
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getDescription(),MainPanel.currentOrganism.getName()));
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getName(),currentOrganism.getName()));
 
                 if (updateViewer) {
                     updateGenomicViewer();
@@ -1077,6 +1077,9 @@ public class MainPanel extends Composite {
         this.organismInfoList = organismInfoList;
     }
 
+    public static SequencePanel getSequencePanel() {
+        return sequencePanel;
+    }
     public void addAssemblage(RequestCallback requestCallback, AssemblageInfo assemblageInfo) {
         assemblagePanel.addAssemblage(requestCallback, assemblageInfo);
     }
@@ -1094,7 +1097,4 @@ public class MainPanel extends Composite {
         updateGenomicViewerForAssemblage(assemblageInfo);
     }
 
-    public SequencePanel getSequencePanel() {
-        return sequencePanel;
-    }
 }
