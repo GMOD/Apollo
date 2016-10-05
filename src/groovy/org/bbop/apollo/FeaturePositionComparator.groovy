@@ -21,22 +21,24 @@ class FeaturePositionComparator<T extends Feature> implements  Comparator<T>{
         }
 
         int retVal = 0;
-        if (feature1.getFeatureLocation().getFmin() < feature2.getFeatureLocation().getFmin()) {
+        FeatureLocation featureLocation1 = feature1.featureLocation
+        FeatureLocation featureLocation2  = feature2.featureLocation
+        if (featureLocation1.fmin < featureLocation2.fmin) {
             retVal = -1;
         }
-        else if (feature1.getFeatureLocation().getFmin() > feature2.getFeatureLocation().getFmin()) {
+        else if (featureLocation1.getFmin() > featureLocation2.getFmin()) {
             retVal = 1;
         }
-        else if (feature1.getFeatureLocation().getFmax() < feature2.getFeatureLocation().getFmax()) {
+        else if (featureLocation1.getFmax() < featureLocation2.getFmax()) {
             retVal = -1;
         }
-        else if (feature1.getFeatureLocation().getFmax() > feature2.getFeatureLocation().getFmax()) {
+        else if (featureLocation1.getFmax() > featureLocation2.getFmax()) {
             retVal = 1;
         }
-        else if (feature1.getLength() != feature2.getLength()) {
-            retVal = feature1.getLength() < feature2.getLength() ? -1 : 1;
+        else if (featureLocation1.calculateLength() != featureLocation2.calculateLength()) {
+            retVal = featureLocation1.calculateLength() < featureLocation2.calculateLength() ? -1 : 1;
         }
-        if (sortByStrand && feature1.getFeatureLocation().getStrand() == -1) {
+        if (sortByStrand && featureLocation1.getStrand() == -1) {
             retVal *= -1;
         }
         return retVal;
