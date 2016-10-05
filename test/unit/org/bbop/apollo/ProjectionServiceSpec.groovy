@@ -71,17 +71,29 @@ class ProjectionServiceSpec extends Specification {
 
         then: "we should see the appropriate number and type of objects in the JSON Array"
         assert projectionSequenceListArray.size()==2
-        firstProjection.name == "Group1"
-        firstProjection.start == 7
-        firstProjection.end == 120
-        firstProjection.organism == "Bug"
-        firstProjection.order == 0
+        assert firstProjection.name == "Group1"
+        assert firstProjection.start == 7
+        assert firstProjection.end == 120
+        assert firstProjection.organism == "Bug"
+        assert firstProjection.order == 0
+        assert firstProjection.feature != null
+        assert firstProjection.feature.location.size() == 2
+        assert firstProjection.feature.location[0].min==12
+        assert firstProjection.feature.location[0].max==15
+        assert firstProjection.feature.location[1].min==30
+        assert firstProjection.feature.location[1].max==50
 
-        lastProjection.name == "Group2"
-        lastProjection.start == 30
-        lastProjection.end == 150
-        lastProjection.organism == "Bug"
-        lastProjection.order == 1
+        assert lastProjection.name == "Group2"
+        assert lastProjection.start == 30
+        assert lastProjection.end == 150
+        assert lastProjection.organism == "Bug"
+        assert lastProjection.order == 1
+        assert lastProjection.feature != null
+        assert lastProjection.feature.location.size() == 2
+        assert lastProjection.feature.location[0].min==30
+        assert lastProjection.feature.location[0].max==130
+        assert lastProjection.feature.location[1].min==135
+        assert lastProjection.feature.location[1].max==150
 
 
         when: "de-serialize it"

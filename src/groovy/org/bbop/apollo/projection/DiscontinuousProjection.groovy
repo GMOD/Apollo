@@ -12,6 +12,8 @@ public class DiscontinuousProjection extends AbstractProjection {
     TreeMap<Integer, Coordinate> minMap = new TreeMap<>()
     TreeMap<Integer, Coordinate> maxMap = new TreeMap<>()
 
+    String metadata // metadata, potentially JSON
+
     /**
      * Get the coordinate value out and add some to min
      *

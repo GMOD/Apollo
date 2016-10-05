@@ -486,7 +486,7 @@ class MultiSequenceProjection extends AbstractProjection {
         return projectionSequenceA
     }
 
-    def addProjectionSequences(List<ProjectionSequence> theseProjectionSequences) {
+    def addProjectionSequences(Collection<ProjectionSequence> theseProjectionSequences) {
         theseProjectionSequences.each {
             ProjectionSequence overlappingProjectionSequence = overlaps(it)
             if (overlappingProjectionSequence) {
@@ -523,6 +523,10 @@ class MultiSequenceProjection extends AbstractProjection {
     }
 
     DiscontinuousProjection getProjectionForSequence(ProjectionSequence projectionSequence){
+        println "getting projection sequence ${projectionSequence}"
+        sequenceDiscontinuousProjectionMap.keySet().eachWithIndex { ProjectionSequence it , int i ->
+            println "from ${i}, ${it}"
+        }
         return sequenceDiscontinuousProjectionMap.get(projectionSequence)
     }
 

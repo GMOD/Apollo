@@ -140,6 +140,27 @@ class ProjectionService {
 
         org.codehaus.groovy.runtime.InvokerHelper.setProperties(sequenceJsonObject,projectionSequence.properties)
 
+        if(discontinuousProjection){
+            JSONObject featureObject = new JSONObject()
+
+            if(discontinuousProjection.metadata){
+                JSONObject discontinuousProjectionObject = JSON.parse(discontinuousProjection.metadata) as JSONObject
+                featureObject.name = discontinuousProjectionObject.name
+            }
+
+            List<Coordinate> coordinateList = discontinuousProjection.getCoordinates()
+            JSONArray coordinateArray = new JSONArray()
+            for(Coordinate coordinate in coordinateList){
+                JSONObject coordinateObject = new JSONObject(
+                        min: coordinate.min
+                        ,max: coordinate.max
+                        ,sequence: projectionSequence
+                )
+                coordinateArray.add(coordinateObject)
+            }
+            featureObject.put(FeatureStringEnum.LOCATION.value,coordinateArray)
+            sequenceJsonObject.feature = featureObject
+        }
 
         return sequenceJsonObject
     }
@@ -148,13 +169,36 @@ class ProjectionService {
     MultiSequenceProjection convertToProjectionFromJson(JSONObject projectionObject){
 
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
-        List<ProjectionSequence> projectionSequenceList = convertToProjectSequenceFromSequenceJsonObject(multiSequenceProjection,projectionObject)
-        multiSequenceProjection.addProjectionSequences(projectionSequenceList)
+        Map<String,ProjectionSequence> projectionSequenceList = convertToProjectSequenceFromSequenceJsonObject(multiSequenceProjection,projectionObject).collectEntries(){
+            [(it.name):it]
+        }
+        multiSequenceProjection.addProjectionSequences(projectionSequenceList.values())
 
         // next we add intervals from our array
         JSONArray sequenceArray = projectionObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
-//        for(JSONObject sequenceObject in sequenceArray){
-//        }
+        for(JSONObject sequenceObject in sequenceArray){
+//            DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
+            ProjectionSequence projectionSequence = projectionSequenceList.get(sequenceObject.name)
+            if(sequenceObject.feature) {
+                // add lots of coordinates
+                for(def loc in sequenceObject.feature.location){
+                    Coordinate coordinate = new Coordinate(
+                            min: loc.min
+                            , max: loc.max
+                            , sequence: projectionSequence
+                    )
+                    multiSequenceProjection.addCoordinate( coordinate )
+                }
+            }
+            else{
+                Coordinate coordinate = new Coordinate(
+                        min: sequenceObject.feature.min
+                        , max: sequenceObject.feature.max
+                        , sequence: projectionSequence
+                )
+                multiSequenceProjection.addCoordinate( coordinate )
+            }
+        }
 
         return multiSequenceProjection
 
