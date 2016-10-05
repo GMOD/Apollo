@@ -4,6 +4,7 @@ import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import org.bbop.apollo.gwt.client.assemblage.FeatureLocations;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 /**
@@ -68,4 +69,11 @@ public class SequenceFeatureInfo extends JSONObject {
         return get(FeatureStringEnum.PARENT_ID.getValue()).isString().stringValue();
     }
 
+    public FeatureLocations getLocation(){
+        return (FeatureLocations) get(FeatureStringEnum.LOCATION.getValue()).isArray();
+    }
+
+    public void setLocation(FeatureLocations featureLocations){
+        put(FeatureStringEnum.LOCATION.getValue(),featureLocations);
+    }
 }

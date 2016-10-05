@@ -27,20 +27,16 @@ class MultiSequenceProjection extends AbstractProjection {
     List<String> chunks = new ArrayList<>()
     ProjectionChunkList projectionChunkList = new ProjectionChunkList()
 
-//    static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 1
     static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 0
 
     ProjectionSequence getReverseProjectionSequence(Integer input) {
-        def projectionSequenceList = []
+        List<ProjectionSequence> projectionSequenceList = []
         for (ProjectionSequence projectionSequence in sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
             Integer bufferedLength = sequenceDiscontinuousProjectionMap.get(projectionSequence).bufferedLength
             if (input >= projectionSequence.offset && input <= projectionSequence.offset + bufferedLength) {
                 projectionSequenceList << projectionSequence
             }
         }
-//        if (projectionSequenceList?.size() > 1) {
-//            println "overlapping projection sequences ${projectionSequenceList.size()}, choosing last as fmax is exclusive and fmin is inclusive"
-//        }
         // because the end-point is exclusive, we should always use the second sequence if there is an overlap
         return projectionSequenceList ? projectionSequenceList.last() : null
     }
