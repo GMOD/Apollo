@@ -3325,4 +3325,26 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert mrna.featureDBXrefs.size() == 2
         assert mrna.featureProperties.size() == 4
     }
+
+    void "while adding a transcript, Apollo should not recalculate its CDS if configured not to"() {
+        given: "a transcript whose CDS is incorrect"
+        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":577643},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40819-RA\",\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String cdsSequenceString = "ATGACAGGTCATATCTGGTTCTGCTTCTTATTGTTCTTAACGGGCTACTGTGATTGCTCACTAACGGGGACAATATCATCGTTCCCGATAAACCTCGAGAACAATCCTTACTGTCGTATTTGCCCCAATCACACCATGTGCCGATTTCCGCTCGATACTGATGGCATTAGATGTATAAACCTCCAGCATGCTGATCTGGACGACAAAGATATTGAAACTATACTCCATTGGCACAATACTTATCGCAATACTGTGGCAAGTGGAAAAGAAATACGAGGAAATCCAGGTCCACAACGTCCAGCAAAATTTATGATGGAAGTG"
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see the transcript"
+        assert Gene.all.size() == 1
+        assert MRNA.all.size() == 1
+        MRNA mrna = MRNA.all.iterator().next()
+
+        then: "the CDS should have the original fmin and fmax"
+        CDS cds = transcriptService.getCDS(mrna)
+        assert cds.fmin == 577493
+        assert cds.fmax == 582677
+        String cdsSequence = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_CDS.value)
+        assert cdsSequence == cdsSequenceString
+
+    }
 }
