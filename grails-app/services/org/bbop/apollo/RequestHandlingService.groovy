@@ -661,10 +661,6 @@ class RequestHandlingService {
             transcript.save(flush: true)
             transcriptList.add(transcript)
 
-            // https://github.com/GMOD/Apollo/issues/453
-            // enforce calculation for ALL created transcripts
-            // checking for overlapping Sequence Alterations
-            featureService.setLongestORF(transcript,false,projectionService.createMultiSequenceProjection(assemblage))
             Gene gene = transcriptService.getGene(transcript)
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
 
