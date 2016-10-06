@@ -644,7 +644,6 @@ class RequestHandlingService {
             transcript.save(flush: true)
             transcriptList.add(transcript)
 
-            featureService.setLongestORF(transcript)
             Gene gene = transcriptService.getGene(transcript)
             inputObject.put(FeatureStringEnum.NAME.value, gene.name)
 
