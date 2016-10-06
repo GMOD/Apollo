@@ -1,7 +1,5 @@
 package org.bbop.apollo.gwt.client;
 
-import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.allen_sauer.gwt.dnd.client.drop.FlowPanelDropController;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -33,8 +31,6 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
-import org.bbop.apollo.gwt.shared.ColorGenerator;
-import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.RadioButton;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
@@ -67,10 +63,6 @@ public class AssemblagePanel extends Composite {
     Button removeButton;
     @UiField
     Button saveButton;
-//    @UiField
-//    FlowPanel dragAndDropPanel;
-//    @UiField
-//    AbsolutePanel absolutePanel;
     @UiField
     Button viewButton;
     @UiField
@@ -89,7 +81,6 @@ public class AssemblagePanel extends Composite {
     AssemblageDetailPanel assemblageDetailPanel;
 
     final LoadingDialog loadingDialog;
-    private PickupDragController dragController;
     public static ListDataProvider<AssemblageInfo> dataProvider = new ListDataProvider<>();
 
     // TODO: probably a more clever way to do this
@@ -156,6 +147,10 @@ public class AssemblagePanel extends Composite {
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(lengthColumn, "Length");
         dataGrid.addColumn(descriptionColumn, "Description");
+
+        dataGrid.setColumnWidth(nameColumn,"30%");
+        dataGrid.setColumnWidth(lengthColumn,"20%");
+        dataGrid.setColumnWidth(descriptionColumn,"50%");
 
         dataGrid.setSelectionModel(selectionModel);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
