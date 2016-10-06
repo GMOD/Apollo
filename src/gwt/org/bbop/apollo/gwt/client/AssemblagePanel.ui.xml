@@ -92,7 +92,7 @@
                                    placeholder="Search for Bookmarks"/>
                     </b:Column>
                     <!--<b:Column size="MD_3">-->
-                        <!--<b:Button text="Clear Cache" icon="REMOVE" ui:field="clearButton"/>-->
+                    <!--<b:Button text="Clear Cache" icon="REMOVE" ui:field="clearButton"/>-->
                     <!--</b:Column>-->
                     <b:Column size="MD_6">
                         <b:ButtonGroup dataToggle="BUTTONS" addStyleNames="{style.inline-button}">
@@ -100,16 +100,20 @@
                             <!--<b:RadioButton name="AssemblageFilter" text="Combined" type="WARNING" ui:field="showOnlyCombinedButton"/>-->
                             <!--<b:RadioButton name="AssemblageFilter" text="Feature" type="INFO" ui:field="showOnlyFeatureButton"/>-->
                             <!--<b:RadioButton name="AssemblageFilter" text="All" type="DEFAULT" ui:field="showAllAssemblagesButton" />-->
-                            <b:RadioButton name="AssemblageFilter" text="Scaffold" type="DEFAULT" ui:field="showOnlyScaffoldButton" addStyleNames="{style.inline-button}"/>
-                            <b:RadioButton name="AssemblageFilter" text="Combined" type="WARNING" ui:field="showOnlyCombinedButton" addStyleNames="{style.inline-button}"/>
-                            <b:RadioButton name="AssemblageFilter" text="Feature" type="INFO" ui:field="showOnlyFeatureButton" addStyleNames="{style.inline-button}"/>
-                            <b:RadioButton name="AssemblageFilter" text="All" type="SUCCESS" ui:field="showAllAssemblagesButton" addStyleNames="{style.inline-button}"/>
+                            <b:RadioButton name="AssemblageFilter" text="Scaffold" type="DEFAULT"
+                                           ui:field="showOnlyScaffoldButton" addStyleNames="{style.inline-button}"/>
+                            <b:RadioButton name="AssemblageFilter" text="Combined" type="WARNING"
+                                           ui:field="showOnlyCombinedButton" addStyleNames="{style.inline-button}"/>
+                            <b:RadioButton name="AssemblageFilter" text="Feature" type="INFO"
+                                           ui:field="showOnlyFeatureButton" addStyleNames="{style.inline-button}"/>
+                            <b:RadioButton name="AssemblageFilter" text="All" type="SUCCESS"
+                                           ui:field="showAllAssemblagesButton" addStyleNames="{style.inline-button}"/>
                         </b:ButtonGroup>
                     </b:Column>
                 </b:Row>
                 <b:Row styleName="{style.rowNorth}">
                     <b:Column size="MD_3">
-                    <b:Button text="Delete All Bookmarks" icon="TRASH" ui:field="deleteButton"/>
+                        <b:Button text="Delete All Bookmarks" icon="TRASH" ui:field="deleteButton"/>
                     </b:Column>
                 </b:Row>
             </b:Container>
@@ -131,14 +135,23 @@
                                     <b:Button text="Save" icon="SAVE" enabled="false" ui:field="saveButton"/>
                                     <b:Button text="View" icon="EYE" enabled="false" ui:field="viewButton"/>
                                 </b:ButtonGroup>
+                                <b:ButtonGroup>
+                                    <b:Button icon="ARROW_LEFT" enabled="false" ui:field="leftLockButton" type="DEFAULT" />
+                                    <b:Button text="Lock" icon="LOCK" enabled="false" ui:field="lockButton" type="DEFAULT"/>
+                                    <b:Button icon="ARROW_RIGHT" enabled="false" ui:field="rightLockButton" type="DEFAULT"/>
+                                </b:ButtonGroup>
                             </b:Column>
+                            <!--<b:Column size="MD_1" pull="RIGHT">-->
+                            <!--&lt;!&ndash;<b:ButtonGroup>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</b:ButtonGroup>&ndash;&gt;-->
+                            <!--</b:Column>-->
                         </b:Row>
                     </b:Container>
                 </gwt:north>
                 <gwt:center>
                     <assemblage:AssemblageDetailPanel ui:field="assemblageDetailPanel"/>
                     <!--<gwt:AbsolutePanel ui:field="absolutePanel" styleName="{style.dragdrop-flow-panel-positioner}">-->
-                        <!--<gwt:FlowPanel ui:field="dragAndDropPanel"/>-->
+                    <!--<gwt:FlowPanel ui:field="dragAndDropPanel"/>-->
                     <!--</gwt:AbsolutePanel>-->
                     <!--<gwt:HTML>Drag and Drop manual</gwt:HTML>-->
                 </gwt:center>

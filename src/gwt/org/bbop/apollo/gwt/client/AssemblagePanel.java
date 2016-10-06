@@ -20,6 +20,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
@@ -34,6 +35,7 @@ import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.RadioButton;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
+import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
@@ -79,6 +81,12 @@ public class AssemblagePanel extends Composite {
     RadioButton showOnlyScaffoldButton;
     @UiField
     AssemblageDetailPanel assemblageDetailPanel;
+    @UiField
+    Button lockButton;
+    @UiField
+    Button leftLockButton;
+    @UiField
+    Button rightLockButton;
 
     final LoadingDialog loadingDialog;
     public static ListDataProvider<AssemblageInfo> dataProvider = new ListDataProvider<>();
@@ -215,7 +223,7 @@ public class AssemblagePanel extends Composite {
     }
 
 
-        @UiHandler("removeButton")
+    @UiHandler("removeButton")
     public void remove(ClickEvent clickEvent) {
         AssemblageRestService.removeAssemblage(new UpdateAssemblagesCallback(), selectionModel.getSelectedSet().toArray(new AssemblageInfo[selectionModel.getSelectedSet().size()]));
         resetPanel();
@@ -237,6 +245,28 @@ public class AssemblagePanel extends Composite {
         JSONObject merge1 = getAssemblagePanelAsJson();
         MainPanel.updateGenomicViewerForAssemblage(merge1.toString().trim(), -1l, -1l);
     }
+
+    @UiHandler("lockButton")
+    public void lock(ClickEvent event) {
+        if(lockButton.getIcon()== IconType.LOCK){
+            unlock();
+        }
+        else{
+            lock();
+        }
+    }
+
+    private void lock() {
+        lockButton.setIcon(IconType.LOCK);
+        enableLockButtonGroup(true);
+    }
+
+    private void unlock() {
+        lockButton.setIcon(IconType.UNLOCK);
+        enableLockButtonGroup(false);
+        lockButton.setEnabled(true);
+    }
+
 
     private JSONObject getAssemblagePanelAsJson() {
         GWT.log("getting assmblage");
@@ -350,18 +380,21 @@ public class AssemblagePanel extends Composite {
             removeButton.setEnabled(false);
             saveButton.setEnabled(false);
             viewButton.setEnabled(false);
+            lockButton.setEnabled(false);
         } else if (selectedObjects.size() == 1) {
             mergeButton.setText("Combine");
             removeButton.setText("Remove");
             saveButton.setText("Save");
             mergeButton.setEnabled(false);
             removeButton.setEnabled(true);
+            lockButton.setEnabled(false);
             if (selectedObjects.iterator().next().getSequenceList().size() > 1) {
                 saveButton.setEnabled(true);
+                enableLockButtonGroup(true);
             } else {
                 saveButton.setEnabled(false);
+                enableLockButtonGroup(false);
             }
-            viewButton.setEnabled(true);
         }
         // multiple
         else {
@@ -372,13 +405,38 @@ public class AssemblagePanel extends Composite {
             removeButton.setEnabled(true);
             saveButton.setEnabled(false);
             viewButton.setEnabled(true);
+            lockButton.setEnabled(true);
         }
 
-        saveButton.setType(saveButton.isEnabled() ? ButtonType.PRIMARY : ButtonType.DEFAULT);
+//        saveButton.setType(saveButton.isEnabled() ? ButtonType.PRIMARY : ButtonType.DEFAULT);
+//        saveButton.setType(saveButton.isEnabled() ? ButtonType.PRIMARY : ButtonType.DEFAULT);
 
         assemblageDetailPanel.setAssemblageInfo(selectedObjects);
 
     }
+
+    private void enableLockButtonGroup(boolean enabled) {
+        lockButton.setEnabled(enabled);
+        leftLockButton.setEnabled(enabled);
+        rightLockButton.setEnabled(enabled);
+
+
+        if(enabled){
+            rightLockButton.setEnabled(false);
+            leftLockButton.setEnabled(true);
+            rightLockButton.setType(ButtonType.PRIMARY);
+            leftLockButton.setType(ButtonType.DEFAULT);
+        }
+        else{
+            // disable
+            rightLockButton.setEnabled(false);
+            leftLockButton.setEnabled(false);
+            rightLockButton.setType(ButtonType.DEFAULT);
+            leftLockButton.setType(ButtonType.DEFAULT);
+        }
+    }
+
+
 
     private class UpdateAssemblagesCallback implements RequestCallback {
         @Override
@@ -440,6 +498,22 @@ public class AssemblagePanel extends Composite {
                 searchForAssemblage(null);
             }
         });
+    }
+
+    @UiHandler("leftLockButton")
+    public void leftLockButtonClick(ClickEvent event) {
+        leftLockButton.setEnabled(false);
+        rightLockButton.setEnabled(true);
+        leftLockButton.setType(ButtonType.PRIMARY);
+        rightLockButton.setType(ButtonType.DEFAULT);
+    }
+
+    @UiHandler("rightLockButton")
+    public void rightLockButtonClick(ClickEvent event) {
+        leftLockButton.setEnabled(true);
+        rightLockButton.setEnabled(false);
+        leftLockButton.setType(ButtonType.DEFAULT);
+        rightLockButton.setType(ButtonType.PRIMARY);
     }
 
     private class SearchAndUpdateAssemblagesCallback implements RequestCallback {
