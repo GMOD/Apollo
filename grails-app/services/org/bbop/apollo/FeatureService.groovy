@@ -142,6 +142,14 @@ class FeatureService {
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
             }
+            else {
+                // if there are any sequence alterations that overlaps this transcript then
+                // recalculate the CDS to account for these changes
+                def sequenceAlterations = getSequenceAlterationsForFeature(transcript)
+                if (sequenceAlterations.size() > 0) {
+                    calculateCDS(transcript)
+                }
+            }
 
             addTranscriptToGene(gene, transcript);
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
@@ -179,6 +187,15 @@ class FeatureService {
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
                     }
+                    else {
+                        // if there are any sequence alterations that overlaps this transcript then
+                        // recalculate the CDS to account for these changes
+                        def sequenceAlterations = getSequenceAlterationsForFeature(tmpTranscript)
+                        if (sequenceAlterations.size() > 0) {
+                            calculateCDS(tmpTranscript)
+                        }
+                    }
+
                     if (!suppressHistory) {
                         tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
                     }
@@ -301,6 +318,14 @@ class FeatureService {
             transcript = transcriptService.getTranscripts(gene).iterator().next();
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
+            }
+            else {
+                // if there are any sequence alterations that overlaps this transcript then
+                // recalculate the CDS to account for these changes
+                def sequenceAlterations = getSequenceAlterationsForFeature(transcript)
+                if (sequenceAlterations.size() > 0) {
+                    calculateCDS(transcript)
+                }
             }
             removeExonOverlapsAndAdjacenciesForFeature(gene)
             if (!suppressHistory) {
