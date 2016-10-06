@@ -268,7 +268,7 @@ public class MainPanel extends Composite {
     }
 
     private static void setLabelForcurrentAssemblage() {
-        SafeHtml labelHtml = SafeHtmlUtils.fromTrustedString(AssemblageInfoService.buildDescriptionWidget(currentAssemblage).getElement().getInnerHTML());
+        SafeHtml labelHtml = SafeHtmlUtils.fromTrustedString(AssemblageInfoService.buildDescriptionWidget(currentAssemblage,assemblagePanel.getUsedSequences()).getElement().getInnerHTML());
         currentSequenceLabel.setHTML(labelHtml);
     }
 

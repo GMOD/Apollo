@@ -88,6 +88,8 @@ public class AssemblagePanel extends Composite {
     @UiField
     Button rightLockButton;
 
+    private Set<String> usedSequences = new HashSet<>();
+
     final LoadingDialog loadingDialog;
     public static ListDataProvider<AssemblageInfo> dataProvider = new ListDataProvider<>();
 
@@ -144,7 +146,7 @@ public class AssemblagePanel extends Composite {
         final Column<AssemblageInfo, SafeHtml> descriptionColumn = new Column<AssemblageInfo, SafeHtml>(new SafeHtmlCell()) {
             @Override
             public SafeHtml getValue(AssemblageInfo assemblageInfo) {
-                Widget widget = buildDescriptionWidget(assemblageInfo);
+                Widget widget = buildDescriptionWidget(assemblageInfo,getUsedSequences());
                 return SafeHtmlUtils.fromTrustedString(widget.getElement().getInnerHTML());
             }
         } ;
@@ -214,6 +216,23 @@ public class AssemblagePanel extends Composite {
 
     }
 
+    private void clearUsedSequences(){
+        usedSequences.clear();
+    }
+
+    public Set<String> getUsedSequences() {
+        if(usedSequences.size()==0){
+            for(AssemblageInfo assemblageInfo : dataProvider.getList()){
+                if(assemblageInfo.getSequenceList().size()>1){
+                    for(int i = 0 ; i < assemblageInfo.getSequenceList().size() ; i++){
+                        AssemblageSequence assemblageSequence = assemblageInfo.getSequenceList().getSequence(i);
+                        usedSequences.add(assemblageSequence.getName());
+                    }
+                }
+            }
+        }
+        return usedSequences;
+    }
 
 
     @UiHandler("deleteButton")
@@ -463,6 +482,7 @@ public class AssemblagePanel extends Composite {
     public void reload() {
         AssemblageRestService.loadAssemblage(new UpdateAssemblagesCallback());
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+        clearUsedSequences();
         dataGrid.redraw();
     }
 
@@ -474,6 +494,7 @@ public class AssemblagePanel extends Composite {
     public void searchForAssemblage(KeyUpEvent keyUpEvent) {
         AssemblageRestService.searchAssemblage(new SearchAndUpdateAssemblagesCallback(), searchBox.getText(),getFilter());
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+        clearUsedSequences();
         dataGrid.redraw();
     }
 

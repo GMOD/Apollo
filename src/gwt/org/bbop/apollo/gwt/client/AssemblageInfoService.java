@@ -11,17 +11,16 @@ import org.gwtbootstrap3.client.ui.ButtonGroup;
 import org.gwtbootstrap3.client.ui.Icon;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
+import org.gwtbootstrap3.client.ui.constants.Pull;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by nathandunn on 9/19/16.
  */
 public class AssemblageInfoService {
 
-    public static Widget buildDescriptionWidget(AssemblageInfo assemblageInfo) {
+    public static Widget buildDescriptionWidget(AssemblageInfo assemblageInfo, Set<String> usedSequences) {
 
         Map<String,Integer> scaffoldFeatureMap = new HashMap<>();
         Map<String,Boolean> scaffoldComplementMap = new HashMap<>();
@@ -46,6 +45,20 @@ public class AssemblageInfoService {
             String scaffoldName = scaffoldIterator.next();
             Button button = new Button();
             Integer featureCount = scaffoldFeatureMap.get(scaffoldName) ;
+
+            // if used add a checkmark or something
+            if(usedSequences.contains(scaffoldName)){
+                Icon usedIcon = new Icon(IconType.CHECK_CIRCLE);
+                usedIcon.setPull(Pull.LEFT);
+                usedIcon.setColor("green");
+                button.add(usedIcon);
+            }
+            else{
+                Icon unUsedIcon = new Icon(IconType.CIRCLE_O);
+                unUsedIcon.setPull(Pull.LEFT);
+//                unUsedIcon.setColor("green");
+                button.add(unUsedIcon);
+            }
 
             if(featureCount>0){
                 button.add(new Badge(featureCount+""));
