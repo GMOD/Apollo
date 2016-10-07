@@ -624,8 +624,10 @@ class RequestHandlingService {
         log.debug "sequence: ${sequence}"
         log.debug "organism: ${sequence.organism}"
         log.info "number of features: ${featuresArray?.size()}"
+        boolean useCDS = configWrapperService.useCDS()
         boolean suppressHistory = false
         boolean suppressEvents = false
+
         if (inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
             suppressHistory = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value)
         }
@@ -638,7 +640,10 @@ class RequestHandlingService {
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
             jsonTranscript = permissionService.copyRequestValues(inputObject, jsonTranscript)
-            Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence, suppressHistory)
+            if (jsonTranscript.has(FeatureStringEnum.USE_CDS.value)) {
+                useCDS = jsonTranscript.getBoolean(FeatureStringEnum.USE_CDS.value)
+            }
+            Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence, suppressHistory, useCDS)
 
             // should automatically write to history
             transcript.save(flush: true)
