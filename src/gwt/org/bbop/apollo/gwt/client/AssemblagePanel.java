@@ -408,9 +408,11 @@ public class AssemblagePanel extends Composite {
             removeButton.setEnabled(true);
             lockButton.setEnabled(false);
             if (selectedObjects.iterator().next().getSequenceList().size() > 1) {
+                viewButton.setEnabled(true);
                 saveButton.setEnabled(true);
                 enableLockButtonGroup(true);
             } else {
+                viewButton.setEnabled(false);
                 saveButton.setEnabled(false);
                 enableLockButtonGroup(false);
             }
