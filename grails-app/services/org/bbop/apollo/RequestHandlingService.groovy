@@ -624,7 +624,7 @@ class RequestHandlingService {
         log.debug "sequence: ${sequence}"
         log.debug "organism: ${sequence.organism}"
         log.info "number of features: ${featuresArray?.size()}"
-        boolean useCDS = false
+        boolean useCDS = configWrapperService.useCDS()
         boolean suppressHistory = false
         boolean suppressEvents = false
 
