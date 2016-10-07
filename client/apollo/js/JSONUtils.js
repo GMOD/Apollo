@@ -10,7 +10,7 @@ function JSONUtils() {
 }
 
 JSONUtils.verbose_conversion = false;
-JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "indel" ];
+JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "INSERTION", "DELETION" ];
 
 /**
 *  creates a feature in JBrowse JSON format
@@ -476,10 +476,11 @@ JSONUtils.classifyVariant = function( refAllele, altAlleles, fmin, fmax ) {
     // SNP - Same as a SNV but occurs at a relatively high frequency.
     // MNV - The reference and alternate sequences are of the same length and have to be greater than 1 and all nucleotides in the sequences differ from one another
     // MNP - Same as a MNV but occurs at a relatively high frequency.
-    // indel - The reference and alternate sequences are not of the same length.
+    // insertion - insertion of bases
+    // deletion - deletion of bases
 
     var type;
-    var altAllele = altAlleles[0]; // type defaults to type of the first occuring alt allele
+    var altAllele = altAlleles[0].bases; // type defaults to type of the first occuring alt allele
     var refLength = refAllele.length;
     var altLength = altAllele.length;
 
@@ -492,9 +493,14 @@ JSONUtils.classifyVariant = function( refAllele, altAlleles, fmin, fmax ) {
         }
     }
     else {
-        type = "indel";
+        if (refLength < altLength) {
+            type = "insertion"
+        }
+        else if (refLength > altLength) {
+            type = "deletion"
+        }
     }
-    console.log("TYPE inferred: ", type);
+    console.log("variant type inferred: ", type);
     return type;
 };
 

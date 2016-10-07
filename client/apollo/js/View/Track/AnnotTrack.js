@@ -968,14 +968,13 @@ define([
 
                 for (var i in selection_records) {
                     var type = selection_records[i].feature.get("type").toUpperCase();
-                    console.log("type from selection records: ", type);
                     if (JSONUtils.variantTypes.indexOf(type) != -1) {
                         // feature is a variant
                         variantSelectionRecords.push(selection_records[i]);
                     }
-                    else if (type == "INSERTION" || type == "DELETION") {
-                        // feature is a variant
-                        variantSelectionRecords.push(selection_records[i]);
+                    else if (type == "indel") {
+                        // feature is an indel and is not supported
+                        console.log("unsupported variant type: indel");
                     }
                     else {
                         geneSelectionRecords.push(selection_records[i]);
