@@ -53,7 +53,8 @@
 
     </ui:style>
     <gwt:DockLayoutPanel ui:field="layoutPanel">
-        <gwt:north size="80">
+        <!--<gwt:north size="80">-->
+        <gwt:north size="50">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <!--<b:Row styleName="{style.rowNorth}">-->
                 <!--<b:Column size="MD_2">-->
@@ -111,7 +112,7 @@
                         </b:ButtonGroup>
                     </b:Column>
                 </b:Row>
-                <b:Row styleName="{style.rowNorth}">
+                <b:Row styleName="{style.rowNorth}" visible="false">
                     <b:Column size="MD_3">
                         <b:Button text="Delete All Bookmarks" icon="TRASH" ui:field="deleteButton"/>
                     </b:Column>
