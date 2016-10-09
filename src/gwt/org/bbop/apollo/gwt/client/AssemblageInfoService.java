@@ -50,7 +50,7 @@ public class AssemblageInfoService {
             if(usedSequences.contains(scaffoldName)){
                 Icon usedIcon = new Icon(IconType.CHECK_CIRCLE);
                 usedIcon.setPull(Pull.LEFT);
-                usedIcon.setColor("green");
+                usedIcon.setColor("gray");
                 button.add(usedIcon);
             }
             else{
