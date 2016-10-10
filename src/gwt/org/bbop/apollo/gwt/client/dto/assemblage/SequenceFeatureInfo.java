@@ -76,4 +76,9 @@ public class SequenceFeatureInfo extends JSONObject {
     public void setLocation(FeatureLocations featureLocations){
         put(FeatureStringEnum.LOCATION.getValue(),featureLocations);
     }
+
+    public boolean hasLocation() {
+        return containsKey(FeatureStringEnum.LOCATION.getValue());
+    }
+
 }

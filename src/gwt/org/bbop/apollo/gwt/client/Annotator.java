@@ -15,6 +15,7 @@ import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.core.java.util.HashMap_CustomFieldSerializer;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
+import org.bbop.apollo.gwt.client.projection.ProjectionService;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
@@ -32,6 +33,7 @@ public class Annotator implements EntryPoint {
     public static EventBus eventBus = GWT.create(SimpleEventBus.class);
     private static Storage preferenceStore = Storage.getSessionStorageIfSupported();
     private static Map<String,String> backupPreferenceStore = new HashMap<>();
+    private static ProjectionService projectionService = new ProjectionService() ;
 
     // check the session once a minute
     private static Integer DEFAULT_PING_TIME = 60000;

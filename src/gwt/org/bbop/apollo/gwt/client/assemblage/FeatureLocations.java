@@ -17,4 +17,7 @@ public class FeatureLocations extends JSONArray {
     }
 
 
+    public FeatureLocationInfo getFeatureLocationInfo(int i) {
+        return (FeatureLocationInfo) get(i);
+    }
 }

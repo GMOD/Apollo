@@ -57,8 +57,10 @@ define([
                     posLabel.appendChild(document.createTextNode(numtext));
                     block.domNode.appendChild(posLabel);
 
-                    console.log(this.refSeq.name);
-                    window.parent.projectValue(this.refSeq.name,labelNumber);
+                    console.log("projecting with string: " + this.refSeq.name);
+                    console.log("value: " + labelNumber);
+                    var projectedValue = window.parent.projectValue(this.refSeq.name,labelNumber);
+                    // console.log("projected value: " + projectedValue);
 
                     var highlight = this.browser.getHighlight();
                     if (highlight && highlight.ref == this.refSeq.name) {

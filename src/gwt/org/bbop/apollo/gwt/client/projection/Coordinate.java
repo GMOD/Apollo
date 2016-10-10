@@ -13,6 +13,11 @@ public class Coordinate implements Comparable<Coordinate>{
         this.max = max ;
     }
 
+    public Coordinate(Integer min,Integer max,ProjectionSequence sequence){
+        this.min = min ;
+        this.max = max ;
+        this.sequence = sequence ;
+    }
 
     @Override
     public int compareTo(Coordinate o) {

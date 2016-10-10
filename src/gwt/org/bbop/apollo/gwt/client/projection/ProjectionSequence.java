@@ -1,8 +1,5 @@
 package org.bbop.apollo.gwt.client.projection;
 
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.List;
 
@@ -24,12 +21,13 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
 
     @Override
     public boolean equals(Object o) {
-//        if (this.is(o)) return true;
+
+        if(this==o) return true;
         if (!(o instanceof ProjectionSequence)) return false;
         ProjectionSequence that = (ProjectionSequence) o;
         if (!end.equals(that.end)) return false;
         if (!name.equals(that.name)) return false;
-        if (!organism.equals(that.organism)) return false;
+//        if (!organism.equals(that.organism)) return false;
         if (!start.equals(that.start)) return false;
         return true;
     }
