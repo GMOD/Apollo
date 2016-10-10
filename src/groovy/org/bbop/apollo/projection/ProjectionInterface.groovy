@@ -21,11 +21,6 @@ interface ProjectionInterface {
 
     Integer projectReverseValue(Integer input)
 
-    /**
-     * @param trackIn
-     * @return
-     */
-    Track projectTrack(Track trackIn)
 
     Coordinate projectCoordinate(int min, int max)
     Coordinate projectReverseCoordinate(int min, int max)
