@@ -56,51 +56,13 @@
         <!--<gwt:north size="80">-->
         <gwt:north size="50">
             <b:Container fluid="true" styleName="{style.northPanel}">
-                <!--<b:Row styleName="{style.rowNorth}">-->
-                <!--<b:Column size="MD_2">-->
-                <!--<gwt:HTML>-->
-                <!--<b>Folding</b>-->
-                <!--</gwt:HTML>-->
-                <!--</b:Column>-->
-                <!--<b:Column size="MD_3">-->
-                <!--<b:ListBox ui:field="foldType"/>-->
-                <!--</b:Column>-->
-                <!--<b:Column size="MD_2">-->
-                <!--<gwt:HTML><b>Padding</b></gwt:HTML>-->
-                <!--</b:Column>-->
-                <!--<b:Column size="MD_3">-->
-                <!--<b:TextBox ui:field="foldPadding"/>-->
-                <!--</b:Column>-->
-                <!--<b:Column size="MD_2">-->
-                <!--&lt;!&ndash;<b:Button ui:field="goButton"/>&ndash;&gt;-->
-                <!--<b:Button text="View" icon="EYE" enabled="true" ui:field="goButton" />-->
-                <!--</b:Column>-->
-                <!--</b:Row>-->
-                <!--<b:Row styleName="{style.rowNorth}">-->
-                <!--<b:Column size="MD_3">-->
-                <!--<gwt:HTML><b>Reference Track Selector</b></gwt:HTML>-->
-                <!--</b:Column>-->
-                <!--<b:Column size="MD_6">-->
-                <!--<select:Select multiple="true" ui:field="referenceTrackSelector" width="300px" liveSearch="true" showMenuArrow="true"/>-->
-                <!--</b:Column>-->
-                <!--</b:Row>-->
                 <b:Row styleName="{style.rowNorth}">
-                    <!--<b:Column size="MD_3">-->
-                    <!--<gwt:HTML><b>Search</b></gwt:HTML>-->
-                    <!--</b:Column>-->
                     <b:Column size="MD_5">
                         <b:TextBox ui:field="searchBox" enabled="true"
                                    placeholder="Search for Bookmarks"/>
                     </b:Column>
-                    <!--<b:Column size="MD_3">-->
-                    <!--<b:Button text="Clear Cache" icon="REMOVE" ui:field="clearButton"/>-->
-                    <!--</b:Column>-->
                     <b:Column size="MD_6">
                         <b:ButtonGroup dataToggle="BUTTONS" addStyleNames="{style.inline-button}">
-                            <!--<b:RadioButton name="AssemblageFilter" text="Scaffold" type="DEFAULT" ui:field="showOnlyScaffoldButton" />-->
-                            <!--<b:RadioButton name="AssemblageFilter" text="Combined" type="WARNING" ui:field="showOnlyCombinedButton"/>-->
-                            <!--<b:RadioButton name="AssemblageFilter" text="Feature" type="INFO" ui:field="showOnlyFeatureButton"/>-->
-                            <!--<b:RadioButton name="AssemblageFilter" text="All" type="DEFAULT" ui:field="showAllAssemblagesButton" />-->
                             <b:RadioButton name="AssemblageFilter" text="Scaffold" type="DEFAULT"
                                            ui:field="showOnlyScaffoldButton" addStyleNames="{style.inline-button}"/>
                             <b:RadioButton name="AssemblageFilter" text="Combined" type="WARNING"
@@ -138,23 +100,15 @@
                                 </b:ButtonGroup>
                                 <b:ButtonGroup>
                                     <b:Button icon="ARROW_LEFT" enabled="false" ui:field="leftLockButton" type="DEFAULT" />
-                                    <b:Button text="Lock" icon="LOCK" enabled="false" ui:field="lockButton" type="DEFAULT"/>
+                                    <b:Button text="Lock" icon="LOCK" enabled="false" ui:field="lockButton" type="DEFAULT" dataToggle="BUTTON"/>
                                     <b:Button icon="ARROW_RIGHT" enabled="false" ui:field="rightLockButton" type="DEFAULT"/>
                                 </b:ButtonGroup>
                             </b:Column>
-                            <!--<b:Column size="MD_1" pull="RIGHT">-->
-                            <!--&lt;!&ndash;<b:ButtonGroup>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</b:ButtonGroup>&ndash;&gt;-->
-                            <!--</b:Column>-->
                         </b:Row>
                     </b:Container>
                 </gwt:north>
                 <gwt:center>
                     <assemblage:AssemblageDetailPanel ui:field="assemblageDetailPanel"/>
-                    <!--<gwt:AbsolutePanel ui:field="absolutePanel" styleName="{style.dragdrop-flow-panel-positioner}">-->
-                    <!--<gwt:FlowPanel ui:field="dragAndDropPanel"/>-->
-                    <!--</gwt:AbsolutePanel>-->
-                    <!--<gwt:HTML>Drag and Drop manual</gwt:HTML>-->
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:south>
