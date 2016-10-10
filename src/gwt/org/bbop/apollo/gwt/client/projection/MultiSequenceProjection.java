@@ -1,6 +1,7 @@
 package org.bbop.apollo.gwt.client.projection;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 
 import java.util.*;
 
@@ -83,7 +84,7 @@ public class MultiSequenceProjection extends AbstractProjection {
 
         for (ProjectionSequence projectionSequence : getProjectedSequences()) {
             Integer order = orderedMap.get(projectionSequence.getName());
-            List<ProjectionSequence> projectList = !map.get(order).isEmpty() ? map.get(order) : new ArrayList<ProjectionSequence>();
+            List<ProjectionSequence> projectList = map.containsKey(order) ? map.get(order) : new ArrayList<ProjectionSequence>();
             projectList.add(projectionSequence);
             map.put(order, projectList);
         }
@@ -286,7 +287,9 @@ public class MultiSequenceProjection extends AbstractProjection {
 
             assert projectionSequence.getUnprojectedLength() != null;
             assert projectionSequence.getUnprojectedLength() > 0;
-            lastLength += discontinuousProjection.getBufferedLength();
+            if(discontinuousProjection!=null){
+                lastLength += discontinuousProjection.getBufferedLength();
+            }
             lastLength += DEFAULT_SCAFFOLD_BORDER_LENGTH;
             ++currentOrder;
         }

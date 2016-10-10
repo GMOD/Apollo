@@ -19,7 +19,45 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
     private Integer end;
     private Boolean reverse = false ;// this is the reverse complement value of the projection sequence
 
+
+    Integer getOriginalOffsetStart(){
+        return start + originalOffset;
+    }
+
+    Integer getOriginalOffsetEnd(){
+        return end + originalOffset;
+    }
+
+
+    Integer getLength() {
+        return end - start;
+    }
+
     @Override
+    public int compareTo(ProjectionSequence o) {
+        int test =  0 ;
+        if(order!=null && o.order !=null){
+            test = order.compareTo(o.order);
+            if (test != 0) {
+                return test;
+            }
+        }
+        test = name.compareTo(o.name);
+        if (test != 0) {
+            return test;
+        }
+        test = start.compareTo(o.start);
+        if (test != 0) {
+            return test;
+        }
+        test = end.compareTo(o.end);
+        if (test != 0) {
+            return test;
+        }
+        return 0 ;
+    }
+
+        @Override
     public boolean equals(Object o) {
 
         if(this==o) return true;
@@ -32,36 +70,36 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
         return true;
     }
 
-    Integer getOriginalOffsetStart(){
-        return start + originalOffset;
-    }
-
-    Integer getOriginalOffsetEnd(){
-        return end + originalOffset;
-    }
-
     @Override
     public int hashCode() {
         int result;
         result = start.hashCode();
         result = 31 * result + end.hashCode();
         result = 31 * result + name.hashCode();
-        result = 31 * result + (organism != null ? organism.hashCode() : 0);
+//        result = 31 * result + (organism != null ? organism.hashCode() : 0);
         return result;
     }
-
-    Integer getLength() {
-        return end - start;
-    }
-
-    @Override
-    public int compareTo(ProjectionSequence o) {
-        int test = order.compareTo(o.order);
-        if (test != 0) {;
-            return test;
-        };
-        return name.compareTo(o.name);
-    }
+//
+//    @Override
+//    public int compareTo(ProjectionSequence o) {
+//        int test = order.compareTo(o.order);
+//        if (test != 0) {
+//            return test;
+//        }
+//        test = name.compareTo(o.name);
+//        if (test != 0) {
+//            return test;
+//        }
+//        test = start.compareTo(o.start);
+//        if (test != 0) {
+//            return test;
+//        }
+//        test = end.compareTo(o.end);
+//        if (test != 0) {
+//            return test;
+//        }
+//        return 0 ;
+//    }
 
     public String getId() {
         return id;
@@ -149,5 +187,15 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
 
     public void setReverse(Boolean reverse) {
         this.reverse = reverse;
+    }
+
+    @Override
+    public String toString() {
+        return "ProjectionSequence{" +
+                "name='" + name + '\'' +
+                ", order=" + order +
+                ", start=" + start +
+                ", end=" + end +
+                '}';
     }
 }

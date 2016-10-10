@@ -31,6 +31,7 @@ public class ProjectionService {
             AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(i);
 
             ProjectionSequence projectionSequence = generateProjectSequenceFromAssemblageSequence(assemblageSequence);
+            projectionSequence.setOrder(i);
             projectionSequenceList.add(projectionSequence);
 
             SequenceFeatureInfo sequenceFeatureInfo = assemblageSequence.getFeature();
@@ -38,6 +39,10 @@ public class ProjectionService {
                 FeatureLocations featureLocations = sequenceFeatureInfo.getLocation();
                 List<Coordinate> theseCoordinates = generateCoordinatesFromFeatureLocations(featureLocations,projectionSequence);
                 coordinates.addAll(theseCoordinates);
+            }
+            else{
+                Coordinate fullCoordinate = new Coordinate(projectionSequence.getStart(),projectionSequence.getEnd(),projectionSequence);
+                coordinates.add(fullCoordinate);
             }
         }
 
