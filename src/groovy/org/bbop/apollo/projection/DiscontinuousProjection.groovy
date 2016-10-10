@@ -312,22 +312,6 @@ public class DiscontinuousProjection extends AbstractProjection {
 
 
     @Override
-    public Track projectTrack(Track trackIn) {
-        Track trackOut = new Track()
-        Integer trackLength = 0
-
-        for (Coordinate coordinate in trackIn.coordinateList.sort()) {
-            Coordinate returnCoordinate = new Coordinate()
-            returnCoordinate.min = projectValue(coordinate.min)
-            returnCoordinate.max = projectValue(coordinate.max)
-            trackOut.coordinateList.add(returnCoordinate)
-            trackLength = returnCoordinate.max
-        }
-        trackOut.length = trackLength + 1
-        return trackOut
-    }
-
-    @Override
     public Coordinate projectCoordinate(int min, int max) {
         int newMin = projectValue(min)
         int newMax = projectValue(max)
