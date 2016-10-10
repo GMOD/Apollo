@@ -71,4 +71,28 @@ public class Coordinate implements Comparable<Coordinate>{
         min = min+offset;
         max = max+offset;
     }
+
+    public Integer getMin() {
+        return min;
+    }
+
+    public void setMin(Integer min) {
+        this.min = min;
+    }
+
+    public Integer getMax() {
+        return max;
+    }
+
+    public void setMax(Integer max) {
+        this.max = max;
+    }
+
+    public ProjectionSequence getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(ProjectionSequence sequence) {
+        this.sequence = sequence;
+    }
 }

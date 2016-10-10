@@ -5,23 +5,4 @@ package org.bbop.apollo.gwt.client.projection;
  */
 public class MultiSequenceProjection extends AbstractProjection{
 
-    @Override
-    public Integer projectValue(Integer input) {
-        return null;
-    }
-
-    @Override
-    public Integer projectReverseValue(Integer input) {
-        return null;
-    }
-
-    @Override
-    public Integer getLength() {
-        return null;
-    }
-
-    @Override
-    public String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate, Integer offset) {
-        return null;
-    }
 }
