@@ -25,12 +25,23 @@
     {
       "label": "Legend",
       "key": "Legend",
-      //      "type": "JBrowse/View/Track/LocationScale",
-      //      "type": "JBrowse/View/Track/CanvasVariants",
-//      "type": "WebApollo/View/Track/Legend3",
-      "type": "WebApollo/View/Track/ProjectionLegend",
-      //      "type": "WebApollo/View/Track/LegendTrack",
+      "type": "WebApollo/View/Track/Projection/ProjectionLegend",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
+      "baseUrl": "@SERVER@projectionGrid",
+      "style": {
+        "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
+      },
+      "noCache": true,
+      "pinned": true
+      //          "query": {
+      //            "organism": "tyrannosaurus"
+      //          }
+    },
+    {
+      "label": "Legend2",
+      "key": "Legend2",
+      "type": "WebApollo/View/Track/Projection/LocationScaleProjection2",
+      "storeClass": "JBrowse/Store/SeqFeature",
       "baseUrl": "@SERVER@projectionGrid",
       "style": {
         "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
@@ -47,7 +58,7 @@
       //      "type": "JBrowse/View/Track/LocationScale",
       //      "type": "JBrowse/View/Track/CanvasVariants",
       //      "type": "WebApollo/View/Track/Legend2",
-      "type": "WebApollo/View/Track/LegendTrack",
+      "type": "WebApollo/View/Track/Projection/LegendTrack",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
       "baseUrl": "@SERVER@projectionGrid",
       "style": {
@@ -64,7 +75,7 @@
       "key": "Lolli Projection Grid",
       //      "type": "JBrowse/View/Track/LocationScale",
       //      "type": "JBrowse/View/Track/CanvasVariants",
-      "type": "JBrowse/View/Track/SVGLollipop",
+      "type": "JBrowse/View/Track/Projection/SVGLollipop",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
       "baseUrl": "@SERVER@projectionGrid",
       "style": {
@@ -155,7 +166,7 @@
   ],
   "favicon": "./plugins/WebApollo/img/webapollo_favicon.ico",
   "locationBox": "searchBox",
-  "alwaysOnTracks": "DNA,Legend,Annotations",
+  "alwaysOnTracks": "DNA,Legend2,Legend,Annotations",
 //  "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
   "assemblageService": "getSeqBoundaries",
   "classicMenu" : 1,

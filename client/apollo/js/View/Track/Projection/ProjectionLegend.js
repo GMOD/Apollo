@@ -9,7 +9,7 @@ define([
         'JBrowse/View/Track/SVG/SVGLayerCoords',
         'JBrowse/View/Track/SVG/SVGLayerBpSpace',
         'JBrowse/View/Track/SVG/SVGLayerPxSpace',
-        'WebApollo/View/Track/ProjectionCoordinates'
+        'WebApollo/View/Track/Projection/ProjectionCoordinates'
     ],
     function (declare,
               array,
