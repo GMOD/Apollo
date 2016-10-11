@@ -11,14 +11,14 @@ public interface ProjectionInterface {
      * @param input
      * @return
      */
-    Integer projectValue(Integer input);
+    Long projectValue(Long input);
 
-    Integer projectReverseValue(Integer input);
+    Long projectReverseValue(Long input);
 
 
-    Coordinate projectCoordinate(int min, int max);
-    Coordinate projectReverseCoordinate(int min, int max);
-    Integer getLength();
+    Coordinate projectCoordinate(Long min, Long max);
+    Coordinate projectReverseCoordinate(Long min, Long max);
+    Long getLength();
 
     /**
      * This method projects a continuous sequence
@@ -29,7 +29,7 @@ public interface ProjectionInterface {
      * @param offset
      * @return
      */
-    String projectSequence(String inputSequence,Integer minCoordinate,Integer maxCoordinate,Integer offset);
+    String projectSequence(String inputSequence,Long minCoordinate,Long maxCoordinate,Long offset);
 
     Integer clear(); // remove coordinates
 }

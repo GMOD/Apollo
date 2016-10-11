@@ -130,10 +130,18 @@ public class Annotator implements EntryPoint {
 
         String testString = "{\"id\":5778, \"name\":\"Feature Region 1\", \"description\":\"GB52238-RA (Group11.4)::GB52236-RA (Group11.4)::GB53498-RA (GroupUn87)\", \"padding\":0, \"start\":10057, \"end\":30529, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"reverse\":false, \"feature\":{\"start\":10057, \"name\":\"GB52238-RA\", \"end\":18796, \"parent_id\":\"Group11.4\"}},{\"name\":\"Group11.4\", \"start\":52653, \"end\":59162, \"reverse\":false, \"feature\":{\"start\":52653, \"name\":\"GB52236-RA\", \"end\":59162, \"parent_id\":\"Group11.4\"}},{\"name\":\"GroupUn87\", \"start\":29196, \"end\":30529, \"reverse\":true, \"feature\":{\"start\":29196, \"name\":\"GB53498-RA\", \"end\":30529, \"parent_id\":\"GroupUn87\"}}]}:10057..30529";
 
-        Integer returnValue = ProjectionService.projectValue(testString,12000);
+
+        Long returnValue = ProjectionService.projectValue(testString,12000l);
 
         assert returnValue!=null ;
         assert returnValue>0 ;
+
+        testString = "{\"id\":5778, \"name\":\"Feature Region 1\", \"description\":\"GB52238-RA (Group11.4)::GB52236-RA (Group11.4)::GB53498-RA (GroupUn87)\", \"padding\":0, \"start\":10057, \"end\":30529, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"reverse\":false, \"feature\":{\"start\":10057, \"name\":\"GB52238-RA\", \"end\":18796, \"parent_id\":\"Group11.4\"}},{\"name\":\"Group11.4\", \"start\":52653, \"end\":59162, \"reverse\":false, \"feature\":{\"start\":52653, \"name\":\"GB52236-RA\", \"end\":59162, \"parent_id\":\"Group11.4\"}},{\"name\":\"GroupUn87\", \"start\":29196, \"end\":30529, \"reverse\":true, \"feature\":{\"start\":29196, \"name\":\"GB53498-RA\", \"end\":30529, \"parent_id\":\"GroupUn87\"}}]}:10057..30529";
+
+        returnValue = ProjectionService.projectValue(testString,0l);
+
+        assert returnValue!=null ;
+//        assert returnValue>0 ;
 
     }
 

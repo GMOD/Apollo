@@ -1,7 +1,6 @@
 package org.bbop.apollo.gwt.client.projection;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
 
 import java.util.*;
 
@@ -19,10 +18,10 @@ public class MultiSequenceProjection extends AbstractProjection {
 
     static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 0;
 
-    ProjectionSequence getReverseProjectionSequence(Integer input) {
+    ProjectionSequence getReverseProjectionSequence(Long input) {
         List<ProjectionSequence> projectionSequenceList = new ArrayList<>();
         for (ProjectionSequence projectionSequence : getProjectedSequences()) {
-            Integer bufferedLength = sequenceDiscontinuousProjectionMap.get(projectionSequence).getBufferedLength();
+            Long bufferedLength = sequenceDiscontinuousProjectionMap.get(projectionSequence).getBufferedLength();
             if (input >= projectionSequence.getOffset() && input <= projectionSequence.getOffset() + bufferedLength) {
                 projectionSequenceList.add(projectionSequence);
             }
@@ -31,7 +30,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         return !projectionSequenceList.isEmpty() ? projectionSequenceList.get(projectionSequenceList.size() - 1) : null;
     }
 
-    List<ProjectionSequence> getReverseProjectionSequences(Integer minInput, Integer maxInput) {
+    List<ProjectionSequence> getReverseProjectionSequences(Long minInput, Long maxInput) {
         List<ProjectionSequence> orderedSequences = new ArrayList<>();
         Integer startOrder = getReverseProjectionSequence(minInput).getOrder();
         Integer endOrder = getReverseProjectionSequence(maxInput).getOrder();
@@ -56,9 +55,9 @@ public class MultiSequenceProjection extends AbstractProjection {
      * @param input
      * @return
      */
-    ProjectionSequence getProjectionSequence(Integer input) {
+    ProjectionSequence getProjectionSequence(Long input) {
 
-        Integer offset = 0;
+        Long offset = 0l;
         // should deliver these : order
 
         for (List<ProjectionSequence> projectionSequenceList : getOrderedSequences().values()) {
@@ -92,21 +91,21 @@ public class MultiSequenceProjection extends AbstractProjection {
         return map;
     }
 
-    Integer projectValue(Integer input, Integer inputOffset, Integer outputOffset) {
+    Long projectValue(Long input, Long inputOffset, Long outputOffset) {
         ProjectionSequence projectionSequence = getProjectionSequence(input);
         if (projectionSequence == null) {
             return UNMAPPED_VALUE;
         }
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence);
         // TODO: DEFAULT_FOLDING_BUFFER for scaffolds is currently 1 . . the order
-        Integer returnValue = discontinuousProjection.projectValue(input - inputOffset);
+        Long returnValue = discontinuousProjection.projectValue(input - inputOffset);
         if (projectionSequence.getReverse() && returnValue != UNMAPPED_VALUE) {
             returnValue = discontinuousProjection.getLength() + (discontinuousProjection.size() - 1) - returnValue;
         }
         return returnValue == UNMAPPED_VALUE ? returnValue : returnValue + outputOffset;
     }
 
-    public Integer projectValue(Integer input) {
+    public Long projectValue(Long input) {
         ProjectionSequence projectionSequence = getProjectionSequence(input);
         if (projectionSequence == null) {
             return UNMAPPED_VALUE;
@@ -114,7 +113,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         return projectValue(input, projectionSequence.getOriginalOffset(), projectionSequence.getOffset());
     }
 
-    public Integer projectReverseValue(Integer input) {
+    public Long projectReverseValue(Long input) {
         ProjectionSequence projectionSequence = getReverseProjectionSequence(input);
         if (projectionSequence == null) {
             return UNMAPPED_VALUE;
@@ -122,7 +121,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         return projectReverseValue(input, projectionSequence.getOffset(), projectionSequence.getOriginalOffset());
     }
 
-    Integer projectReverseValue(Integer input, Integer inputOffset, Integer outputOffset) {
+    Long projectReverseValue(Long input, Long inputOffset, Long outputOffset) {
         ProjectionSequence projectionSequence = getReverseProjectionSequence(input);
         if (projectionSequence == null) {
             return UNMAPPED_VALUE;
@@ -133,27 +132,27 @@ public class MultiSequenceProjection extends AbstractProjection {
             // need to flip the reverse value : the context of the projection sequence
             // length - ( i - offset ) + offset
             // length - i + (2 * offset)
-            int alteredInput = discontinuousProjection.getBufferedLength(1) - input + projectionSequence.getOffset();
+            Long alteredInput = discontinuousProjection.getBufferedLength(1) - input + projectionSequence.getOffset();
             return discontinuousProjection.projectReverseValue(alteredInput) + outputOffset;
         } else {
             return discontinuousProjection.projectReverseValue(input - inputOffset) + outputOffset;
         }
     }
 
-    public Integer getLength() {
+    public Long getLength() {
         Map.Entry<ProjectionSequence, DiscontinuousProjection> entry = sequenceDiscontinuousProjectionMap.lastEntry();
         return entry.getKey().getOffset() + entry.getValue().getLength();
     }
 
     @Override
-    public String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate, Integer offset) {
-        Integer index = 0;
+    public String projectSequence(String inputSequence, Long minCoordinate, Long maxCoordinate, Long offset) {
+        Long index = 0l;
         List<String> sequenceList = new ArrayList<>();
 
         // we start at the very bottom and go up
         for (ProjectionSequence projectionSequence : getProjectedSequences()) {
             DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence);
-            Integer sequenceLength = projectionSequence.getUnprojectedLength();
+            Long sequenceLength = projectionSequence.getUnprojectedLength();
             offset = index;
 
             // case 5: no overlap
@@ -184,12 +183,12 @@ public class MultiSequenceProjection extends AbstractProjection {
         }
 
         String returnString = "";
-        for(String sequence : sequenceList){
-            returnString += sequence ;
+        for (String sequence : sequenceList) {
+            returnString += sequence;
         }
         // not really used .  .. .  but otherwise would carve up into different bits
 //        return StringUtils.join(sequenceList, "");
-        return returnString ;
+        return returnString;
     }
 
     List<Coordinate> listCoordinates() {
@@ -200,7 +199,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         return coordinateList;
     }
 
-    void addInterval(int min, int max, ProjectionSequence sequence) {
+    void addInterval(Long min, Long max, ProjectionSequence sequence) {
         GWT.log("adding interval ${min} ${max} ${sequence}");
         Coordinate coordinate = new Coordinate(min, max, sequence);
         addCoordinate(coordinate);
@@ -254,9 +253,9 @@ public class MultiSequenceProjection extends AbstractProjection {
         TreeMap<Integer, ProjectionSequence> projectionSequenceTreeMap = new TreeMap<>();
         for (ProjectionSequence it : sequenceDiscontinuousProjectionMap.keySet()) {
 //        sequenceDiscontinuousProjectionMap.keySet().each {
-            int score = it.getName() == matchSequence.getName() ? 1 : 0;
-            score += it.getStart() == matchSequence.getStart() ? 1 : 0;
-            score += it.getEnd() == matchSequence.getEnd() ? 1 : 0;
+            int score = it.getName().equals(matchSequence.getName()) ? 1 : 0;
+            score += it.getStart().equals(matchSequence.getStart()) ? 1 : 0;
+            score += it.getEnd().equals(matchSequence.getEnd()) ? 1 : 0;
             projectionSequenceTreeMap.put(score, it);
         }
         return projectionSequenceTreeMap.lastEntry().getValue();
@@ -267,8 +266,8 @@ public class MultiSequenceProjection extends AbstractProjection {
      */
     List<ProjectionSequence> calculateOffsets() {
         Integer currentOrder = 0;
-        Integer lastLength = 0;
-        Integer originalLength = 0;
+        Long lastLength = 0l;
+        Long originalLength = 0l;
 //        def projectionSequences = sequenceDiscontinuousProjectionMap.keySet().sort() { a, b ->
 //                a.order <=> b.order
 //        }
@@ -277,7 +276,7 @@ public class MultiSequenceProjection extends AbstractProjection {
 
         // generate set of projection sequences
         // they may have different offsets, but different originalOffset
-        Map<String, Integer> originalOffsetMap = generateOriginalOffsetsForSequences(projectionSequences);
+        Map<String, Long> originalOffsetMap = generateOriginalOffsetsForSequences(projectionSequences);
 
         for (ProjectionSequence projectionSequence : projectionSequences) {
             DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence);
@@ -287,7 +286,7 @@ public class MultiSequenceProjection extends AbstractProjection {
 
             assert projectionSequence.getUnprojectedLength() != null;
             assert projectionSequence.getUnprojectedLength() > 0;
-            if(discontinuousProjection!=null){
+            if (discontinuousProjection != null) {
                 lastLength += discontinuousProjection.getBufferedLength();
             }
             lastLength += DEFAULT_SCAFFOLD_BORDER_LENGTH;
@@ -298,11 +297,11 @@ public class MultiSequenceProjection extends AbstractProjection {
     }
 
     private
-    static Map<String, Integer> generateOriginalOffsetsForSequences(List<ProjectionSequence> projectionSequences) {
-        Map<String, Integer> returnMap = new HashMap<>();
-        int originalOffset = 0;
+    static Map<String, Long> generateOriginalOffsetsForSequences(List<ProjectionSequence> projectionSequences) {
+        Map<String, Long> returnMap = new HashMap<>();
+        Long originalOffset = 0l;
 
-        for(ProjectionSequence it : projectionSequences){
+        for (ProjectionSequence it : projectionSequences) {
             if (!returnMap.containsKey(it.getName())) {
                 returnMap.put(it.getName(), originalOffset);
                 originalOffset += it.getUnprojectedLength();
@@ -351,14 +350,14 @@ public class MultiSequenceProjection extends AbstractProjection {
     }
 
 
-    Map<Integer, Coordinate> getMinMap() {
-        Map<Integer, Coordinate> minMap = new TreeMap<>();
+    Map<Long, Coordinate> getMinMap() {
+        Map<Long, Coordinate> minMap = new TreeMap<>();
         List<ProjectionSequence> projectionSequenceList = getProjectedSequences();
 
         for (ProjectionSequence projectionSequence : projectionSequenceList) {
-            Map<Integer, Coordinate> returnMap = new TreeMap<>();
+            Map<Long, Coordinate> returnMap = new TreeMap<>();
 
-            for(Map.Entry<Integer,Coordinate> it : sequenceDiscontinuousProjectionMap.get(projectionSequence).minMap.entrySet()){
+            for (Map.Entry<Long, Coordinate> it : sequenceDiscontinuousProjectionMap.get(projectionSequence).minMap.entrySet()) {
                 Coordinate coordinate = new Coordinate(it.getValue().getMin(), it.getValue().getMax());
                 coordinate.addOffset(projectionSequence.getOriginalOffset());
                 returnMap.put(it.getKey() + projectionSequence.getOriginalOffset(), coordinate);
@@ -369,18 +368,18 @@ public class MultiSequenceProjection extends AbstractProjection {
         return minMap;
     }
 
-    Map<Integer, Coordinate> getMaxMap() {
-        Map<Integer, Coordinate> maxMap = new TreeMap<>();
+    Map<Long, Coordinate> getMaxMap() {
+        Map<Long, Coordinate> maxMap = new TreeMap<>();
 
         for (ProjectionSequence projectionSequence : getProjectedSequences()) {
-            Map<Integer, Coordinate> returnMap = new TreeMap<>();
+            Map<Long, Coordinate> returnMap = new TreeMap<>();
             // add a set with an offset
 
-            for(Map.Entry<Integer,Coordinate> it : sequenceDiscontinuousProjectionMap.get(projectionSequence).maxMap.entrySet()){
+            for (Map.Entry<Long, Coordinate> it : sequenceDiscontinuousProjectionMap.get(projectionSequence).maxMap.entrySet()) {
 //            sequenceDiscontinuousProjectionMap.get(projectionSequence).maxMap.each {
                 Coordinate coordinate = new Coordinate(it.getValue().getMin(), it.getValue().getMax());
                 coordinate.addOffset(projectionSequence.getOriginalOffset());
-                returnMap.put(it.getKey()+ projectionSequence.getOriginalOffset(), coordinate);
+                returnMap.put(it.getKey() + projectionSequence.getOriginalOffset(), coordinate);
             }
             maxMap.putAll(returnMap);
         }
@@ -402,7 +401,7 @@ public class MultiSequenceProjection extends AbstractProjection {
 //        return sequenceDiscontinuousProjectionMap.get(projectionSequence).minMap.firstEntry().value
 //    }
 
-//    Integer getOffsetForSequence(String sequenceName) {
+//    Long getOffsetForSequence(String sequenceName) {
 //        if (projectionChunkList) {
 //            ProjectionChunk projectionChunk = projectionChunkList.findProjectChunkForName(sequenceName)
 //            if (projectionChunk) {
@@ -418,7 +417,7 @@ public class MultiSequenceProjection extends AbstractProjection {
 //    }
 
     ProjectionSequence getLastSequence() {
-        return getProjectedSequences().get(sequenceDiscontinuousProjectionMap.keySet().size()-1);
+        return getProjectedSequences().get(sequenceDiscontinuousProjectionMap.keySet().size() - 1);
     }
 
     List<ProjectionSequence> getProjectedSequences() {
@@ -490,9 +489,9 @@ public class MultiSequenceProjection extends AbstractProjection {
     }
 
     void addProjectionSequences(Collection<ProjectionSequence> theseProjectionSequences) {
-        for(ProjectionSequence it : theseProjectionSequences){
+        for (ProjectionSequence it : theseProjectionSequences) {
             ProjectionSequence overlappingProjectionSequence = overlaps(it);
-            if (overlappingProjectionSequence!=null) {
+            if (overlappingProjectionSequence != null) {
                 sequenceDiscontinuousProjectionMap.remove(overlappingProjectionSequence);
                 overlappingProjectionSequence = merge(overlappingProjectionSequence, it);
                 sequenceDiscontinuousProjectionMap.put(overlappingProjectionSequence, null);

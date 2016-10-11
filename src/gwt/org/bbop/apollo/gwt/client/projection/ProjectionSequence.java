@@ -11,25 +11,25 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
     private String name;
     private String organism;
     private Integer order ; // what order this should be processed as
-    private Integer offset = 0;  // projected offset from originalOffset
-    private Integer originalOffset = 0; // original incoming coordinates . .  0 implies order = 0, >0 implies that order > 0
+    private Long offset = 0l;  // projected offset from originalOffset
+    private Long originalOffset = 0l; // original incoming coordinates . .  0 implies order = 0, >0 implies that order > 0
     private List<String> features;// a list of Features  // default is a single entry ALL . . if empty then all
-    private Integer unprojectedLength = 0;
-    private Integer start;
-    private Integer end;
+    private Long unprojectedLength = 0l;
+    private Long start;
+    private Long end;
     private Boolean reverse = false ;// this is the reverse complement value of the projection sequence
 
 
-    Integer getOriginalOffsetStart(){
+    Long getOriginalOffsetStart(){
         return start + originalOffset;
     }
 
-    Integer getOriginalOffsetEnd(){
+    Long getOriginalOffsetEnd(){
         return end + originalOffset;
     }
 
 
-    Integer getLength() {
+    Long getLength() {
         return end - start;
     }
 
@@ -129,23 +129,23 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
         return order;
     }
 
-    public void setOrder(Integer order) {
+    public void setOrder(Integer  order) {
         this.order = order;
     }
 
-    public Integer getOffset() {
+    public Long getOffset() {
         return offset;
     }
 
-    public void setOffset(Integer offset) {
+    public void setOffset(Long offset) {
         this.offset = offset;
     }
 
-    public Integer getOriginalOffset() {
+    public Long getOriginalOffset() {
         return originalOffset;
     }
 
-    public void setOriginalOffset(Integer originalOffset) {
+    public void setOriginalOffset(Long originalOffset) {
         this.originalOffset = originalOffset;
     }
 
@@ -157,27 +157,27 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
         this.features = features;
     }
 
-    public Integer getUnprojectedLength() {
+    public Long getUnprojectedLength() {
         return unprojectedLength;
     }
 
-    public void setUnprojectedLength(Integer unprojectedLength) {
+    public void setUnprojectedLength(Long unprojectedLength) {
         this.unprojectedLength = unprojectedLength;
     }
 
-    public Integer getStart() {
+    public Long getStart() {
         return start;
     }
 
-    public void setStart(Integer start) {
+    public void setStart(Long start) {
         this.start = start;
     }
 
-    public Integer getEnd() {
+    public Long getEnd() {
         return end;
     }
 
-    public void setEnd(Integer end) {
+    public void setEnd(Long end) {
         this.end = end;
     }
 

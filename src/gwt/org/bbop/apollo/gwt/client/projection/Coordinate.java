@@ -4,16 +4,16 @@ package org.bbop.apollo.gwt.client.projection;
  * Created by nathandunn on 10/10/16.
  */
 public class Coordinate implements Comparable<Coordinate>{
-    private Integer min;
-    private Integer max;
+    private Long min;
+    private Long max;
     private ProjectionSequence sequence;
 
-    public Coordinate(Integer min,Integer max){
+    public Coordinate(Long min,Long max){
         this.min = min ;
         this.max = max ;
     }
 
-    public Coordinate(Integer min,Integer max,ProjectionSequence sequence){
+    public Coordinate(Long min,Long max,ProjectionSequence sequence){
         this.min = min ;
         this.max = max ;
         this.sequence = sequence ;
@@ -68,28 +68,28 @@ public class Coordinate implements Comparable<Coordinate>{
         return min>=0 && max>=0;
     }
 
-    Integer getLength(){
+    Long getLength(){
         return Math.abs(max - min);
     }
 
-    void addOffset(Integer offset){
+    void addOffset(Long offset){
         min = min+offset;
         max = max+offset;
     }
 
-    public Integer getMin() {
+    public Long getMin() {
         return min;
     }
 
-    public void setMin(Integer min) {
+    public void setMin(Long min) {
         this.min = min;
     }
 
-    public Integer getMax() {
+    public Long getMax() {
         return max;
     }
 
-    public void setMax(Integer max) {
+    public void setMax(Long max) {
         this.max = max;
     }
 

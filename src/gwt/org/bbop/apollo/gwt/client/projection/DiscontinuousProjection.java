@@ -11,8 +11,8 @@ import java.util.TreeMap;
  */
 public class DiscontinuousProjection extends AbstractProjection {
     // projection from X -> X'
-    TreeMap<Integer, Coordinate> minMap = new TreeMap<>();
-    TreeMap<Integer, Coordinate> maxMap = new TreeMap<>();
+    TreeMap<Long, Coordinate> minMap = new TreeMap<>();
+    TreeMap<Long, Coordinate> maxMap = new TreeMap<>();
 
     String metadata; // metadata, potentially JSON
 
@@ -26,17 +26,17 @@ public class DiscontinuousProjection extends AbstractProjection {
      * @return
      */
     @Override
-    public Integer projectReverseValue(Integer input) {
+    public Long projectReverseValue(Long input) {
 
-        Iterator<Integer> minIterator = minMap.keySet().iterator();
-        Iterator<Integer> maxIterator = maxMap.keySet().iterator();
-        Integer min, max;
+        Iterator<Long> minIterator = minMap.keySet().iterator();
+        Iterator<Long> maxIterator = maxMap.keySet().iterator();
+        Long min, max;
 
         // TODO: for speed generate a reverse map for quick lookup whilst doing this or another operation
         // here we can assume that the input maps onto the current length
-        Integer currentLength = 0;
-        Integer bucketCount = 0;
-        Integer previousLength = 0;
+        Long currentLength = 0l;
+        Long bucketCount = 0l;
+        Long previousLength = 0l;
         while (minIterator.hasNext()) {
             min = minIterator.next();
             max = maxIterator.next();
@@ -51,7 +51,7 @@ public class DiscontinuousProjection extends AbstractProjection {
     }
 
     @Override
-    public Integer projectValue(Integer input) {
+    public Long projectValue(Long input) {
         if (!minMap.isEmpty() && !maxMap.isEmpty()) {
             return input;
         }
@@ -60,11 +60,11 @@ public class DiscontinuousProjection extends AbstractProjection {
             return UNMAPPED_VALUE;
         }
 
-        Integer floorMinKey = minMap.floorKey(input);
-        Integer ceilMinKey = minMap.ceilingKey(input);
+        Long floorMinKey = minMap.floorKey(input);
+        Long ceilMinKey = minMap.ceilingKey(input);
 
-        Integer floorMaxKey = maxMap.floorKey(input);
-        Integer ceilMaxKey = maxMap.ceilingKey(input);
+        Long floorMaxKey = maxMap.floorKey(input);
+        Long ceilMaxKey = maxMap.ceilingKey(input);
 
         if (floorMinKey == null || ceilMaxKey == null) {
             return UNMAPPED_VALUE;
@@ -73,7 +73,7 @@ public class DiscontinuousProjection extends AbstractProjection {
         // if is a hit for min and no max hit, then it is the left-most
         if (floorMinKey == ceilMinKey) {
             if (floorMaxKey == null) {
-                return 0;
+                return 0l;
             } else {
 //                return input - floorMaxKey
                 return projectValue(floorMaxKey) + 1;
@@ -104,7 +104,7 @@ public class DiscontinuousProjection extends AbstractProjection {
         return UNMAPPED_VALUE;
     }
 
-    private Coordinate addCoordinate(int min, int max) {
+    private Coordinate addCoordinate(Long min, Long max) {
         Coordinate coordinate = new Coordinate(min, max);
         if (minMap.containsKey(min) && !maxMap.containsKey(max)) {
             throw new RuntimeException("minKey is dupe and should be replaced ${min}::${max}");
@@ -125,11 +125,11 @@ public class DiscontinuousProjection extends AbstractProjection {
      * @param max
      * @return
      */
-    private Coordinate replaceCoordinate(Coordinate coordinate, int min, int max) {
+    private Coordinate replaceCoordinate(Coordinate coordinate, Long min, Long max) {
         assert minMap.remove(coordinate.getMin()) != null;
         assert maxMap.remove(coordinate.getMax()) != null;
 
-        Integer nextMin = !minMap.isEmpty() ? minMap.higherKey(coordinate.getMin()) : null;
+        Long nextMin = !minMap.isEmpty() ? minMap.higherKey(coordinate.getMin()) : null;
 
         Boolean doBreak = false;
         // we have to remove any overlapping elements here
@@ -146,21 +146,21 @@ public class DiscontinuousProjection extends AbstractProjection {
         return addCoordinate(min, max);
     }
 
-    Coordinate addInterval(int min, int max) {
+    Coordinate addInterval(Long min, Long max) {
         return addInterval(min, max, 0);
     }
 
-    Coordinate addInterval(int min, int max, Integer padding) {
+    Coordinate addInterval(Long min, Long max, Integer padding) {
         min -= padding != 0 ? padding : 0;
         max += padding != 0 ? padding : 0;
         min = min < 0 ? 0 : min;
         assert max >= min;
 
-        Integer floorMinKey = minMap.floorKey(min);
-        Integer ceilMinKey = minMap.ceilingKey(min);
+        Long floorMinKey = minMap.floorKey(min);
+        Long ceilMinKey = minMap.ceilingKey(min);
 
-        Integer floorMaxKey = maxMap.floorKey(max);
-        Integer ceilMaxKey = maxMap.ceilingKey(max);
+        Long floorMaxKey = maxMap.floorKey(max);
+        Long ceilMaxKey = maxMap.ceilingKey(max);
 
         Coordinate floorMinCoord = floorMinKey != null ? minMap.get(floorMinKey) : null;
         Coordinate floorMaxCoord = floorMaxKey != null ? maxMap.get(floorMaxKey) : null;
@@ -261,8 +261,8 @@ public class DiscontinuousProjection extends AbstractProjection {
                     } else if (min > floorMinCoord.getMin() && min < floorMinCoord.getMax() && max > ceilMaxCoord.getMin() && max < ceilMaxCoord.getMax()) {
                         return replaceCoordinate(floorMinCoord, floorMinCoord.getMin(), ceilMaxCoord.getMax());
                     } else {
-                        int newMin = min > floorMinCoord.getMax() ? floorMinCoord.getMin() : min;
-                        int newMax = max < ceilMaxCoord.getMin() ? max : ceilMaxCoord.getMax();
+                        Long newMin = min > floorMinCoord.getMax() ? floorMinCoord.getMin() : min;
+                        Long newMax = max < ceilMaxCoord.getMin() ? max : ceilMaxCoord.getMax();
                         return replaceCoordinate(floorMinCoord, newMin, newMax);
                     }
             } else if (floorMinCoord != floorMaxCoord && ceilMinCoord == ceilMaxCoord) {
@@ -286,8 +286,8 @@ public class DiscontinuousProjection extends AbstractProjection {
                 else if (min > floorMinCoord.getMin() && max < ceilMaxCoord.getMax() && min < ceilMaxCoord.getMin() && max > floorMinCoord.getMax()) {
                     return replaceCoordinate(floorMinCoord, floorMinCoord.getMin(), ceilMaxCoord.getMax());
                 } else {
-                    int newMin = min > floorMinCoord.getMax() ? floorMinCoord.getMin() : min;
-                    int newMax = max < ceilMaxCoord.getMin() ? max : ceilMaxCoord.getMax();
+                    Long newMin = min > floorMinCoord.getMax() ? floorMinCoord.getMin() : min;
+                    Long newMax = max < ceilMaxCoord.getMin() ? max : ceilMaxCoord.getMax();
                     return replaceCoordinate(floorMinCoord, newMin, newMax);
                 }
             }
@@ -317,16 +317,16 @@ public class DiscontinuousProjection extends AbstractProjection {
 
 
     @Override
-    public Coordinate projectCoordinate(int min, int max) {
-        int newMin = projectValue(min);
-        int newMax = projectValue(max);
+    public Coordinate projectCoordinate(Long min, Long max) {
+        Long newMin = projectValue(min);
+        Long newMax = projectValue(max);
         if (newMin >= 0 && newMax >= 0) {
             return new Coordinate(newMin, newMax);
         } else if ((newMin < 0 && newMax < 0)) {
             return null;
         } else if (newMin >= 0) {
             // newMin is less than 0 so find the next one higher and move up
-            Integer floorMaxKey = projectValue(maxMap.floorKey(max));
+            Long floorMaxKey = projectValue(maxMap.floorKey(max));
             if (floorMaxKey > newMin) {
                 return new Coordinate(newMin, floorMaxKey);
             } else {
@@ -334,7 +334,7 @@ public class DiscontinuousProjection extends AbstractProjection {
             }
         } else if (newMax >= 0) {
             // newMin is less than 0 so find the next one higher and move up
-            Integer ceilMinKey = projectValue(minMap.ceilingKey(min));
+            Long ceilMinKey = projectValue(minMap.ceilingKey(min));
             if (ceilMinKey < newMax) {
                 return new Coordinate(ceilMinKey, newMax);
             } else {
@@ -346,9 +346,9 @@ public class DiscontinuousProjection extends AbstractProjection {
     }
 
     @Override
-    public Coordinate projectReverseCoordinate(int min, int max) {
-        int newMin = projectReverseValue(min);
-        int newMax = projectReverseValue(max);
+    public Coordinate projectReverseCoordinate(Long min, Long max) {
+        Long newMin = projectReverseValue(min);
+        Long newMax = projectReverseValue(max);
         if (newMin < 0 && newMax < 0) {
             return null;
         }
@@ -361,29 +361,29 @@ public class DiscontinuousProjection extends AbstractProjection {
 //     * @param buffer
 //     * @return
 //     */
-    Integer getBufferedLength(Integer buffer) {
+    public Long getBufferedLength(Integer buffer) {
         return getLength() + buffer * (size() - 1);
     }
 
-    public Integer getBufferedLength() {
+    public Long getBufferedLength() {
         return getBufferedLength(1);
     }
 
     @Override
-    public Integer getLength() {
-        int returnValue = 0;
+    public Long getLength() {
+        Long returnValue = 0l;
         for (Coordinate coordinate : minMap.values()) {
             returnValue += coordinate.getLength();
         }
         return returnValue;
     }
 
-//    String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate) {
+//    String projectSequence(String inputSequence, Long minCoordinate, Long maxCoordinate) {
 //        projectSequence(inputSequence, minCoordinate, maxCoordinate, 0)
 //    }
 
     @Override
-    public String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate, Integer offset) {
+    public String projectSequence(String inputSequence, Long minCoordinate, Long maxCoordinate, Long offset) {
         String returnSequence = "";
         Iterator<Coordinate> minKeyIterator = minMap.values().iterator();
         minCoordinate = minCoordinate >= 0 ? minCoordinate : 0;
@@ -396,8 +396,8 @@ public class DiscontinuousProjection extends AbstractProjection {
         while (minKeyIterator.hasNext()) {
             Coordinate coordinate = minKeyIterator.next();
             GWT.log("coodinate coord ${coordinate.min}::${coordinate.max} vs ${inputSequence.length()}");
-            Integer offsetMinCoordinate = coordinate.getMin() + offset;
-            Integer offsetMaxCoordinate = coordinate.getMax() + offset;
+            Long offsetMinCoordinate = coordinate.getMin() + offset;
+            Long offsetMaxCoordinate = coordinate.getMax() + offset;
             GWT.log("offset coord ${offsetMinCoordinate}::${offsetMaxCoordinate} vs ${inputSequence.length()}");
             GWT.log("min/max ${minCoordinate}::${maxCoordinate} vs ${inputSequence.length()}");
             // 6 cases
@@ -408,19 +408,19 @@ public class DiscontinuousProjection extends AbstractProjection {
             }
             // case 6, overlaps all the way, min < minCoordinate, max > maxCoordinate, add minCoorindate, maxCoordinate
             else if (offsetMinCoordinate <= minCoordinate && offsetMaxCoordinate >= maxCoordinate) {
-                returnSequence += inputSequence.substring(minCoordinate, maxCoordinate + 1);
+                returnSequence += inputSequence.substring(minCoordinate.intValue(), maxCoordinate.intValue() + 1);
             }
             // case 2, left-hand edge , min < minCoordinate , max > minCoordinate, add minCoordinate, max
             else if (offsetMinCoordinate <= minCoordinate && offsetMaxCoordinate >= minCoordinate) {
-                returnSequence += inputSequence.substring(minCoordinate, offsetMaxCoordinate + 1);
+                returnSequence += inputSequence.substring(minCoordinate.intValue(), offsetMaxCoordinate.intValue() + 1);
             }
             // case 3, inside min > minCoordinate , max < maxCoordinate . . . add as-is, min/ max
             else if (offsetMinCoordinate > minCoordinate && offsetMaxCoordinate <= maxCoordinate) {
-                returnSequence += inputSequence.substring(offsetMinCoordinate, offsetMaxCoordinate + 1);
+                returnSequence += inputSequence.substring(offsetMinCoordinate.intValue(), offsetMaxCoordinate.intValue() + 1);
             }
             // case 4, right-hand edge min < maxCoordinate , max > maxCoordinate . . . add min, maxCoordinate
             else if (offsetMinCoordinate <= maxCoordinate && offsetMaxCoordinate > maxCoordinate) {
-                returnSequence += inputSequence.substring(offsetMinCoordinate, maxCoordinate + 1);
+                returnSequence += inputSequence.substring(offsetMinCoordinate.intValue(), maxCoordinate.intValue() + 1);
             } else {
                 GWT.log("what is this error case? ");
             }
@@ -454,7 +454,7 @@ public class DiscontinuousProjection extends AbstractProjection {
 
     @Override
     public Integer clear() {
-        int returnValue = minMap.size();
+        Integer returnValue = minMap.size();
         minMap.clear();
         maxMap.clear();
         return returnValue;

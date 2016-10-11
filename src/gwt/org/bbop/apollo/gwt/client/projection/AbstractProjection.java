@@ -6,15 +6,15 @@ package org.bbop.apollo.gwt.client.projection;
  */
 public abstract class AbstractProjection implements ProjectionInterface{
 
-    public final static Integer UNMAPPED_VALUE = -1;
+    public final static Long UNMAPPED_VALUE = -1l;
 
     @Override
-    public Coordinate projectCoordinate(int min, int max) {
+    public Coordinate projectCoordinate(Long min, Long max) {
         return new Coordinate(projectValue(min),projectValue(max));
     }
 
     @Override
-    public Coordinate projectReverseCoordinate(int min, int max) {
+    public Coordinate projectReverseCoordinate(Long min, Long max) {
         return new Coordinate(projectReverseValue(min),projectReverseValue(max));
     }
 

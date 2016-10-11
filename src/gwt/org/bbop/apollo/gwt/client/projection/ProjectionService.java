@@ -77,7 +77,7 @@ public class ProjectionService {
         List<Coordinate> coordinateList = new ArrayList<>();
         for(int i = 0 ; i < featureLocations.size() ; i++){
             FeatureLocationInfo featureLocationInfo = featureLocations.getFeatureLocationInfo(i);
-            Coordinate coordinate = new Coordinate(featureLocationInfo.getMin().intValue(),featureLocationInfo.getMax().intValue(),projectionSequence);
+            Coordinate coordinate = new Coordinate(featureLocationInfo.getMin(),featureLocationInfo.getMax(),projectionSequence);
             coordinateList.add(coordinate);
         }
         return coordinateList ;
@@ -86,9 +86,9 @@ public class ProjectionService {
     private static ProjectionSequence generateProjectSequenceFromAssemblageSequence(AssemblageSequence assemblageSequence) {
         ProjectionSequence projectionSequence = new ProjectionSequence();
         projectionSequence.setName(assemblageSequence.getName());
-        projectionSequence.setStart(assemblageSequence.getStart().intValue());
-        projectionSequence.setEnd(assemblageSequence.getEnd().intValue());
-        projectionSequence.setUnprojectedLength(assemblageSequence.getLength().intValue());
+        projectionSequence.setStart(assemblageSequence.getStart());
+        projectionSequence.setEnd(assemblageSequence.getEnd());
+        projectionSequence.setUnprojectedLength(assemblageSequence.getLength());
         projectionSequence.setReverse(assemblageSequence.getReverse());
 
         if(assemblageSequence.getFeature()!=null){
@@ -115,15 +115,20 @@ public class ProjectionService {
         return createProjectionFromAssemblageInfo(assemblageInfo);
     }
 
-    public static Integer projectValue(String referenceString,Integer input){
+    public static Double projectValue(String referenceString,Double input){
+        Long returnValue = projectValue(referenceString,Math.round(input));
+        return Double.valueOf(returnValue);
+    }
+
+    public static Long projectValue(String referenceString,Long input){
         GWT.log("trying to project a value in GWT: "+input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
-        Integer projectedValue = projection.projectValue( input);
+        Long projectedValue = projection.projectValue( input);
         GWT.log("projected a value "+ projectedValue);
         return projectedValue ;
     }
 
     public static native void exportStaticMethod() /*-{
-        $wnd.projectValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectValue(Ljava/lang/String;Ljava/lang/Integer;));
+        $wnd.projectValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectValue(SI)(referenceString,input));
     }-*/;
 }
