@@ -541,6 +541,17 @@ define([
                 var rclass;
                 var clsName;
                 var type = feature.afeature.type;
+                if (JSONUtils.variantTypes.indexOf(type.name.toUpperCase()) != -1) {
+                    // feature is of type variant
+                    // TODO - this is a hack to override the rendering of arrowhead
+                    feature.afeature.location.strand = "0";
+                    feature.data.strand = "0";
+                    if (feature.afeature.children) {
+                        for (var i = 0; i < feature.afeature.children.length; i++) {
+                            feature.afeature.children[i].location.strand = "0"
+                        }
+                    }
+                }
                 if (!this.isProteinCoding(feature)) {
                     var topLevelAnnotation = AnnotTrack.getTopLevelAnnotation(feature);
                     var parentType = feature.afeature.parent_type ? feature.afeature.parent_type.name : null;
@@ -2040,7 +2051,7 @@ define([
                     ++numItems;
                 }
                 var annotContent;
-                if (JSONUtils.variantTypes.indexOf(annot.afeature.type.name) != -1) {
+                if (JSONUtils.variantTypes.indexOf(annot.afeature.type.name.toUpperCase()) != -1) {
                     // feature is a variant
                     annotContent = this.createAnnotationInfoEditorPanelForVariant(annot.id(), track.getUniqueTrackName(), selector, false);
                 }
