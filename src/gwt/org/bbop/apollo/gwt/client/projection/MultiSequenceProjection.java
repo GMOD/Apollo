@@ -1,6 +1,7 @@
 package org.bbop.apollo.gwt.client.projection;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 
 import java.util.*;
 
@@ -62,6 +63,7 @@ public class MultiSequenceProjection extends AbstractProjection {
 
         for (List<ProjectionSequence> projectionSequenceList : getOrderedSequences().values()) {
             for (ProjectionSequence projectionSequence : projectionSequenceList) {
+                GWT.log("ABCD input["+input+"] start["+projectionSequence.getStart()+","+projectionSequence.getEnd() + " " + offset);
                 if (input >= projectionSequence.getStart() + offset && input <= projectionSequence.getEnd() + offset) {
                     return projectionSequence;
                 }

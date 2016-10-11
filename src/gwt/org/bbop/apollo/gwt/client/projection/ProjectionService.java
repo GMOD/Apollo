@@ -1,6 +1,7 @@
 package org.bbop.apollo.gwt.client.projection;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Window;
@@ -9,7 +10,9 @@ import org.bbop.apollo.gwt.client.assemblage.FeatureLocations;
 import org.bbop.apollo.gwt.client.dto.assemblage.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class is responsible for generating projection libraries.
@@ -17,6 +20,9 @@ import java.util.List;
  * Created by nathandunn on 10/10/16.
  */
 public class ProjectionService {
+
+
+    private static Map<String,MultiSequenceProjection> projectionMap = new HashMap<>();
 
     public ProjectionService(){
         exportStaticMethod();
@@ -118,7 +124,6 @@ public class ProjectionService {
 
     public static Long projectValue(String referenceString,String otherType) {
         Integer input = Integer.parseInt(otherType);
-//        Window.alert("parsed "+otherType + " to "+ input + " int: "+Integer.parseInt(otherType));
         return projectValue(referenceString,(long) input);
     }
 
@@ -130,7 +135,38 @@ public class ProjectionService {
         return projectedValue ;
     }
 
+    public static Long projectReverseValue(String referenceString,String otherType) {
+        Integer input = Integer.parseInt(otherType);
+        return projectReverseValue(referenceString,(long) input);
+    }
+
+
+    public static Long projectReverseValue(String referenceString,Long input){
+        GWT.log("trying to project a value in GWT: "+input);
+        MultiSequenceProjection projection = getProjectionForString(referenceString);
+        Long projectedValue = projection.projectReverseValue( input);
+        GWT.log("projected a value "+ projectedValue + " for " + input);
+        return projectedValue ;
+    }
+
+    public static String projectReverseSequence(String referenceString,String otherType) {
+        Integer input = Integer.parseInt(otherType);
+        return projectReverseSequence(referenceString,(long) input);
+    }
+
+
+    public static String projectReverseSequence(String referenceString, Long input){
+        GWT.log("trying to project a sequence in GWT: "+input);
+        MultiSequenceProjection projection = getProjectionForString(referenceString);
+        ProjectionSequence projectionSequence = projection.getReverseProjectionSequence( input);
+//        GWT.log("projected a value "+ projectedValue + " for " + input);
+        // TODO: convert to a JSON object
+        return projectionSequence.getName();
+    }
+
     public static native void exportStaticMethod() /*-{
         $wnd.projectValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectValue(Ljava/lang/String;Ljava/lang/String;));
+        $wnd.projectReverseValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectReverseValue(Ljava/lang/String;Ljava/lang/String;));
+        $wnd.projectReverseSequence = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectReverseSequence(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 }

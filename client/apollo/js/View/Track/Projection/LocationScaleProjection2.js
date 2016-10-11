@@ -50,7 +50,7 @@ define([
 
                     console.log("projecting with string: " + this.refSeq.name);
                     console.log("value: " + labelNumber);
-                    var projectedValue = window.parent.projectValue(this.refSeq.name,labelNumber);
+                    var projectedValue = window.parent.projectReverseValue(this.refSeq.name,labelNumber);
                     console.log('POST-project: '+projectedValue);
                     labelNumber = projectedValue ;
 
