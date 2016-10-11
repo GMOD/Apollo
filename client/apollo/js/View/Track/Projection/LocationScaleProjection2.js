@@ -47,6 +47,14 @@ define([
                     // console.log( leftBase+1, labelNumber, labelOffset );
 
                     var posLabel = document.createElement("div");
+
+                    console.log("projecting with string: " + this.refSeq.name);
+                    console.log("value: " + labelNumber);
+                    var projectedValue = window.parent.projectValue(this.refSeq.name,labelNumber);
+                    console.log('POST-project: '+projectedValue);
+                    labelNumber = projectedValue ;
+
+
                     var numtext = Util.addCommas(labelNumber);
                     posLabel.className = this.labelClass;
 
@@ -57,9 +65,6 @@ define([
                     posLabel.appendChild(document.createTextNode(numtext));
                     block.domNode.appendChild(posLabel);
 
-                    console.log("projecting with string: " + this.refSeq.name);
-                    console.log("value: " + labelNumber);
-                    var projectedValue = window.parent.projectValue(this.refSeq.name,labelNumber);
                     // console.log("projected value: " + projectedValue);
 
                     var highlight = this.browser.getHighlight();

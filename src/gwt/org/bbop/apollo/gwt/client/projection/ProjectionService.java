@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client.projection;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocationInfo;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocations;
 import org.bbop.apollo.gwt.client.dto.assemblage.*;
@@ -115,20 +116,21 @@ public class ProjectionService {
         return createProjectionFromAssemblageInfo(assemblageInfo);
     }
 
-    public static Double projectValue(String referenceString,Double input){
-        Long returnValue = projectValue(referenceString,Math.round(input));
-        return Double.valueOf(returnValue);
+    public static Long projectValue(String referenceString,String otherType) {
+        Integer input = Integer.parseInt(otherType);
+//        Window.alert("parsed "+otherType + " to "+ input + " int: "+Integer.parseInt(otherType));
+        return projectValue(referenceString,(long) input);
     }
 
     public static Long projectValue(String referenceString,Long input){
         GWT.log("trying to project a value in GWT: "+input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
         Long projectedValue = projection.projectValue( input);
-        GWT.log("projected a value "+ projectedValue);
+        GWT.log("projected a value "+ projectedValue + " for " + input);
         return projectedValue ;
     }
 
     public static native void exportStaticMethod() /*-{
-        $wnd.projectValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectValue(SI)(referenceString,input));
+        $wnd.projectValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectValue(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 }
