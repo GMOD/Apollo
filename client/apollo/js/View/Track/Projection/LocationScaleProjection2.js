@@ -67,13 +67,28 @@ define([
                         // more-or-less center it over the left boundary of the block
                         posLabel.style.left = "-" + Number(numtext.length) / 1.7 + labelOffset + "ex";
 
-                        posLabel.appendChild(document.createTextNode(numtext));
-                        posLabel.appendChild(document.createTextNode(projectedValue.sequence.name + " " + projectedValue.sequence.reverse));
-                        // posLabel.appendChild(document.createTextNode("&rarr; "+projectedValue.originalValue));
+                        var sequenceLabel = document.createElement("div");
+                        sequenceLabel.innerHTML = projectedValue.sequence.name ;
+                        sequenceLabel.style.display = "inline-block";
+                        sequenceLabel.style.marginLeft  = "5px";
+                        sequenceLabel.style.marginRight = "5px";
+
+                        var arrowLabel = document.createElement("div");
+                        arrowLabel.style.display = "inline-block";
+                        if(projectedValue.sequence.reverse){
+                            arrowLabel.innerHTML = "&larr;&nbsp;";
+                            posLabel.appendChild(arrowLabel);
+                            posLabel.appendChild(document.createTextNode(numtext));
+                            posLabel.appendChild(sequenceLabel);
+                        }
+                        else{
+                            arrowLabel.innerHTML = "&nbsp;&rarr;";
+                            posLabel.appendChild(document.createTextNode(numtext));
+                            posLabel.appendChild(sequenceLabel);
+                            posLabel.appendChild(arrowLabel);
+                        }
                         block.domNode.appendChild(posLabel);
                     }
-
-                    // console.log("projected value: " + projectedValue);
 
                     var highlight = this.browser.getHighlight();
                     if (highlight && highlight.ref == this.refSeq.name) {
