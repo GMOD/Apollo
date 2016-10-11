@@ -36,6 +36,7 @@ class VariantService {
                 Allele alternateAllele = new Allele(bases: upstreamBase, variant: variant).save()
                 variant.addToAlternateAlleles(alternateAllele)
                 log.info "alternate allele bases: ${alternateAllele.bases}"
+                variant.featureLocation.fmin = variant.featureLocation.fmin - 1
             }
             else if (variant instanceof Insertion) {
                 log.info "variant is instanceof Insertion"
@@ -51,6 +52,7 @@ class VariantService {
                     Allele alternateAllele = new Allele(bases: alternateBases, variant: variant).save()
                     variant.addToAlternateAlleles(alternateAllele)
                     log.info "alternate allele bases: ${alternateAllele.bases}"
+                    variant.featureLocation.fmax = variant.featureLocation.fmax + 1
                 }
             }
             else if (variant instanceof Substitution) {
