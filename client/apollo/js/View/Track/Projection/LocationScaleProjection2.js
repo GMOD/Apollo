@@ -50,20 +50,28 @@ define([
 
                     console.log("projecting with string: " + this.refSeq.name);
                     console.log("value: " + labelNumber);
-                    var projectedValue = window.parent.projectReverseValue(this.refSeq.name,labelNumber);
+                    var projectedValue = window.parent.getReverseProjection(this.refSeq.name,labelNumber);
+                    // var projectedValue = window.parent.projectReverseValue(this.refSeq.name,labelNumber);
                     console.log('POST-project: '+projectedValue);
-                    labelNumber = projectedValue ;
+                    labelNumber = projectedValue.reverseValue;
 
 
-                    var numtext = Util.addCommas(labelNumber);
-                    posLabel.className = this.labelClass;
+                    if(labelNumber>=0){
+                        // alert(projectedValue);
+                        // alert(projectedValue.reverseValue);
+                        // alert(projectedValue.originalValue);
+                        var numtext = Util.addCommas(labelNumber);
+                        posLabel.className = this.labelClass;
 
-                    // give the position label a negative left offset in ex's to
-                    // more-or-less center it over the left boundary of the block
-                    posLabel.style.left = "-" + Number(numtext.length) / 1.7 + labelOffset + "ex";
+                        // give the position label a negative left offset in ex's to
+                        // more-or-less center it over the left boundary of the block
+                        posLabel.style.left = "-" + Number(numtext.length) / 1.7 + labelOffset + "ex";
 
-                    posLabel.appendChild(document.createTextNode(numtext));
-                    block.domNode.appendChild(posLabel);
+                        posLabel.appendChild(document.createTextNode(numtext));
+                        posLabel.appendChild(document.createTextNode(projectedValue.sequence.name + " " + projectedValue.sequence.reverse));
+                        // posLabel.appendChild(document.createTextNode("&rarr; "+projectedValue.originalValue));
+                        block.domNode.appendChild(posLabel);
+                    }
 
                     // console.log("projected value: " + projectedValue);
 

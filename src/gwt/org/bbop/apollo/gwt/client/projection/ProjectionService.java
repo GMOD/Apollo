@@ -2,12 +2,13 @@ package org.bbop.apollo.gwt.client.projection;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocationInfo;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocations;
 import org.bbop.apollo.gwt.client.dto.assemblage.*;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -164,9 +165,47 @@ public class ProjectionService {
         return projectionSequence.getName();
     }
 
+    public static JavaScriptObject getReverseProjection(String referenceString, String inputString){
+        Integer input = Integer.parseInt(inputString);
+        return getReverseProjection(referenceString,(long) input);
+    }
+
+    public static JavaScriptObject getReverseProjection(String referenceString, Long input){
+        GWT.log("trying to project a sequence in GWT: "+input);
+        MultiSequenceProjection projection = getProjectionForString(referenceString);
+        Long reverseValue = projection.projectReverseValue(input);
+//        GWT.log("projected a value "+ projectedValue + " for " + input);
+
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("reverseValue",new JSONNumber(reverseValue));
+        jsonObject.put("originalValue",new JSONNumber(input));
+
+        ProjectionSequence projectionSequence = projection.getReverseProjectionSequence( input);
+        if(projectionSequence!=null){
+            jsonObject.put("sequence",convertToJsonObject(projectionSequence));
+        }
+
+
+        JavaScriptObject javaScriptObject = JsonUtils.safeEval(jsonObject.toString());
+        // TODO: convert to a JSON object
+        return javaScriptObject;
+    }
+
+    private static JSONObject convertToJsonObject(ProjectionSequence projectionSequence) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(projectionSequence.getName()));
+        jsonObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(projectionSequence.getStart()));
+        jsonObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(projectionSequence.getEnd()));
+        jsonObject.put(FeatureStringEnum.REVERSE.getValue(),JSONBoolean.getInstance(projectionSequence.getReverse()));
+        return jsonObject;
+    }
+
+
     public static native void exportStaticMethod() /*-{
         $wnd.projectValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectValue(Ljava/lang/String;Ljava/lang/String;));
         $wnd.projectReverseValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectReverseValue(Ljava/lang/String;Ljava/lang/String;));
         $wnd.projectReverseSequence = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectReverseSequence(Ljava/lang/String;Ljava/lang/String;));
+        $wnd.getReverseProjection = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getReverseProjection(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 }
