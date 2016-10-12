@@ -173,17 +173,18 @@ public class ProjectionService {
     public static JavaScriptObject getReverseProjection(String referenceString, Long input){
         GWT.log("trying to project a sequence in GWT: "+input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
-        Long reverseValue = projection.projectReverseValue(input);
-//        GWT.log("projected a value "+ projectedValue + " for " + input);
-
-
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("reverseValue",new JSONNumber(reverseValue));
         jsonObject.put("originalValue",new JSONNumber(input));
 
         ProjectionSequence projectionSequence = projection.getReverseProjectionSequence( input);
         if(projectionSequence!=null){
+            Long reverseValue = projection.projectReverseValue(input);
+            if(projectionSequence.getReverse()){
+                reverseValue = projectionSequence.getLength()-reverseValue;
+            }
+//            reverseValue += projectionSequence.getOriginalOffset();
             jsonObject.put("sequence",convertToJsonObject(projectionSequence));
+            jsonObject.put("reverseValue",new JSONNumber(reverseValue));
         }
 
 
