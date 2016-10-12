@@ -198,6 +198,8 @@ public class ProjectionService {
         jsonObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(projectionSequence.getStart()));
         jsonObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(projectionSequence.getEnd()));
         jsonObject.put(FeatureStringEnum.REVERSE.getValue(),JSONBoolean.getInstance(projectionSequence.getReverse()));
+        jsonObject.put("offset",new JSONNumber(projectionSequence.getOffset()));
+        jsonObject.put("originalOffset",new JSONNumber(projectionSequence.getOriginalOffset()));
         return jsonObject;
     }
 

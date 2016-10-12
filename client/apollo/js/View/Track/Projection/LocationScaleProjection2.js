@@ -53,7 +53,9 @@ define([
                     var projectedValue = window.parent.getReverseProjection(this.refSeq.name,labelNumber);
                     // var projectedValue = window.parent.projectReverseValue(this.refSeq.name,labelNumber);
                     console.log('POST-project: '+projectedValue);
-                    labelNumber = projectedValue.reverseValue;
+                    // alert(JSON.stringify(projectedValue));
+                    // labelNumber = projectedValue.reverseValue - projectedValue.sequence.offset;
+                    labelNumber = projectedValue.reverseValue ;
 
 
                     if(labelNumber>=0){
